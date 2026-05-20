@@ -1,0 +1,47 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'topup_execution_model.dart';
+
+// **************************************************************************
+// JsonSerializableGenerator
+// **************************************************************************
+
+_TopupExecution _$TopupExecutionFromJson(Map<String, dynamic> json) =>
+    _TopupExecution(
+      id: json['id'] as String,
+      scheduledTopupId: json['scheduled_topup_id'] as String?,
+      simLineId: json['sim_line_id'] as String,
+      userId: json['user_id'] as String,
+      amount: (json['amount'] as num).toDouble(),
+      currency: json['currency'] as String? ?? 'USD',
+      reloadlyTransactionId: json['reloadly_transaction_id'] as String?,
+      status: json['status'] as String? ?? 'pending',
+      failureReason: json['failure_reason'] as String?,
+      retryOf: json['retry_of'] as String?,
+      validityDaysAdded: (json['validity_days_added'] as num?)?.toInt(),
+      executedAt: DateTime.parse(json['executed_at'] as String),
+      completedAt: json['completed_at'] == null
+          ? null
+          : DateTime.parse(json['completed_at'] as String),
+      createdAt: json['created_at'] == null
+          ? null
+          : DateTime.parse(json['created_at'] as String),
+    );
+
+Map<String, dynamic> _$TopupExecutionToJson(_TopupExecution instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'scheduled_topup_id': instance.scheduledTopupId,
+      'sim_line_id': instance.simLineId,
+      'user_id': instance.userId,
+      'amount': instance.amount,
+      'currency': instance.currency,
+      'reloadly_transaction_id': instance.reloadlyTransactionId,
+      'status': instance.status,
+      'failure_reason': instance.failureReason,
+      'retry_of': instance.retryOf,
+      'validity_days_added': instance.validityDaysAdded,
+      'executed_at': instance.executedAt.toIso8601String(),
+      'completed_at': instance.completedAt?.toIso8601String(),
+      'created_at': instance.createdAt?.toIso8601String(),
+    };

@@ -1,0 +1,66 @@
+name: keep_sims
+description: "SIM Shield — Protect your expat SIM cards from deactivation."
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.11.5
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State Management
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
+
+  # Backend
+  supabase_flutter: ^2.12.4
+
+  # Routing
+  go_router: ^14.8.1
+
+  # Auth
+  google_sign_in: ^7.2.0
+
+  # UI / UX
+  flutter_svg: ^2.0.17
+  cached_network_image: ^3.4.1
+  shimmer: ^3.0.0
+  google_fonts: ^6.2.1
+  fl_chart: ^0.70.2
+  intl: ^0.20.2
+
+  # Utilities
+  url_launcher: ^6.3.1
+  flutter_secure_storage: ^9.2.4
+  http: ^1.2.2
+  freezed_annotation: ^3.0.0
+  json_annotation: ^4.9.0
+
+  # Functional Error Handling
+  dartz: ^0.10.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+  # Code Generation
+  build_runner: ^2.4.15
+  riverpod_generator: ^2.6.5
+  freezed: ^3.0.6
+  json_serializable: ^6.9.5
+  riverpod_lint: ^2.6.5
+
+  # Testing
+  mocktail: ^1.0.4
+  change_app_package_name: ^1.5.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/icons/
+    - assets/fonts/

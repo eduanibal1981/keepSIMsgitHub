@@ -1,0 +1,210 @@
+/// SIM Shield — GoRouter Configuration
+///
+/// Centralized routing with auth-based redirects.
+library;
+
+import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+import 'package:keep_sims/features/auth/controller/auth_controller.dart';
+import 'package:keep_sims/features/auth/ui/login_screen.dart';
+import 'package:keep_sims/features/profile/presentation/ui/onboarding_screen.dart';
+import 'package:keep_sims/core/router/placeholder_screens.dart';
+import 'package:keep_sims/features/dashboard/presentation/ui/dashboard_screen.dart';
+import 'package:keep_sims/features/sim_lines/presentation/screens/sim_lines_list_screen.dart';
+import 'package:keep_sims/features/sim_lines/presentation/screens/sim_line_form_screen.dart';
+import 'package:keep_sims/features/sim_lines/presentation/screens/sim_line_detail_screen.dart';
+import 'package:keep_sims/features/wallet/ui/wallet_screen.dart';
+import 'package:keep_sims/features/notifications/presentation/screens/notifications_screen.dart';
+import 'package:keep_sims/features/notifications/presentation/screens/notification_settings_screen.dart';
+import 'package:keep_sims/features/settings/presentation/screens/settings_screen.dart';
+import 'package:keep_sims/features/settings/presentation/screens/preferences_screen.dart';
+import 'package:keep_sims/features/household/presentation/screens/household_screen.dart';
+import 'package:keep_sims/features/referrals/ui/referrals_screen.dart';
+import 'package:keep_sims/features/payments/ui/payments_screen.dart';
+import 'package:keep_sims/features/geo/ui/geo_screen.dart';
+
+part 'app_router.g.dart';
+
+/// Route path constants to avoid magic strings.
+abstract final class AppRoutes {
+  static const String splash = '/';
+  static const String login = '/login';
+  static const String onboarding = '/onboarding';
+  static const String home = '/home';
+  static const String simLines = '/sim-lines';
+  static const String simLineDetail = '/sim-lines/detail/:id';
+  static const String wallet = '/wallet';
+  static const String notifications = '/notifications';
+  static const String settings = '/settings';
+  static const String household = '/household';
+  static const String profile = '/profile';
+  static const String referrals = '/settings/referrals';
+  static const String geo = '/settings/geo';
+  static const String preferences = '/settings/preferences';
+}
+
+
+/// Provides the app's GoRouter instance with auth-based redirects.
+@riverpod
+GoRouter appRouter(Ref ref) {
+  // Watch auth state to trigger redirect re-evaluation
+  final authState = ref.watch(authControllerProvider);
+
+  return GoRouter(
+    initialLocation: AppRoutes.splash,
+    debugLogDiagnostics: true,
+
+    // ── Auth Redirect Logic ──────────────────────────────────
+    redirect: (context, state) {
+      final isLoading = authState.isLoading;
+      final profile = authState.valueOrNull;
+      final isLoggedIn = profile != null;
+      final currentPath = state.uri.path;
+
+      // While loading, stay on splash
+      if (isLoading) {
+        return currentPath == AppRoutes.splash ? null : AppRoutes.splash;
+      }
+
+      // Not logged in → go to login (unless already there)
+      if (!isLoggedIn) {
+        return currentPath == AppRoutes.login ? null : AppRoutes.login;
+      }
+
+      // Logged in check onboarding
+      final onboardingCompleted = profile.onboardingCompleted;
+
+      if (!onboardingCompleted) {
+        return currentPath == AppRoutes.onboarding ? null : AppRoutes.onboarding;
+      }
+
+      // Logged in & onboarding complete but on splash, login, or onboarding → go to home
+      if (currentPath == AppRoutes.splash ||
+          currentPath == AppRoutes.login ||
+          currentPath == AppRoutes.onboarding) {
+        return AppRoutes.home;
+      }
+
+      // Otherwise, stay on current page
+      return null;
+    },
+
+    routes: [
+      // ── Splash / Auth Check ─────────────────────────────────
+      GoRoute(
+        path: AppRoutes.splash,
+        name: 'splash',
+        builder: (context, state) => const SplashScreen(),
+      ),
+
+      // ── Login ───────────────────────────────────────────────
+      GoRoute(
+        path: AppRoutes.login,
+        name: 'login',
+        builder: (context, state) => const LoginScreen(),
+      ),
+
+      // ── Onboarding ─────────────────────────────────────────
+      GoRoute(
+        path: AppRoutes.onboarding,
+        name: 'onboarding',
+        builder: (context, state) => const OnboardingScreen(),
+      ),
+
+
+      // ── Main App Shell ─────────────────────────────────────
+      ShellRoute(
+        builder: (context, state, child) => AppShell(child: child),
+        routes: [
+          GoRoute(
+            path: AppRoutes.home,
+            name: 'home',
+            builder: (context, state) => const DashboardScreen(),
+          ),
+          GoRoute(
+            path: AppRoutes.simLines,
+            name: 'simLines',
+            builder: (context, state) => const SimLinesListScreen(),
+            routes: [
+              GoRoute(
+                path: 'add',
+                name: 'simLineAdd',
+                builder: (context, state) => const SimLineFormScreen(),
+              ),
+              GoRoute(
+                path: 'edit/:id',
+                name: 'simLineEdit',
+                builder: (context, state) => SimLineFormScreen(
+                  id: state.pathParameters['id'],
+                ),
+              ),
+              GoRoute(
+                path: 'detail/:id',
+                name: 'simLineDetail',
+                builder: (context, state) => SimLineDetailScreen(
+                  id: state.pathParameters['id']!,
+                ),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: AppRoutes.wallet,
+            name: 'wallet',
+            builder: (context, state) => const WalletScreen(),
+          ),
+          GoRoute(
+            path: AppRoutes.notifications,
+            name: 'notifications',
+            builder: (context, state) => const NotificationsScreen(),
+            routes: [
+              GoRoute(
+                path: 'settings',
+                name: 'notificationSettings',
+                builder: (context, state) => const NotificationSettingsScreen(),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: AppRoutes.settings,
+            name: 'settings',
+            builder: (context, state) => const SettingsScreen(),
+            routes: [
+              GoRoute(
+                path: 'household',
+                name: 'settingsHousehold',
+                builder: (context, state) => const HouseholdScreen(),
+              ),
+              GoRoute(
+                path: 'referrals',
+                name: 'settingsReferrals',
+                builder: (context, state) => const ReferralsScreen(),
+              ),
+              GoRoute(
+                path: 'payments',
+                name: 'settingsPayments',
+                builder: (context, state) => const PaymentsScreen(),
+              ),
+              GoRoute(
+                path: 'geo',
+                name: 'settingsGeo',
+                builder: (context, state) => const GeoScreen(),
+              ),
+              GoRoute(
+                path: 'preferences',
+                name: 'settingsPreferences',
+                builder: (context, state) => const PreferencesScreen(),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: AppRoutes.household,
+            name: 'household',
+            builder: (context, state) => const HouseholdScreen(),
+          ),
+        ],
+      ),
+    ],
+  );
+}
