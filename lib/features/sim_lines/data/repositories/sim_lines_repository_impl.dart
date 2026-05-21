@@ -161,9 +161,26 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
           .eq('is_supported', true)
           .order('name', ascending: true);
 
-      return (response as List)
+      final countries = (response as List)
           .map((json) => Country.fromJson(json as Map<String, dynamic>))
           .toList();
+
+      const preferredOrder = [
+        'Egypt', 'India', 'Pakistan', 'Bangladesh', 'Philippines', 
+        'Syria', 'Lebanon', 'Sudan', 'Yemen', 'Turkey', 
+        'Jordan', 'Tunisia', 'Morocco', 'Algeria'
+      ];
+
+      countries.sort((a, b) {
+        final aIndex = preferredOrder.indexOf(a.name);
+        final bIndex = preferredOrder.indexOf(b.name);
+        if (aIndex != -1 && bIndex != -1) return aIndex.compareTo(bIndex);
+        if (aIndex != -1) return -1;
+        if (bIndex != -1) return 1;
+        return a.name.compareTo(b.name);
+      });
+
+      return countries;
     } on PostgrestException catch (e) {
       throw Exception('Failed to load countries: ${e.message}');
     }

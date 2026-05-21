@@ -51,7 +51,6 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
     final line = lines.firstWhereOrNull((l) => l.id == widget.id);
     if (line == null) return;
 
-    _phoneController.text = line.phoneNumber;
     _nicknameController.text = line.nickname ?? '';
     _selectedIcon = line.avatarIcon;
     _selectedTier = line.protectionTier;
@@ -60,24 +59,17 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
       _selectedCountry = countries.firstWhereOrNull((c) => c.id == line.countryId);
     }
 
+    if (_selectedCountry != null && line.phoneNumber.startsWith(_selectedCountry!.dialingCode)) {
+      _phoneController.text = line.phoneNumber.substring(_selectedCountry!.dialingCode.length).trim();
+    } else {
+      _phoneController.text = line.phoneNumber;
+    }
+
     _hasPrepopulated = true;
   }
 
   void _onPhoneChanged(String val, List<Country> countries) {
-    // Basic auto-detection of country from dial code (e.g. +20 -> Egypt)
-    if (val.startsWith('+')) {
-      for (final c in countries) {
-        if (val.startsWith(c.dialingCode) && val.length > c.dialingCode.length) {
-          if (_selectedCountry?.id != c.id) {
-            setState(() {
-              _selectedCountry = c;
-              _selectedCarrier = null; // Reset carrier on country auto-change
-            });
-          }
-          break;
-        }
-      }
-    }
+    // Basic auto-detection no longer needed since country is chosen first.
   }
 
   @override
@@ -128,35 +120,62 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Country Selection Lookups
+                    _buildSectionHeader('COUNTRY OF HOME'),
+                    const SizedBox(height: 12),
+                    _buildCountryPicker(countries),
+                    const SizedBox(height: 24),
+
                     // Phone Number Field
                     _buildSectionHeader('SIM PHONE NUMBER'),
                     const SizedBox(height: 12),
-                    TextFormField(
-                      controller: _phoneController,
-                      keyboardType: TextInputType.phone,
-                      style: const TextStyle(color: Colors.white, fontSize: 16, fontFamily: 'monospace'),
-                      decoration: _buildInputDecoration(
-                        hintText: '+20 100 123 4567',
-                        icon: Icons.phone_android,
-                        prefixText: _selectedCountry != null ? '${_selectedCountry!.flagEmoji} ' : '🌐 ',
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter phone number';
-                        }
-                        if (!value.startsWith('+')) {
-                          return 'Phone number must include international code (starts with +)';
-                        }
-                        return null;
-                      },
-                      onChanged: (val) => _onPhoneChanged(val, countries),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                          decoration: BoxDecoration(
+                            color: AppColors.darkCard,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: AppColors.darkBorder),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                _selectedCountry != null ? _selectedCountry!.flagEmoji : '🌐',
+                                style: const TextStyle(fontSize: 20),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                _selectedCountry?.dialingCode ?? '+00',
+                                style: const TextStyle(color: Colors.white, fontSize: 16, fontFamily: 'monospace'),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: TextFormField(
+                            controller: _phoneController,
+                            keyboardType: TextInputType.phone,
+                            style: const TextStyle(color: Colors.white, fontSize: 16, fontFamily: 'monospace'),
+                            decoration: _buildInputDecoration(
+                              hintText: '100 123 4567',
+                              icon: Icons.phone_android,
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter phone number';
+                              }
+                              if (_selectedCountry == null) {
+                                return 'Please select a country first';
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 24),
-
-                    // Country Selection Lookups
-                    _buildSectionHeader('COUNTRY'),
-                    const SizedBox(height: 12),
-                    _buildCountryPicker(countries),
                     const SizedBox(height: 24),
 
                     // Dynamic Carrier brand dropdown
@@ -494,11 +513,6 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                         setState(() {
                           _selectedCountry = c;
                           _selectedCarrier = null; // Reset carrier
-                          
-                          // Pre-fill phone dialing code if input is empty
-                          if (_phoneController.text.isEmpty) {
-                            _phoneController.text = c.dialingCode;
-                          }
                         });
                         Navigator.pop(context);
                       },
@@ -536,8 +550,14 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
         final line = currentLines.firstWhereOrNull((l) => l.id == widget.id);
         if (line == null) throw StateError('SIM line not found for ID: ${widget.id}');
         
+        String localNumber = _phoneController.text.trim();
+        if (localNumber.startsWith('0')) {
+          localNumber = localNumber.substring(1);
+        }
+        final fullPhoneNumber = '${_selectedCountry!.dialingCode}$localNumber';
+        
         final updatedLine = line.copyWith(
-          phoneNumber: _phoneController.text,
+          phoneNumber: fullPhoneNumber,
           nickname: _nicknameController.text.isNotEmpty ? _nicknameController.text : null,
           avatarIcon: _selectedIcon,
           countryId: _selectedCountry?.id,
@@ -547,8 +567,14 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
 
         await ref.read(simLinesControllerProvider.notifier).updateSimLine(updatedLine);
       } else {
+        String localNumber = _phoneController.text.trim();
+        if (localNumber.startsWith('0')) {
+          localNumber = localNumber.substring(1);
+        }
+        final fullPhoneNumber = '${_selectedCountry!.dialingCode}$localNumber';
+        
         await ref.read(simLinesControllerProvider.notifier).addSimLine(
-              phoneNumber: _phoneController.text,
+              phoneNumber: fullPhoneNumber,
               nickname: _nicknameController.text.isNotEmpty ? _nicknameController.text : null,
               avatarIcon: _selectedIcon,
               countryId: _selectedCountry?.id,
