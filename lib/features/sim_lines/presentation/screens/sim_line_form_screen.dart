@@ -539,6 +539,25 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
       return;
     }
 
+    String localNumber = _phoneController.text.trim();
+    if (localNumber.startsWith('0')) {
+      localNumber = localNumber.substring(1);
+    }
+    final fullPhoneNumber = '${_selectedCountry!.dialingCode}$localNumber';
+
+    final currentLines = ref.read(simLinesControllerProvider).valueOrNull ?? [];
+    final isDuplicate = currentLines.any((l) => l.phoneNumber == fullPhoneNumber && l.id != widget.id);
+    
+    if (isDuplicate) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('This phone number is already protected in your account.'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+
     setState(() {
       _isSaving = true;
     });
@@ -546,15 +565,8 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
     try {
       if (_isEdit) {
         // Fetch current line copy to update
-        final currentLines = ref.read(simLinesControllerProvider).valueOrNull ?? [];
         final line = currentLines.firstWhereOrNull((l) => l.id == widget.id);
         if (line == null) throw StateError('SIM line not found for ID: ${widget.id}');
-        
-        String localNumber = _phoneController.text.trim();
-        if (localNumber.startsWith('0')) {
-          localNumber = localNumber.substring(1);
-        }
-        final fullPhoneNumber = '${_selectedCountry!.dialingCode}$localNumber';
         
         final updatedLine = line.copyWith(
           phoneNumber: fullPhoneNumber,
@@ -567,12 +579,6 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
 
         await ref.read(simLinesControllerProvider.notifier).updateSimLine(updatedLine);
       } else {
-        String localNumber = _phoneController.text.trim();
-        if (localNumber.startsWith('0')) {
-          localNumber = localNumber.substring(1);
-        }
-        final fullPhoneNumber = '${_selectedCountry!.dialingCode}$localNumber';
-        
         await ref.read(simLinesControllerProvider.notifier).addSimLine(
               phoneNumber: fullPhoneNumber,
               nickname: _nicknameController.text.isNotEmpty ? _nicknameController.text : null,
