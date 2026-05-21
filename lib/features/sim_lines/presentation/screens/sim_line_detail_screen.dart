@@ -277,23 +277,30 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
 
   // ── 2. Health & Circular score UI ──────────────────────────────────────────
   Widget _buildHealthScoreSection(BuildContext context, SimLineDetailState detail) {
-    final score = detail.simLine.healthScore;
+    bool hasAutoRefill = detail.scheduledTopup != null && detail.scheduledTopup!.status == 'active';
+    bool isVerified = detail.simLine.status == 'active';
+    bool recentRefill = detail.simLine.lastTopupAt != null && DateTime.now().difference(detail.simLine.lastTopupAt!).inDays <= 80;
+    
+    int dynamicScore = (hasAutoRefill ? 50 : 0) + (isVerified ? 25 : 0) + (recentRefill ? 25 : 0);
+    final score = dynamicScore;
+
+    List<String> missingReasons = [];
+    if (!hasAutoRefill) missingReasons.add("Missing 50%: Configure an Auto-Refill schedule.");
+    if (!isVerified) missingReasons.add("Missing 25%: Verify your line activity.");
+    if (!recentRefill) missingReasons.add("Missing 25%: Last refill was more than 80 days ago.");
+
     Color scoreColor = AppColors.healthGreen;
     String rating = 'SECURE';
     String description = 'Your SIM card has active automated refill protection configured.';
 
-    if (score < 30) {
+    if (score < 50) {
       scoreColor = AppColors.healthRed;
       rating = 'CRITICAL RISK';
-      description = 'Refill schedule is disabled or missing. Enable auto-renewal immediately to prevent card expiry!';
-    } else if (score < 60) {
+      description = 'Multiple protection layers missing. Secure your line immediately to prevent deactivation.';
+    } else if (score < 100) {
       scoreColor = AppColors.healthAmber;
       rating = 'WARNING';
-      description = 'Last renewal attempt failed, or renewal due soon. Refill to restore score.';
-    } else if (score < 100) {
-      scoreColor = AppColors.healthGreen;
-      rating = 'PROTECTED';
-      description = 'Auto-renewal schedule is active, but you can optimize to 100 with a successful top-up.';
+      description = 'Your line is partially protected. Address the missing criteria to reach 100%.';
     }
 
     return Container(
@@ -355,6 +362,25 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                       description,
                       style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondaryDark),
                     ),
+                    if (missingReasons.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      ...missingReasons.map((reason) => Padding(
+                            padding: const EdgeInsets.only(top: 4.0),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Icon(Icons.info_outline, size: 14, color: AppColors.healthAmber),
+                                const SizedBox(width: 6),
+                                Expanded(
+                                  child: Text(
+                                    reason,
+                                    style: AppTextStyles.caption.copyWith(color: AppColors.healthAmber),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )),
+                    ],
                   ],
                 ),
               ),
