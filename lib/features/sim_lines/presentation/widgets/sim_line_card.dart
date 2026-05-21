@@ -43,6 +43,12 @@ class SimLineCard extends ConsumerWidget {
     final resolvedCountry = country ??
         ref.watch(supportedCountriesProvider).valueOrNull?.firstWhereOrNull((c) => c.id == line.countryId);
 
+    final schedule = ref.watch(scheduledTopupForLineProvider(line.id));
+    bool hasAutoRefill = schedule != null && schedule.status == 'active';
+    bool isVerified = line.status == 'active';
+    bool recentRefill = line.lastTopupAt != null && DateTime.now().difference(line.lastTopupAt!).inDays <= 80;
+    int computedHealthScore = (hasAutoRefill ? 50 : 0) + (isVerified ? 25 : 0) + (recentRefill ? 25 : 0);
+
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       color: isSelected ? AppColors.darkCard.withBlue(35).withGreen(10) : AppColors.darkCard,
@@ -146,7 +152,7 @@ class SimLineCard extends ConsumerWidget {
                   ),
 
                   // Health Score Indicator Ring
-                  _buildHealthScoreRing(line.healthScore),
+                  _buildHealthScoreRing(computedHealthScore),
 
                   // Action menu
                   if (!isShared && showActions)
