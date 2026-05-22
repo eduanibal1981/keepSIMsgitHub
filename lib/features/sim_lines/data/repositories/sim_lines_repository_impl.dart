@@ -23,7 +23,8 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
       final response = await _supabase
           .from('sim_lines')
           .select()
-          .order('created_at', ascending: false);
+          .order('created_at', ascending: false)
+          .order('id', ascending: true);
 
       return (response as List)
           .map((json) => SimLine.fromJson(json as Map<String, dynamic>))
