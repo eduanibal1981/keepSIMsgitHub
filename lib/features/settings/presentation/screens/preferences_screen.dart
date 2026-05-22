@@ -521,10 +521,10 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.dark(
-              primary: Color(0xFF8B5CF6),
+            colorScheme: ColorScheme.dark(
+              primary: const Color(0xFF8B5CF6),
               onPrimary: context.onSurfaceColor,
-              surface: Color(0xFF0F172A),
+              surface: const Color(0xFF0F172A),
               onSurface: context.onSurfaceColor,
             ),
           ),
