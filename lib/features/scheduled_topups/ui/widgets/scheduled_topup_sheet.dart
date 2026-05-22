@@ -380,6 +380,7 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
 
   Future<void> _handleSave() async {
     setState(() => _isSaving = true);
+    try {
       DateTime calculatedNextExecution;
       if (widget.existingSchedule != null && widget.existingSchedule!.frequencyDays == _frequencyDays) {
         calculatedNextExecution = widget.existingSchedule!.nextExecutionAt;
