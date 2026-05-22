@@ -98,7 +98,7 @@ class DashboardScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // ── Header Row ──────────────────────────────────────────
-              _buildHeader(welcomeName, isPowerUser),
+              _buildHeader(context, welcomeName, isPowerUser),
               const SizedBox(height: 24),
 
               // ── "At a Glance" Glassmorphic Hero Card ──────────────────
@@ -110,7 +110,7 @@ class DashboardScreen extends ConsumerWidget {
               const SizedBox(height: 28),
 
               // ── Recent Activity timeline ────────────────────────────
-              _buildActivityTimeline(data.recentActivities),
+              _buildActivityTimeline(context, data.recentActivities),
             ],
           ),
         ),
@@ -119,7 +119,7 @@ class DashboardScreen extends ConsumerWidget {
   }
 
   // ── Header Widget ───────────────────────────────────────────────
-  Widget _buildHeader(String name, bool isPowerUser) {
+  Widget _buildHeader(BuildContext context, String name, bool isPowerUser) {
     return Row(
       children: [
         // Glowing Avatar placeholder
@@ -325,11 +325,11 @@ class DashboardScreen extends ConsumerWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        _buildHeroStat(
+                        _buildHeroStat(context, 
                           'Lines Active',
                           '${data.totalLines} Protected',
                         ),
-                        _buildHeroStat(
+                        _buildHeroStat(context, 
                           'Next Top-Up',
                           '${data.nextTopUpDays} Days Left',
                         ),
@@ -425,7 +425,7 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildHeroStat(String title, String value) {
+  Widget _buildHeroStat(BuildContext context, String title, String value) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -597,7 +597,7 @@ class DashboardScreen extends ConsumerWidget {
   }
 
   // ── Recent Activity timeline Widget ─────────────────────────────
-  Widget _buildActivityTimeline(List<DashboardActivity> activities) {
+  Widget _buildActivityTimeline(BuildContext context, List<DashboardActivity> activities) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
