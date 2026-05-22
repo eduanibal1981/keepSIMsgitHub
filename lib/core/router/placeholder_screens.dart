@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import 'package:keep_sims/core/router/app_router.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
+import 'package:keep_sims/core/utils/theme_extension.dart';
 
 // ── Splash Screen ─────────────────────────────────────────────
 class SplashScreen extends StatefulWidget {
@@ -264,9 +265,9 @@ class AppShell extends StatelessWidget {
     return Scaffold(
       body: child,
       bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           border: Border(
-            top: BorderSide(color: AppColors.darkBorder, width: 1),
+            top: BorderSide(color: context.onSurfaceColor.withValues(alpha: 0.1), width: 1),
           ),
         ),
         child: NavigationBar(
@@ -285,44 +286,44 @@ class AppShell extends StatelessWidget {
                 context.go(AppRoutes.settings);
             }
           },
-          backgroundColor: AppColors.darkSurface,
+          backgroundColor: context.surfaceColor,
           indicatorColor: AppColors.primary.withValues(alpha: 0.15),
-          destinations: const [
+          destinations: [
             NavigationDestination(
-              icon: Icon(Icons.dashboard_outlined),
-              selectedIcon: Icon(
+              icon: Icon(Icons.dashboard_outlined, color: context.onSurfaceColor.withValues(alpha: 0.6)),
+              selectedIcon: const Icon(
                 Icons.dashboard_rounded,
                 color: AppColors.primary,
               ),
               label: 'Home',
             ),
             NavigationDestination(
-              icon: Icon(Icons.sim_card_outlined),
-              selectedIcon: Icon(
+              icon: Icon(Icons.sim_card_outlined, color: context.onSurfaceColor.withValues(alpha: 0.6)),
+              selectedIcon: const Icon(
                 Icons.sim_card_rounded,
                 color: AppColors.primary,
               ),
               label: 'SIM Lines',
             ),
             NavigationDestination(
-              icon: Icon(Icons.account_balance_wallet_outlined),
-              selectedIcon: Icon(
+              icon: Icon(Icons.account_balance_wallet_outlined, color: context.onSurfaceColor.withValues(alpha: 0.6)),
+              selectedIcon: const Icon(
                 Icons.account_balance_wallet_rounded,
                 color: AppColors.primary,
               ),
               label: 'Wallet',
             ),
             NavigationDestination(
-              icon: Icon(Icons.notifications_outlined),
-              selectedIcon: Icon(
+              icon: Icon(Icons.notifications_outlined, color: context.onSurfaceColor.withValues(alpha: 0.6)),
+              selectedIcon: const Icon(
                 Icons.notifications_rounded,
                 color: AppColors.primary,
               ),
               label: 'Alerts',
             ),
             NavigationDestination(
-              icon: Icon(Icons.settings_outlined),
-              selectedIcon: Icon(
+              icon: Icon(Icons.settings_outlined, color: context.onSurfaceColor.withValues(alpha: 0.6)),
+              selectedIcon: const Icon(
                 Icons.settings_rounded,
                 color: AppColors.primary,
               ),
