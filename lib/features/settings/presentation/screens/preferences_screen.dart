@@ -563,12 +563,13 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_ios_new_rounded,
             color: context.onSurfaceColor,
           ),
           onPressed: () async {
             await HapticHelper.lightTick();
+            if (!context.mounted) return;
             context.pop();
           },
         ),
