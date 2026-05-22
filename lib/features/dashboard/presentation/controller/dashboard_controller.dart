@@ -87,7 +87,11 @@ class DashboardController extends _$DashboardController {
   }
 
   /// Aggregates real wallet and sim line state values.
-  DashboardState _fetchDashboardData(WalletState walletState, List<SimLine> simLines, List<ScheduledTopup> schedules) {
+  DashboardState _fetchDashboardData(
+    WalletState walletState,
+    List<SimLine> simLines,
+    List<ScheduledTopup> schedules,
+  ) {
     final balance = walletState.wallet.balance;
     final transactions = walletState.transactions;
 
@@ -116,16 +120,19 @@ class DashboardController extends _$DashboardController {
         }
       }
 
-      recentActivities.add(DashboardActivity(
-        id: tx.id,
-        title: tx.description ?? (isDeposit ? 'Deposit Funds' : 'Line Renewal'),
-        subtitle: isDeposit
-            ? '+\$${tx.amount.toStringAsFixed(2)} USD added'
-            : '-\$${tx.amount.toStringAsFixed(2)} USD',
-        type: typeStr,
-        timeAgo: timeAgoStr,
-        isSuccess: true,
-      ));
+      recentActivities.add(
+        DashboardActivity(
+          id: tx.id,
+          title:
+              tx.description ?? (isDeposit ? 'Deposit Funds' : 'Line Renewal'),
+          subtitle: isDeposit
+              ? '+\$${tx.amount.toStringAsFixed(2)} USD added'
+              : '-\$${tx.amount.toStringAsFixed(2)} USD',
+          type: typeStr,
+          timeAgo: timeAgoStr,
+          isSuccess: true,
+        ),
+      );
     }
 
     if (recentActivities.isEmpty) {
@@ -156,7 +163,8 @@ class DashboardController extends _$DashboardController {
     SimLine? lastChargedLine;
     for (final line in simLines) {
       if (line.lastTopupAt != null) {
-        if (lastChargedLine == null || line.lastTopupAt!.isAfter(lastChargedLine.lastTopupAt!)) {
+        if (lastChargedLine == null ||
+            line.lastTopupAt!.isAfter(lastChargedLine.lastTopupAt!)) {
           lastChargedLine = line;
         }
       }
@@ -179,7 +187,9 @@ class DashboardController extends _$DashboardController {
         final diff = line.nextTopupDue!.difference(DateTime.now()).inDays;
         if (diff >= 0 && (!foundNextDue || diff < nextTopUpDays)) {
           nextTopUpDays = diff;
-          final schedule = schedules.where((s) => s.simLineId == line.id && s.status == 'active').firstOrNull;
+          final schedule = schedules
+              .where((s) => s.simLineId == line.id && s.status == 'active')
+              .firstOrNull;
           if (schedule != null && schedule.frequencyDays > 0) {
             nextTopUpTotalDays = schedule.frequencyDays;
           } else {

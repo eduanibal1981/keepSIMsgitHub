@@ -57,9 +57,7 @@ abstract final class AppTheme {
         foregroundColor: Colors.white,
         elevation: 0,
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         textStyle: AppTextStyles.titleMedium,
       ),
     ),
@@ -69,9 +67,7 @@ abstract final class AppTheme {
         foregroundColor: AppColors.primary,
         side: const BorderSide(color: AppColors.primary),
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         textStyle: AppTextStyles.titleMedium,
       ),
     ),
@@ -133,9 +129,7 @@ abstract final class AppTheme {
       contentTextStyle: AppTextStyles.bodyMedium.copyWith(
         color: AppColors.textPrimaryDark,
       ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       behavior: SnackBarBehavior.floating,
     ),
 
@@ -144,9 +138,7 @@ abstract final class AppTheme {
       backgroundColor: AppColors.darkCard,
       selectedColor: AppColors.primary.withValues(alpha: 0.2),
       labelStyle: AppTextStyles.labelMedium,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       side: const BorderSide(color: AppColors.darkBorder),
     ),
 
@@ -161,9 +153,7 @@ abstract final class AppTheme {
     // Dialog
     dialogTheme: DialogThemeData(
       backgroundColor: AppColors.darkSurface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
     ),
   );
 
@@ -211,9 +201,7 @@ abstract final class AppTheme {
         foregroundColor: Colors.white,
         elevation: 0,
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         textStyle: AppTextStyles.titleMedium,
       ),
     ),
@@ -258,9 +246,7 @@ abstract final class AppTheme {
 
     dialogTheme: DialogThemeData(
       backgroundColor: AppColors.lightSurface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
     ),
   );
 }

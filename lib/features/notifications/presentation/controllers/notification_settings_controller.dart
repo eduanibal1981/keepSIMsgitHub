@@ -70,10 +70,7 @@ class UserPreferencesController extends _$UserPreferencesController {
     final current = state.value;
     if (current == null) return;
     await updatePreferences(
-      current.copyWith(
-        quietHoursStart: start,
-        quietHoursEnd: end,
-      ),
+      current.copyWith(quietHoursStart: start, quietHoursEnd: end),
     );
   }
 

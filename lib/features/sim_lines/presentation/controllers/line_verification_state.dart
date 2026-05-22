@@ -1,10 +1,4 @@
-enum LineVerificationStatus {
-  idle,
-  triggering,
-  ringing,
-  success,
-  failure,
-}
+enum LineVerificationStatus { idle, triggering, ringing, success, failure }
 
 class LineVerificationState {
   final LineVerificationStatus status;
@@ -18,29 +12,29 @@ class LineVerificationState {
   });
 
   const LineVerificationState.idle()
-      : status = LineVerificationStatus.idle,
-        errorMessage = null,
-        callSid = null;
+    : status = LineVerificationStatus.idle,
+      errorMessage = null,
+      callSid = null;
 
   const LineVerificationState.triggering()
-      : status = LineVerificationStatus.triggering,
-        errorMessage = null,
-        callSid = null;
+    : status = LineVerificationStatus.triggering,
+      errorMessage = null,
+      callSid = null;
 
   const LineVerificationState.ringing(String sid)
-      : status = LineVerificationStatus.ringing,
-        errorMessage = null,
-        callSid = sid;
+    : status = LineVerificationStatus.ringing,
+      errorMessage = null,
+      callSid = sid;
 
   const LineVerificationState.success()
-      : status = LineVerificationStatus.success,
-        errorMessage = null,
-        callSid = null;
+    : status = LineVerificationStatus.success,
+      errorMessage = null,
+      callSid = null;
 
   const LineVerificationState.failure(String message)
-      : status = LineVerificationStatus.failure,
-        errorMessage = message,
-        callSid = null;
+    : status = LineVerificationStatus.failure,
+      errorMessage = message,
+      callSid = null;
 
   LineVerificationState copyWith({
     LineVerificationStatus? status,

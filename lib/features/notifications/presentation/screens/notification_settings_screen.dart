@@ -13,61 +13,71 @@ class NotificationSettingsScreen extends ConsumerWidget {
   static final Map<String, _CategoryMeta> _meta = {
     'top_up_success': _CategoryMeta(
       name: 'Top-up Successful',
-      description: 'Notify me when an automatic SIM validity extension is completed successfully.',
+      description:
+          'Notify me when an automatic SIM validity extension is completed successfully.',
       icon: Icons.check_circle_rounded,
       color: AppColors.success,
     ),
     'top_up_failed': _CategoryMeta(
       name: 'Top-up Failed (Critical)',
-      description: 'Critical alerts when automatic top-ups fail due to carrier or wallet issues.',
+      description:
+          'Critical alerts when automatic top-ups fail due to carrier or wallet issues.',
       icon: Icons.error_outline_rounded,
       color: AppColors.healthRed,
     ),
     'wallet_low': _CategoryMeta(
       name: 'Low Wallet Balance',
-      description: 'Warn me when primary balance drops below the safety threshold.',
+      description:
+          'Warn me when primary balance drops below the safety threshold.',
       icon: Icons.warning_amber_rounded,
       color: AppColors.warning,
     ),
     'wallet_depleted': _CategoryMeta(
       name: 'Wallet Depleted',
-      description: 'Suspended alerts when wallet balance is fully exhausted and renewals halt.',
+      description:
+          'Suspended alerts when wallet balance is fully exhausted and renewals halt.',
       icon: Icons.dangerous_rounded,
       color: AppColors.healthRed,
     ),
     'line_critical': _CategoryMeta(
       name: 'Validity Expiry Warning',
-      description: 'Warn me when a SIM validity window is ending within 48 hours.',
+      description:
+          'Warn me when a SIM validity window is ending within 48 hours.',
       icon: Icons.timelapse_rounded,
       color: AppColors.healthRed,
     ),
     'line_entering_grace': _CategoryMeta(
       name: 'Entering Grace Period',
-      description: 'Notify me when carrier deactivation grace periods are detected.',
+      description:
+          'Notify me when carrier deactivation grace periods are detected.',
       icon: Icons.hourglass_bottom_rounded,
       color: AppColors.warning,
     ),
     'geo_fence_triggered': _CategoryMeta(
       name: 'Location / Roaming Alerts',
-      description: 'Alerts when carrier switches roaming clusters or network nodes.',
+      description:
+          'Alerts when carrier switches roaming clusters or network nodes.',
       icon: Icons.explore_rounded,
       color: AppColors.info,
     ),
     'welcome_home_ready': _CategoryMeta(
       name: 'Welcome Home Sync',
-      description: 'Alerts when home-country network node triggers automated syncs.',
+      description:
+          'Alerts when home-country network node triggers automated syncs.',
       icon: Icons.home_work_rounded,
       color: AppColors.info,
     ),
     'referral_reward': _CategoryMeta(
       name: 'Referral & Rewards',
-      description: 'Notify me when friend referrals deposit promotional balances into my wallet.',
+      description:
+          'Notify me when friend referrals deposit promotional balances into my wallet.',
       icon: Icons.card_giftcard_rounded,
       color: const Color(0xFFEC4899),
     ),
     'system': _CategoryMeta(
       name: 'General System Updates',
-      description: 'Vital engine updates, maintenance, and platform announcements.',
+      description:
+          'Vital engine updates, maintenance, and platform announcements.',
       icon: Icons.settings_suggest_rounded,
       color: AppColors.primary,
     ),
@@ -84,7 +94,10 @@ class NotificationSettingsScreen extends ConsumerWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimaryDark),
+          icon: const Icon(
+            Icons.arrow_back_rounded,
+            color: AppColors.textPrimaryDark,
+          ),
           onPressed: () async {
             await HapticHelper.lightTick();
             Navigator.pop(context);
@@ -131,7 +144,9 @@ class NotificationSettingsScreen extends ConsumerWidget {
               error: (err, _) => Center(
                 child: Text(
                   'Failed to load alert channels.',
-                  style: AppTextStyles.bodyMedium.copyWith(color: AppColors.healthRed),
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: AppColors.healthRed,
+                  ),
                 ),
               ),
             ),
@@ -155,7 +170,11 @@ class NotificationSettingsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildQuietHoursCard(BuildContext context, WidgetRef ref, dynamic prefs) {
+  Widget _buildQuietHoursCard(
+    BuildContext context,
+    WidgetRef ref,
+    dynamic prefs,
+  ) {
     final startVal = prefs.quietHoursStart;
     final endVal = prefs.quietHoursEnd;
     final isQuietHoursActive = startVal != null && endVal != null;
@@ -178,17 +197,25 @@ class NotificationSettingsScreen extends ConsumerWidget {
             inactiveTrackColor: AppColors.darkBorder,
             title: Row(
               children: [
-                const Icon(Icons.nights_stay_rounded, color: AppColors.secondary, size: 20),
+                const Icon(
+                  Icons.nights_stay_rounded,
+                  color: AppColors.secondary,
+                  size: 20,
+                ),
                 const SizedBox(width: 12),
                 Text(
                   'Do Not Disturb (Quiet Hours)',
-                  style: AppTextStyles.titleMedium.copyWith(color: AppColors.textPrimaryDark),
+                  style: AppTextStyles.titleMedium.copyWith(
+                    color: AppColors.textPrimaryDark,
+                  ),
                 ),
               ],
             ),
             subtitle: Text(
               'Mute push notifications during specified sleep hours.',
-              style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondaryDark),
+              style: AppTextStyles.bodySmall.copyWith(
+                color: AppColors.textSecondaryDark,
+              ),
             ),
             onChanged: (active) async {
               await HapticHelper.mediumImpact();
@@ -254,17 +281,25 @@ class NotificationSettingsScreen extends ConsumerWidget {
             inactiveTrackColor: AppColors.darkBorder,
             title: Row(
               children: [
-                const Icon(Icons.summarize_rounded, color: AppColors.primaryLight, size: 20),
+                const Icon(
+                  Icons.summarize_rounded,
+                  color: AppColors.primaryLight,
+                  size: 20,
+                ),
                 const SizedBox(width: 12),
                 Text(
                   'Weekly Summary Digest',
-                  style: AppTextStyles.titleMedium.copyWith(color: AppColors.textPrimaryDark),
+                  style: AppTextStyles.titleMedium.copyWith(
+                    color: AppColors.textPrimaryDark,
+                  ),
                 ),
               ],
             ),
             subtitle: Text(
               'Compiled status report of all SIM cards every Sunday at 9:00 AM.',
-              style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondaryDark),
+              style: AppTextStyles.bodySmall.copyWith(
+                color: AppColors.textSecondaryDark,
+              ),
             ),
             onChanged: (active) async {
               await HapticHelper.mediumImpact();
@@ -322,7 +357,9 @@ class NotificationSettingsScreen extends ConsumerWidget {
           children: [
             Text(
               label,
-              style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiaryDark),
+              style: AppTextStyles.bodySmall.copyWith(
+                color: AppColors.textTertiaryDark,
+              ),
             ),
             const SizedBox(height: 4),
             Row(
@@ -335,7 +372,11 @@ class NotificationSettingsScreen extends ConsumerWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const Icon(Icons.access_time_rounded, size: 16, color: AppColors.textSecondaryDark),
+                const Icon(
+                  Icons.access_time_rounded,
+                  size: 16,
+                  color: AppColors.textSecondaryDark,
+                ),
               ],
             ),
           ],
@@ -349,7 +390,10 @@ class NotificationSettingsScreen extends ConsumerWidget {
       return const Center(
         child: Padding(
           padding: EdgeInsets.all(16.0),
-          child: Text('No channels initialized.', style: TextStyle(color: AppColors.textTertiaryDark)),
+          child: Text(
+            'No channels initialized.',
+            style: TextStyle(color: AppColors.textTertiaryDark),
+          ),
         ),
       );
     }
@@ -361,7 +405,8 @@ class NotificationSettingsScreen extends ConsumerWidget {
       itemCount: settings.length,
       itemBuilder: (context, index) {
         final item = settings[index];
-        final metadata = _meta[item.category] ??
+        final metadata =
+            _meta[item.category] ??
             _CategoryMeta(
               name: item.category,
               description: 'General notification alerts.',
@@ -399,7 +444,9 @@ class NotificationSettingsScreen extends ConsumerWidget {
                   ),
                   child: Icon(
                     metadata.icon,
-                    color: item.isEnabled ? metadata.color : AppColors.textTertiaryDark,
+                    color: item.isEnabled
+                        ? metadata.color
+                        : AppColors.textTertiaryDark,
                     size: 16,
                   ),
                 ),
@@ -408,7 +455,9 @@ class NotificationSettingsScreen extends ConsumerWidget {
                   child: Text(
                     metadata.name,
                     style: AppTextStyles.titleMedium.copyWith(
-                      color: item.isEnabled ? AppColors.textPrimaryDark : AppColors.textSecondaryDark,
+                      color: item.isEnabled
+                          ? AppColors.textPrimaryDark
+                          : AppColors.textSecondaryDark,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -439,7 +488,8 @@ class NotificationSettingsScreen extends ConsumerWidget {
 
   // --- TimeOfDay Parsers ---
   TimeOfDay _parseTimeOfDay(String? timeStr) {
-    if (timeStr == null || timeStr.isEmpty) return const TimeOfDay(hour: 22, minute: 0);
+    if (timeStr == null || timeStr.isEmpty)
+      return const TimeOfDay(hour: 22, minute: 0);
     try {
       final parts = timeStr.split(':');
       final hour = int.parse(parts[0]);

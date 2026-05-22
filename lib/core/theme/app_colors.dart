@@ -7,18 +7,18 @@ import 'package:flutter/material.dart';
 
 abstract final class AppColors {
   // ── Brand Colors ──────────────────────────────────────────
-  static const Color primary = Color(0xFF6C63FF);       // Vivid indigo
+  static const Color primary = Color(0xFF6C63FF); // Vivid indigo
   static const Color primaryLight = Color(0xFF9D97FF);
   static const Color primaryDark = Color(0xFF4A42DB);
 
-  static const Color secondary = Color(0xFF00D9A6);     // Teal/mint accent
+  static const Color secondary = Color(0xFF00D9A6); // Teal/mint accent
   static const Color secondaryLight = Color(0xFF5EFFD4);
   static const Color secondaryDark = Color(0xFF00A67D);
 
   // ── Status / Health Score Colors ──────────────────────────
-  static const Color healthGreen = Color(0xFF4ADE80);   // Safe (>60)
-  static const Color healthAmber = Color(0xFFFBBF24);   // Caution (30-60)
-  static const Color healthRed = Color(0xFFEF4444);     // Critical (<30)
+  static const Color healthGreen = Color(0xFF4ADE80); // Safe (>60)
+  static const Color healthAmber = Color(0xFFFBBF24); // Caution (30-60)
+  static const Color healthRed = Color(0xFFEF4444); // Critical (<30)
 
   // ── Semantic Colors ───────────────────────────────────────
   static const Color success = Color(0xFF22C55E);

@@ -15,7 +15,8 @@ class GeoScreen extends ConsumerStatefulWidget {
   ConsumerState<GeoScreen> createState() => _GeoScreenState();
 }
 
-class _GeoScreenState extends ConsumerState<GeoScreen> with SingleTickerProviderStateMixin {
+class _GeoScreenState extends ConsumerState<GeoScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _radarController;
 
   @override
@@ -45,7 +46,11 @@ class _GeoScreenState extends ConsumerState<GeoScreen> with SingleTickerProvider
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: Colors.white,
+            size: 20,
+          ),
           onPressed: () async {
             await HapticHelper.lightTick();
             context.pop();
@@ -53,7 +58,10 @@ class _GeoScreenState extends ConsumerState<GeoScreen> with SingleTickerProvider
         ),
         title: Text(
           'Travel & Geolocation',
-          style: AppTextStyles.titleLarge.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+          style: AppTextStyles.titleLarge.copyWith(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         centerTitle: true,
       ),
@@ -102,7 +110,10 @@ class _GeoScreenState extends ConsumerState<GeoScreen> with SingleTickerProvider
             physics: const BouncingScrollPhysics(),
             child: Padding(
               key: const ValueKey('geo_content_scroll'),
-              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20.0,
+                vertical: 10.0,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -117,7 +128,8 @@ class _GeoScreenState extends ConsumerState<GeoScreen> with SingleTickerProvider
                   // Section 3: Smart Prompts (Freeze & Resume recommendations)
                   if (geoState.promptFreeze) _buildFreezeRecommendationCard(),
                   if (geoState.promptResume) _buildResumeRecommendationCard(),
-                  if (geoState.promptFreeze || geoState.promptResume) const SizedBox(height: 20),
+                  if (geoState.promptFreeze || geoState.promptResume)
+                    const SizedBox(height: 20),
 
                   // Section 4: Travel Mode Settings Switch
                   _buildTravelModeCard(geoState),
@@ -160,8 +172,15 @@ class _GeoScreenState extends ConsumerState<GeoScreen> with SingleTickerProvider
               return Stack(
                 alignment: Alignment.center,
                 children: List.generate(3, (index) {
-                  final double scale = 1.0 + (index * 0.4) + (_radarController.value * 0.4);
-                  final double opacity = (1.0 - (_radarController.value + index * 0.3).clamp(0.0, 1.0)) * 0.4;
+                  final double scale =
+                      1.0 + (index * 0.4) + (_radarController.value * 0.4);
+                  final double opacity =
+                      (1.0 -
+                          (_radarController.value + index * 0.3).clamp(
+                            0.0,
+                            1.0,
+                          )) *
+                      0.4;
                   return Transform.scale(
                     scale: scale.clamp(1.0, 3.0),
                     child: Container(
@@ -170,7 +189,11 @@ class _GeoScreenState extends ConsumerState<GeoScreen> with SingleTickerProvider
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: (travelMode ? AppColors.secondary : AppColors.primary).withOpacity(opacity.clamp(0.0, 1.0)),
+                          color:
+                              (travelMode
+                                      ? AppColors.secondary
+                                      : AppColors.primary)
+                                  .withOpacity(opacity.clamp(0.0, 1.0)),
                           width: 1.5,
                         ),
                       ),
@@ -187,10 +210,13 @@ class _GeoScreenState extends ConsumerState<GeoScreen> with SingleTickerProvider
             height: 110,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: travelMode ? AppColors.accentGradient : AppColors.primaryGradient,
+              gradient: travelMode
+                  ? AppColors.accentGradient
+                  : AppColors.primaryGradient,
               boxShadow: [
                 BoxShadow(
-                  color: (travelMode ? AppColors.secondary : AppColors.primary).withOpacity(0.4),
+                  color: (travelMode ? AppColors.secondary : AppColors.primary)
+                      .withOpacity(0.4),
                   blurRadius: 25,
                   spreadRadius: 2,
                 ),
@@ -226,7 +252,8 @@ class _GeoScreenState extends ConsumerState<GeoScreen> with SingleTickerProvider
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: (isHome ? AppColors.primary : AppColors.secondary).withOpacity(0.15),
+                  color: (isHome ? AppColors.primary : AppColors.secondary)
+                      .withOpacity(0.15),
                 ),
                 child: Icon(
                   isHome ? Icons.home_rounded : Icons.public_rounded,
@@ -242,7 +269,9 @@ class _GeoScreenState extends ConsumerState<GeoScreen> with SingleTickerProvider
                     Text(
                       isHome ? 'AT HOME' : 'ABROAD / TRAVELING',
                       style: AppTextStyles.labelSmall.copyWith(
-                        color: isHome ? AppColors.primaryLight : AppColors.secondary,
+                        color: isHome
+                            ? AppColors.primaryLight
+                            : AppColors.secondary,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 1.2,
                       ),
@@ -250,7 +279,10 @@ class _GeoScreenState extends ConsumerState<GeoScreen> with SingleTickerProvider
                     const SizedBox(height: 4),
                     Text(
                       '${geoState.currentCountry} (${geoState.currentIsoCode})',
-                      style: AppTextStyles.titleLarge.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+                      style: AppTextStyles.titleLarge.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
@@ -263,7 +295,9 @@ class _GeoScreenState extends ConsumerState<GeoScreen> with SingleTickerProvider
             children: [
               Text(
                 'Shield Protection',
-                style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondaryDark),
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.textSecondaryDark,
+                ),
               ),
               Row(
                 children: [
@@ -278,7 +312,10 @@ class _GeoScreenState extends ConsumerState<GeoScreen> with SingleTickerProvider
                   const SizedBox(width: 6),
                   Text(
                     'Fully Shielded',
-                    style: AppTextStyles.labelLarge.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+                    style: AppTextStyles.labelLarge.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ],
               ),
@@ -303,18 +340,28 @@ class _GeoScreenState extends ConsumerState<GeoScreen> with SingleTickerProvider
         children: [
           Row(
             children: [
-              const Icon(Icons.ac_unit_rounded, color: AppColors.primaryLight, size: 24),
+              const Icon(
+                Icons.ac_unit_rounded,
+                color: AppColors.primaryLight,
+                size: 24,
+              ),
               const SizedBox(width: 10),
               Text(
                 'Welcome Home! 🏡',
-                style: AppTextStyles.titleMedium.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+                style: AppTextStyles.titleMedium.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ],
           ),
           const SizedBox(height: 12),
           Text(
             'We detected you are currently in your Home Country. You can freeze renewals on your international lines to prevent unwanted wallet balance depletion.',
-            style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondaryDark, height: 1.4),
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: AppColors.textSecondaryDark,
+              height: 1.4,
+            ),
           ),
           const SizedBox(height: 20),
           Row(
@@ -324,30 +371,44 @@ class _GeoScreenState extends ConsumerState<GeoScreen> with SingleTickerProvider
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                   onPressed: () async {
                     await HapticHelper.mediumImpact();
-                    ref.read(geoControllerProvider.notifier).freezeAllInternationalLines();
+                    ref
+                        .read(geoControllerProvider.notifier)
+                        .freezeAllInternationalLines();
                   },
                   child: Text(
                     'Freeze All Lines',
-                    style: AppTextStyles.labelLarge.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+                    style: AppTextStyles.labelLarge.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
               const SizedBox(width: 10),
               TextButton(
                 style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
                 ),
                 onPressed: () async {
                   await HapticHelper.lightTick();
-                  ref.read(geoControllerProvider.notifier).dismissFreezePrompt();
+                  ref
+                      .read(geoControllerProvider.notifier)
+                      .dismissFreezePrompt();
                 },
                 child: Text(
                   'Dismiss',
-                  style: AppTextStyles.labelLarge.copyWith(color: AppColors.textSecondaryDark),
+                  style: AppTextStyles.labelLarge.copyWith(
+                    color: AppColors.textSecondaryDark,
+                  ),
                 ),
               ),
             ],
@@ -371,18 +432,28 @@ class _GeoScreenState extends ConsumerState<GeoScreen> with SingleTickerProvider
         children: [
           Row(
             children: [
-              const Icon(Icons.flash_on_rounded, color: AppColors.secondary, size: 24),
+              const Icon(
+                Icons.flash_on_rounded,
+                color: AppColors.secondary,
+                size: 24,
+              ),
               const SizedBox(width: 10),
               Text(
                 'Travel Detected! ✈️',
-                style: AppTextStyles.titleMedium.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+                style: AppTextStyles.titleMedium.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ],
           ),
           const SizedBox(height: 12),
           Text(
             'You are traveling abroad. Please resume your paused international SIM renewals to ensure uninterrupted mobile network coverage.',
-            style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondaryDark, height: 1.4),
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: AppColors.textSecondaryDark,
+              height: 1.4,
+            ),
           ),
           const SizedBox(height: 20),
           Row(
@@ -392,30 +463,44 @@ class _GeoScreenState extends ConsumerState<GeoScreen> with SingleTickerProvider
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.secondary,
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                   onPressed: () async {
                     await HapticHelper.mediumImpact();
-                    ref.read(geoControllerProvider.notifier).resumeAllInternationalLines();
+                    ref
+                        .read(geoControllerProvider.notifier)
+                        .resumeAllInternationalLines();
                   },
                   child: Text(
                     'Resume Renewals',
-                    style: AppTextStyles.labelLarge.copyWith(color: Colors.black, fontWeight: FontWeight.bold),
+                    style: AppTextStyles.labelLarge.copyWith(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
               const SizedBox(width: 10),
               TextButton(
                 style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
                 ),
                 onPressed: () async {
                   await HapticHelper.lightTick();
-                  ref.read(geoControllerProvider.notifier).dismissResumePrompt();
+                  ref
+                      .read(geoControllerProvider.notifier)
+                      .dismissResumePrompt();
                 },
                 child: Text(
                   'Dismiss',
-                  style: AppTextStyles.labelLarge.copyWith(color: AppColors.textSecondaryDark),
+                  style: AppTextStyles.labelLarge.copyWith(
+                    color: AppColors.textSecondaryDark,
+                  ),
                 ),
               ),
             ],
@@ -443,12 +528,17 @@ class _GeoScreenState extends ConsumerState<GeoScreen> with SingleTickerProvider
               children: [
                 Text(
                   'Global Travel Mode',
-                  style: AppTextStyles.titleMedium.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+                  style: AppTextStyles.titleMedium.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   'Allows automated geofencing rules to activate border-crossing routines.',
-                  style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondaryDark),
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.textSecondaryDark,
+                  ),
                 ),
               ],
             ),
@@ -485,18 +575,27 @@ class _GeoScreenState extends ConsumerState<GeoScreen> with SingleTickerProvider
         children: [
           Row(
             children: [
-              const Icon(Icons.flight_takeoff_rounded, color: AppColors.primaryLight, size: 24),
+              const Icon(
+                Icons.flight_takeoff_rounded,
+                color: AppColors.primaryLight,
+                size: 24,
+              ),
               const SizedBox(width: 10),
               Text(
                 'Border Crossing Simulator',
-                style: AppTextStyles.titleMedium.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+                style: AppTextStyles.titleMedium.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ],
           ),
           const SizedBox(height: 6),
           Text(
             'Simulate boardings to trigger smart freeze or active country resumption rules.',
-            style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondaryDark),
+            style: AppTextStyles.bodySmall.copyWith(
+              color: AppColors.textSecondaryDark,
+            ),
           ),
           const SizedBox(height: 20),
 
@@ -571,16 +670,22 @@ class _GeoScreenState extends ConsumerState<GeoScreen> with SingleTickerProvider
       height: height,
       child: OutlinedButton(
         style: OutlinedButton.styleFrom(
-          backgroundColor: isCurrent ? AppColors.secondary.withOpacity(0.08) : Colors.transparent,
+          backgroundColor: isCurrent
+              ? AppColors.secondary.withOpacity(0.08)
+              : Colors.transparent,
           side: BorderSide(
             color: isCurrent ? AppColors.secondary : AppColors.darkBorder,
             width: isCurrent ? 1.5 : 1.0,
           ),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
         onPressed: () async {
           await HapticHelper.mediumImpact();
-          ref.read(geoControllerProvider.notifier).simulateTravelTo(isoCode, countryName);
+          ref
+              .read(geoControllerProvider.notifier)
+              .simulateTravelTo(isoCode, countryName);
         },
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,

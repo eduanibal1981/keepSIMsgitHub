@@ -11,9 +11,7 @@ part 'failure.freezed.dart';
 @freezed
 sealed class AppFailure with _$AppFailure {
   /// A server-side or Supabase error.
-  const factory AppFailure.server({
-    required String message,
-  }) = ServerFailure;
+  const factory AppFailure.server({required String message}) = ServerFailure;
 
   /// A network connectivity error.
   const factory AppFailure.network({
@@ -27,9 +25,8 @@ sealed class AppFailure with _$AppFailure {
   }) = NotFoundFailure;
 
   /// Validation error (e.g. duplicate entry).
-  const factory AppFailure.validation({
-    required String message,
-  }) = ValidationFailure;
+  const factory AppFailure.validation({required String message}) =
+      ValidationFailure;
 
   /// Authentication/authorization failure.
   const factory AppFailure.auth({

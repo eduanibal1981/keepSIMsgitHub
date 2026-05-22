@@ -19,12 +19,15 @@ abstract class SimLine with _$SimLine {
     @JsonKey(name: 'last_topup_at') DateTime? lastTopupAt,
     @JsonKey(name: 'next_topup_due') DateTime? nextTopupDue,
     @JsonKey(name: 'validity_expires_at') DateTime? validityExpiresAt,
-    @JsonKey(name: 'protection_tier') @Default('standard') String protectionTier,
+    @JsonKey(name: 'protection_tier')
+    @Default('standard')
+    String protectionTier,
     @JsonKey(name: 'is_auto_detected') @Default(false) bool isAutoDetected,
     @JsonKey(name: 'household_id') String? householdId,
     @JsonKey(name: 'created_at') DateTime? createdAt,
     @JsonKey(name: 'updated_at') DateTime? updatedAt,
   }) = _SimLine;
 
-  factory SimLine.fromJson(Map<String, dynamic> json) => _$SimLineFromJson(json);
+  factory SimLine.fromJson(Map<String, dynamic> json) =>
+      _$SimLineFromJson(json);
 }

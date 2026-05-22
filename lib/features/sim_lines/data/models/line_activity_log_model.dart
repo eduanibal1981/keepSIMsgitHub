@@ -16,7 +16,8 @@ abstract class LineActivityLog with _$LineActivityLog {
     required String id,
     required String simLineId,
     required String userId,
-    required String eventType, // 'topup_success', 'topup_failed', 'status_change', 'health_update', 'tier_change', 'paused', 'resumed', 'created', 'grace_period_entered', 'rescue_topup_triggered', 'validity_extended'
+    required String
+    eventType, // 'topup_success', 'topup_failed', 'status_change', 'health_update', 'tier_change', 'paused', 'resumed', 'created', 'grace_period_entered', 'rescue_topup_triggered', 'validity_extended'
     String? description,
     @Default({}) Map<String, dynamic> metadata,
     required DateTime createdAt,

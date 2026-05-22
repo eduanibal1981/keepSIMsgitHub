@@ -20,7 +20,9 @@ class PaymentsRepository implements PaymentsContract {
     try {
       final userId = _client.auth.currentUser?.id;
       if (userId == null) {
-        return const Failure(AppFailure.auth(message: 'No authenticated user.'));
+        return const Failure(
+          AppFailure.auth(message: 'No authenticated user.'),
+        );
       }
 
       final response = await _client
@@ -52,7 +54,9 @@ class PaymentsRepository implements PaymentsContract {
     try {
       final userId = _client.auth.currentUser?.id;
       if (userId == null) {
-        return const Failure(AppFailure.auth(message: 'No authenticated user.'));
+        return const Failure(
+          AppFailure.auth(message: 'No authenticated user.'),
+        );
       }
 
       // Check if this will be the first card
@@ -63,7 +67,8 @@ class PaymentsRepository implements PaymentsContract {
       final isFirst = (countRes as List).isEmpty;
 
       // Mock gateway payment token
-      final token = 'tok_${provider.toLowerCase()}_${DateTime.now().millisecondsSinceEpoch % 100000}';
+      final token =
+          'tok_${provider.toLowerCase()}_${DateTime.now().millisecondsSinceEpoch % 100000}';
       final label = '$provider ending in $lastFour';
 
       final methodMap = {
@@ -97,7 +102,9 @@ class PaymentsRepository implements PaymentsContract {
     try {
       final userId = _client.auth.currentUser?.id;
       if (userId == null) {
-        return const Failure(AppFailure.auth(message: 'No authenticated user.'));
+        return const Failure(
+          AppFailure.auth(message: 'No authenticated user.'),
+        );
       }
 
       // 1. Fetch details of card to be deleted to check if it was default
@@ -142,7 +149,9 @@ class PaymentsRepository implements PaymentsContract {
     try {
       final userId = _client.auth.currentUser?.id;
       if (userId == null) {
-        return const Failure(AppFailure.auth(message: 'No authenticated user.'));
+        return const Failure(
+          AppFailure.auth(message: 'No authenticated user.'),
+        );
       }
 
       // Reset default status on all other user cards
@@ -174,7 +183,9 @@ class PaymentsRepository implements PaymentsContract {
     try {
       final userId = _client.auth.currentUser?.id;
       if (userId == null) {
-        return const Failure(AppFailure.auth(message: 'No authenticated user.'));
+        return const Failure(
+          AppFailure.auth(message: 'No authenticated user.'),
+        );
       }
 
       final response = await _client

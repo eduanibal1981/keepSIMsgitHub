@@ -86,7 +86,7 @@ class WalletController extends _$WalletController {
       case Success():
         // Automatically sync home dashboard metrics immediately!
         ref.invalidate(dashboardControllerProvider);
-        
+
         // Refresh this wallet query in the background
         ref.invalidateSelf();
         return true;

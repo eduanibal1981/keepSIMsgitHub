@@ -45,7 +45,6 @@ abstract final class AppRoutes {
   static const String preferences = '/settings/preferences';
 }
 
-
 /// Provides the app's GoRouter instance with auth-based redirects.
 @riverpod
 GoRouter appRouter(Ref ref) {
@@ -77,7 +76,9 @@ GoRouter appRouter(Ref ref) {
       final onboardingCompleted = profile.onboardingCompleted;
 
       if (!onboardingCompleted) {
-        return currentPath == AppRoutes.onboarding ? null : AppRoutes.onboarding;
+        return currentPath == AppRoutes.onboarding
+            ? null
+            : AppRoutes.onboarding;
       }
 
       // Logged in & onboarding complete but on splash, login, or onboarding → go to home
@@ -113,7 +114,6 @@ GoRouter appRouter(Ref ref) {
         builder: (context, state) => const OnboardingScreen(),
       ),
 
-
       // ── Main App Shell ─────────────────────────────────────
       ShellRoute(
         builder: (context, state, child) => AppShell(child: child),
@@ -136,16 +136,14 @@ GoRouter appRouter(Ref ref) {
               GoRoute(
                 path: 'edit/:id',
                 name: 'simLineEdit',
-                builder: (context, state) => SimLineFormScreen(
-                  id: state.pathParameters['id'],
-                ),
+                builder: (context, state) =>
+                    SimLineFormScreen(id: state.pathParameters['id']),
               ),
               GoRoute(
                 path: 'detail/:id',
                 name: 'simLineDetail',
-                builder: (context, state) => SimLineDetailScreen(
-                  id: state.pathParameters['id']!,
-                ),
+                builder: (context, state) =>
+                    SimLineDetailScreen(id: state.pathParameters['id']!),
               ),
             ],
           ),

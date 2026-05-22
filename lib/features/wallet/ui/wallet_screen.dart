@@ -40,7 +40,10 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh_rounded, color: AppColors.primaryLight),
+            icon: const Icon(
+              Icons.refresh_rounded,
+              color: AppColors.primaryLight,
+            ),
             onPressed: () async {
               await HapticHelper.mediumImpact();
               ref.invalidate(walletControllerProvider);
@@ -74,10 +77,10 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 10),
-          
+
           // ── Glassmorphic Neon Credit Card ───────────────────────
           _buildNeonCreditCard(balance, state.wallet.currency),
-          
+
           const SizedBox(height: 24),
 
           // ── Balance Threshold Warnings ────────────────────────
@@ -91,7 +94,9 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
           // ── Spending Analytics (Custom curves) ─────────────────
           Text(
             'Spend Analysis',
-            style: AppTextStyles.titleLarge.copyWith(color: AppColors.textPrimaryDark),
+            style: AppTextStyles.titleLarge.copyWith(
+              color: AppColors.textPrimaryDark,
+            ),
           ),
           const SizedBox(height: 12),
           _buildSpendAnalyticsChart(),
@@ -104,11 +109,15 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
             children: [
               Text(
                 'Transaction History',
-                style: AppTextStyles.titleLarge.copyWith(color: AppColors.textPrimaryDark),
+                style: AppTextStyles.titleLarge.copyWith(
+                  color: AppColors.textPrimaryDark,
+                ),
               ),
               Text(
                 '${state.transactions.length} items',
-                style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiaryDark),
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: AppColors.textTertiaryDark,
+                ),
               ),
             ],
           ),
@@ -152,7 +161,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                 ),
               ),
             ),
-            
+
             // Glossy card reflection sheen
             Positioned.fill(
               child: Container(
@@ -198,7 +207,10 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                       ),
                       // Card Provider Logo Mockup
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.white.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(8),
@@ -286,12 +298,16 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
               children: [
                 Text(
                   'Critical Balance Level',
-                  style: AppTextStyles.titleMedium.copyWith(color: AppColors.healthRed),
+                  style: AppTextStyles.titleMedium.copyWith(
+                    color: AppColors.healthRed,
+                  ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   'Your balance is below \$10.00. Scheduled SIM topups may fail soon.',
-                  style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondaryDark),
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.textSecondaryDark,
+                  ),
                 ),
               ],
             ),
@@ -343,10 +359,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
         decoration: BoxDecoration(
           color: AppColors.darkSurface,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: AppColors.darkBorder,
-            width: 1,
-          ),
+          border: Border.all(color: AppColors.darkBorder, width: 1),
         ),
         child: Column(
           children: [
@@ -383,11 +396,15 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
             children: [
               Text(
                 'Prepaid Monthly Outflow',
-                style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondaryDark),
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.textSecondaryDark,
+                ),
               ),
               Text(
                 'Avg: \$14.40/mo',
-                style: AppTextStyles.labelMedium.copyWith(color: AppColors.secondary),
+                style: AppTextStyles.labelMedium.copyWith(
+                  color: AppColors.secondary,
+                ),
               ),
             ],
           ),
@@ -396,9 +413,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
           Expanded(
             child: SizedBox(
               width: double.infinity,
-              child: CustomPaint(
-                painter: AnalyticsChartPainter(),
-              ),
+              child: CustomPaint(painter: AnalyticsChartPainter()),
             ),
           ),
           const SizedBox(height: 8),
@@ -438,11 +453,17 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
         ),
         child: Column(
           children: [
-            const Icon(Icons.history_toggle_off_rounded, color: AppColors.textTertiaryDark, size: 40),
+            const Icon(
+              Icons.history_toggle_off_rounded,
+              color: AppColors.textTertiaryDark,
+              size: 40,
+            ),
             const SizedBox(height: 12),
             Text(
               'No transactions recorded yet.',
-              style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondaryDark),
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.textSecondaryDark,
+              ),
             ),
           ],
         ),
@@ -465,7 +486,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
     final isDeposit = tx.type == 'deposit' || tx.type == 'auto_fund';
     final isReferral = tx.type == 'referral' || tx.type == 'referral_credit';
     final isRefund = tx.type == 'refund';
-    
+
     Color typeColor = AppColors.warning; // Default 'topup' is warning orange
     IconData typeIcon = Icons.phonelink_ring_rounded;
     String sign = '-';
@@ -500,11 +521,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
               color: typeColor.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              typeIcon,
-              color: typeColor,
-              size: 20,
-            ),
+            child: Icon(typeIcon, color: typeColor, size: 20),
           ),
           const SizedBox(width: 14),
           // Description details
@@ -513,8 +530,11 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  tx.description ?? (isDeposit ? 'Deposit Funds' : 'Line Renewal'),
-                  style: AppTextStyles.titleMedium.copyWith(color: AppColors.textPrimaryDark),
+                  tx.description ??
+                      (isDeposit ? 'Deposit Funds' : 'Line Renewal'),
+                  style: AppTextStyles.titleMedium.copyWith(
+                    color: AppColors.textPrimaryDark,
+                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -523,7 +543,9 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                   tx.createdAt != null
                       ? '${tx.createdAt!.day}/${tx.createdAt!.month}/${tx.createdAt!.year}'
                       : 'Just now',
-                  style: AppTextStyles.caption.copyWith(color: AppColors.textTertiaryDark),
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.textTertiaryDark,
+                  ),
                 ),
               ],
             ),
@@ -592,11 +614,46 @@ class AnalyticsChartPainter extends CustomPainter {
     // Compute curved paths
     final path = Path()
       ..moveTo(p0.dx, p0.dy)
-      ..cubicTo(size.width * 0.1, size.height * 0.8, size.width * 0.1, size.height * 0.85, p1.dx, p1.dy)
-      ..cubicTo(size.width * 0.3, size.height * 0.85, size.width * 0.3, size.height * 0.3, p2.dx, p2.dy)
-      ..cubicTo(size.width * 0.5, size.height * 0.3, size.width * 0.5, size.height * 0.55, p3.dx, p3.dy)
-      ..cubicTo(size.width * 0.7, size.height * 0.55, size.width * 0.7, size.height * 0.15, p4.dx, p4.dy)
-      ..cubicTo(size.width * 0.9, size.height * 0.15, size.width * 0.9, size.height * 0.45, p5.dx, p5.dy);
+      ..cubicTo(
+        size.width * 0.1,
+        size.height * 0.8,
+        size.width * 0.1,
+        size.height * 0.85,
+        p1.dx,
+        p1.dy,
+      )
+      ..cubicTo(
+        size.width * 0.3,
+        size.height * 0.85,
+        size.width * 0.3,
+        size.height * 0.3,
+        p2.dx,
+        p2.dy,
+      )
+      ..cubicTo(
+        size.width * 0.5,
+        size.height * 0.3,
+        size.width * 0.5,
+        size.height * 0.55,
+        p3.dx,
+        p3.dy,
+      )
+      ..cubicTo(
+        size.width * 0.7,
+        size.height * 0.55,
+        size.width * 0.7,
+        size.height * 0.15,
+        p4.dx,
+        p4.dy,
+      )
+      ..cubicTo(
+        size.width * 0.9,
+        size.height * 0.15,
+        size.width * 0.9,
+        size.height * 0.45,
+        p5.dx,
+        p5.dy,
+      );
 
     final fillPath = Path.from(path)
       ..lineTo(size.width, size.height)
@@ -612,7 +669,7 @@ class AnalyticsChartPainter extends CustomPainter {
     final dotPaint = Paint()
       ..color = AppColors.secondary
       ..style = PaintingStyle.fill;
-      
+
     final dotGlow = Paint()
       ..color = AppColors.secondary.withValues(alpha: 0.4)
       ..style = PaintingStyle.fill;
@@ -679,7 +736,11 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
 
     final success = await ref
         .read(walletControllerProvider.notifier)
-        .deposit(amount, description: 'Deposit via Card ending in ${_cardNumberController.text.substring(_cardNumberController.text.length - 4)}');
+        .deposit(
+          amount,
+          description:
+              'Deposit via Card ending in ${_cardNumberController.text.substring(_cardNumberController.text.length - 4)}',
+        );
 
     if (success) {
       if (mounted) {
@@ -708,7 +769,9 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             backgroundColor: AppColors.healthRed,
-            content: Text('Failed to deposit funds. Please check card connection.'),
+            content: Text(
+              'Failed to deposit funds. Please check card connection.',
+            ),
           ),
         );
       }
@@ -755,13 +818,18 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
                 children: [
                   Text(
                     'Load Credit Funds',
-                    style: AppTextStyles.headlineMedium.copyWith(color: AppColors.textPrimaryDark),
+                    style: AppTextStyles.headlineMedium.copyWith(
+                      color: AppColors.textPrimaryDark,
+                    ),
                   ),
                   if (_isSubmitting)
                     const SizedBox(
                       width: 20,
                       height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2.5, color: AppColors.primary),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.5,
+                        color: AppColors.primary,
+                      ),
                     ),
                 ],
               ),
@@ -782,12 +850,19 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
               // ── Custom Input Amount ────────────────────────────────
               TextFormField(
                 controller: _amountController,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                style: AppTextStyles.bodyLarge.copyWith(color: AppColors.textPrimaryDark),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                style: AppTextStyles.bodyLarge.copyWith(
+                  color: AppColors.textPrimaryDark,
+                ),
                 decoration: InputDecoration(
                   labelText: 'Deposit Amount (USD)',
                   labelStyle: TextStyle(color: AppColors.textSecondaryDark),
-                  prefixIcon: const Icon(Icons.attach_money_rounded, color: AppColors.primary),
+                  prefixIcon: const Icon(
+                    Icons.attach_money_rounded,
+                    color: AppColors.primary,
+                  ),
                   filled: true,
                   fillColor: AppColors.darkBg,
                   enabledBorder: OutlineInputBorder(
@@ -796,13 +871,18 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+                    borderSide: const BorderSide(
+                      color: AppColors.primary,
+                      width: 1.5,
+                    ),
                   ),
                 ),
                 validator: (val) {
-                  if (val == null || val.isEmpty) return 'Please enter an amount';
+                  if (val == null || val.isEmpty)
+                    return 'Please enter an amount';
                   final parsed = double.tryParse(val);
-                  if (parsed == null || parsed <= 0.0) return 'Enter a positive number';
+                  if (parsed == null || parsed <= 0.0)
+                    return 'Enter a positive number';
                   return null;
                 },
               ),
@@ -817,11 +897,16 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
                   FilteringTextInputFormatter.digitsOnly,
                   CardNumberInputFormatter(),
                 ],
-                style: AppTextStyles.bodyLarge.copyWith(color: AppColors.textPrimaryDark),
+                style: AppTextStyles.bodyLarge.copyWith(
+                  color: AppColors.textPrimaryDark,
+                ),
                 decoration: InputDecoration(
                   labelText: 'Visa Card Number',
                   labelStyle: TextStyle(color: AppColors.textSecondaryDark),
-                  prefixIcon: const Icon(Icons.credit_card_rounded, color: AppColors.secondary),
+                  prefixIcon: const Icon(
+                    Icons.credit_card_rounded,
+                    color: AppColors.secondary,
+                  ),
                   counterText: '',
                   filled: true,
                   fillColor: AppColors.darkBg,
@@ -831,11 +916,15 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(color: AppColors.secondary, width: 1.5),
+                    borderSide: const BorderSide(
+                      color: AppColors.secondary,
+                      width: 1.5,
+                    ),
                   ),
                 ),
                 validator: (val) {
-                  if (val == null || val.isEmpty) return 'Please enter card number';
+                  if (val == null || val.isEmpty)
+                    return 'Please enter card number';
                   final clean = val.replaceAll(' ', '');
                   if (clean.length < 16) return 'Must be 16 digits';
                   return null;
@@ -854,24 +943,34 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
                         FilteringTextInputFormatter.digitsOnly,
                         CardExpiryInputFormatter(),
                       ],
-                      style: AppTextStyles.bodyLarge.copyWith(color: AppColors.textPrimaryDark),
+                      style: AppTextStyles.bodyLarge.copyWith(
+                        color: AppColors.textPrimaryDark,
+                      ),
                       decoration: InputDecoration(
                         labelText: 'Expiry (MM/YY)',
-                        labelStyle: TextStyle(color: AppColors.textSecondaryDark),
+                        labelStyle: TextStyle(
+                          color: AppColors.textSecondaryDark,
+                        ),
                         counterText: '',
                         filled: true,
                         fillColor: AppColors.darkBg,
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
-                          borderSide: const BorderSide(color: AppColors.darkBorder),
+                          borderSide: const BorderSide(
+                            color: AppColors.darkBorder,
+                          ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
-                          borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+                          borderSide: const BorderSide(
+                            color: AppColors.primary,
+                            width: 1.5,
+                          ),
                         ),
                       ),
                       validator: (val) {
-                        if (val == null || val.isEmpty) return 'Expiry required';
+                        if (val == null || val.isEmpty)
+                          return 'Expiry required';
                         if (val.length < 5) return 'Invalid';
                         return null;
                       },
@@ -884,20 +983,29 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
                       keyboardType: TextInputType.number,
                       maxLength: 3,
                       obscureText: true,
-                      style: AppTextStyles.bodyLarge.copyWith(color: AppColors.textPrimaryDark),
+                      style: AppTextStyles.bodyLarge.copyWith(
+                        color: AppColors.textPrimaryDark,
+                      ),
                       decoration: InputDecoration(
                         labelText: 'CVV',
-                        labelStyle: TextStyle(color: AppColors.textSecondaryDark),
+                        labelStyle: TextStyle(
+                          color: AppColors.textSecondaryDark,
+                        ),
                         counterText: '',
                         filled: true,
                         fillColor: AppColors.darkBg,
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
-                          borderSide: const BorderSide(color: AppColors.darkBorder),
+                          borderSide: const BorderSide(
+                            color: AppColors.darkBorder,
+                          ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
-                          borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+                          borderSide: const BorderSide(
+                            color: AppColors.primary,
+                            width: 1.5,
+                          ),
                         ),
                       ),
                       validator: (val) {
@@ -925,7 +1033,9 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
                     elevation: 4,
                   ),
                   child: Text(
-                    _isSubmitting ? 'Verifying Card Security...' : 'Authorize Deposit Funds',
+                    _isSubmitting
+                        ? 'Verifying Card Security...'
+                        : 'Authorize Deposit Funds',
                     style: AppTextStyles.titleMedium.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -949,7 +1059,9 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: active ? AppColors.primary.withValues(alpha: 0.15) : AppColors.darkBg,
+          color: active
+              ? AppColors.primary.withValues(alpha: 0.15)
+              : AppColors.darkBg,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
             color: active ? AppColors.primary : AppColors.darkBorder,
@@ -959,7 +1071,9 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
         child: Text(
           '\$$amount',
           style: AppTextStyles.labelMedium.copyWith(
-            color: active ? AppColors.primaryLight : AppColors.textSecondaryDark,
+            color: active
+                ? AppColors.primaryLight
+                : AppColors.textSecondaryDark,
             fontWeight: FontWeight.bold,
           ),
         ),

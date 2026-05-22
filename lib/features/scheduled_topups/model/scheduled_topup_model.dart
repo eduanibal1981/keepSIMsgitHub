@@ -24,7 +24,8 @@ abstract class ScheduledTopup with _$ScheduledTopup {
     @Default(true) bool isActive,
     @Default(0) int retryCount,
     @Default(4) int maxRetries,
-    @Default('active') String status, // 'active', 'paused', 'failed_permanently', 'completed'
+    @Default('active')
+    String status, // 'active', 'paused', 'failed_permanently', 'completed'
     DateTime? createdAt,
     DateTime? updatedAt,
   }) = _ScheduledTopup;

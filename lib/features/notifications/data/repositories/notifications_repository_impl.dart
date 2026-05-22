@@ -10,7 +10,8 @@ part 'notifications_repository_impl.g.dart';
 class NotificationsRepositoryImpl implements NotificationsRepository {
   final SupabaseClient _supabase;
 
-  NotificationsRepositoryImpl({required SupabaseClient supabase}) : _supabase = supabase;
+  NotificationsRepositoryImpl({required SupabaseClient supabase})
+    : _supabase = supabase;
 
   String get _currentUserId {
     final userId = _supabase.auth.currentUser?.id;
@@ -65,10 +66,7 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
   @override
   Future<void> deleteNotification(String id) async {
     try {
-      await _supabase
-          .from('notifications')
-          .delete()
-          .eq('id', id);
+      await _supabase.from('notifications').delete().eq('id', id);
     } on PostgrestException catch (e) {
       throw Exception('Failed to delete notification: ${e.message}');
     }
@@ -110,12 +108,16 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
           'system',
         ];
 
-        final rows = categories.map((cat) => {
-          'user_id': userId,
-          'category': cat,
-          'is_enabled': true,
-          'channels': ['push'],
-        }).toList();
+        final rows = categories
+            .map(
+              (cat) => {
+                'user_id': userId,
+                'category': cat,
+                'is_enabled': true,
+                'channels': ['push'],
+              },
+            )
+            .toList();
 
         await _supabase.from('alert_settings').insert(rows);
 
@@ -200,7 +202,12 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
   }
 
   @override
-  Future<void> simulateNotification(String category, String title, String body, {String? simLineId}) async {
+  Future<void> simulateNotification(
+    String category,
+    String title,
+    String body, {
+    String? simLineId,
+  }) async {
     try {
       await _supabase.from('notifications').insert({
         'user_id': _currentUserId,
@@ -219,6 +226,8 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
 }
 
 @riverpod
-NotificationsRepository notificationsRepository(NotificationsRepositoryRef ref) {
+NotificationsRepository notificationsRepository(
+  NotificationsRepositoryRef ref,
+) {
   return NotificationsRepositoryImpl(supabase: Supabase.instance.client);
 }

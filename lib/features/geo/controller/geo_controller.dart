@@ -36,7 +36,8 @@ class GeoController extends _$GeoController {
     };
 
     final currentIso = _simulatedIso ?? homeCountryCode;
-    final currentCountry = _simulatedCountry ?? (countryNames[currentIso] ?? 'Home Country');
+    final currentCountry =
+        _simulatedCountry ?? (countryNames[currentIso] ?? 'Home Country');
 
     final isHome = currentIso == homeCountryCode;
 
@@ -65,27 +66,35 @@ class GeoController extends _$GeoController {
       _showFreezePrompt = true;
       _showResumePrompt = false;
       _logs.add('🏡 Border Simulator: Landed in Home Country ($countryName).');
-      _logs.add('📢 Recommendation: Expats back home can freeze active international lines.');
-      
+      _logs.add(
+        '📢 Recommendation: Expats back home can freeze active international lines.',
+      );
+
       try {
-        await ref.read(notificationsRepositoryProvider).simulateNotification(
-          'welcome_home_ready',
-          'Welcome Home! 🏡',
-          'Landed in $countryName. Freeze active international renewals to protect your wallet balance.',
-        );
+        await ref
+            .read(notificationsRepositoryProvider)
+            .simulateNotification(
+              'welcome_home_ready',
+              'Welcome Home! 🏡',
+              'Landed in $countryName. Freeze active international renewals to protect your wallet balance.',
+            );
       } catch (_) {}
     } else {
       _showFreezePrompt = false;
       _showResumePrompt = true;
       _logs.add('✈️ Border Simulator: Departed to $countryName ($isoCode).');
-      _logs.add('📢 Recommendation: Boarding gates detected. Auto-resume renewals.');
+      _logs.add(
+        '📢 Recommendation: Boarding gates detected. Auto-resume renewals.',
+      );
 
       try {
-        await ref.read(notificationsRepositoryProvider).simulateNotification(
-          'geo_fence_triggered',
-          'Travel Detected! ✈️',
-          'Arrived in $countryName. Resume international lines to ensure uninterrupted coverage.',
-        );
+        await ref
+            .read(notificationsRepositoryProvider)
+            .simulateNotification(
+              'geo_fence_triggered',
+              'Travel Detected! ✈️',
+              'Arrived in $countryName. Resume international lines to ensure uninterrupted coverage.',
+            );
       } catch (_) {}
     }
 
@@ -94,8 +103,12 @@ class GeoController extends _$GeoController {
 
   /// Toggles global travel mode switch.
   Future<void> toggleTravelMode(bool enabled) async {
-    _logs.add(enabled ? '🚀 Travel Mode activated.' : '🛑 Travel Mode deactivated.');
-    await ref.read(userPreferencesControllerProvider.notifier).toggleTravelMode(enabled);
+    _logs.add(
+      enabled ? '🚀 Travel Mode activated.' : '🛑 Travel Mode deactivated.',
+    );
+    await ref
+        .read(userPreferencesControllerProvider.notifier)
+        .toggleTravelMode(enabled);
     ref.invalidateSelf();
   }
 
@@ -103,19 +116,22 @@ class GeoController extends _$GeoController {
   Future<void> freezeAllInternationalLines() async {
     final lines = ref.read(simLinesControllerProvider).valueOrNull ?? [];
     final countries = ref.read(supportedCountriesProvider).valueOrNull ?? [];
-    final homeCountryCode = ref.read(authControllerProvider).valueOrNull?.homeCountryCode ?? 'US';
+    final homeCountryCode =
+        ref.read(authControllerProvider).valueOrNull?.homeCountryCode ?? 'US';
 
     _logs.add('❄️ Freeze Request: Pausing all international lines...');
-    
+
     for (final line in lines) {
       final country = countries.firstWhere(
         (c) => c.id == line.countryId,
-        orElse: () => countries.firstWhere((c) => c.isoCode != homeCountryCode), // fallback
+        orElse: () => countries.firstWhere(
+          (c) => c.isoCode != homeCountryCode,
+        ), // fallback
       );
       if (country.isoCode != homeCountryCode && line.status == 'active') {
-        await ref.read(simLinesControllerProvider.notifier).updateSimLine(
-          line.copyWith(status: 'paused'),
-        );
+        await ref
+            .read(simLinesControllerProvider.notifier)
+            .updateSimLine(line.copyWith(status: 'paused'));
         _logs.add('⏸️ Paused: Line ${line.phoneNumber} (${country.name}).');
       }
     }
@@ -129,19 +145,20 @@ class GeoController extends _$GeoController {
   Future<void> resumeAllInternationalLines() async {
     final lines = ref.read(simLinesControllerProvider).valueOrNull ?? [];
     final countries = ref.read(supportedCountriesProvider).valueOrNull ?? [];
-    final homeCountryCode = ref.read(authControllerProvider).valueOrNull?.homeCountryCode ?? 'US';
+    final homeCountryCode =
+        ref.read(authControllerProvider).valueOrNull?.homeCountryCode ?? 'US';
 
     _logs.add('🔥 Resume Request: Reactivating international renewals...');
-    
+
     for (final line in lines) {
       final country = countries.firstWhere(
         (c) => c.id == line.countryId,
         orElse: () => countries.firstWhere((c) => c.isoCode != homeCountryCode),
       );
       if (country.isoCode != homeCountryCode && line.status == 'paused') {
-        await ref.read(simLinesControllerProvider.notifier).updateSimLine(
-          line.copyWith(status: 'active'),
-        );
+        await ref
+            .read(simLinesControllerProvider.notifier)
+            .updateSimLine(line.copyWith(status: 'active'));
         _logs.add('▶️ Resumed: Line ${line.phoneNumber} (${country.name}).');
       }
     }

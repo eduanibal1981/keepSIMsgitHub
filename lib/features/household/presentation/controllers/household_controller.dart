@@ -34,7 +34,7 @@ class HouseholdController extends _$HouseholdController {
   @override
   FutureOr<HouseholdState> build() async {
     final repo = ref.watch(householdRepositoryProvider);
-    
+
     final results = await Future.wait([
       repo.getHouseholdMembers(),
       repo.getHouseholdInvitations(),
@@ -53,7 +53,7 @@ class HouseholdController extends _$HouseholdController {
     state = await AsyncValue.guard(() async {
       final repo = ref.read(householdRepositoryProvider);
       await repo.inviteMember(email, role);
-      
+
       final results = await Future.wait([
         repo.getHouseholdMembers(),
         repo.getHouseholdInvitations(),
@@ -73,7 +73,7 @@ class HouseholdController extends _$HouseholdController {
     state = await AsyncValue.guard(() async {
       final repo = ref.read(householdRepositoryProvider);
       await repo.respondToInvite(inviteId, true);
-      
+
       final results = await Future.wait([
         repo.getHouseholdMembers(),
         repo.getHouseholdInvitations(),
@@ -93,7 +93,7 @@ class HouseholdController extends _$HouseholdController {
     state = await AsyncValue.guard(() async {
       final repo = ref.read(householdRepositoryProvider);
       await repo.respondToInvite(inviteId, false);
-      
+
       final results = await Future.wait([
         repo.getHouseholdMembers(),
         repo.getHouseholdInvitations(),
@@ -113,7 +113,7 @@ class HouseholdController extends _$HouseholdController {
     state = await AsyncValue.guard(() async {
       final repo = ref.read(householdRepositoryProvider);
       await repo.removeMember(memberId);
-      
+
       final results = await Future.wait([
         repo.getHouseholdMembers(),
         repo.getHouseholdInvitations(),
@@ -133,7 +133,7 @@ class HouseholdController extends _$HouseholdController {
     state = await AsyncValue.guard(() async {
       final repo = ref.read(householdRepositoryProvider);
       await repo.leaveHousehold(membershipId);
-      
+
       final results = await Future.wait([
         repo.getHouseholdMembers(),
         repo.getHouseholdInvitations(),

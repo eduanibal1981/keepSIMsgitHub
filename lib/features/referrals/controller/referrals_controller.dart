@@ -19,15 +19,9 @@ class ReferralsState {
   final List<Referral> referrals;
   final bool isSubmitting;
 
-  const ReferralsState({
-    required this.referrals,
-    this.isSubmitting = false,
-  });
+  const ReferralsState({required this.referrals, this.isSubmitting = false});
 
-  ReferralsState copyWith({
-    List<Referral>? referrals,
-    bool? isSubmitting,
-  }) {
+  ReferralsState copyWith({List<Referral>? referrals, bool? isSubmitting}) {
     return ReferralsState(
       referrals: referrals ?? this.referrals,
       isSubmitting: isSubmitting ?? this.isSubmitting,

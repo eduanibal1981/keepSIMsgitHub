@@ -92,7 +92,9 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
 
       if (existingRes != null) {
         // If it exists, update it instead of creating a new one
-        final updatedSchedule = schedule.copyWith(id: existingRes['id'] as String);
+        final updatedSchedule = schedule.copyWith(
+          id: existingRes['id'] as String,
+        );
         return updateSchedule(updatedSchedule);
       }
 
@@ -252,11 +254,14 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
         // Increment retry count
         final newRetryCount = schedule.retryCount + 1;
         final failedPermanently = newRetryCount >= schedule.maxRetries;
-        await _client.from('scheduled_topups').update({
-          'retry_count': newRetryCount,
-          'status': failedPermanently ? 'failed_permanently' : 'active',
-          'updated_at': DateTime.now().toIso8601String(),
-        }).eq('id', schedule.id);
+        await _client
+            .from('scheduled_topups')
+            .update({
+              'retry_count': newRetryCount,
+              'status': failedPermanently ? 'failed_permanently' : 'active',
+              'updated_at': DateTime.now().toIso8601String(),
+            })
+            .eq('id', schedule.id);
 
         // Fetch current SIM Line to update health
         final simRes = await _client
@@ -266,13 +271,18 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
             .single();
         final currentHealth = simRes['health_score'] as int;
         final newHealth = max(0, currentHealth - 25);
-        final newStatus = newHealth == 0 ? 'grace_period' : (simRes['status'] as String);
+        final newStatus = newHealth == 0
+            ? 'grace_period'
+            : (simRes['status'] as String);
 
-        await _client.from('sim_lines').update({
-          'health_score': newHealth,
-          'status': newStatus,
-          'updated_at': DateTime.now().toIso8601String(),
-        }).eq('id', schedule.simLineId);
+        await _client
+            .from('sim_lines')
+            .update({
+              'health_score': newHealth,
+              'status': newStatus,
+              'updated_at': DateTime.now().toIso8601String(),
+            })
+            .eq('id', schedule.simLineId);
 
         // Log failed activity
         await _client.from('line_activity_log').insert({
@@ -372,7 +382,8 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
         'sim_line_id': schedule.simLineId,
         'user_id': userId,
         'event_type': 'topup_success',
-        'description': 'Auto-Refill successful. Next top-up due in ${schedule.frequencyDays} days.',
+        'description':
+            'Auto-Refill successful. Next top-up due in ${schedule.frequencyDays} days.',
         'metadata': {
           'amount': schedule.amount,
           'reloadly_transaction_id': mockTxId,
@@ -390,7 +401,9 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
   }
 
   @override
-  Future<Result<List<TopupExecution>>> getExecutionsForLine(String simLineId) async {
+  Future<Result<List<TopupExecution>>> getExecutionsForLine(
+    String simLineId,
+  ) async {
     try {
       final userId = _client.auth.currentUser?.id;
       if (userId == null) {
@@ -439,14 +452,18 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
 
       if (failedExec.status != 'failed') {
         return const Failure(
-          AppFailure.server(message: 'This execution is not in a failed state.'),
+          AppFailure.server(
+            message: 'This execution is not in a failed state.',
+          ),
         );
       }
 
       // 2. Fetch Schedule
       if (failedExec.scheduledTopupId == null) {
         return const Failure(
-          AppFailure.server(message: 'No active schedule linked to this execution.'),
+          AppFailure.server(
+            message: 'No active schedule linked to this execution.',
+          ),
         );
       }
       final scheduleRes = await _client
@@ -471,11 +488,14 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
         final newRetryCount = schedule.retryCount + 1;
         final failedPermanently = newRetryCount >= schedule.maxRetries;
 
-        await _client.from('scheduled_topups').update({
-          'retry_count': newRetryCount,
-          'status': failedPermanently ? 'failed_permanently' : 'active',
-          'updated_at': DateTime.now().toIso8601String(),
-        }).eq('id', schedule.id);
+        await _client
+            .from('scheduled_topups')
+            .update({
+              'retry_count': newRetryCount,
+              'status': failedPermanently ? 'failed_permanently' : 'active',
+              'updated_at': DateTime.now().toIso8601String(),
+            })
+            .eq('id', schedule.id);
 
         await _client.from('topup_executions').insert({
           'scheduled_topup_id': schedule.id,
@@ -506,7 +526,8 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
 
         return const Failure(
           AppFailure.server(
-            message: 'Insufficient balance to retry. Please top up your wallet.',
+            message:
+                'Insufficient balance to retry. Please top up your wallet.',
           ),
         );
       }
@@ -550,7 +571,10 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
       // Update failed execution status so it doesn't show as unresolved
       await _client
           .from('topup_executions')
-          .update({'status': 'refunded', 'failure_reason': 'Resolved by successful retry'})
+          .update({
+            'status': 'refunded',
+            'failure_reason': 'Resolved by successful retry',
+          })
           .eq('id', executionId);
 
       // 8. Update Schedule Dates and reset retry count
@@ -572,9 +596,7 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
       final nextDue = DateTime.now().add(
         Duration(days: schedule.frequencyDays),
       );
-      final validityExpires = nextDue.add(
-        const Duration(days: 7),
-      );
+      final validityExpires = nextDue.add(const Duration(days: 7));
       await _client
           .from('sim_lines')
           .update({

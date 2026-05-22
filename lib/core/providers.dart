@@ -53,7 +53,8 @@ WalletContract walletRepository(Ref ref) => WalletRepository(supabase);
 
 /// Provides the [ScheduledTopupContract] implementation.
 @riverpod
-ScheduledTopupContract scheduledTopupRepository(Ref ref) => ScheduledTopupRepository(supabase);
+ScheduledTopupContract scheduledTopupRepository(Ref ref) =>
+    ScheduledTopupRepository(supabase);
 
 // ============================================================
 // Referrals
@@ -70,5 +71,3 @@ ReferralsContract referralsRepository(Ref ref) => ReferralsRepository(supabase);
 /// Provides the [PaymentsContract] implementation.
 @riverpod
 PaymentsContract paymentsRepository(Ref ref) => PaymentsRepository(supabase);
-
-

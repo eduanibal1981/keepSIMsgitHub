@@ -86,12 +86,14 @@ class LoginScreen extends ConsumerWidget {
                     onPressed: authState.isLoading
                         ? null
                         : () => ref
-                            .read(authControllerProvider.notifier)
-                            .signInWithGoogle(),
+                              .read(authControllerProvider.notifier)
+                              .signInWithGoogle(),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
                       foregroundColor: AppColors.textPrimaryLight,
-                      disabledBackgroundColor: Colors.white.withValues(alpha: 0.7),
+                      disabledBackgroundColor: Colors.white.withValues(
+                        alpha: 0.7,
+                      ),
                       elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
@@ -169,9 +171,10 @@ class _AnimatedLogoState extends State<_AnimatedLogo>
       vsync: this,
       duration: const Duration(milliseconds: 1200),
     );
-    _scale = Tween<double>(begin: 0.6, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.elasticOut),
-    );
+    _scale = Tween<double>(
+      begin: 0.6,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.elasticOut));
     _opacity = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _controller,
@@ -194,10 +197,7 @@ class _AnimatedLogoState extends State<_AnimatedLogo>
       builder: (context, child) {
         return Opacity(
           opacity: _opacity.value,
-          child: Transform.scale(
-            scale: _scale.value,
-            child: child,
-          ),
+          child: Transform.scale(scale: _scale.value, child: child),
         );
       },
       child: Container(
@@ -214,11 +214,7 @@ class _AnimatedLogoState extends State<_AnimatedLogo>
             ),
           ],
         ),
-        child: const Icon(
-          Icons.shield_rounded,
-          color: Colors.white,
-          size: 52,
-        ),
+        child: const Icon(Icons.shield_rounded, color: Colors.white, size: 52),
       ),
     );
   }
@@ -226,11 +222,7 @@ class _AnimatedLogoState extends State<_AnimatedLogo>
 
 // ── Feature Chip Widget ───────────────────────────────────────
 class FeatureChip extends StatelessWidget {
-  const FeatureChip({
-    super.key,
-    required this.icon,
-    required this.label,
-  });
+  const FeatureChip({super.key, required this.icon, required this.label});
 
   final IconData icon;
   final String label;
@@ -274,10 +266,7 @@ class _GoogleLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomPaint(
-      size: const Size(24, 24),
-      painter: _GoogleLogoPainter(),
-    );
+    return CustomPaint(size: const Size(24, 24), painter: _GoogleLogoPainter());
   }
 }
 
@@ -291,49 +280,25 @@ class _GoogleLogoPainter extends CustomPainter {
     final bluePaint = Paint()
       ..color = const Color(0xFF4285F4)
       ..style = PaintingStyle.fill;
-    canvas.drawArc(
-      Rect.fromLTWH(0, 0, w, h),
-      -0.6,
-      1.8,
-      true,
-      bluePaint,
-    );
+    canvas.drawArc(Rect.fromLTWH(0, 0, w, h), -0.6, 1.8, true, bluePaint);
 
     // Green arc (bottom-right)
     final greenPaint = Paint()
       ..color = const Color(0xFF34A853)
       ..style = PaintingStyle.fill;
-    canvas.drawArc(
-      Rect.fromLTWH(0, 0, w, h),
-      1.2,
-      1.2,
-      true,
-      greenPaint,
-    );
+    canvas.drawArc(Rect.fromLTWH(0, 0, w, h), 1.2, 1.2, true, greenPaint);
 
     // Yellow arc (bottom-left)
     final yellowPaint = Paint()
       ..color = const Color(0xFFFBBC05)
       ..style = PaintingStyle.fill;
-    canvas.drawArc(
-      Rect.fromLTWH(0, 0, w, h),
-      2.4,
-      1.0,
-      true,
-      yellowPaint,
-    );
+    canvas.drawArc(Rect.fromLTWH(0, 0, w, h), 2.4, 1.0, true, yellowPaint);
 
     // Red arc (top-left)
     final redPaint = Paint()
       ..color = const Color(0xFFEA4335)
       ..style = PaintingStyle.fill;
-    canvas.drawArc(
-      Rect.fromLTWH(0, 0, w, h),
-      3.4,
-      1.2,
-      true,
-      redPaint,
-    );
+    canvas.drawArc(Rect.fromLTWH(0, 0, w, h), 3.4, 1.2, true, redPaint);
 
     // White center
     final centerPaint = Paint()

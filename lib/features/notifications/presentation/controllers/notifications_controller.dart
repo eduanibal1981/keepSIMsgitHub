@@ -25,7 +25,7 @@ class NotificationsController extends _$NotificationsController {
   /// Marks a specific notification as read.
   Future<void> markAsRead(String id) async {
     final repo = ref.read(notificationsRepositoryProvider);
-    
+
     // Snappy optimistic UI update
     state = state.whenData((list) {
       return list.map((item) {
@@ -47,7 +47,7 @@ class NotificationsController extends _$NotificationsController {
   /// Marks all notifications as read.
   Future<void> markAllAsRead() async {
     final repo = ref.read(notificationsRepositoryProvider);
-    
+
     // Snappy optimistic UI update
     state = state.whenData((list) {
       return list.map((item) => item.copyWith(isRead: true)).toList();
@@ -100,7 +100,12 @@ class NotificationsController extends _$NotificationsController {
     final repo = ref.read(notificationsRepositoryProvider);
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      await repo.simulateNotification(category, title, body, simLineId: simLineId);
+      await repo.simulateNotification(
+        category,
+        title,
+        body,
+        simLineId: simLineId,
+      );
       return repo.getNotifications();
     });
   }

@@ -15,7 +15,7 @@ abstract class HouseholdMember with _$HouseholdMember {
     @JsonKey(name: 'invited_at') required DateTime invitedAt,
     @JsonKey(name: 'accepted_at') DateTime? acceptedAt,
     @JsonKey(name: 'created_at') required DateTime createdAt,
-    
+
     // UI Helpers populated via joins
     @JsonKey(name: 'owner_name') String? ownerName,
     @JsonKey(name: 'member_name') String? memberName,

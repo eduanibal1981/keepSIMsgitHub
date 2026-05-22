@@ -56,9 +56,7 @@ class AuthRepository implements AuthContract {
     try {
       if (kIsWeb) {
         // Web: OAuth redirect flow
-        await _client.auth.signInWithOAuth(
-          OAuthProvider.google,
-        );
+        await _client.auth.signInWithOAuth(OAuthProvider.google);
         // After redirect, the session is picked up by onAuthStateChange.
         return const Failure(
           AppFailure.auth(message: 'Redirecting to Google...'),
@@ -136,7 +134,9 @@ class AuthRepository implements AuthContract {
       return Success(UserProfile.fromJson(response));
     } on PostgrestException catch (e) {
       if (e.code == 'PGRST116') {
-        return const Failure(AppFailure.notFound(message: 'Profile not found.'));
+        return const Failure(
+          AppFailure.notFound(message: 'Profile not found.'),
+        );
       }
       return Failure(AppFailure.server(message: e.message));
     } catch (e) {

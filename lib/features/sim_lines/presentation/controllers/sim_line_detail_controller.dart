@@ -8,7 +8,6 @@ import 'package:keep_sims/features/sim_lines/data/models/line_activity_log_model
 import 'package:keep_sims/core/result.dart';
 import 'package:keep_sims/core/failure.dart';
 
-
 part 'sim_line_detail_controller.g.dart';
 
 class SimLineDetailState {
@@ -31,7 +30,7 @@ class SimLineDetailController extends _$SimLineDetailController {
   FutureOr<SimLineDetailState> build(String id) async {
     // 1. Fetch SIM Line from current list
     final simLines = await ref.watch(simLinesControllerProvider.future);
-    
+
     final simLine = simLines.firstWhere(
       (l) => l.id == id,
       orElse: () => throw Exception('SIM Line not found: $id'),
@@ -41,10 +40,14 @@ class SimLineDetailController extends _$SimLineDetailController {
     final scheduledTopup = ref.watch(scheduledTopupForLineProvider(id));
 
     // 3. Fetch Executions
-    final executions = await ref.watch(topupExecutionsForLineProvider(id).future);
+    final executions = await ref.watch(
+      topupExecutionsForLineProvider(id).future,
+    );
 
     // 4. Fetch Activity Logs
-    final activityLogs = await ref.watch(simLineActivityLogsProvider(id).future);
+    final activityLogs = await ref.watch(
+      simLineActivityLogsProvider(id).future,
+    );
 
     return SimLineDetailState(
       simLine: simLine,
@@ -58,25 +61,37 @@ class SimLineDetailController extends _$SimLineDetailController {
   Future<Result<void>> triggerRefill() async {
     final detailState = state.valueOrNull;
     if (detailState == null || detailState.scheduledTopup == null) {
-      return Failure(AppFailure.validation(message: 'No scheduled top-up configuration found for this line.'));
+      return Failure(
+        AppFailure.validation(
+          message: 'No scheduled top-up configuration found for this line.',
+        ),
+      );
     }
-    
-    return ref.read(scheduledTopupControllerProvider.notifier).executeMockTopup(detailState.scheduledTopup!.id);
+
+    return ref
+        .read(scheduledTopupControllerProvider.notifier)
+        .executeMockTopup(detailState.scheduledTopup!.id);
   }
 
   /// Retries a failed execution
   Future<Result<void>> retryFailedTopup(String executionId) async {
-    return ref.read(scheduledTopupControllerProvider.notifier).retryFailedExecution(executionId, id);
+    return ref
+        .read(scheduledTopupControllerProvider.notifier)
+        .retryFailedExecution(executionId, id);
   }
 
   /// Deletes a specific activity log
   Future<void> deleteActivityLog(String logId) async {
-    await ref.read(simLinesControllerProvider.notifier).deleteActivityLog(logId, id);
+    await ref
+        .read(simLinesControllerProvider.notifier)
+        .deleteActivityLog(logId, id);
   }
 
   /// Deletes a specific execution record
   Future<void> deleteExecution(String executionId) async {
-    await ref.read(scheduledTopupControllerProvider.notifier).removeExecution(executionId, id);
+    await ref
+        .read(scheduledTopupControllerProvider.notifier)
+        .removeExecution(executionId, id);
   }
 
   /// Cleans all mock logs (activity logs and execution records) for this line

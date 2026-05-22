@@ -12,9 +12,11 @@ abstract class Country with _$Country {
     @JsonKey(name: 'dialing_code') required String dialingCode,
     @JsonKey(name: 'flag_emoji') required String flagEmoji,
     @JsonKey(name: 'currency_code') required String currencyCode,
-    @JsonKey(name: 'avg_sim_replacement_cost') required double avgSimReplacementCost,
+    @JsonKey(name: 'avg_sim_replacement_cost')
+    required double avgSimReplacementCost,
     @JsonKey(name: 'is_supported') required bool isSupported,
   }) = _Country;
 
-  factory Country.fromJson(Map<String, dynamic> json) => _$CountryFromJson(json);
+  factory Country.fromJson(Map<String, dynamic> json) =>
+      _$CountryFromJson(json);
 }

@@ -22,7 +22,8 @@ class NumberVerificationDialog extends ConsumerStatefulWidget {
       _NumberVerificationDialogState();
 }
 
-class _NumberVerificationDialogState extends ConsumerState<NumberVerificationDialog>
+class _NumberVerificationDialogState
+    extends ConsumerState<NumberVerificationDialog>
     with SingleTickerProviderStateMixin {
   late AnimationController _radarController;
 
@@ -55,11 +56,16 @@ class _NumberVerificationDialogState extends ConsumerState<NumberVerificationDia
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(lineVerificationControllerProvider(widget.simLineId));
+    final state = ref.watch(
+      lineVerificationControllerProvider(widget.simLineId),
+    );
     _triggerRadar(state.status);
 
     // Watch status changes to fire haptics
-    ref.listen(lineVerificationControllerProvider(widget.simLineId), (prev, next) {
+    ref.listen(lineVerificationControllerProvider(widget.simLineId), (
+      prev,
+      next,
+    ) {
       if (next.status == LineVerificationStatus.ringing) {
         HapticHelper.mediumImpact();
       } else if (next.status == LineVerificationStatus.success) {
@@ -195,7 +201,9 @@ class _NumberVerificationDialogState extends ConsumerState<NumberVerificationDia
           onPressed: () {
             HapticHelper.mediumImpact();
             ref
-                .read(lineVerificationControllerProvider(widget.simLineId).notifier)
+                .read(
+                  lineVerificationControllerProvider(widget.simLineId).notifier,
+                )
                 .startVerification(widget.phoneNumber);
           },
           child: Row(
@@ -261,9 +269,13 @@ class _NumberVerificationDialogState extends ConsumerState<NumberVerificationDia
                   // Overlapping outer ripple rings
                   for (int i = 0; i < 3; i++)
                     Opacity(
-                      opacity: (1.0 - ((_radarController.value + i / 3.0) % 1.0)) * 0.4,
+                      opacity:
+                          (1.0 - ((_radarController.value + i / 3.0) % 1.0)) *
+                          0.4,
                       child: Transform.scale(
-                        scale: 1.0 + (((_radarController.value + i / 3.0) % 1.0) * 1.5),
+                        scale:
+                            1.0 +
+                            (((_radarController.value + i / 3.0) % 1.0) * 1.5),
                         child: Container(
                           width: 80,
                           height: 80,
@@ -339,7 +351,9 @@ class _NumberVerificationDialogState extends ConsumerState<NumberVerificationDia
                 height: 12,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(AppColors.secondary),
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    AppColors.secondary,
+                  ),
                 ),
               ),
               SizedBox(width: 10),
@@ -376,10 +390,7 @@ class _NumberVerificationDialogState extends ConsumerState<NumberVerificationDia
           decoration: BoxDecoration(
             color: AppColors.success.withOpacity(0.15),
             shape: BoxShape.circle,
-            border: Border.all(
-              color: AppColors.success,
-              width: 2.5,
-            ),
+            border: Border.all(color: AppColors.success, width: 2.5),
             boxShadow: [
               BoxShadow(
                 color: AppColors.success.withOpacity(0.3),
@@ -442,10 +453,7 @@ class _NumberVerificationDialogState extends ConsumerState<NumberVerificationDia
           decoration: BoxDecoration(
             color: AppColors.error.withOpacity(0.15),
             shape: BoxShape.circle,
-            border: Border.all(
-              color: AppColors.error,
-              width: 2.5,
-            ),
+            border: Border.all(color: AppColors.error, width: 2.5),
             boxShadow: [
               BoxShadow(
                 color: AppColors.error.withOpacity(0.3),
@@ -469,7 +477,8 @@ class _NumberVerificationDialogState extends ConsumerState<NumberVerificationDia
         ),
         const SizedBox(height: 12),
         Text(
-          errorMessage ?? 'No response received. Please check if the SIM card is properly inserted and has active coverage.',
+          errorMessage ??
+              'No response received. Please check if the SIM card is properly inserted and has active coverage.',
           textAlign: TextAlign.center,
           style: AppTextStyles.bodyMedium.copyWith(
             color: AppColors.textSecondaryDark,
@@ -510,10 +519,18 @@ class _NumberVerificationDialogState extends ConsumerState<NumberVerificationDia
                 onPressed: () {
                   HapticHelper.mediumImpact();
                   ref
-                      .read(lineVerificationControllerProvider(widget.simLineId).notifier)
+                      .read(
+                        lineVerificationControllerProvider(
+                          widget.simLineId,
+                        ).notifier,
+                      )
                       .reset();
                   ref
-                      .read(lineVerificationControllerProvider(widget.simLineId).notifier)
+                      .read(
+                        lineVerificationControllerProvider(
+                          widget.simLineId,
+                        ).notifier,
+                      )
                       .startVerification(widget.phoneNumber);
                 },
                 child: const Text(

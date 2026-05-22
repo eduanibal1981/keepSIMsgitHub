@@ -33,7 +33,9 @@ class SettingsScreen extends ConsumerWidget {
               const SizedBox(height: 6),
               Text(
                 'Manage your profile, alerts, and family sharing preferences',
-                style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondaryDark),
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.textSecondaryDark,
+                ),
               ),
               const SizedBox(height: 24),
 
@@ -79,7 +81,9 @@ class SettingsScreen extends ConsumerWidget {
                         ),
                         child: Center(
                           child: Text(
-                            (user.fullName ?? user.email).substring(0, 1).toUpperCase(),
+                            (user.fullName ?? user.email)
+                                .substring(0, 1)
+                                .toUpperCase(),
                             style: AppTextStyles.headlineMedium.copyWith(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -115,7 +119,10 @@ class SettingsScreen extends ConsumerWidget {
                                     ),
                                     decoration: BoxDecoration(
                                       gradient: const LinearGradient(
-                                        colors: [Color(0xFFFBBF24), Color(0xFFF59E0B)],
+                                        colors: [
+                                          Color(0xFFFBBF24),
+                                          Color(0xFFF59E0B),
+                                        ],
                                       ),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
@@ -135,7 +142,9 @@ class SettingsScreen extends ConsumerWidget {
                             const SizedBox(height: 4),
                             Text(
                               user.email,
-                              style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondaryDark),
+                              style: AppTextStyles.bodyMedium.copyWith(
+                                color: AppColors.textSecondaryDark,
+                              ),
                               overflow: TextOverflow.ellipsis,
                             ),
                             if (user.homeCountryCode != null) ...[
@@ -292,10 +301,7 @@ class SettingsScreen extends ConsumerWidget {
       decoration: BoxDecoration(
         color: AppColors.darkCard.withOpacity(0.4),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.06),
-          width: 1.0,
-        ),
+        border: Border.all(color: Colors.white.withOpacity(0.06), width: 1.0),
       ),
       child: Material(
         color: Colors.transparent,
@@ -318,7 +324,10 @@ class SettingsScreen extends ConsumerWidget {
           },
           borderRadius: BorderRadius.circular(18),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 16.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 18.0,
+              vertical: 16.0,
+            ),
             child: Row(
               children: [
                 // Icon
@@ -373,7 +382,9 @@ class SettingsScreen extends ConsumerWidget {
                       const SizedBox(height: 2),
                       Text(
                         subtitle,
-                        style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondaryDark),
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: AppColors.textSecondaryDark,
+                        ),
                       ),
                     ],
                   ),
@@ -406,7 +417,10 @@ class SettingsScreen extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Colors.white70),
+            ),
           ),
           ElevatedButton(
             onPressed: () {
@@ -415,7 +429,9 @@ class SettingsScreen extends ConsumerWidget {
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.redAccent,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             child: const Text('Log Out', style: TextStyle(color: Colors.white)),
           ),

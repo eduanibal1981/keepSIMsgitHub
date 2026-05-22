@@ -15,11 +15,12 @@ class PreferencesScreen extends ConsumerStatefulWidget {
   ConsumerState<PreferencesScreen> createState() => _PreferencesScreenState();
 }
 
-class _PreferencesScreenState extends ConsumerState<PreferencesScreen> with SingleTickerProviderStateMixin {
+class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _biometricAnimController;
   bool _isSimulatingScan = false;
   String _scanStatusText = 'Initializing scan...';
-  
+
   // Custom Keyboard variables for PIN setup
   bool _isSettingPin = false;
   String _pinInput = '';
@@ -45,7 +46,9 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> with Sing
   void _runBiometricSimulation(bool enable) async {
     if (!enable) {
       await HapticHelper.lightTick();
-      ref.read(userPreferencesControllerProvider.notifier).toggleBiometricAuth(false);
+      ref
+          .read(userPreferencesControllerProvider.notifier)
+          .toggleBiometricAuth(false);
       return;
     }
 
@@ -77,7 +80,9 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> with Sing
       setState(() {
         _isSimulatingScan = false;
       });
-      ref.read(userPreferencesControllerProvider.notifier).toggleBiometricAuth(true);
+      ref
+          .read(userPreferencesControllerProvider.notifier)
+          .toggleBiometricAuth(true);
       await HapticHelper.successFeedback();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -90,7 +95,9 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> with Sing
           ),
           backgroundColor: const Color(0xFF10B981),
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
       );
     });
@@ -117,7 +124,9 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> with Sing
               height: MediaQuery.of(context).size.height * 0.85,
               decoration: BoxDecoration(
                 color: const Color(0xFF0F172A),
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(32),
+                ),
                 border: Border.all(
                   color: context.onSurfaceColor.withOpacity(0.08),
                   width: 1.5,
@@ -136,7 +145,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> with Sing
                     ),
                   ),
                   const SizedBox(height: 24),
-                  
+
                   // Header
                   Icon(
                     Icons.lock_rounded,
@@ -145,7 +154,11 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> with Sing
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    _isConfirmStep ? 'Confirm 4-Digit PIN' : (isChange ? 'Enter New Transaction PIN' : 'Setup Transaction PIN'),
+                    _isConfirmStep
+                        ? 'Confirm 4-Digit PIN'
+                        : (isChange
+                              ? 'Enter New Transaction PIN'
+                              : 'Setup Transaction PIN'),
                     style: AppTextStyles.titleLarge.copyWith(
                       color: context.onSurfaceColor,
                       fontWeight: FontWeight.bold,
@@ -160,7 +173,9 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> with Sing
                           ? 'Please re-enter your PIN to verify.'
                           : 'This PIN protects wallet balance withdrawals, funding, and lines freeze edits.',
                       textAlign: TextAlign.center,
-                      style: AppTextStyles.bodyMedium.copyWith(color: context.onSurfaceColor.withOpacity(0.6)),
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: context.onSurfaceColor.withOpacity(0.6),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 32),
@@ -189,33 +204,43 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> with Sing
                           boxShadow: isEntered
                               ? [
                                   BoxShadow(
-                                    color: const Color(0xFFD946EF).withOpacity(0.4),
+                                    color: const Color(
+                                      0xFFD946EF,
+                                    ).withOpacity(0.4),
                                     blurRadius: 8,
                                     spreadRadius: 1,
-                                  )
+                                  ),
                                 ]
                               : [],
                         ),
                       );
                     }),
                   ),
-                  
+
                   if (_pinSetupError.isNotEmpty) ...[
                     const SizedBox(height: 20),
                     Text(
                       _pinSetupError,
-                      style: const TextStyle(color: Colors.redAccent, fontWeight: FontWeight.w500),
+                      style: const TextStyle(
+                        color: Colors.redAccent,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ],
-                  
+
                   const Spacer(),
 
                   // Custom Pin Pad Grid (4x3)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 32,
+                      vertical: 24,
+                    ),
                     decoration: BoxDecoration(
                       color: context.theme.shadowColor.withOpacity(0.2),
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(28),
+                      ),
                     ),
                     child: Column(
                       children: [
@@ -246,7 +271,10 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> with Sing
                             _buildKeypadButton('⌫', () {
                               if (_pinInput.isEmpty) return;
                               setSheetState(() {
-                                _pinInput = _pinInput.substring(0, _pinInput.length - 1);
+                                _pinInput = _pinInput.substring(
+                                  0,
+                                  _pinInput.length - 1,
+                                );
                                 _pinSetupError = '';
                               });
                             }, isAction: true),
@@ -277,7 +305,11 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> with Sing
     );
   }
 
-  Widget _buildKeypadButton(String value, VoidCallback onTap, {bool isAction = false}) {
+  Widget _buildKeypadButton(
+    String value,
+    VoidCallback onTap, {
+    bool isAction = false,
+  }) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -291,7 +323,9 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> with Sing
           height: 72,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: isAction ? context.onSurfaceColor.withOpacity(0.04) : context.onSurfaceColor.withOpacity(0.08),
+            color: isAction
+                ? context.onSurfaceColor.withOpacity(0.04)
+                : context.onSurfaceColor.withOpacity(0.08),
             border: Border.all(
               color: context.onSurfaceColor.withOpacity(0.05),
               width: 1,
@@ -301,7 +335,9 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> with Sing
             child: Text(
               value,
               style: TextStyle(
-                color: isAction ? const Color(0xFFD946EF) : context.onSurfaceColor,
+                color: isAction
+                    ? const Color(0xFFD946EF)
+                    : context.onSurfaceColor,
                 fontSize: isAction ? 20 : 26,
                 fontWeight: FontWeight.w600,
               ),
@@ -328,20 +364,27 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> with Sing
           // Confirm code
           if (_pinInput == _firstPinInput) {
             await HapticHelper.successFeedback();
-            ref.read(userPreferencesControllerProvider.notifier).updateTransactionPin(_pinInput);
+            ref
+                .read(userPreferencesControllerProvider.notifier)
+                .updateTransactionPin(_pinInput);
             Navigator.pop(context);
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Row(
                   children: const [
-                    Icon(Icons.check_circle_outline_rounded, color: context.onSurfaceColor),
+                    Icon(
+                      Icons.check_circle_outline_rounded,
+                      color: context.onSurfaceColor,
+                    ),
                     SizedBox(width: 12),
                     Text('Transaction PIN successfully updated!'),
                   ],
                 ),
                 backgroundColor: const Color(0xFFD946EF),
                 behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             );
           } else {
@@ -396,36 +439,53 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> with Sing
                 return InkWell(
                   onTap: () async {
                     await HapticHelper.mediumImpact();
-                    ref.read(userPreferencesControllerProvider.notifier).updateLanguage(lang['code']!);
+                    ref
+                        .read(userPreferencesControllerProvider.notifier)
+                        .updateLanguage(lang['code']!);
                     Navigator.pop(context);
                     await HapticHelper.successFeedback();
                   },
                   borderRadius: BorderRadius.circular(16),
                   child: Container(
                     margin: const EdgeInsets.symmetric(vertical: 4),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
                     decoration: BoxDecoration(
-                      color: isSelected ? context.onSurfaceColor.withOpacity(0.05) : Colors.transparent,
+                      color: isSelected
+                          ? context.onSurfaceColor.withOpacity(0.05)
+                          : Colors.transparent,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: isSelected ? const Color(0xFF6366F1).withOpacity(0.3) : Colors.transparent,
+                        color: isSelected
+                            ? const Color(0xFF6366F1).withOpacity(0.3)
+                            : Colors.transparent,
                         width: 1,
                       ),
                     ),
                     child: Row(
                       children: [
-                        Text(lang['flag']!, style: const TextStyle(fontSize: 24)),
+                        Text(
+                          lang['flag']!,
+                          style: const TextStyle(fontSize: 24),
+                        ),
                         const SizedBox(width: 16),
                         Text(
                           lang['name']!,
                           style: AppTextStyles.bodyMedium.copyWith(
                             color: context.onSurfaceColor,
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                            fontWeight: isSelected
+                                ? FontWeight.bold
+                                : FontWeight.normal,
                           ),
                         ),
                         const Spacer(),
                         if (isSelected)
-                          const Icon(Icons.check_circle_rounded, color: Color(0xFF6366F1)),
+                          const Icon(
+                            Icons.check_circle_rounded,
+                            color: Color(0xFF6366F1),
+                          ),
                       ],
                     ),
                   ),
@@ -440,7 +500,11 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> with Sing
   }
 
   // Interactive time range picker for quiet hours
-  Future<void> _selectQuietTime(BuildContext context, bool isStart, String? currentValue) async {
+  Future<void> _selectQuietTime(
+    BuildContext context,
+    bool isStart,
+    String? currentValue,
+  ) async {
     int currentHour = 22;
     int currentMinute = 0;
     if (currentValue != null) {
@@ -470,19 +534,20 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> with Sing
     );
 
     if (picked != null) {
-      final formattedTime = '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}:00';
-      final currentPrefs = ref.read(userPreferencesControllerProvider).valueOrNull;
+      final formattedTime =
+          '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}:00';
+      final currentPrefs = ref
+          .read(userPreferencesControllerProvider)
+          .valueOrNull;
       if (currentPrefs != null) {
         if (isStart) {
-          ref.read(userPreferencesControllerProvider.notifier).updateQuietHours(
-                formattedTime,
-                currentPrefs.quietHoursEnd,
-              );
+          ref
+              .read(userPreferencesControllerProvider.notifier)
+              .updateQuietHours(formattedTime, currentPrefs.quietHoursEnd);
         } else {
-          ref.read(userPreferencesControllerProvider.notifier).updateQuietHours(
-                currentPrefs.quietHoursStart,
-                formattedTime,
-              );
+          ref
+              .read(userPreferencesControllerProvider.notifier)
+              .updateQuietHours(currentPrefs.quietHoursStart, formattedTime);
         }
       }
     }
@@ -498,7 +563,10 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> with Sing
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: context.onSurfaceColor),
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: context.onSurfaceColor,
+          ),
           onPressed: () async {
             await HapticHelper.lightTick();
             context.pop();
@@ -514,7 +582,9 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> with Sing
         centerTitle: true,
       ),
       body: prefsState.when(
-        loading: () => const Center(child: CircularProgressIndicator(color: Color(0xFF6366F1))),
+        loading: () => const Center(
+          child: CircularProgressIndicator(color: Color(0xFF6366F1)),
+        ),
         error: (err, stack) => Center(
           child: Text(
             'Error: $err',
@@ -538,7 +608,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> with Sing
                       ),
                     ),
                     const SizedBox(height: 12),
-                    
+
                     // Segmented Theme Slider Card
                     _buildThemeSelector(prefs.theme),
                     const SizedBox(height: 28),
@@ -589,8 +659,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> with Sing
               ),
 
               // Animated Scanning Biometrics Overlay
-              if (_isSimulatingScan)
-                _buildScanningOverlay(),
+              if (_isSimulatingScan) _buildScanningOverlay(),
             ],
           );
         },
@@ -601,9 +670,17 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> with Sing
   // ── Theme Customizer ────────────────────────────────────────────────
   Widget _buildThemeSelector(String selectedTheme) {
     final modes = [
-      {'code': 'system', 'label': 'System', 'icon': Icons.settings_brightness_rounded},
+      {
+        'code': 'system',
+        'label': 'System',
+        'icon': Icons.settings_brightness_rounded,
+      },
       {'code': 'dark', 'label': 'Dark Mode', 'icon': Icons.dark_mode_rounded},
-      {'code': 'light', 'label': 'Light Mode', 'icon': Icons.light_mode_rounded},
+      {
+        'code': 'light',
+        'label': 'Light Mode',
+        'icon': Icons.light_mode_rounded,
+      },
     ];
 
     return Container(
@@ -620,7 +697,9 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> with Sing
             child: InkWell(
               onTap: () async {
                 await HapticHelper.lightTick();
-                ref.read(userPreferencesControllerProvider.notifier).updateTheme(mode['code'] as String);
+                ref
+                    .read(userPreferencesControllerProvider.notifier)
+                    .updateTheme(mode['code'] as String);
               },
               borderRadius: BorderRadius.circular(14),
               child: AnimatedContainer(
@@ -641,7 +720,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> with Sing
                             color: const Color(0xFF6366F1).withOpacity(0.3),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
-                          )
+                          ),
                         ]
                       : [],
                 ),
@@ -650,15 +729,21 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> with Sing
                   children: [
                     Icon(
                       mode['icon'] as IconData,
-                      color: isSelected ? context.onSurfaceColor : context.onSurfaceColor.withOpacity(0.6),
+                      color: isSelected
+                          ? context.onSurfaceColor
+                          : context.onSurfaceColor.withOpacity(0.6),
                       size: 20,
                     ),
                     const SizedBox(height: 6),
                     Text(
                       mode['label'] as String,
                       style: AppTextStyles.bodySmall.copyWith(
-                        color: isSelected ? context.onSurfaceColor : context.onSurfaceColor.withOpacity(0.6),
-                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                        color: isSelected
+                            ? context.onSurfaceColor
+                            : context.onSurfaceColor.withOpacity(0.6),
+                        fontWeight: isSelected
+                            ? FontWeight.bold
+                            : FontWeight.normal,
                       ),
                     ),
                   ],
@@ -711,11 +796,16 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> with Sing
         ),
         title: Text(
           'App Language',
-          style: AppTextStyles.bodyMedium.copyWith(color: context.onSurfaceColor, fontWeight: FontWeight.w600),
+          style: AppTextStyles.bodyMedium.copyWith(
+            color: context.onSurfaceColor,
+            fontWeight: FontWeight.w600,
+          ),
         ),
         subtitle: Text(
           'Currently using regional $langName',
-          style: AppTextStyles.bodySmall.copyWith(color: context.onSurfaceColor.withOpacity(0.6)),
+          style: AppTextStyles.bodySmall.copyWith(
+            color: context.onSurfaceColor.withOpacity(0.6),
+          ),
         ),
         trailing: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -730,10 +820,18 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> with Sing
               const SizedBox(width: 8),
               Text(
                 currentLang.toUpperCase(),
-                style: const TextStyle(color: context.onSurfaceColor, fontWeight: FontWeight.bold, fontSize: 12),
+                style: const TextStyle(
+                  color: context.onSurfaceColor,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                ),
               ),
               const SizedBox(width: 4),
-              Icon(Icons.keyboard_arrow_down_rounded, color: context.onSurfaceColor.withOpacity(0.6), size: 16),
+              Icon(
+                Icons.keyboard_arrow_down_rounded,
+                color: context.onSurfaceColor.withOpacity(0.6),
+                size: 16,
+              ),
             ],
           ),
         ),
@@ -755,7 +853,10 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> with Sing
         children: [
           // Biometric Toggle Switch
           ListTile(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 20,
+              vertical: 8,
+            ),
             leading: Container(
               width: 44,
               height: 44,
@@ -764,16 +865,24 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> with Sing
                 color: const Color(0xFF6366F1).withOpacity(0.1),
               ),
               child: const Center(
-                child: Icon(Icons.fingerprint_rounded, color: Color(0xFF6366F1)),
+                child: Icon(
+                  Icons.fingerprint_rounded,
+                  color: Color(0xFF6366F1),
+                ),
               ),
             ),
             title: Text(
               'Biometric Security',
-              style: AppTextStyles.bodyMedium.copyWith(color: context.onSurfaceColor, fontWeight: FontWeight.w600),
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: context.onSurfaceColor,
+                fontWeight: FontWeight.w600,
+              ),
             ),
             subtitle: Text(
               'Sign in using Face ID or Touch ID',
-              style: AppTextStyles.bodySmall.copyWith(color: context.onSurfaceColor.withOpacity(0.6)),
+              style: AppTextStyles.bodySmall.copyWith(
+                color: context.onSurfaceColor.withOpacity(0.6),
+              ),
             ),
             trailing: Switch(
               value: prefs.biometricEnabled,
@@ -785,7 +894,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> with Sing
               activeTrackColor: const Color(0xFF6366F1).withOpacity(0.3),
             ),
           ),
-          
+
           Divider(color: context.onSurfaceColor.withOpacity(0.05), height: 1),
 
           // Transaction PIN Card Trigger
@@ -794,7 +903,10 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> with Sing
               await HapticHelper.lightTick();
               _showPinSetupSheet(context, hasPin);
             },
-            contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 20,
+              vertical: 8,
+            ),
             leading: Container(
               width: 44,
               height: 44,
@@ -808,25 +920,38 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> with Sing
             ),
             title: Text(
               'Transaction PIN',
-              style: AppTextStyles.bodyMedium.copyWith(color: context.onSurfaceColor, fontWeight: FontWeight.w600),
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: context.onSurfaceColor,
+                fontWeight: FontWeight.w600,
+              ),
             ),
             subtitle: Text(
-              hasPin ? 'PIN setup is active and secure' : 'Secure renewals and withdrawals',
-              style: AppTextStyles.bodySmall.copyWith(color: context.onSurfaceColor.withOpacity(0.6)),
+              hasPin
+                  ? 'PIN setup is active and secure'
+                  : 'Secure renewals and withdrawals',
+              style: AppTextStyles.bodySmall.copyWith(
+                color: context.onSurfaceColor.withOpacity(0.6),
+              ),
             ),
             trailing: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: hasPin ? const Color(0xFFD946EF).withOpacity(0.1) : context.onSurfaceColor.withOpacity(0.05),
+                color: hasPin
+                    ? const Color(0xFFD946EF).withOpacity(0.1)
+                    : context.onSurfaceColor.withOpacity(0.05),
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
-                  color: hasPin ? const Color(0xFFD946EF).withOpacity(0.2) : Colors.transparent,
+                  color: hasPin
+                      ? const Color(0xFFD946EF).withOpacity(0.2)
+                      : Colors.transparent,
                 ),
               ),
               child: Text(
                 hasPin ? 'ACTIVE' : 'SETUP',
                 style: TextStyle(
-                  color: hasPin ? const Color(0xFFD946EF) : context.onSurfaceColor,
+                  color: hasPin
+                      ? const Color(0xFFD946EF)
+                      : context.onSurfaceColor,
                   fontWeight: FontWeight.bold,
                   fontSize: 10,
                   letterSpacing: 0.5,
@@ -851,7 +976,10 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> with Sing
         children: [
           // Weekly Digest Switch
           ListTile(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 20,
+              vertical: 8,
+            ),
             leading: Container(
               width: 44,
               height: 44,
@@ -860,22 +988,32 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> with Sing
                 color: const Color(0xFFEC4899).withOpacity(0.1),
               ),
               child: const Center(
-                child: Icon(Icons.mail_outline_rounded, color: Color(0xFFEC4899)),
+                child: Icon(
+                  Icons.mail_outline_rounded,
+                  color: Color(0xFFEC4899),
+                ),
               ),
             ),
             title: Text(
               'Weekly Digest',
-              style: AppTextStyles.bodyMedium.copyWith(color: context.onSurfaceColor, fontWeight: FontWeight.w600),
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: context.onSurfaceColor,
+                fontWeight: FontWeight.w600,
+              ),
             ),
             subtitle: Text(
               'Receive active wallet & lines report',
-              style: AppTextStyles.bodySmall.copyWith(color: context.onSurfaceColor.withOpacity(0.6)),
+              style: AppTextStyles.bodySmall.copyWith(
+                color: context.onSurfaceColor.withOpacity(0.6),
+              ),
             ),
             trailing: Switch(
               value: prefs.weeklyDigestEnabled,
               onChanged: (val) async {
                 await HapticHelper.mediumImpact();
-                ref.read(userPreferencesControllerProvider.notifier).toggleWeeklyDigest(val);
+                ref
+                    .read(userPreferencesControllerProvider.notifier)
+                    .toggleWeeklyDigest(val);
               },
               activeColor: const Color(0xFFEC4899),
               activeTrackColor: const Color(0xFFEC4899).withOpacity(0.3),
@@ -892,11 +1030,18 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> with Sing
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.dark_mode_outlined, color: Color(0xFF8B5CF6), size: 20),
+                    const Icon(
+                      Icons.dark_mode_outlined,
+                      color: Color(0xFF8B5CF6),
+                      size: 20,
+                    ),
                     const SizedBox(width: 12),
                     Text(
                       'Quiet Hours range',
-                      style: AppTextStyles.bodyMedium.copyWith(color: context.onSurfaceColor, fontWeight: FontWeight.w600),
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: context.onSurfaceColor,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ],
                 ),
@@ -907,15 +1052,24 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> with Sing
                       child: InkWell(
                         onTap: () async {
                           await HapticHelper.lightTick();
-                          _selectQuietTime(context, true, prefs.quietHoursStart);
+                          _selectQuietTime(
+                            context,
+                            true,
+                            prefs.quietHoursStart,
+                          );
                         },
                         borderRadius: BorderRadius.circular(12),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 12,
+                            horizontal: 16,
+                          ),
                           decoration: BoxDecoration(
                             color: context.onSurfaceColor.withOpacity(0.04),
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: context.onSurfaceColor.withOpacity(0.05)),
+                            border: Border.all(
+                              color: context.onSurfaceColor.withOpacity(0.05),
+                            ),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -923,7 +1077,9 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> with Sing
                               Text(
                                 'START TIME',
                                 style: AppTextStyles.bodySmall.copyWith(
-                                  color: context.onSurfaceColor.withOpacity(0.6),
+                                  color: context.onSurfaceColor.withOpacity(
+                                    0.6,
+                                  ),
                                   fontSize: 9,
                                   fontWeight: FontWeight.bold,
                                   letterSpacing: 0.5,
@@ -931,7 +1087,8 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> with Sing
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                prefs.quietHoursStart?.substring(0, 5) ?? '22:00',
+                                prefs.quietHoursStart?.substring(0, 5) ??
+                                    '22:00',
                                 style: const TextStyle(
                                   color: context.onSurfaceColor,
                                   fontWeight: FontWeight.bold,
@@ -945,7 +1102,10 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> with Sing
                     ),
                     const Padding(
                       padding: EdgeInsets.symmetric(horizontal: 12.0),
-                      child: Icon(Icons.arrow_forward_rounded, color: context.onSurfaceColor.withOpacity(0.24)),
+                      child: Icon(
+                        Icons.arrow_forward_rounded,
+                        color: context.onSurfaceColor.withOpacity(0.24),
+                      ),
                     ),
                     Expanded(
                       child: InkWell(
@@ -955,11 +1115,16 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> with Sing
                         },
                         borderRadius: BorderRadius.circular(12),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 12,
+                            horizontal: 16,
+                          ),
                           decoration: BoxDecoration(
                             color: context.onSurfaceColor.withOpacity(0.04),
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: context.onSurfaceColor.withOpacity(0.05)),
+                            border: Border.all(
+                              color: context.onSurfaceColor.withOpacity(0.05),
+                            ),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -967,7 +1132,9 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> with Sing
                               Text(
                                 'END TIME',
                                 style: AppTextStyles.bodySmall.copyWith(
-                                  color: context.onSurfaceColor.withOpacity(0.6),
+                                  color: context.onSurfaceColor.withOpacity(
+                                    0.6,
+                                  ),
                                   fontSize: 9,
                                   fontWeight: FontWeight.bold,
                                   letterSpacing: 0.5,
@@ -1041,7 +1208,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> with Sing
                           ),
                         ),
                       ),
-                      
+
                       // Face icon glowing
                       Icon(
                         Icons.face_unlock_rounded,

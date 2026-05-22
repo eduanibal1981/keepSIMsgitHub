@@ -14,7 +14,6 @@ import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 
 import 'package:keep_sims/features/profile/presentation/controller/profile_controller.dart';
 
-
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
 
@@ -221,8 +220,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
                 height: 4,
-                width: MediaQuery.of(context).size.width *
-                    ((_currentPage + 1) / 4) - 48,
+                width:
+                    MediaQuery.of(context).size.width *
+                        ((_currentPage + 1) / 4) -
+                    48,
                 decoration: BoxDecoration(
                   gradient: AppColors.primaryGradient,
                   borderRadius: BorderRadius.circular(2),
@@ -415,9 +416,15 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(14),
-                borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+                borderSide: const BorderSide(
+                  color: AppColors.primary,
+                  width: 1.5,
+                ),
               ),
-              prefixIcon: Icon(Icons.person_rounded, color: AppColors.textSecondaryDark),
+              prefixIcon: Icon(
+                Icons.person_rounded,
+                color: AppColors.textSecondaryDark,
+              ),
             ),
           ),
           const SizedBox(height: 24),
@@ -442,7 +449,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               child: DropdownButton<String>(
                 value: _selectedCountryCode,
                 dropdownColor: AppColors.darkSurface,
-                icon: Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.textSecondaryDark),
+                icon: Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  color: AppColors.textSecondaryDark,
+                ),
                 isExpanded: true,
                 items: _countries.map((country) {
                   return DropdownMenuItem<String>(
@@ -456,7 +466,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                         const SizedBox(width: 12),
                         Text(
                           country['name']!,
-                          style: AppTextStyles.bodyLarge.copyWith(color: Colors.white),
+                          style: AppTextStyles.bodyLarge.copyWith(
+                            color: Colors.white,
+                          ),
                         ),
                       ],
                     ),
@@ -494,14 +506,19 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               child: DropdownButton<String>(
                 value: _selectedCurrency,
                 dropdownColor: AppColors.darkSurface,
-                icon: Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.textSecondaryDark),
+                icon: Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  color: AppColors.textSecondaryDark,
+                ),
                 isExpanded: true,
                 items: _currencies.map((curr) {
                   return DropdownMenuItem<String>(
                     value: curr['code'],
                     child: Text(
                       curr['name']!,
-                      style: AppTextStyles.bodyLarge.copyWith(color: Colors.white),
+                      style: AppTextStyles.bodyLarge.copyWith(
+                        color: Colors.white,
+                      ),
                     ),
                   );
                 }).toList(),
@@ -550,9 +567,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             title: 'Basic Plan',
             price: '\$1',
             period: 'line/month',
-            desc: 'Smart notifications before expiry. Validity calendar alerts.',
+            desc:
+                'Smart notifications before expiry. Validity calendar alerts.',
             color: Colors.blueAccent,
-            features: ['Smart Expiry alerts', 'Quiet hours support', 'Line validity tracking'],
+            features: [
+              'Smart Expiry alerts',
+              'Quiet hours support',
+              'Line validity tracking',
+            ],
           ),
           const SizedBox(height: 16),
 
@@ -562,10 +584,15 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             title: 'Standard Plan',
             price: '\$3',
             period: 'line/month',
-            desc: 'Automated validity checking + 1 secure backup auto-renewal top-up.',
+            desc:
+                'Automated validity checking + 1 secure backup auto-renewal top-up.',
             color: AppColors.primary,
             isPopular: true,
-            features: ['All Basic features', '1 auto-recharge top-up/mo', 'Automatic operator detection'],
+            features: [
+              'All Basic features',
+              '1 auto-recharge top-up/mo',
+              'Automatic operator detection',
+            ],
           ),
           const SizedBox(height: 16),
 
@@ -575,9 +602,15 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             title: 'Premium Shield',
             price: '\$5',
             period: 'line/month',
-            desc: 'Unlimited smart automatic top-ups, geofenced tracking, household bulk renew.',
+            desc:
+                'Unlimited smart automatic top-ups, geofenced tracking, household bulk renew.',
             color: Colors.purpleAccent,
-            features: ['Unlimited auto top-ups', 'Smart geofenced freeze', 'Family Household view', 'Priority 24/7 support'],
+            features: [
+              'Unlimited auto top-ups',
+              'Smart geofenced freeze',
+              'Family Household view',
+              'Priority 24/7 support',
+            ],
           ),
         ],
       ),
@@ -617,7 +650,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     color: color.withValues(alpha: 0.15),
                     blurRadius: 20,
                     offset: const Offset(0, 8),
-                  )
+                  ),
                 ]
               : null,
         ),
@@ -630,7 +663,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   right: -12,
                   top: -12,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 16,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.primary.withValues(alpha: 0.15),
                       borderRadius: const BorderRadius.only(
@@ -665,7 +701,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                                 shape: BoxShape.circle,
                                 color: isSelected ? color : Colors.transparent,
                                 border: Border.all(
-                                  color: isSelected ? color : AppColors.textTertiaryDark,
+                                  color: isSelected
+                                      ? color
+                                      : AppColors.textTertiaryDark,
                                   width: 2,
                                 ),
                               ),
@@ -788,7 +826,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                             color: Colors.orangeAccent.withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          child: const Icon(Icons.construction_rounded, color: Colors.orangeAccent, size: 20),
+                          child: const Icon(
+                            Icons.construction_rounded,
+                            color: Colors.orangeAccent,
+                            size: 20,
+                          ),
                         ),
                         const SizedBox(width: 12),
                         Text(
@@ -803,7 +845,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     Switch(
                       value: _isPowerUser,
                       activeThumbColor: AppColors.primary,
-                      activeTrackColor: AppColors.primary.withValues(alpha: 0.3),
+                      activeTrackColor: AppColors.primary.withValues(
+                        alpha: 0.3,
+                      ),
                       inactiveThumbColor: AppColors.textTertiaryDark,
                       inactiveTrackColor: AppColors.darkBorder,
                       onChanged: (val) {
@@ -842,15 +886,23 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   width: 22,
                   height: 22,
                   decoration: BoxDecoration(
-                    color: _agreedToTerms ? AppColors.primary : Colors.transparent,
+                    color: _agreedToTerms
+                        ? AppColors.primary
+                        : Colors.transparent,
                     border: Border.all(
-                      color: _agreedToTerms ? AppColors.primary : AppColors.darkBorder,
+                      color: _agreedToTerms
+                          ? AppColors.primary
+                          : AppColors.darkBorder,
                       width: 2,
                     ),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: _agreedToTerms
-                      ? const Icon(Icons.check_rounded, color: Colors.white, size: 16)
+                      ? const Icon(
+                          Icons.check_rounded,
+                          color: Colors.white,
+                          size: 16,
+                        )
                       : null,
                 ),
                 const SizedBox(width: 12),
@@ -876,9 +928,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: const BoxDecoration(
-        border: Border(
-          top: BorderSide(color: AppColors.darkBorder, width: 1),
-        ),
+        border: Border(top: BorderSide(color: AppColors.darkBorder, width: 1)),
       ),
       child: Row(
         children: [
@@ -913,12 +963,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 onPressed: (isLoading)
                     ? null
                     : (_currentPage == 3)
-                        ? _submit
-                        : _nextPage,
+                    ? _submit
+                    : _nextPage,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
-                  disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.5),
+                  disabledBackgroundColor: AppColors.primary.withValues(
+                    alpha: 0.5,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),

@@ -34,13 +34,14 @@ class SimLinesController extends _$SimLinesController {
     required String protectionTier,
   }) async {
     final userId = ref.read(authControllerProvider).valueOrNull?.id;
-    if (userId == null) throw Exception('Cannot add SIM line: User is not authenticated.');
+    if (userId == null)
+      throw Exception('Cannot add SIM line: User is not authenticated.');
 
     final previousList = state.valueOrNull ?? [];
     state = const AsyncLoading<List<SimLine>>().copyWithPrevious(state);
     state = await AsyncValue.guard(() async {
       final repo = ref.read(simLinesRepositoryProvider);
-      
+
       final newLine = SimLine(
         id: '',
         userId: userId,
@@ -67,7 +68,9 @@ class SimLinesController extends _$SimLinesController {
       final updated = await repo.updateSimLine(line);
       ref.invalidate(dashboardControllerProvider);
 
-      return previousList.map((item) => item.id == line.id ? updated : item).toList();
+      return previousList
+          .map((item) => item.id == line.id ? updated : item)
+          .toList();
     });
   }
 
@@ -114,11 +117,17 @@ Future<List<Country>> supportedCountries(SupportedCountriesRef ref) {
 }
 
 @riverpod
-Future<List<Carrier>> carriersForCountry(CarriersForCountryRef ref, String countryId) {
+Future<List<Carrier>> carriersForCountry(
+  CarriersForCountryRef ref,
+  String countryId,
+) {
   return ref.watch(simLinesRepositoryProvider).getCarriersForCountry(countryId);
 }
 
 @riverpod
-FutureOr<List<LineActivityLog>> simLineActivityLogs(SimLineActivityLogsRef ref, String simLineId) {
+FutureOr<List<LineActivityLog>> simLineActivityLogs(
+  SimLineActivityLogsRef ref,
+  String simLineId,
+) {
   return ref.watch(simLinesRepositoryProvider).getLineActivityLogs(simLineId);
 }

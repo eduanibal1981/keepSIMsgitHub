@@ -37,7 +37,8 @@ abstract class WalletTransaction with _$WalletTransaction {
     @Default(0.0) double amount,
     @Default(0.0) double balanceBefore,
     @Default(0.0) double balanceAfter,
-    @Default('deposit') String type, // 'deposit', 'topup_debit', 'referral_credit'
+    @Default('deposit')
+    String type, // 'deposit', 'topup_debit', 'referral_credit'
     String? description,
     String? referenceId,
     DateTime? createdAt,

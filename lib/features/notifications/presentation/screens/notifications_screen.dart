@@ -15,7 +15,8 @@ class NotificationsScreen extends ConsumerStatefulWidget {
   const NotificationsScreen({super.key});
 
   @override
-  ConsumerState<NotificationsScreen> createState() => _NotificationsScreenState();
+  ConsumerState<NotificationsScreen> createState() =>
+      _NotificationsScreenState();
 }
 
 class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
@@ -103,8 +104,12 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
           // Expand Simulator Button
           IconButton(
             icon: Icon(
-              _isSimulatorExpanded ? Icons.terminal_rounded : Icons.terminal_outlined,
-              color: _isSimulatorExpanded ? AppColors.secondary : AppColors.textSecondaryDark,
+              _isSimulatorExpanded
+                  ? Icons.terminal_rounded
+                  : Icons.terminal_outlined,
+              color: _isSimulatorExpanded
+                  ? AppColors.secondary
+                  : AppColors.textSecondaryDark,
             ),
             tooltip: 'Toggle Alert Simulator',
             onPressed: () async {
@@ -116,7 +121,10 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
           ),
           // Settings button
           IconButton(
-            icon: const Icon(Icons.tune_rounded, color: AppColors.textSecondaryDark),
+            icon: const Icon(
+              Icons.tune_rounded,
+              color: AppColors.textSecondaryDark,
+            ),
             tooltip: 'Alert Preferences',
             onPressed: () async {
               await HapticHelper.lightTick();
@@ -152,7 +160,9 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
               indicator: BoxDecoration(
                 color: AppColors.darkCard,
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
+                border: Border.all(
+                  color: AppColors.primary.withValues(alpha: 0.3),
+                ),
               ),
               labelColor: AppColors.textPrimaryDark,
               unselectedLabelColor: AppColors.textTertiaryDark,
@@ -221,7 +231,11 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
         children: [
           Row(
             children: [
-              const Icon(Icons.terminal_rounded, color: AppColors.secondary, size: 18),
+              const Icon(
+                Icons.terminal_rounded,
+                color: AppColors.secondary,
+                size: 18,
+              ),
               const SizedBox(width: 8),
               Text(
                 'Live Incident Simulator',
@@ -233,11 +247,13 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
             ],
           ),
           const SizedBox(height: 12),
-          
+
           // Dropdown for categories
           Text(
             'Select Incident Template',
-            style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondaryDark),
+            style: AppTextStyles.bodySmall.copyWith(
+              color: AppColors.textSecondaryDark,
+            ),
           ),
           const SizedBox(height: 6),
           Container(
@@ -252,11 +268,19 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
                 value: _selectedCategory,
                 isExpanded: true,
                 dropdownColor: AppColors.darkBg,
-                icon: const Icon(Icons.arrow_drop_down_rounded, color: AppColors.primaryLight),
+                icon: const Icon(
+                  Icons.arrow_drop_down_rounded,
+                  color: AppColors.primaryLight,
+                ),
                 items: _simulatorCategories.entries.map((e) {
                   return DropdownMenuItem<String>(
                     value: e.key,
-                    child: Text(e.value, style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimaryDark)),
+                    child: Text(
+                      e.value,
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: AppColors.textPrimaryDark,
+                      ),
+                    ),
                   );
                 }).toList(),
                 onChanged: (val) async {
@@ -275,7 +299,9 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
           // Dropdown for target SIM card
           Text(
             'Link to SIM Card (Optional)',
-            style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondaryDark),
+            style: AppTextStyles.bodySmall.copyWith(
+              color: AppColors.textSecondaryDark,
+            ),
           ),
           const SizedBox(height: 6),
           simLinesAsync.maybeWhen(
@@ -283,7 +309,9 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
               if (lines.isEmpty) {
                 return Text(
                   'No SIM lines added yet.',
-                  style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiaryDark),
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.textTertiaryDark,
+                  ),
                 );
               }
 
@@ -304,13 +332,18 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
                     value: _selectedSimLineId,
                     isExpanded: true,
                     dropdownColor: AppColors.darkBg,
-                    icon: const Icon(Icons.arrow_drop_down_rounded, color: AppColors.primaryLight),
+                    icon: const Icon(
+                      Icons.arrow_drop_down_rounded,
+                      color: AppColors.primaryLight,
+                    ),
                     items: lines.map((l) {
                       return DropdownMenuItem<String>(
                         value: l.id,
                         child: Text(
                           '${l.nickname ?? "SIM Card"} (${l.phoneNumber})',
-                          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimaryDark),
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            color: AppColors.textPrimaryDark,
+                          ),
                         ),
                       );
                     }).toList(),
@@ -326,9 +359,9 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
             },
             orElse: () => const SizedBox.shrink(),
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Trigger Button
           SizedBox(
             width: double.infinity,
@@ -341,7 +374,9 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
               icon: const Icon(Icons.play_arrow_rounded, size: 20),
               label: const Text('Inject simulated incident'),
@@ -359,40 +394,50 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
     switch (_selectedCategory) {
       case 'top_up_success':
         title = 'Renewal Successful';
-        body = 'Auto-refill of \$15.00 executed successfully. Your SIM validity has been extended by 30 days.';
+        body =
+            'Auto-refill of \$15.00 executed successfully. Your SIM validity has been extended by 30 days.';
         break;
       case 'top_up_failed':
         title = 'Renewal Failed (Critical)';
-        body = 'Immediate attention required! Auto-refill of \$10.00 failed due to insufficient wallet funds.';
+        body =
+            'Immediate attention required! Auto-refill of \$10.00 failed due to insufficient wallet funds.';
         break;
       case 'wallet_low':
         title = 'Low Wallet Balance';
-        body = 'Your primary wallet balance is \$8.50, which is below your \$10.00 threshold limit.';
+        body =
+            'Your primary wallet balance is \$8.50, which is below your \$10.00 threshold limit.';
         break;
       case 'wallet_depleted':
         title = 'Wallet Depleted';
-        body = 'Your wallet has reached \$0.00. Automatic renewals are now suspended until you add funds.';
+        body =
+            'Your wallet has reached \$0.00. Automatic renewals are now suspended until you add funds.';
         break;
       case 'line_critical':
         title = 'SIM Approaching Expiry';
-        body = 'Your SIM card validity expires in 48 hours. Auto-renewal has been queued for immediate backup rescue.';
+        body =
+            'Your SIM card validity expires in 48 hours. Auto-renewal has been queued for immediate backup rescue.';
         break;
       case 'line_entering_grace':
         title = 'Entering Grace Period';
-        body = 'Your prepaid SIM card has entered carrier grace period. Please perform a top-up immediately to avoid deactivation.';
+        body =
+            'Your prepaid SIM card has entered carrier grace period. Please perform a top-up immediately to avoid deactivation.';
         break;
       case 'referral_reward':
         title = 'Referral Credit Awarded';
-        body = 'Congratulations! Your friend successfully joined. \$2.00 has been credited to your primary wallet.';
+        body =
+            'Congratulations! Your friend successfully joined. \$2.00 has been credited to your primary wallet.';
         break;
       case 'system':
       default:
         title = 'System Maintenance Completed';
-        body = 'Carrier rule engines updated for expat carrier nodes. All deactivation thresholds updated successfully.';
+        body =
+            'Carrier rule engines updated for expat carrier nodes. All deactivation thresholds updated successfully.';
         break;
     }
 
-    ref.read(notificationsControllerProvider.notifier).simulateMockNotification(
+    ref
+        .read(notificationsControllerProvider.notifier)
+        .simulateMockNotification(
           category: _selectedCategory,
           title: title,
           body: body,
@@ -414,11 +459,15 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
     return EmptyStateView(
       icon: Icons.notifications_none_rounded,
       title: 'No notifications yet',
-      description: 'We will alert you when renewal tasks, wallet changes, or grace period warnings occur.',
+      description:
+          'We will alert you when renewal tasks, wallet changes, or grace period warnings occur.',
     );
   }
 
-  Widget _buildNotificationList(BuildContext context, List<AppNotification> list) {
+  Widget _buildNotificationList(
+    BuildContext context,
+    List<AppNotification> list,
+  ) {
     if (list.isEmpty) {
       return EmptyStateView(
         icon: Icons.done_all_rounded,
@@ -445,16 +494,22 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
                   },
                   icon: const Icon(Icons.delete_sweep_outlined, size: 18),
                   label: const Text('Clear All'),
-                  style: TextButton.styleFrom(foregroundColor: AppColors.healthRed),
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppColors.healthRed,
+                  ),
                 ),
                 TextButton.icon(
                   onPressed: () async {
                     await HapticHelper.successFeedback();
-                    ref.read(notificationsControllerProvider.notifier).markAllAsRead();
+                    ref
+                        .read(notificationsControllerProvider.notifier)
+                        .markAllAsRead();
                   },
                   icon: const Icon(Icons.done_all_rounded, size: 18),
                   label: const Text('Mark All Read'),
-                  style: TextButton.styleFrom(foregroundColor: AppColors.primaryLight),
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppColors.primaryLight,
+                  ),
                 ),
               ],
             ),
@@ -515,11 +570,17 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
             color: AppColors.healthRed.withValues(alpha: 0.8),
             borderRadius: BorderRadius.circular(16),
           ),
-          child: const Icon(Icons.delete_rounded, color: Colors.white, size: 28),
+          child: const Icon(
+            Icons.delete_rounded,
+            color: Colors.white,
+            size: 28,
+          ),
         ),
         onDismissed: (_) async {
           await HapticHelper.mediumImpact();
-          ref.read(notificationsControllerProvider.notifier).deleteNotification(item.id);
+          ref
+              .read(notificationsControllerProvider.notifier)
+              .deleteNotification(item.id);
         },
         child: Container(
           decoration: BoxDecoration(
@@ -536,7 +597,9 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
             borderRadius: BorderRadius.circular(16),
             onTap: () async {
               await HapticHelper.lightTick();
-              ref.read(notificationsControllerProvider.notifier).markAsRead(item.id);
+              ref
+                  .read(notificationsControllerProvider.notifier)
+                  .markAsRead(item.id);
               if (item.simLineId != null) {
                 context.push('/sim-lines/detail/${item.simLineId}');
               }
@@ -552,7 +615,9 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
                   child: Container(
                     decoration: BoxDecoration(
                       color: indicatorColor,
-                      borderRadius: const BorderRadius.horizontal(right: Radius.circular(4)),
+                      borderRadius: const BorderRadius.horizontal(
+                        right: Radius.circular(4),
+                      ),
                       boxShadow: [
                         BoxShadow(
                           color: indicatorColor.withValues(alpha: 0.6),
@@ -595,8 +660,9 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
                                       color: item.isRead
                                           ? AppColors.textSecondaryDark
                                           : AppColors.textPrimaryDark,
-                                      fontWeight:
-                                          item.isRead ? FontWeight.w500 : FontWeight.bold,
+                                      fontWeight: item.isRead
+                                          ? FontWeight.w500
+                                          : FontWeight.bold,
                                     ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
@@ -679,23 +745,35 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
         backgroundColor: AppColors.darkSurface,
         title: Text(
           'Clear all alerts?',
-          style: AppTextStyles.titleLarge.copyWith(color: AppColors.textPrimaryDark),
+          style: AppTextStyles.titleLarge.copyWith(
+            color: AppColors.textPrimaryDark,
+          ),
         ),
         content: Text(
           'This will permanently delete all notifications from your account timeline history.',
-          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondaryDark),
+          style: AppTextStyles.bodyMedium.copyWith(
+            color: AppColors.textSecondaryDark,
+          ),
         ),
         actions: [
           TextButton(
-            child: const Text('Cancel', style: TextStyle(color: AppColors.textTertiaryDark)),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: AppColors.textTertiaryDark),
+            ),
             onPressed: () async {
               await HapticHelper.lightTick();
               Navigator.pop(ctx);
             },
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.healthRed),
-            child: const Text('Clear All', style: TextStyle(color: Colors.white)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.healthRed,
+            ),
+            child: const Text(
+              'Clear All',
+              style: TextStyle(color: Colors.white),
+            ),
             onPressed: () async {
               await HapticHelper.mediumImpact();
               ref.read(notificationsControllerProvider.notifier).clearAll();

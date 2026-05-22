@@ -27,7 +27,8 @@ class SimLinesListScreen extends ConsumerStatefulWidget {
   ConsumerState<SimLinesListScreen> createState() => _SimLinesListScreenState();
 }
 
-class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen> with SingleTickerProviderStateMixin {
+class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   bool _isSelectMode = false;
   final Set<String> _selectedIds = {};
@@ -63,7 +64,9 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen> with Si
     int failCount = 0;
 
     for (final line in selectedLines) {
-      final schedule = schedules.firstWhereOrNull((s) => s.simLineId == line.id);
+      final schedule = schedules.firstWhereOrNull(
+        (s) => s.simLineId == line.id,
+      );
       if (schedule != null) {
         if (schedule.isActive != enable) {
           final res = await ref
@@ -90,7 +93,9 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen> with Si
                 ? 'Bulk Resume complete: $successCount active, $failCount skipped.'
                 : 'Bulk Pause complete: $successCount paused, $failCount skipped.',
           ),
-          backgroundColor: failCount > 0 ? AppColors.warning : AppColors.success,
+          backgroundColor: failCount > 0
+              ? AppColors.warning
+              : AppColors.success,
         ),
       );
       setState(() {
@@ -111,7 +116,9 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen> with Si
     String? errorMessage;
 
     for (final line in selectedLines) {
-      final schedule = schedules.firstWhereOrNull((s) => s.simLineId == line.id);
+      final schedule = schedules.firstWhereOrNull(
+        (s) => s.simLineId == line.id,
+      );
       if (schedule != null) {
         if (schedule.isActive) {
           final res = await ref
@@ -166,9 +173,12 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen> with Si
   Widget _buildBulkActionsConsole(List<SimLine> myLines) {
     if (!_isSelectMode) return const SizedBox.shrink();
 
-    final selectedLines = myLines.where((l) => _selectedIds.contains(l.id)).toList();
+    final selectedLines = myLines
+        .where((l) => _selectedIds.contains(l.id))
+        .toList();
     final count = selectedLines.length;
-    final schedules = ref.read(scheduledTopupControllerProvider).valueOrNull ?? [];
+    final schedules =
+        ref.read(scheduledTopupControllerProvider).valueOrNull ?? [];
 
     return Align(
       alignment: Alignment.bottomCenter,
@@ -178,7 +188,10 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen> with Si
           decoration: BoxDecoration(
             color: AppColors.darkSurface,
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: AppColors.primary.withOpacity(0.3), width: 1.5),
+            border: Border.all(
+              color: AppColors.primary.withOpacity(0.3),
+              width: 1.5,
+            ),
             boxShadow: [
               BoxShadow(
                 color: AppColors.primary.withOpacity(0.15),
@@ -197,7 +210,10 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen> with Si
                   Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: AppColors.primary.withOpacity(0.2),
                           borderRadius: BorderRadius.circular(8),
@@ -221,7 +237,11 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen> with Si
                     ],
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close, color: AppColors.textSecondaryDark, size: 20),
+                    icon: const Icon(
+                      Icons.close,
+                      color: AppColors.textSecondaryDark,
+                      size: 20,
+                    ),
                     onPressed: () {
                       setState(() {
                         _isSelectMode = false;
@@ -241,7 +261,11 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen> with Si
                       color: AppColors.secondary,
                       onPressed: _isBulkActionLoading || count == 0
                           ? null
-                          : () => _bulkToggleRefill(selectedLines, schedules, true),
+                          : () => _bulkToggleRefill(
+                              selectedLines,
+                              schedules,
+                              true,
+                            ),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -252,7 +276,11 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen> with Si
                       color: AppColors.warning,
                       onPressed: _isBulkActionLoading || count == 0
                           ? null
-                          : () => _bulkToggleRefill(selectedLines, schedules, false),
+                          : () => _bulkToggleRefill(
+                              selectedLines,
+                              schedules,
+                              false,
+                            ),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -296,7 +324,11 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen> with Si
       icon: Icon(icon, size: 16, color: Colors.white),
       label: Text(
         label,
-        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
+        style: const TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
       ),
       style: ElevatedButton.styleFrom(
         backgroundColor: color.withOpacity(0.15),
@@ -320,8 +352,12 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen> with Si
 
     final simLines = simLinesState.valueOrNull ?? [];
     final currentUserId = ref.watch(authControllerProvider).valueOrNull?.id;
-    final myLines = simLines.where((line) => line.userId == currentUserId).toList();
-    final sharedLines = simLines.where((line) => line.userId != currentUserId).toList();
+    final myLines = simLines
+        .where((line) => line.userId == currentUserId)
+        .toList();
+    final sharedLines = simLines
+        .where((line) => line.userId != currentUserId)
+        .toList();
     final visibleLines = _tabController.index == 0 ? myLines : sharedLines;
 
     return Scaffold(
@@ -340,7 +376,9 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen> with Si
             : null,
         title: Text(
           _isSelectMode ? '${_selectedIds.length} Selected' : 'Protected SIMs',
-          style: AppTextStyles.headlineLarge.copyWith(color: AppColors.textPrimaryDark),
+          style: AppTextStyles.headlineLarge.copyWith(
+            color: AppColors.textPrimaryDark,
+          ),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -366,7 +404,10 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen> with Si
             )
           else
             IconButton(
-              icon: const Icon(Icons.refresh, color: AppColors.textSecondaryDark),
+              icon: const Icon(
+                Icons.refresh,
+                color: AppColors.textSecondaryDark,
+              ),
               onPressed: () async {
                 await HapticHelper.mediumImpact();
                 ref.invalidate(simLinesControllerProvider);
@@ -382,22 +423,23 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen> with Si
           labelColor: Colors.white,
           unselectedLabelColor: AppColors.textSecondaryDark,
           tabs: const [
-            Tab(
-              icon: Icon(Icons.person, size: 20),
-              text: 'My SIM Cards',
-            ),
-            Tab(
-              icon: Icon(Icons.people, size: 20),
-              text: 'Family Shared SIMs',
-            ),
+            Tab(icon: Icon(Icons.person, size: 20), text: 'My SIM Cards'),
+            Tab(icon: Icon(Icons.people, size: 20), text: 'Family Shared SIMs'),
           ],
         ),
       ),
       body: simLinesState.when(
         data: (lines) {
-          final currentUserId = ref.watch(authControllerProvider).valueOrNull?.id;
-          final myLines = lines.where((line) => line.userId == currentUserId).toList();
-          final sharedLines = lines.where((line) => line.userId != currentUserId).toList();
+          final currentUserId = ref
+              .watch(authControllerProvider)
+              .valueOrNull
+              ?.id;
+          final myLines = lines
+              .where((line) => line.userId == currentUserId)
+              .toList();
+          final sharedLines = lines
+              .where((line) => line.userId != currentUserId)
+              .toList();
 
           return Stack(
             children: [
@@ -446,12 +488,12 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen> with Si
     );
   }
 
-
   Widget _buildEmptyState(BuildContext context) {
     return EmptyStateView(
       icon: Icons.sim_card_outlined,
       title: 'No Protected Lines',
-      description: 'You don\'t have any international SIM cards added yet. Protect your first card now to keep it active forever.',
+      description:
+          'You don\'t have any international SIM cards added yet. Protect your first card now to keep it active forever.',
       buttonText: 'Protect New Line',
       onButtonPressed: () async {
         await HapticHelper.lightTick();
@@ -464,7 +506,8 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen> with Si
     return EmptyStateView(
       icon: Icons.people_outline,
       title: 'No Shared SIMs yet',
-      description: 'Invite family members to join your Household. Once they accept, their protected SIM lines will appear here for collaborative monitoring.',
+      description:
+          'Invite family members to join your Household. Once they accept, their protected SIM lines will appear here for collaborative monitoring.',
       buttonText: 'Manage Household',
       onButtonPressed: () async {
         await HapticHelper.lightTick();
@@ -574,10 +617,7 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen> with Si
                   SizedBox(height: 4),
                   Text(
                     'Keep infinite international numbers alive',
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 13,
-                    ),
+                    style: TextStyle(color: Colors.white70, fontSize: 13),
                   ),
                 ],
               ),

@@ -19,7 +19,9 @@ class ReferralsRepository implements ReferralsContract {
     try {
       final userId = _client.auth.currentUser?.id;
       if (userId == null) {
-        return const Failure(AppFailure.auth(message: 'No authenticated user.'));
+        return const Failure(
+          AppFailure.auth(message: 'No authenticated user.'),
+        );
       }
 
       // Fetch referrals where current user is the referrer, joining the referred profile details
@@ -46,14 +48,16 @@ class ReferralsRepository implements ReferralsContract {
     try {
       final userId = _client.auth.currentUser?.id;
       if (userId == null) {
-        return const Failure(AppFailure.auth(message: 'No authenticated user.'));
+        return const Failure(
+          AppFailure.auth(message: 'No authenticated user.'),
+        );
       }
 
       // Execute atomic postgres transaction via RPC
-      await _client.rpc('apply_referral', params: {
-        'p_referred_id': userId,
-        'p_referral_code': referralCode,
-      });
+      await _client.rpc(
+        'apply_referral',
+        params: {'p_referred_id': userId, 'p_referral_code': referralCode},
+      );
 
       return const Success(null);
     } on PostgrestException catch (e) {

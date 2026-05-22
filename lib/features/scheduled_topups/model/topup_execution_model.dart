@@ -20,7 +20,8 @@ abstract class TopupExecution with _$TopupExecution {
     required double amount,
     @Default('USD') String currency,
     String? reloadlyTransactionId,
-    @Default('pending') String status, // 'pending', 'processing', 'success', 'failed', 'refunded'
+    @Default('pending')
+    String status, // 'pending', 'processing', 'success', 'failed', 'refunded'
     String? failureReason,
     String? retryOf,
     int? validityDaysAdded,

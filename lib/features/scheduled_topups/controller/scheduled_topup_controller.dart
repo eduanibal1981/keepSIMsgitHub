@@ -21,7 +21,7 @@ class ScheduledTopupController extends _$ScheduledTopupController {
   FutureOr<List<ScheduledTopup>> build() async {
     final repo = ref.watch(scheduledTopupRepositoryProvider);
     final result = await repo.getSchedules();
-    
+
     return switch (result) {
       Success(data: final schedules) => schedules,
       Failure(error: final failure) => throw Exception(failure.message),
@@ -44,7 +44,7 @@ class ScheduledTopupController extends _$ScheduledTopupController {
   /// Configures (creates or updates) a top-up schedule for a SIM Line.
   Future<Result<ScheduledTopup>> saveSchedule(ScheduledTopup schedule) async {
     final repo = ref.read(scheduledTopupRepositoryProvider);
-    
+
     // Check if we are updating or creating
     final isNew = schedule.id.isEmpty;
     final Result<ScheduledTopup> result;
@@ -106,7 +106,7 @@ class ScheduledTopupController extends _$ScheduledTopupController {
     if (result is Success<void>) {
       // Reload everything to get updated next execution time, last execution time, and new wallet balance!
       await refresh();
-      
+
       // Invalidate the wallet and SIM line controllers so the UI reflects the deducted balance & restored status instantly!
       ref.invalidate(walletControllerProvider);
       ref.invalidate(simLinesControllerProvider);
@@ -115,7 +115,10 @@ class ScheduledTopupController extends _$ScheduledTopupController {
   }
 
   /// Retries a failed execution record.
-  Future<Result<void>> retryFailedExecution(String executionId, String simLineId) async {
+  Future<Result<void>> retryFailedExecution(
+    String executionId,
+    String simLineId,
+  ) async {
     final repo = ref.read(scheduledTopupRepositoryProvider);
     final result = await repo.retryExecution(executionId);
 
@@ -129,7 +132,10 @@ class ScheduledTopupController extends _$ScheduledTopupController {
   }
 
   /// Removes an execution record by ID.
-  Future<Result<void>> removeExecution(String executionId, String simLineId) async {
+  Future<Result<void>> removeExecution(
+    String executionId,
+    String simLineId,
+  ) async {
     final repo = ref.read(scheduledTopupRepositoryProvider);
     final result = await repo.deleteExecution(executionId);
 
@@ -142,7 +148,10 @@ class ScheduledTopupController extends _$ScheduledTopupController {
 
 /// Helper provider to get schedule for a specific SIM line.
 @riverpod
-ScheduledTopup? scheduledTopupForLine(ScheduledTopupForLineRef ref, String simLineId) {
+ScheduledTopup? scheduledTopupForLine(
+  ScheduledTopupForLineRef ref,
+  String simLineId,
+) {
   final schedulesAsync = ref.watch(scheduledTopupControllerProvider);
   final list = schedulesAsync.valueOrNull;
   if (list == null) return null;
@@ -154,7 +163,10 @@ ScheduledTopup? scheduledTopupForLine(ScheduledTopupForLineRef ref, String simLi
 
 /// Family provider to watch execution history for a SIM Line.
 @riverpod
-FutureOr<List<TopupExecution>> topupExecutionsForLine(TopupExecutionsForLineRef ref, String simLineId) async {
+FutureOr<List<TopupExecution>> topupExecutionsForLine(
+  TopupExecutionsForLineRef ref,
+  String simLineId,
+) async {
   final repo = ref.watch(scheduledTopupRepositoryProvider);
   final result = await repo.getExecutionsForLine(simLineId);
   return switch (result) {

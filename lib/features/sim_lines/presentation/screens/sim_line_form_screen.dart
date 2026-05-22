@@ -56,11 +56,16 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
     _selectedTier = line.protectionTier;
 
     if (line.countryId != null) {
-      _selectedCountry = countries.firstWhereOrNull((c) => c.id == line.countryId);
+      _selectedCountry = countries.firstWhereOrNull(
+        (c) => c.id == line.countryId,
+      );
     }
 
-    if (_selectedCountry != null && line.phoneNumber.startsWith(_selectedCountry!.dialingCode)) {
-      _phoneController.text = line.phoneNumber.substring(_selectedCountry!.dialingCode.length).trim();
+    if (_selectedCountry != null &&
+        line.phoneNumber.startsWith(_selectedCountry!.dialingCode)) {
+      _phoneController.text = line.phoneNumber
+          .substring(_selectedCountry!.dialingCode.length)
+          .trim();
     } else {
       _phoneController.text = line.phoneNumber;
     }
@@ -84,13 +89,22 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
     // Carriers are dynamically retrieved based on selected country ID
     final carriers = _selectedCountry == null
         ? <Carrier>[]
-        : ref.watch(carriersForCountryProvider(_selectedCountry!.id)).valueOrNull ?? [];
+        : ref
+                  .watch(carriersForCountryProvider(_selectedCountry!.id))
+                  .valueOrNull ??
+              [];
 
     // Pre-populate carrier in edit mode if needed
-    if (_isEdit && _hasPrepopulated && _selectedCarrier == null && _selectedCountry != null && carriers.isNotEmpty) {
+    if (_isEdit &&
+        _hasPrepopulated &&
+        _selectedCarrier == null &&
+        _selectedCountry != null &&
+        carriers.isNotEmpty) {
       final line = lines.firstWhereOrNull((l) => l.id == widget.id);
       if (line != null && line.carrierId != null) {
-        final matched = carriers.firstWhereOrNull((c) => c.id == line.carrierId);
+        final matched = carriers.firstWhereOrNull(
+          (c) => c.id == line.carrierId,
+        );
         if (matched != null) {
           _selectedCarrier = matched;
         }
@@ -102,7 +116,9 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
       appBar: AppBar(
         title: Text(
           _isEdit ? 'Edit Protected Line' : 'Protect New Line',
-          style: AppTextStyles.headlineLarge.copyWith(color: AppColors.textPrimaryDark),
+          style: AppTextStyles.headlineLarge.copyWith(
+            color: AppColors.textPrimaryDark,
+          ),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -112,7 +128,9 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
         ),
       ),
       body: _isSaving
-          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+          ? const Center(
+              child: CircularProgressIndicator(color: AppColors.primary),
+            )
           : SingleChildScrollView(
               padding: const EdgeInsets.all(24.0),
               child: Form(
@@ -132,7 +150,10 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                     Row(
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 16,
+                          ),
                           decoration: BoxDecoration(
                             color: AppColors.darkCard,
                             borderRadius: BorderRadius.circular(16),
@@ -142,13 +163,19 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                _selectedCountry != null ? _selectedCountry!.flagEmoji : '🌐',
+                                _selectedCountry != null
+                                    ? _selectedCountry!.flagEmoji
+                                    : '🌐',
                                 style: const TextStyle(fontSize: 20),
                               ),
                               const SizedBox(width: 8),
                               Text(
                                 _selectedCountry?.dialingCode ?? '+00',
-                                style: const TextStyle(color: Colors.white, fontSize: 16, fontFamily: 'monospace'),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontFamily: 'monospace',
+                                ),
                               ),
                             ],
                           ),
@@ -158,7 +185,11 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                           child: TextFormField(
                             controller: _phoneController,
                             keyboardType: TextInputType.phone,
-                            style: const TextStyle(color: Colors.white, fontSize: 16, fontFamily: 'monospace'),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontFamily: 'monospace',
+                            ),
                             decoration: _buildInputDecoration(
                               hintText: '100 123 4567',
                               icon: Icons.phone_android,
@@ -224,7 +255,9 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                           ),
                         ),
                         child: Text(
-                          _isEdit ? 'Save Changes' : 'Activate Shield Protection',
+                          _isEdit
+                              ? 'Save Changes'
+                              : 'Activate Shield Protection',
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 16,
@@ -251,7 +284,11 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
     );
   }
 
-  InputDecoration _buildInputDecoration({required String hintText, required IconData icon, String? prefixText}) {
+  InputDecoration _buildInputDecoration({
+    required String hintText,
+    required IconData icon,
+    String? prefixText,
+  }) {
     return InputDecoration(
       hintText: hintText,
       hintStyle: const TextStyle(color: AppColors.textTertiaryDark),
@@ -295,7 +332,9 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
         child: Row(
           children: [
             Text(
-              _selectedCountry != null ? '${_selectedCountry!.flagEmoji} ' : '🌐 ',
+              _selectedCountry != null
+                  ? '${_selectedCountry!.flagEmoji} '
+                  : '🌐 ',
               style: const TextStyle(fontSize: 20),
             ),
             const SizedBox(width: 8),
@@ -305,12 +344,17 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                     ? '${_selectedCountry!.name} (${_selectedCountry!.dialingCode})'
                     : 'Select Country',
                 style: TextStyle(
-                  color: _selectedCountry != null ? Colors.white : AppColors.textTertiaryDark,
+                  color: _selectedCountry != null
+                      ? Colors.white
+                      : AppColors.textTertiaryDark,
                   fontSize: 16,
                 ),
               ),
             ),
-            const Icon(Icons.arrow_drop_down, color: AppColors.textSecondaryDark),
+            const Icon(
+              Icons.arrow_drop_down,
+              color: AppColors.textSecondaryDark,
+            ),
           ],
         ),
       ),
@@ -334,12 +378,12 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
           ),
           dropdownColor: AppColors.darkSurface,
           style: const TextStyle(color: Colors.white, fontSize: 16),
-          icon: const Icon(Icons.arrow_drop_down, color: AppColors.textSecondaryDark),
+          icon: const Icon(
+            Icons.arrow_drop_down,
+            color: AppColors.textSecondaryDark,
+          ),
           items: carriers.map((c) {
-            return DropdownMenuItem<Carrier>(
-              value: c,
-              child: Text(c.name),
-            );
+            return DropdownMenuItem<Carrier>(value: c, child: Text(c.name));
           }).toList(),
           onChanged: (carrier) {
             setState(() {
@@ -388,7 +432,9 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
             width: 64,
             height: 64,
             decoration: BoxDecoration(
-              color: isSelected ? AppColors.primary.withOpacity(0.15) : AppColors.darkCard,
+              color: isSelected
+                  ? AppColors.primary.withOpacity(0.15)
+                  : AppColors.darkCard,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: isSelected ? AppColors.primary : AppColors.darkBorder,
@@ -397,7 +443,9 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
             ),
             child: Icon(
               getIcon(iconKey),
-              color: isSelected ? AppColors.primaryLight : AppColors.textSecondaryDark,
+              color: isSelected
+                  ? AppColors.primaryLight
+                  : AppColors.textSecondaryDark,
               size: 28,
             ),
           ),
@@ -408,9 +456,22 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
 
   Widget _buildTierGrid() {
     final tiers = [
-      {'key': 'basic', 'name': 'Basic Protection', 'desc': 'Keeps line active with minimal scheduled top-ups.'},
-      {'key': 'standard', 'name': 'Standard Shield', 'desc': 'Optimized inactivity checker + buffer safety days.'},
-      {'key': 'premium', 'name': 'Premium Shield', 'desc': 'Fast automated grace extensions & detailed deactivation alert logs.'},
+      {
+        'key': 'basic',
+        'name': 'Basic Protection',
+        'desc': 'Keeps line active with minimal scheduled top-ups.',
+      },
+      {
+        'key': 'standard',
+        'name': 'Standard Shield',
+        'desc': 'Optimized inactivity checker + buffer safety days.',
+      },
+      {
+        'key': 'premium',
+        'name': 'Premium Shield',
+        'desc':
+            'Fast automated grace extensions & detailed deactivation alert logs.',
+      },
     ];
 
     return Column(
@@ -428,7 +489,9 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
             child: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: isSelected ? AppColors.primary.withOpacity(0.1) : AppColors.darkCard,
+                color: isSelected
+                    ? AppColors.primary.withOpacity(0.1)
+                    : AppColors.darkCard,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: isSelected ? AppColors.primary : AppColors.darkBorder,
@@ -457,7 +520,9 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                         Text(
                           tier['name']!,
                           style: TextStyle(
-                            color: isSelected ? Colors.white : AppColors.textPrimaryDark,
+                            color: isSelected
+                                ? Colors.white
+                                : AppColors.textPrimaryDark,
                             fontSize: 15,
                             fontWeight: FontWeight.bold,
                           ),
@@ -466,7 +531,9 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                         Text(
                           tier['desc']!,
                           style: TextStyle(
-                            color: isSelected ? Colors.white70 : AppColors.textSecondaryDark,
+                            color: isSelected
+                                ? Colors.white70
+                                : AppColors.textSecondaryDark,
                             fontSize: 12,
                           ),
                         ),
@@ -497,7 +564,9 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
             children: [
               Text(
                 'Supported Countries',
-                style: AppTextStyles.headlineSmall.copyWith(color: Colors.white),
+                style: AppTextStyles.headlineSmall.copyWith(
+                  color: Colors.white,
+                ),
               ),
               const SizedBox(height: 16),
               Expanded(
@@ -506,9 +575,23 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                   itemBuilder: (context, index) {
                     final c = countries[index];
                     return ListTile(
-                      leading: Text(c.flagEmoji, style: const TextStyle(fontSize: 24)),
-                      title: Text(c.name, style: const TextStyle(color: Colors.white, fontSize: 16)),
-                      subtitle: Text(c.dialingCode, style: const TextStyle(color: AppColors.textSecondaryDark)),
+                      leading: Text(
+                        c.flagEmoji,
+                        style: const TextStyle(fontSize: 24),
+                      ),
+                      title: Text(
+                        c.name,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                        ),
+                      ),
+                      subtitle: Text(
+                        c.dialingCode,
+                        style: const TextStyle(
+                          color: AppColors.textSecondaryDark,
+                        ),
+                      ),
                       onTap: () {
                         setState(() {
                           _selectedCountry = c;
@@ -546,12 +629,16 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
     final fullPhoneNumber = '${_selectedCountry!.dialingCode}$localNumber';
 
     final currentLines = ref.read(simLinesControllerProvider).valueOrNull ?? [];
-    final isDuplicate = currentLines.any((l) => l.phoneNumber == fullPhoneNumber && l.id != widget.id);
-    
+    final isDuplicate = currentLines.any(
+      (l) => l.phoneNumber == fullPhoneNumber && l.id != widget.id,
+    );
+
     if (isDuplicate) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('This phone number is already protected in your account.'),
+          content: Text(
+            'This phone number is already protected in your account.',
+          ),
           backgroundColor: AppColors.error,
         ),
       );
@@ -566,22 +653,31 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
       if (_isEdit) {
         // Fetch current line copy to update
         final line = currentLines.firstWhereOrNull((l) => l.id == widget.id);
-        if (line == null) throw StateError('SIM line not found for ID: ${widget.id}');
-        
+        if (line == null)
+          throw StateError('SIM line not found for ID: ${widget.id}');
+
         final updatedLine = line.copyWith(
           phoneNumber: fullPhoneNumber,
-          nickname: _nicknameController.text.isNotEmpty ? _nicknameController.text : null,
+          nickname: _nicknameController.text.isNotEmpty
+              ? _nicknameController.text
+              : null,
           avatarIcon: _selectedIcon,
           countryId: _selectedCountry?.id,
           carrierId: _selectedCarrier?.id,
           protectionTier: _selectedTier,
         );
 
-        await ref.read(simLinesControllerProvider.notifier).updateSimLine(updatedLine);
+        await ref
+            .read(simLinesControllerProvider.notifier)
+            .updateSimLine(updatedLine);
       } else {
-        await ref.read(simLinesControllerProvider.notifier).addSimLine(
+        await ref
+            .read(simLinesControllerProvider.notifier)
+            .addSimLine(
               phoneNumber: fullPhoneNumber,
-              nickname: _nicknameController.text.isNotEmpty ? _nicknameController.text : null,
+              nickname: _nicknameController.text.isNotEmpty
+                  ? _nicknameController.text
+                  : null,
               avatarIcon: _selectedIcon,
               countryId: _selectedCountry?.id,
               carrierId: _selectedCarrier?.id,
@@ -592,7 +688,11 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(_isEdit ? 'SIM line details saved successfully.' : 'SIM card added to shield protection!'),
+            content: Text(
+              _isEdit
+                  ? 'SIM line details saved successfully.'
+                  : 'SIM card added to shield protection!',
+            ),
             backgroundColor: AppColors.success,
           ),
         );

@@ -50,7 +50,10 @@ class ErrorStateView extends StatelessWidget {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: AppColors.darkSurface,
-                    border: Border.all(color: AppColors.error.withOpacity(0.3), width: 1.5),
+                    border: Border.all(
+                      color: AppColors.error.withOpacity(0.3),
+                      width: 1.5,
+                    ),
                   ),
                   alignment: Alignment.center,
                   child: const Icon(
@@ -140,10 +143,7 @@ class ErrorStateView extends StatelessWidget {
               tween: Tween<double>(begin: 0.95, end: 1.0),
               duration: const Duration(milliseconds: 200),
               builder: (context, scale, child) {
-                return Transform.scale(
-                  scale: scale,
-                  child: child,
-                );
+                return Transform.scale(scale: scale, child: child);
               },
               child: Container(
                 decoration: BoxDecoration(
@@ -165,7 +165,10 @@ class ErrorStateView extends StatelessWidget {
                     backgroundColor: const Color(0xFF1E1E2F),
                     foregroundColor: Colors.white,
                     side: const BorderSide(color: AppColors.error, width: 1.2),
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 15),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 15,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),

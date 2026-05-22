@@ -60,13 +60,20 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
               shape: BoxShape.circle,
               border: Border.all(color: AppColors.darkBorder),
             ),
-            child: const Icon(Icons.arrow_back_ios_new_rounded, size: 14, color: Colors.white),
+            child: const Icon(
+              Icons.arrow_back_ios_new_rounded,
+              size: 14,
+              color: Colors.white,
+            ),
           ),
           onPressed: () => context.pop(),
         ),
         title: Text(
           'Payments & Auto-Fund',
-          style: AppTextStyles.headlineMedium.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+          style: AppTextStyles.headlineMedium.copyWith(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         centerTitle: true,
       ),
@@ -85,16 +92,24 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                     children: [
                       Text(
                         'Linked Cards',
-                        style: AppTextStyles.titleLarge.copyWith(color: Colors.white),
+                        style: AppTextStyles.titleLarge.copyWith(
+                          color: Colors.white,
+                        ),
                       ),
                       TextButton.icon(
                         onPressed: state.isSubmitting
                             ? null
                             : () => _showAddCardSheet(context, ref),
-                        icon: const Icon(Icons.add_rounded, size: 18, color: AppColors.secondary),
+                        icon: const Icon(
+                          Icons.add_rounded,
+                          size: 18,
+                          color: AppColors.secondary,
+                        ),
                         label: Text(
                           'Add Card',
-                          style: AppTextStyles.labelLarge.copyWith(color: AppColors.secondary),
+                          style: AppTextStyles.labelLarge.copyWith(
+                            color: AppColors.secondary,
+                          ),
                         ),
                       ),
                     ],
@@ -136,17 +151,25 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.error_outline_rounded, color: AppColors.error, size: 48),
+              const Icon(
+                Icons.error_outline_rounded,
+                color: AppColors.error,
+                size: 48,
+              ),
               const SizedBox(height: 16),
               Text(
                 'Failed to load payment info',
-                style: AppTextStyles.headlineSmall.copyWith(color: Colors.white),
+                style: AppTextStyles.headlineSmall.copyWith(
+                  color: Colors.white,
+                ),
               ),
               const SizedBox(height: 8),
               Text(
                 err.toString(),
                 textAlign: CenterAlign().textAlign,
-                style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondaryDark),
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.textSecondaryDark,
+                ),
               ),
             ],
           ),
@@ -170,7 +193,9 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
         gradient: bgGradient,
         boxShadow: [
           BoxShadow(
-            color: (isDefault ? AppColors.primary : Colors.black).withOpacity(0.25),
+            color: (isDefault ? AppColors.primary : Colors.black).withOpacity(
+              0.25,
+            ),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
@@ -237,16 +262,25 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                         children: [
                           if (isDefault)
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
                               decoration: BoxDecoration(
                                 color: AppColors.secondary.withOpacity(0.15),
                                 borderRadius: BorderRadius.circular(20),
-                                border: Border.all(color: AppColors.secondary.withOpacity(0.4)),
+                                border: Border.all(
+                                  color: AppColors.secondary.withOpacity(0.4),
+                                ),
                               ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  const Icon(Icons.star_rounded, size: 10, color: AppColors.secondary),
+                                  const Icon(
+                                    Icons.star_rounded,
+                                    size: 10,
+                                    color: AppColors.secondary,
+                                  ),
                                   const SizedBox(width: 4),
                                   Text(
                                     'DEFAULT',
@@ -262,14 +296,22 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                             IconButton(
                               padding: EdgeInsets.zero,
                               constraints: const BoxConstraints(),
-                              icon: const Icon(Icons.star_border_rounded, color: Colors.white70, size: 20),
+                              icon: const Icon(
+                                Icons.star_border_rounded,
+                                color: Colors.white70,
+                                size: 20,
+                              ),
                               onPressed: () => _handleSetDefault(card.id!),
                             ),
                           const SizedBox(width: 12),
                           IconButton(
                             padding: EdgeInsets.zero,
                             constraints: const BoxConstraints(),
-                            icon: const Icon(Icons.delete_outline_rounded, color: AppColors.healthRed, size: 20),
+                            icon: const Icon(
+                              Icons.delete_outline_rounded,
+                              color: AppColors.healthRed,
+                              size: 20,
+                            ),
                             onPressed: () => _confirmDeleteCard(card.id!),
                           ),
                         ],
@@ -357,7 +399,10 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
         color: AppColors.darkSurface,
-        border: Border.all(color: AppColors.darkBorder, style: BorderStyle.values[0] /* Wait, outline dashed */),
+        border: Border.all(
+          color: AppColors.darkBorder,
+          style: BorderStyle.values[0] /* Wait, outline dashed */,
+        ),
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(24),
@@ -371,7 +416,11 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                 color: AppColors.primary.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.add_card_rounded, color: AppColors.primary, size: 28),
+              child: const Icon(
+                Icons.add_card_rounded,
+                color: AppColors.primary,
+                size: 28,
+              ),
             ),
             const SizedBox(height: 12),
             Text(
@@ -381,7 +430,9 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
             const SizedBox(height: 4),
             Text(
               'Supports secure Visa & MasterCard debit or credit',
-              style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondaryDark),
+              style: AppTextStyles.bodySmall.copyWith(
+                color: AppColors.textSecondaryDark,
+              ),
             ),
           ],
         ),
@@ -411,7 +462,11 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                   color: AppColors.secondary.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.bolt_rounded, color: AppColors.secondary, size: 20),
+                child: const Icon(
+                  Icons.bolt_rounded,
+                  color: AppColors.secondary,
+                  size: 20,
+                ),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -420,12 +475,16 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                   children: [
                     Text(
                       'Auto-Funding Rules',
-                      style: AppTextStyles.titleMedium.copyWith(color: Colors.white),
+                      style: AppTextStyles.titleMedium.copyWith(
+                        color: Colors.white,
+                      ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       'Refill wallet when funds drop low',
-                      style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondaryDark),
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: AppColors.textSecondaryDark,
+                      ),
                     ),
                   ],
                 ),
@@ -456,11 +515,17 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
               children: [
                 Text(
                   'Low Balance Trigger',
-                  style: AppTextStyles.bodyMedium.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 Text(
                   '\$${_autoFundThreshold.toInt()}',
-                  style: AppTextStyles.titleMedium.copyWith(color: AppColors.secondary, fontWeight: FontWeight.bold),
+                  style: AppTextStyles.titleMedium.copyWith(
+                    color: AppColors.secondary,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),
@@ -483,9 +548,24 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('\$5', style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiaryDark)),
-                  Text('Trigger low top-up', style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiaryDark)),
-                  Text('\$100', style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiaryDark)),
+                  Text(
+                    '\$5',
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: AppColors.textTertiaryDark,
+                    ),
+                  ),
+                  Text(
+                    'Trigger low top-up',
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: AppColors.textTertiaryDark,
+                    ),
+                  ),
+                  Text(
+                    '\$100',
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: AppColors.textTertiaryDark,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -498,11 +578,17 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
               children: [
                 Text(
                   'Reload Deposit Amount',
-                  style: AppTextStyles.bodyMedium.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 Text(
                   '\$${_autoFundAmount.toInt()}',
-                  style: AppTextStyles.titleMedium.copyWith(color: AppColors.primaryLight, fontWeight: FontWeight.bold),
+                  style: AppTextStyles.titleMedium.copyWith(
+                    color: AppColors.primaryLight,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),
@@ -525,9 +611,24 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('\$10', style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiaryDark)),
-                  Text('Amount to load', style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiaryDark)),
-                  Text('\$200', style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiaryDark)),
+                  Text(
+                    '\$10',
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: AppColors.textTertiaryDark,
+                    ),
+                  ),
+                  Text(
+                    'Amount to load',
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: AppColors.textTertiaryDark,
+                    ),
+                  ),
+                  Text(
+                    '\$200',
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: AppColors.textTertiaryDark,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -563,11 +664,17 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                       ? const SizedBox(
                           width: 20,
                           height: 20,
-                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
                         )
                       : Text(
                           'Save Auto-Fund Settings',
-                          style: AppTextStyles.titleMedium.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+                          style: AppTextStyles.titleMedium.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                 ),
               ),
@@ -576,7 +683,10 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
             const SizedBox(height: 16),
             Text(
               'Keep SIM renewal running continuously by enabling automatic top-ups from your default credit card when the balance drops too low.',
-              style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondaryDark, height: 1.5),
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.textSecondaryDark,
+                height: 1.5,
+              ),
             ),
           ],
         ],
@@ -618,10 +728,16 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                     children: [
                       Text(
                         'Link Credit/Debit Card',
-                        style: AppTextStyles.headlineSmall.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+                        style: AppTextStyles.headlineSmall.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.close_rounded, color: Colors.white70),
+                        icon: const Icon(
+                          Icons.close_rounded,
+                          color: Colors.white70,
+                        ),
                         onPressed: () => Navigator.pop(sheetCtx),
                       ),
                     ],
@@ -631,7 +747,9 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                   // Card Number Field
                   Text(
                     'CARD NUMBER',
-                    style: AppTextStyles.caption.copyWith(fontWeight: FontWeight.bold),
+                    style: AppTextStyles.caption.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   TextField(
@@ -657,7 +775,9 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                     },
                     decoration: InputDecoration(
                       hintText: '4242 4242 4242 4242',
-                      hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
+                      hintStyle: TextStyle(
+                        color: Colors.white.withOpacity(0.3),
+                      ),
                       counterText: '',
                       filled: true,
                       fillColor: AppColors.darkBg,
@@ -679,7 +799,9 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(color: AppColors.darkBorder),
+                        borderSide: const BorderSide(
+                          color: AppColors.darkBorder,
+                        ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
@@ -699,7 +821,9 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                           children: [
                             Text(
                               'EXPIRY DATE',
-                              style: AppTextStyles.caption.copyWith(fontWeight: FontWeight.bold),
+                              style: AppTextStyles.caption.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                             const SizedBox(height: 8),
                             TextField(
@@ -713,17 +837,23 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                               ],
                               decoration: InputDecoration(
                                 hintText: 'MM/YY',
-                                hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
+                                hintStyle: TextStyle(
+                                  color: Colors.white.withOpacity(0.3),
+                                ),
                                 counterText: '',
                                 filled: true,
                                 fillColor: AppColors.darkBg,
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(16),
-                                  borderSide: const BorderSide(color: AppColors.darkBorder),
+                                  borderSide: const BorderSide(
+                                    color: AppColors.darkBorder,
+                                  ),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(16),
-                                  borderSide: const BorderSide(color: AppColors.primary),
+                                  borderSide: const BorderSide(
+                                    color: AppColors.primary,
+                                  ),
                                 ),
                               ),
                             ),
@@ -739,7 +869,9 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                           children: [
                             Text(
                               'CVV CODE',
-                              style: AppTextStyles.caption.copyWith(fontWeight: FontWeight.bold),
+                              style: AppTextStyles.caption.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                             const SizedBox(height: 8),
                             TextField(
@@ -753,17 +885,23 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                               ],
                               decoration: InputDecoration(
                                 hintText: '•••',
-                                hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
+                                hintStyle: TextStyle(
+                                  color: Colors.white.withOpacity(0.3),
+                                ),
                                 counterText: '',
                                 filled: true,
                                 fillColor: AppColors.darkBg,
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(16),
-                                  borderSide: const BorderSide(color: AppColors.darkBorder),
+                                  borderSide: const BorderSide(
+                                    color: AppColors.darkBorder,
+                                  ),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(16),
-                                  borderSide: const BorderSide(color: AppColors.primary),
+                                  borderSide: const BorderSide(
+                                    color: AppColors.primary,
+                                  ),
                                 ),
                               ),
                             ),
@@ -801,7 +939,10 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                         ),
                         child: Text(
                           'Securely Link Card',
-                          style: AppTextStyles.titleMedium.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+                          style: AppTextStyles.titleMedium.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
@@ -854,7 +995,9 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
 
     final lastFour = cleanNum.substring(cleanNum.length - 4);
 
-    final errorMsg = await ref.read(paymentsControllerProvider.notifier).addPaymentMethod(
+    final errorMsg = await ref
+        .read(paymentsControllerProvider.notifier)
+        .addPaymentMethod(
           provider: provider,
           lastFour: lastFour,
           expiryMonth: month,
@@ -870,7 +1013,9 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
 
   // ─── CARD SET DEFAULT ACTION ──────────────────────────────────────
   Future<void> _handleSetDefault(String cardId) async {
-    final err = await ref.read(paymentsControllerProvider.notifier).setDefaultPaymentMethod(cardId);
+    final err = await ref
+        .read(paymentsControllerProvider.notifier)
+        .setDefaultPaymentMethod(cardId);
     if (err != null) {
       _showBanner(err, isError: true);
     } else {
@@ -885,28 +1030,42 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
       builder: (dialogCtx) {
         return AlertDialog(
           backgroundColor: AppColors.darkSurface,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
           title: Text(
             'Remove Payment Card',
-            style: AppTextStyles.headlineSmall.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+            style: AppTextStyles.headlineSmall.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           content: Text(
             'Are you sure you want to remove this card? Linked auto-funding might fail if no default payment card remains.',
-            style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondaryDark),
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: AppColors.textSecondaryDark,
+            ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogCtx),
-              child: Text('Cancel', style: TextStyle(color: Colors.white.withOpacity(0.5))),
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: Colors.white.withOpacity(0.5)),
+              ),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.healthRed,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
               onPressed: () async {
                 Navigator.pop(dialogCtx);
-                final err = await ref.read(paymentsControllerProvider.notifier).deletePaymentMethod(cardId);
+                final err = await ref
+                    .read(paymentsControllerProvider.notifier)
+                    .deletePaymentMethod(cardId);
                 if (err != null) {
                   _showBanner(err, isError: true);
                 } else {
@@ -926,11 +1085,16 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
     // Basic verification: user must have at least one card linked to enable auto fund
     final controller = ref.read(paymentsControllerProvider).valueOrNull;
     if (_autoFundEnabled && (controller?.paymentMethods.isEmpty ?? true)) {
-      _showBanner('Please add and select a default payment card first to enable auto-funding.', isError: true);
+      _showBanner(
+        'Please add and select a default payment card first to enable auto-funding.',
+        isError: true,
+      );
       return;
     }
 
-    final err = await ref.read(paymentsControllerProvider.notifier).updateAutoFundSettings(
+    final err = await ref
+        .read(paymentsControllerProvider.notifier)
+        .updateAutoFundSettings(
           autoFundEnabled: _autoFundEnabled,
           autoFundThreshold: _autoFundThreshold,
           autoFundAmount: _autoFundAmount,
@@ -950,15 +1114,14 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
         content: Row(
           children: [
             Icon(
-              isError ? Icons.error_outline_rounded : Icons.check_circle_outline_rounded,
+              isError
+                  ? Icons.error_outline_rounded
+                  : Icons.check_circle_outline_rounded,
               color: Colors.white,
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: Text(
-                message,
-                style: const TextStyle(color: Colors.white),
-              ),
+              child: Text(message, style: const TextStyle(color: Colors.white)),
             ),
           ],
         ),
@@ -974,7 +1137,10 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
 // ─── CARD NUMBER FORMATTER (Adds spaces every 4 characters) ─────────
 class _CardNumberFormatter extends TextInputFormatter {
   @override
-  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
     final text = newValue.text;
     if (newValue.selection.baseOffset == 0) return newValue;
 
@@ -998,7 +1164,10 @@ class _CardNumberFormatter extends TextInputFormatter {
 // ─── EXPIRY DATE FORMATTER (Adds slash after MM) ───────────────────
 class _ExpiryDateFormatter extends TextInputFormatter {
   @override
-  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
     final text = newValue.text;
     if (newValue.selection.baseOffset == 0) return newValue;
 

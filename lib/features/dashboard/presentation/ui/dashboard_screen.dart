@@ -45,7 +45,8 @@ class DashboardScreen extends ConsumerWidget {
             child: KeyedSubtree(
               key: ValueKey(dashboardState.isLoading),
               child: dashboardState.when(
-                data: (data) => _buildDashboardContent(context, ref, profile, data),
+                data: (data) =>
+                    _buildDashboardContent(context, ref, profile, data),
                 loading: () => const DashboardShimmer(),
                 error: (err, stack) => ErrorStateView(
                   errorMessage: 'Failed to load dashboard data',
@@ -139,7 +140,11 @@ class DashboardScreen extends ConsumerWidget {
           child: Center(
             child: Text(
               name.substring(0, name.isNotEmpty ? 1 : 0).toUpperCase(),
-              style: const TextStyle(color: context.onSurfaceColor, fontWeight: FontWeight.bold, fontSize: 18),
+              style: const TextStyle(
+                color: context.onSurfaceColor,
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
             ),
           ),
         ),
@@ -150,11 +155,15 @@ class DashboardScreen extends ConsumerWidget {
             children: [
               Text(
                 'Welcome Back',
-                style: AppTextStyles.bodySmall.copyWith(color: context.onSurfaceColor.withOpacity(0.6)),
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: context.onSurfaceColor.withOpacity(0.6),
+                ),
               ),
               Text(
                 name,
-                style: AppTextStyles.headlineLarge.copyWith(color: context.onSurfaceColor),
+                style: AppTextStyles.headlineLarge.copyWith(
+                  color: context.onSurfaceColor,
+                ),
               ),
             ],
           ),
@@ -177,7 +186,11 @@ class DashboardScreen extends ConsumerWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.bolt, color: AppColors.textPrimaryLight, size: 14),
+                const Icon(
+                  Icons.bolt,
+                  color: AppColors.textPrimaryLight,
+                  size: 14,
+                ),
                 const SizedBox(width: 4),
                 Text(
                   'POWER USER',
@@ -194,7 +207,11 @@ class DashboardScreen extends ConsumerWidget {
   }
 
   // ── Hero Card Widget ────────────────────────────────────────────
-  Widget _buildHeroCard(BuildContext context, String currency, DashboardState data) {
+  Widget _buildHeroCard(
+    BuildContext context,
+    String currency,
+    DashboardState data,
+  ) {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -221,7 +238,7 @@ class DashboardScreen extends ConsumerWidget {
                 ),
               ),
             ),
-            
+
             // Decorative background glowing circular elements
             Positioned(
               right: -50,
@@ -247,7 +264,9 @@ class DashboardScreen extends ConsumerWidget {
                     _showDepositModalSheet(context);
                   },
                   splashColor: context.onSurfaceColor.withValues(alpha: 0.1),
-                  highlightColor: context.onSurfaceColor.withValues(alpha: 0.05),
+                  highlightColor: context.onSurfaceColor.withValues(
+                    alpha: 0.05,
+                  ),
                 ),
               ),
             ),
@@ -265,7 +284,9 @@ class DashboardScreen extends ConsumerWidget {
                         Text(
                           'SHIELD WALLET BALANCE',
                           style: AppTextStyles.labelMedium.copyWith(
-                            color: context.onSurfaceColor.withValues(alpha: 0.7),
+                            color: context.onSurfaceColor.withValues(
+                              alpha: 0.7,
+                            ),
                             fontWeight: FontWeight.w800,
                             letterSpacing: 1.5,
                           ),
@@ -295,17 +316,25 @@ class DashboardScreen extends ConsumerWidget {
                     const SizedBox(height: 6),
                     Text(
                       '\$${data.walletBalance.toStringAsFixed(2)} $currency',
-                      style: AppTextStyles.walletBalance.copyWith(color: context.onSurfaceColor),
+                      style: AppTextStyles.walletBalance.copyWith(
+                        color: context.onSurfaceColor,
+                      ),
                     ),
                     const SizedBox(height: 24),
                     // Sub metrics grid
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          _buildHeroStat('Lines Active', '${data.totalLines} Protected'),
-                          _buildHeroStat('Next Top-Up', '${data.nextTopUpDays} Days Left'),
-                        ],
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _buildHeroStat(
+                          'Lines Active',
+                          '${data.totalLines} Protected',
+                        ),
+                        _buildHeroStat(
+                          'Next Top-Up',
+                          '${data.nextTopUpDays} Days Left',
+                        ),
+                      ],
+                    ),
                     const SizedBox(height: 16),
                     // Expiry Progress bar
                     Column(
@@ -316,11 +345,19 @@ class DashboardScreen extends ConsumerWidget {
                           children: [
                             Text(
                               'Renewal Schedule Health',
-                              style: AppTextStyles.caption.copyWith(color: context.onSurfaceColor.withValues(alpha: 0.7)),
+                              style: AppTextStyles.caption.copyWith(
+                                color: context.onSurfaceColor.withValues(
+                                  alpha: 0.7,
+                                ),
+                              ),
                             ),
                             Text(
                               '${(data.nextTopUpDays / data.nextTopUpTotalDays * 100).toInt()}% Remaining',
-                              style: AppTextStyles.caption.copyWith(color: context.onSurfaceColor.withValues(alpha: 0.9)),
+                              style: AppTextStyles.caption.copyWith(
+                                color: context.onSurfaceColor.withValues(
+                                  alpha: 0.9,
+                                ),
+                              ),
                             ),
                           ],
                         ),
@@ -330,24 +367,36 @@ class DashboardScreen extends ConsumerWidget {
                           child: LinearProgressIndicator(
                             value: data.nextTopUpDays / data.nextTopUpTotalDays,
                             minHeight: 6,
-                            backgroundColor: context.onSurfaceColor.withValues(alpha: 0.2),
-                            valueColor: const AlwaysStoppedAnimation<Color>(AppColors.secondary),
+                            backgroundColor: context.onSurfaceColor.withValues(
+                              alpha: 0.2,
+                            ),
+                            valueColor: const AlwaysStoppedAnimation<Color>(
+                              AppColors.secondary,
+                            ),
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 16),
-                    const Divider(color: context.onSurfaceColor.withOpacity(0.24), height: 1),
+                    const Divider(
+                      color: context.onSurfaceColor.withOpacity(0.24),
+                      height: 1,
+                    ),
                     const SizedBox(height: 12),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
                           'Last Auto Charge',
-                          style: AppTextStyles.caption.copyWith(color: context.onSurfaceColor.withValues(alpha: 0.7)),
+                          style: AppTextStyles.caption.copyWith(
+                            color: context.onSurfaceColor.withValues(
+                              alpha: 0.7,
+                            ),
+                          ),
                         ),
                         Text(
-                          data.lastChargeDate != null && data.lastChargePhone != null
+                          data.lastChargeDate != null &&
+                                  data.lastChargePhone != null
                               ? '${data.lastChargeDate} • ${data.lastChargePhone}'
                               : 'None Recorded',
                           style: AppTextStyles.caption.copyWith(
@@ -382,19 +431,28 @@ class DashboardScreen extends ConsumerWidget {
       children: [
         Text(
           title,
-          style: AppTextStyles.caption.copyWith(color: context.onSurfaceColor.withValues(alpha: 0.6)),
+          style: AppTextStyles.caption.copyWith(
+            color: context.onSurfaceColor.withValues(alpha: 0.6),
+          ),
         ),
         const SizedBox(height: 4),
         Text(
           value,
-          style: AppTextStyles.titleMedium.copyWith(color: context.onSurfaceColor, fontWeight: FontWeight.w700),
+          style: AppTextStyles.titleMedium.copyWith(
+            color: context.onSurfaceColor,
+            fontWeight: FontWeight.w700,
+          ),
         ),
       ],
     );
   }
 
   // ── SIM Protection Health Widget ────────────────────────────────
-  Widget _buildHealthSection(BuildContext context, WidgetRef ref, String currentUserId) {
+  Widget _buildHealthSection(
+    BuildContext context,
+    WidgetRef ref,
+    String currentUserId,
+  ) {
     final simLinesState = ref.watch(simLinesControllerProvider);
 
     return Column(
@@ -405,10 +463,15 @@ class DashboardScreen extends ConsumerWidget {
           children: [
             Text(
               'Protected Lines',
-              style: AppTextStyles.headlineSmall.copyWith(color: context.onSurfaceColor),
+              style: AppTextStyles.headlineSmall.copyWith(
+                color: context.onSurfaceColor,
+              ),
             ),
             IconButton(
-              icon: const Icon(Icons.add_circle_outline, color: AppColors.primary),
+              icon: const Icon(
+                Icons.add_circle_outline,
+                color: AppColors.primary,
+              ),
               onPressed: () async {
                 await HapticHelper.lightTick();
                 if (context.mounted) {
@@ -421,7 +484,9 @@ class DashboardScreen extends ConsumerWidget {
         const SizedBox(height: 14),
         simLinesState.when(
           data: (lines) {
-            final myLines = lines.where((line) => line.userId == currentUserId).toList();
+            final myLines = lines
+                .where((line) => line.userId == currentUserId)
+                .toList();
 
             if (myLines.isEmpty) {
               return _buildEmptyCTA(context);
@@ -429,10 +494,7 @@ class DashboardScreen extends ConsumerWidget {
 
             return Column(
               children: myLines
-                  .map((line) => SimLineCard(
-                        line: line,
-                        showActions: false,
-                      ))
+                  .map((line) => SimLineCard(line: line, showActions: false))
                   .toList(),
             );
           },
@@ -508,10 +570,17 @@ class DashboardScreen extends ConsumerWidget {
                 context.go(AppRoutes.simLines);
               }
             },
-            icon: const Icon(Icons.add_moderator_rounded, size: 18, color: context.onSurfaceColor),
+            icon: const Icon(
+              Icons.add_moderator_rounded,
+              size: 18,
+              color: context.onSurfaceColor,
+            ),
             label: const Text(
               'Protect Your First SIM',
-              style: TextStyle(fontWeight: FontWeight.bold, color: context.onSurfaceColor),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: context.onSurfaceColor,
+              ),
             ),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
@@ -534,7 +603,9 @@ class DashboardScreen extends ConsumerWidget {
       children: [
         Text(
           'Recent Activity Log',
-          style: AppTextStyles.headlineSmall.copyWith(color: context.onSurfaceColor),
+          style: AppTextStyles.headlineSmall.copyWith(
+            color: context.onSurfaceColor,
+          ),
         ),
         const SizedBox(height: 16),
         if (activities.isEmpty)
@@ -543,7 +614,9 @@ class DashboardScreen extends ConsumerWidget {
             child: Center(
               child: Text(
                 'No recent activity records',
-                style: AppTextStyles.bodyMedium.copyWith(color: context.onSurfaceColor.withOpacity(0.4)),
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: context.onSurfaceColor.withOpacity(0.4),
+                ),
               ),
             ),
           )
@@ -588,7 +661,11 @@ class DashboardScreen extends ConsumerWidget {
                             shape: BoxShape.circle,
                           ),
                           child: Center(
-                            child: Icon(timelineIcon, color: iconColor, size: 16),
+                            child: Icon(
+                              timelineIcon,
+                              color: iconColor,
+                              size: 16,
+                            ),
                           ),
                         ),
                         if (index < activities.length - 1)
@@ -615,20 +692,28 @@ class DashboardScreen extends ConsumerWidget {
                                 Expanded(
                                   child: Text(
                                     act.title,
-                                    style: AppTextStyles.titleMedium.copyWith(color: context.onSurfaceColor),
+                                    style: AppTextStyles.titleMedium.copyWith(
+                                      color: context.onSurfaceColor,
+                                    ),
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
                                 Text(
                                   act.timeAgo,
-                                  style: AppTextStyles.caption.copyWith(color: context.onSurfaceColor.withOpacity(0.4)),
+                                  style: AppTextStyles.caption.copyWith(
+                                    color: context.onSurfaceColor.withOpacity(
+                                      0.4,
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),
                             const SizedBox(height: 4),
                             Text(
                               act.subtitle,
-                              style: AppTextStyles.bodySmall.copyWith(color: context.onSurfaceColor.withOpacity(0.6)),
+                              style: AppTextStyles.bodySmall.copyWith(
+                                color: context.onSurfaceColor.withOpacity(0.6),
+                              ),
                             ),
                           ],
                         ),

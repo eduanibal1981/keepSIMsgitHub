@@ -22,7 +22,8 @@ class EmptyStateView extends StatefulWidget {
   State<EmptyStateView> createState() => _EmptyStateViewState();
 }
 
-class _EmptyStateViewState extends State<EmptyStateView> with SingleTickerProviderStateMixin {
+class _EmptyStateViewState extends State<EmptyStateView>
+    with SingleTickerProviderStateMixin {
   late AnimationController _fadeController;
   late Animation<double> _scaleAnimation;
 
@@ -53,7 +54,10 @@ class _EmptyStateViewState extends State<EmptyStateView> with SingleTickerProvid
         scale: _scaleAnimation,
         child: Center(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 24.0,
+              vertical: 32.0,
+            ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
@@ -129,10 +133,7 @@ class _EmptyStateViewState extends State<EmptyStateView> with SingleTickerProvid
                     tween: Tween<double>(begin: 0.95, end: 1.0),
                     duration: const Duration(milliseconds: 300),
                     builder: (context, scale, child) {
-                      return Transform.scale(
-                        scale: scale,
-                        child: child,
-                      );
+                      return Transform.scale(scale: scale, child: child);
                     },
                     child: Container(
                       decoration: BoxDecoration(
@@ -152,7 +153,10 @@ class _EmptyStateViewState extends State<EmptyStateView> with SingleTickerProvid
                           backgroundColor: Colors.transparent,
                           shadowColor: Colors.transparent,
                           foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 28,
+                            vertical: 16,
+                          ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),

@@ -10,7 +10,7 @@ enum TwilioCallStatus {
   noAnswer,
   failed,
   canceled,
-  unknown
+  unknown,
 }
 
 class TwilioVerificationService {
@@ -25,8 +25,8 @@ class TwilioVerificationService {
       'https://api.twilio.com/2010-04-01/Accounts/$_accountSid/Calls.json',
     );
 
-    final basicAuth = 'Basic ' +
-        base64Encode(utf8.encode('$_accountSid:$_authToken'));
+    final basicAuth =
+        'Basic ' + base64Encode(utf8.encode('$_accountSid:$_authToken'));
 
     try {
       final response = await http.post(
@@ -58,21 +58,19 @@ class TwilioVerificationService {
       'https://api.twilio.com/2010-04-01/Accounts/$_accountSid/Calls/$callSid.json',
     );
 
-    final basicAuth = 'Basic ' +
-        base64Encode(utf8.encode('$_accountSid:$_authToken'));
+    final basicAuth =
+        'Basic ' + base64Encode(utf8.encode('$_accountSid:$_authToken'));
 
     try {
       final response = await http.get(
         url,
-        headers: {
-          'Authorization': basicAuth,
-        },
+        headers: {'Authorization': basicAuth},
       );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final statusStr = (data['status'] as String? ?? '').toLowerCase();
-        
+
         switch (statusStr) {
           case 'queued':
             return TwilioCallStatus.queued;
@@ -106,8 +104,8 @@ class TwilioVerificationService {
       'https://api.twilio.com/2010-04-01/Accounts/$_accountSid/Calls/$callSid.json',
     );
 
-    final basicAuth = 'Basic ' +
-        base64Encode(utf8.encode('$_accountSid:$_authToken'));
+    final basicAuth =
+        'Basic ' + base64Encode(utf8.encode('$_accountSid:$_authToken'));
 
     try {
       final response = await http.post(
@@ -116,9 +114,7 @@ class TwilioVerificationService {
           'Authorization': basicAuth,
           'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: {
-          'Status': 'canceled',
-        },
+        body: {'Status': 'canceled'},
       );
       return response.statusCode == 200;
     } catch (e) {

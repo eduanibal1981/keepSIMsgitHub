@@ -29,8 +29,8 @@ class SkeletonLoader extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           shape: shape,
-          borderRadius: shape == BoxShape.rectangle 
-              ? BorderRadius.circular(borderRadius) 
+          borderRadius: shape == BoxShape.rectangle
+              ? BorderRadius.circular(borderRadius)
               : null,
         ),
       ),
@@ -64,7 +64,12 @@ class DashboardShimmer extends StatelessWidget {
                     SkeletonLoader(width: 220, height: 28),
                   ],
                 ),
-                const SkeletonLoader(width: 50, height: 50, borderRadius: 25, shape: BoxShape.circle),
+                const SkeletonLoader(
+                  width: 50,
+                  height: 50,
+                  borderRadius: 25,
+                  shape: BoxShape.circle,
+                ),
               ],
             ),
             const SizedBox(height: 30),
@@ -75,7 +80,9 @@ class DashboardShimmer extends StatelessWidget {
               decoration: BoxDecoration(
                 color: AppColors.darkCard.withOpacity(0.5),
                 borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: AppColors.darkBorder.withOpacity(0.5)),
+                border: Border.all(
+                  color: AppColors.darkBorder.withOpacity(0.5),
+                ),
               ),
               child: Column(
                 children: [
@@ -89,7 +96,11 @@ class DashboardShimmer extends StatelessWidget {
                   const SizedBox(height: 20),
                   Row(
                     children: [
-                      const SkeletonLoader(width: 70, height: 70, shape: BoxShape.circle),
+                      const SkeletonLoader(
+                        width: 70,
+                        height: 70,
+                        shape: BoxShape.circle,
+                      ),
                       const SizedBox(width: 20),
                       Expanded(
                         child: Column(
@@ -128,7 +139,9 @@ class DashboardShimmer extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: AppColors.darkCard.withOpacity(0.5),
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: AppColors.darkBorder.withOpacity(0.5)),
+                    border: Border.all(
+                      color: AppColors.darkBorder.withOpacity(0.5),
+                    ),
                   ),
                   padding: const EdgeInsets.all(16),
                   child: Column(
@@ -170,7 +183,11 @@ class DashboardShimmer extends StatelessWidget {
                   ),
                   child: Row(
                     children: [
-                      const SkeletonLoader(width: 44, height: 44, borderRadius: 12),
+                      const SkeletonLoader(
+                        width: 44,
+                        height: 44,
+                        borderRadius: 12,
+                      ),
                       const SizedBox(width: 16),
                       Expanded(
                         child: Column(
@@ -182,7 +199,11 @@ class DashboardShimmer extends StatelessWidget {
                           ],
                         ),
                       ),
-                      const SkeletonLoader(width: 60, height: 26, borderRadius: 13),
+                      const SkeletonLoader(
+                        width: 60,
+                        height: 26,
+                        borderRadius: 13,
+                      ),
                     ],
                   ),
                 );
@@ -230,7 +251,9 @@ class SIMLinesShimmer extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: AppColors.darkCard.withOpacity(0.5),
                     borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: AppColors.darkBorder.withOpacity(0.5)),
+                    border: Border.all(
+                      color: AppColors.darkBorder.withOpacity(0.5),
+                    ),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -238,7 +261,11 @@ class SIMLinesShimmer extends StatelessWidget {
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          const SkeletonLoader(width: 42, height: 42, borderRadius: 12),
+                          const SkeletonLoader(
+                            width: 42,
+                            height: 42,
+                            borderRadius: 12,
+                          ),
                           const SizedBox(width: 16),
                           Expanded(
                             child: Column(
@@ -250,12 +277,20 @@ class SIMLinesShimmer extends StatelessWidget {
                               ],
                             ),
                           ),
-                          const SkeletonLoader(width: 65, height: 26, borderRadius: 13),
+                          const SkeletonLoader(
+                            width: 65,
+                            height: 26,
+                            borderRadius: 13,
+                          ),
                         ],
                       ),
                       const SizedBox(height: 20),
                       // Progress Bar Shimmer
-                      const SkeletonLoader(width: double.infinity, height: 8, borderRadius: 4),
+                      const SkeletonLoader(
+                        width: double.infinity,
+                        height: 8,
+                        borderRadius: 4,
+                      ),
                       const SizedBox(height: 12),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -269,9 +304,17 @@ class SIMLinesShimmer extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: const [
-                          SkeletonLoader(width: 90, height: 32, borderRadius: 8),
+                          SkeletonLoader(
+                            width: 90,
+                            height: 32,
+                            borderRadius: 8,
+                          ),
                           SizedBox(width: 12),
-                          SkeletonLoader(width: 120, height: 32, borderRadius: 8),
+                          SkeletonLoader(
+                            width: 120,
+                            height: 32,
+                            borderRadius: 8,
+                          ),
                         ],
                       ),
                     ],
@@ -306,7 +349,9 @@ class WalletShimmer extends StatelessWidget {
               decoration: BoxDecoration(
                 color: AppColors.darkCard.withOpacity(0.5),
                 borderRadius: BorderRadius.circular(28),
-                border: Border.all(color: AppColors.darkBorder.withOpacity(0.5)),
+                border: Border.all(
+                  color: AppColors.darkBorder.withOpacity(0.5),
+                ),
               ),
               padding: const EdgeInsets.all(24),
               child: Column(
@@ -361,14 +406,21 @@ class WalletShimmer extends StatelessWidget {
               itemBuilder: (context, index) {
                 return Container(
                   margin: const EdgeInsets.only(bottom: 12),
-                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 12,
+                    horizontal: 16,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.darkCard.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Row(
                     children: [
-                      const SkeletonLoader(width: 40, height: 40, shape: BoxShape.circle),
+                      const SkeletonLoader(
+                        width: 40,
+                        height: 40,
+                        shape: BoxShape.circle,
+                      ),
                       const SizedBox(width: 16),
                       Expanded(
                         child: Column(
@@ -423,12 +475,18 @@ class NotificationsShimmer extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: AppColors.darkCard.withOpacity(0.4),
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: AppColors.darkBorder.withOpacity(0.3)),
+                    border: Border.all(
+                      color: AppColors.darkBorder.withOpacity(0.3),
+                    ),
                   ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SkeletonLoader(width: 36, height: 36, shape: BoxShape.circle),
+                      const SkeletonLoader(
+                        width: 36,
+                        height: 36,
+                        shape: BoxShape.circle,
+                      ),
                       const SizedBox(width: 16),
                       Expanded(
                         child: Column(

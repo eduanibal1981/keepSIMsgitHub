@@ -273,11 +273,16 @@ class AppShell extends StatelessWidget {
           selectedIndex: _currentIndex(context),
           onDestinationSelected: (index) {
             switch (index) {
-              case 0: context.go(AppRoutes.home);
-              case 1: context.go(AppRoutes.simLines);
-              case 2: context.go(AppRoutes.wallet);
-              case 3: context.go(AppRoutes.notifications);
-              case 4: context.go(AppRoutes.settings);
+              case 0:
+                context.go(AppRoutes.home);
+              case 1:
+                context.go(AppRoutes.simLines);
+              case 2:
+                context.go(AppRoutes.wallet);
+              case 3:
+                context.go(AppRoutes.notifications);
+              case 4:
+                context.go(AppRoutes.settings);
             }
           },
           backgroundColor: AppColors.darkSurface,
@@ -285,27 +290,42 @@ class AppShell extends StatelessWidget {
           destinations: const [
             NavigationDestination(
               icon: Icon(Icons.dashboard_outlined),
-              selectedIcon: Icon(Icons.dashboard_rounded, color: AppColors.primary),
+              selectedIcon: Icon(
+                Icons.dashboard_rounded,
+                color: AppColors.primary,
+              ),
               label: 'Home',
             ),
             NavigationDestination(
               icon: Icon(Icons.sim_card_outlined),
-              selectedIcon: Icon(Icons.sim_card_rounded, color: AppColors.primary),
+              selectedIcon: Icon(
+                Icons.sim_card_rounded,
+                color: AppColors.primary,
+              ),
               label: 'SIM Lines',
             ),
             NavigationDestination(
               icon: Icon(Icons.account_balance_wallet_outlined),
-              selectedIcon: Icon(Icons.account_balance_wallet_rounded, color: AppColors.primary),
+              selectedIcon: Icon(
+                Icons.account_balance_wallet_rounded,
+                color: AppColors.primary,
+              ),
               label: 'Wallet',
             ),
             NavigationDestination(
               icon: Icon(Icons.notifications_outlined),
-              selectedIcon: Icon(Icons.notifications_rounded, color: AppColors.primary),
+              selectedIcon: Icon(
+                Icons.notifications_rounded,
+                color: AppColors.primary,
+              ),
               label: 'Alerts',
             ),
             NavigationDestination(
               icon: Icon(Icons.settings_outlined),
-              selectedIcon: Icon(Icons.settings_rounded, color: AppColors.primary),
+              selectedIcon: Icon(
+                Icons.settings_rounded,
+                color: AppColors.primary,
+              ),
               label: 'Settings',
             ),
           ],

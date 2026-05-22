@@ -16,18 +16,12 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Lock to portrait on mobile
-  await SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-  ]);
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
   // Initialize Supabase
   await initSupabase();
 
-  runApp(
-    const ProviderScope(
-      child: SimShieldApp(),
-    ),
-  );
+  runApp(const ProviderScope(child: SimShieldApp()));
 }
 
 /// Root application widget.
@@ -38,7 +32,7 @@ class SimShieldApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(appRouterProvider);
     final prefsState = ref.watch(userPreferencesControllerProvider);
-    
+
     ThemeMode currentThemeMode = ThemeMode.dark;
     final prefs = prefsState.valueOrNull;
     if (prefs != null) {
@@ -59,7 +53,6 @@ class SimShieldApp extends ConsumerWidget {
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
       themeMode: currentThemeMode, // Dynamic theme mode
-
       // Router
       routerConfig: router,
     );

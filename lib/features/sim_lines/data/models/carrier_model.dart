@@ -14,5 +14,6 @@ abstract class Carrier with _$Carrier {
     @JsonKey(name: 'is_supported') required bool isSupported,
   }) = _Carrier;
 
-  factory Carrier.fromJson(Map<String, dynamic> json) => _$CarrierFromJson(json);
+  factory Carrier.fromJson(Map<String, dynamic> json) =>
+      _$CarrierFromJson(json);
 }

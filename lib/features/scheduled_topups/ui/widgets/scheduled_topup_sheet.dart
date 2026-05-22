@@ -27,7 +27,8 @@ class ScheduledTopupSheet extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<ScheduledTopupSheet> createState() => _ScheduledTopupSheetState();
+  ConsumerState<ScheduledTopupSheet> createState() =>
+      _ScheduledTopupSheetState();
 }
 
 class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
@@ -59,10 +60,13 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
     final bool isEditMode = widget.existingSchedule != null;
 
     DateTime calculatedNextExecution;
-    if (isEditMode && widget.existingSchedule!.frequencyDays == _frequencyDays) {
+    if (isEditMode &&
+        widget.existingSchedule!.frequencyDays == _frequencyDays) {
       calculatedNextExecution = widget.existingSchedule!.nextExecutionAt;
     } else {
-      calculatedNextExecution = DateTime.now().add(Duration(days: _frequencyDays));
+      calculatedNextExecution = DateTime.now().add(
+        Duration(days: _frequencyDays),
+      );
     }
 
     return Container(
@@ -93,7 +97,9 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                 width: 48,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: context.onSurfaceColor.withOpacity(0.4).withOpacity(0.5),
+                  color: context.onSurfaceColor
+                      .withOpacity(0.4)
+                      .withOpacity(0.5),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -108,7 +114,9 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                   decoration: BoxDecoration(
                     color: AppColors.secondary.withOpacity(0.15),
                     shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.secondary.withOpacity(0.3)),
+                    border: Border.all(
+                      color: AppColors.secondary.withOpacity(0.3),
+                    ),
                   ),
                   child: const Icon(
                     Icons.verified_user,
@@ -131,7 +139,9 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                       const SizedBox(height: 2),
                       Text(
                         widget.simNickname,
-                        style: AppTextStyles.bodyMedium.copyWith(color: AppColors.primaryLight),
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          color: AppColors.primaryLight,
+                        ),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
@@ -169,13 +179,19 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                   backgroundColor: context.cardColor,
                   checkmarkColor: context.onSurfaceColor,
                   labelStyle: TextStyle(
-                    color: isSelected ? context.onSurfaceColor : context.onSurfaceColor.withOpacity(0.6),
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    color: isSelected
+                        ? context.onSurfaceColor
+                        : context.onSurfaceColor.withOpacity(0.6),
+                    fontWeight: isSelected
+                        ? FontWeight.bold
+                        : FontWeight.normal,
                   ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                     side: BorderSide(
-                      color: isSelected ? AppColors.primary : context.dividerColor,
+                      color: isSelected
+                          ? AppColors.primary
+                          : context.dividerColor,
                     ),
                   ),
                 );
@@ -189,7 +205,9 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
               children: [
                 Text(
                   'Custom Amount:',
-                  style: AppTextStyles.bodyMedium.copyWith(color: context.onSurfaceColor.withOpacity(0.6)),
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: context.onSurfaceColor.withOpacity(0.6),
+                  ),
                 ),
                 Text(
                   '\$${_amount.toStringAsFixed(2)} USD',
@@ -246,10 +264,14 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                       margin: const EdgeInsets.symmetric(horizontal: 4),
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       decoration: BoxDecoration(
-                        color: isSelected ? AppColors.primary.withOpacity(0.15) : context.cardColor,
+                        color: isSelected
+                            ? AppColors.primary.withOpacity(0.15)
+                            : context.cardColor,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: isSelected ? AppColors.primary : context.dividerColor,
+                          color: isSelected
+                              ? AppColors.primary
+                              : context.dividerColor,
                           width: 1.5,
                         ),
                       ),
@@ -257,8 +279,12 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                       child: Text(
                         freqLabel,
                         style: TextStyle(
-                          color: isSelected ? context.onSurfaceColor : context.onSurfaceColor.withOpacity(0.6),
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                          color: isSelected
+                              ? context.onSurfaceColor
+                              : context.onSurfaceColor.withOpacity(0.6),
+                          fontWeight: isSelected
+                              ? FontWeight.bold
+                              : FontWeight.normal,
                           fontSize: 13,
                         ),
                       ),
@@ -292,11 +318,15 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                       children: [
                         Text(
                           'Estimated Next Execution:',
-                          style: AppTextStyles.caption.copyWith(color: context.onSurfaceColor.withOpacity(0.4)),
+                          style: AppTextStyles.caption.copyWith(
+                            color: context.onSurfaceColor.withOpacity(0.4),
+                          ),
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          DateFormat('EEEE, MMM dd, yyyy').format(calculatedNextExecution),
+                          DateFormat(
+                            'EEEE, MMM dd, yyyy',
+                          ).format(calculatedNextExecution),
                           style: AppTextStyles.bodyMedium.copyWith(
                             color: context.onSurfaceColor,
                             fontWeight: FontWeight.w600,
@@ -318,7 +348,9 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                   Expanded(
                     flex: 1,
                     child: OutlinedButton(
-                      onPressed: _isDeleting || _isSaving ? null : _handleDelete,
+                      onPressed: _isDeleting || _isSaving
+                          ? null
+                          : _handleDelete,
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(color: AppColors.healthRed),
                         padding: const EdgeInsets.symmetric(vertical: 16),
@@ -335,12 +367,15 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                                 color: AppColors.healthRed,
                               ),
                             )
-                          : const Icon(Icons.delete_outline, color: AppColors.healthRed),
+                          : const Icon(
+                              Icons.delete_outline,
+                              color: AppColors.healthRed,
+                            ),
                     ),
                   ),
                   const SizedBox(width: 12),
                 ],
-                
+
                 // Save button
                 Expanded(
                   flex: 3,
@@ -366,8 +401,13 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                             ),
                           )
                         : Text(
-                            isEditMode ? 'Save Configuration' : 'Enable Renewal Schedule',
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                            isEditMode
+                                ? 'Save Configuration'
+                                : 'Enable Renewal Schedule',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                            ),
                           ),
                   ),
                 ),
@@ -383,10 +423,13 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
     setState(() => _isSaving = true);
     try {
       DateTime calculatedNextExecution;
-      if (widget.existingSchedule != null && widget.existingSchedule!.frequencyDays == _frequencyDays) {
+      if (widget.existingSchedule != null &&
+          widget.existingSchedule!.frequencyDays == _frequencyDays) {
         calculatedNextExecution = widget.existingSchedule!.nextExecutionAt;
       } else {
-        calculatedNextExecution = DateTime.now().add(Duration(days: _frequencyDays));
+        calculatedNextExecution = DateTime.now().add(
+          Duration(days: _frequencyDays),
+        );
       }
 
       final schedule = ScheduledTopup(
@@ -411,7 +454,9 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
             Navigator.pop(context);
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text('Auto-Refill renewal schedule saved successfully.'),
+                content: Text(
+                  'Auto-Refill renewal schedule saved successfully.',
+                ),
                 backgroundColor: AppColors.success,
               ),
             );
@@ -440,7 +485,7 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
 
   Future<void> _handleDelete() async {
     if (widget.existingSchedule == null) return;
-    
+
     setState(() => _isDeleting = true);
     try {
       final result = await ref
@@ -453,7 +498,9 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
             Navigator.pop(context);
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text('Auto-Refill renewal schedule cancelled successfully.'),
+                content: Text(
+                  'Auto-Refill renewal schedule cancelled successfully.',
+                ),
                 backgroundColor: AppColors.success,
               ),
             );

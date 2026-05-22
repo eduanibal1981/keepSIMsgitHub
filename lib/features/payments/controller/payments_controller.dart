@@ -61,10 +61,7 @@ class PaymentsController extends _$PaymentsController {
 
     switch (result) {
       case Success(data: final methods):
-        return PaymentsState(
-          paymentMethods: methods,
-          wallet: wallet,
-        );
+        return PaymentsState(paymentMethods: methods, wallet: wallet);
       case Failure(error: final f):
         throw Exception(f.message);
     }

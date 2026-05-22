@@ -55,14 +55,19 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
         ),
         title: Text(
           'Household Sharing',
-          style: AppTextStyles.headlineMedium.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+          style: AppTextStyles.headlineMedium.copyWith(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         bottom: TabBar(
           controller: _tabController,
           indicatorColor: const Color(0xFF6366F1),
           labelColor: Colors.white,
           unselectedLabelColor: AppColors.textSecondaryDark,
-          labelStyle: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.bold),
+          labelStyle: AppTextStyles.bodyMedium.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
           unselectedLabelStyle: AppTextStyles.bodyMedium,
           dividerColor: Colors.white.withOpacity(0.05),
           tabs: const [
@@ -111,7 +116,8 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
       return _buildEmptyState(
         icon: Icons.people_outline_rounded,
         title: 'Your Household is Empty',
-        description: 'Invite family members by email to share your prepaid SIM lines and renewals.',
+        description:
+            'Invite family members by email to share your prepaid SIM lines and renewals.',
       );
     }
 
@@ -142,9 +148,13 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                     ? Colors.white.withOpacity(0.06)
                     : const Color(0xFF6366F1).withOpacity(0.1),
                 child: Text(
-                  (member.memberName ?? member.memberEmail).substring(0, 1).toUpperCase(),
+                  (member.memberName ?? member.memberEmail)
+                      .substring(0, 1)
+                      .toUpperCase(),
                   style: TextStyle(
-                    color: isPending ? AppColors.textSecondaryDark : const Color(0xFF6366F1),
+                    color: isPending
+                        ? AppColors.textSecondaryDark
+                        : const Color(0xFF6366F1),
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -168,7 +178,9 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                       const SizedBox(height: 2),
                       Text(
                         member.memberEmail,
-                        style: AppTextStyles.caption.copyWith(color: AppColors.textSecondaryDark),
+                        style: AppTextStyles.caption.copyWith(
+                          color: AppColors.textSecondaryDark,
+                        ),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
@@ -178,7 +190,10 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                       children: [
                         // Status Badge
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 3,
+                          ),
                           decoration: BoxDecoration(
                             color: isPending
                                 ? const Color(0xFFF59E0B).withOpacity(0.1)
@@ -188,7 +203,9 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                           child: Text(
                             isPending ? 'PENDING' : 'ACCEPTED',
                             style: TextStyle(
-                              color: isPending ? const Color(0xFFF59E0B) : const Color(0xFF10B981),
+                              color: isPending
+                                  ? const Color(0xFFF59E0B)
+                                  : const Color(0xFF10B981),
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
                             ),
@@ -197,7 +214,10 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                         const SizedBox(width: 8),
                         // Role Badge
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 3,
+                          ),
                           decoration: BoxDecoration(
                             color: member.role == 'manager'
                                 ? const Color(0xFFA855F7).withOpacity(0.1)
@@ -222,7 +242,10 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
               ),
               // Action buttons (Revoke or Remove)
               IconButton(
-                icon: const Icon(Icons.delete_outline_rounded, color: Colors.redAccent),
+                icon: const Icon(
+                  Icons.delete_outline_rounded,
+                  color: Colors.redAccent,
+                ),
                 onPressed: () async {
                   await HapticHelper.lightTick();
                   _confirmRemove(context, member);
@@ -241,7 +264,8 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
       return _buildEmptyState(
         icon: Icons.mail_outline_rounded,
         title: 'No Invitations',
-        description: 'You do not have any pending household invitations at this time.',
+        description:
+            'You do not have any pending household invitations at this time.',
       );
     }
 
@@ -270,7 +294,10 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                   CircleAvatar(
                     radius: 22,
                     backgroundColor: const Color(0xFF3B82F6).withOpacity(0.1),
-                    child: const Icon(Icons.house_rounded, color: Color(0xFF3B82F6)),
+                    child: const Icon(
+                      Icons.house_rounded,
+                      color: Color(0xFF3B82F6),
+                    ),
                   ),
                   const SizedBox(width: 14),
                   Expanded(
@@ -288,7 +315,9 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                         const SizedBox(height: 2),
                         Text(
                           'Invited you as a ${invite.role.toUpperCase()}',
-                          style: AppTextStyles.caption.copyWith(color: AppColors.textSecondaryDark),
+                          style: AppTextStyles.caption.copyWith(
+                            color: AppColors.textSecondaryDark,
+                          ),
                         ),
                       ],
                     ),
@@ -307,9 +336,14 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                       style: TextButton.styleFrom(
                         backgroundColor: Colors.white.withOpacity(0.06),
                         padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
-                      child: const Text('Decline', style: TextStyle(color: Colors.white)),
+                      child: const Text(
+                        'Decline',
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -322,9 +356,17 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF6366F1),
                         padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
-                      child: const Text('Accept', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                      child: const Text(
+                        'Accept',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -342,7 +384,8 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
       return _buildEmptyState(
         icon: Icons.vpn_key_outlined,
         title: 'Not Joined in Family Accounts',
-        description: 'You have not joined any family households. Received invitations will appear under the tab.',
+        description:
+            'You have not joined any family households. Received invitations will appear under the tab.',
       );
     }
 
@@ -368,7 +411,10 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
               CircleAvatar(
                 radius: 22,
                 backgroundColor: const Color(0xFF10B981).withOpacity(0.1),
-                child: const Icon(Icons.lock_open_rounded, color: Color(0xFF10B981)),
+                child: const Icon(
+                  Icons.lock_open_rounded,
+                  color: Color(0xFF10B981),
+                ),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -385,7 +431,10 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                     ),
                     const SizedBox(height: 4),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
                       decoration: BoxDecoration(
                         color: membership.role == 'manager'
                             ? const Color(0xFFA855F7).withOpacity(0.1)
@@ -393,7 +442,9 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        membership.role == 'manager' ? 'MANAGER (READ/WRITE)' : 'VIEWER (READ-ONLY)',
+                        membership.role == 'manager'
+                            ? 'MANAGER (READ/WRITE)'
+                            : 'VIEWER (READ-ONLY)',
                         style: TextStyle(
                           color: membership.role == 'manager'
                               ? const Color(0xFFA855F7)
@@ -413,7 +464,9 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                 },
                 style: TextButton.styleFrom(
                   foregroundColor: Colors.redAccent,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                 ),
                 child: const Text('Leave'),
               ),
@@ -435,10 +488,15 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
         builder: (context, setModalState) => AlertDialog(
           backgroundColor: AppColors.darkCard,
           surfaceTintColor: Colors.transparent,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
           title: Text(
             'Invite Family Member',
-            style: AppTextStyles.headlineMedium.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+            style: AppTextStyles.headlineMedium.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -446,7 +504,9 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
             children: [
               Text(
                 'Enter email below to invite them to view or manage your shared SIM lines.',
-                style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondaryDark),
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.textSecondaryDark,
+                ),
               ),
               const SizedBox(height: 20),
               TextField(
@@ -454,16 +514,22 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
                   labelText: 'Email Address',
-                  labelStyle: const TextStyle(color: AppColors.textSecondaryDark),
+                  labelStyle: const TextStyle(
+                    color: AppColors.textSecondaryDark,
+                  ),
                   filled: true,
                   fillColor: Colors.white.withOpacity(0.04),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide(color: Colors.white.withOpacity(0.08)),
+                    borderSide: BorderSide(
+                      color: Colors.white.withOpacity(0.08),
+                    ),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide(color: Colors.white.withOpacity(0.08)),
+                    borderSide: BorderSide(
+                      color: Colors.white.withOpacity(0.08),
+                    ),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
@@ -475,7 +541,10 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
               const SizedBox(height: 24),
               Text(
                 'Access Permissions',
-                style: AppTextStyles.bodyMedium.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 10),
               // Role selection row
@@ -504,17 +573,25 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                           children: [
                             Icon(
                               Icons.visibility_rounded,
-                              color: selectedRole == 'viewer' ? const Color(0xFF3B82F6) : AppColors.textSecondaryDark,
+                              color: selectedRole == 'viewer'
+                                  ? const Color(0xFF3B82F6)
+                                  : AppColors.textSecondaryDark,
                             ),
                             const SizedBox(height: 6),
                             const Text(
                               'Viewer',
-                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                             const SizedBox(height: 2),
                             const Text(
                               'Read-only',
-                              style: TextStyle(color: AppColors.textSecondaryDark, fontSize: 10),
+                              style: TextStyle(
+                                color: AppColors.textSecondaryDark,
+                                fontSize: 10,
+                              ),
                             ),
                           ],
                         ),
@@ -545,17 +622,25 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                           children: [
                             Icon(
                               Icons.manage_accounts_rounded,
-                              color: selectedRole == 'manager' ? const Color(0xFFA855F7) : AppColors.textSecondaryDark,
+                              color: selectedRole == 'manager'
+                                  ? const Color(0xFFA855F7)
+                                  : AppColors.textSecondaryDark,
                             ),
                             const SizedBox(height: 6),
                             const Text(
                               'Manager',
-                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                             const SizedBox(height: 2),
                             const Text(
                               'Read/Write',
-                              style: TextStyle(color: AppColors.textSecondaryDark, fontSize: 10),
+                              style: TextStyle(
+                                color: AppColors.textSecondaryDark,
+                                fontSize: 10,
+                              ),
                             ),
                           ],
                         ),
@@ -572,7 +657,10 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                 await HapticHelper.lightTick();
                 Navigator.pop(context);
               },
-              child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: Colors.white70),
+              ),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -580,7 +668,9 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                 if (email.isEmpty || !email.contains('@')) {
                   await HapticHelper.mediumImpact();
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Please enter a valid email address')),
+                    const SnackBar(
+                      content: Text('Please enter a valid email address'),
+                    ),
                   );
                   return;
                 }
@@ -590,9 +680,17 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF6366F1),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
-              child: const Text('Send Invite', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              child: const Text(
+                'Send Invite',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ],
         ),
@@ -603,7 +701,9 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
   // ── Operations Trigger Helpers ─────────────────────────────────────
   void _handleSendInvite(String email, String role) async {
     try {
-      await ref.read(householdControllerProvider.notifier).sendInvite(email, role);
+      await ref
+          .read(householdControllerProvider.notifier)
+          .sendInvite(email, role);
       await HapticHelper.successFeedback();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -613,7 +713,9 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString().replaceAll('Exception:', '').trim())),
+          SnackBar(
+            content: Text(e.toString().replaceAll('Exception:', '').trim()),
+          ),
         );
       }
     }
@@ -623,21 +725,29 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
     try {
       await HapticHelper.mediumImpact();
       if (accept) {
-        await ref.read(householdControllerProvider.notifier).acceptInvite(inviteId);
+        await ref
+            .read(householdControllerProvider.notifier)
+            .acceptInvite(inviteId);
         await HapticHelper.successFeedback();
       } else {
-        await ref.read(householdControllerProvider.notifier).declineInvite(inviteId);
+        await ref
+            .read(householdControllerProvider.notifier)
+            .declineInvite(inviteId);
       }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(accept ? 'Invitation accepted!' : 'Invitation declined')),
+          SnackBar(
+            content: Text(
+              accept ? 'Invitation accepted!' : 'Invitation declined',
+            ),
+          ),
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString())),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.toString())));
       }
     }
   }
@@ -649,7 +759,10 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
         backgroundColor: AppColors.darkCard,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Remove Family Member', style: TextStyle(color: Colors.white)),
+        title: const Text(
+          'Remove Family Member',
+          style: TextStyle(color: Colors.white),
+        ),
         content: Text(
           'Are you sure you want to revoke access/remove ${member.memberEmail} from your household?',
           style: const TextStyle(color: AppColors.textSecondaryDark),
@@ -660,13 +773,18 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
               await HapticHelper.lightTick();
               Navigator.pop(context);
             },
-            child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Colors.white70),
+            ),
           ),
           ElevatedButton(
             onPressed: () async {
               await HapticHelper.mediumImpact();
               Navigator.pop(context);
-              await ref.read(householdControllerProvider.notifier).removeMember(member.id);
+              await ref
+                  .read(householdControllerProvider.notifier)
+                  .removeMember(member.id);
               await HapticHelper.successFeedback();
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
@@ -684,7 +802,10 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
         backgroundColor: AppColors.darkCard,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Leave Household', style: TextStyle(color: Colors.white)),
+        title: const Text(
+          'Leave Household',
+          style: TextStyle(color: Colors.white),
+        ),
         content: Text(
           'Are you sure you want to leave the household shared by ${membership.ownerName ?? 'Family Owner'}? You will lose all access to their shared lines.',
           style: const TextStyle(color: AppColors.textSecondaryDark),
@@ -695,13 +816,18 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
               await HapticHelper.lightTick();
               Navigator.pop(context);
             },
-            child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Colors.white70),
+            ),
           ),
           ElevatedButton(
             onPressed: () async {
               await HapticHelper.mediumImpact();
               Navigator.pop(context);
-              await ref.read(householdControllerProvider.notifier).leaveHousehold(membership.id);
+              await ref
+                  .read(householdControllerProvider.notifier)
+                  .leaveHousehold(membership.id);
               await HapticHelper.successFeedback();
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
@@ -718,10 +844,6 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
     required String title,
     required String description,
   }) {
-    return EmptyStateView(
-      icon: icon,
-      title: title,
-      description: description,
-    );
+    return EmptyStateView(icon: icon, title: title, description: description);
   }
 }

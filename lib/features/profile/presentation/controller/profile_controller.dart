@@ -42,7 +42,6 @@ class ProfileController extends _$ProfileController {
       );
     }
 
-
     final updatedProfile = profile.copyWith(
       fullName: fullName,
       homeCountryCode: homeCountryCode,

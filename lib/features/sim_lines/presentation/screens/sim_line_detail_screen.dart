@@ -22,7 +22,8 @@ class SimLineDetailScreen extends ConsumerStatefulWidget {
   const SimLineDetailScreen({super.key, required this.id});
 
   @override
-  ConsumerState<SimLineDetailScreen> createState() => _SimLineDetailScreenState();
+  ConsumerState<SimLineDetailScreen> createState() =>
+      _SimLineDetailScreenState();
 }
 
 class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
@@ -40,12 +41,18 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.textPrimaryDark, size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: AppColors.textPrimaryDark,
+            size: 20,
+          ),
           onPressed: () => context.pop(),
         ),
         title: Text(
           'Protection Console',
-          style: AppTextStyles.headlineMedium.copyWith(color: AppColors.textPrimaryDark),
+          style: AppTextStyles.headlineMedium.copyWith(
+            color: AppColors.textPrimaryDark,
+          ),
         ),
         actions: [
           IconButton(
@@ -61,11 +68,17 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
           final countries = countriesState.valueOrNull ?? [];
           final country = countries.isEmpty
               ? null
-              : countries.firstWhere((c) => c.id == detailState.simLine.countryId, orElse: () => countries.first);
+              : countries.firstWhere(
+                  (c) => c.id == detailState.simLine.countryId,
+                  orElse: () => countries.first,
+                );
 
           return SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 12.0,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -101,27 +114,48 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.error_outline, color: AppColors.error, size: 54),
+                const Icon(
+                  Icons.error_outline,
+                  color: AppColors.error,
+                  size: 54,
+                ),
                 const SizedBox(height: 16),
                 Text(
                   'Failed to load details',
-                  style: AppTextStyles.headlineSmall.copyWith(color: AppColors.textPrimaryDark),
+                  style: AppTextStyles.headlineSmall.copyWith(
+                    color: AppColors.textPrimaryDark,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   err.toString(),
-                  style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondaryDark),
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: AppColors.textSecondaryDark,
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 24),
                 ElevatedButton(
-                  onPressed: () => ref.invalidate(simLineDetailControllerProvider(widget.id)),
+                  onPressed: () => ref.invalidate(
+                    simLineDetailControllerProvider(widget.id),
+                  ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
-                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 32,
+                      vertical: 14,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
-                  child: const Text('Retry Connection', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  child: const Text(
+                    'Retry Connection',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -233,7 +267,9 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                   const SizedBox(height: 4),
                   Text(
                     country.name as String,
-                    style: AppTextStyles.caption.copyWith(color: AppColors.primaryLight),
+                    style: AppTextStyles.caption.copyWith(
+                      color: AppColors.primaryLight,
+                    ),
                   ),
                 ],
               ],
@@ -276,31 +312,47 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
   }
 
   // ── 2. Health & Circular score UI ──────────────────────────────────────────
-  Widget _buildHealthScoreSection(BuildContext context, SimLineDetailState detail) {
-    bool hasAutoRefill = detail.scheduledTopup != null && detail.scheduledTopup!.status == 'active';
+  Widget _buildHealthScoreSection(
+    BuildContext context,
+    SimLineDetailState detail,
+  ) {
+    bool hasAutoRefill =
+        detail.scheduledTopup != null &&
+        detail.scheduledTopup!.status == 'active';
     bool isVerified = detail.simLine.status == 'active';
-    bool recentRefill = detail.simLine.lastTopupAt != null && DateTime.now().difference(detail.simLine.lastTopupAt!).inDays <= 80;
-    
-    int dynamicScore = (hasAutoRefill ? 50 : 0) + (isVerified ? 25 : 0) + (recentRefill ? 25 : 0);
+    bool recentRefill =
+        detail.simLine.lastTopupAt != null &&
+        DateTime.now().difference(detail.simLine.lastTopupAt!).inDays <= 80;
+
+    int dynamicScore =
+        (hasAutoRefill ? 50 : 0) +
+        (isVerified ? 25 : 0) +
+        (recentRefill ? 25 : 0);
     final score = dynamicScore;
 
     List<String> missingReasons = [];
-    if (!hasAutoRefill) missingReasons.add("Missing 50%: Configure an Auto-Refill schedule.");
-    if (!isVerified) missingReasons.add("Missing 25%: Verify your line activity.");
-    if (!recentRefill) missingReasons.add("Missing 25%: Last refill was more than 80 days ago.");
+    if (!hasAutoRefill)
+      missingReasons.add("Missing 50%: Configure an Auto-Refill schedule.");
+    if (!isVerified)
+      missingReasons.add("Missing 25%: Verify your line activity.");
+    if (!recentRefill)
+      missingReasons.add("Missing 25%: Last refill was more than 80 days ago.");
 
     Color scoreColor = AppColors.healthGreen;
     String rating = 'SECURE';
-    String description = 'Your SIM card has active automated refill protection configured.';
+    String description =
+        'Your SIM card has active automated refill protection configured.';
 
     if (score < 50) {
       scoreColor = AppColors.healthRed;
       rating = 'CRITICAL RISK';
-      description = 'Multiple protection layers missing. Secure your line immediately to prevent deactivation.';
+      description =
+          'Multiple protection layers missing. Secure your line immediately to prevent deactivation.';
     } else if (score < 100) {
       scoreColor = AppColors.healthAmber;
       rating = 'WARNING';
-      description = 'Your line is partially protected. Address the missing criteria to reach 100%.';
+      description =
+          'Your line is partially protected. Address the missing criteria to reach 100%.';
     }
 
     return Container(
@@ -346,7 +398,9 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                   children: [
                     Text(
                       'Shield Health Score',
-                      style: AppTextStyles.caption.copyWith(color: AppColors.textTertiaryDark),
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppColors.textTertiaryDark,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -360,26 +414,36 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                     const SizedBox(height: 6),
                     Text(
                       description,
-                      style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondaryDark),
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: AppColors.textSecondaryDark,
+                      ),
                     ),
                     if (missingReasons.isNotEmpty) ...[
                       const SizedBox(height: 8),
-                      ...missingReasons.map((reason) => Padding(
-                            padding: const EdgeInsets.only(top: 4.0),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Icon(Icons.info_outline, size: 14, color: AppColors.healthAmber),
-                                const SizedBox(width: 6),
-                                Expanded(
-                                  child: Text(
-                                    reason,
-                                    style: AppTextStyles.caption.copyWith(color: AppColors.healthAmber),
+                      ...missingReasons.map(
+                        (reason) => Padding(
+                          padding: const EdgeInsets.only(top: 4.0),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Icon(
+                                Icons.info_outline,
+                                size: 14,
+                                color: AppColors.healthAmber,
+                              ),
+                              const SizedBox(width: 6),
+                              Expanded(
+                                child: Text(
+                                  reason,
+                                  style: AppTextStyles.caption.copyWith(
+                                    color: AppColors.healthAmber,
                                   ),
                                 ),
-                              ],
-                            ),
-                          )),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ],
                   ],
                 ),
@@ -397,18 +461,24 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                 Expanded(
                   child: Text(
                     'Simulate a successful E2E refill to test flows & restore health instantly.',
-                    style: AppTextStyles.caption.copyWith(color: AppColors.textSecondaryDark),
+                    style: AppTextStyles.caption.copyWith(
+                      color: AppColors.textSecondaryDark,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
                 SizedBox(
                   height: 38,
                   child: ElevatedButton(
-                    onPressed: _isOptimizing ? null : () => _handleSimulateExecution(context),
+                    onPressed: _isOptimizing
+                        ? null
+                        : () => _handleSimulateExecution(context),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       disabledBackgroundColor: AppColors.darkBorder,
                     ),
@@ -416,11 +486,17 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                         ? const SizedBox(
                             width: 16,
                             height: 16,
-                            child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
                           )
                         : const Text(
                             'Optimize',
-                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                   ),
                 ),
@@ -449,7 +525,9 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                     const SizedBox(height: 2),
                     Text(
                       'Test if your SIM line is reachable via Twilio Missed Call check.',
-                      style: AppTextStyles.caption.copyWith(color: AppColors.textSecondaryDark),
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppColors.textSecondaryDark,
+                      ),
                     ),
                   ],
                 ),
@@ -458,11 +536,14 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
               SizedBox(
                 height: 38,
                 child: ElevatedButton(
-                  onPressed: () => _handleVerifyLineActivity(context, detail.simLine),
+                  onPressed: () =>
+                      _handleVerifyLineActivity(context, detail.simLine),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.secondary,
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                   ),
                   child: Row(
@@ -472,7 +553,10 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                       SizedBox(width: 4),
                       Text(
                         'Verify',
-                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ],
                   ),
@@ -486,7 +570,10 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
   }
 
   // ── 3. Auto-Refill Schedule UI ─────────────────────────────────────────────
-  Widget _buildAutoRefillSection(BuildContext context, SimLineDetailState detail) {
+  Widget _buildAutoRefillSection(
+    BuildContext context,
+    SimLineDetailState detail,
+  ) {
     final schedule = detail.scheduledTopup;
 
     if (schedule == null) {
@@ -502,28 +589,52 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
           children: [
             Row(
               children: [
-                const Icon(Icons.warning_amber_rounded, color: AppColors.healthRed, size: 28),
+                const Icon(
+                  Icons.warning_amber_rounded,
+                  color: AppColors.healthRed,
+                  size: 28,
+                ),
                 const SizedBox(width: 12),
                 Text(
                   'Auto-Refill: Disabled',
-                  style: AppTextStyles.titleLarge.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+                  style: AppTextStyles.titleLarge.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 8),
             Text(
               'Your SIM card has no active automatic renewal schedule. SIM card will expire and get permanently deactivated if not recharged on time.',
-              style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondaryDark),
+              style: AppTextStyles.bodySmall.copyWith(
+                color: AppColors.textSecondaryDark,
+              ),
             ),
             const SizedBox(height: 16),
             ElevatedButton.icon(
-              onPressed: () => _openScheduleSheet(context, detail.simLine, detail.scheduledTopup),
+              onPressed: () => _openScheduleSheet(
+                context,
+                detail.simLine,
+                detail.scheduledTopup,
+              ),
               icon: const Icon(Icons.add, size: 18, color: Colors.white),
-              label: const Text('Configure Auto-Renewal', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+              label: const Text(
+                'Configure Auto-Renewal',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
           ],
@@ -551,21 +662,39 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
             children: [
               Text(
                 'Auto-Renewal Schedule',
-                style: AppTextStyles.titleLarge.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+                style: AppTextStyles.titleLarge.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
                     decoration: BoxDecoration(
-                      color: (schedule.isActive ? AppColors.secondary : AppColors.warning).withOpacity(0.12),
+                      color:
+                          (schedule.isActive
+                                  ? AppColors.secondary
+                                  : AppColors.warning)
+                              .withOpacity(0.12),
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: (schedule.isActive ? AppColors.secondary : AppColors.warning).withOpacity(0.3)),
+                      border: Border.all(
+                        color:
+                            (schedule.isActive
+                                    ? AppColors.secondary
+                                    : AppColors.warning)
+                                .withOpacity(0.3),
+                      ),
                     ),
                     child: Text(
                       schedule.isActive ? 'ACTIVE' : 'PAUSED',
                       style: TextStyle(
-                        color: schedule.isActive ? AppColors.secondary : AppColors.warning,
+                        color: schedule.isActive
+                            ? AppColors.secondary
+                            : AppColors.warning,
                         fontSize: 9,
                         fontWeight: FontWeight.bold,
                       ),
@@ -575,7 +704,10 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                   Switch.adaptive(
                     value: schedule.isActive,
                     activeColor: AppColors.secondary,
-                    onChanged: _isToggling ? null : (val) => _handleToggleSchedule(context, schedule.id, val),
+                    onChanged: _isToggling
+                        ? null
+                        : (val) =>
+                              _handleToggleSchedule(context, schedule.id, val),
                   ),
                 ],
               ),
@@ -616,12 +748,28 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
             children: [
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed: () => _openScheduleSheet(context, detail.simLine, detail.scheduledTopup),
-                  icon: const Icon(Icons.edit_outlined, size: 16, color: AppColors.textPrimaryDark),
-                  label: const Text('Edit Schedule', style: TextStyle(color: AppColors.textPrimaryDark, fontWeight: FontWeight.bold)),
+                  onPressed: () => _openScheduleSheet(
+                    context,
+                    detail.simLine,
+                    detail.scheduledTopup,
+                  ),
+                  icon: const Icon(
+                    Icons.edit_outlined,
+                    size: 16,
+                    color: AppColors.textPrimaryDark,
+                  ),
+                  label: const Text(
+                    'Edit Schedule',
+                    style: TextStyle(
+                      color: AppColors.textPrimaryDark,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                     side: const BorderSide(color: AppColors.darkBorder),
                   ),
                 ),
@@ -629,7 +777,8 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
               const SizedBox(width: 12),
               IconButton(
                 icon: const Icon(Icons.delete_outline, color: AppColors.error),
-                onPressed: () => _showDeleteScheduleConfirmation(context, schedule.id),
+                onPressed: () =>
+                    _showDeleteScheduleConfirmation(context, schedule.id),
                 style: IconButton.styleFrom(
                   backgroundColor: AppColors.error.withOpacity(0.08),
                   padding: const EdgeInsets.all(12),
@@ -646,12 +795,22 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
     );
   }
 
-  Widget _buildScheduleRowItem(String label, String value, IconData icon, {Color? valueColor}) {
+  Widget _buildScheduleRowItem(
+    String label,
+    String value,
+    IconData icon, {
+    Color? valueColor,
+  }) {
     return Row(
       children: [
         Icon(icon, size: 16, color: AppColors.textTertiaryDark),
         const SizedBox(width: 8),
-        Text(label, style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondaryDark)),
+        Text(
+          label,
+          style: AppTextStyles.bodyMedium.copyWith(
+            color: AppColors.textSecondaryDark,
+          ),
+        ),
         const Spacer(),
         Text(
           value,
@@ -665,7 +824,10 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
   }
 
   // ── 4. Refill Executions History ───────────────────────────────────────────
-  Widget _buildExecutionsSection(BuildContext context, SimLineDetailState detail) {
+  Widget _buildExecutionsSection(
+    BuildContext context,
+    SimLineDetailState detail,
+  ) {
     final list = detail.executions;
 
     return Container(
@@ -680,7 +842,10 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
         children: [
           Text(
             'Refill Executions History',
-            style: AppTextStyles.titleLarge.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+            style: AppTextStyles.titleLarge.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           const SizedBox(height: 12),
           if (list.isEmpty)
@@ -688,7 +853,9 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
               padding: const EdgeInsets.symmetric(vertical: 16.0),
               child: Text(
                 'No historical top-up executions recorded for this line yet.',
-                style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondaryDark),
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.textSecondaryDark,
+                ),
               ),
             )
           else
@@ -696,11 +863,14 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: list.length,
-              separatorBuilder: (context, index) => const Divider(color: AppColors.darkBorder, height: 16),
+              separatorBuilder: (context, index) =>
+                  const Divider(color: AppColors.darkBorder, height: 16),
               itemBuilder: (context, index) {
                 final ex = list[index];
                 final isSuccess = ex.status == 'success';
-                final dateStr = DateFormat('MMM dd, yyyy HH:mm').format(ex.executedAt);
+                final dateStr = DateFormat(
+                  'MMM dd, yyyy HH:mm',
+                ).format(ex.executedAt);
 
                 return Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -709,11 +879,14 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: (isSuccess ? AppColors.success : AppColors.error).withOpacity(0.08),
+                        color: (isSuccess ? AppColors.success : AppColors.error)
+                            .withOpacity(0.08),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
-                        isSuccess ? Icons.check_circle_outline : Icons.error_outline,
+                        isSuccess
+                            ? Icons.check_circle_outline
+                            : Icons.error_outline,
                         color: isSuccess ? AppColors.success : AppColors.error,
                         size: 20,
                       ),
@@ -735,15 +908,24 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                               ),
                               const SizedBox(width: 8),
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 2,
+                                ),
                                 decoration: BoxDecoration(
-                                  color: (isSuccess ? AppColors.success : AppColors.error).withOpacity(0.12),
+                                  color:
+                                      (isSuccess
+                                              ? AppColors.success
+                                              : AppColors.error)
+                                          .withOpacity(0.12),
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: Text(
                                   ex.status.toUpperCase(),
                                   style: TextStyle(
-                                    color: isSuccess ? AppColors.success : AppColors.error,
+                                    color: isSuccess
+                                        ? AppColors.success
+                                        : AppColors.error,
                                     fontSize: 8,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -754,7 +936,9 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                           const SizedBox(height: 4),
                           Text(
                             dateStr,
-                            style: AppTextStyles.caption.copyWith(color: AppColors.textTertiaryDark),
+                            style: AppTextStyles.caption.copyWith(
+                              color: AppColors.textTertiaryDark,
+                            ),
                           ),
                           if (ex.reloadlyTransactionId != null) ...[
                             const SizedBox(height: 2),
@@ -774,27 +958,46 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                               decoration: BoxDecoration(
                                 color: AppColors.error.withOpacity(0.05),
                                 borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: AppColors.error.withOpacity(0.15)),
+                                border: Border.all(
+                                  color: AppColors.error.withOpacity(0.15),
+                                ),
                               ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
                                     'Reason: ${ex.failureReason}',
-                                    style: AppTextStyles.bodySmall.copyWith(color: AppColors.error),
+                                    style: AppTextStyles.bodySmall.copyWith(
+                                      color: AppColors.error,
+                                    ),
                                   ),
                                   const SizedBox(height: 8),
                                   SizedBox(
                                     height: 28,
                                     child: ElevatedButton(
-                                      onPressed: () => _handleRetryFailedTopup(context, ex.id),
+                                      onPressed: () => _handleRetryFailedTopup(
+                                        context,
+                                        ex.id,
+                                      ),
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: AppColors.error,
                                         foregroundColor: Colors.white,
-                                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                        ),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            6,
+                                          ),
+                                        ),
                                       ),
-                                      child: const Text('Retry Now', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
+                                      child: const Text(
+                                        'Retry Now',
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -806,7 +1009,11 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                     ),
                     // Actions
                     IconButton(
-                      icon: const Icon(Icons.delete_outline, color: AppColors.textTertiaryDark, size: 20),
+                      icon: const Icon(
+                        Icons.delete_outline,
+                        color: AppColors.textTertiaryDark,
+                        size: 20,
+                      ),
                       onPressed: () => _handleDeleteExecution(context, ex.id),
                     ),
                   ],
@@ -819,7 +1026,10 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
   }
 
   // ── 5. Activity Logs Timeline UI ───────────────────────────────────────────
-  Widget _buildTimelineSection(BuildContext context, SimLineDetailState detail) {
+  Widget _buildTimelineSection(
+    BuildContext context,
+    SimLineDetailState detail,
+  ) {
     final list = detail.activityLogs;
 
     return Container(
@@ -837,13 +1047,27 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
             children: [
               Text(
                 'Security Activity Logs',
-                style: AppTextStyles.titleLarge.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+                style: AppTextStyles.titleLarge.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               if (list.isNotEmpty)
                 TextButton.icon(
                   onPressed: () => _handleCleanMockLogs(context),
-                  icon: const Icon(Icons.cleaning_services, size: 14, color: AppColors.primaryLight),
-                  label: const Text('Clean Mock Logs', style: TextStyle(fontSize: 11, color: AppColors.primaryLight, fontWeight: FontWeight.bold)),
+                  icon: const Icon(
+                    Icons.cleaning_services,
+                    size: 14,
+                    color: AppColors.primaryLight,
+                  ),
+                  label: const Text(
+                    'Clean Mock Logs',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: AppColors.primaryLight,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
             ],
           ),
@@ -853,7 +1077,9 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
               padding: const EdgeInsets.symmetric(vertical: 16.0),
               child: Text(
                 'No activity logs recorded for this line yet.',
-                style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondaryDark),
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.textSecondaryDark,
+                ),
               ),
             )
           else
@@ -882,7 +1108,9 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                   iconData = Icons.add_box_outlined;
                 }
 
-                final dateStr = DateFormat('MMM dd, yyyy HH:mm').format(log.createdAt);
+                final dateStr = DateFormat(
+                  'MMM dd, yyyy HH:mm',
+                ).format(log.createdAt);
 
                 return IntrinsicHeight(
                   child: Row(
@@ -896,7 +1124,9 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                             decoration: BoxDecoration(
                               color: iconColor.withOpacity(0.08),
                               shape: BoxShape.circle,
-                              border: Border.all(color: iconColor.withOpacity(0.2)),
+                              border: Border.all(
+                                color: iconColor.withOpacity(0.2),
+                              ),
                             ),
                             child: Icon(iconData, color: iconColor, size: 16),
                           ),
@@ -906,7 +1136,9 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                                 : Container(
                                     width: 2,
                                     color: AppColors.darkBorder,
-                                    margin: const EdgeInsets.symmetric(vertical: 4),
+                                    margin: const EdgeInsets.symmetric(
+                                      vertical: 4,
+                                    ),
                                   ),
                           ),
                         ],
@@ -919,12 +1151,17 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                           children: [
                             Text(
                               log.description ?? '',
-                              style: AppTextStyles.bodyMedium.copyWith(color: Colors.white, height: 1.3),
+                              style: AppTextStyles.bodyMedium.copyWith(
+                                color: Colors.white,
+                                height: 1.3,
+                              ),
                             ),
                             const SizedBox(height: 4),
                             Text(
                               dateStr,
-                              style: AppTextStyles.caption.copyWith(color: AppColors.textTertiaryDark),
+                              style: AppTextStyles.caption.copyWith(
+                                color: AppColors.textTertiaryDark,
+                              ),
                             ),
                             const SizedBox(height: 16),
                           ],
@@ -934,8 +1171,13 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                       Align(
                         alignment: Alignment.topRight,
                         child: IconButton(
-                          icon: const Icon(Icons.delete_outline, color: AppColors.textTertiaryDark, size: 18),
-                          onPressed: () => _handleDeleteActivityLog(context, log.id),
+                          icon: const Icon(
+                            Icons.delete_outline,
+                            color: AppColors.textTertiaryDark,
+                            size: 18,
+                          ),
+                          onPressed: () =>
+                              _handleDeleteActivityLog(context, log.id),
                         ),
                       ),
                     ],
@@ -949,7 +1191,11 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
   }
 
   // ── Action Handlers ────────────────────────────────────────────────────────
-  void _openScheduleSheet(BuildContext context, SimLine line, ScheduledTopup? existingSchedule) {
+  void _openScheduleSheet(
+    BuildContext context,
+    SimLine line,
+    ScheduledTopup? existingSchedule,
+  ) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -962,18 +1208,26 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
     );
   }
 
-  Future<void> _handleToggleSchedule(BuildContext context, String scheduleId, bool isActive) async {
+  Future<void> _handleToggleSchedule(
+    BuildContext context,
+    String scheduleId,
+    bool isActive,
+  ) async {
     setState(() {
       _isToggling = true;
     });
 
     try {
-      final result = await ref.read(scheduledTopupControllerProvider.notifier).toggleActive(scheduleId, isActive);
+      final result = await ref
+          .read(scheduledTopupControllerProvider.notifier)
+          .toggleActive(scheduleId, isActive);
       if (result is Success<ScheduledTopup>) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Auto-Renewal successfully ${isActive ? 'enabled' : 'paused'}.'),
+              content: Text(
+                'Auto-Renewal successfully ${isActive ? 'enabled' : 'paused'}.',
+              ),
               backgroundColor: AppColors.success,
             ),
           );
@@ -999,7 +1253,10 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
     }
   }
 
-  void _showDeleteScheduleConfirmation(BuildContext context, String scheduleId) {
+  void _showDeleteScheduleConfirmation(
+    BuildContext context,
+    String scheduleId,
+  ) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -1010,7 +1267,11 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
         ),
         title: Row(
           children: [
-            const Icon(Icons.warning_amber_rounded, color: AppColors.error, size: 28),
+            const Icon(
+              Icons.warning_amber_rounded,
+              color: AppColors.error,
+              size: 28,
+            ),
             const SizedBox(width: 12),
             Text(
               'Remove Schedule',
@@ -1020,25 +1281,34 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
         ),
         content: Text(
           'Are you sure you want to delete this auto-refill schedule? Your SIM health score will drop significantly, risking deactivation.',
-          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondaryDark),
+          style: AppTextStyles.bodyMedium.copyWith(
+            color: AppColors.textSecondaryDark,
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel', style: TextStyle(color: AppColors.textSecondaryDark)),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: AppColors.textSecondaryDark),
+            ),
           ),
           ElevatedButton(
             onPressed: () async {
               Navigator.pop(context);
               try {
-                final result = await ref.read(scheduledTopupControllerProvider.notifier).removeSchedule(scheduleId);
+                final result = await ref
+                    .read(scheduledTopupControllerProvider.notifier)
+                    .removeSchedule(scheduleId);
                 if (result is Success<void>) {
                   ref.invalidate(simLineDetailControllerProvider(widget.id));
                   ref.invalidate(simLinesControllerProvider);
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text('Auto-renewal schedule removed successfully.'),
+                        content: Text(
+                          'Auto-renewal schedule removed successfully.',
+                        ),
                         backgroundColor: AppColors.success,
                       ),
                     );
@@ -1071,19 +1341,25 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
     });
 
     try {
-      final result = await ref.read(simLineDetailControllerProvider(widget.id).notifier).triggerRefill();
+      final result = await ref
+          .read(simLineDetailControllerProvider(widget.id).notifier)
+          .triggerRefill();
       if (mounted) {
         if (result is Success<void>) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Simulated auto-refill executed successfully! Wallet balance deducted & health restored.'),
+              content: Text(
+                'Simulated auto-refill executed successfully! Wallet balance deducted & health restored.',
+              ),
               backgroundColor: AppColors.success,
             ),
           );
         } else if (result is Failure<void>) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Refill failed: ${(result as Failure<void>).error.message}'),
+              content: Text(
+                'Refill failed: ${(result as Failure<void>).error.message}',
+              ),
               backgroundColor: AppColors.error,
             ),
           );
@@ -1107,9 +1383,14 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
     }
   }
 
-  Future<void> _handleRetryFailedTopup(BuildContext context, String executionId) async {
+  Future<void> _handleRetryFailedTopup(
+    BuildContext context,
+    String executionId,
+  ) async {
     try {
-      final result = await ref.read(simLineDetailControllerProvider(widget.id).notifier).retryFailedTopup(executionId);
+      final result = await ref
+          .read(simLineDetailControllerProvider(widget.id).notifier)
+          .retryFailedTopup(executionId);
       if (mounted) {
         if (result is Success<void>) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -1121,7 +1402,9 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
         } else if (result is Failure<void>) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Retry failed: ${(result as Failure<void>).error.message}'),
+              content: Text(
+                'Retry failed: ${(result as Failure<void>).error.message}',
+              ),
               backgroundColor: AppColors.error,
             ),
           );
@@ -1139,9 +1422,14 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
     }
   }
 
-  Future<void> _handleDeleteExecution(BuildContext context, String executionId) async {
+  Future<void> _handleDeleteExecution(
+    BuildContext context,
+    String executionId,
+  ) async {
     try {
-      await ref.read(simLineDetailControllerProvider(widget.id).notifier).deleteExecution(executionId);
+      await ref
+          .read(simLineDetailControllerProvider(widget.id).notifier)
+          .deleteExecution(executionId);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -1162,9 +1450,14 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
     }
   }
 
-  Future<void> _handleDeleteActivityLog(BuildContext context, String logId) async {
+  Future<void> _handleDeleteActivityLog(
+    BuildContext context,
+    String logId,
+  ) async {
     try {
-      await ref.read(simLineDetailControllerProvider(widget.id).notifier).deleteActivityLog(logId);
+      await ref
+          .read(simLineDetailControllerProvider(widget.id).notifier)
+          .deleteActivityLog(logId);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -1187,7 +1480,9 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
 
   Future<void> _handleCleanMockLogs(BuildContext context) async {
     try {
-      await ref.read(simLineDetailControllerProvider(widget.id).notifier).cleanMockLogs();
+      await ref
+          .read(simLineDetailControllerProvider(widget.id).notifier)
+          .cleanMockLogs();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(

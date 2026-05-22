@@ -10,8 +10,12 @@ abstract class UserPreferences with _$UserPreferences {
     @JsonKey(name: 'user_id') required String userId,
     @JsonKey(name: 'quiet_hours_start') String? quietHoursStart,
     @JsonKey(name: 'quiet_hours_end') String? quietHoursEnd,
-    @JsonKey(name: 'weekly_digest_enabled') @Default(true) bool weeklyDigestEnabled,
-    @JsonKey(name: 'travel_mode_enabled') @Default(false) bool travelModeEnabled,
+    @JsonKey(name: 'weekly_digest_enabled')
+    @Default(true)
+    bool weeklyDigestEnabled,
+    @JsonKey(name: 'travel_mode_enabled')
+    @Default(false)
+    bool travelModeEnabled,
     @JsonKey(name: 'biometric_enabled') @Default(false) bool biometricEnabled,
     @JsonKey(name: 'transaction_pin_hash') String? transactionPinHash,
     @Default('system') String theme,

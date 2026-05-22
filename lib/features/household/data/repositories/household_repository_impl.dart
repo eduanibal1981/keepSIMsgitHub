@@ -14,7 +14,8 @@ HouseholdRepository householdRepository(HouseholdRepositoryRef ref) {
 class HouseholdRepositoryImpl implements HouseholdRepository {
   final SupabaseClient _supabase;
 
-  HouseholdRepositoryImpl({required SupabaseClient supabase}) : _supabase = supabase;
+  HouseholdRepositoryImpl({required SupabaseClient supabase})
+    : _supabase = supabase;
 
   String? get _currentUserId => _supabase.auth.currentUser?.id;
   String? get _currentUserEmail => _supabase.auth.currentUser?.email;
@@ -113,9 +114,11 @@ class HouseholdRepositoryImpl implements HouseholdRepository {
           .select()
           .eq('owner_id', userId)
           .eq('member_email', email.toLowerCase().trim());
-      
+
       if ((checkResponse as List).isNotEmpty) {
-        throw Exception('An invitation or membership already exists for this email');
+        throw Exception(
+          'An invitation or membership already exists for this email',
+        );
       }
 
       final insertResponse = await _supabase
@@ -159,10 +162,7 @@ class HouseholdRepositoryImpl implements HouseholdRepository {
   @override
   Future<void> removeMember(String id) async {
     try {
-      await _supabase
-          .from('household_members')
-          .delete()
-          .eq('id', id);
+      await _supabase.from('household_members').delete().eq('id', id);
     } on PostgrestException catch (e) {
       throw Exception('Failed to remove household member: ${e.message}');
     }
@@ -171,10 +171,7 @@ class HouseholdRepositoryImpl implements HouseholdRepository {
   @override
   Future<void> leaveHousehold(String id) async {
     try {
-      await _supabase
-          .from('household_members')
-          .delete()
-          .eq('id', id);
+      await _supabase.from('household_members').delete().eq('id', id);
     } on PostgrestException catch (e) {
       throw Exception('Failed to leave household: ${e.message}');
     }

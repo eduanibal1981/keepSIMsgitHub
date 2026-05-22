@@ -41,22 +41,35 @@ class SimLineCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final resolvedCountry = country ??
-        ref.watch(supportedCountriesProvider).valueOrNull?.firstWhereOrNull((c) => c.id == line.countryId);
+    final resolvedCountry =
+        country ??
+        ref
+            .watch(supportedCountriesProvider)
+            .valueOrNull
+            ?.firstWhereOrNull((c) => c.id == line.countryId);
 
     final schedule = ref.watch(scheduledTopupForLineProvider(line.id));
     bool hasAutoRefill = schedule != null && schedule.status == 'active';
     bool isVerified = line.status == 'active';
-    bool recentRefill = line.lastTopupAt != null && DateTime.now().difference(line.lastTopupAt!).inDays <= 80;
-    int computedHealthScore = (hasAutoRefill ? 50 : 0) + (isVerified ? 25 : 0) + (recentRefill ? 25 : 0);
+    bool recentRefill =
+        line.lastTopupAt != null &&
+        DateTime.now().difference(line.lastTopupAt!).inDays <= 80;
+    int computedHealthScore =
+        (hasAutoRefill ? 50 : 0) +
+        (isVerified ? 25 : 0) +
+        (recentRefill ? 25 : 0);
 
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
-      color: isSelected ? context.cardColor.withBlue(35).withGreen(10) : context.cardColor,
+      color: isSelected
+          ? context.cardColor.withBlue(35).withGreen(10)
+          : context.cardColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
         side: BorderSide(
-          color: isSelected ? AppColors.primary : context.dividerColor.withOpacity(0.5),
+          color: isSelected
+              ? AppColors.primary
+              : context.dividerColor.withOpacity(0.5),
           width: isSelected ? 1.5 : 1,
         ),
       ),
@@ -89,13 +102,17 @@ class SimLineCard extends ConsumerWidget {
                       duration: const Duration(milliseconds: 200),
                       margin: const EdgeInsets.only(right: 12, top: 12),
                       child: Icon(
-                        isSelected ? Icons.check_circle_rounded : Icons.radio_button_off_rounded,
-                        color: isSelected ? AppColors.primary : context.onSurfaceColor.withOpacity(0.6),
+                        isSelected
+                            ? Icons.check_circle_rounded
+                            : Icons.radio_button_off_rounded,
+                        color: isSelected
+                            ? AppColors.primary
+                            : context.onSurfaceColor.withOpacity(0.6),
                         size: 24,
                       ),
                     ),
                   ],
-                  _buildFlagAvatar(line, resolvedCountry),
+                  _buildAvatar(context, line, resolvedCountry),
 
                   const SizedBox(width: 16),
 
@@ -129,14 +146,20 @@ class SimLineCard extends ConsumerWidget {
                           const SizedBox(height: 4),
                           Text(
                             resolvedCountry.name,
-                            style: AppTextStyles.caption.copyWith(color: AppColors.primaryLight),
+                            style: AppTextStyles.caption.copyWith(
+                              color: AppColors.primaryLight,
+                            ),
                           ),
                         ],
                         if (isShared) ...[
                           const SizedBox(height: 4),
                           Row(
                             children: [
-                              const Icon(Icons.people_outline, color: AppColors.primaryLight, size: 12),
+                              const Icon(
+                                Icons.people_outline,
+                                color: AppColors.primaryLight,
+                                size: 12,
+                              ),
                               const SizedBox(width: 4),
                               Text(
                                 'Shared by: ${householdState?.memberships.firstWhereOrNull((m) => m.ownerId == line.userId)?.ownerName ?? 'Family Member'}',
@@ -158,9 +181,14 @@ class SimLineCard extends ConsumerWidget {
                   // Action menu
                   if (!isShared && showActions)
                     PopupMenuButton<String>(
-                      icon: Icon(Icons.more_vert, color: context.onSurfaceColor.withOpacity(0.6)),
+                      icon: Icon(
+                        Icons.more_vert,
+                        color: context.onSurfaceColor.withOpacity(0.6),
+                      ),
                       color: context.surfaceColor,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                       onSelected: (value) {
                         if (value == 'edit') {
                           context.push('/sim-lines/edit/${line.id}');
@@ -173,9 +201,16 @@ class SimLineCard extends ConsumerWidget {
                           value: 'edit',
                           child: Row(
                             children: [
-                              Icon(Icons.edit, color: context.onSurfaceColor.withOpacity(0.6), size: 20),
+                              Icon(
+                                Icons.edit,
+                                color: context.onSurfaceColor.withOpacity(0.6),
+                                size: 20,
+                              ),
                               SizedBox(width: 8),
-                              Text('Edit Details', style: TextStyle(color: context.onSurfaceColor)),
+                              Text(
+                                'Edit Details',
+                                style: TextStyle(color: context.onSurfaceColor),
+                              ),
                             ],
                           ),
                         ),
@@ -183,9 +218,16 @@ class SimLineCard extends ConsumerWidget {
                           value: 'delete',
                           child: Row(
                             children: [
-                              Icon(Icons.delete_outline, color: AppColors.error, size: 20),
+                              Icon(
+                                Icons.delete_outline,
+                                color: AppColors.error,
+                                size: 20,
+                              ),
                               SizedBox(width: 8),
-                              Text('Delete Protection', style: TextStyle(color: AppColors.error)),
+                              Text(
+                                'Delete Protection',
+                                style: TextStyle(color: AppColors.error),
+                              ),
                             ],
                           ),
                         ),
@@ -206,7 +248,7 @@ class SimLineCard extends ConsumerWidget {
     );
   }
 
-  Widget _buildFlagAvatar(SimLine line, Country? country) {
+  Widget _buildAvatar(BuildContext context, SimLine line, Country? country) {
     String flag = '🌐';
     if (country != null) {
       flag = country.flagEmoji;
@@ -236,7 +278,11 @@ class SimLineCard extends ConsumerWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          Icon(getIcon(line.avatarIcon), color: AppColors.primaryLight, size: 22),
+          Icon(
+            getIcon(line.avatarIcon),
+            color: AppColors.primaryLight,
+            size: 22,
+          ),
           Positioned(
             bottom: 2,
             right: 2,
@@ -321,23 +367,44 @@ class SimLineCard extends ConsumerWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        _buildInfoColumn(context, 'Last Refill', getLastRefillStr(), Icons.history),
-        _buildInfoColumn(context, 'Protection Status', line.status.toUpperCase(), Icons.security),
+        _buildInfoColumn(
+          context,
+          'Last Refill',
+          getLastRefillStr(),
+          Icons.history,
+        ),
+        _buildInfoColumn(
+          context,
+          'Protection Status',
+          line.status.toUpperCase(),
+          Icons.security,
+        ),
       ],
     );
   }
 
-  Widget _buildInfoColumn(BuildContext context, String label, String value, IconData icon) {
+  Widget _buildInfoColumn(
+    BuildContext context,
+    String label,
+    String value,
+    IconData icon,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            Icon(icon, size: 12, color: context.onSurfaceColor.withOpacity(0.4)),
+            Icon(
+              icon,
+              size: 12,
+              color: context.onSurfaceColor.withOpacity(0.4),
+            ),
             const SizedBox(width: 4),
             Text(
               label,
-              style: AppTextStyles.caption.copyWith(color: context.onSurfaceColor.withOpacity(0.4)),
+              style: AppTextStyles.caption.copyWith(
+                color: context.onSurfaceColor.withOpacity(0.4),
+              ),
             ),
           ],
         ),
@@ -353,7 +420,11 @@ class SimLineCard extends ConsumerWidget {
     );
   }
 
-  void _showDeleteConfirmation(BuildContext context, WidgetRef ref, SimLine line) {
+  void _showDeleteConfirmation(
+    BuildContext context,
+    WidgetRef ref,
+    SimLine line,
+  ) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -364,17 +435,25 @@ class SimLineCard extends ConsumerWidget {
         ),
         title: Row(
           children: [
-            const Icon(Icons.warning_amber_rounded, color: AppColors.error, size: 28),
+            const Icon(
+              Icons.warning_amber_rounded,
+              color: AppColors.error,
+              size: 28,
+            ),
             const SizedBox(width: 12),
             Text(
               'Remove Protection',
-              style: AppTextStyles.headlineSmall.copyWith(color: context.onSurfaceColor),
+              style: AppTextStyles.headlineSmall.copyWith(
+                color: context.onSurfaceColor,
+              ),
             ),
           ],
         ),
         content: Text(
           'Are you sure you want to stop keeping ${line.nickname ?? line.phoneNumber} protected? Scheduled top-ups for this SIM line will be permanently cancelled.',
-          style: AppTextStyles.bodyMedium.copyWith(color: context.onSurfaceColor.withOpacity(0.6)),
+          style: AppTextStyles.bodyMedium.copyWith(
+            color: context.onSurfaceColor.withOpacity(0.6),
+          ),
         ),
         actions: [
           TextButton(
@@ -388,11 +467,15 @@ class SimLineCard extends ConsumerWidget {
             onPressed: () async {
               Navigator.pop(context);
               try {
-                await ref.read(simLinesControllerProvider.notifier).deleteSimLine(line.id);
+                await ref
+                    .read(simLinesControllerProvider.notifier)
+                    .deleteSimLine(line.id);
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('SIM line protection removed successfully.'),
+                      content: Text(
+                        'SIM line protection removed successfully.',
+                      ),
                       backgroundColor: AppColors.success,
                     ),
                   );
@@ -409,21 +492,28 @@ class SimLineCard extends ConsumerWidget {
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
-            child: Text('Delete', style: TextStyle(color: context.onSurfaceColor)),
+            child: Text(
+              'Delete',
+              style: TextStyle(color: context.onSurfaceColor),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildScheduledTopupPanel(BuildContext context, WidgetRef ref, SimLine line) {
+  Widget _buildScheduledTopupPanel(
+    BuildContext context,
+    WidgetRef ref,
+    SimLine line,
+  ) {
     final schedule = ref.watch(scheduledTopupForLineProvider(line.id));
 
     if (schedule == null) {
       return Column(
         children: [
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 12.0),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12.0),
             child: Divider(color: context.dividerColor, height: 1),
           ),
           Container(
@@ -435,7 +525,11 @@ class SimLineCard extends ConsumerWidget {
             ),
             child: Row(
               children: [
-                const Icon(Icons.warning_amber_rounded, color: AppColors.healthRed, size: 20),
+                const Icon(
+                  Icons.warning_amber_rounded,
+                  color: AppColors.healthRed,
+                  size: 20,
+                ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Column(
@@ -451,7 +545,9 @@ class SimLineCard extends ConsumerWidget {
                       const SizedBox(height: 2),
                       Text(
                         'Critical risk of SIM deactivation.',
-                        style: AppTextStyles.caption.copyWith(color: context.onSurfaceColor.withOpacity(0.6)),
+                        style: AppTextStyles.caption.copyWith(
+                          color: context.onSurfaceColor.withOpacity(0.6),
+                        ),
                       ),
                     ],
                   ),
@@ -471,10 +567,18 @@ class SimLineCard extends ConsumerWidget {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     foregroundColor: context.onSurfaceColor,
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 8,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
-                  child: const Text('Configure', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                  child: const Text(
+                    'Configure',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
                 ),
               ],
             ),
@@ -486,13 +590,15 @@ class SimLineCard extends ConsumerWidget {
     final dateFormat = DateFormat('MMM dd, yyyy');
     final isPaused = !schedule.isActive;
     final cardColor = isPaused ? AppColors.warning : AppColors.secondary;
-    final statusIcon = isPaused ? Icons.pause_circle_outline_rounded : Icons.verified_user;
+    final statusIcon = isPaused
+        ? Icons.pause_circle_outline_rounded
+        : Icons.verified_user;
     final statusText = isPaused ? 'Auto-Refill: Paused' : 'Auto-Refill: Active';
 
     return Column(
       children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(vertical: 12.0),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12.0),
           child: Divider(color: context.dividerColor, height: 1),
         ),
         Container(
@@ -524,13 +630,19 @@ class SimLineCard extends ConsumerWidget {
                           isPaused
                               ? 'Schedule is currently suspended'
                               : '\$${schedule.amount.toStringAsFixed(2)} USD every ${schedule.frequencyDays} days',
-                          style: AppTextStyles.caption.copyWith(color: context.onSurfaceColor.withOpacity(0.6)),
+                          style: AppTextStyles.caption.copyWith(
+                            color: context.onSurfaceColor.withOpacity(0.6),
+                          ),
                         ),
                       ],
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.settings, color: AppColors.primaryLight, size: 20),
+                    icon: const Icon(
+                      Icons.settings,
+                      color: AppColors.primaryLight,
+                      size: 20,
+                    ),
                     onPressed: () {
                       showModalBottomSheet(
                         context: context,
@@ -555,8 +667,13 @@ class SimLineCard extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          isPaused ? 'Resume renewal to enable' : 'Next Auto-Refill:',
-                          style: AppTextStyles.caption.copyWith(color: context.onSurfaceColor.withOpacity(0.4), fontSize: 10),
+                          isPaused
+                              ? 'Resume renewal to enable'
+                              : 'Next Auto-Refill:',
+                          style: AppTextStyles.caption.copyWith(
+                            color: context.onSurfaceColor.withOpacity(0.4),
+                            fontSize: 10,
+                          ),
                         ),
                         if (!isPaused) ...[
                           const SizedBox(height: 2),
@@ -572,8 +689,7 @@ class SimLineCard extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  if (!isPaused)
-                    _SimulateRefillButton(scheduleId: schedule.id),
+                  if (!isPaused) _SimulateRefillButton(scheduleId: schedule.id),
                 ],
               ),
             ],
@@ -590,7 +706,8 @@ class _SimulateRefillButton extends ConsumerStatefulWidget {
   const _SimulateRefillButton({required this.scheduleId});
 
   @override
-  ConsumerState<_SimulateRefillButton> createState() => _SimulateRefillButtonState();
+  ConsumerState<_SimulateRefillButton> createState() =>
+      _SimulateRefillButtonState();
 }
 
 class _SimulateRefillButtonState extends ConsumerState<_SimulateRefillButton> {
@@ -609,10 +726,18 @@ class _SimulateRefillButtonState extends ConsumerState<_SimulateRefillButton> {
                 color: context.onSurfaceColor,
               ),
             )
-          : Icon(Icons.flash_on_rounded, size: 14, color: context.onSurfaceColor),
+          : Icon(
+              Icons.flash_on_rounded,
+              size: 14,
+              color: context.onSurfaceColor,
+            ),
       label: Text(
         'Simulate Refill',
-        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: context.onSurfaceColor),
+        style: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.bold,
+          color: context.onSurfaceColor,
+        ),
       ),
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.secondaryDark,
@@ -637,10 +762,15 @@ class _SimulateRefillButtonState extends ConsumerState<_SimulateRefillButton> {
               SnackBar(
                 content: Row(
                   children: [
-                    Icon(Icons.check_circle_rounded, color: context.onSurfaceColor),
+                    Icon(
+                      Icons.check_circle_rounded,
+                      color: context.onSurfaceColor,
+                    ),
                     SizedBox(width: 8),
                     Expanded(
-                      child: Text('Auto-refill execution simulated! Balance deducted & validity extended.'),
+                      child: Text(
+                        'Auto-refill execution simulated! Balance deducted & validity extended.',
+                      ),
                     ),
                   ],
                 ),

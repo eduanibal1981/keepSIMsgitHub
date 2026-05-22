@@ -15,5 +15,10 @@ abstract class NotificationsRepository {
   Future<UserPreferences> getUserPreferences();
   Future<void> updateUserPreferences(UserPreferences preferences);
 
-  Future<void> simulateNotification(String category, String title, String body, {String? simLineId});
+  Future<void> simulateNotification(
+    String category,
+    String title,
+    String body, {
+    String? simLineId,
+  });
 }

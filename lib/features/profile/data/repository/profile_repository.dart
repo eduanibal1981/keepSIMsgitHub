@@ -26,7 +26,9 @@ class ProfileRepository implements ProfileContract {
       return Success(UserProfile.fromJson(response));
     } on PostgrestException catch (e) {
       if (e.code == 'PGRST116') {
-        return const Failure(AppFailure.notFound(message: 'Profile not found.'));
+        return const Failure(
+          AppFailure.notFound(message: 'Profile not found.'),
+        );
       }
       return Failure(AppFailure.server(message: e.message));
     } catch (e) {

@@ -19,7 +19,9 @@ class WalletRepository implements WalletContract {
     try {
       final userId = _client.auth.currentUser?.id;
       if (userId == null) {
-        return const Failure(AppFailure.auth(message: 'No authenticated user.'));
+        return const Failure(
+          AppFailure.auth(message: 'No authenticated user.'),
+        );
       }
 
       // Try fetching active wallet
@@ -59,7 +61,9 @@ class WalletRepository implements WalletContract {
     try {
       final userId = _client.auth.currentUser?.id;
       if (userId == null) {
-        return const Failure(AppFailure.auth(message: 'No authenticated user.'));
+        return const Failure(
+          AppFailure.auth(message: 'No authenticated user.'),
+        );
       }
 
       // 1. Fetch from Supabase
@@ -70,7 +74,9 @@ class WalletRepository implements WalletContract {
           .order('created_at', ascending: false);
 
       final dbList = (response as List)
-          .map((json) => WalletTransaction.fromJson(json as Map<String, dynamic>))
+          .map(
+            (json) => WalletTransaction.fromJson(json as Map<String, dynamic>),
+          )
           .toList();
 
       if (dbList.isNotEmpty) {
@@ -104,10 +110,9 @@ class WalletRepository implements WalletContract {
           'reference_id': 'referral_bonus',
         };
 
-        final insertResponse = await _client
-            .from('wallet_transactions')
-            .insert([welcomeTx, referralTx])
-            .select();
+        final insertResponse = await _client.from('wallet_transactions').insert(
+          [welcomeTx, referralTx],
+        ).select();
 
         // Update the wallet balance in wallets table to 45.20 to align with transactions
         await _client
@@ -116,7 +121,10 @@ class WalletRepository implements WalletContract {
             .eq('id', walletId);
 
         final parsedList = (insertResponse as List)
-            .map((json) => WalletTransaction.fromJson(json as Map<String, dynamic>))
+            .map(
+              (json) =>
+                  WalletTransaction.fromJson(json as Map<String, dynamic>),
+            )
             .toList();
 
         // Sort descending by created_at or default
@@ -140,7 +148,9 @@ class WalletRepository implements WalletContract {
     try {
       final userId = _client.auth.currentUser?.id;
       if (userId == null) {
-        return const Failure(AppFailure.auth(message: 'No authenticated user.'));
+        return const Failure(
+          AppFailure.auth(message: 'No authenticated user.'),
+        );
       }
 
       final walletResult = await getWallet();
@@ -163,9 +173,7 @@ class WalletRepository implements WalletContract {
         'reference_id': referenceId,
       };
 
-      await _client
-          .from('wallet_transactions')
-          .insert(txData);
+      await _client.from('wallet_transactions').insert(txData);
 
       // 2. Update wallet balance
       final updatedWalletJson = await _client
