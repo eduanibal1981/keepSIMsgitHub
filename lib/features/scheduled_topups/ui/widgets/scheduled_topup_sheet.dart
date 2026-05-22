@@ -70,7 +70,7 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
     }
 
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: context.surfaceColor,
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(28),
@@ -306,7 +306,7 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
               ),
               child: Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.event_repeat_rounded,
                     color: context.onSurfaceColor.withOpacity(0.6),
                     size: 20,
@@ -392,7 +392,7 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                       ),
                     ),
                     child: _isSaving
-                        ? const SizedBox(
+                        ? SizedBox(
                             width: 24,
                             height: 24,
                             child: CircularProgressIndicator(
