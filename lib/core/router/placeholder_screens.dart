@@ -9,7 +9,7 @@ import 'package:go_router/go_router.dart';
 import 'package:keep_sims/core/router/app_router.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
-import 'package:keep_sims/core/utils/theme_extension.dart';
+import 'package:keep_sims/core/utils/build_context_extension.dart';
 
 // ── Splash Screen ─────────────────────────────────────────────
 class SplashScreen extends StatefulWidget {
