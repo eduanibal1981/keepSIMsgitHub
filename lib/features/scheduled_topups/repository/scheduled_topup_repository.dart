@@ -82,6 +82,20 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
         );
       }
 
+      // Check if a schedule already exists for this SIM line to prevent duplicates
+      final existingRes = await _client
+          .from('scheduled_topups')
+          .select('id')
+          .eq('sim_line_id', schedule.simLineId)
+          .eq('user_id', userId)
+          .maybeSingle();
+
+      if (existingRes != null) {
+        // If it exists, update it instead of creating a new one
+        final updatedSchedule = schedule.copyWith(id: existingRes['id'] as String);
+        return updateSchedule(updatedSchedule);
+      }
+
       final data = schedule.toJson();
       if (schedule.id.isEmpty) {
         data.remove('id');

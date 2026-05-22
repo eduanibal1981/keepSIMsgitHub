@@ -30,13 +30,7 @@ class SimLineDetailController extends _$SimLineDetailController {
   @override
   FutureOr<SimLineDetailState> build(String id) async {
     // 1. Fetch SIM Line from current list
-    final simLinesAsync = ref.watch(simLinesControllerProvider);
-    final simLines = simLinesAsync.valueOrNull ?? [];
-    
-    // If the list is empty or hasn't finished loading, we let Riverpod handle state transitions
-    if (simLinesAsync.isLoading) {
-      throw const AsyncLoading();
-    }
+    final simLines = await ref.watch(simLinesControllerProvider.future);
     
     final simLine = simLines.firstWhere(
       (l) => l.id == id,

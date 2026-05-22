@@ -9,6 +9,8 @@ import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import 'package:keep_sims/features/wallet/controller/wallet_controller.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
+import 'package:keep_sims/features/scheduled_topups/controller/scheduled_topup_controller.dart';
+import 'package:keep_sims/features/scheduled_topups/model/scheduled_topup_model.dart';
 
 part 'dashboard_controller.g.dart';
 
@@ -18,6 +20,7 @@ class DashboardState {
   final double walletBalance;
   final double monthlySpend;
   final int nextTopUpDays;
+  final int nextTopUpTotalDays;
   final int overallHealthScore;
   final List<DashboardActivity> recentActivities;
   final String? lastChargeDate;
@@ -28,6 +31,7 @@ class DashboardState {
     required this.walletBalance,
     required this.monthlySpend,
     required this.nextTopUpDays,
+    required this.nextTopUpTotalDays,
     required this.overallHealthScore,
     required this.recentActivities,
     this.lastChargeDate,
@@ -68,8 +72,9 @@ class DashboardController extends _$DashboardController {
     // Await both sub-providers to resolve, ensuring we remain in a true AsyncLoading state in the UI
     final walletState = await ref.watch(walletControllerProvider.future);
     final simLines = await ref.watch(simLinesControllerProvider.future);
+    final schedules = await ref.watch(scheduledTopupControllerProvider.future);
 
-    return _fetchDashboardData(walletState, simLines);
+    return _fetchDashboardData(walletState, simLines, schedules);
   }
 
   DashboardState _loadingState() {
@@ -78,13 +83,14 @@ class DashboardController extends _$DashboardController {
       walletBalance: 0.0,
       monthlySpend: 0.0,
       nextTopUpDays: 0,
+      nextTopUpTotalDays: 30,
       overallHealthScore: 100,
       recentActivities: [],
     );
   }
 
   /// Aggregates real wallet and sim line state values.
-  DashboardState _fetchDashboardData(WalletState walletState, List<SimLine> simLines) {
+  DashboardState _fetchDashboardData(WalletState walletState, List<SimLine> simLines, List<ScheduledTopup> schedules) {
     final balance = walletState.wallet.balance;
     final transactions = walletState.transactions;
 
@@ -169,18 +175,26 @@ class DashboardController extends _$DashboardController {
 
     // 3. Calculate next top up days
     int nextTopUpDays = 30;
+    int nextTopUpTotalDays = 30;
     bool foundNextDue = false;
     for (final line in simLines) {
       if (line.nextTopupDue != null) {
         final diff = line.nextTopupDue!.difference(DateTime.now()).inDays;
-        if (diff >= 0 && diff < nextTopUpDays) {
+        if (diff >= 0 && (!foundNextDue || diff < nextTopUpDays)) {
           nextTopUpDays = diff;
+          final schedule = schedules.where((s) => s.simLineId == line.id && s.status == 'active').firstOrNull;
+          if (schedule != null && schedule.frequencyDays > 0) {
+            nextTopUpTotalDays = schedule.frequencyDays;
+          } else {
+            nextTopUpTotalDays = 30;
+          }
           foundNextDue = true;
         }
       }
     }
     if (!foundNextDue) {
       nextTopUpDays = 12; // Muted fallback matching previous design
+      nextTopUpTotalDays = 30;
     }
 
     return DashboardState(
@@ -188,6 +202,7 @@ class DashboardController extends _$DashboardController {
       walletBalance: balance,
       monthlySpend: 12.00,
       nextTopUpDays: nextTopUpDays,
+      nextTopUpTotalDays: nextTopUpTotalDays,
       overallHealthScore: 96,
       recentActivities: recentActivities,
       lastChargeDate: lastChargeDate,
@@ -201,9 +216,11 @@ class DashboardController extends _$DashboardController {
     state = await AsyncValue.guard(() async {
       ref.invalidate(walletControllerProvider);
       ref.invalidate(simLinesControllerProvider);
+      ref.invalidate(scheduledTopupControllerProvider);
       final walletState = await ref.read(walletControllerProvider.future);
       final simLines = await ref.read(simLinesControllerProvider.future);
-      return _fetchDashboardData(walletState, simLines);
+      final schedules = await ref.read(scheduledTopupControllerProvider.future);
+      return _fetchDashboardData(walletState, simLines, schedules);
     });
   }
 }

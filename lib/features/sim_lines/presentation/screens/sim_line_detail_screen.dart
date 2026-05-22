@@ -517,7 +517,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
             ),
             const SizedBox(height: 16),
             ElevatedButton.icon(
-              onPressed: () => _openScheduleSheet(context, detail.simLine),
+              onPressed: () => _openScheduleSheet(context, detail.simLine, detail.scheduledTopup),
               icon: const Icon(Icons.add, size: 18, color: Colors.white),
               label: const Text('Configure Auto-Renewal', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
               style: ElevatedButton.styleFrom(
@@ -616,7 +616,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
             children: [
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed: () => _openScheduleSheet(context, detail.simLine),
+                  onPressed: () => _openScheduleSheet(context, detail.simLine, detail.scheduledTopup),
                   icon: const Icon(Icons.edit_outlined, size: 16, color: AppColors.textPrimaryDark),
                   label: const Text('Edit Schedule', style: TextStyle(color: AppColors.textPrimaryDark, fontWeight: FontWeight.bold)),
                   style: OutlinedButton.styleFrom(
@@ -949,7 +949,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
   }
 
   // ── Action Handlers ────────────────────────────────────────────────────────
-  void _openScheduleSheet(BuildContext context, SimLine line) {
+  void _openScheduleSheet(BuildContext context, SimLine line, ScheduledTopup? existingSchedule) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -957,6 +957,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
       builder: (context) => ScheduledTopupSheet(
         simLineId: line.id,
         simNickname: line.nickname ?? line.phoneNumber,
+        existingSchedule: existingSchedule,
       ),
     );
   }
