@@ -298,14 +298,13 @@ class DashboardScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 24),
                     // Sub metrics grid
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        _buildHeroStat('Lines Active', '${data.totalLines} Protected'),
-                        _buildHeroStat('Monthly Spend', '\$${data.monthlySpend.toStringAsFixed(2)}'),
-                        _buildHeroStat('Next Top-Up', '${data.nextTopUpDays} Days Left'),
-                      ],
-                    ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          _buildHeroStat('Lines Active', '${data.totalLines} Protected'),
+                          _buildHeroStat('Next Top-Up', '${data.nextTopUpDays} Days Left'),
+                        ],
+                      ),
                     const SizedBox(height: 16),
                     // Expiry Progress bar
                     Column(

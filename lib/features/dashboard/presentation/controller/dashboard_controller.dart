@@ -18,7 +18,6 @@ part 'dashboard_controller.g.dart';
 class DashboardState {
   final int totalLines;
   final double walletBalance;
-  final double monthlySpend;
   final int nextTopUpDays;
   final int nextTopUpTotalDays;
   final int overallHealthScore;
@@ -29,7 +28,6 @@ class DashboardState {
   const DashboardState({
     required this.totalLines,
     required this.walletBalance,
-    required this.monthlySpend,
     required this.nextTopUpDays,
     required this.nextTopUpTotalDays,
     required this.overallHealthScore,
@@ -81,7 +79,6 @@ class DashboardController extends _$DashboardController {
     return const DashboardState(
       totalLines: 0,
       walletBalance: 0.0,
-      monthlySpend: 0.0,
       nextTopUpDays: 0,
       nextTopUpTotalDays: 30,
       overallHealthScore: 100,
@@ -200,7 +197,6 @@ class DashboardController extends _$DashboardController {
     return DashboardState(
       totalLines: totalLines,
       walletBalance: balance,
-      monthlySpend: 12.00,
       nextTopUpDays: nextTopUpDays,
       nextTopUpTotalDays: nextTopUpTotalDays,
       overallHealthScore: 96,
