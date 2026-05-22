@@ -3,6 +3,7 @@
 /// A highly premium, glowing dark-mode home dashboard.
 library;
 
+import 'package:keep_sims/core/utils/build_context_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -27,14 +28,14 @@ class DashboardScreen extends ConsumerWidget {
     final dashboardState = ref.watch(dashboardControllerProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.darkBg,
+      backgroundColor: context.scaffoldBackgroundColor,
       body: authProfileState.when(
         data: (profile) {
           if (profile == null) {
             return const Center(
               child: Text(
                 'Access Denied. Please sign in.',
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: context.onSurfaceColor),
               ),
             );
           }
@@ -56,11 +57,11 @@ class DashboardScreen extends ConsumerWidget {
           );
         },
         loading: () => const Scaffold(
-          backgroundColor: AppColors.darkBg,
+          backgroundColor: context.scaffoldBackgroundColor,
           body: DashboardShimmer(),
         ),
         error: (err, stack) => Scaffold(
-          backgroundColor: AppColors.darkBg,
+          backgroundColor: context.scaffoldBackgroundColor,
           body: ErrorStateView(
             errorMessage: 'Authentication checkpoint failed',
             errorDetails: err.toString(),
@@ -82,7 +83,7 @@ class DashboardScreen extends ConsumerWidget {
 
     return RefreshIndicator(
       color: AppColors.primary,
-      backgroundColor: AppColors.darkSurface,
+      backgroundColor: context.surfaceColor,
       onRefresh: () async {
         await HapticHelper.mediumImpact();
         await ref.read(dashboardControllerProvider.notifier).refreshDashboard();
@@ -138,7 +139,7 @@ class DashboardScreen extends ConsumerWidget {
           child: Center(
             child: Text(
               name.substring(0, name.isNotEmpty ? 1 : 0).toUpperCase(),
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+              style: const TextStyle(color: context.onSurfaceColor, fontWeight: FontWeight.bold, fontSize: 18),
             ),
           ),
         ),
@@ -149,11 +150,11 @@ class DashboardScreen extends ConsumerWidget {
             children: [
               Text(
                 'Welcome Back',
-                style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondaryDark),
+                style: AppTextStyles.bodySmall.copyWith(color: context.onSurfaceColor.withOpacity(0.6)),
               ),
               Text(
                 name,
-                style: AppTextStyles.headlineLarge.copyWith(color: Colors.white),
+                style: AppTextStyles.headlineLarge.copyWith(color: context.onSurfaceColor),
               ),
             ],
           ),
@@ -215,7 +216,7 @@ class DashboardScreen extends ConsumerWidget {
             Positioned.fill(
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.15),
+                  color: context.theme.shadowColor.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(24),
                 ),
               ),
@@ -230,7 +231,7 @@ class DashboardScreen extends ConsumerWidget {
                 height: 180,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.white.withValues(alpha: 0.08),
+                  color: context.onSurfaceColor.withValues(alpha: 0.08),
                 ),
               ),
             ),
@@ -245,8 +246,8 @@ class DashboardScreen extends ConsumerWidget {
                     if (!context.mounted) return;
                     _showDepositModalSheet(context);
                   },
-                  splashColor: Colors.white.withValues(alpha: 0.1),
-                  highlightColor: Colors.white.withValues(alpha: 0.05),
+                  splashColor: context.onSurfaceColor.withValues(alpha: 0.1),
+                  highlightColor: context.onSurfaceColor.withValues(alpha: 0.05),
                 ),
               ),
             ),
@@ -264,7 +265,7 @@ class DashboardScreen extends ConsumerWidget {
                         Text(
                           'SHIELD WALLET BALANCE',
                           style: AppTextStyles.labelMedium.copyWith(
-                            color: Colors.white.withValues(alpha: 0.7),
+                            color: context.onSurfaceColor.withValues(alpha: 0.7),
                             fontWeight: FontWeight.w800,
                             letterSpacing: 1.5,
                           ),
@@ -294,7 +295,7 @@ class DashboardScreen extends ConsumerWidget {
                     const SizedBox(height: 6),
                     Text(
                       '\$${data.walletBalance.toStringAsFixed(2)} $currency',
-                      style: AppTextStyles.walletBalance.copyWith(color: Colors.white),
+                      style: AppTextStyles.walletBalance.copyWith(color: context.onSurfaceColor),
                     ),
                     const SizedBox(height: 24),
                     // Sub metrics grid
@@ -315,11 +316,11 @@ class DashboardScreen extends ConsumerWidget {
                           children: [
                             Text(
                               'Renewal Schedule Health',
-                              style: AppTextStyles.caption.copyWith(color: Colors.white.withValues(alpha: 0.7)),
+                              style: AppTextStyles.caption.copyWith(color: context.onSurfaceColor.withValues(alpha: 0.7)),
                             ),
                             Text(
                               '${(data.nextTopUpDays / data.nextTopUpTotalDays * 100).toInt()}% Remaining',
-                              style: AppTextStyles.caption.copyWith(color: Colors.white.withValues(alpha: 0.9)),
+                              style: AppTextStyles.caption.copyWith(color: context.onSurfaceColor.withValues(alpha: 0.9)),
                             ),
                           ],
                         ),
@@ -329,28 +330,28 @@ class DashboardScreen extends ConsumerWidget {
                           child: LinearProgressIndicator(
                             value: data.nextTopUpDays / data.nextTopUpTotalDays,
                             minHeight: 6,
-                            backgroundColor: Colors.white.withValues(alpha: 0.2),
+                            backgroundColor: context.onSurfaceColor.withValues(alpha: 0.2),
                             valueColor: const AlwaysStoppedAnimation<Color>(AppColors.secondary),
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 16),
-                    const Divider(color: Colors.white24, height: 1),
+                    const Divider(color: context.onSurfaceColor.withOpacity(0.24), height: 1),
                     const SizedBox(height: 12),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
                           'Last Auto Charge',
-                          style: AppTextStyles.caption.copyWith(color: Colors.white.withValues(alpha: 0.7)),
+                          style: AppTextStyles.caption.copyWith(color: context.onSurfaceColor.withValues(alpha: 0.7)),
                         ),
                         Text(
                           data.lastChargeDate != null && data.lastChargePhone != null
                               ? '${data.lastChargeDate} • ${data.lastChargePhone}'
                               : 'None Recorded',
                           style: AppTextStyles.caption.copyWith(
-                            color: Colors.white,
+                            color: context.onSurfaceColor,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -381,12 +382,12 @@ class DashboardScreen extends ConsumerWidget {
       children: [
         Text(
           title,
-          style: AppTextStyles.caption.copyWith(color: Colors.white.withValues(alpha: 0.6)),
+          style: AppTextStyles.caption.copyWith(color: context.onSurfaceColor.withValues(alpha: 0.6)),
         ),
         const SizedBox(height: 4),
         Text(
           value,
-          style: AppTextStyles.titleMedium.copyWith(color: Colors.white, fontWeight: FontWeight.w700),
+          style: AppTextStyles.titleMedium.copyWith(color: context.onSurfaceColor, fontWeight: FontWeight.w700),
         ),
       ],
     );
@@ -404,7 +405,7 @@ class DashboardScreen extends ConsumerWidget {
           children: [
             Text(
               'Protected Lines',
-              style: AppTextStyles.headlineSmall.copyWith(color: Colors.white),
+              style: AppTextStyles.headlineSmall.copyWith(color: context.onSurfaceColor),
             ),
             IconButton(
               icon: const Icon(Icons.add_circle_outline, color: AppColors.primary),
@@ -458,12 +459,12 @@ class DashboardScreen extends ConsumerWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.darkSurface.withOpacity(0.6),
+        color: context.surfaceColor.withOpacity(0.6),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.darkBorder.withOpacity(0.5)),
+        border: Border.all(color: context.dividerColor.withOpacity(0.5)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: context.theme.shadowColor.withOpacity(0.2),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -487,7 +488,7 @@ class DashboardScreen extends ConsumerWidget {
           Text(
             'No Protected SIM Lines',
             style: AppTextStyles.titleMedium.copyWith(
-              color: Colors.white,
+              color: context.onSurfaceColor,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -496,7 +497,7 @@ class DashboardScreen extends ConsumerWidget {
             'Keep your active mobile numbers protected from deactivation. Secure your first SIM card now.',
             textAlign: TextAlign.center,
             style: AppTextStyles.bodySmall.copyWith(
-              color: AppColors.textSecondaryDark,
+              color: context.onSurfaceColor.withOpacity(0.6),
             ),
           ),
           const SizedBox(height: 20),
@@ -507,14 +508,14 @@ class DashboardScreen extends ConsumerWidget {
                 context.go(AppRoutes.simLines);
               }
             },
-            icon: const Icon(Icons.add_moderator_rounded, size: 18, color: Colors.white),
+            icon: const Icon(Icons.add_moderator_rounded, size: 18, color: context.onSurfaceColor),
             label: const Text(
               'Protect Your First SIM',
-              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+              style: TextStyle(fontWeight: FontWeight.bold, color: context.onSurfaceColor),
             ),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
+              foregroundColor: context.onSurfaceColor,
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -533,7 +534,7 @@ class DashboardScreen extends ConsumerWidget {
       children: [
         Text(
           'Recent Activity Log',
-          style: AppTextStyles.headlineSmall.copyWith(color: Colors.white),
+          style: AppTextStyles.headlineSmall.copyWith(color: context.onSurfaceColor),
         ),
         const SizedBox(height: 16),
         if (activities.isEmpty)
@@ -542,7 +543,7 @@ class DashboardScreen extends ConsumerWidget {
             child: Center(
               child: Text(
                 'No recent activity records',
-                style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textTertiaryDark),
+                style: AppTextStyles.bodyMedium.copyWith(color: context.onSurfaceColor.withOpacity(0.4)),
               ),
             ),
           )
@@ -594,7 +595,7 @@ class DashboardScreen extends ConsumerWidget {
                           Expanded(
                             child: Container(
                               width: 2,
-                              color: AppColors.darkBorder,
+                              color: context.dividerColor,
                               margin: const EdgeInsets.symmetric(vertical: 4),
                             ),
                           ),
@@ -614,20 +615,20 @@ class DashboardScreen extends ConsumerWidget {
                                 Expanded(
                                   child: Text(
                                     act.title,
-                                    style: AppTextStyles.titleMedium.copyWith(color: Colors.white),
+                                    style: AppTextStyles.titleMedium.copyWith(color: context.onSurfaceColor),
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
                                 Text(
                                   act.timeAgo,
-                                  style: AppTextStyles.caption.copyWith(color: AppColors.textTertiaryDark),
+                                  style: AppTextStyles.caption.copyWith(color: context.onSurfaceColor.withOpacity(0.4)),
                                 ),
                               ],
                             ),
                             const SizedBox(height: 4),
                             Text(
                               act.subtitle,
-                              style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondaryDark),
+                              style: AppTextStyles.bodySmall.copyWith(color: context.onSurfaceColor.withOpacity(0.6)),
                             ),
                           ],
                         ),

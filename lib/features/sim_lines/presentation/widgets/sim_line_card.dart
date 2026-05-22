@@ -1,3 +1,4 @@
+import 'package:keep_sims/core/utils/build_context_extension.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -51,11 +52,11 @@ class SimLineCard extends ConsumerWidget {
 
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
-      color: isSelected ? AppColors.darkCard.withBlue(35).withGreen(10) : AppColors.darkCard,
+      color: isSelected ? context.cardColor.withBlue(35).withGreen(10) : context.cardColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
         side: BorderSide(
-          color: isSelected ? AppColors.primary : AppColors.darkBorder.withOpacity(0.5),
+          color: isSelected ? AppColors.primary : context.dividerColor.withOpacity(0.5),
           width: isSelected ? 1.5 : 1,
         ),
       ),
@@ -89,7 +90,7 @@ class SimLineCard extends ConsumerWidget {
                       margin: const EdgeInsets.only(right: 12, top: 12),
                       child: Icon(
                         isSelected ? Icons.check_circle_rounded : Icons.radio_button_off_rounded,
-                        color: isSelected ? AppColors.primary : AppColors.textSecondaryDark,
+                        color: isSelected ? AppColors.primary : context.onSurfaceColor.withOpacity(0.6),
                         size: 24,
                       ),
                     ),
@@ -108,7 +109,7 @@ class SimLineCard extends ConsumerWidget {
                             Text(
                               line.nickname ?? 'My SIM Card',
                               style: AppTextStyles.headlineSmall.copyWith(
-                                color: AppColors.textPrimaryDark,
+                                color: context.onSurfaceColor,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -120,7 +121,7 @@ class SimLineCard extends ConsumerWidget {
                         Text(
                           line.phoneNumber,
                           style: AppTextStyles.bodyLarge.copyWith(
-                            color: AppColors.textSecondaryDark,
+                            color: context.onSurfaceColor.withOpacity(0.6),
                             fontFamily: 'monospace',
                           ),
                         ),
@@ -157,8 +158,8 @@ class SimLineCard extends ConsumerWidget {
                   // Action menu
                   if (!isShared && showActions)
                     PopupMenuButton<String>(
-                      icon: const Icon(Icons.more_vert, color: AppColors.textSecondaryDark),
-                      color: AppColors.darkSurface,
+                      icon: const Icon(Icons.more_vert, color: context.onSurfaceColor.withOpacity(0.6)),
+                      color: context.surfaceColor,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       onSelected: (value) {
                         if (value == 'edit') {
@@ -172,9 +173,9 @@ class SimLineCard extends ConsumerWidget {
                           value: 'edit',
                           child: Row(
                             children: [
-                              Icon(Icons.edit, color: AppColors.textSecondaryDark, size: 20),
+                              Icon(Icons.edit, color: context.onSurfaceColor.withOpacity(0.6), size: 20),
                               SizedBox(width: 8),
-                              Text('Edit Details', style: TextStyle(color: Colors.white)),
+                              Text('Edit Details', style: TextStyle(color: context.onSurfaceColor)),
                             ],
                           ),
                         ),
@@ -194,7 +195,7 @@ class SimLineCard extends ConsumerWidget {
               ),
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 12.0),
-                child: Divider(color: AppColors.darkBorder, height: 1),
+                child: Divider(color: context.dividerColor, height: 1),
               ),
               _buildDetailsRow(line),
               _buildScheduledTopupPanel(context, ref, line),
@@ -228,9 +229,9 @@ class SimLineCard extends ConsumerWidget {
       width: 48,
       height: 48,
       decoration: BoxDecoration(
-        color: AppColors.darkSurface,
+        color: context.surfaceColor,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.darkBorder),
+        border: Border.all(color: context.dividerColor),
       ),
       child: Stack(
         alignment: Alignment.center,
@@ -294,7 +295,7 @@ class SimLineCard extends ConsumerWidget {
           CircularProgressIndicator(
             value: score / 100,
             strokeWidth: 4,
-            backgroundColor: AppColors.darkSurface,
+            backgroundColor: context.surfaceColor,
             valueColor: AlwaysStoppedAnimation<Color>(color),
           ),
           Text(
@@ -332,11 +333,11 @@ class SimLineCard extends ConsumerWidget {
       children: [
         Row(
           children: [
-            Icon(icon, size: 12, color: AppColors.textTertiaryDark),
+            Icon(icon, size: 12, color: context.onSurfaceColor.withOpacity(0.4)),
             const SizedBox(width: 4),
             Text(
               label,
-              style: AppTextStyles.caption.copyWith(color: AppColors.textTertiaryDark),
+              style: AppTextStyles.caption.copyWith(color: context.onSurfaceColor.withOpacity(0.4)),
             ),
           ],
         ),
@@ -344,7 +345,7 @@ class SimLineCard extends ConsumerWidget {
         Text(
           value,
           style: AppTextStyles.bodySmall.copyWith(
-            color: AppColors.textPrimaryDark,
+            color: context.onSurfaceColor,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -356,10 +357,10 @@ class SimLineCard extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: AppColors.darkSurface,
+        backgroundColor: context.surfaceColor,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24),
-          side: const BorderSide(color: AppColors.darkBorder),
+          side: const BorderSide(color: context.dividerColor),
         ),
         title: Row(
           children: [
@@ -367,20 +368,20 @@ class SimLineCard extends ConsumerWidget {
             const SizedBox(width: 12),
             Text(
               'Remove Protection',
-              style: AppTextStyles.headlineSmall.copyWith(color: Colors.white),
+              style: AppTextStyles.headlineSmall.copyWith(color: context.onSurfaceColor),
             ),
           ],
         ),
         content: Text(
           'Are you sure you want to stop keeping ${line.nickname ?? line.phoneNumber} protected? Scheduled top-ups for this SIM line will be permanently cancelled.',
-          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondaryDark),
+          style: AppTextStyles.bodyMedium.copyWith(color: context.onSurfaceColor.withOpacity(0.6)),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text(
               'Cancel',
-              style: TextStyle(color: AppColors.textSecondaryDark),
+              style: TextStyle(color: context.onSurfaceColor.withOpacity(0.6)),
             ),
           ),
           ElevatedButton(
@@ -408,7 +409,7 @@ class SimLineCard extends ConsumerWidget {
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
-            child: const Text('Delete', style: TextStyle(color: Colors.white)),
+            child: const Text('Delete', style: TextStyle(color: context.onSurfaceColor)),
           ),
         ],
       ),
@@ -423,7 +424,7 @@ class SimLineCard extends ConsumerWidget {
         children: [
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 12.0),
-            child: Divider(color: AppColors.darkBorder, height: 1),
+            child: Divider(color: context.dividerColor, height: 1),
           ),
           Container(
             padding: const EdgeInsets.all(12),
@@ -443,14 +444,14 @@ class SimLineCard extends ConsumerWidget {
                       Text(
                         'Auto-Refill: Disabled',
                         style: AppTextStyles.bodyMedium.copyWith(
-                          color: Colors.white,
+                          color: context.onSurfaceColor,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       const SizedBox(height: 2),
                       Text(
                         'Critical risk of SIM deactivation.',
-                        style: AppTextStyles.caption.copyWith(color: AppColors.textSecondaryDark),
+                        style: AppTextStyles.caption.copyWith(color: context.onSurfaceColor.withOpacity(0.6)),
                       ),
                     ],
                   ),
@@ -469,7 +470,7 @@ class SimLineCard extends ConsumerWidget {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
+                    foregroundColor: context.onSurfaceColor,
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   ),
@@ -492,7 +493,7 @@ class SimLineCard extends ConsumerWidget {
       children: [
         const Padding(
           padding: EdgeInsets.symmetric(vertical: 12.0),
-          child: Divider(color: AppColors.darkBorder, height: 1),
+          child: Divider(color: context.dividerColor, height: 1),
         ),
         Container(
           padding: const EdgeInsets.all(12),
@@ -514,7 +515,7 @@ class SimLineCard extends ConsumerWidget {
                         Text(
                           statusText,
                           style: AppTextStyles.bodyMedium.copyWith(
-                            color: Colors.white,
+                            color: context.onSurfaceColor,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -523,7 +524,7 @@ class SimLineCard extends ConsumerWidget {
                           isPaused
                               ? 'Schedule is currently suspended'
                               : '\$${schedule.amount.toStringAsFixed(2)} USD every ${schedule.frequencyDays} days',
-                          style: AppTextStyles.caption.copyWith(color: AppColors.textSecondaryDark),
+                          style: AppTextStyles.caption.copyWith(color: context.onSurfaceColor.withOpacity(0.6)),
                         ),
                       ],
                     ),
@@ -555,14 +556,14 @@ class SimLineCard extends ConsumerWidget {
                       children: [
                         Text(
                           isPaused ? 'Resume renewal to enable' : 'Next Auto-Refill:',
-                          style: AppTextStyles.caption.copyWith(color: AppColors.textTertiaryDark, fontSize: 10),
+                          style: AppTextStyles.caption.copyWith(color: context.onSurfaceColor.withOpacity(0.4), fontSize: 10),
                         ),
                         if (!isPaused) ...[
                           const SizedBox(height: 2),
                           Text(
                             dateFormat.format(schedule.nextExecutionAt),
                             style: AppTextStyles.bodySmall.copyWith(
-                              color: Colors.white,
+                              color: context.onSurfaceColor,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -605,13 +606,13 @@ class _SimulateRefillButtonState extends ConsumerState<_SimulateRefillButton> {
               height: 14,
               child: CircularProgressIndicator(
                 strokeWidth: 2,
-                color: Colors.white,
+                color: context.onSurfaceColor,
               ),
             )
-          : const Icon(Icons.flash_on_rounded, size: 14, color: Colors.white),
+          : const Icon(Icons.flash_on_rounded, size: 14, color: context.onSurfaceColor),
       label: const Text(
         'Simulate Refill',
-        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
+        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: context.onSurfaceColor),
       ),
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.secondaryDark,
@@ -636,7 +637,7 @@ class _SimulateRefillButtonState extends ConsumerState<_SimulateRefillButton> {
               const SnackBar(
                 content: Row(
                   children: [
-                    Icon(Icons.check_circle_rounded, color: Colors.white),
+                    Icon(Icons.check_circle_rounded, color: context.onSurfaceColor),
                     SizedBox(width: 8),
                     Expanded(
                       child: Text('Auto-refill execution simulated! Balance deducted & validity extended.'),
