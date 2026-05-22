@@ -312,15 +312,15 @@ class SimLineCard extends ConsumerWidget {
   Widget _buildDetailsRow(SimLine line) {
     final dateFormat = DateFormat('MMM dd, yyyy');
 
-    String getDueStr() {
-      if (line.nextTopupDue == null) return 'No schedules yet';
-      return dateFormat.format(line.nextTopupDue!);
+    String getLastRefillStr() {
+      if (line.lastTopupAt == null) return 'No refill yet';
+      return dateFormat.format(line.lastTopupAt!);
     }
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        _buildInfoColumn('Next Action', getDueStr(), Icons.calendar_today),
+        _buildInfoColumn('Last Refill', getLastRefillStr(), Icons.history),
         _buildInfoColumn('Protection Status', line.status.toUpperCase(), Icons.security),
       ],
     );
