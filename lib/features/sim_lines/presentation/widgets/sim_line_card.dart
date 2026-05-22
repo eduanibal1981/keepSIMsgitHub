@@ -158,7 +158,7 @@ class SimLineCard extends ConsumerWidget {
                   // Action menu
                   if (!isShared && showActions)
                     PopupMenuButton<String>(
-                      icon: const Icon(Icons.more_vert, color: context.onSurfaceColor.withOpacity(0.6)),
+                      icon: Icon(Icons.more_vert, color: context.onSurfaceColor.withOpacity(0.6)),
                       color: context.surfaceColor,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       onSelected: (value) {
@@ -169,7 +169,7 @@ class SimLineCard extends ConsumerWidget {
                         }
                       },
                       itemBuilder: (context) => [
-                        const PopupMenuItem(
+                        PopupMenuItem(
                           value: 'edit',
                           child: Row(
                             children: [
@@ -360,7 +360,7 @@ class SimLineCard extends ConsumerWidget {
         backgroundColor: context.surfaceColor,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24),
-          side: const BorderSide(color: context.dividerColor),
+          side: BorderSide(color: context.dividerColor),
         ),
         title: Row(
           children: [
@@ -379,7 +379,7 @@ class SimLineCard extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text(
+            child: Text(
               'Cancel',
               style: TextStyle(color: context.onSurfaceColor.withOpacity(0.6)),
             ),
@@ -409,7 +409,7 @@ class SimLineCard extends ConsumerWidget {
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
-            child: const Text('Delete', style: TextStyle(color: context.onSurfaceColor)),
+            child: Text('Delete', style: TextStyle(color: context.onSurfaceColor)),
           ),
         ],
       ),
@@ -601,7 +601,7 @@ class _SimulateRefillButtonState extends ConsumerState<_SimulateRefillButton> {
     return ElevatedButton.icon(
       onPressed: _isLoading ? null : _simulate,
       icon: _isLoading
-          ? const SizedBox(
+          ? SizedBox(
               width: 14,
               height: 14,
               child: CircularProgressIndicator(
@@ -609,8 +609,8 @@ class _SimulateRefillButtonState extends ConsumerState<_SimulateRefillButton> {
                 color: context.onSurfaceColor,
               ),
             )
-          : const Icon(Icons.flash_on_rounded, size: 14, color: context.onSurfaceColor),
-      label: const Text(
+          : Icon(Icons.flash_on_rounded, size: 14, color: context.onSurfaceColor),
+      label: Text(
         'Simulate Refill',
         style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: context.onSurfaceColor),
       ),
@@ -634,7 +634,7 @@ class _SimulateRefillButtonState extends ConsumerState<_SimulateRefillButton> {
           case Success():
             ref.invalidate(simLinesControllerProvider);
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
+              SnackBar(
                 content: Row(
                   children: [
                     Icon(Icons.check_circle_rounded, color: context.onSurfaceColor),
