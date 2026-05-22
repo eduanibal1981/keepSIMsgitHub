@@ -128,7 +128,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
                   top: Radius.circular(32),
                 ),
                 border: Border.all(
-                  color: context.onSurfaceColor.withOpacity(0.08),
+                  color: context.onSurfaceColor.withValues(alpha: 0.08),
                   width: 1.5,
                 ),
               ),
@@ -140,7 +140,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
                     width: 48,
                     height: 5,
                     decoration: BoxDecoration(
-                      color: context.onSurfaceColor.withOpacity(0.2),
+                      color: context.onSurfaceColor.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(2.5),
                     ),
                   ),
@@ -174,7 +174,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
                           : 'This PIN protects wallet balance withdrawals, funding, and lines freeze edits.',
                       textAlign: TextAlign.center,
                       style: AppTextStyles.bodyMedium.copyWith(
-                        color: context.onSurfaceColor.withOpacity(0.6),
+                        color: context.onSurfaceColor.withValues(alpha: 0.6),
                       ),
                     ),
                   ),
@@ -198,7 +198,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
                           border: Border.all(
                             color: isEntered
                                 ? const Color(0xFFD946EF)
-                                : context.onSurfaceColor.withOpacity(0.2),
+                                : context.onSurfaceColor.withValues(alpha: 0.2),
                             width: 2,
                           ),
                           boxShadow: isEntered
@@ -206,7 +206,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
                                   BoxShadow(
                                     color: const Color(
                                       0xFFD946EF,
-                                    ).withOpacity(0.4),
+                                    ).withValues(alpha: 0.4),
                                     blurRadius: 8,
                                     spreadRadius: 1,
                                   ),
@@ -237,7 +237,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
                       vertical: 24,
                     ),
                     decoration: BoxDecoration(
-                      color: context.theme.shadowColor.withOpacity(0.2),
+                      color: context.theme.shadowColor.withValues(alpha: 0.2),
                       borderRadius: const BorderRadius.vertical(
                         top: Radius.circular(28),
                       ),
@@ -324,10 +324,10 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: isAction
-                ? context.onSurfaceColor.withOpacity(0.04)
-                : context.onSurfaceColor.withOpacity(0.08),
+                ? context.onSurfaceColor.withValues(alpha: 0.04)
+                : context.onSurfaceColor.withValues(alpha: 0.08),
             border: Border.all(
-              color: context.onSurfaceColor.withOpacity(0.05),
+              color: context.onSurfaceColor.withValues(alpha: 0.05),
               width: 1,
             ),
           ),
@@ -418,7 +418,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
             color: const Color(0xFF0F172A),
             borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
             border: Border.all(
-              color: context.onSurfaceColor.withOpacity(0.08),
+              color: context.onSurfaceColor.withValues(alpha: 0.08),
               width: 1.5,
             ),
           ),
@@ -454,12 +454,12 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
                     ),
                     decoration: BoxDecoration(
                       color: isSelected
-                          ? context.onSurfaceColor.withOpacity(0.05)
+                          ? context.onSurfaceColor.withValues(alpha: 0.05)
                           : Colors.transparent,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
                         color: isSelected
-                            ? const Color(0xFF6366F1).withOpacity(0.3)
+                            ? const Color(0xFF6366F1).withValues(alpha: 0.3)
                             : Colors.transparent,
                         width: 1,
                       ),
@@ -603,7 +603,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
                     Text(
                       'App Appearance',
                       style: AppTextStyles.bodyMedium.copyWith(
-                        color: context.onSurfaceColor.withOpacity(0.6),
+                        color: context.onSurfaceColor.withValues(alpha: 0.6),
                         fontWeight: FontWeight.bold,
                         letterSpacing: 1.0,
                       ),
@@ -617,7 +617,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
                     Text(
                       'Localization & Regional',
                       style: AppTextStyles.bodyMedium.copyWith(
-                        color: context.onSurfaceColor.withOpacity(0.6),
+                        color: context.onSurfaceColor.withValues(alpha: 0.6),
                         fontWeight: FontWeight.bold,
                         letterSpacing: 1.0,
                       ),
@@ -631,7 +631,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
                     Text(
                       'Security & Access Lock',
                       style: AppTextStyles.bodyMedium.copyWith(
-                        color: context.onSurfaceColor.withOpacity(0.6),
+                        color: context.onSurfaceColor.withValues(alpha: 0.6),
                         fontWeight: FontWeight.bold,
                         letterSpacing: 1.0,
                       ),
@@ -645,7 +645,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
                     Text(
                       'Automated Summary & Alerts',
                       style: AppTextStyles.bodyMedium.copyWith(
-                        color: context.onSurfaceColor.withOpacity(0.6),
+                        color: context.onSurfaceColor.withValues(alpha: 0.6),
                         fontWeight: FontWeight.bold,
                         letterSpacing: 1.0,
                       ),
@@ -687,9 +687,9 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: context.cardColor.withOpacity(0.5),
+        color: context.cardColor.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: context.onSurfaceColor.withOpacity(0.06)),
+        border: Border.all(color: context.onSurfaceColor.withValues(alpha: 0.06)),
       ),
       child: Row(
         children: modes.map((mode) {
@@ -718,7 +718,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
                   boxShadow: isSelected
                       ? [
                           BoxShadow(
-                            color: const Color(0xFF6366F1).withOpacity(0.3),
+                            color: const Color(0xFF6366F1).withValues(alpha: 0.3),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
@@ -732,7 +732,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
                       mode['icon'] as IconData,
                       color: isSelected
                           ? context.onSurfaceColor
-                          : context.onSurfaceColor.withOpacity(0.6),
+                          : context.onSurfaceColor.withValues(alpha: 0.6),
                       size: 20,
                     ),
                     const SizedBox(height: 6),
@@ -741,7 +741,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
                       style: AppTextStyles.bodySmall.copyWith(
                         color: isSelected
                             ? context.onSurfaceColor
-                            : context.onSurfaceColor.withOpacity(0.6),
+                            : context.onSurfaceColor.withValues(alpha: 0.6),
                         fontWeight: isSelected
                             ? FontWeight.bold
                             : FontWeight.normal,
@@ -774,13 +774,14 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
 
     return Container(
       decoration: BoxDecoration(
-        color: context.cardColor.withOpacity(0.5),
+        color: context.cardColor.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: context.onSurfaceColor.withOpacity(0.06)),
+        border: Border.all(color: context.onSurfaceColor.withValues(alpha: 0.06)),
       ),
       child: ListTile(
         onTap: () async {
           await HapticHelper.lightTick();
+          if (!context.mounted) return;
           _showLanguageSelector(context, currentLang);
         },
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -789,7 +790,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
           height: 44,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: const Color(0xFF10B981).withOpacity(0.1),
+            color: const Color(0xFF10B981).withValues(alpha: 0.1),
           ),
           child: const Center(
             child: Icon(Icons.translate_rounded, color: Color(0xFF10B981)),
@@ -805,13 +806,13 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
         subtitle: Text(
           'Currently using regional $langName',
           style: AppTextStyles.bodySmall.copyWith(
-            color: context.onSurfaceColor.withOpacity(0.6),
+            color: context.onSurfaceColor.withValues(alpha: 0.6),
           ),
         ),
         trailing: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
-            color: context.onSurfaceColor.withOpacity(0.05),
+            color: context.onSurfaceColor.withValues(alpha: 0.05),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Row(
@@ -830,7 +831,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
               const SizedBox(width: 4),
               Icon(
                 Icons.keyboard_arrow_down_rounded,
-                color: context.onSurfaceColor.withOpacity(0.6),
+                color: context.onSurfaceColor.withValues(alpha: 0.6),
                 size: 16,
               ),
             ],
@@ -846,9 +847,9 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
 
     return Container(
       decoration: BoxDecoration(
-        color: context.cardColor.withOpacity(0.5),
+        color: context.cardColor.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: context.onSurfaceColor.withOpacity(0.06)),
+        border: Border.all(color: context.onSurfaceColor.withValues(alpha: 0.06)),
       ),
       child: Column(
         children: [
@@ -863,7 +864,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
               height: 44,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: const Color(0xFF6366F1).withOpacity(0.1),
+                color: const Color(0xFF6366F1).withValues(alpha: 0.1),
               ),
               child: const Center(
                 child: Icon(
@@ -882,7 +883,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
             subtitle: Text(
               'Sign in using Face ID or Touch ID',
               style: AppTextStyles.bodySmall.copyWith(
-                color: context.onSurfaceColor.withOpacity(0.6),
+                color: context.onSurfaceColor.withValues(alpha: 0.6),
               ),
             ),
             trailing: Switch(
@@ -891,17 +892,18 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
                 await HapticHelper.mediumImpact();
                 _runBiometricSimulation(val);
               },
-              activeColor: const Color(0xFF6366F1),
-              activeTrackColor: const Color(0xFF6366F1).withOpacity(0.3),
+              activeThumbColor: const Color(0xFF6366F1),
+              activeTrackColor: const Color(0xFF6366F1).withValues(alpha: 0.3),
             ),
           ),
 
-          Divider(color: context.onSurfaceColor.withOpacity(0.05), height: 1),
+          Divider(color: context.onSurfaceColor.withValues(alpha: 0.05), height: 1),
 
           // Transaction PIN Card Trigger
           ListTile(
             onTap: () async {
               await HapticHelper.lightTick();
+              if (!context.mounted) return;
               _showPinSetupSheet(context, hasPin);
             },
             contentPadding: const EdgeInsets.symmetric(
@@ -913,7 +915,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
               height: 44,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: const Color(0xFFD946EF).withOpacity(0.1),
+                color: const Color(0xFFD946EF).withValues(alpha: 0.1),
               ),
               child: const Center(
                 child: Icon(Icons.dialpad_rounded, color: Color(0xFFD946EF)),
@@ -931,19 +933,19 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
                   ? 'PIN setup is active and secure'
                   : 'Secure renewals and withdrawals',
               style: AppTextStyles.bodySmall.copyWith(
-                color: context.onSurfaceColor.withOpacity(0.6),
+                color: context.onSurfaceColor.withValues(alpha: 0.6),
               ),
             ),
             trailing: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
                 color: hasPin
-                    ? const Color(0xFFD946EF).withOpacity(0.1)
-                    : context.onSurfaceColor.withOpacity(0.05),
+                    ? const Color(0xFFD946EF).withValues(alpha: 0.1)
+                    : context.onSurfaceColor.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
                   color: hasPin
-                      ? const Color(0xFFD946EF).withOpacity(0.2)
+                      ? const Color(0xFFD946EF).withValues(alpha: 0.2)
                       : Colors.transparent,
                 ),
               ),
@@ -969,9 +971,9 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
   Widget _buildAlertsConfigCard(UserPreferences prefs) {
     return Container(
       decoration: BoxDecoration(
-        color: context.cardColor.withOpacity(0.5),
+        color: context.cardColor.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: context.onSurfaceColor.withOpacity(0.06)),
+        border: Border.all(color: context.onSurfaceColor.withValues(alpha: 0.06)),
       ),
       child: Column(
         children: [
@@ -986,7 +988,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
               height: 44,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: const Color(0xFFEC4899).withOpacity(0.1),
+                color: const Color(0xFFEC4899).withValues(alpha: 0.1),
               ),
               child: const Center(
                 child: Icon(
@@ -1005,7 +1007,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
             subtitle: Text(
               'Receive active wallet & lines report',
               style: AppTextStyles.bodySmall.copyWith(
-                color: context.onSurfaceColor.withOpacity(0.6),
+                color: context.onSurfaceColor.withValues(alpha: 0.6),
               ),
             ),
             trailing: Switch(
@@ -1016,12 +1018,12 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
                     .read(userPreferencesControllerProvider.notifier)
                     .toggleWeeklyDigest(val);
               },
-              activeColor: const Color(0xFFEC4899),
-              activeTrackColor: const Color(0xFFEC4899).withOpacity(0.3),
+              activeThumbColor: const Color(0xFFEC4899),
+              activeTrackColor: const Color(0xFFEC4899).withValues(alpha: 0.3),
             ),
           ),
 
-          Divider(color: context.onSurfaceColor.withOpacity(0.05), height: 1),
+          Divider(color: context.onSurfaceColor.withValues(alpha: 0.05), height: 1),
 
           // Quiet Hours Config Row
           Padding(
@@ -1053,6 +1055,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
                       child: InkWell(
                         onTap: () async {
                           await HapticHelper.lightTick();
+                          if (!context.mounted) return;
                           _selectQuietTime(
                             context,
                             true,
@@ -1066,10 +1069,10 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
                             horizontal: 16,
                           ),
                           decoration: BoxDecoration(
-                            color: context.onSurfaceColor.withOpacity(0.04),
+                            color: context.onSurfaceColor.withValues(alpha: 0.04),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: context.onSurfaceColor.withOpacity(0.05),
+                              color: context.onSurfaceColor.withValues(alpha: 0.05),
                             ),
                           ),
                           child: Column(
@@ -1078,7 +1081,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
                               Text(
                                 'START TIME',
                                 style: AppTextStyles.bodySmall.copyWith(
-                                  color: context.onSurfaceColor.withOpacity(
+                                  color: context.onSurfaceColor.withValues(alpha: 
                                     0.6,
                                   ),
                                   fontSize: 9,
@@ -1105,13 +1108,14 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
                       padding: const EdgeInsets.symmetric(horizontal: 12.0),
                       child: Icon(
                         Icons.arrow_forward_rounded,
-                        color: context.onSurfaceColor.withOpacity(0.24),
+                        color: context.onSurfaceColor.withValues(alpha: 0.24),
                       ),
                     ),
                     Expanded(
                       child: InkWell(
                         onTap: () async {
                           await HapticHelper.lightTick();
+                          if (!context.mounted) return;
                           _selectQuietTime(context, false, prefs.quietHoursEnd);
                         },
                         borderRadius: BorderRadius.circular(12),
@@ -1121,10 +1125,10 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
                             horizontal: 16,
                           ),
                           decoration: BoxDecoration(
-                            color: context.onSurfaceColor.withOpacity(0.04),
+                            color: context.onSurfaceColor.withValues(alpha: 0.04),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: context.onSurfaceColor.withOpacity(0.05),
+                              color: context.onSurfaceColor.withValues(alpha: 0.05),
                             ),
                           ),
                           child: Column(
@@ -1133,7 +1137,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
                               Text(
                                 'END TIME',
                                 style: AppTextStyles.bodySmall.copyWith(
-                                  color: context.onSurfaceColor.withOpacity(
+                                  color: context.onSurfaceColor.withValues(alpha: 
                                     0.6,
                                   ),
                                   fontSize: 9,
@@ -1168,7 +1172,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
   // ── Biometrics Scanner Overlay ──────────────────────────────────────
   Widget _buildScanningOverlay() {
     return Container(
-      color: context.theme.shadowColor.withOpacity(0.85),
+      color: context.theme.shadowColor.withValues(alpha: 0.85),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -1183,7 +1187,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: const Color(0xFF6366F1).withOpacity(0.2),
+                      color: const Color(0xFF6366F1).withValues(alpha: 0.2),
                       width: 2,
                     ),
                   ),
@@ -1214,7 +1218,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
                       Icon(
                         Icons.face_unlock_rounded,
                         size: 64,
-                        color: const Color(0xFF6366F1).withOpacity(0.8),
+                        color: const Color(0xFF6366F1).withValues(alpha: 0.8),
                       ),
                     ],
                   ),
@@ -1233,7 +1237,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
             Text(
               _scanStatusText,
               style: AppTextStyles.bodyMedium.copyWith(
-                color: context.onSurfaceColor.withOpacity(0.6),
+                color: context.onSurfaceColor.withValues(alpha: 0.6),
               ),
             ),
           ],
