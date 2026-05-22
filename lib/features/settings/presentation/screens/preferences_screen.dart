@@ -87,10 +87,10 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Row(
-            children: const [
+            children: [
               Icon(Icons.face_unlock_rounded, color: context.onSurfaceColor),
-              SizedBox(width: 12),
-              Text('Face ID successfully paired!'),
+              const SizedBox(width: 12),
+              const Text('Face ID successfully paired!'),
             ],
           ),
           backgroundColor: const Color(0xFF10B981),
@@ -371,13 +371,13 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Row(
-                  children: const [
+                  children: [
                     Icon(
                       Icons.check_circle_outline_rounded,
                       color: context.onSurfaceColor,
                     ),
-                    SizedBox(width: 12),
-                    Text('Transaction PIN successfully updated!'),
+                    const SizedBox(width: 12),
+                    const Text('Transaction PIN successfully updated!'),
                   ],
                 ),
                 backgroundColor: const Color(0xFFD946EF),
