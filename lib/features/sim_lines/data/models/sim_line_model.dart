@@ -14,7 +14,7 @@ abstract class SimLine with _$SimLine {
     @JsonKey(name: 'country_id') String? countryId,
     @JsonKey(name: 'carrier_id') String? carrierId,
     @JsonKey(name: 'carrier_rule_id') String? carrierRuleId,
-    @Default('active') String status,
+    @Default('unverified') String status,
     @JsonKey(name: 'health_score') @Default(100) int healthScore,
     @JsonKey(name: 'last_topup_at') DateTime? lastTopupAt,
     @JsonKey(name: 'next_topup_due') DateTime? nextTopupDue,

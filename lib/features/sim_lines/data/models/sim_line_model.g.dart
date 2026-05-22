@@ -15,7 +15,7 @@ _SimLine _$SimLineFromJson(Map<String, dynamic> json) => _SimLine(
   countryId: json['country_id'] as String?,
   carrierId: json['carrier_id'] as String?,
   carrierRuleId: json['carrier_rule_id'] as String?,
-  status: json['status'] as String? ?? 'active',
+  status: json['status'] as String? ?? 'unverified',
   healthScore: (json['health_score'] as num?)?.toInt() ?? 100,
   lastTopupAt: json['last_topup_at'] == null
       ? null
