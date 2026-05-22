@@ -57,6 +57,13 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
   Widget build(BuildContext context) {
     final bool isEditMode = widget.existingSchedule != null;
 
+    DateTime calculatedNextExecution;
+    if (isEditMode && widget.existingSchedule!.frequencyDays == _frequencyDays) {
+      calculatedNextExecution = widget.existingSchedule!.nextExecutionAt;
+    } else {
+      calculatedNextExecution = DateTime.now().add(Duration(days: _frequencyDays));
+    }
+
     return Container(
       decoration: const BoxDecoration(
         color: AppColors.darkSurface,
@@ -288,9 +295,7 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          DateFormat('EEEE, MMM dd, yyyy').format(
-                            DateTime.now().add(Duration(days: _frequencyDays)),
-                          ),
+                          DateFormat('EEEE, MMM dd, yyyy').format(calculatedNextExecution),
                           style: AppTextStyles.bodyMedium.copyWith(
                             color: AppColors.textPrimaryDark,
                             fontWeight: FontWeight.w600,
@@ -375,7 +380,13 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
 
   Future<void> _handleSave() async {
     setState(() => _isSaving = true);
-    try {
+      DateTime calculatedNextExecution;
+      if (widget.existingSchedule != null && widget.existingSchedule!.frequencyDays == _frequencyDays) {
+        calculatedNextExecution = widget.existingSchedule!.nextExecutionAt;
+      } else {
+        calculatedNextExecution = DateTime.now().add(Duration(days: _frequencyDays));
+      }
+
       final schedule = ScheduledTopup(
         id: widget.existingSchedule?.id ?? '',
         simLineId: widget.simLineId,
@@ -383,8 +394,7 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
         amount: _amount,
         currency: 'USD',
         frequencyDays: _frequencyDays,
-        nextExecutionAt: widget.existingSchedule?.nextExecutionAt ??
-            DateTime.now().add(Duration(days: _frequencyDays)),
+        nextExecutionAt: calculatedNextExecution,
         isActive: _isActive,
         status: widget.existingSchedule?.status ?? 'active',
       );
