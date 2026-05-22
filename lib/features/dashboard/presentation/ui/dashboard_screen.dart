@@ -319,7 +319,7 @@ class DashboardScreen extends ConsumerWidget {
                               style: AppTextStyles.caption.copyWith(color: Colors.white.withValues(alpha: 0.7)),
                             ),
                             Text(
-                              '${((data.nextTopUpTotalDays - data.nextTopUpDays) / data.nextTopUpTotalDays * 100).toInt()}% Elapsed',
+                              '${(data.nextTopUpDays / data.nextTopUpTotalDays * 100).toInt()}% Remaining',
                               style: AppTextStyles.caption.copyWith(color: Colors.white.withValues(alpha: 0.9)),
                             ),
                           ],
@@ -328,7 +328,7 @@ class DashboardScreen extends ConsumerWidget {
                         ClipRRect(
                           borderRadius: BorderRadius.circular(4),
                           child: LinearProgressIndicator(
-                            value: (data.nextTopUpTotalDays - data.nextTopUpDays) / data.nextTopUpTotalDays,
+                            value: data.nextTopUpDays / data.nextTopUpTotalDays,
                             minHeight: 6,
                             backgroundColor: Colors.white.withValues(alpha: 0.2),
                             valueColor: const AlwaysStoppedAnimation<Color>(AppColors.secondary),
