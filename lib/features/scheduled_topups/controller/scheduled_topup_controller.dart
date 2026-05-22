@@ -107,10 +107,9 @@ class ScheduledTopupController extends _$ScheduledTopupController {
       // Reload everything to get updated next execution time, last execution time, and new wallet balance!
       await refresh();
       
-      // Invalidate the wallet, SIM line, and dashboard controllers so the UI reflects the deducted balance & restored status instantly!
+      // Invalidate the wallet and SIM line controllers so the UI reflects the deducted balance & restored status instantly!
       ref.invalidate(walletControllerProvider);
       ref.invalidate(simLinesControllerProvider);
-      ref.invalidate(dashboardControllerProvider);
     }
     return result;
   }
@@ -125,7 +124,6 @@ class ScheduledTopupController extends _$ScheduledTopupController {
       ref.invalidate(topupExecutionsForLineProvider(simLineId));
       ref.invalidate(walletControllerProvider);
       ref.invalidate(simLinesControllerProvider);
-      ref.invalidate(dashboardControllerProvider);
     }
     return result;
   }
