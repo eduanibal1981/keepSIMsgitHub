@@ -820,7 +820,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
               const SizedBox(width: 8),
               Text(
                 currentLang.toUpperCase(),
-                style: const TextStyle(
+                style: TextStyle(
                   color: context.onSurfaceColor,
                   fontWeight: FontWeight.bold,
                   fontSize: 12,
@@ -1089,7 +1089,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
                               Text(
                                 prefs.quietHoursStart?.substring(0, 5) ??
                                     '22:00',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: context.onSurfaceColor,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16,
@@ -1100,8 +1100,8 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
                         ),
                       ),
                     ),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 12.0),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12.0),
                       child: Icon(
                         Icons.arrow_forward_rounded,
                         color: context.onSurfaceColor.withOpacity(0.24),
@@ -1143,7 +1143,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
                               const SizedBox(height: 4),
                               Text(
                                 prefs.quietHoursEnd?.substring(0, 5) ?? '07:00',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: context.onSurfaceColor,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16,
