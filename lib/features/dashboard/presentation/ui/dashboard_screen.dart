@@ -156,7 +156,7 @@ class DashboardScreen extends ConsumerWidget {
               Text(
                 'Welcome Back',
                 style: AppTextStyles.bodySmall.copyWith(
-                  color: context.onSurfaceColor.withOpacity(0.6),
+                  color: context.onSurfaceColor.withValues(alpha: 0.6),
                 ),
               ),
               Text(
@@ -379,7 +379,7 @@ class DashboardScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 16),
                     const Divider(
-                      color: context.onSurfaceColor.withOpacity(0.24),
+                      color: context.onSurfaceColor.withValues(alpha: 0.24),
                       height: 1,
                     ),
                     const SizedBox(height: 12),
@@ -521,12 +521,12 @@ class DashboardScreen extends ConsumerWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: context.surfaceColor.withOpacity(0.6),
+        color: context.surfaceColor.withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: context.dividerColor.withOpacity(0.5)),
+        border: Border.all(color: context.dividerColor.withValues(alpha: 0.5)),
         boxShadow: [
           BoxShadow(
-            color: context.theme.shadowColor.withOpacity(0.2),
+            color: context.theme.shadowColor.withValues(alpha: 0.2),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -537,7 +537,7 @@ class DashboardScreen extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.1),
+              color: AppColors.primary.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: const Icon(
@@ -559,7 +559,7 @@ class DashboardScreen extends ConsumerWidget {
             'Keep your active mobile numbers protected from deactivation. Secure your first SIM card now.',
             textAlign: TextAlign.center,
             style: AppTextStyles.bodySmall.copyWith(
-              color: context.onSurfaceColor.withOpacity(0.6),
+              color: context.onSurfaceColor.withValues(alpha: 0.6),
             ),
           ),
           const SizedBox(height: 20),
@@ -615,7 +615,7 @@ class DashboardScreen extends ConsumerWidget {
               child: Text(
                 'No recent activity records',
                 style: AppTextStyles.bodyMedium.copyWith(
-                  color: context.onSurfaceColor.withOpacity(0.4),
+                  color: context.onSurfaceColor.withValues(alpha: 0.4),
                 ),
               ),
             ),
@@ -701,7 +701,7 @@ class DashboardScreen extends ConsumerWidget {
                                 Text(
                                   act.timeAgo,
                                   style: AppTextStyles.caption.copyWith(
-                                    color: context.onSurfaceColor.withOpacity(
+                                    color: context.onSurfaceColor.withValues(alpha: 
                                       0.4,
                                     ),
                                   ),
@@ -712,7 +712,7 @@ class DashboardScreen extends ConsumerWidget {
                             Text(
                               act.subtitle,
                               style: AppTextStyles.bodySmall.copyWith(
-                                color: context.onSurfaceColor.withOpacity(0.6),
+                                color: context.onSurfaceColor.withValues(alpha: 0.6),
                               ),
                             ),
                           ],
