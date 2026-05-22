@@ -153,7 +153,7 @@ class SimLineCard extends ConsumerWidget {
                   ),
 
                   // Health Score Indicator Ring
-                  _buildHealthScoreRing(computedHealthScore),
+                  _buildHealthScoreRing(context, computedHealthScore),
 
                   // Action menu
                   if (!isShared && showActions)
@@ -195,9 +195,9 @@ class SimLineCard extends ConsumerWidget {
               ),
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 12.0),
-                child: Divider(color: context.dividerColor, height: 1),
+                child: Divider(color: Colors.grey, height: 1),
               ),
-              _buildDetailsRow(line),
+              _buildDetailsRow(context, line),
               _buildScheduledTopupPanel(context, ref, line),
             ],
           ),
@@ -278,7 +278,7 @@ class SimLineCard extends ConsumerWidget {
     );
   }
 
-  Widget _buildHealthScoreRing(int score) {
+  Widget _buildHealthScoreRing(BuildContext context, int score) {
     Color color = AppColors.healthGreen;
     if (score < 30) {
       color = AppColors.healthRed;
@@ -310,7 +310,7 @@ class SimLineCard extends ConsumerWidget {
     );
   }
 
-  Widget _buildDetailsRow(SimLine line) {
+  Widget _buildDetailsRow(BuildContext context, SimLine line) {
     final dateFormat = DateFormat('MMM dd, yyyy');
 
     String getLastRefillStr() {
@@ -321,13 +321,13 @@ class SimLineCard extends ConsumerWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        _buildInfoColumn('Last Refill', getLastRefillStr(), Icons.history),
-        _buildInfoColumn('Protection Status', line.status.toUpperCase(), Icons.security),
+        _buildInfoColumn(context, 'Last Refill', getLastRefillStr(), Icons.history),
+        _buildInfoColumn(context, 'Protection Status', line.status.toUpperCase(), Icons.security),
       ],
     );
   }
 
-  Widget _buildInfoColumn(String label, String value, IconData icon) {
+  Widget _buildInfoColumn(BuildContext context, String label, String value, IconData icon) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
