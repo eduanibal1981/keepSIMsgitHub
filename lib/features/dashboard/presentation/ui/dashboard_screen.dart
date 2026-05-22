@@ -32,7 +32,7 @@ class DashboardScreen extends ConsumerWidget {
       body: authProfileState.when(
         data: (profile) {
           if (profile == null) {
-            return const Center(
+            return Center(
               child: Text(
                 'Access Denied. Please sign in.',
                 style: TextStyle(color: context.onSurfaceColor),
@@ -57,9 +57,9 @@ class DashboardScreen extends ConsumerWidget {
             ),
           );
         },
-        loading: () => const Scaffold(
+        loading: () => Scaffold(
           backgroundColor: context.scaffoldBackgroundColor,
-          body: DashboardShimmer(),
+          body: const DashboardShimmer(),
         ),
         error: (err, stack) => Scaffold(
           backgroundColor: context.scaffoldBackgroundColor,
@@ -140,7 +140,7 @@ class DashboardScreen extends ConsumerWidget {
           child: Center(
             child: Text(
               name.substring(0, name.isNotEmpty ? 1 : 0).toUpperCase(),
-              style: const TextStyle(
+              style: TextStyle(
                 color: context.onSurfaceColor,
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
@@ -378,7 +378,7 @@ class DashboardScreen extends ConsumerWidget {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    const Divider(
+                    Divider(
                       color: context.onSurfaceColor.withValues(alpha: 0.24),
                       height: 1,
                     ),
@@ -570,12 +570,12 @@ class DashboardScreen extends ConsumerWidget {
                 context.go(AppRoutes.simLines);
               }
             },
-            icon: const Icon(
+            icon: Icon(
               Icons.add_moderator_rounded,
               size: 18,
               color: context.onSurfaceColor,
             ),
-            label: const Text(
+            label: Text(
               'Protect Your First SIM',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
