@@ -15,7 +15,7 @@ import '../model/topup_execution_model.dart';
 
 part 'scheduled_topup_controller.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 class ScheduledTopupController extends _$ScheduledTopupController {
   @override
   FutureOr<List<ScheduledTopup>> build() async {

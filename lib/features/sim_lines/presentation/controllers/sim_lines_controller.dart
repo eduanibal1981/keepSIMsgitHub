@@ -11,7 +11,7 @@ import 'package:keep_sims/features/scheduled_topups/controller/scheduled_topup_c
 
 part 'sim_lines_controller.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 class SimLinesController extends _$SimLinesController {
   @override
   FutureOr<List<SimLine>> build() async {

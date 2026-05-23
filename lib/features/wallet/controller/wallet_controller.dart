@@ -38,7 +38,7 @@ class WalletState {
   }
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 class WalletController extends _$WalletController {
   @override
   FutureOr<WalletState> build() async {

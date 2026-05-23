@@ -294,15 +294,12 @@ class _SimLineActivityLogsProviderElement
 }
 
 String _$simLinesControllerHash() =>
-    r'350e67ac027a1da0b1c4c7e27dc3525be50b2f94';
+    r'35b1e0cddcde7bebb477125dbe8b4884a8f4897c';
 
 /// See also [SimLinesController].
 @ProviderFor(SimLinesController)
 final simLinesControllerProvider =
-    AutoDisposeAsyncNotifierProvider<
-      SimLinesController,
-      List<SimLine>
-    >.internal(
+    AsyncNotifierProvider<SimLinesController, List<SimLine>>.internal(
       SimLinesController.new,
       name: r'simLinesControllerProvider',
       debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
@@ -312,6 +309,6 @@ final simLinesControllerProvider =
       allTransitiveDependencies: null,
     );
 
-typedef _$SimLinesController = AutoDisposeAsyncNotifier<List<SimLine>>;
+typedef _$SimLinesController = AsyncNotifier<List<SimLine>>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

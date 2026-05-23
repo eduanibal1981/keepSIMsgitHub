@@ -57,7 +57,7 @@ class DashboardActivity {
 }
 
 /// Managing aggregated dashboard state.
-@riverpod
+@Riverpod(keepAlive: true)
 class DashboardController extends _$DashboardController {
   @override
   FutureOr<DashboardState> build() async {

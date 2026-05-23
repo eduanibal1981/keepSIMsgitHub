@@ -303,12 +303,12 @@ class _TopupExecutionsForLineProviderElement
 }
 
 String _$scheduledTopupControllerHash() =>
-    r'84d88bd3cde114fad7076959a381b0abb397ff55';
+    r'2e52dc6d9962e60732b9ff8837b62cc8633e17fa';
 
 /// See also [ScheduledTopupController].
 @ProviderFor(ScheduledTopupController)
 final scheduledTopupControllerProvider =
-    AutoDisposeAsyncNotifierProvider<
+    AsyncNotifierProvider<
       ScheduledTopupController,
       List<ScheduledTopup>
     >.internal(
@@ -321,7 +321,6 @@ final scheduledTopupControllerProvider =
       allTransitiveDependencies: null,
     );
 
-typedef _$ScheduledTopupController =
-    AutoDisposeAsyncNotifier<List<ScheduledTopup>>;
+typedef _$ScheduledTopupController = AsyncNotifier<List<ScheduledTopup>>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

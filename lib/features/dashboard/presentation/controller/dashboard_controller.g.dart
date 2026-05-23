@@ -7,17 +7,14 @@ part of 'dashboard_controller.dart';
 // **************************************************************************
 
 String _$dashboardControllerHash() =>
-    r'940eff10af05a328d438af45a521c1cb025992e2';
+    r'9023b7efa5a1654f556d4ddbe0b8617870009ece';
 
 /// Managing aggregated dashboard state.
 ///
 /// Copied from [DashboardController].
 @ProviderFor(DashboardController)
 final dashboardControllerProvider =
-    AutoDisposeAsyncNotifierProvider<
-      DashboardController,
-      DashboardState
-    >.internal(
+    AsyncNotifierProvider<DashboardController, DashboardState>.internal(
       DashboardController.new,
       name: r'dashboardControllerProvider',
       debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
@@ -27,6 +24,6 @@ final dashboardControllerProvider =
       allTransitiveDependencies: null,
     );
 
-typedef _$DashboardController = AutoDisposeAsyncNotifier<DashboardState>;
+typedef _$DashboardController = AsyncNotifier<DashboardState>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
