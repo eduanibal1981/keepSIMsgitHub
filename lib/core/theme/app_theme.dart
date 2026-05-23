@@ -172,7 +172,7 @@ abstract final class AppTheme {
       onSurface: AppColors.textPrimaryLight,
       onError: Colors.white,
     ),
-    scaffoldBackgroundColor: AppColors.lightBg,
+    scaffoldBackgroundColor: AppColors.lightBg, 
 
     appBarTheme: AppBarTheme(
       backgroundColor: AppColors.lightBg,

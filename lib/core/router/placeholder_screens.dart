@@ -286,7 +286,7 @@ class AppShell extends StatelessWidget {
                 context.go(AppRoutes.settings);
             }
           },
-          backgroundColor: context.surfaceColor,
+          backgroundColor: context.scaffoldBackgroundColor,
           indicatorColor: AppColors.primary.withValues(alpha: 0.15),
           destinations: [
             NavigationDestination(

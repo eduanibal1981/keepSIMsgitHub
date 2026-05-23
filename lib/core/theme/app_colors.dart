@@ -27,14 +27,15 @@ abstract final class AppColors {
   static const Color info = Color(0xFF3B82F6);
 
   // ── Dark Theme Surfaces ───────────────────────────────────
-  static const Color darkBg = Color(0xFF0F0F1A);
-  static const Color darkSurface = Color(0xFF1A1A2E);
+  /// Dark background color
+  static const Color darkBg = Color(0xFF1A1A2E);
+  static const Color darkSurface = Color.fromARGB(255, 85, 66, 4);
   static const Color darkCard = Color(0xFF222240);
   static const Color darkCardHover = Color(0xFF2A2A4A);
   static const Color darkBorder = Color(0xFF2D2D4D);
 
   // ── Light Theme Surfaces ──────────────────────────────────
-  static const Color lightBg = Color(0xFFF8F9FC);
+  static const Color lightBg = Color.fromARGB(255, 151, 193, 230);
   static const Color lightSurface = Color(0xFFFFFFFF);
   static const Color lightCard = Color(0xFFFFFFFF);
   static const Color lightBorder = Color(0xFFE2E8F0);
