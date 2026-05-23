@@ -22,7 +22,17 @@ class SimLinesController extends _$SimLinesController {
     }
 
     final repo = ref.watch(simLinesRepositoryProvider);
-    return repo.getSimLines();
+    final lines = await repo.getSimLines();
+    
+    // Sort deterministically by nickname (if available) then phone number
+    // to prevent the list from randomly rearranging when updated.
+    lines.sort((a, b) {
+      final aName = (a.nickname ?? a.phoneNumber).toLowerCase();
+      final bName = (b.nickname ?? b.phoneNumber).toLowerCase();
+      return aName.compareTo(bName);
+    });
+    
+    return lines;
   }
 
   Future<void> addSimLine({
