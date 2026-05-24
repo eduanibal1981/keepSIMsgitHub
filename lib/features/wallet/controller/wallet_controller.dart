@@ -84,15 +84,41 @@ class WalletController extends _$WalletController {
 
     switch (result) {
       case Success():
-        // Automatically sync home dashboard metrics immediately!
-        ref.invalidate(dashboardControllerProvider);
-
         // Refresh this wallet query in the background
         ref.invalidateSelf();
         return true;
       case Failure(error: final f):
         state = AsyncError(Exception(f.message), StackTrace.current);
         return false;
+    }
+  }
+
+  /// Triggers a debit deduction and invalidates related screens.
+  Future<bool> deduct(double amount, {String? description, String? referenceId}) async {
+    final current = state.valueOrNull;
+    if (current == null) return false;
+
+    // Set submitting status
+    state = AsyncData(current.copyWith(isSubmitting: true));
+
+    final repo = ref.read(walletRepositoryProvider);
+    final result = await repo.deduct(
+      amount: amount,
+      description: description ?? 'Manual SIM Refill',
+      referenceId: referenceId,
+      type: 'topup_debit',
+    );
+
+    switch (result) {
+      case Success():
+        // Refresh this wallet query in the background
+        ref.invalidateSelf();
+        return true;
+      case Failure(error: final f):
+        // Revert submitting state
+        state = AsyncData(current.copyWith(isSubmitting: false));
+        // We throw so UI can catch and show snackbar for validation errors like insufficient funds
+        throw Exception(f.message);
     }
   }
 }

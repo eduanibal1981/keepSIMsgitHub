@@ -303,11 +303,11 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
       if (userId == null)
         throw Exception('No authenticated user session found.');
 
-      // Update SIM Line status and health score
+      // Update SIM Line verification_status and health score
       await _supabase
           .from('sim_lines')
           .update({
-            'status': 'active',
+            'verification_status': 'verified',
             'health_score': 100,
             'updated_at': DateTime.now().toIso8601String(),
           })

@@ -190,4 +190,63 @@ class WalletRepository implements WalletContract {
       return Failure(AppFailure.unknown(message: e.toString()));
     }
   }
+
+  @override
+  Future<Result<Wallet>> deduct({
+    required double amount,
+    String? description,
+    String? referenceId,
+    String type = 'topup_debit',
+  }) async {
+    try {
+      final userId = _client.auth.currentUser?.id;
+      if (userId == null) {
+        return const Failure(
+          AppFailure.auth(message: 'No authenticated user.'),
+        );
+      }
+
+      final walletResult = await getWallet();
+      if (walletResult is Failure<Wallet>) {
+        return Failure(walletResult.error);
+      }
+
+      final wallet = (walletResult as Success<Wallet>).data;
+      if (wallet.balance < amount) {
+        return const Failure(
+          AppFailure.validation(message: 'Insufficient funds for this transaction.'),
+        );
+      }
+
+      final newBalance = wallet.balance - amount;
+
+      // 1. Insert transaction history item
+      final txData = {
+        'user_id': userId,
+        'wallet_id': wallet.id,
+        'amount': amount, // amount is positive in UI, but represents a deduction
+        'balance_before': wallet.balance,
+        'balance_after': newBalance,
+        'type': type,
+        'description': description ?? 'Manual SIM Refill',
+        'reference_id': referenceId,
+      };
+
+      await _client.from('wallet_transactions').insert(txData);
+
+      // 2. Update wallet balance
+      final updatedWalletJson = await _client
+          .from('wallets')
+          .update({'balance': newBalance})
+          .eq('id', wallet.id)
+          .select()
+          .single();
+
+      return Success(Wallet.fromJson(updatedWalletJson));
+    } on PostgrestException catch (e) {
+      return Failure(AppFailure.server(message: e.message));
+    } catch (e) {
+      return Failure(AppFailure.unknown(message: e.toString()));
+    }
+  }
 }

@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$SimLine {
 
- String get id;@JsonKey(name: 'user_id') String get userId;@JsonKey(name: 'phone_number') String get phoneNumber; String? get nickname;@JsonKey(name: 'avatar_icon') String get avatarIcon;@JsonKey(name: 'country_id') String? get countryId;@JsonKey(name: 'carrier_id') String? get carrierId;@JsonKey(name: 'carrier_rule_id') String? get carrierRuleId; String get status;@JsonKey(name: 'health_score') int get healthScore;@JsonKey(name: 'last_topup_at') DateTime? get lastTopupAt;@JsonKey(name: 'next_topup_due') DateTime? get nextTopupDue;@JsonKey(name: 'validity_expires_at') DateTime? get validityExpiresAt;@JsonKey(name: 'protection_tier') String get protectionTier;@JsonKey(name: 'is_auto_detected') bool get isAutoDetected;@JsonKey(name: 'household_id') String? get householdId;@JsonKey(name: 'created_at') DateTime? get createdAt;@JsonKey(name: 'updated_at') DateTime? get updatedAt;
+ String get id;@JsonKey(name: 'user_id') String get userId;@JsonKey(name: 'phone_number') String get phoneNumber; String? get nickname;@JsonKey(name: 'avatar_icon') String get avatarIcon;@JsonKey(name: 'country_id') String? get countryId;@JsonKey(name: 'carrier_id') String? get carrierId;@JsonKey(name: 'carrier_rule_id') String? get carrierRuleId; String get status;@JsonKey(name: 'verification_status') String get verificationStatus;@JsonKey(name: 'health_score') int get healthScore;@JsonKey(name: 'last_topup_at') DateTime? get lastTopupAt;@JsonKey(name: 'next_topup_due') DateTime? get nextTopupDue;@JsonKey(name: 'validity_expires_at') DateTime? get validityExpiresAt;@JsonKey(name: 'protection_tier') String get protectionTier;@JsonKey(name: 'is_auto_detected') bool get isAutoDetected;@JsonKey(name: 'is_home_mode') bool get isHomeMode;@JsonKey(name: 'household_id') String? get householdId;@JsonKey(name: 'created_at') DateTime? get createdAt;@JsonKey(name: 'updated_at') DateTime? get updatedAt;
 /// Create a copy of SimLine
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $SimLineCopyWith<SimLine> get copyWith => _$SimLineCopyWithImpl<SimLine>(this as
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SimLine&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber)&&(identical(other.nickname, nickname) || other.nickname == nickname)&&(identical(other.avatarIcon, avatarIcon) || other.avatarIcon == avatarIcon)&&(identical(other.countryId, countryId) || other.countryId == countryId)&&(identical(other.carrierId, carrierId) || other.carrierId == carrierId)&&(identical(other.carrierRuleId, carrierRuleId) || other.carrierRuleId == carrierRuleId)&&(identical(other.status, status) || other.status == status)&&(identical(other.healthScore, healthScore) || other.healthScore == healthScore)&&(identical(other.lastTopupAt, lastTopupAt) || other.lastTopupAt == lastTopupAt)&&(identical(other.nextTopupDue, nextTopupDue) || other.nextTopupDue == nextTopupDue)&&(identical(other.validityExpiresAt, validityExpiresAt) || other.validityExpiresAt == validityExpiresAt)&&(identical(other.protectionTier, protectionTier) || other.protectionTier == protectionTier)&&(identical(other.isAutoDetected, isAutoDetected) || other.isAutoDetected == isAutoDetected)&&(identical(other.householdId, householdId) || other.householdId == householdId)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SimLine&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber)&&(identical(other.nickname, nickname) || other.nickname == nickname)&&(identical(other.avatarIcon, avatarIcon) || other.avatarIcon == avatarIcon)&&(identical(other.countryId, countryId) || other.countryId == countryId)&&(identical(other.carrierId, carrierId) || other.carrierId == carrierId)&&(identical(other.carrierRuleId, carrierRuleId) || other.carrierRuleId == carrierRuleId)&&(identical(other.status, status) || other.status == status)&&(identical(other.verificationStatus, verificationStatus) || other.verificationStatus == verificationStatus)&&(identical(other.healthScore, healthScore) || other.healthScore == healthScore)&&(identical(other.lastTopupAt, lastTopupAt) || other.lastTopupAt == lastTopupAt)&&(identical(other.nextTopupDue, nextTopupDue) || other.nextTopupDue == nextTopupDue)&&(identical(other.validityExpiresAt, validityExpiresAt) || other.validityExpiresAt == validityExpiresAt)&&(identical(other.protectionTier, protectionTier) || other.protectionTier == protectionTier)&&(identical(other.isAutoDetected, isAutoDetected) || other.isAutoDetected == isAutoDetected)&&(identical(other.isHomeMode, isHomeMode) || other.isHomeMode == isHomeMode)&&(identical(other.householdId, householdId) || other.householdId == householdId)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,userId,phoneNumber,nickname,avatarIcon,countryId,carrierId,carrierRuleId,status,healthScore,lastTopupAt,nextTopupDue,validityExpiresAt,protectionTier,isAutoDetected,householdId,createdAt,updatedAt);
+int get hashCode => Object.hashAll([runtimeType,id,userId,phoneNumber,nickname,avatarIcon,countryId,carrierId,carrierRuleId,status,verificationStatus,healthScore,lastTopupAt,nextTopupDue,validityExpiresAt,protectionTier,isAutoDetected,isHomeMode,householdId,createdAt,updatedAt]);
 
 @override
 String toString() {
-  return 'SimLine(id: $id, userId: $userId, phoneNumber: $phoneNumber, nickname: $nickname, avatarIcon: $avatarIcon, countryId: $countryId, carrierId: $carrierId, carrierRuleId: $carrierRuleId, status: $status, healthScore: $healthScore, lastTopupAt: $lastTopupAt, nextTopupDue: $nextTopupDue, validityExpiresAt: $validityExpiresAt, protectionTier: $protectionTier, isAutoDetected: $isAutoDetected, householdId: $householdId, createdAt: $createdAt, updatedAt: $updatedAt)';
+  return 'SimLine(id: $id, userId: $userId, phoneNumber: $phoneNumber, nickname: $nickname, avatarIcon: $avatarIcon, countryId: $countryId, carrierId: $carrierId, carrierRuleId: $carrierRuleId, status: $status, verificationStatus: $verificationStatus, healthScore: $healthScore, lastTopupAt: $lastTopupAt, nextTopupDue: $nextTopupDue, validityExpiresAt: $validityExpiresAt, protectionTier: $protectionTier, isAutoDetected: $isAutoDetected, isHomeMode: $isHomeMode, householdId: $householdId, createdAt: $createdAt, updatedAt: $updatedAt)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $SimLineCopyWith<$Res>  {
   factory $SimLineCopyWith(SimLine value, $Res Function(SimLine) _then) = _$SimLineCopyWithImpl;
 @useResult
 $Res call({
- String id,@JsonKey(name: 'user_id') String userId,@JsonKey(name: 'phone_number') String phoneNumber, String? nickname,@JsonKey(name: 'avatar_icon') String avatarIcon,@JsonKey(name: 'country_id') String? countryId,@JsonKey(name: 'carrier_id') String? carrierId,@JsonKey(name: 'carrier_rule_id') String? carrierRuleId, String status,@JsonKey(name: 'health_score') int healthScore,@JsonKey(name: 'last_topup_at') DateTime? lastTopupAt,@JsonKey(name: 'next_topup_due') DateTime? nextTopupDue,@JsonKey(name: 'validity_expires_at') DateTime? validityExpiresAt,@JsonKey(name: 'protection_tier') String protectionTier,@JsonKey(name: 'is_auto_detected') bool isAutoDetected,@JsonKey(name: 'household_id') String? householdId,@JsonKey(name: 'created_at') DateTime? createdAt,@JsonKey(name: 'updated_at') DateTime? updatedAt
+ String id,@JsonKey(name: 'user_id') String userId,@JsonKey(name: 'phone_number') String phoneNumber, String? nickname,@JsonKey(name: 'avatar_icon') String avatarIcon,@JsonKey(name: 'country_id') String? countryId,@JsonKey(name: 'carrier_id') String? carrierId,@JsonKey(name: 'carrier_rule_id') String? carrierRuleId, String status,@JsonKey(name: 'verification_status') String verificationStatus,@JsonKey(name: 'health_score') int healthScore,@JsonKey(name: 'last_topup_at') DateTime? lastTopupAt,@JsonKey(name: 'next_topup_due') DateTime? nextTopupDue,@JsonKey(name: 'validity_expires_at') DateTime? validityExpiresAt,@JsonKey(name: 'protection_tier') String protectionTier,@JsonKey(name: 'is_auto_detected') bool isAutoDetected,@JsonKey(name: 'is_home_mode') bool isHomeMode,@JsonKey(name: 'household_id') String? householdId,@JsonKey(name: 'created_at') DateTime? createdAt,@JsonKey(name: 'updated_at') DateTime? updatedAt
 });
 
 
@@ -65,7 +65,7 @@ class _$SimLineCopyWithImpl<$Res>
 
 /// Create a copy of SimLine
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? userId = null,Object? phoneNumber = null,Object? nickname = freezed,Object? avatarIcon = null,Object? countryId = freezed,Object? carrierId = freezed,Object? carrierRuleId = freezed,Object? status = null,Object? healthScore = null,Object? lastTopupAt = freezed,Object? nextTopupDue = freezed,Object? validityExpiresAt = freezed,Object? protectionTier = null,Object? isAutoDetected = null,Object? householdId = freezed,Object? createdAt = freezed,Object? updatedAt = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? userId = null,Object? phoneNumber = null,Object? nickname = freezed,Object? avatarIcon = null,Object? countryId = freezed,Object? carrierId = freezed,Object? carrierRuleId = freezed,Object? status = null,Object? verificationStatus = null,Object? healthScore = null,Object? lastTopupAt = freezed,Object? nextTopupDue = freezed,Object? validityExpiresAt = freezed,Object? protectionTier = null,Object? isAutoDetected = null,Object? isHomeMode = null,Object? householdId = freezed,Object? createdAt = freezed,Object? updatedAt = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
@@ -76,12 +76,14 @@ as String,countryId: freezed == countryId ? _self.countryId : countryId // ignor
 as String?,carrierId: freezed == carrierId ? _self.carrierId : carrierId // ignore: cast_nullable_to_non_nullable
 as String?,carrierRuleId: freezed == carrierRuleId ? _self.carrierRuleId : carrierRuleId // ignore: cast_nullable_to_non_nullable
 as String?,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as String,verificationStatus: null == verificationStatus ? _self.verificationStatus : verificationStatus // ignore: cast_nullable_to_non_nullable
 as String,healthScore: null == healthScore ? _self.healthScore : healthScore // ignore: cast_nullable_to_non_nullable
 as int,lastTopupAt: freezed == lastTopupAt ? _self.lastTopupAt : lastTopupAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,nextTopupDue: freezed == nextTopupDue ? _self.nextTopupDue : nextTopupDue // ignore: cast_nullable_to_non_nullable
 as DateTime?,validityExpiresAt: freezed == validityExpiresAt ? _self.validityExpiresAt : validityExpiresAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,protectionTier: null == protectionTier ? _self.protectionTier : protectionTier // ignore: cast_nullable_to_non_nullable
 as String,isAutoDetected: null == isAutoDetected ? _self.isAutoDetected : isAutoDetected // ignore: cast_nullable_to_non_nullable
+as bool,isHomeMode: null == isHomeMode ? _self.isHomeMode : isHomeMode // ignore: cast_nullable_to_non_nullable
 as bool,householdId: freezed == householdId ? _self.householdId : householdId // ignore: cast_nullable_to_non_nullable
 as String?,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,updatedAt: freezed == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
@@ -170,10 +172,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id, @JsonKey(name: 'user_id')  String userId, @JsonKey(name: 'phone_number')  String phoneNumber,  String? nickname, @JsonKey(name: 'avatar_icon')  String avatarIcon, @JsonKey(name: 'country_id')  String? countryId, @JsonKey(name: 'carrier_id')  String? carrierId, @JsonKey(name: 'carrier_rule_id')  String? carrierRuleId,  String status, @JsonKey(name: 'health_score')  int healthScore, @JsonKey(name: 'last_topup_at')  DateTime? lastTopupAt, @JsonKey(name: 'next_topup_due')  DateTime? nextTopupDue, @JsonKey(name: 'validity_expires_at')  DateTime? validityExpiresAt, @JsonKey(name: 'protection_tier')  String protectionTier, @JsonKey(name: 'is_auto_detected')  bool isAutoDetected, @JsonKey(name: 'household_id')  String? householdId, @JsonKey(name: 'created_at')  DateTime? createdAt, @JsonKey(name: 'updated_at')  DateTime? updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id, @JsonKey(name: 'user_id')  String userId, @JsonKey(name: 'phone_number')  String phoneNumber,  String? nickname, @JsonKey(name: 'avatar_icon')  String avatarIcon, @JsonKey(name: 'country_id')  String? countryId, @JsonKey(name: 'carrier_id')  String? carrierId, @JsonKey(name: 'carrier_rule_id')  String? carrierRuleId,  String status, @JsonKey(name: 'verification_status')  String verificationStatus, @JsonKey(name: 'health_score')  int healthScore, @JsonKey(name: 'last_topup_at')  DateTime? lastTopupAt, @JsonKey(name: 'next_topup_due')  DateTime? nextTopupDue, @JsonKey(name: 'validity_expires_at')  DateTime? validityExpiresAt, @JsonKey(name: 'protection_tier')  String protectionTier, @JsonKey(name: 'is_auto_detected')  bool isAutoDetected, @JsonKey(name: 'is_home_mode')  bool isHomeMode, @JsonKey(name: 'household_id')  String? householdId, @JsonKey(name: 'created_at')  DateTime? createdAt, @JsonKey(name: 'updated_at')  DateTime? updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _SimLine() when $default != null:
-return $default(_that.id,_that.userId,_that.phoneNumber,_that.nickname,_that.avatarIcon,_that.countryId,_that.carrierId,_that.carrierRuleId,_that.status,_that.healthScore,_that.lastTopupAt,_that.nextTopupDue,_that.validityExpiresAt,_that.protectionTier,_that.isAutoDetected,_that.householdId,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.id,_that.userId,_that.phoneNumber,_that.nickname,_that.avatarIcon,_that.countryId,_that.carrierId,_that.carrierRuleId,_that.status,_that.verificationStatus,_that.healthScore,_that.lastTopupAt,_that.nextTopupDue,_that.validityExpiresAt,_that.protectionTier,_that.isAutoDetected,_that.isHomeMode,_that.householdId,_that.createdAt,_that.updatedAt);case _:
   return orElse();
 
 }
@@ -191,10 +193,10 @@ return $default(_that.id,_that.userId,_that.phoneNumber,_that.nickname,_that.ava
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id, @JsonKey(name: 'user_id')  String userId, @JsonKey(name: 'phone_number')  String phoneNumber,  String? nickname, @JsonKey(name: 'avatar_icon')  String avatarIcon, @JsonKey(name: 'country_id')  String? countryId, @JsonKey(name: 'carrier_id')  String? carrierId, @JsonKey(name: 'carrier_rule_id')  String? carrierRuleId,  String status, @JsonKey(name: 'health_score')  int healthScore, @JsonKey(name: 'last_topup_at')  DateTime? lastTopupAt, @JsonKey(name: 'next_topup_due')  DateTime? nextTopupDue, @JsonKey(name: 'validity_expires_at')  DateTime? validityExpiresAt, @JsonKey(name: 'protection_tier')  String protectionTier, @JsonKey(name: 'is_auto_detected')  bool isAutoDetected, @JsonKey(name: 'household_id')  String? householdId, @JsonKey(name: 'created_at')  DateTime? createdAt, @JsonKey(name: 'updated_at')  DateTime? updatedAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id, @JsonKey(name: 'user_id')  String userId, @JsonKey(name: 'phone_number')  String phoneNumber,  String? nickname, @JsonKey(name: 'avatar_icon')  String avatarIcon, @JsonKey(name: 'country_id')  String? countryId, @JsonKey(name: 'carrier_id')  String? carrierId, @JsonKey(name: 'carrier_rule_id')  String? carrierRuleId,  String status, @JsonKey(name: 'verification_status')  String verificationStatus, @JsonKey(name: 'health_score')  int healthScore, @JsonKey(name: 'last_topup_at')  DateTime? lastTopupAt, @JsonKey(name: 'next_topup_due')  DateTime? nextTopupDue, @JsonKey(name: 'validity_expires_at')  DateTime? validityExpiresAt, @JsonKey(name: 'protection_tier')  String protectionTier, @JsonKey(name: 'is_auto_detected')  bool isAutoDetected, @JsonKey(name: 'is_home_mode')  bool isHomeMode, @JsonKey(name: 'household_id')  String? householdId, @JsonKey(name: 'created_at')  DateTime? createdAt, @JsonKey(name: 'updated_at')  DateTime? updatedAt)  $default,) {final _that = this;
 switch (_that) {
 case _SimLine():
-return $default(_that.id,_that.userId,_that.phoneNumber,_that.nickname,_that.avatarIcon,_that.countryId,_that.carrierId,_that.carrierRuleId,_that.status,_that.healthScore,_that.lastTopupAt,_that.nextTopupDue,_that.validityExpiresAt,_that.protectionTier,_that.isAutoDetected,_that.householdId,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.id,_that.userId,_that.phoneNumber,_that.nickname,_that.avatarIcon,_that.countryId,_that.carrierId,_that.carrierRuleId,_that.status,_that.verificationStatus,_that.healthScore,_that.lastTopupAt,_that.nextTopupDue,_that.validityExpiresAt,_that.protectionTier,_that.isAutoDetected,_that.isHomeMode,_that.householdId,_that.createdAt,_that.updatedAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -211,10 +213,10 @@ return $default(_that.id,_that.userId,_that.phoneNumber,_that.nickname,_that.ava
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id, @JsonKey(name: 'user_id')  String userId, @JsonKey(name: 'phone_number')  String phoneNumber,  String? nickname, @JsonKey(name: 'avatar_icon')  String avatarIcon, @JsonKey(name: 'country_id')  String? countryId, @JsonKey(name: 'carrier_id')  String? carrierId, @JsonKey(name: 'carrier_rule_id')  String? carrierRuleId,  String status, @JsonKey(name: 'health_score')  int healthScore, @JsonKey(name: 'last_topup_at')  DateTime? lastTopupAt, @JsonKey(name: 'next_topup_due')  DateTime? nextTopupDue, @JsonKey(name: 'validity_expires_at')  DateTime? validityExpiresAt, @JsonKey(name: 'protection_tier')  String protectionTier, @JsonKey(name: 'is_auto_detected')  bool isAutoDetected, @JsonKey(name: 'household_id')  String? householdId, @JsonKey(name: 'created_at')  DateTime? createdAt, @JsonKey(name: 'updated_at')  DateTime? updatedAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id, @JsonKey(name: 'user_id')  String userId, @JsonKey(name: 'phone_number')  String phoneNumber,  String? nickname, @JsonKey(name: 'avatar_icon')  String avatarIcon, @JsonKey(name: 'country_id')  String? countryId, @JsonKey(name: 'carrier_id')  String? carrierId, @JsonKey(name: 'carrier_rule_id')  String? carrierRuleId,  String status, @JsonKey(name: 'verification_status')  String verificationStatus, @JsonKey(name: 'health_score')  int healthScore, @JsonKey(name: 'last_topup_at')  DateTime? lastTopupAt, @JsonKey(name: 'next_topup_due')  DateTime? nextTopupDue, @JsonKey(name: 'validity_expires_at')  DateTime? validityExpiresAt, @JsonKey(name: 'protection_tier')  String protectionTier, @JsonKey(name: 'is_auto_detected')  bool isAutoDetected, @JsonKey(name: 'is_home_mode')  bool isHomeMode, @JsonKey(name: 'household_id')  String? householdId, @JsonKey(name: 'created_at')  DateTime? createdAt, @JsonKey(name: 'updated_at')  DateTime? updatedAt)?  $default,) {final _that = this;
 switch (_that) {
 case _SimLine() when $default != null:
-return $default(_that.id,_that.userId,_that.phoneNumber,_that.nickname,_that.avatarIcon,_that.countryId,_that.carrierId,_that.carrierRuleId,_that.status,_that.healthScore,_that.lastTopupAt,_that.nextTopupDue,_that.validityExpiresAt,_that.protectionTier,_that.isAutoDetected,_that.householdId,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.id,_that.userId,_that.phoneNumber,_that.nickname,_that.avatarIcon,_that.countryId,_that.carrierId,_that.carrierRuleId,_that.status,_that.verificationStatus,_that.healthScore,_that.lastTopupAt,_that.nextTopupDue,_that.validityExpiresAt,_that.protectionTier,_that.isAutoDetected,_that.isHomeMode,_that.householdId,_that.createdAt,_that.updatedAt);case _:
   return null;
 
 }
@@ -226,7 +228,7 @@ return $default(_that.id,_that.userId,_that.phoneNumber,_that.nickname,_that.ava
 @JsonSerializable()
 
 class _SimLine implements SimLine {
-  const _SimLine({required this.id, @JsonKey(name: 'user_id') required this.userId, @JsonKey(name: 'phone_number') required this.phoneNumber, this.nickname, @JsonKey(name: 'avatar_icon') this.avatarIcon = 'sim_card', @JsonKey(name: 'country_id') this.countryId, @JsonKey(name: 'carrier_id') this.carrierId, @JsonKey(name: 'carrier_rule_id') this.carrierRuleId, this.status = 'unverified', @JsonKey(name: 'health_score') this.healthScore = 100, @JsonKey(name: 'last_topup_at') this.lastTopupAt, @JsonKey(name: 'next_topup_due') this.nextTopupDue, @JsonKey(name: 'validity_expires_at') this.validityExpiresAt, @JsonKey(name: 'protection_tier') this.protectionTier = 'standard', @JsonKey(name: 'is_auto_detected') this.isAutoDetected = false, @JsonKey(name: 'household_id') this.householdId, @JsonKey(name: 'created_at') this.createdAt, @JsonKey(name: 'updated_at') this.updatedAt});
+  const _SimLine({required this.id, @JsonKey(name: 'user_id') required this.userId, @JsonKey(name: 'phone_number') required this.phoneNumber, this.nickname, @JsonKey(name: 'avatar_icon') this.avatarIcon = 'sim_card', @JsonKey(name: 'country_id') this.countryId, @JsonKey(name: 'carrier_id') this.carrierId, @JsonKey(name: 'carrier_rule_id') this.carrierRuleId, this.status = 'active', @JsonKey(name: 'verification_status') this.verificationStatus = 'unverified', @JsonKey(name: 'health_score') this.healthScore = 100, @JsonKey(name: 'last_topup_at') this.lastTopupAt, @JsonKey(name: 'next_topup_due') this.nextTopupDue, @JsonKey(name: 'validity_expires_at') this.validityExpiresAt, @JsonKey(name: 'protection_tier') this.protectionTier = 'standard', @JsonKey(name: 'is_auto_detected') this.isAutoDetected = false, @JsonKey(name: 'is_home_mode') this.isHomeMode = false, @JsonKey(name: 'household_id') this.householdId, @JsonKey(name: 'created_at') this.createdAt, @JsonKey(name: 'updated_at') this.updatedAt});
   factory _SimLine.fromJson(Map<String, dynamic> json) => _$SimLineFromJson(json);
 
 @override final  String id;
@@ -238,12 +240,14 @@ class _SimLine implements SimLine {
 @override@JsonKey(name: 'carrier_id') final  String? carrierId;
 @override@JsonKey(name: 'carrier_rule_id') final  String? carrierRuleId;
 @override@JsonKey() final  String status;
+@override@JsonKey(name: 'verification_status') final  String verificationStatus;
 @override@JsonKey(name: 'health_score') final  int healthScore;
 @override@JsonKey(name: 'last_topup_at') final  DateTime? lastTopupAt;
 @override@JsonKey(name: 'next_topup_due') final  DateTime? nextTopupDue;
 @override@JsonKey(name: 'validity_expires_at') final  DateTime? validityExpiresAt;
 @override@JsonKey(name: 'protection_tier') final  String protectionTier;
 @override@JsonKey(name: 'is_auto_detected') final  bool isAutoDetected;
+@override@JsonKey(name: 'is_home_mode') final  bool isHomeMode;
 @override@JsonKey(name: 'household_id') final  String? householdId;
 @override@JsonKey(name: 'created_at') final  DateTime? createdAt;
 @override@JsonKey(name: 'updated_at') final  DateTime? updatedAt;
@@ -261,16 +265,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SimLine&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber)&&(identical(other.nickname, nickname) || other.nickname == nickname)&&(identical(other.avatarIcon, avatarIcon) || other.avatarIcon == avatarIcon)&&(identical(other.countryId, countryId) || other.countryId == countryId)&&(identical(other.carrierId, carrierId) || other.carrierId == carrierId)&&(identical(other.carrierRuleId, carrierRuleId) || other.carrierRuleId == carrierRuleId)&&(identical(other.status, status) || other.status == status)&&(identical(other.healthScore, healthScore) || other.healthScore == healthScore)&&(identical(other.lastTopupAt, lastTopupAt) || other.lastTopupAt == lastTopupAt)&&(identical(other.nextTopupDue, nextTopupDue) || other.nextTopupDue == nextTopupDue)&&(identical(other.validityExpiresAt, validityExpiresAt) || other.validityExpiresAt == validityExpiresAt)&&(identical(other.protectionTier, protectionTier) || other.protectionTier == protectionTier)&&(identical(other.isAutoDetected, isAutoDetected) || other.isAutoDetected == isAutoDetected)&&(identical(other.householdId, householdId) || other.householdId == householdId)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SimLine&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber)&&(identical(other.nickname, nickname) || other.nickname == nickname)&&(identical(other.avatarIcon, avatarIcon) || other.avatarIcon == avatarIcon)&&(identical(other.countryId, countryId) || other.countryId == countryId)&&(identical(other.carrierId, carrierId) || other.carrierId == carrierId)&&(identical(other.carrierRuleId, carrierRuleId) || other.carrierRuleId == carrierRuleId)&&(identical(other.status, status) || other.status == status)&&(identical(other.verificationStatus, verificationStatus) || other.verificationStatus == verificationStatus)&&(identical(other.healthScore, healthScore) || other.healthScore == healthScore)&&(identical(other.lastTopupAt, lastTopupAt) || other.lastTopupAt == lastTopupAt)&&(identical(other.nextTopupDue, nextTopupDue) || other.nextTopupDue == nextTopupDue)&&(identical(other.validityExpiresAt, validityExpiresAt) || other.validityExpiresAt == validityExpiresAt)&&(identical(other.protectionTier, protectionTier) || other.protectionTier == protectionTier)&&(identical(other.isAutoDetected, isAutoDetected) || other.isAutoDetected == isAutoDetected)&&(identical(other.isHomeMode, isHomeMode) || other.isHomeMode == isHomeMode)&&(identical(other.householdId, householdId) || other.householdId == householdId)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,userId,phoneNumber,nickname,avatarIcon,countryId,carrierId,carrierRuleId,status,healthScore,lastTopupAt,nextTopupDue,validityExpiresAt,protectionTier,isAutoDetected,householdId,createdAt,updatedAt);
+int get hashCode => Object.hashAll([runtimeType,id,userId,phoneNumber,nickname,avatarIcon,countryId,carrierId,carrierRuleId,status,verificationStatus,healthScore,lastTopupAt,nextTopupDue,validityExpiresAt,protectionTier,isAutoDetected,isHomeMode,householdId,createdAt,updatedAt]);
 
 @override
 String toString() {
-  return 'SimLine(id: $id, userId: $userId, phoneNumber: $phoneNumber, nickname: $nickname, avatarIcon: $avatarIcon, countryId: $countryId, carrierId: $carrierId, carrierRuleId: $carrierRuleId, status: $status, healthScore: $healthScore, lastTopupAt: $lastTopupAt, nextTopupDue: $nextTopupDue, validityExpiresAt: $validityExpiresAt, protectionTier: $protectionTier, isAutoDetected: $isAutoDetected, householdId: $householdId, createdAt: $createdAt, updatedAt: $updatedAt)';
+  return 'SimLine(id: $id, userId: $userId, phoneNumber: $phoneNumber, nickname: $nickname, avatarIcon: $avatarIcon, countryId: $countryId, carrierId: $carrierId, carrierRuleId: $carrierRuleId, status: $status, verificationStatus: $verificationStatus, healthScore: $healthScore, lastTopupAt: $lastTopupAt, nextTopupDue: $nextTopupDue, validityExpiresAt: $validityExpiresAt, protectionTier: $protectionTier, isAutoDetected: $isAutoDetected, isHomeMode: $isHomeMode, householdId: $householdId, createdAt: $createdAt, updatedAt: $updatedAt)';
 }
 
 
@@ -281,7 +285,7 @@ abstract mixin class _$SimLineCopyWith<$Res> implements $SimLineCopyWith<$Res> {
   factory _$SimLineCopyWith(_SimLine value, $Res Function(_SimLine) _then) = __$SimLineCopyWithImpl;
 @override @useResult
 $Res call({
- String id,@JsonKey(name: 'user_id') String userId,@JsonKey(name: 'phone_number') String phoneNumber, String? nickname,@JsonKey(name: 'avatar_icon') String avatarIcon,@JsonKey(name: 'country_id') String? countryId,@JsonKey(name: 'carrier_id') String? carrierId,@JsonKey(name: 'carrier_rule_id') String? carrierRuleId, String status,@JsonKey(name: 'health_score') int healthScore,@JsonKey(name: 'last_topup_at') DateTime? lastTopupAt,@JsonKey(name: 'next_topup_due') DateTime? nextTopupDue,@JsonKey(name: 'validity_expires_at') DateTime? validityExpiresAt,@JsonKey(name: 'protection_tier') String protectionTier,@JsonKey(name: 'is_auto_detected') bool isAutoDetected,@JsonKey(name: 'household_id') String? householdId,@JsonKey(name: 'created_at') DateTime? createdAt,@JsonKey(name: 'updated_at') DateTime? updatedAt
+ String id,@JsonKey(name: 'user_id') String userId,@JsonKey(name: 'phone_number') String phoneNumber, String? nickname,@JsonKey(name: 'avatar_icon') String avatarIcon,@JsonKey(name: 'country_id') String? countryId,@JsonKey(name: 'carrier_id') String? carrierId,@JsonKey(name: 'carrier_rule_id') String? carrierRuleId, String status,@JsonKey(name: 'verification_status') String verificationStatus,@JsonKey(name: 'health_score') int healthScore,@JsonKey(name: 'last_topup_at') DateTime? lastTopupAt,@JsonKey(name: 'next_topup_due') DateTime? nextTopupDue,@JsonKey(name: 'validity_expires_at') DateTime? validityExpiresAt,@JsonKey(name: 'protection_tier') String protectionTier,@JsonKey(name: 'is_auto_detected') bool isAutoDetected,@JsonKey(name: 'is_home_mode') bool isHomeMode,@JsonKey(name: 'household_id') String? householdId,@JsonKey(name: 'created_at') DateTime? createdAt,@JsonKey(name: 'updated_at') DateTime? updatedAt
 });
 
 
@@ -298,7 +302,7 @@ class __$SimLineCopyWithImpl<$Res>
 
 /// Create a copy of SimLine
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? userId = null,Object? phoneNumber = null,Object? nickname = freezed,Object? avatarIcon = null,Object? countryId = freezed,Object? carrierId = freezed,Object? carrierRuleId = freezed,Object? status = null,Object? healthScore = null,Object? lastTopupAt = freezed,Object? nextTopupDue = freezed,Object? validityExpiresAt = freezed,Object? protectionTier = null,Object? isAutoDetected = null,Object? householdId = freezed,Object? createdAt = freezed,Object? updatedAt = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? userId = null,Object? phoneNumber = null,Object? nickname = freezed,Object? avatarIcon = null,Object? countryId = freezed,Object? carrierId = freezed,Object? carrierRuleId = freezed,Object? status = null,Object? verificationStatus = null,Object? healthScore = null,Object? lastTopupAt = freezed,Object? nextTopupDue = freezed,Object? validityExpiresAt = freezed,Object? protectionTier = null,Object? isAutoDetected = null,Object? isHomeMode = null,Object? householdId = freezed,Object? createdAt = freezed,Object? updatedAt = freezed,}) {
   return _then(_SimLine(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
@@ -309,12 +313,14 @@ as String,countryId: freezed == countryId ? _self.countryId : countryId // ignor
 as String?,carrierId: freezed == carrierId ? _self.carrierId : carrierId // ignore: cast_nullable_to_non_nullable
 as String?,carrierRuleId: freezed == carrierRuleId ? _self.carrierRuleId : carrierRuleId // ignore: cast_nullable_to_non_nullable
 as String?,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as String,verificationStatus: null == verificationStatus ? _self.verificationStatus : verificationStatus // ignore: cast_nullable_to_non_nullable
 as String,healthScore: null == healthScore ? _self.healthScore : healthScore // ignore: cast_nullable_to_non_nullable
 as int,lastTopupAt: freezed == lastTopupAt ? _self.lastTopupAt : lastTopupAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,nextTopupDue: freezed == nextTopupDue ? _self.nextTopupDue : nextTopupDue // ignore: cast_nullable_to_non_nullable
 as DateTime?,validityExpiresAt: freezed == validityExpiresAt ? _self.validityExpiresAt : validityExpiresAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,protectionTier: null == protectionTier ? _self.protectionTier : protectionTier // ignore: cast_nullable_to_non_nullable
 as String,isAutoDetected: null == isAutoDetected ? _self.isAutoDetected : isAutoDetected // ignore: cast_nullable_to_non_nullable
+as bool,isHomeMode: null == isHomeMode ? _self.isHomeMode : isHomeMode // ignore: cast_nullable_to_non_nullable
 as bool,householdId: freezed == householdId ? _self.householdId : householdId // ignore: cast_nullable_to_non_nullable
 as String?,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,updatedAt: freezed == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable

@@ -54,7 +54,7 @@ class SimLineCard extends ConsumerWidget {
     bool recentRefill =
         line.lastTopupAt != null &&
         DateTime.now().difference(line.lastTopupAt!).inDays <= 80;
-    int computedHealthScore =
+    int computedHealthScore = line.isHomeMode ? 100 :
         (hasAutoRefill ? 50 : 0) +
         (isVerified ? 25 : 0) +
         (recentRefill ? 25 : 0);
@@ -138,7 +138,7 @@ class SimLineCard extends ConsumerWidget {
                         Text(
                           line.phoneNumber,
                           style: AppTextStyles.bodyLarge.copyWith(
-                            color: context.onSurfaceColor.withOpacity(0.6),
+                            color: context.onSurfaceColor.withOpacity(0.9),
                             fontFamily: 'monospace',
                           ),
                         ),
@@ -175,8 +175,22 @@ class SimLineCard extends ConsumerWidget {
                     ),
                   ),
 
-                  // Health Score Indicator Ring
-                  _buildHealthScoreRing(context, computedHealthScore),
+                  // Open Console Button
+                  if (!isShared)
+                    IconButton(
+                      icon: Icon(
+                        Icons.settings,
+                        color: context.onSurfaceColor.withOpacity(0.6),
+                      ),
+                      onPressed: () {
+                        if (onTap != null) {
+                          onTap!();
+                        } else {
+                          context.push('/sim-lines/detail/${line.id}');
+                        }
+                      },
+                      tooltip: 'Open Protection Console',
+                    ),
 
                   // Action menu
                   if (!isShared && showActions)
@@ -239,7 +253,7 @@ class SimLineCard extends ConsumerWidget {
                 padding: EdgeInsets.symmetric(vertical: 12.0),
                 child: Divider(color: Colors.grey, height: 1),
               ),
-              _buildDetailsRow(context, line),
+              _buildDetailsRow(context, line, computedHealthScore),
               _buildScheduledTopupPanel(context, ref, line),
             ],
           ),
@@ -324,9 +338,11 @@ class SimLineCard extends ConsumerWidget {
     );
   }
 
-  Widget _buildHealthScoreRing(BuildContext context, int score) {
+  Widget _buildHealthScoreRing(BuildContext context, int score, bool isHomeMode) {
     Color color = AppColors.healthGreen;
-    if (score < 30) {
+    if (isHomeMode) {
+      color = Colors.lightBlue;
+    } else if (score < 30) {
       color = AppColors.healthRed;
     } else if (score < 60) {
       color = AppColors.healthAmber;
@@ -356,7 +372,7 @@ class SimLineCard extends ConsumerWidget {
     );
   }
 
-  Widget _buildDetailsRow(BuildContext context, SimLine line) {
+  Widget _buildDetailsRow(BuildContext context, SimLine line, int computedHealthScore) {
     final dateFormat = DateFormat('MMM dd, yyyy');
 
     String getLastRefillStr() {
@@ -373,11 +389,28 @@ class SimLineCard extends ConsumerWidget {
           getLastRefillStr(),
           Icons.history,
         ),
-        _buildInfoColumn(
-          context,
-          'Protection Status',
-          line.status.toUpperCase(),
-          Icons.security,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.security,
+                  size: 12,
+                  color: context.onSurfaceColor.withOpacity(0.4),
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  'Health Score',
+                  style: AppTextStyles.labelSmall.copyWith(
+                    color: context.onSurfaceColor.withOpacity(0.4),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            _buildHealthScoreRing(context, computedHealthScore, line.isHomeMode),
+          ],
         ),
       ],
     );

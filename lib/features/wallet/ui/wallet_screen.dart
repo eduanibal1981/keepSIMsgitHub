@@ -14,6 +14,10 @@ import '../model/wallet_model.dart';
 import 'package:keep_sims/core/widgets/shimmer_loading.dart';
 import 'package:keep_sims/core/widgets/error_state.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
+import 'package:keep_sims/features/dashboard/presentation/controller/dashboard_controller.dart';
+import 'package:keep_sims/features/payments/controller/payments_controller.dart';
+import 'package:keep_sims/features/payments/model/payment_method_model.dart';
+import 'package:keep_sims/features/wallet/controller/wallet_controller.dart';
 
 class WalletScreen extends ConsumerStatefulWidget {
   const WalletScreen({super.key});
@@ -778,6 +782,84 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
     }
   }
 
+  void _showSavedCards() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.darkSurface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return Consumer(
+          builder: (context, ref, child) {
+            final state = ref.watch(paymentsControllerProvider).valueOrNull;
+            final methods = state?.paymentMethods ?? [];
+
+            if (methods.isEmpty) {
+              return Container(
+                padding: const EdgeInsets.all(24),
+                height: 200,
+                child: Center(
+                  child: Text(
+                    'No saved payment methods found.',
+                    style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondaryDark),
+                  ),
+                ),
+              );
+            }
+
+            return Container(
+              padding: const EdgeInsets.symmetric(vertical: 24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Text(
+                      'Saved Payment Methods',
+                      style: AppTextStyles.titleLarge.copyWith(color: AppColors.textPrimaryDark),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Flexible(
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: methods.length,
+                      itemBuilder: (context, index) {
+                        final method = methods[index];
+                        return ListTile(
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                          leading: const Icon(Icons.credit_card, color: AppColors.primaryLight),
+                          title: Text(
+                            '•••• •••• •••• ${method.lastFour ?? "****"}',
+                            style: AppTextStyles.bodyLarge.copyWith(color: AppColors.textPrimaryDark),
+                          ),
+                          subtitle: Text(
+                            'Expires ${method.expiryMonth?.toString().padLeft(2, "0") ?? "--"}/${method.expiryYear?.toString().substring(method.expiryYear.toString().length > 2 ? method.expiryYear.toString().length - 2 : 0) ?? "--"}',
+                            style: AppTextStyles.caption.copyWith(color: AppColors.textSecondaryDark),
+                          ),
+                          onTap: () {
+                            setState(() {
+                              _cardNumberController.text = '4242 4242 4242 ${method.lastFour ?? "4242"}';
+                              _expiryController.text = '${method.expiryMonth?.toString().padLeft(2, "0") ?? "12"}/${method.expiryYear?.toString().substring(method.expiryYear.toString().length > 2 ? method.expiryYear.toString().length - 2 : 0) ?? "30"}';
+                              _cvvController.text = '123';
+                            });
+                            Navigator.pop(context);
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isWebMobileOffset = MediaQuery.of(context).viewInsets.bottom;
@@ -886,9 +968,32 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
                   return null;
                 },
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
 
               // ── Credit Card Inputs ─────────────────────────────────
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Card Details',
+                    style: AppTextStyles.labelLarge.copyWith(
+                      color: AppColors.textPrimaryDark,
+                    ),
+                  ),
+                  TextButton.icon(
+                    onPressed: _showSavedCards,
+                    icon: const Icon(Icons.credit_card, size: 16),
+                    label: const Text('Saved Cards'),
+                    style: TextButton.styleFrom(
+                      foregroundColor: AppColors.secondary,
+                      padding: EdgeInsets.zero,
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
               TextFormField(
                 controller: _cardNumberController,
                 keyboardType: TextInputType.number,

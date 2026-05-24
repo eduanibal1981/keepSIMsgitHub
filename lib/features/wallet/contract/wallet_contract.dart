@@ -17,4 +17,12 @@ abstract interface class WalletContract {
     String? description,
     String? referenceId,
   });
+
+  /// Deducts funds from the wallet and adds a debit transaction to the ledger.
+  Future<Result<Wallet>> deduct({
+    required double amount,
+    String? description,
+    String? referenceId,
+    String type = 'topup_debit',
+  });
 }

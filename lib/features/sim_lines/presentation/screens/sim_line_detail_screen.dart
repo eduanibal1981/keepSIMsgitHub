@@ -15,6 +15,8 @@ import 'package:keep_sims/features/scheduled_topups/ui/widgets/scheduled_topup_s
 import 'package:keep_sims/features/scheduled_topups/controller/scheduled_topup_controller.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/number_verification_dialog.dart';
+import 'package:keep_sims/features/sim_lines/presentation/widgets/manual_refill_bottom_sheet.dart';
+import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 
 class SimLineDetailScreen extends ConsumerStatefulWidget {
   final String id;
@@ -27,13 +29,13 @@ class SimLineDetailScreen extends ConsumerStatefulWidget {
 }
 
 class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
-  bool _isOptimizing = false;
   bool _isToggling = false;
 
   @override
   Widget build(BuildContext context) {
     final detailAsync = ref.watch(simLineDetailControllerProvider(widget.id));
     final countriesState = ref.watch(supportedCountriesProvider);
+    final user = ref.watch(authControllerProvider).valueOrNull;
 
     return Scaffold(
       backgroundColor: AppColors.darkBg,
@@ -73,6 +75,11 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                   orElse: () => countries.first,
                 );
 
+          bool isHomeCountry = false;
+          if (user?.homeCountryCode != null && country != null) {
+            isHomeCountry = user!.homeCountryCode!.toUpperCase() == country.isoCode.toUpperCase();
+          }
+
           return SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
             padding: const EdgeInsets.symmetric(
@@ -85,6 +92,12 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                 // 1. Line Header Card
                 _buildHeaderCard(context, detailState.simLine, country),
                 const SizedBox(height: 20),
+
+                // Back Home Plan Card
+                if (isHomeCountry) ...[
+                  _buildBackHomeCard(context, detailState.simLine, country),
+                  const SizedBox(height: 20),
+                ],
 
                 // 2. Health & Optimization Ring Panel
                 _buildHealthScoreSection(context, detailState),
@@ -275,6 +288,60 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
               ],
             ),
           ),
+          const SizedBox(width: 8),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                height: 32,
+                width: 100,
+                child: ElevatedButton.icon(
+                  onPressed: () => _handleVerifyLineActivity(context, line),
+                  icon: const Icon(Icons.radar, size: 14),
+                  label: Text(
+                    line.verificationStatus == 'unverified' ? 'Verify' : 'Reverify',
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.success,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                height: 32,
+                width: 100,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                      builder: (context) => ManualRefillBottomSheet(simLine: line),
+                    );
+                  },
+                  icon: const Icon(Icons.flash_on, size: 14),
+                  label: const Text(
+                    'Manual Refill',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.secondary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
@@ -311,6 +378,114 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
     );
   }
 
+  // ── Back Home Plan Card UI ────────────────────────────────────────────────
+  Widget _buildBackHomeCard(BuildContext context, SimLine line, dynamic country) {
+    bool isPremium = line.protectionTier.toLowerCase() == 'premium';
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.darkSurface,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppColors.darkBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.flight_land, color: AppColors.primaryLight, size: 28),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Back to ${country?.name ?? 'Home'}',
+                  style: AppTextStyles.titleLarge.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            line.isHomeMode 
+              ? 'Your SIM is currently in Home Mode. When you travel abroad again, return to Travel Mode to resume protection.'
+              : 'Prepare your SIM for your return. You can pause renewal or prepare a temporary data/call plan before you arrive.',
+            style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondaryDark),
+          ),
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    ref.read(simLinesControllerProvider.notifier).toggleHomeMode(line.id, !line.isHomeMode);
+                  },
+                  icon: Icon(line.isHomeMode ? Icons.flight_takeoff : Icons.pause_circle_outline, size: 18),
+                  label: Text(line.isHomeMode ? 'Return to Travel Mode' : 'Activate Home Mode'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: line.isHomeMode ? Colors.lightBlue : AppColors.warning,
+                    side: BorderSide(color: line.isHomeMode ? Colors.lightBlue : AppColors.warning),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          if (isPremium && !line.isHomeMode) ...[
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  // Prepare Baqa Plan logic
+                },
+                icon: const Icon(Icons.card_giftcard, size: 18, color: Colors.white),
+                label: const Text(
+                  'Prepare "Baqa" Plan (100 Min / 1GB)',
+                  style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+          ] else if (!line.isHomeMode) ...[
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.darkCard,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.darkBorder),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.lock_outline, color: AppColors.textTertiaryDark, size: 20),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Upgrade to Premium to pre-book a "Baqa" plan (calls & internet).',
+                      style: AppTextStyles.caption.copyWith(color: AppColors.textSecondaryDark),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
   // ── 2. Health & Circular score UI ──────────────────────────────────────────
   Widget _buildHealthScoreSection(
     BuildContext context,
@@ -328,22 +503,33 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
         (hasAutoRefill ? 50 : 0) +
         (isVerified ? 25 : 0) +
         (recentRefill ? 25 : 0);
+    
+    // Override score if in Home Mode
+    if (detail.simLine.isHomeMode) {
+      dynamicScore = 100;
+    }
     final score = dynamicScore;
 
     List<String> missingReasons = [];
-    if (!hasAutoRefill)
-      missingReasons.add("Missing 50%: Configure an Auto-Refill schedule.");
-    if (!isVerified)
-      missingReasons.add("Missing 25%: Verify your line activity.");
-    if (!recentRefill)
-      missingReasons.add("Missing 25%: Last refill was more than 80 days ago.");
+    if (!detail.simLine.isHomeMode) {
+      if (!hasAutoRefill)
+        missingReasons.add("Missing 50%: Configure an Auto-Refill schedule.");
+      if (!isVerified)
+        missingReasons.add("Missing 25%: Verify your line activity.");
+      if (!recentRefill)
+        missingReasons.add("Missing 25%: Last refill was more than 80 days ago.");
+    }
 
     Color scoreColor = AppColors.healthGreen;
     String rating = 'SECURE';
     String description =
         'Your SIM card has active automated refill protection configured.';
 
-    if (score < 50) {
+    if (detail.simLine.isHomeMode) {
+      scoreColor = Colors.lightBlue;
+      rating = 'HOME MODE';
+      description = 'Auto-renewal is paused while you are in your home country. Your line remains secure.';
+    } else if (score < 50) {
       scoreColor = AppColors.healthRed;
       rating = 'CRITICAL RISK';
       description =
@@ -368,22 +554,21 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
             children: [
               // Circular Glowing Progress
               SizedBox(
-                width: 76,
-                height: 76,
+                width: 40,
+                height: 40,
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
                     CircularProgressIndicator(
                       value: score / 100,
-                      strokeWidth: 7,
+                      strokeWidth: 4,
                       backgroundColor: AppColors.darkCard,
                       valueColor: AlwaysStoppedAnimation<Color>(scoreColor),
                     ),
                     Text(
                       '$score',
-                      style: TextStyle(
+                      style: AppTextStyles.labelMedium.copyWith(
                         color: scoreColor,
-                        fontSize: 22,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -450,120 +635,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
               ),
             ],
           ),
-          if (detail.scheduledTopup != null) ...[
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 12.0),
-              child: Divider(color: AppColors.darkBorder, height: 1),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    'Simulate a successful E2E refill to test flows & restore health instantly.',
-                    style: AppTextStyles.caption.copyWith(
-                      color: AppColors.textSecondaryDark,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                SizedBox(
-                  height: 38,
-                  child: ElevatedButton(
-                    onPressed: _isOptimizing
-                        ? null
-                        : () => _handleSimulateExecution(context),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      disabledBackgroundColor: AppColors.darkBorder,
-                    ),
-                    child: _isOptimizing
-                        ? const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 2,
-                            ),
-                          )
-                        : const Text(
-                            'Optimize',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 12.0),
-            child: Divider(color: AppColors.darkBorder, height: 1),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Verify Live Line Activity',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      'Test if your SIM line is reachable via Twilio Missed Call check.',
-                      style: AppTextStyles.caption.copyWith(
-                        color: AppColors.textSecondaryDark,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 12),
-              SizedBox(
-                height: 38,
-                child: ElevatedButton(
-                  onPressed: () =>
-                      _handleVerifyLineActivity(context, detail.simLine),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.secondary,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: const [
-                      Icon(Icons.radar, size: 14),
-                      SizedBox(width: 4),
-                      Text(
-                        'Verify',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
+
         ],
       ),
     );
@@ -1335,53 +1407,6 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
     );
   }
 
-  Future<void> _handleSimulateExecution(BuildContext context) async {
-    setState(() {
-      _isOptimizing = true;
-    });
-
-    try {
-      final result = await ref
-          .read(simLineDetailControllerProvider(widget.id).notifier)
-          .triggerRefill();
-      if (mounted) {
-        if (result is Success<void>) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
-                'Simulated auto-refill executed successfully! Wallet balance deducted & health restored.',
-              ),
-              backgroundColor: AppColors.success,
-            ),
-          );
-        } else if (result is Failure<void>) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Refill failed: ${(result as Failure<void>).error.message}',
-              ),
-              backgroundColor: AppColors.error,
-            ),
-          );
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Simulation error: $e'),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isOptimizing = false;
-        });
-      }
-    }
-  }
 
   Future<void> _handleRetryFailedTopup(
     BuildContext context,

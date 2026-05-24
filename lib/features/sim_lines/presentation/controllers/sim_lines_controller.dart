@@ -8,6 +8,9 @@ import 'package:keep_sims/features/sim_lines/data/models/carrier_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/line_activity_log_model.dart';
 import 'package:keep_sims/features/sim_lines/data/repositories/sim_lines_repository_impl.dart';
 import 'package:keep_sims/features/scheduled_topups/controller/scheduled_topup_controller.dart';
+import 'package:keep_sims/features/wallet/controller/wallet_controller.dart';
+import 'package:keep_sims/features/dashboard/presentation/controller/dashboard_controller.dart';
+import 'package:keep_sims/core/providers.dart';
 
 part 'sim_lines_controller.g.dart';
 
@@ -64,7 +67,7 @@ class SimLinesController extends _$SimLinesController {
       );
 
       final added = await repo.addSimLine(newLine);
-      ref.invalidate(dashboardControllerProvider);
+
 
       return [added, ...previousList];
     });
@@ -76,7 +79,7 @@ class SimLinesController extends _$SimLinesController {
     state = await AsyncValue.guard(() async {
       final repo = ref.read(simLinesRepositoryProvider);
       final updated = await repo.updateSimLine(line);
-      ref.invalidate(dashboardControllerProvider);
+
 
       return previousList
           .map((item) => item.id == line.id ? updated : item)
@@ -90,10 +93,51 @@ class SimLinesController extends _$SimLinesController {
     state = await AsyncValue.guard(() async {
       final repo = ref.read(simLinesRepositoryProvider);
       await repo.deleteSimLine(id);
-      ref.invalidate(dashboardControllerProvider);
+
 
       return previousList.where((item) => item.id != id).toList();
     });
+  }
+
+  Future<void> toggleHomeMode(String simLineId, bool isHome) async {
+    try {
+      final repo = ref.read(simLinesRepositoryProvider);
+      final previousList = state.valueOrNull ?? [];
+      final line = previousList.firstWhere((l) => l.id == simLineId);
+      
+      SimLine updatedLine = line.copyWith(isHomeMode: isHome);
+      if (!isHome) {
+        // Returning to abroad mode: treat as recent refill
+        updatedLine = updatedLine.copyWith(lastTopupAt: DateTime.now());
+      }
+      
+      updatedLine = await repo.updateSimLine(updatedLine);
+
+      final schedule = ref.read(scheduledTopupForLineProvider(simLineId));
+      if (schedule != null) {
+        if (isHome) {
+          // Pause schedule
+          await ref.read(scheduledTopupControllerProvider.notifier).toggleActive(schedule.id, false);
+        } else {
+          // Resume and adjust nextExecutionAt
+          final nextDue = DateTime.now().add(Duration(days: schedule.frequencyDays));
+          final updatedSchedule = schedule.copyWith(
+            isActive: true, 
+            status: 'active',
+            nextExecutionAt: nextDue,
+          );
+          
+          final topupRepo = ref.read(scheduledTopupRepositoryProvider);
+          await topupRepo.updateSchedule(updatedSchedule);
+          ref.invalidate(scheduledTopupControllerProvider);
+        }
+      }
+
+      state = AsyncData(previousList.map((item) => item.id == simLineId ? updatedLine : item).toList());
+
+    } catch (e, st) {
+      state = AsyncError(e, st);
+    }
   }
 
   Future<void> deleteActivityLog(String id, String simLineId) async {
@@ -115,9 +159,27 @@ class SimLinesController extends _$SimLinesController {
       await repo.cleanMockLogs(simLineId);
       ref.invalidate(simLineActivityLogsProvider(simLineId));
       ref.invalidate(topupExecutionsForLineProvider(simLineId));
-      ref.invalidate(dashboardControllerProvider);
+
       return previousList;
     });
+  }
+
+  Future<void> performManualRefill(SimLine line, double amount) async {
+    // 1. Deduct from wallet
+    await ref.read(walletControllerProvider.notifier).deduct(
+      amount,
+      description: 'Manual Refill for ${line.nickname ?? line.phoneNumber}',
+    );
+
+    // 2. Update SimLine lastTopupAt
+    final updatedLine = line.copyWith(lastTopupAt: DateTime.now());
+    final repo = ref.read(simLinesRepositoryProvider);
+    await repo.updateSimLine(updatedLine);
+
+    // 3. Log Activity
+    // SimLinesController handles the UI state, but since we updated via repo, 
+    // we should invalidate to refresh the UI.
+    ref.invalidateSelf();
   }
 }
 
