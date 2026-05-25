@@ -345,7 +345,9 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
 
       // 7. Update Schedule Dates
       final nextExec = DateTime.now().add(
-        Duration(days: schedule.frequencyDays),
+        schedule.frequencyDays == 0
+            ? const Duration(hours: 1)
+            : Duration(days: schedule.frequencyDays),
       );
       await _client
           .from('scheduled_topups')
@@ -360,10 +362,14 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
 
       // 8. Update SIM Line validity + reset Health Score
       final nextDue = DateTime.now().add(
-        Duration(days: schedule.frequencyDays),
+        schedule.frequencyDays == 0
+            ? const Duration(hours: 1)
+            : Duration(days: schedule.frequencyDays),
       );
       final validityExpires = nextDue.add(
-        const Duration(days: 7),
+        schedule.frequencyDays == 0
+            ? const Duration(hours: 1)
+            : const Duration(days: 7),
       ); // grace buffer
       await _client
           .from('sim_lines')
@@ -382,8 +388,9 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
         'sim_line_id': schedule.simLineId,
         'user_id': userId,
         'event_type': 'topup_success',
-        'description':
-            'Auto-Refill successful. Next top-up due in ${schedule.frequencyDays} days.',
+        'description': schedule.frequencyDays == 0
+            ? 'Auto-Refill successful. Next top-up due in 1 hour.'
+            : 'Auto-Refill successful. Next top-up due in ${schedule.frequencyDays} days.',
         'metadata': {
           'amount': schedule.amount,
           'reloadly_transaction_id': mockTxId,
@@ -579,7 +586,9 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
 
       // 8. Update Schedule Dates and reset retry count
       final nextExec = DateTime.now().add(
-        Duration(days: schedule.frequencyDays),
+        schedule.frequencyDays == 0
+            ? const Duration(hours: 1)
+            : Duration(days: schedule.frequencyDays),
       );
       await _client
           .from('scheduled_topups')
@@ -594,9 +603,15 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
 
       // 9. Update SIM Line
       final nextDue = DateTime.now().add(
-        Duration(days: schedule.frequencyDays),
+        schedule.frequencyDays == 0
+            ? const Duration(hours: 1)
+            : Duration(days: schedule.frequencyDays),
       );
-      final validityExpires = nextDue.add(const Duration(days: 7));
+      final validityExpires = nextDue.add(
+        schedule.frequencyDays == 0
+            ? const Duration(hours: 1)
+            : const Duration(days: 7),
+      );
       await _client
           .from('sim_lines')
           .update({

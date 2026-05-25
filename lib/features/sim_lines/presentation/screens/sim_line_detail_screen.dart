@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -17,6 +18,8 @@ import 'package:keep_sims/core/widgets/haptic_helper.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/number_verification_dialog.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/manual_refill_bottom_sheet.dart';
 import 'package:keep_sims/features/auth/controller/auth_controller.dart';
+import 'package:keep_sims/core/router/app_router.dart';
+import 'package:keep_sims/features/household/presentation/controllers/household_controller.dart';
 
 class SimLineDetailScreen extends ConsumerStatefulWidget {
   final String id;
@@ -30,12 +33,23 @@ class SimLineDetailScreen extends ConsumerStatefulWidget {
 
 class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
   bool _isToggling = false;
+  late bool _isShared;
+  late bool _isViewer;
+  dynamic _membership;
 
   @override
   Widget build(BuildContext context) {
     final detailAsync = ref.watch(simLineDetailControllerProvider(widget.id));
     final countriesState = ref.watch(supportedCountriesProvider);
     final user = ref.watch(authControllerProvider).valueOrNull;
+    final simLine = detailAsync.valueOrNull?.simLine;
+    final householdState = ref.watch(householdControllerProvider).valueOrNull;
+
+    _isShared = simLine != null && simLine.userId != user?.id;
+    _membership = _isShared
+        ? householdState?.memberships.firstWhereOrNull((m) => m.ownerId == simLine!.userId)
+        : null;
+    _isViewer = _isShared && (_membership == null || _membership.role == 'viewer');
 
     return Scaffold(
       backgroundColor: AppColors.darkBg,
@@ -57,9 +71,22 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
           ),
         ),
         actions: [
+          if (simLine != null && simLine.userId == user?.id)
+            IconButton(
+              icon: const Icon(Icons.delete_outline_rounded, color: AppColors.error),
+              tooltip: 'Delete Protection',
+              onPressed: () async {
+                await HapticHelper.mediumImpact();
+                if (context.mounted) {
+                  _showDeleteConfirmation(context, simLine);
+                }
+              },
+            ),
           IconButton(
             icon: const Icon(Icons.refresh, color: AppColors.textSecondaryDark),
-            onPressed: () {
+            tooltip: 'Refresh',
+            onPressed: () async {
+              await HapticHelper.lightTick();
               ref.invalidate(simLineDetailControllerProvider(widget.id));
             },
           ),
@@ -285,38 +312,45 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                     ),
                   ),
                 ],
+                if (_isShared) ...[
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.people_outline,
+                        color: AppColors.primaryLight,
+                        size: 14,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Shared by: ${_membership?.ownerName ?? 'Family Member'} (${_isViewer ? 'Viewer' : 'Manager'})',
+                        style: AppTextStyles.caption.copyWith(
+                          color: AppColors.primaryLight,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ],
             ),
           ),
-          const SizedBox(width: 8),
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SizedBox(
-                height: 32,
-                width: 100,
-                child: ElevatedButton.icon(
+          if (!_isViewer) ...[
+            const SizedBox(width: 8),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
                   onPressed: () => _handleVerifyLineActivity(context, line),
-                  icon: const Icon(Icons.radar, size: 14),
-                  label: Text(
-                    line.verificationStatus == 'unverified' ? 'Verify' : 'Reverify',
-                    style: const TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  style: ElevatedButton.styleFrom(
+                  icon: const Icon(Icons.radar, size: 20),
+                  tooltip: line.verificationStatus == 'unverified' ? 'Verify' : 'Reverify',
+                  style: IconButton.styleFrom(
                     backgroundColor: AppColors.success,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
                   ),
                 ),
-              ),
-              const SizedBox(height: 8),
-              SizedBox(
-                height: 32,
-                width: 100,
-                child: ElevatedButton.icon(
+                const SizedBox(height: 8),
+                IconButton(
                   onPressed: () {
                     showModalBottomSheet(
                       context: context,
@@ -325,23 +359,16 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                       builder: (context) => ManualRefillBottomSheet(simLine: line),
                     );
                   },
-                  icon: const Icon(Icons.flash_on, size: 14),
-                  label: const Text(
-                    'Manual Refill',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  style: ElevatedButton.styleFrom(
+                  icon: const Icon(Icons.attach_money_rounded, size: 22),
+                  tooltip: 'Manual Refill',
+                  style: IconButton.styleFrom(
                     backgroundColor: AppColors.secondary,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
                   ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
+          ],
         ],
       ),
     );
@@ -411,7 +438,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
           Text(
             line.isHomeMode 
               ? 'Your SIM is currently in Home Mode. When you travel abroad again, return to Travel Mode to resume protection.'
-              : 'Prepare your SIM for your return. You can pause renewal or prepare a temporary data/call plan before you arrive.',
+              : 'Prepare your SIM for your return. renewal(pause) - prepare a data/call plan before you arrive (premium).',
             style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondaryDark),
           ),
           const SizedBox(height: 20),
@@ -419,9 +446,13 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
             children: [
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed: () {
-                    ref.read(simLinesControllerProvider.notifier).toggleHomeMode(line.id, !line.isHomeMode);
-                  },
+                  onPressed: _isViewer
+                      ? null
+                      : () {
+                          ref
+                              .read(simLinesControllerProvider.notifier)
+                              .toggleHomeMode(line.id, !line.isHomeMode);
+                        },
                   icon: Icon(line.isHomeMode ? Icons.flight_takeoff : Icons.pause_circle_outline, size: 18),
                   label: Text(line.isHomeMode ? 'Return to Travel Mode' : 'Activate Home Mode'),
                   style: OutlinedButton.styleFrom(
@@ -684,31 +715,40 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            ElevatedButton.icon(
-              onPressed: () => _openScheduleSheet(
-                context,
-                detail.simLine,
-                detail.scheduledTopup,
-              ),
-              icon: const Icon(Icons.add, size: 18, color: Colors.white),
-              label: const Text(
-                'Configure Auto-Renewal',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+            if (_isViewer)
+              Text(
+                'Please ask the household owner to configure auto-renewal.',
+                style: AppTextStyles.caption.copyWith(
+                  color: AppColors.textSecondaryDark,
+                  fontStyle: FontStyle.italic,
+                ),
+              )
+            else
+              ElevatedButton.icon(
+                onPressed: () => _openScheduleSheet(
+                  context,
+                  detail.simLine,
+                  detail.scheduledTopup,
+                ),
+                icon: const Icon(Icons.add, size: 18, color: Colors.white),
+                label: const Text(
+                  'Configure Auto-Renewal',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 12,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
           ],
         ),
       );
@@ -776,7 +816,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                   Switch.adaptive(
                     value: schedule.isActive,
                     activeColor: AppColors.secondary,
-                    onChanged: _isToggling
+                    onChanged: _isViewer || _isToggling
                         ? null
                         : (val) =>
                               _handleToggleSchedule(context, schedule.id, val),
@@ -794,7 +834,9 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
           const SizedBox(height: 12),
           _buildScheduleRowItem(
             'Renewal Interval',
-            'Every ${schedule.frequencyDays} days',
+            schedule.frequencyDays == 0
+                ? 'Every 1 hour'
+                : 'Every ${schedule.frequencyDays} days',
             Icons.repeat,
           ),
           const SizedBox(height: 12),
@@ -812,56 +854,58 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
               valueColor: AppColors.healthRed,
             ),
           ],
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 14.0),
-            child: Divider(color: AppColors.darkBorder, height: 1),
-          ),
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () => _openScheduleSheet(
-                    context,
-                    detail.simLine,
-                    detail.scheduledTopup,
-                  ),
-                  icon: const Icon(
-                    Icons.edit_outlined,
-                    size: 16,
-                    color: AppColors.textPrimaryDark,
-                  ),
-                  label: const Text(
-                    'Edit Schedule',
-                    style: TextStyle(
+          if (!_isViewer) ...[
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 14.0),
+              child: Divider(color: AppColors.darkBorder, height: 1),
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () => _openScheduleSheet(
+                      context,
+                      detail.simLine,
+                      detail.scheduledTopup,
+                    ),
+                    icon: const Icon(
+                      Icons.edit_outlined,
+                      size: 16,
                       color: AppColors.textPrimaryDark,
-                      fontWeight: FontWeight.bold,
+                    ),
+                    label: const Text(
+                      'Edit Schedule',
+                      style: TextStyle(
+                        color: AppColors.textPrimaryDark,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      side: const BorderSide(color: AppColors.darkBorder),
                     ),
                   ),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+                const SizedBox(width: 12),
+                IconButton(
+                  icon: const Icon(Icons.delete_outline, color: AppColors.error),
+                  onPressed: () =>
+                      _showDeleteScheduleConfirmation(context, schedule.id),
+                  style: IconButton.styleFrom(
+                    backgroundColor: AppColors.error.withOpacity(0.08),
+                    padding: const EdgeInsets.all(12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
+                      side: BorderSide(color: AppColors.error.withOpacity(0.2)),
                     ),
-                    side: const BorderSide(color: AppColors.darkBorder),
                   ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              IconButton(
-                icon: const Icon(Icons.delete_outline, color: AppColors.error),
-                onPressed: () =>
-                    _showDeleteScheduleConfirmation(context, schedule.id),
-                style: IconButton.styleFrom(
-                  backgroundColor: AppColors.error.withOpacity(0.08),
-                  padding: const EdgeInsets.all(12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side: BorderSide(color: AppColors.error.withOpacity(0.2)),
-                  ),
-                ),
-              ),
-            ],
-          ),
+              ],
+            ),
+          ],
         ],
       ),
     );
@@ -1043,35 +1087,37 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                                       color: AppColors.error,
                                     ),
                                   ),
-                                  const SizedBox(height: 8),
-                                  SizedBox(
-                                    height: 28,
-                                    child: ElevatedButton(
-                                      onPressed: () => _handleRetryFailedTopup(
-                                        context,
-                                        ex.id,
-                                      ),
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: AppColors.error,
-                                        foregroundColor: Colors.white,
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 12,
+                                  if (!_isViewer) ...[
+                                    const SizedBox(height: 8),
+                                    SizedBox(
+                                      height: 28,
+                                      child: ElevatedButton(
+                                        onPressed: () => _handleRetryFailedTopup(
+                                          context,
+                                          ex.id,
                                         ),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            6,
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: AppColors.error,
+                                          foregroundColor: Colors.white,
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 12,
+                                          ),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              6,
+                                            ),
+                                          ),
+                                        ),
+                                        child: const Text(
+                                          'Retry Now',
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                       ),
-                                      child: const Text(
-                                        'Retry Now',
-                                        style: TextStyle(
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
                                     ),
-                                  ),
+                                  ],
                                 ],
                               ),
                             ),
@@ -1080,14 +1126,15 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                       ),
                     ),
                     // Actions
-                    IconButton(
-                      icon: const Icon(
-                        Icons.delete_outline,
-                        color: AppColors.textTertiaryDark,
-                        size: 20,
+                    if (!_isViewer)
+                      IconButton(
+                        icon: const Icon(
+                          Icons.delete_outline,
+                          color: AppColors.textTertiaryDark,
+                          size: 20,
+                        ),
+                        onPressed: () => _handleDeleteExecution(context, ex.id),
                       ),
-                      onPressed: () => _handleDeleteExecution(context, ex.id),
-                    ),
                   ],
                 );
               },
@@ -1124,7 +1171,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              if (list.isNotEmpty)
+              if (list.isNotEmpty && !_isViewer)
                 TextButton.icon(
                   onPressed: () => _handleCleanMockLogs(context),
                   icon: const Icon(
@@ -1133,7 +1180,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                     color: AppColors.primaryLight,
                   ),
                   label: const Text(
-                    'Clean Mock Logs',
+                    'Clean the Activity logs',
                     style: TextStyle(
                       fontSize: 11,
                       color: AppColors.primaryLight,
@@ -1240,18 +1287,19 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                         ),
                       ),
                       // Actions
-                      Align(
-                        alignment: Alignment.topRight,
-                        child: IconButton(
-                          icon: const Icon(
-                            Icons.delete_outline,
-                            color: AppColors.textTertiaryDark,
-                            size: 18,
+                      if (!_isViewer)
+                        Align(
+                          alignment: Alignment.topRight,
+                          child: IconButton(
+                            icon: const Icon(
+                              Icons.delete_outline,
+                              color: AppColors.textTertiaryDark,
+                              size: 18,
+                            ),
+                            onPressed: () =>
+                                _handleDeleteActivityLog(context, log.id),
                           ),
-                          onPressed: () =>
-                              _handleDeleteActivityLog(context, log.id),
                         ),
-                      ),
                     ],
                   ),
                 );
@@ -1511,7 +1559,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Mock historical records cleaned successfully.'),
+            content: Text('Activity logs cleaned successfully.'),
             backgroundColor: AppColors.success,
           ),
         );
@@ -1536,6 +1584,89 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
       builder: (context) => NumberVerificationDialog(
         simLineId: simLine.id,
         phoneNumber: simLine.phoneNumber,
+      ),
+    );
+  }
+
+  void _showDeleteConfirmation(BuildContext context, SimLine line) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.darkCard,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+          side: const BorderSide(color: AppColors.darkBorder),
+        ),
+        title: Row(
+          children: [
+            const Icon(
+              Icons.warning_amber_rounded,
+              color: AppColors.error,
+              size: 28,
+            ),
+            const SizedBox(width: 12),
+            Text(
+              'Remove Protection',
+              style: AppTextStyles.headlineSmall.copyWith(
+                color: Colors.white,
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          'Are you sure you want to stop keeping ${line.nickname ?? line.phoneNumber} protected? Scheduled top-ups for this SIM line will be permanently cancelled.',
+          style: AppTextStyles.bodyMedium.copyWith(
+            color: AppColors.textSecondaryDark,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: AppColors.textSecondaryDark),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(context); // Dismiss the confirm dialog
+              
+              final goRouter = GoRouter.of(context);
+              final scaffoldMessenger = ScaffoldMessenger.of(context);
+              
+              // Instantly navigate back to the Home Page to prevent this screen
+              // from rebuilding with a "SIM Line not found" error when the deletion completes.
+              goRouter.go(AppRoutes.home);
+              
+              try {
+                await ref
+                    .read(simLinesControllerProvider.notifier)
+                    .deleteSimLine(line.id);
+                
+                scaffoldMessenger.showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      'SIM line protection removed successfully.',
+                    ),
+                    backgroundColor: AppColors.success,
+                  ),
+                );
+              } catch (e) {
+                scaffoldMessenger.showSnackBar(
+                  SnackBar(
+                    content: Text('Failed to delete: $e'),
+                    backgroundColor: AppColors.error,
+                  ),
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
+            child: const Text(
+              'Delete',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
       ),
     );
   }

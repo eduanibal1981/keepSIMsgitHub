@@ -269,15 +269,59 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
           .eq('sim_line_id', simLineId)
           .like('reloadly_transaction_id', 'MOCK_%');
 
-      // 2. Delete mock logs from line_activity_log (where is_mock is true in metadata JSON)
-      // For cross-database safety, we can delete logs that contain mock descriptors or where metadata->>is_mock = 'true'
+      // 2. Delete mock logs from line_activity_log (where metadata->>is_mock is 'true')
       await _supabase
           .from('line_activity_log')
           .delete()
           .eq('sim_line_id', simLineId)
-          .eq('metadata->is_mock', true);
+          .eq('metadata->>is_mock', 'true');
     } on PostgrestException catch (e) {
       throw Exception('Failed to clean mock logs: ${e.message}');
+    }
+  }
+
+  @override
+  Future<void> recordManualTopupExecution({
+    required String simLineId,
+    required double amount,
+    required String status,
+    String? failureReason,
+  }) async {
+    try {
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null)
+        throw Exception('No authenticated user session found.');
+
+      await _supabase.from('topup_executions').insert({
+        'sim_line_id': simLineId,
+        'user_id': userId,
+        'amount': amount,
+        'currency': 'USD',
+        'status': status,
+        'failure_reason': failureReason,
+        'executed_at': DateTime.now().toIso8601String(),
+        'completed_at': DateTime.now().toIso8601String(),
+        if (status == 'success')
+          'reloadly_transaction_id': 'TX_MANUAL_${DateTime.now().millisecondsSinceEpoch}',
+      });
+
+      // Also log the activity
+      await _supabase.from('line_activity_log').insert({
+        'sim_line_id': simLineId,
+        'user_id': userId,
+        'event_type': status == 'success' ? 'topup_success' : 'topup_failed',
+        'description': status == 'success'
+            ? 'Manual Refill of \$${amount.toStringAsFixed(2)} successful.'
+            : 'Manual Refill of \$${amount.toStringAsFixed(2)} failed: $failureReason',
+        'metadata': {
+          'amount': amount,
+          'type': 'manual_refill',
+          if (status != 'success') 'failure_reason': failureReason,
+        },
+        'created_at': DateTime.now().toIso8601String(),
+      });
+    } on PostgrestException catch (e) {
+      throw Exception('Failed to record manual topup execution: ${e.message}');
     }
   }
 

@@ -120,7 +120,11 @@ class SimLinesController extends _$SimLinesController {
           await ref.read(scheduledTopupControllerProvider.notifier).toggleActive(schedule.id, false);
         } else {
           // Resume and adjust nextExecutionAt
-          final nextDue = DateTime.now().add(Duration(days: schedule.frequencyDays));
+          final nextDue = DateTime.now().add(
+            schedule.frequencyDays == 0
+                ? const Duration(hours: 1)
+                : Duration(days: schedule.frequencyDays),
+          );
           final updatedSchedule = schedule.copyWith(
             isActive: true, 
             status: 'active',
@@ -166,20 +170,43 @@ class SimLinesController extends _$SimLinesController {
 
   Future<void> performManualRefill(SimLine line, double amount) async {
     // 1. Deduct from wallet
-    await ref.read(walletControllerProvider.notifier).deduct(
+    final success = await ref.read(walletControllerProvider.notifier).deduct(
       amount,
       description: 'Manual Refill for ${line.nickname ?? line.phoneNumber}',
     );
 
-    // 2. Update SimLine lastTopupAt
-    final updatedLine = line.copyWith(lastTopupAt: DateTime.now());
     final repo = ref.read(simLinesRepositoryProvider);
-    await repo.updateSimLine(updatedLine);
 
-    // 3. Log Activity
-    // SimLinesController handles the UI state, but since we updated via repo, 
-    // we should invalidate to refresh the UI.
-    ref.invalidateSelf();
+    if (success) {
+      // 2. Update SimLine lastTopupAt
+      final updatedLine = line.copyWith(lastTopupAt: DateTime.now());
+      await repo.updateSimLine(updatedLine);
+
+      // 3. Record successful execution
+      await repo.recordManualTopupExecution(
+        simLineId: line.id,
+        amount: amount,
+        status: 'success',
+      );
+
+      // 4. Log Activity
+      ref.invalidateSelf();
+      ref.invalidate(topupExecutionsForLineProvider(line.id));
+      ref.invalidate(simLineActivityLogsProvider(line.id));
+    } else {
+      // Record failed execution
+      await repo.recordManualTopupExecution(
+        simLineId: line.id,
+        amount: amount,
+        status: 'failed',
+        failureReason: 'Insufficient wallet balance',
+      );
+      
+      // Let the walletController state throw/handle the UI, or we can just invalidate
+      ref.invalidateSelf();
+      ref.invalidate(topupExecutionsForLineProvider(line.id));
+      ref.invalidate(simLineActivityLogsProvider(line.id));
+    }
   }
 }
 

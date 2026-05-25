@@ -12,12 +12,15 @@ import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import 'package:keep_sims/features/dashboard/presentation/controller/dashboard_controller.dart';
+import 'package:intl/intl.dart';
+
 import 'package:keep_sims/core/widgets/shimmer_loading.dart';
 import 'package:keep_sims/core/widgets/error_state.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
-import 'package:keep_sims/features/wallet/ui/wallet_screen.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/sim_line_card.dart';
+import 'package:keep_sims/features/notifications/presentation/controllers/notifications_controller.dart';
+import 'package:keep_sims/features/household/presentation/controllers/household_controller.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -98,7 +101,7 @@ class DashboardScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // ── Header Row ──────────────────────────────────────────
-              _buildHeader(context, welcomeName, isPowerUser),
+              _buildHeader(context, ref, welcomeName, isPowerUser),
               const SizedBox(height: 24),
 
               // ── "At a Glance" Glassmorphic Hero Card ──────────────────
@@ -119,7 +122,13 @@ class DashboardScreen extends ConsumerWidget {
   }
 
   // ── Header Widget ───────────────────────────────────────────────
-  Widget _buildHeader(BuildContext context, String name, bool isPowerUser) {
+  Widget _buildHeader(BuildContext context, WidgetRef ref, String name, bool isPowerUser) {
+    final notificationsState = ref.watch(notificationsControllerProvider);
+    final unreadCount = notificationsState.maybeWhen(
+      data: (list) => list.where((n) => !n.isRead).length,
+      orElse: () => 0,
+    );
+
     return Row(
       children: [
         // Glowing Avatar placeholder
@@ -169,7 +178,7 @@ class DashboardScreen extends ConsumerWidget {
           ),
         ),
         // Power User Badge
-        if (isPowerUser)
+        if (isPowerUser) ...[
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
@@ -202,6 +211,171 @@ class DashboardScreen extends ConsumerWidget {
               ],
             ),
           ),
+          const SizedBox(width: 8),
+        ],
+
+        // Help Icon Button
+        IconButton(
+          icon: const Icon(Icons.help_outline_rounded, size: 22),
+          color: context.onSurfaceColor.withValues(alpha: 0.8),
+          tooltip: 'Help & Support',
+          onPressed: () async {
+            await HapticHelper.lightTick();
+            if (context.mounted) {
+              _showHelpModalSheet(context);
+            }
+          },
+        ),
+
+        // Alerts Icon Button with dynamic unread badge
+        IconButton(
+          icon: Badge(
+            isLabelVisible: unreadCount > 0,
+            label: Text(
+              unreadCount > 9 ? '9+' : unreadCount.toString(),
+              style: const TextStyle(
+                fontSize: 9,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            backgroundColor: AppColors.healthRed,
+            child: const Icon(Icons.notifications_outlined, size: 24),
+          ),
+          color: context.onSurfaceColor.withValues(alpha: 0.8),
+          tooltip: 'Alerts',
+          onPressed: () async {
+            await HapticHelper.lightTick();
+            if (context.mounted) {
+              context.push(AppRoutes.notifications);
+            }
+          },
+        ),
+      ],
+    );
+  }
+
+  // ── Help Modal Sheet ───────────────────────────────────────────
+  void _showHelpModalSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: AppColors.darkSurface,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(28),
+              topRight: Radius.circular(28),
+            ),
+            border: Border(
+              top: BorderSide(color: AppColors.darkBorder, width: 1.5),
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 48,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 20),
+                  decoration: BoxDecoration(
+                    color: AppColors.darkBorder,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.15),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.help_outline_rounded,
+                      color: AppColors.primary,
+                      size: 24,
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Text(
+                    'Help & Support',
+                    style: AppTextStyles.headlineMedium.copyWith(
+                      color: AppColors.textPrimaryDark,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              Text(
+                'Need assistance with your SIM Shield app? Our comprehensive support resources and customer care portal are currently being finalized.',
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.textSecondaryDark,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'In upcoming updates, you will be able to:',
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.textPrimaryDark,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 12),
+              _buildHelpBulletPoint(context, Icons.menu_book_rounded, 'Browse FAQs & troubleshooting guides'),
+              const SizedBox(height: 10),
+              _buildHelpBulletPoint(context, Icons.support_agent_rounded, 'Live chat with technical support agents'),
+              const SizedBox(height: 10),
+              _buildHelpBulletPoint(context, Icons.bug_report_rounded, 'Report bugs or submit feedback directly'),
+              const SizedBox(height: 28),
+              SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  child: Text(
+                    'Got It',
+                    style: AppTextStyles.titleMedium.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildHelpBulletPoint(BuildContext context, IconData icon, String text) {
+    return Row(
+      children: [
+        Icon(icon, color: AppColors.secondary, size: 18),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            text,
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: AppColors.textSecondaryDark,
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -212,16 +386,34 @@ class DashboardScreen extends ConsumerWidget {
     String currency,
     DashboardState data,
   ) {
+    final int nextTopUpMinutes = data.nextTopUpDate != null
+        ? data.nextTopUpDate!.difference(DateTime.now()).inMinutes.clamp(0, 60)
+        : 0;
+    final bool isHourlyMode = data.nextTopUpTotalDays == 0 && data.nextTopUpId != null;
+
+    // Format the next top-up date
+    final DateTime dueDate = data.nextTopUpDate ?? DateTime.now().add(Duration(days: data.nextTopUpDays));
+    final String formattedDate = data.nextTopUpId != null 
+        ? (isHourlyMode 
+            ? DateFormat('MMMM dd, yyyy HH:mm').format(dueDate)
+            : DateFormat('MMMM dd, yyyy').format(dueDate))
+        : 'No Active Protection';
+
+    final double progress = data.nextTopUpTotalDays > 0 
+        ? (data.nextTopUpDays / data.nextTopUpTotalDays).clamp(0.0, 1.0)
+        : (isHourlyMode ? (nextTopUpMinutes / 60.0).clamp(0.0, 1.0) : 1.0);
+
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        gradient: AppColors.heroGradient,
+        color: AppColors.darkCard,
         borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppColors.darkBorder, width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.25),
-            blurRadius: 30,
-            offset: const Offset(0, 12),
+            color: AppColors.primary.withValues(alpha: 0.08),
+            blurRadius: 24,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
@@ -229,26 +421,16 @@ class DashboardScreen extends ConsumerWidget {
         borderRadius: BorderRadius.circular(24),
         child: Stack(
           children: [
-            // Glass overlay
-            Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: context.theme.shadowColor.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(24),
-                ),
-              ),
-            ),
-
             // Decorative background glowing circular elements
             Positioned(
-              right: -50,
-              top: -50,
+              right: -30,
+              top: -30,
               child: Container(
-                width: 180,
-                height: 180,
+                width: 150,
+                height: 150,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: context.onSurfaceColor.withValues(alpha: 0.08),
+                  color: AppColors.success.withValues(alpha: 0.02),
                 ),
               ),
             ),
@@ -261,12 +443,14 @@ class DashboardScreen extends ConsumerWidget {
                   onTap: () async {
                     await HapticHelper.mediumImpact();
                     if (!context.mounted) return;
-                    _showDepositModalSheet(context);
+                    if (data.nextTopUpId != null) {
+                      context.push('${AppRoutes.simLines}/detail/${data.nextTopUpId}');
+                    } else {
+                      context.push('${AppRoutes.simLines}/add');
+                    }
                   },
-                  splashColor: context.onSurfaceColor.withValues(alpha: 0.1),
-                  highlightColor: context.onSurfaceColor.withValues(
-                    alpha: 0.05,
-                  ),
+                  splashColor: context.onSurfaceColor.withValues(alpha: 0.05),
+                  highlightColor: context.onSurfaceColor.withValues(alpha: 0.02),
                 ),
               ),
             ),
@@ -279,128 +463,132 @@ class DashboardScreen extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          'SHIELD WALLET BALANCE',
-                          style: AppTextStyles.labelMedium.copyWith(
-                            color: context.onSurfaceColor.withValues(
-                              alpha: 0.7,
-                            ),
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 1.5,
-                          ),
-                        ),
-                        // Sleek interactive indicator
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
+                        // Left Side - Circular Ring Progress Indicator
+                        Stack(
+                          alignment: Alignment.center,
                           children: [
-                            Text(
-                              'LOAD',
-                              style: AppTextStyles.labelSmall.copyWith(
-                                color: AppColors.secondary,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 1.0,
+                            SizedBox(
+                              width: 82,
+                              height: 82,
+                              child: CircularProgressIndicator(
+                                value: data.nextTopUpId != null ? progress : 0.0,
+                                strokeWidth: 7,
+                                backgroundColor: context.onSurfaceColor.withValues(alpha: 0.08),
+                                valueColor: const AlwaysStoppedAnimation<Color>(AppColors.success),
                               ),
                             ),
-                            const SizedBox(width: 4),
-                            const Icon(
-                              Icons.add_circle_outline_rounded,
-                              color: AppColors.secondary,
-                              size: 18,
+                            Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  data.nextTopUpId != null
+                                      ? (isHourlyMode ? '$nextTopUpMinutes' : '${data.nextTopUpDays}')
+                                      : '0',
+                                  style: AppTextStyles.headlineMedium.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w900,
+                                    height: 1.1,
+                                  ),
+                                ),
+                                Text(
+                                  isHourlyMode ? 'mins' : 'days',
+                                  style: AppTextStyles.caption.copyWith(
+                                    color: AppColors.textSecondaryDark,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      '\$${data.walletBalance.toStringAsFixed(2)} $currency',
-                      style: AppTextStyles.walletBalance.copyWith(
-                        color: context.onSurfaceColor,
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    // Sub metrics grid
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        _buildHeroStat(context, 
-                          'Lines Active',
-                          '${data.totalLines} Protected',
-                        ),
-                        _buildHeroStat(context, 
-                          'Next Top-Up',
-                          '${data.nextTopUpDays} Days Left',
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    // Expiry Progress bar
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Renewal Schedule Health',
-                              style: AppTextStyles.caption.copyWith(
-                                color: context.onSurfaceColor.withValues(
-                                  alpha: 0.7,
-                                ),
+                        const SizedBox(width: 24),
+
+                        // Right Side - SIM line info & dates
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'NEXT TOP-UP',
+                                    style: AppTextStyles.labelSmall.copyWith(
+                                      color: AppColors.textSecondaryDark,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 1.2,
+                                    ),
+                                  ),
+                                  if (data.nextTopUpId != null)
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                        vertical: 4,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.success.withValues(alpha: 0.15),
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      child: Text(
+                                        'Active',
+                                        style: AppTextStyles.labelSmall.copyWith(
+                                          color: AppColors.success,
+                                          fontWeight: FontWeight.w800,
+                                        ),
+                                      ),
+                                    ),
+                                ],
                               ),
-                            ),
-                            Text(
-                              '${(data.nextTopUpDays / data.nextTopUpTotalDays * 100).toInt()}% Remaining',
-                              style: AppTextStyles.caption.copyWith(
-                                color: context.onSurfaceColor.withValues(
-                                  alpha: 0.9,
+                              const SizedBox(height: 6),
+                              Text(
+                                formattedDate,
+                                style: AppTextStyles.headlineSmall.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w800,
                                 ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 6),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(4),
-                          child: LinearProgressIndicator(
-                            value: data.nextTopUpDays / data.nextTopUpTotalDays,
-                            minHeight: 6,
-                            backgroundColor: context.onSurfaceColor.withValues(
-                              alpha: 0.2,
-                            ),
-                            valueColor: const AlwaysStoppedAnimation<Color>(
-                              AppColors.secondary,
-                            ),
+                              const SizedBox(height: 4),
+                              Text(
+                                data.nextTopUpId != null
+                                    ? (data.nextTopUpNickname != null
+                                        ? '${data.nextTopUpNickname} • ${data.nextTopUpPhone}'
+                                        : '${data.nextTopUpPhone}')
+                                    : 'Add a SIM line to begin tracking',
+                                style: AppTextStyles.bodyMedium.copyWith(
+                                  color: AppColors.textSecondaryDark,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
-                    Divider(
-                      color: context.onSurfaceColor.withValues(alpha: 0.24),
+                    const SizedBox(height: 20),
+                    const Divider(
+                      color: AppColors.darkBorder,
                       height: 1,
+                      thickness: 1.2,
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 14),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Last Auto Charge',
+                          'Showing nearest line',
                           style: AppTextStyles.caption.copyWith(
-                            color: context.onSurfaceColor.withValues(
-                              alpha: 0.7,
-                            ),
+                            color: AppColors.textSecondaryDark.withValues(alpha: 0.7),
                           ),
                         ),
                         Text(
-                          data.lastChargeDate != null &&
-                                  data.lastChargePhone != null
-                              ? '${data.lastChargeDate} • ${data.lastChargePhone}'
-                              : 'None Recorded',
+                          data.totalLines == 1 ? '1 line' : '${data.totalLines} lines',
                           style: AppTextStyles.caption.copyWith(
-                            color: context.onSurfaceColor,
+                            color: Colors.white,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -416,44 +604,13 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  void _showDepositModalSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => const DepositModalSheet(),
-    );
-  }
-
-  Widget _buildHeroStat(BuildContext context, String title, String value) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: AppTextStyles.caption.copyWith(
-            color: context.onSurfaceColor.withValues(alpha: 0.6),
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: AppTextStyles.titleMedium.copyWith(
-            color: context.onSurfaceColor,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-      ],
-    );
-  }
-
-  // ── SIM Protection Health Widget ────────────────────────────────
   Widget _buildHealthSection(
     BuildContext context,
     WidgetRef ref,
     String currentUserId,
   ) {
     final simLinesState = ref.watch(simLinesControllerProvider);
+    final householdState = ref.watch(householdControllerProvider).valueOrNull;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -469,7 +626,7 @@ class DashboardScreen extends ConsumerWidget {
             ),
             IconButton(
               icon: const Icon(
-                Icons.add_circle_outline,
+                Icons.add_circle_outline_rounded,
                 color: AppColors.primary,
               ),
               onPressed: () async {
@@ -484,17 +641,25 @@ class DashboardScreen extends ConsumerWidget {
         const SizedBox(height: 14),
         simLinesState.when(
           data: (lines) {
-            final myLines = lines
-                .where((line) => line.userId == currentUserId)
-                .toList();
-
-            if (myLines.isEmpty) {
+            if (lines.isEmpty) {
               return _buildEmptyCTA(context);
             }
 
             return Column(
-              children: myLines
-                  .map((line) => SimLineCard(line: line, showActions: false))
+              children: lines
+                  .asMap()
+                  .entries
+                  .map((entry) {
+                    final line = entry.value;
+                    final isShared = line.userId != currentUserId;
+                    return SimLineCard(
+                      line: line,
+                      index: entry.key,
+                      showActions: false,
+                      isShared: isShared,
+                      householdState: householdState,
+                    );
+                  })
                   .toList(),
             );
           },

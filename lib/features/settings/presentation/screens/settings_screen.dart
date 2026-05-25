@@ -23,7 +23,7 @@ class SettingsScreen extends ConsumerWidget {
             children: [
               // ── Header ─────────────────────────────────────────────
               Text(
-                'Settings',
+                'More',
                 style: AppTextStyles.headlineLarge.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -32,7 +32,7 @@ class SettingsScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 6),
               Text(
-                'Manage your profile, alerts, and family sharing preferences',
+                'Manage your profile, SIM lines, alerts, and shared preferences',
                 style: AppTextStyles.bodyMedium.copyWith(
                   color: AppColors.textSecondaryDark,
                 ),
@@ -186,6 +186,16 @@ class SettingsScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 12),
+
+              _buildMenuCard(
+                context: context,
+                icon: Icons.sim_card_outlined,
+                iconColor: const Color(0xFF6366F1),
+                title: 'My SIM Lines',
+                subtitle: 'View details, edit, add, or delete your protected SIM cards',
+                routePath: '/sim-lines',
+              ),
+              const SizedBox(height: 16),
 
               _buildMenuCard(
                 context: context,

@@ -24,6 +24,11 @@ class DashboardState {
   final List<DashboardActivity> recentActivities;
   final String? lastChargeDate;
   final String? lastChargePhone;
+  final String? nextTopUpId;
+  final String? nextTopUpPhone;
+  final String? nextTopUpNickname;
+  final DateTime? nextTopUpDate;
+  final String? nextTopUpStatus;
 
   const DashboardState({
     required this.totalLines,
@@ -34,6 +39,11 @@ class DashboardState {
     required this.recentActivities,
     this.lastChargeDate,
     this.lastChargePhone,
+    this.nextTopUpId,
+    this.nextTopUpPhone,
+    this.nextTopUpNickname,
+    this.nextTopUpDate,
+    this.nextTopUpStatus,
   });
 }
 
@@ -72,7 +82,7 @@ class DashboardController extends _$DashboardController {
     final simLines = await ref.watch(simLinesControllerProvider.future);
     final schedules = await ref.watch(scheduledTopupControllerProvider.future);
 
-    return _fetchDashboardData(walletState, simLines, schedules);
+    return _fetchDashboardData(walletState, simLines, schedules, profile.id);
   }
 
   DashboardState _loadingState() {
@@ -83,6 +93,11 @@ class DashboardController extends _$DashboardController {
       nextTopUpTotalDays: 30,
       overallHealthScore: 100,
       recentActivities: [],
+      nextTopUpId: null,
+      nextTopUpPhone: null,
+      nextTopUpNickname: null,
+      nextTopUpDate: null,
+      nextTopUpStatus: null,
     );
   }
 
@@ -91,6 +106,7 @@ class DashboardController extends _$DashboardController {
     WalletState walletState,
     List<SimLine> simLines,
     List<ScheduledTopup> schedules,
+    String? currentUserId,
   ) {
     final balance = walletState.wallet.balance;
     final transactions = walletState.transactions;
@@ -156,12 +172,15 @@ class DashboardController extends _$DashboardController {
       ]);
     }
 
-    // 1. Calculate Active Lines
+    // 1. Calculate Active Lines (including shared ones)
     final totalLines = simLines.where((l) => l.status == 'active').length;
+
+    // Filter to only consider owned lines for last charged and nearest top-up calculations
+    final ownedLines = simLines.where((l) => l.userId == currentUserId).toList();
 
     // 2. Find last auto-charged line
     SimLine? lastChargedLine;
-    for (final line in simLines) {
+    for (final line in ownedLines) {
       if (line.lastTopupAt != null) {
         if (lastChargedLine == null ||
             line.lastTopupAt!.isAfter(lastChargedLine.lastTopupAt!)) {
@@ -178,19 +197,21 @@ class DashboardController extends _$DashboardController {
       lastChargePhone = lastChargedLine.phoneNumber;
     }
 
-    // 3. Calculate next top up days
+    // 3. Calculate next top up days and find nearest line
     int nextTopUpDays = 30;
     int nextTopUpTotalDays = 30;
     bool foundNextDue = false;
-    for (final line in simLines) {
+    SimLine? nextDueLine;
+    for (final line in ownedLines) {
       if (line.nextTopupDue != null) {
         final diff = line.nextTopupDue!.difference(DateTime.now()).inDays;
         if (diff >= 0 && (!foundNextDue || diff < nextTopUpDays)) {
           nextTopUpDays = diff;
+          nextDueLine = line;
           final schedule = schedules
               .where((s) => s.simLineId == line.id && s.status == 'active')
               .firstOrNull;
-          if (schedule != null && schedule.frequencyDays > 0) {
+          if (schedule != null && schedule.frequencyDays >= 0) {
             nextTopUpTotalDays = schedule.frequencyDays;
           } else {
             nextTopUpTotalDays = 30;
@@ -199,7 +220,17 @@ class DashboardController extends _$DashboardController {
         }
       }
     }
-    if (!foundNextDue) {
+    if (!foundNextDue && ownedLines.isNotEmpty) {
+      // Fallback: if none are found in future, pick the first active/inactive SIM
+      nextDueLine = ownedLines.first;
+      if (nextDueLine.nextTopupDue != null) {
+        nextTopUpDays = nextDueLine.nextTopupDue!.difference(DateTime.now()).inDays;
+        if (nextTopUpDays < 0) nextTopUpDays = 0;
+      } else {
+        nextTopUpDays = 12;
+      }
+      nextTopUpTotalDays = 30;
+    } else if (!foundNextDue) {
       nextTopUpDays = 12; // Muted fallback matching previous design
       nextTopUpTotalDays = 30;
     }
@@ -213,6 +244,11 @@ class DashboardController extends _$DashboardController {
       recentActivities: recentActivities,
       lastChargeDate: lastChargeDate,
       lastChargePhone: lastChargePhone,
+      nextTopUpId: nextDueLine?.id,
+      nextTopUpPhone: nextDueLine?.phoneNumber,
+      nextTopUpNickname: nextDueLine?.nickname,
+      nextTopUpDate: nextDueLine?.nextTopupDue,
+      nextTopUpStatus: nextDueLine?.status,
     );
   }
 
@@ -223,10 +259,11 @@ class DashboardController extends _$DashboardController {
       ref.invalidate(walletControllerProvider);
       ref.invalidate(simLinesControllerProvider);
       ref.invalidate(scheduledTopupControllerProvider);
+      final profile = await ref.read(authControllerProvider.future);
       final walletState = await ref.read(walletControllerProvider.future);
       final simLines = await ref.read(simLinesControllerProvider.future);
       final schedules = await ref.read(scheduledTopupControllerProvider.future);
-      return _fetchDashboardData(walletState, simLines, schedules);
+      return _fetchDashboardData(walletState, simLines, schedules, profile?.id);
     });
   }
 }

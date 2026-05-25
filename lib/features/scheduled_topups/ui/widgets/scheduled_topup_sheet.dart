@@ -39,7 +39,7 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
   bool _isDeleting = false;
 
   final List<double> _presetAmounts = [5.0, 10.0, 15.0, 25.0, 50.0];
-  final List<int> _presetFrequencies = [7, 14, 30, 90];
+  final List<int> _presetFrequencies = [0, 7, 14, 30, 90];
 
   @override
   void initState() {
@@ -65,7 +65,9 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
       calculatedNextExecution = widget.existingSchedule!.nextExecutionAt;
     } else {
       calculatedNextExecution = DateTime.now().add(
-        Duration(days: _frequencyDays),
+        _frequencyDays == 0
+            ? const Duration(hours: 1)
+            : Duration(days: _frequencyDays),
       );
     }
 
@@ -248,45 +250,43 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
             ),
             const SizedBox(height: 12),
 
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Wrap(
+              spacing: 10,
+              runSpacing: 10,
               children: _presetFrequencies.map((freq) {
                 final isSelected = _frequencyDays == freq;
                 String freqLabel = '$freq Days';
+                if (freq == 0) freqLabel = '1 Hour';
                 if (freq == 30) freqLabel = 'Monthly';
                 if (freq == 90) freqLabel = 'Quarterly';
 
-                return Expanded(
-                  child: InkWell(
-                    onTap: () => setState(() => _frequencyDays = freq),
-                    borderRadius: BorderRadius.circular(12),
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 4),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      decoration: BoxDecoration(
+                return InkWell(
+                  onTap: () => setState(() => _frequencyDays = freq),
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? AppColors.primary.withOpacity(0.15)
+                          : context.cardColor,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
                         color: isSelected
-                            ? AppColors.primary.withOpacity(0.15)
-                            : context.cardColor,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: isSelected
-                              ? AppColors.primary
-                              : context.dividerColor,
-                          width: 1.5,
-                        ),
+                            ? AppColors.primary
+                            : context.dividerColor,
+                        width: 1.5,
                       ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        freqLabel,
-                        style: TextStyle(
-                          color: isSelected
-                              ? context.onSurfaceColor
-                              : context.onSurfaceColor.withOpacity(0.6),
-                          fontWeight: isSelected
-                              ? FontWeight.bold
-                              : FontWeight.normal,
-                          fontSize: 13,
-                        ),
+                    ),
+                    child: Text(
+                      freqLabel,
+                      style: TextStyle(
+                        color: isSelected
+                            ? context.onSurfaceColor
+                            : context.onSurfaceColor.withOpacity(0.6),
+                        fontWeight: isSelected
+                            ? FontWeight.bold
+                            : FontWeight.normal,
+                        fontSize: 13,
                       ),
                     ),
                   ),
@@ -428,7 +428,9 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
         calculatedNextExecution = widget.existingSchedule!.nextExecutionAt;
       } else {
         calculatedNextExecution = DateTime.now().add(
-          Duration(days: _frequencyDays),
+          _frequencyDays == 0
+              ? const Duration(hours: 1)
+              : Duration(days: _frequencyDays),
         );
       }
 

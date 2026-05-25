@@ -13,6 +13,12 @@ abstract class SimLinesRepository {
   Future<List<LineActivityLog>> getLineActivityLogs(String simLineId);
   Future<void> deleteLineActivityLog(String id);
   Future<void> cleanMockLogs(String simLineId);
+  Future<void> recordManualTopupExecution({
+    required String simLineId,
+    required double amount,
+    required String status,
+    String? failureReason,
+  });
   Future<String?> triggerMissedCall(String phoneNumber);
   Future<bool> checkCallStatus(String callSid);
   Future<void> confirmLineVerification(String simLineId);

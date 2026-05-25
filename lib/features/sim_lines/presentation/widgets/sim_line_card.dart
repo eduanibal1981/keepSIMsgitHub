@@ -11,9 +11,10 @@ import 'package:keep_sims/features/sim_lines/data/models/country_model.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
 import 'package:keep_sims/features/scheduled_topups/controller/scheduled_topup_controller.dart';
 import 'package:keep_sims/features/scheduled_topups/ui/widgets/scheduled_topup_sheet.dart';
-import 'package:keep_sims/features/scheduled_topups/model/scheduled_topup_model.dart';
 import 'package:keep_sims/core/result.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
+import 'package:keep_sims/features/household/presentation/controllers/household_controller.dart';
+
 
 class SimLineCard extends ConsumerWidget {
   final SimLine line;
@@ -21,10 +22,11 @@ class SimLineCard extends ConsumerWidget {
   final bool isShared;
   final bool isSelected;
   final bool isSelectMode;
-  final dynamic householdState;
+  final HouseholdState? householdState;
   final bool showActions;
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
+  final int? index;
 
   const SimLineCard({
     super.key,
@@ -37,6 +39,7 @@ class SimLineCard extends ConsumerWidget {
     this.showActions = true,
     this.onTap,
     this.onLongPress,
+    this.index,
   });
 
   @override
@@ -59,11 +62,18 @@ class SimLineCard extends ConsumerWidget {
         (isVerified ? 25 : 0) +
         (recentRefill ? 25 : 0);
 
+    final bool isAlternate = index != null && index! % 2 == 1;
+    final backgroundColor = isSelected
+        ? context.cardColor.withBlue(35).withGreen(10)
+        : (isAlternate 
+            ? (context.isDarkMode 
+                ? const Color(0xFF1A1000) // Elegant deep royal plum/violet for dark mode
+                : const Color.fromARGB(255, 245, 235, 248)) // Gentle, soft lavender-plum tint for light mode
+            : context.cardColor);
+
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
-      color: isSelected
-          ? context.cardColor.withBlue(35).withGreen(10)
-          : context.cardColor,
+      color: backgroundColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
         side: BorderSide(
@@ -662,7 +672,9 @@ class SimLineCard extends ConsumerWidget {
                         Text(
                           isPaused
                               ? 'Schedule is currently suspended'
-                              : '\$${schedule.amount.toStringAsFixed(2)} USD every ${schedule.frequencyDays} days',
+                              : (schedule.frequencyDays == 0
+                                  ? '\$${schedule.amount.toStringAsFixed(2)} USD every 1 hour'
+                                  : '\$${schedule.amount.toStringAsFixed(2)} USD every ${schedule.frequencyDays} days'),
                           style: AppTextStyles.caption.copyWith(
                             color: context.onSurfaceColor.withOpacity(0.6),
                           ),
@@ -672,7 +684,8 @@ class SimLineCard extends ConsumerWidget {
                   ),
                   IconButton(
                     icon: const Icon(
-                      Icons.settings,
+                      //Icons.settings,
+                      Icons.edit_rounded,
                       color: AppColors.primaryLight,
                       size: 20,
                     ),

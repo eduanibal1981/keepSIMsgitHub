@@ -14,10 +14,8 @@ import '../model/wallet_model.dart';
 import 'package:keep_sims/core/widgets/shimmer_loading.dart';
 import 'package:keep_sims/core/widgets/error_state.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
-import 'package:keep_sims/features/dashboard/presentation/controller/dashboard_controller.dart';
 import 'package:keep_sims/features/payments/controller/payments_controller.dart';
-import 'package:keep_sims/features/payments/model/payment_method_model.dart';
-import 'package:keep_sims/features/wallet/controller/wallet_controller.dart';
+import 'package:go_router/go_router.dart';
 
 class WalletScreen extends ConsumerStatefulWidget {
   const WalletScreen({super.key});
@@ -73,63 +71,118 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
   Widget _buildContent(BuildContext context, WalletState state) {
     final balance = state.wallet.balance;
     final isLowBalance = balance < 10.0;
+    final transactions = state.transactions;
 
-    return SingleChildScrollView(
+    return CustomScrollView(
       physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 10),
+      slivers: [
+        SliverPadding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          sliver: SliverList(
+            delegate: SliverChildListDelegate([
+              const SizedBox(height: 10),
 
-          // ── Glassmorphic Neon Credit Card ───────────────────────
-          _buildNeonCreditCard(balance, state.wallet.currency),
+              // ── Glassmorphic Neon Credit Card ───────────────────────
+              _buildNeonCreditCard(balance, state.wallet.currency),
 
-          const SizedBox(height: 24),
+              const SizedBox(height: 24),
 
-          // ── Balance Threshold Warnings ────────────────────────
-          if (isLowBalance) _buildLowBalanceWarning(),
+              // ── Balance Threshold Warnings ────────────────────────
+              if (isLowBalance) _buildLowBalanceWarning(),
 
-          // ── Action Row Buttons ────────────────────────────────
-          _buildQuickActionButtons(context),
+              // ── Action Row Buttons ────────────────────────────────
+              _buildQuickActionButtons(context),
 
-          const SizedBox(height: 28),
+              const SizedBox(height: 28),
 
-          // ── Spending Analytics (Custom curves) ─────────────────
-          Text(
-            'Spend Analysis',
-            style: AppTextStyles.titleLarge.copyWith(
-              color: AppColors.textPrimaryDark,
-            ),
-          ),
-          const SizedBox(height: 12),
-          _buildSpendAnalyticsChart(),
-
-          const SizedBox(height: 28),
-
-          // ── Ledger Transaction History Feed ────────────────────
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
+              // ── Spending Analytics (Custom curves) ─────────────────
               Text(
-                'Transaction History',
+                'Spend Analysis',
                 style: AppTextStyles.titleLarge.copyWith(
                   color: AppColors.textPrimaryDark,
                 ),
               ),
-              Text(
-                '${state.transactions.length} items',
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: AppColors.textTertiaryDark,
+              const SizedBox(height: 12),
+              _buildSpendAnalyticsChart(transactions),
+
+              const SizedBox(height: 28),
+
+              // ── Ledger Transaction History Feed Header ─────────────
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Transaction History',
+                    style: AppTextStyles.titleLarge.copyWith(
+                      color: AppColors.textPrimaryDark,
+                    ),
+                  ),
+                  Text(
+                    '${transactions.length} items',
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: AppColors.textTertiaryDark,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+            ]),
+          ),
+        ),
+
+        // ── Transaction List (Sliverized and Recycled) ───────────────
+        if (transactions.isEmpty)
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            sliver: SliverToBoxAdapter(
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
+                decoration: BoxDecoration(
+                  color: AppColors.darkSurface,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.darkBorder),
+                ),
+                child: Column(
+                  children: [
+                    const Icon(
+                      Icons.history_toggle_off_rounded,
+                      color: AppColors.textTertiaryDark,
+                      size: 40,
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'No transactions recorded yet.',
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: AppColors.textSecondaryDark,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ],
+            ),
+          )
+        else
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  final tx = transactions[index];
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 10.0),
+                    child: _buildTransactionItem(tx),
+                  );
+                },
+                childCount: transactions.length,
+              ),
+            ),
           ),
-          const SizedBox(height: 12),
-          _buildTransactionList(state.transactions),
-          const SizedBox(height: 40),
-        ],
-      ),
+
+        const SliverToBoxAdapter(
+          child: SizedBox(height: 40),
+        ),
+      ],
     );
   }
 
@@ -184,31 +237,36 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
 
             // Card content layout
             Padding(
-              padding: const EdgeInsets.all(24.0),
+              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'SIM SHIELD PREPAID',
-                            style: AppTextStyles.labelSmall.copyWith(
-                              color: Colors.white.withValues(alpha: 0.7),
-                              letterSpacing: 1.5,
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'SIM SHIELD PREPAID',
+                              style: AppTextStyles.labelSmall.copyWith(
+                                color: Colors.white.withValues(alpha: 0.7),
+                                letterSpacing: 1.5,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                          ),
-                          const SizedBox(height: 4),
-                          const Icon(
-                            Icons.contactless_rounded,
-                            color: Colors.white,
-                            size: 24,
-                          ),
-                        ],
+                            const SizedBox(height: 4),
+                            const Icon(
+                              Icons.contactless_rounded,
+                              color: Colors.white,
+                              size: 24,
+                            ),
+                          ],
+                        ),
                       ),
+                      const SizedBox(width: 12),
                       // Card Provider Logo Mockup
                       Container(
                         padding: const EdgeInsets.symmetric(
@@ -239,32 +297,40 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.baseline,
-                    textBaseline: TextBaseline.alphabetic,
-                    children: [
-                      Text(
-                        '\$${balance.toStringAsFixed(2)}',
-                        style: AppTextStyles.walletBalance.copyWith(
-                          color: Colors.white,
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: [
+                        Text(
+                          '\$${balance.toStringAsFixed(2)}',
+                          style: AppTextStyles.walletBalance.copyWith(
+                            color: Colors.white,
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        currency,
-                        style: AppTextStyles.labelLarge.copyWith(
-                          color: Colors.white.withValues(alpha: 0.8),
+                        const SizedBox(width: 6),
+                        Text(
+                          currency,
+                          style: AppTextStyles.labelLarge.copyWith(
+                            color: Colors.white.withValues(alpha: 0.8),
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 8),
                   // Mock card numbers
-                  Text(
-                    '••••  ••••  ••••  4242',
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: Colors.white.withValues(alpha: 0.6),
-                      letterSpacing: 2,
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      '••••  ••••  ••••  4242',
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: Colors.white.withValues(alpha: 0.6),
+                        letterSpacing: 2,
+                      ),
                     ),
                   ),
                 ],
@@ -323,23 +389,27 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
 
   Widget _buildQuickActionButtons(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        _buildActionButton(
-          icon: Icons.add_circle_rounded,
-          label: 'Deposit Funds',
-          color: AppColors.primaryLight,
-          onTap: () => _showDepositModalSheet(context),
+        Expanded(
+          child: _buildActionButton(
+            icon: Icons.add_circle_rounded,
+            label: 'Deposit Funds',
+            color: AppColors.primaryLight,
+            onTap: () => _showDepositModalSheet(context),
+          ),
         ),
-        _buildActionButton(
-          icon: Icons.history_edu_rounded,
-          label: 'Export Ledger',
-          color: AppColors.secondaryLight,
-          onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Ledger history exported as CSV.')),
-            );
-          },
+        const SizedBox(width: 16),
+        Expanded(
+          child: _buildActionButton(
+            icon: Icons.history_edu_rounded,
+            label: 'Export Ledger',
+            color: AppColors.secondaryLight,
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Ledger history exported as CSV.')),
+              );
+            },
+          ),
         ),
       ],
     );
@@ -358,7 +428,6 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
       },
       borderRadius: BorderRadius.circular(16),
       child: Container(
-        width: 150,
         padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
           color: AppColors.darkSurface,
@@ -382,7 +451,61 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
     );
   }
 
-  Widget _buildSpendAnalyticsChart() {
+  Widget _buildSpendAnalyticsChart(List<WalletTransaction> transactions) {
+    // 1. Determine the last 6 months for chart display
+    final now = DateTime.now();
+    final List<DateTime> last6Months = List.generate(6, (index) {
+      return DateTime(now.year, now.month - 5 + index, 1);
+    });
+
+    // 2. Initialize monthly spending
+    final Map<int, double> monthlySpend = {};
+    for (int i = 0; i < 6; i++) {
+      monthlySpend[i] = 0.0;
+    }
+
+    // 3. Aggregate topup_debit transactions
+    for (final tx in transactions) {
+      if (tx.type == 'topup_debit' && tx.createdAt != null) {
+        final txDate = tx.createdAt!;
+        // Find which of the 6 months it belongs to
+        for (int i = 0; i < 6; i++) {
+          final monthDate = last6Months[i];
+          if (txDate.year == monthDate.year && txDate.month == monthDate.month) {
+            monthlySpend[i] = (monthlySpend[i] ?? 0.0) + tx.amount;
+            break;
+          }
+        }
+      }
+    }
+
+    // 4. Calculate Average Spend / Month for the last 12 months (last year) only
+    final twelveMonthsAgo = DateTime(now.year, now.month - 11, 1);
+    double totalSpendLast12Months = 0.0;
+    for (final tx in transactions) {
+      if (tx.type == 'topup_debit' && tx.createdAt != null) {
+        if (tx.createdAt!.isAfter(twelveMonthsAgo) || tx.createdAt!.isAtSameMomentAs(twelveMonthsAgo)) {
+          totalSpendLast12Months += tx.amount;
+        }
+      }
+    }
+    final double avgSpend = totalSpendLast12Months / 12;
+
+    // 5. Generate Labels (e.g. 'Jan', 'Feb')
+    final List<String> monthLabels = last6Months.map((d) {
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      return monthNames[d.month - 1];
+    }).toList();
+
+    // 6. Normalize data points for the painter (0.0 to 1.0)
+    double maxSpend = monthlySpend.values.fold(0.0, (max, val) => val > max ? val : max);
+    if (maxSpend == 0.0) maxSpend = 1.0; // avoid division by zero
+    
+    final List<double> normalizedPoints = [];
+    for (int i = 0; i < 6; i++) {
+      normalizedPoints.add(monthlySpend[i]! / maxSpend);
+    }
+
     return Container(
       width: double.infinity,
       height: 180,
@@ -398,14 +521,19 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Prepaid Monthly Outflow',
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: AppColors.textSecondaryDark,
+              Expanded(
+                child: Text(
+                  'Prepaid Monthly Outflow',
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: AppColors.textSecondaryDark,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
+              const SizedBox(width: 8),
               Text(
-                'Avg: \$14.40/mo',
+                'Avg: \$${avgSpend.toStringAsFixed(2)}/mo (12M)',
                 style: AppTextStyles.labelMedium.copyWith(
                   color: AppColors.secondary,
                 ),
@@ -417,21 +545,14 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
           Expanded(
             child: SizedBox(
               width: double.infinity,
-              child: CustomPaint(painter: AnalyticsChartPainter()),
+              child: CustomPaint(painter: AnalyticsChartPainter(normalizedPoints: normalizedPoints)),
             ),
           ),
           const SizedBox(height: 8),
           // Months labels
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _buildChartLabel('Dec'),
-              _buildChartLabel('Jan'),
-              _buildChartLabel('Feb'),
-              _buildChartLabel('Mar'),
-              _buildChartLabel('Apr'),
-              _buildChartLabel('May'),
-            ],
+            children: monthLabels.map((label) => _buildChartLabel(label)).toList(),
           ),
         ],
       ),
@@ -445,46 +566,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
     );
   }
 
-  Widget _buildTransactionList(List<WalletTransaction> transactions) {
-    if (transactions.isEmpty) {
-      return Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
-        decoration: BoxDecoration(
-          color: AppColors.darkSurface,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.darkBorder),
-        ),
-        child: Column(
-          children: [
-            const Icon(
-              Icons.history_toggle_off_rounded,
-              color: AppColors.textTertiaryDark,
-              size: 40,
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'No transactions recorded yet.',
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textSecondaryDark,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
 
-    return ListView.separated(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: transactions.length,
-      separatorBuilder: (context, index) => const SizedBox(height: 10),
-      itemBuilder: (context, index) {
-        final tx = transactions[index];
-        return _buildTransactionItem(tx);
-      },
-    );
-  }
 
   Widget _buildTransactionItem(WalletTransaction tx) {
     final isDeposit = tx.type == 'deposit' || tx.type == 'auto_fund';
@@ -582,6 +664,10 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
 
 /// Custom Bezier Curve Painter for Spend Analysis Charts.
 class AnalyticsChartPainter extends CustomPainter {
+  final List<double> normalizedPoints;
+
+  const AnalyticsChartPainter({required this.normalizedPoints});
+
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -607,57 +693,35 @@ class AnalyticsChartPainter extends CustomPainter {
       ).createShader(Rect.fromLTRB(0, 0, size.width, size.height))
       ..style = PaintingStyle.fill;
 
-    // Define curve keypoints representing typical SIM topup renewals
-    final p0 = Offset(0, size.height * 0.7);
-    final p1 = Offset(size.width * 0.2, size.height * 0.85);
-    final p2 = Offset(size.width * 0.4, size.height * 0.3);
-    final p3 = Offset(size.width * 0.6, size.height * 0.55);
-    final p4 = Offset(size.width * 0.8, size.height * 0.15);
-    final p5 = Offset(size.width, size.height * 0.45);
+    // Generate dynamic chart keypoints based on actual SIM topup renewals
+    final numPoints = normalizedPoints.isEmpty ? 6 : normalizedPoints.length;
+    final points = List.generate(numPoints, (i) {
+      final x = size.width * (i / (numPoints - 1));
+      final normalizedValue = (normalizedPoints.length > i) ? normalizedPoints[i] : 0.0;
+      // Map 0.0 -> height * 0.85, 1.0 -> height * 0.15
+      final y = size.height * (0.85 - 0.7 * normalizedValue);
+      return Offset(x, y);
+    });
 
-    // Compute curved paths
-    final path = Path()
-      ..moveTo(p0.dx, p0.dy)
-      ..cubicTo(
-        size.width * 0.1,
-        size.height * 0.8,
-        size.width * 0.1,
-        size.height * 0.85,
-        p1.dx,
-        p1.dy,
-      )
-      ..cubicTo(
-        size.width * 0.3,
-        size.height * 0.85,
-        size.width * 0.3,
-        size.height * 0.3,
-        p2.dx,
-        p2.dy,
-      )
-      ..cubicTo(
-        size.width * 0.5,
-        size.height * 0.3,
-        size.width * 0.5,
-        size.height * 0.55,
-        p3.dx,
-        p3.dy,
-      )
-      ..cubicTo(
-        size.width * 0.7,
-        size.height * 0.55,
-        size.width * 0.7,
-        size.height * 0.15,
-        p4.dx,
-        p4.dy,
-      )
-      ..cubicTo(
-        size.width * 0.9,
-        size.height * 0.15,
-        size.width * 0.9,
-        size.height * 0.45,
-        p5.dx,
-        p5.dy,
-      );
+    if (points.isEmpty) return;
+
+    final path = Path()..moveTo(points[0].dx, points[0].dy);
+
+    if (points.length == 1) {
+      path.lineTo(size.width, points[0].dy);
+    } else {
+      for (int i = 0; i < points.length - 1; i++) {
+        final pStart = points[i];
+        final pEnd = points[i + 1];
+        // Control points at 1/3 and 2/3 distance
+        final controlX1 = pStart.dx + (pEnd.dx - pStart.dx) / 3.0;
+        final controlY1 = pStart.dy;
+        final controlX2 = pStart.dx + 2.0 * (pEnd.dx - pStart.dx) / 3.0;
+        final controlY2 = pEnd.dy;
+
+        path.cubicTo(controlX1, controlY1, controlX2, controlY2, pEnd.dx, pEnd.dy);
+      }
+    }
 
     final fillPath = Path.from(path)
       ..lineTo(size.width, size.height)
@@ -669,7 +733,7 @@ class AnalyticsChartPainter extends CustomPainter {
     canvas.drawPath(path, glowPaint);
     canvas.drawPath(path, paint);
 
-    // Draw glowing node dots at key vertices
+    // Draw glowing node dots at all vertices dynamically
     final dotPaint = Paint()
       ..color = AppColors.secondary
       ..style = PaintingStyle.fill;
@@ -678,15 +742,21 @@ class AnalyticsChartPainter extends CustomPainter {
       ..color = AppColors.secondary.withValues(alpha: 0.4)
       ..style = PaintingStyle.fill;
 
-    canvas.drawCircle(p2, 8, dotGlow);
-    canvas.drawCircle(p2, 4, dotPaint);
-
-    canvas.drawCircle(p4, 8, dotGlow);
-    canvas.drawCircle(p4, 4, dotPaint);
+    for (int i = 0; i < points.length; i++) {
+      final p = points[i];
+      canvas.drawCircle(p, 8, dotGlow);
+      canvas.drawCircle(p, 4, dotPaint);
+    }
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant AnalyticsChartPainter oldDelegate) {
+    if (oldDelegate.normalizedPoints.length != normalizedPoints.length) return true;
+    for (int i = 0; i < normalizedPoints.length; i++) {
+      if (oldDelegate.normalizedPoints[i] != normalizedPoints[i]) return true;
+    }
+    return false;
+  }
 }
 
 class DepositModalSheet extends ConsumerStatefulWidget {
@@ -798,12 +868,31 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
             if (methods.isEmpty) {
               return Container(
                 padding: const EdgeInsets.all(24),
-                height: 200,
-                child: Center(
-                  child: Text(
-                    'No saved payment methods found.',
-                    style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondaryDark),
-                  ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'No saved payment methods found.',
+                      style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondaryDark),
+                    ),
+                    const SizedBox(height: 24),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        context.pushNamed('settingsPayments');
+                      },
+                      icon: const Icon(Icons.add_card, size: 20),
+                      label: const Text('Add Payment Method'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        minimumSize: const Size(double.infinity, 48),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               );
             }
@@ -849,6 +938,26 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
                           },
                         );
                       },
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: TextButton.icon(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        context.pushNamed('settingsPayments');
+                      },
+                      icon: const Icon(Icons.add),
+                      label: const Text('Add another payment method'),
+                      style: TextButton.styleFrom(
+                        foregroundColor: AppColors.secondary,
+                        minimumSize: const Size(double.infinity, 48),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: const BorderSide(color: AppColors.darkBorder),
+                        ),
+                      ),
                     ),
                   ),
                 ],

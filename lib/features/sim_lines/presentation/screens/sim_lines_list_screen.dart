@@ -521,7 +521,7 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
     List<SimLine> lines,
     List<Country> countries,
     String? currentUserId,
-    dynamic householdState, {
+    HouseholdState? householdState, {
     required bool isShared,
   }) {
     return ListView.builder(
@@ -544,6 +544,7 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
 
         return SimLineCard(
           line: line,
+          index: isShared ? index : index - 1,
           country: country,
           isShared: isShared,
           isSelected: isSelected,
