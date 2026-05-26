@@ -7,9 +7,9 @@ import 'package:flutter/material.dart';
 
 abstract final class AppColors {
   // ── Brand Colors ──────────────────────────────────────────
-  static const Color primary = Color(0xFF6C63FF); // Vivid indigo
-  static const Color primaryLight = Color(0xFF9D97FF);
-  static const Color primaryDark = Color(0xFF4A42DB);
+  static const Color primary = Color(0xFF0052CC); // Vibrant brand blue (logo and main button)
+  static const Color primaryLight = Color(0xFF3385FF); // Bright mid-blue
+  static const Color primaryDark = Color(0xFF003D99); // Darker shield edge blue
 
   static const Color secondary = Color(0xFF00D9A6); // Teal/mint accent
   static const Color secondaryLight = Color(0xFF5EFFD4);
@@ -58,7 +58,7 @@ abstract final class AppColors {
 
   // ── Gradients ─────────────────────────────────────────────
   static const LinearGradient primaryGradient = LinearGradient(
-    colors: [primary, Color(0xFF8B5CF6)],
+    colors: [primary, Color(0xFF1976D2)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
@@ -70,7 +70,7 @@ abstract final class AppColors {
   );
 
   static const LinearGradient heroGradient = LinearGradient(
-    colors: [Color(0xFF6C63FF), Color(0xFF8B5CF6), Color(0xFFEC4899)],
+    colors: [Color(0xFF0052CC), Color(0xFF1976D2), Color(0xFF00BFA5)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
