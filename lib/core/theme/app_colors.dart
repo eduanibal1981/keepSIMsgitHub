@@ -34,20 +34,27 @@ abstract final class AppColors {
   static const Color darkCardHover = Color(0xFF2A2A4A);
   static const Color darkBorder = Color(0xFF2D2D4D);
 
-  // ── Light Theme Surfaces ──────────────────────────────────
-  static const Color lightBg = Color.fromARGB(255, 151, 193, 230);
-  static const Color lightSurface = Color(0xFFFFFFFF);
-  static const Color lightCard = Color(0xFFFFFFFF);
-  static const Color lightBorder = Color(0xFFE2E8F0);
+  // ── Light Theme Brand & Surface Colors (Inspired by startinwhite.png) ────
+  static const Color lightPrimary = Color(0xFF0052CC); // Vibrant Blue (Main shield/icons)
+  static const Color lightPrimaryMid = Color(0xFF1976D2); // Lighter Mid-Blue Gradient
+  static const Color lightPrimaryDark = Color(0xFF003D99); // Darker Shield Edge Blue
+  static const Color lightSecondary = Color(0xFF00BFA5); // Map Pin Teal/Cyan-Blue
+  static const Color lightSuccess = Color(0xFF00D13B); // Bright Green
+  static const Color lightWarning = Color(0xFFFFC700); // Golden Yellow
+
+  static const Color lightBg = Color(0xFFFFFFFF); // Pure White (Background and highlights)
+  static const Color lightSurface = Color(0xFFFFFFFF); // Pure White
+  static const Color lightCard = Color(0xFFFFFFFF); // Pure White
+  static const Color lightBorder = Color(0xFFB0C4DE); // Subtle Network Gray-Blue
 
   // ── Text Colors ───────────────────────────────────────────
   static const Color textPrimaryDark = Color(0xFFEEEEEE);
   static const Color textSecondaryDark = Color(0xFF9CA3AF);
   static const Color textTertiaryDark = Color(0xFF6B7280);
 
-  static const Color textPrimaryLight = Color(0xFF1A1A2E);
-  static const Color textSecondaryLight = Color(0xFF64748B);
-  static const Color textTertiaryLight = Color(0xFF94A3B8);
+  static const Color textPrimaryLight = Color(0xFF001540); // Deep Navy/Slate for dark text
+  static const Color textSecondaryLight = Color(0xFF4A5568); // Slate gray
+  static const Color textTertiaryLight = Color(0xFF718096); // Subtle gray
 
   // ── Gradients ─────────────────────────────────────────────
   static const LinearGradient primaryGradient = LinearGradient(

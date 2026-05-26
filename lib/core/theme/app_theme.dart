@@ -162,9 +162,10 @@ abstract final class AppTheme {
     brightness: Brightness.light,
     useMaterial3: true,
 
+    // Colors
     colorScheme: const ColorScheme.light(
-      primary: AppColors.primary,
-      secondary: AppColors.secondary,
+      primary: AppColors.lightPrimary,
+      secondary: AppColors.lightSecondary,
       surface: AppColors.lightSurface,
       error: AppColors.error,
       onPrimary: Colors.white,
@@ -172,8 +173,9 @@ abstract final class AppTheme {
       onSurface: AppColors.textPrimaryLight,
       onError: Colors.white,
     ),
-    scaffoldBackgroundColor: AppColors.lightBg, 
+    scaffoldBackgroundColor: AppColors.lightBg,
 
+    // AppBar
     appBarTheme: AppBarTheme(
       backgroundColor: AppColors.lightBg,
       foregroundColor: AppColors.textPrimaryLight,
@@ -181,10 +183,12 @@ abstract final class AppTheme {
       centerTitle: false,
       titleTextStyle: AppTextStyles.headlineSmall.copyWith(
         color: AppColors.textPrimaryLight,
+        fontWeight: FontWeight.bold,
       ),
       systemOverlayStyle: SystemUiOverlayStyle.dark,
     ),
 
+    // Cards
     cardTheme: CardThemeData(
       color: AppColors.lightCard,
       elevation: 0,
@@ -195,9 +199,10 @@ abstract final class AppTheme {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
     ),
 
+    // Buttons
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: AppColors.primary,
+        backgroundColor: AppColors.lightPrimary,
         foregroundColor: Colors.white,
         elevation: 0,
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
@@ -206,9 +211,27 @@ abstract final class AppTheme {
       ),
     ),
 
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        foregroundColor: AppColors.lightPrimary,
+        side: const BorderSide(color: AppColors.lightPrimary),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        textStyle: AppTextStyles.titleMedium,
+      ),
+    ),
+
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(
+        foregroundColor: AppColors.lightPrimary,
+        textStyle: AppTextStyles.titleMedium,
+      ),
+    ),
+
+    // Input Fields
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: AppColors.lightBg,
+      fillColor: const Color(0xFFF5F7FB), // Soft gray-blue matching subtle network lines
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
@@ -220,23 +243,45 @@ abstract final class AppTheme {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: AppColors.primary, width: 2),
+        borderSide: const BorderSide(color: AppColors.lightPrimary, width: 2),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: AppColors.error),
+      ),
+      hintStyle: AppTextStyles.bodyMedium.copyWith(
+        color: AppColors.textTertiaryLight,
+      ),
+      labelStyle: AppTextStyles.labelLarge.copyWith(
+        color: AppColors.textSecondaryLight,
       ),
     ),
 
+    // Bottom Navigation Bar
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       backgroundColor: AppColors.lightSurface,
-      selectedItemColor: AppColors.primary,
+      selectedItemColor: AppColors.lightPrimary,
       unselectedItemColor: AppColors.textTertiaryLight,
       type: BottomNavigationBarType.fixed,
       elevation: 0,
     ),
 
+    // Divider
     dividerTheme: const DividerThemeData(
       color: AppColors.lightBorder,
       thickness: 1,
     ),
 
+    // Chips
+    chipTheme: ChipThemeData(
+      backgroundColor: const Color(0xFFF5F7FB),
+      selectedColor: AppColors.lightPrimary.withValues(alpha: 0.15),
+      labelStyle: AppTextStyles.labelMedium.copyWith(color: AppColors.textPrimaryLight),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      side: const BorderSide(color: AppColors.lightBorder),
+    ),
+
+    // Bottom Sheet
     bottomSheetTheme: const BottomSheetThemeData(
       backgroundColor: AppColors.lightSurface,
       shape: RoundedRectangleBorder(
@@ -244,6 +289,7 @@ abstract final class AppTheme {
       ),
     ),
 
+    // Dialog Theme
     dialogTheme: DialogThemeData(
       backgroundColor: AppColors.lightSurface,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
