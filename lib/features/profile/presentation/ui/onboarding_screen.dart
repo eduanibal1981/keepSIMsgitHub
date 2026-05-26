@@ -242,10 +242,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       onTap: _nextPage,
       behavior: HitTestBehavior.opaque,
       child: Container(
-        color: const Color(0xFF000E2F), // Seamless deep navy color bleed
+        color: Colors.white, // Seamless white background
         alignment: Alignment.center,
         child: Image.asset(
-          'assets/images/start.png',
+          'assets/images/startinwhite.png',
           fit: BoxFit.contain,
           errorBuilder: (context, error, stackTrace) {
             return SingleChildScrollView(
