@@ -241,7 +241,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     return GestureDetector(
       onTap: _nextPage,
       behavior: HitTestBehavior.opaque,
-      child: SizedBox.expand(
+      child: Container(
+        color: const Color(0xFF000E2F), // Seamless deep navy color bleed
+        alignment: Alignment.center,
         child: Image.asset(
           'assets/images/start.png',
           fit: BoxFit.contain,
