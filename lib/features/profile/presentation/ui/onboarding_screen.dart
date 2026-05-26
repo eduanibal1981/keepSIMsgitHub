@@ -151,7 +151,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         child: Column(
           children: [
             // ── Header / Step Progress Indicator ───────────────────────
-            _buildHeader(),
+            if (_currentPage > 0) _buildHeader(),
 
             // ── Main Page Carousel ────────────────────────────────────
             Expanded(
@@ -173,7 +173,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             ),
 
             // ── Footer Navigation Buttons ──────────────────────────────
-            _buildFooter(profileState.isLoading),
+            if (_currentPage > 0) _buildFooter(profileState.isLoading),
           ],
         ),
       ),
@@ -238,129 +238,59 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   // ── Step 1: Welcome Screen ──────────────────────────────────────
   Widget _buildStepWelcome() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        children: [
-          const SizedBox(height: 24),
-          // Beautiful shield illustration with circular neon pulse effect
-          Container(
-            width: 140,
-            height: 140,
-            decoration: BoxDecoration(
-              gradient: RadialGradient(
-                colors: [
-                  AppColors.primary.withValues(alpha: 0.25),
-                  Colors.transparent,
+    return GestureDetector(
+      onTap: _nextPage,
+      behavior: HitTestBehavior.opaque,
+      child: SizedBox.expand(
+        child: Image.asset(
+          'assets/images/start.png',
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                children: [
+                  const SizedBox(height: 80),
+                  const Icon(
+                    Icons.shield_rounded,
+                    color: AppColors.primary,
+                    size: 80,
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    'Welcome to KeepSIMs',
+                    style: AppTextStyles.headlineLarge.copyWith(
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Keep your international SIM cards protected from carrier deactivation due to inactivity automatically.',
+                    textAlign: TextAlign.center,
+                    style: AppTextStyles.bodyLarge.copyWith(
+                      color: AppColors.textSecondaryDark,
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+                  ElevatedButton(
+                    onPressed: _nextPage,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 32,
+                        vertical: 16,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text('Start'),
+                  ),
                 ],
               ),
-            ),
-            child: Center(
-              child: Container(
-                width: 90,
-                height: 90,
-                decoration: BoxDecoration(
-                  gradient: AppColors.primaryGradient,
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.primary.withValues(alpha: 0.35),
-                      blurRadius: 28,
-                      offset: const Offset(0, 10),
-                    ),
-                  ],
-                ),
-                child: const Icon(
-                  Icons.shield_rounded,
-                  color: Colors.white,
-                  size: 48,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 36),
-          Text(
-            'Keep Your SIM Connected',
-            textAlign: TextAlign.center,
-            style: AppTextStyles.headlineLarge.copyWith(
-              color: AppColors.textPrimaryDark,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Keep your international SIM cards protected from carrier deactivation due to inactivity automatically with micro scheduled top-ups.',
-            textAlign: TextAlign.center,
-            style: AppTextStyles.bodyLarge.copyWith(
-              color: AppColors.textSecondaryDark,
-              height: 1.5,
-            ),
-          ),
-          const SizedBox(height: 40),
-          _buildBulletItem(
-            Icons.lock_clock_rounded,
-            'Validity Auto-Renewal',
-            'Smart, automated micro-charges to satisfy telecom activity rules.',
-          ),
-          const SizedBox(height: 20),
-          _buildBulletItem(
-            Icons.account_balance_wallet_rounded,
-            'Low Balance Forecast',
-            'Proactive projections showing when your wallet needs topping up.',
-          ),
-          const SizedBox(height: 20),
-          _buildBulletItem(
-            Icons.map_rounded,
-            'Geofenced Travel Freeze',
-            'Optionally pause scheduled payments automatically when you are home.',
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBulletItem(IconData icon, String title, String subtitle) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.darkCard,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.darkBorder),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(icon, color: AppColors.primary, size: 20),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: AppTextStyles.titleMedium.copyWith(
-                    color: AppColors.textPrimaryDark,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: AppColors.textSecondaryDark,
-                    height: 1.4,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -986,7 +916,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                         ),
                       )
                     : Text(
-                        _currentPage == 3 ? 'Start Protecting' : 'Continue',
+                        _currentPage == 0
+                            ? 'Start'
+                            : (_currentPage == 3 ? 'Start Protecting' : 'Continue'),
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
               ),
