@@ -6,6 +6,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:video_player/video_player.dart';
 import 'package:keep_sims/core/router/app_router.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
@@ -20,84 +21,77 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-  late final Animation<double> _fadeIn;
+class _SplashScreenState extends State<SplashScreen> {
+  late VideoPlayerController _videoController;
+  bool _isInitialized = false;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1500),
-    );
-    _fadeIn = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
-    _controller.forward();
+    _videoController = VideoPlayerController.asset('assets/splashfastcp.mp4')
+      ..initialize().then((_) {
+        if (mounted) {
+          setState(() {
+            _isInitialized = true;
+          });
+          _videoController.play();
+        }
+      });
 
-    // Navigate after splash animation
-    Future.delayed(const Duration(seconds: 2), () {
+    _videoController.addListener(() {
       if (mounted) {
-        // TODO: Replace with auth check — go to login or home
-        context.go(AppRoutes.login);
+        final val = _videoController.value;
+        // Automatically transition to the next page when the video ends
+        if (val.position >= val.duration) {
+          _navigateToNext();
+        }
       }
     });
   }
 
+  void _navigateToNext() {
+    if (mounted) {
+      context.go(AppRoutes.login);
+    }
+  }
+
   @override
   void dispose() {
-    _controller.dispose();
+    _videoController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.darkBg,
-      body: Center(
-        child: FadeTransition(
-          opacity: _fadeIn,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Shield icon
-              Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  gradient: AppColors.primaryGradient,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.primary.withValues(alpha: 0.4),
-                      blurRadius: 24,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
-                ),
-                child: const Icon(
-                  Icons.shield_rounded,
-                  color: Colors.white,
-                  size: 44,
+      backgroundColor: Colors.white, // Pure white background to match logo and onboarding style
+      body: Stack(
+        children: [
+          // 1. Full-screen Video Player (renders when initialized)
+          if (_isInitialized)
+            Positioned.fill(
+              child: FittedBox(
+                fit: BoxFit.cover,
+                child: SizedBox(
+                  width: _videoController.value.size.width,
+                  height: _videoController.value.size.height,
+                  child: VideoPlayer(_videoController),
                 ),
               ),
-              const SizedBox(height: 20),
-              Text(
-                'SIM Shield',
-                style: AppTextStyles.displayLarge.copyWith(
-                  color: AppColors.textPrimaryDark,
-                ),
+            ),
+
+          // 2. Static presplash first-frame image (crossfades out once initialized)
+          AnimatedOpacity(
+            opacity: _isInitialized ? 0.0 : 1.0,
+            duration: const Duration(milliseconds: 300),
+            child: SizedBox.expand(
+              child: Image.asset(
+                'assets/images/presplash.png',
+                fit: BoxFit.cover,
               ),
-              const SizedBox(height: 8),
-              Text(
-                'Protect your SIM, wherever you are.',
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: AppColors.textSecondaryDark,
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
