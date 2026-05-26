@@ -41,8 +41,10 @@ class _SplashScreenState extends State<SplashScreen> {
     _videoController.addListener(() {
       if (mounted) {
         final val = _videoController.value;
-        // Automatically transition to the next page when the video ends
-        if (val.position >= val.duration) {
+        // Ensure the video is initialized, has a valid duration, and has completed playing
+        if (val.isInitialized &&
+            val.duration > Duration.zero &&
+            val.position >= val.duration) {
           _navigateToNext();
         }
       }
