@@ -29,25 +29,45 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _videoController = VideoPlayerController.asset('assets/splashfastcp.mp4')
-      ..initialize().then((_) {
-        if (mounted) {
-          setState(() {
-            _isInitialized = true;
-          });
-          _videoController.play();
-        }
-      });
+    _videoController = VideoPlayerController.asset('assets/splashfastcp.mp4');
+    
+    // Mute video to bypass modern browser autoplay blocking rules (critical for Web)
+    _videoController.setVolume(0.0);
+    
+    _videoController.initialize().then((_) {
+      if (mounted) {
+        setState(() {
+          _isInitialized = true;
+        });
+        _videoController.play();
+      }
+    }).catchError((error) {
+      debugPrint("Splash video initialization failed: $error");
+      _navigateToNext(); // Navigate immediately if load/init fails
+    });
 
     _videoController.addListener(() {
       if (mounted) {
         final val = _videoController.value;
+        // Fallback immediately if an error occurs during playback
+        if (val.hasError) {
+          debugPrint("Splash video playback error: ${val.errorDescription}");
+          _navigateToNext();
+          return;
+        }
         // Ensure the video is initialized, has a valid duration, and has completed playing
         if (val.isInitialized &&
             val.duration > Duration.zero &&
             val.position >= val.duration) {
           _navigateToNext();
         }
+      }
+    });
+
+    // Safety fallback timer: guarantee navigation after 3.5 seconds under all circumstances
+    Future.delayed(const Duration(milliseconds: 3500), () {
+      if (mounted) {
+        _navigateToNext();
       }
     });
   }
