@@ -6,6 +6,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:video_player/video_player.dart';
 import 'package:keep_sims/core/router/app_router.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
@@ -14,14 +15,14 @@ import 'package:keep_sims/core/utils/build_context_extension.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
 
 // ── Splash Screen ─────────────────────────────────────────────
-class SplashScreen extends StatefulWidget {
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends ConsumerState<SplashScreen> {
   late VideoPlayerController _videoController;
   bool _isInitialized = false;
 
@@ -53,7 +54,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   void _navigateToNext() {
     if (mounted) {
-      context.go(AppRoutes.login);
+      ref.read(splashCompletedProvider.notifier).complete();
     }
   }
 

@@ -204,17 +204,22 @@ class _AnimatedLogoState extends State<_AnimatedLogo>
         width: 100,
         height: 100,
         decoration: BoxDecoration(
-          gradient: AppColors.primaryGradient,
           borderRadius: BorderRadius.circular(28),
           boxShadow: [
             BoxShadow(
-              color: AppColors.primary.withValues(alpha: 0.4),
+              color: AppColors.primary.withValues(alpha: 0.15),
               blurRadius: 32,
               offset: const Offset(0, 12),
             ),
           ],
         ),
-        child: const Icon(Icons.shield_rounded, color: Colors.white, size: 52),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(28),
+          child: Image.asset(
+            'assets/images/Logo.png',
+            fit: BoxFit.contain,
+          ),
+        ),
       ),
     );
   }

@@ -45,11 +45,22 @@ abstract final class AppRoutes {
   static const String preferences = '/settings/preferences';
 }
 
+@riverpod
+class SplashCompleted extends _$SplashCompleted {
+  @override
+  bool build() => false;
+
+  void complete() => state = true;
+  
+  void reset() => state = false;
+}
+
 /// Provides the app's GoRouter instance with auth-based redirects.
 @riverpod
 GoRouter appRouter(Ref ref) {
-  // Watch auth state to trigger redirect re-evaluation
+  // Watch auth state and splash completed state to trigger redirect re-evaluation
   final authState = ref.watch(authControllerProvider);
+  final isSplashCompleted = ref.watch(splashCompletedProvider);
 
   return GoRouter(
     initialLocation: AppRoutes.splash,
@@ -57,15 +68,16 @@ GoRouter appRouter(Ref ref) {
 
     // ── Auth Redirect Logic ──────────────────────────────────
     redirect: (context, state) {
+      final currentPath = state.uri.path;
+
+      // 1. Force the splash screen to play fully first
+      if (!isSplashCompleted) {
+        return currentPath == AppRoutes.splash ? null : AppRoutes.splash;
+      }
+
       final isLoading = authState.isLoading;
       final profile = authState.valueOrNull;
       final isLoggedIn = profile != null;
-      final currentPath = state.uri.path;
-
-      // While loading, stay on splash
-      if (isLoading) {
-        return currentPath == AppRoutes.splash ? null : AppRoutes.splash;
-      }
 
       // Not logged in → go to login (unless already there)
       if (!isLoggedIn) {
