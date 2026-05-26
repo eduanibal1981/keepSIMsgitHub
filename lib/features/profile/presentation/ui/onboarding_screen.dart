@@ -151,7 +151,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         child: Column(
           children: [
             // ── Header / Step Progress Indicator ───────────────────────
-            if (_currentPage > 0) _buildHeader(),
+            _buildHeader(),
 
             // ── Main Page Carousel ────────────────────────────────────
             Expanded(
@@ -173,7 +173,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             ),
 
             // ── Footer Navigation Buttons ──────────────────────────────
-            if (_currentPage > 0) _buildFooter(profileState.isLoading),
+            _buildFooter(profileState.isLoading),
           ],
         ),
       ),
@@ -244,7 +244,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       child: SizedBox.expand(
         child: Image.asset(
           'assets/images/start.png',
-          fit: BoxFit.cover,
+          fit: BoxFit.contain,
           errorBuilder: (context, error, stackTrace) {
             return SingleChildScrollView(
               padding: const EdgeInsets.all(24),
