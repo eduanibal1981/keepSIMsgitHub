@@ -87,7 +87,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // Pure white background to match logo and onboarding style
+      backgroundColor: const Color(0xFF0A295A), // Matches the exact background color of presplash.png and splashfastcp.mp4
       body: Stack(
         children: [
           // 1. Full-screen Video Player (renders when initialized)
