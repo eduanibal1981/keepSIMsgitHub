@@ -94,7 +94,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
           if (_isInitialized)
             Positioned.fill(
               child: FittedBox(
-                fit: BoxFit.cover,
+                fit: BoxFit.contain,
                 child: SizedBox(
                   width: _videoController.value.size.width,
                   height: _videoController.value.size.height,
@@ -110,7 +110,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
             child: SizedBox.expand(
               child: Image.asset(
                 'assets/images/presplash.png',
-                fit: BoxFit.cover,
+                fit: BoxFit.contain,
               ),
             ),
           ),
