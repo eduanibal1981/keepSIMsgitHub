@@ -10,6 +10,7 @@ import 'package:keep_sims/core/widgets/shimmer_loading.dart';
 import 'package:keep_sims/core/widgets/empty_state.dart';
 import 'package:keep_sims/core/widgets/error_state.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
+import 'package:keep_sims/whatsapp_service.dart';
 
 class NotificationsScreen extends ConsumerStatefulWidget {
   const NotificationsScreen({super.key});
@@ -27,6 +28,9 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
   // Simulator State variables
   String _selectedCategory = 'top_up_success';
   String? _selectedSimLineId;
+  int _selectedDelayMinutes = 0;
+  bool _sendLocalWhatsApp = false;
+  late final TextEditingController _whatsappPhoneController;
 
   final Map<String, String> _simulatorCategories = {
     'top_up_success': 'Top-up Successful',
@@ -42,6 +46,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
   @override
   void initState() {
     super.initState();
+    _whatsappPhoneController = TextEditingController(text: '96891234567');
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(() {
       if (_tabController.indexIsChanging) {
@@ -52,6 +57,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
 
   @override
   void dispose() {
+    _whatsappPhoneController.dispose();
     _tabController.dispose();
     super.dispose();
   }
@@ -351,6 +357,10 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
                       await HapticHelper.lightTick();
                       setState(() {
                         _selectedSimLineId = val;
+                        if (val != null) {
+                          final match = lines.firstWhere((l) => l.id == val);
+                          _whatsappPhoneController.text = match.phoneNumber;
+                        }
                       });
                     },
                   ),
@@ -359,6 +369,144 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
             },
             orElse: () => const SizedBox.shrink(),
           ),
+
+          // Delivery delay selector
+          const SizedBox(height: 12),
+          Text(
+            'Delivery Timing',
+            style: AppTextStyles.bodySmall.copyWith(
+              color: AppColors.textSecondaryDark,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              color: AppColors.darkCard,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: AppColors.darkBorder),
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<int>(
+                value: _selectedDelayMinutes,
+                isExpanded: true,
+                dropdownColor: AppColors.darkBg,
+                icon: const Icon(
+                  Icons.schedule_rounded,
+                  color: AppColors.primaryLight,
+                  size: 20,
+                ),
+                items: const [
+                  DropdownMenuItem<int>(
+                    value: 0,
+                    child: Text('Instant Delivery (1-2 seconds)'),
+                  ),
+                  DropdownMenuItem<int>(
+                    value: 1,
+                    child: Text('Delayed: 1 Minute (Quick background test)'),
+                  ),
+                  DropdownMenuItem<int>(
+                    value: 10,
+                    child: Text('Delayed: 10 Minutes (Lock screen test)'),
+                  ),
+                ],
+                onChanged: (val) async {
+                  if (val != null) {
+                    await HapticHelper.lightTick();
+                    setState(() {
+                      _selectedDelayMinutes = val;
+                    });
+                  }
+                },
+              ),
+            ),
+          ),
+
+          // Local WhatsApp Server test toggle
+          const SizedBox(height: 12),
+          Container(
+            decoration: BoxDecoration(
+              color: AppColors.darkCard,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: _sendLocalWhatsApp 
+                    ? AppColors.primary.withValues(alpha: 0.3) 
+                    : AppColors.darkBorder,
+              ),
+            ),
+            child: Theme(
+              data: ThemeData(
+                unselectedWidgetColor: AppColors.textTertiaryDark,
+              ),
+              child: CheckboxListTile(
+                title: Text(
+                  'Trigger Local WhatsApp Server Alert',
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: AppColors.textPrimaryDark,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                subtitle: Text(
+                  'Sends alert via your local server.js to WhatsApp',
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.textSecondaryDark,
+                  ),
+                ),
+                value: _sendLocalWhatsApp,
+                activeColor: AppColors.primary,
+                checkColor: Colors.white,
+                onChanged: (val) async {
+                  await HapticHelper.lightTick();
+                  setState(() {
+                    _sendLocalWhatsApp = val ?? false;
+                  });
+                },
+              ),
+            ),
+          ),
+
+          if (_sendLocalWhatsApp) ...[
+            const SizedBox(height: 12),
+            Text(
+              'WhatsApp Recipient Phone Number',
+              style: AppTextStyles.bodySmall.copyWith(
+                color: AppColors.textSecondaryDark,
+              ),
+            ),
+            const SizedBox(height: 6),
+            TextField(
+              controller: _whatsappPhoneController,
+              keyboardType: TextInputType.phone,
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.textPrimaryDark,
+              ),
+              decoration: InputDecoration(
+                hintText: 'e.g. 96891234567',
+                hintStyle: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.textTertiaryDark,
+                ),
+                filled: true,
+                fillColor: AppColors.darkCard,
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(color: AppColors.darkBorder),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(color: AppColors.primary),
+                ),
+                prefixIcon: const Icon(
+                  Icons.phone_iphone_rounded,
+                  color: AppColors.textSecondaryDark,
+                  size: 20,
+                ),
+              ),
+            ),
+          ],
 
           const SizedBox(height: 16),
 
@@ -442,13 +590,40 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
           title: title,
           body: body,
           simLineId: _selectedSimLineId,
+          delayMinutes: _selectedDelayMinutes,
         );
+
+    if (_sendLocalWhatsApp) {
+      final phone = _whatsappPhoneController.text.trim();
+      if (phone.isNotEmpty) {
+        WhatsAppService.sendMessage(
+          phone: phone,
+          message: '$title: $body',
+        ).then((sent) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(sent 
+                  ? 'WhatsApp mock alert sent successfully!' 
+                  : 'Failed to send WhatsApp mock alert (check server.js!)'),
+                backgroundColor: sent ? AppColors.success : AppColors.healthRed,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
+        });
+      }
+    }
 
     HapticHelper.successFeedback();
 
+    final message = _selectedDelayMinutes > 0
+        ? 'Scheduled mock alert "$title" to deliver in $_selectedDelayMinutes min!'
+        : 'Simulated alert "$title" injected successfully!';
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Simulated alert "$title" injected successfully!'),
+        content: Text(message),
         backgroundColor: AppColors.success,
         behavior: SnackBarBehavior.floating,
       ),

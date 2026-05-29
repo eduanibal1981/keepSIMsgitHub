@@ -1,0 +1,276 @@
+/* KeepSIMs Pricing Table — keepsims-pricing.css
+   Requires: @tabler/icons-webfont (loaded via CDN in HTML, or npm install @tabler/icons-webfont)
+   Usage: link this file in your HTML alongside keepsims-pricing.html
+*/
+
+/* ─── Reset ─────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #1a1a2e;
+  background: #f5f6fa;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Page wrapper ───────────────────────────────────────────── */
+.wrap {
+  max-width: 760px;
+  margin: 2.5rem auto;
+  padding: 0 1rem;
+}
+
+/* ─── Plan cards (top row) ───────────────────────────────────── */
+.plans {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 0.5px solid #d8dce8;
+  margin-bottom: 1.5rem;
+  background: #fff;
+}
+
+.plan {
+  padding: 1.5rem 1.25rem;
+  border-right: 0.5px solid #d8dce8;
+  background: #fff;
+}
+
+.plan:last-child {
+  border-right: none;
+}
+
+/* Featured / Premium card */
+.plan.featured {
+  border: 2px solid #185fa5;
+  border-radius: 10px;
+  position: relative;
+  background: #fff;
+}
+
+/* "Most popular" badge */
+.badge {
+  display: inline-block;
+  background: #e6f1fb;
+  color: #0c447c;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 20px;
+  margin-bottom: 8px;
+  letter-spacing: 0.4px;
+}
+
+.plan-name {
+  font-size: 15px;
+  font-weight: 500;
+  color: #1a1a2e;
+  margin-bottom: 4px;
+}
+
+.price-line {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.price-amount {
+  font-size: 28px;
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+.price-unit {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.price-note {
+  font-size: 12px;
+  color: #9ca3af;
+  margin-bottom: 1.25rem;
+}
+
+/* CTA buttons */
+.cta {
+  display: block;
+  width: 100%;
+  padding: 9px 0;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  text-align: center;
+  cursor: pointer;
+  border: 0.5px solid #d1d5db;
+  background: transparent;
+  color: #1a1a2e;
+  transition: background 0.15s, color 0.15s;
+}
+
+.cta:hover {
+  background: #f3f4f6;
+}
+
+.cta.primary {
+  background: #185fa5;
+  color: #fff;
+  border-color: #185fa5;
+}
+
+.cta.primary:hover {
+  background: #134e8a;
+}
+
+/* ─── Feature comparison table ───────────────────────────────── */
+.table-wrap {
+  border: 0.5px solid #d8dce8;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+}
+
+/* Column header row */
+.tbl-header {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  background: #f9fafb;
+  border-bottom: 0.5px solid #d8dce8;
+}
+
+.th {
+  padding: 11px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.th.hi {
+  color: #185fa5;
+  font-weight: 600;
+}
+
+/* Section group label */
+.grp-label {
+  grid-column: 1 / -1;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: #9ca3af;
+  padding: 10px 14px 5px;
+  background: #f3f4f6;
+  border-top: 0.5px solid #d8dce8;
+}
+
+/* Feature rows */
+.row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  border-top: 0.5px solid #eaecf0;
+}
+
+.row:first-of-type {
+  border-top: none;
+}
+
+.row.last {
+  border-radius: 0 0 12px 12px;
+  overflow: hidden;
+}
+
+/* Cells */
+.cell {
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #374151;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #fff;
+}
+
+/* Feature label cell */
+.cell.feat {
+  color: #4b5563;
+  font-size: 13px;
+  background: #fafafa;
+}
+
+/* Premium column highlight */
+.cell.hi {
+  background: #f0f7ff;
+}
+
+/* Icons */
+.icon-sm {
+  font-size: 15px;
+  color: #6b7280;
+}
+
+/* Check mark */
+.tick {
+  font-size: 17px;
+  color: #185fa5;
+}
+
+/* Cross / minus */
+.cross {
+  font-size: 17px;
+  color: #d1d5db;
+}
+
+/* Partial feature pills */
+.pill {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: #e6f1fb;
+  color: #0c447c;
+}
+
+.pill.premium {
+  background: #dceeff;
+  color: #0a3d8a;
+}
+
+/* ─── Responsive: stack on small screens ─────────────────────── */
+@media (max-width: 560px) {
+  .plans {
+    grid-template-columns: 1fr;
+  }
+
+  .plan {
+    border-right: none;
+    border-bottom: 0.5px solid #d8dce8;
+  }
+
+  .plan:last-child {
+    border-bottom: none;
+  }
+
+  .tbl-header,
+  .row {
+    grid-template-columns: 2fr 0.8fr 0.8fr 0.8fr;
+  }
+
+  .cell,
+  .th {
+    padding: 9px 8px;
+    font-size: 12px;
+  }
+
+  .cell.feat {
+    font-size: 12px;
+  }
+}

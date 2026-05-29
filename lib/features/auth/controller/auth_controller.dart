@@ -13,6 +13,8 @@ import '../contract/auth_contract.dart';
 import '../model/auth_model.dart';
 import 'package:keep_sims/core/providers.dart';
 
+import 'package:onesignal_flutter/onesignal_flutter.dart';
+
 part 'auth_controller.g.dart';
 
 /// Provides the current auth state as an [AsyncValue<UserProfile?>].
@@ -38,11 +40,16 @@ class AuthController extends _$AuthController {
 
     // Check if already authenticated
     if (!repo.isAuthenticated) {
+      OneSignal.logout();
       return null;
     }
 
     // Fetch current profile
-    return _fetchProfile(repo);
+    final profile = await _fetchProfile(repo);
+    if (profile != null) {
+      OneSignal.login(profile.id);
+    }
+    return profile;
   }
 
   /// Fetch the current user's profile from the repository.
@@ -81,6 +88,7 @@ class AuthController extends _$AuthController {
 
     switch (result) {
       case Success(data: final _):
+        OneSignal.logout();
         state = const AsyncValue.data(null);
       case Failure(error: final f):
         state = AsyncValue.error(f.message, StackTrace.current);

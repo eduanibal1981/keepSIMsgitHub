@@ -202,23 +202,87 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
   }
 
   @override
+  Future<List<Map<String, dynamic>>> getNotificationChannels() async {
+    try {
+      final userId = _currentUserId;
+      final response = await _supabase
+          .from('notification_channels')
+          .select()
+          .eq('user_id', userId);
+
+      // If empty, seed default channels (push, email, telegram, whatsapp, webhook)
+      if ((response as List).isEmpty) {
+        final defaultChannels = [
+          {'user_id': userId, 'channel_type': 'push', 'is_enabled': true, 'config': {}},
+          {'user_id': userId, 'channel_type': 'email', 'is_enabled': false, 'config': {}},
+          {'user_id': userId, 'channel_type': 'telegram', 'is_enabled': false, 'config': {}},
+          {'user_id': userId, 'channel_type': 'whatsapp', 'is_enabled': false, 'config': {}},
+          {'user_id': userId, 'channel_type': 'webhook', 'is_enabled': false, 'config': {}},
+        ];
+        
+        final inserted = await _supabase
+            .from('notification_channels')
+            .insert(defaultChannels)
+            .select();
+        return List<Map<String, dynamic>>.from(inserted as List);
+      }
+
+      return List<Map<String, dynamic>>.from(response);
+    } on PostgrestException catch (e) {
+      throw Exception('Failed to load notification channels: ${e.message}');
+    }
+  }
+
+  @override
+  Future<void> updateNotificationChannel({
+    required String channelType,
+    required bool isEnabled,
+    required Map<String, dynamic> config,
+  }) async {
+    try {
+      final userId = _currentUserId;
+      
+      // Upsert the channel configuration
+      await _supabase.from('notification_channels').upsert({
+        'user_id': userId,
+        'channel_type': channelType,
+        'is_enabled': isEnabled,
+        'config': config,
+      }, onConflict: 'user_id, channel_type');
+    } on PostgrestException catch (e) {
+      throw Exception('Failed to update notification channel: ${e.message}');
+    }
+  }
+
+  @override
   Future<void> simulateNotification(
     String category,
     String title,
     String body, {
     String? simLineId,
+    int delayMinutes = 0,
   }) async {
     try {
-      await _supabase.from('notifications').insert({
-        'user_id': _currentUserId,
-        'category': category,
-        'title': title,
-        'body': body,
-        'is_read': false,
-        'action_url': simLineId != null ? '/sim_lines/$simLineId' : null,
-        'sim_line_id': simLineId,
-        'delivered_via': ['push'],
-      });
+      if (delayMinutes > 0) {
+        await _supabase.rpc('schedule_delayed_notification', params: {
+          'p_user_id': _currentUserId,
+          'p_category': category,
+          'p_title': title,
+          'p_body': body,
+          'p_delay_minutes': delayMinutes,
+        });
+      } else {
+        await _supabase.from('notifications').insert({
+          'user_id': _currentUserId,
+          'category': category,
+          'title': title,
+          'body': body,
+          'is_read': false,
+          'action_url': simLineId != null ? '/sim_lines/$simLineId' : null,
+          'sim_line_id': simLineId,
+          'delivered_via': ['push'],
+        });
+      }
     } on PostgrestException catch (e) {
       throw Exception('Failed to simulate notification: ${e.message}');
     }

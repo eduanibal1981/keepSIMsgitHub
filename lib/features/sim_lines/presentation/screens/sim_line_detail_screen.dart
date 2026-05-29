@@ -20,6 +20,7 @@ import 'package:keep_sims/features/sim_lines/presentation/widgets/manual_refill_
 import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import 'package:keep_sims/core/router/app_router.dart';
 import 'package:keep_sims/features/household/presentation/controllers/household_controller.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SimLineDetailScreen extends ConsumerStatefulWidget {
   final String id;
@@ -128,6 +129,10 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
 
                 // 2. Health & Optimization Ring Panel
                 _buildHealthScoreSection(context, detailState),
+                const SizedBox(height: 20),
+
+                // Peer-to-Peer Free WhatsApp Recharge Request
+                _buildP2PRechargeRequestCard(context, detailState.simLine),
                 const SizedBox(height: 20),
 
                 // 3. Auto-Refill Configuration Panel
@@ -1664,6 +1669,120 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
             child: const Text(
               'Delete',
               style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildP2PRechargeRequestCard(BuildContext context, SimLine line) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [
+            Color(0xFF6366F1), // Indigo
+            Color(0xFF8B5CF6), // Purple
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: Colors.white.withOpacity(0.1)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF8B5CF6).withOpacity(0.2),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.12),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.ios_share_rounded,
+                  color: Colors.white,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Recharge from a Friend',
+                  style: AppTextStyles.titleLarge.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Running low or need help extending validity? Share a secure payment link directly on WhatsApp and ask a friend or family member to recharge this card for you.',
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: Colors.white.withOpacity(0.9),
+              height: 1.3,
+            ),
+          ),
+          const SizedBox(height: 20),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () async {
+                await HapticHelper.lightTick();
+                final phone = line.phoneNumber;
+                final templateText = 'Hi! My KeepSIMs card ($phone) is expiring soon. Could you please recharge it for me here? https://keep-sims.com/recharge?phone=$phone';
+                final waUrl = 'https://wa.me/?text=${Uri.encodeComponent(templateText)}';
+                final uri = Uri.parse(waUrl);
+                try {
+                  final launched = await launchUrl(
+                    uri,
+                    mode: LaunchMode.externalNonBrowserApplication,
+                  );
+                  if (!launched) {
+                    await launchUrl(uri, mode: LaunchMode.platformDefault);
+                  }
+                } catch (_) {
+                  try {
+                    await launchUrl(uri, mode: LaunchMode.platformDefault);
+                  } catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Could not launch WhatsApp link: $e'),
+                          backgroundColor: AppColors.error,
+                        ),
+                      );
+                    }
+                  }
+                }
+              },
+              icon: const Icon(Icons.chat_rounded, color: Color(0xFF6366F1), size: 18),
+              label: const Text(
+                'Request via WhatsApp',
+                style: TextStyle(
+                  color: Color(0xFF6366F1),
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
             ),
           ),
         ],

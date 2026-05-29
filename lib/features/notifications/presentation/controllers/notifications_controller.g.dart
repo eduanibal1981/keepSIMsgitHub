@@ -27,7 +27,7 @@ final unreadNotificationsCountProvider = AutoDisposeProvider<int>.internal(
 // ignore: unused_element
 typedef UnreadNotificationsCountRef = AutoDisposeProviderRef<int>;
 String _$notificationsControllerHash() =>
-    r'c1e96b026609b4b4f2f53b5da2b701f2f32c3abd';
+    r'02328d361d3a978e8ceab52c1efe84a63d267a6a';
 
 /// See also [NotificationsController].
 @ProviderFor(NotificationsController)

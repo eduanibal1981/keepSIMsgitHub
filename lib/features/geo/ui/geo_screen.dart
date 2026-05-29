@@ -7,6 +7,7 @@ import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import '../controller/geo_controller.dart';
 import '../model/geo_state.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
+import 'package:keep_sims/features/profile/presentation/widgets/subscription_upsell_sheet.dart';
 
 class GeoScreen extends ConsumerStatefulWidget {
   const GeoScreen({super.key});
@@ -550,6 +551,22 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
             inactiveThumbColor: AppColors.textSecondaryDark,
             inactiveTrackColor: AppColors.darkBorder,
             onChanged: (val) async {
+              final user = ref.read(authControllerProvider).valueOrNull;
+              final tier = user?.subscriptionTier ?? 'standard';
+              if (tier == 'basic') {
+                SubscriptionUpsellSheet.show(
+                  context: context,
+                  title: 'Starter Feature Locked 🔒',
+                  description: 'Automated Global Travel & Home modes are available starting from the Starter Plan. Upgrade now to freeze renewals when you are home!',
+                  requiredPlan: 'Starter Plan',
+                  highlights: [
+                    'Smart Travel / Home modes active',
+                    'Protect up to 5 SIM cards simultaneously',
+                    'All notifications (WhatsApp, Telegram, Email)',
+                  ],
+                );
+                return;
+              }
               await HapticHelper.mediumImpact();
               ref.read(geoControllerProvider.notifier).toggleTravelMode(val);
             },
@@ -682,6 +699,22 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
           ),
         ),
         onPressed: () async {
+          final user = ref.read(authControllerProvider).valueOrNull;
+          final tier = user?.subscriptionTier ?? 'standard';
+          if (tier == 'basic') {
+            SubscriptionUpsellSheet.show(
+              context: context,
+              title: 'Starter Feature Locked 🔒',
+              description: 'The Border Crossing Simulator allows testing automated freeze/resume scripts. This feature requires at least the Starter Plan!',
+              requiredPlan: 'Starter Plan',
+              highlights: [
+                'Test and simulate geofencing scenarios',
+                'Smart Travel / Home modes active',
+                'WhatsApp & Telegram notification channels',
+              ],
+            );
+            return;
+          }
           await HapticHelper.mediumImpact();
           ref
               .read(geoControllerProvider.notifier)

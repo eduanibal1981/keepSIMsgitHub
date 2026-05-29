@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$UserProfile {
 
- String get id; String get email; String? get fullName; String? get avatarUrl; String? get phone; String? get homeCountryCode; String get preferredCurrency; bool get isPowerUser; String? get referralCode; String? get referredBy; bool get onboardingCompleted; DateTime? get createdAt; DateTime? get updatedAt;
+ String get id; String get email; String? get fullName; String? get avatarUrl; String? get phone; String? get homeCountryCode; String get preferredCurrency; bool get isPowerUser; String? get referralCode; String? get referredBy; bool get onboardingCompleted; String get subscriptionTier; DateTime? get createdAt; DateTime? get updatedAt;
 /// Create a copy of UserProfile
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $UserProfileCopyWith<UserProfile> get copyWith => _$UserProfileCopyWithImpl<User
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserProfile&&(identical(other.id, id) || other.id == id)&&(identical(other.email, email) || other.email == email)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.homeCountryCode, homeCountryCode) || other.homeCountryCode == homeCountryCode)&&(identical(other.preferredCurrency, preferredCurrency) || other.preferredCurrency == preferredCurrency)&&(identical(other.isPowerUser, isPowerUser) || other.isPowerUser == isPowerUser)&&(identical(other.referralCode, referralCode) || other.referralCode == referralCode)&&(identical(other.referredBy, referredBy) || other.referredBy == referredBy)&&(identical(other.onboardingCompleted, onboardingCompleted) || other.onboardingCompleted == onboardingCompleted)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserProfile&&(identical(other.id, id) || other.id == id)&&(identical(other.email, email) || other.email == email)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.homeCountryCode, homeCountryCode) || other.homeCountryCode == homeCountryCode)&&(identical(other.preferredCurrency, preferredCurrency) || other.preferredCurrency == preferredCurrency)&&(identical(other.isPowerUser, isPowerUser) || other.isPowerUser == isPowerUser)&&(identical(other.referralCode, referralCode) || other.referralCode == referralCode)&&(identical(other.referredBy, referredBy) || other.referredBy == referredBy)&&(identical(other.onboardingCompleted, onboardingCompleted) || other.onboardingCompleted == onboardingCompleted)&&(identical(other.subscriptionTier, subscriptionTier) || other.subscriptionTier == subscriptionTier)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,email,fullName,avatarUrl,phone,homeCountryCode,preferredCurrency,isPowerUser,referralCode,referredBy,onboardingCompleted,createdAt,updatedAt);
+int get hashCode => Object.hash(runtimeType,id,email,fullName,avatarUrl,phone,homeCountryCode,preferredCurrency,isPowerUser,referralCode,referredBy,onboardingCompleted,subscriptionTier,createdAt,updatedAt);
 
 @override
 String toString() {
-  return 'UserProfile(id: $id, email: $email, fullName: $fullName, avatarUrl: $avatarUrl, phone: $phone, homeCountryCode: $homeCountryCode, preferredCurrency: $preferredCurrency, isPowerUser: $isPowerUser, referralCode: $referralCode, referredBy: $referredBy, onboardingCompleted: $onboardingCompleted, createdAt: $createdAt, updatedAt: $updatedAt)';
+  return 'UserProfile(id: $id, email: $email, fullName: $fullName, avatarUrl: $avatarUrl, phone: $phone, homeCountryCode: $homeCountryCode, preferredCurrency: $preferredCurrency, isPowerUser: $isPowerUser, referralCode: $referralCode, referredBy: $referredBy, onboardingCompleted: $onboardingCompleted, subscriptionTier: $subscriptionTier, createdAt: $createdAt, updatedAt: $updatedAt)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $UserProfileCopyWith<$Res>  {
   factory $UserProfileCopyWith(UserProfile value, $Res Function(UserProfile) _then) = _$UserProfileCopyWithImpl;
 @useResult
 $Res call({
- String id, String email, String? fullName, String? avatarUrl, String? phone, String? homeCountryCode, String preferredCurrency, bool isPowerUser, String? referralCode, String? referredBy, bool onboardingCompleted, DateTime? createdAt, DateTime? updatedAt
+ String id, String email, String? fullName, String? avatarUrl, String? phone, String? homeCountryCode, String preferredCurrency, bool isPowerUser, String? referralCode, String? referredBy, bool onboardingCompleted, String subscriptionTier, DateTime? createdAt, DateTime? updatedAt
 });
 
 
@@ -65,7 +65,7 @@ class _$UserProfileCopyWithImpl<$Res>
 
 /// Create a copy of UserProfile
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? email = null,Object? fullName = freezed,Object? avatarUrl = freezed,Object? phone = freezed,Object? homeCountryCode = freezed,Object? preferredCurrency = null,Object? isPowerUser = null,Object? referralCode = freezed,Object? referredBy = freezed,Object? onboardingCompleted = null,Object? createdAt = freezed,Object? updatedAt = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? email = null,Object? fullName = freezed,Object? avatarUrl = freezed,Object? phone = freezed,Object? homeCountryCode = freezed,Object? preferredCurrency = null,Object? isPowerUser = null,Object? referralCode = freezed,Object? referredBy = freezed,Object? onboardingCompleted = null,Object? subscriptionTier = null,Object? createdAt = freezed,Object? updatedAt = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
@@ -78,7 +78,8 @@ as String,isPowerUser: null == isPowerUser ? _self.isPowerUser : isPowerUser // 
 as bool,referralCode: freezed == referralCode ? _self.referralCode : referralCode // ignore: cast_nullable_to_non_nullable
 as String?,referredBy: freezed == referredBy ? _self.referredBy : referredBy // ignore: cast_nullable_to_non_nullable
 as String?,onboardingCompleted: null == onboardingCompleted ? _self.onboardingCompleted : onboardingCompleted // ignore: cast_nullable_to_non_nullable
-as bool,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as bool,subscriptionTier: null == subscriptionTier ? _self.subscriptionTier : subscriptionTier // ignore: cast_nullable_to_non_nullable
+as String,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,updatedAt: freezed == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,
   ));
@@ -165,10 +166,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String email,  String? fullName,  String? avatarUrl,  String? phone,  String? homeCountryCode,  String preferredCurrency,  bool isPowerUser,  String? referralCode,  String? referredBy,  bool onboardingCompleted,  DateTime? createdAt,  DateTime? updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String email,  String? fullName,  String? avatarUrl,  String? phone,  String? homeCountryCode,  String preferredCurrency,  bool isPowerUser,  String? referralCode,  String? referredBy,  bool onboardingCompleted,  String subscriptionTier,  DateTime? createdAt,  DateTime? updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _UserProfile() when $default != null:
-return $default(_that.id,_that.email,_that.fullName,_that.avatarUrl,_that.phone,_that.homeCountryCode,_that.preferredCurrency,_that.isPowerUser,_that.referralCode,_that.referredBy,_that.onboardingCompleted,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.id,_that.email,_that.fullName,_that.avatarUrl,_that.phone,_that.homeCountryCode,_that.preferredCurrency,_that.isPowerUser,_that.referralCode,_that.referredBy,_that.onboardingCompleted,_that.subscriptionTier,_that.createdAt,_that.updatedAt);case _:
   return orElse();
 
 }
@@ -186,10 +187,10 @@ return $default(_that.id,_that.email,_that.fullName,_that.avatarUrl,_that.phone,
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String email,  String? fullName,  String? avatarUrl,  String? phone,  String? homeCountryCode,  String preferredCurrency,  bool isPowerUser,  String? referralCode,  String? referredBy,  bool onboardingCompleted,  DateTime? createdAt,  DateTime? updatedAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String email,  String? fullName,  String? avatarUrl,  String? phone,  String? homeCountryCode,  String preferredCurrency,  bool isPowerUser,  String? referralCode,  String? referredBy,  bool onboardingCompleted,  String subscriptionTier,  DateTime? createdAt,  DateTime? updatedAt)  $default,) {final _that = this;
 switch (_that) {
 case _UserProfile():
-return $default(_that.id,_that.email,_that.fullName,_that.avatarUrl,_that.phone,_that.homeCountryCode,_that.preferredCurrency,_that.isPowerUser,_that.referralCode,_that.referredBy,_that.onboardingCompleted,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.id,_that.email,_that.fullName,_that.avatarUrl,_that.phone,_that.homeCountryCode,_that.preferredCurrency,_that.isPowerUser,_that.referralCode,_that.referredBy,_that.onboardingCompleted,_that.subscriptionTier,_that.createdAt,_that.updatedAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -206,10 +207,10 @@ return $default(_that.id,_that.email,_that.fullName,_that.avatarUrl,_that.phone,
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String email,  String? fullName,  String? avatarUrl,  String? phone,  String? homeCountryCode,  String preferredCurrency,  bool isPowerUser,  String? referralCode,  String? referredBy,  bool onboardingCompleted,  DateTime? createdAt,  DateTime? updatedAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String email,  String? fullName,  String? avatarUrl,  String? phone,  String? homeCountryCode,  String preferredCurrency,  bool isPowerUser,  String? referralCode,  String? referredBy,  bool onboardingCompleted,  String subscriptionTier,  DateTime? createdAt,  DateTime? updatedAt)?  $default,) {final _that = this;
 switch (_that) {
 case _UserProfile() when $default != null:
-return $default(_that.id,_that.email,_that.fullName,_that.avatarUrl,_that.phone,_that.homeCountryCode,_that.preferredCurrency,_that.isPowerUser,_that.referralCode,_that.referredBy,_that.onboardingCompleted,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.id,_that.email,_that.fullName,_that.avatarUrl,_that.phone,_that.homeCountryCode,_that.preferredCurrency,_that.isPowerUser,_that.referralCode,_that.referredBy,_that.onboardingCompleted,_that.subscriptionTier,_that.createdAt,_that.updatedAt);case _:
   return null;
 
 }
@@ -221,7 +222,7 @@ return $default(_that.id,_that.email,_that.fullName,_that.avatarUrl,_that.phone,
 
 @JsonSerializable(fieldRename: FieldRename.snake)
 class _UserProfile implements UserProfile {
-  const _UserProfile({this.id = '', this.email = '', this.fullName, this.avatarUrl, this.phone, this.homeCountryCode, this.preferredCurrency = 'USD', this.isPowerUser = false, this.referralCode, this.referredBy, this.onboardingCompleted = false, this.createdAt, this.updatedAt});
+  const _UserProfile({this.id = '', this.email = '', this.fullName, this.avatarUrl, this.phone, this.homeCountryCode, this.preferredCurrency = 'USD', this.isPowerUser = false, this.referralCode, this.referredBy, this.onboardingCompleted = false, this.subscriptionTier = 'standard', this.createdAt, this.updatedAt});
   factory _UserProfile.fromJson(Map<String, dynamic> json) => _$UserProfileFromJson(json);
 
 @override@JsonKey() final  String id;
@@ -235,6 +236,7 @@ class _UserProfile implements UserProfile {
 @override final  String? referralCode;
 @override final  String? referredBy;
 @override@JsonKey() final  bool onboardingCompleted;
+@override@JsonKey() final  String subscriptionTier;
 @override final  DateTime? createdAt;
 @override final  DateTime? updatedAt;
 
@@ -251,16 +253,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserProfile&&(identical(other.id, id) || other.id == id)&&(identical(other.email, email) || other.email == email)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.homeCountryCode, homeCountryCode) || other.homeCountryCode == homeCountryCode)&&(identical(other.preferredCurrency, preferredCurrency) || other.preferredCurrency == preferredCurrency)&&(identical(other.isPowerUser, isPowerUser) || other.isPowerUser == isPowerUser)&&(identical(other.referralCode, referralCode) || other.referralCode == referralCode)&&(identical(other.referredBy, referredBy) || other.referredBy == referredBy)&&(identical(other.onboardingCompleted, onboardingCompleted) || other.onboardingCompleted == onboardingCompleted)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserProfile&&(identical(other.id, id) || other.id == id)&&(identical(other.email, email) || other.email == email)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.homeCountryCode, homeCountryCode) || other.homeCountryCode == homeCountryCode)&&(identical(other.preferredCurrency, preferredCurrency) || other.preferredCurrency == preferredCurrency)&&(identical(other.isPowerUser, isPowerUser) || other.isPowerUser == isPowerUser)&&(identical(other.referralCode, referralCode) || other.referralCode == referralCode)&&(identical(other.referredBy, referredBy) || other.referredBy == referredBy)&&(identical(other.onboardingCompleted, onboardingCompleted) || other.onboardingCompleted == onboardingCompleted)&&(identical(other.subscriptionTier, subscriptionTier) || other.subscriptionTier == subscriptionTier)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,email,fullName,avatarUrl,phone,homeCountryCode,preferredCurrency,isPowerUser,referralCode,referredBy,onboardingCompleted,createdAt,updatedAt);
+int get hashCode => Object.hash(runtimeType,id,email,fullName,avatarUrl,phone,homeCountryCode,preferredCurrency,isPowerUser,referralCode,referredBy,onboardingCompleted,subscriptionTier,createdAt,updatedAt);
 
 @override
 String toString() {
-  return 'UserProfile(id: $id, email: $email, fullName: $fullName, avatarUrl: $avatarUrl, phone: $phone, homeCountryCode: $homeCountryCode, preferredCurrency: $preferredCurrency, isPowerUser: $isPowerUser, referralCode: $referralCode, referredBy: $referredBy, onboardingCompleted: $onboardingCompleted, createdAt: $createdAt, updatedAt: $updatedAt)';
+  return 'UserProfile(id: $id, email: $email, fullName: $fullName, avatarUrl: $avatarUrl, phone: $phone, homeCountryCode: $homeCountryCode, preferredCurrency: $preferredCurrency, isPowerUser: $isPowerUser, referralCode: $referralCode, referredBy: $referredBy, onboardingCompleted: $onboardingCompleted, subscriptionTier: $subscriptionTier, createdAt: $createdAt, updatedAt: $updatedAt)';
 }
 
 
@@ -271,7 +273,7 @@ abstract mixin class _$UserProfileCopyWith<$Res> implements $UserProfileCopyWith
   factory _$UserProfileCopyWith(_UserProfile value, $Res Function(_UserProfile) _then) = __$UserProfileCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String email, String? fullName, String? avatarUrl, String? phone, String? homeCountryCode, String preferredCurrency, bool isPowerUser, String? referralCode, String? referredBy, bool onboardingCompleted, DateTime? createdAt, DateTime? updatedAt
+ String id, String email, String? fullName, String? avatarUrl, String? phone, String? homeCountryCode, String preferredCurrency, bool isPowerUser, String? referralCode, String? referredBy, bool onboardingCompleted, String subscriptionTier, DateTime? createdAt, DateTime? updatedAt
 });
 
 
@@ -288,7 +290,7 @@ class __$UserProfileCopyWithImpl<$Res>
 
 /// Create a copy of UserProfile
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? email = null,Object? fullName = freezed,Object? avatarUrl = freezed,Object? phone = freezed,Object? homeCountryCode = freezed,Object? preferredCurrency = null,Object? isPowerUser = null,Object? referralCode = freezed,Object? referredBy = freezed,Object? onboardingCompleted = null,Object? createdAt = freezed,Object? updatedAt = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? email = null,Object? fullName = freezed,Object? avatarUrl = freezed,Object? phone = freezed,Object? homeCountryCode = freezed,Object? preferredCurrency = null,Object? isPowerUser = null,Object? referralCode = freezed,Object? referredBy = freezed,Object? onboardingCompleted = null,Object? subscriptionTier = null,Object? createdAt = freezed,Object? updatedAt = freezed,}) {
   return _then(_UserProfile(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
@@ -301,7 +303,8 @@ as String,isPowerUser: null == isPowerUser ? _self.isPowerUser : isPowerUser // 
 as bool,referralCode: freezed == referralCode ? _self.referralCode : referralCode // ignore: cast_nullable_to_non_nullable
 as String?,referredBy: freezed == referredBy ? _self.referredBy : referredBy // ignore: cast_nullable_to_non_nullable
 as String?,onboardingCompleted: null == onboardingCompleted ? _self.onboardingCompleted : onboardingCompleted // ignore: cast_nullable_to_non_nullable
-as bool,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as bool,subscriptionTier: null == subscriptionTier ? _self.subscriptionTier : subscriptionTier // ignore: cast_nullable_to_non_nullable
+as String,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,updatedAt: freezed == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,
   ));

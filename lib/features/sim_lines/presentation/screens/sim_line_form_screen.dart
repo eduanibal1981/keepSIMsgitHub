@@ -191,7 +191,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                               fontFamily: 'monospace',
                             ),
                             decoration: _buildInputDecoration(
-                              hintText: '100 123 4567',
+                              hintText: 'Your SIM card phone number',
                               icon: Icons.phone_android,
                             ),
                             validator: (value) {
@@ -550,61 +550,149 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
   }
 
   void _showCountrySearchSheet(List<Country> countries) {
+    String searchQuery = '';
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       backgroundColor: AppColors.darkSurface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (context) {
-        return Container(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Supported Countries',
-                style: AppTextStyles.headlineSmall.copyWith(
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: countries.length,
-                  itemBuilder: (context, index) {
-                    final c = countries[index];
-                    return ListTile(
-                      leading: Text(
-                        c.flagEmoji,
-                        style: const TextStyle(fontSize: 24),
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            final filteredCountries = countries.where((c) {
+              final query = searchQuery.toLowerCase();
+              return c.name.toLowerCase().contains(query) ||
+                  c.dialingCode.contains(query);
+            }).toList();
+
+            return DraggableScrollableSheet(
+              initialChildSize: 0.7,
+              minChildSize: 0.5,
+              maxChildSize: 0.95,
+              expand: false,
+              builder: (context, scrollController) {
+                return Container(
+                  padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Center(
+                        child: Container(
+                          width: 40,
+                          height: 5,
+                          margin: const EdgeInsets.only(bottom: 16),
+                          decoration: BoxDecoration(
+                            color: Colors.white24,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
                       ),
-                      title: Text(
-                        c.name,
-                        style: const TextStyle(
+                      Text(
+                        'Supported Countries',
+                        style: AppTextStyles.headlineSmall.copyWith(
                           color: Colors.white,
-                          fontSize: 16,
                         ),
                       ),
-                      subtitle: Text(
-                        c.dialingCode,
-                        style: const TextStyle(
-                          color: AppColors.textSecondaryDark,
+                      const SizedBox(height: 16),
+                      TextField(
+                        style: const TextStyle(color: Colors.white),
+                        decoration: InputDecoration(
+                          hintText: 'Search country or code...',
+                          hintStyle: const TextStyle(color: AppColors.textTertiaryDark),
+                          prefixIcon: const Icon(Icons.search, color: AppColors.primaryLight),
+                          filled: true,
+                          fillColor: AppColors.darkCard,
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(color: AppColors.darkBorder),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(color: AppColors.primary),
+                          ),
+                          suffixIcon: searchQuery.isNotEmpty
+                              ? IconButton(
+                                  icon: const Icon(Icons.clear, color: AppColors.textSecondaryDark),
+                                  onPressed: () {
+                                    setModalState(() {
+                                      searchQuery = '';
+                                    });
+                                  },
+                                )
+                              : null,
                         ),
+                        onChanged: (val) {
+                          setModalState(() {
+                            searchQuery = val;
+                          });
+                        },
                       ),
-                      onTap: () {
-                        setState(() {
-                          _selectedCountry = c;
-                          _selectedCarrier = null; // Reset carrier
-                        });
-                        Navigator.pop(context);
-                      },
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
+                      const SizedBox(height: 16),
+                      Expanded(
+                        child: filteredCountries.isEmpty
+                            ? const Center(
+                                child: Text(
+                                  'No countries found',
+                                  style: TextStyle(color: AppColors.textSecondaryDark, fontSize: 16),
+                                ),
+                              )
+                            : ListView.builder(
+                                controller: scrollController,
+                                itemCount: filteredCountries.length,
+                                itemBuilder: (context, index) {
+                                  final c = filteredCountries[index];
+                                  final isSelected = _selectedCountry?.id == c.id;
+                                  return Container(
+                                    margin: const EdgeInsets.only(bottom: 4),
+                                    decoration: BoxDecoration(
+                                      color: isSelected
+                                          ? AppColors.primary.withOpacity(0.15)
+                                          : Colors.transparent,
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: ListTile(
+                                      leading: Text(
+                                        c.flagEmoji,
+                                        style: const TextStyle(fontSize: 24),
+                                      ),
+                                      title: Text(
+                                        c.name,
+                                        style: TextStyle(
+                                          color: isSelected ? AppColors.primaryLight : Colors.white,
+                                          fontSize: 16,
+                                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                        ),
+                                      ),
+                                      subtitle: Text(
+                                        c.dialingCode,
+                                        style: const TextStyle(
+                                          color: AppColors.textSecondaryDark,
+                                        ),
+                                      ),
+                                      trailing: isSelected
+                                          ? const Icon(Icons.check_circle_rounded, color: AppColors.primaryLight)
+                                          : null,
+                                      onTap: () {
+                                        setState(() {
+                                          _selectedCountry = c;
+                                          _selectedCarrier = null; // Reset carrier
+                                        });
+                                        Navigator.pop(context);
+                                      },
+                                    ),
+                                  );
+                                },
+                              ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
         );
       },
     );

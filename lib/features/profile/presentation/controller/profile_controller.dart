@@ -29,6 +29,7 @@ class ProfileController extends _$ProfileController {
     required String homeCountryCode,
     required String preferredCurrency,
     required bool isPowerUser,
+    required String subscriptionTier,
   }) async {
     state = const AsyncValue.loading();
 
@@ -47,6 +48,7 @@ class ProfileController extends _$ProfileController {
       homeCountryCode: homeCountryCode,
       preferredCurrency: preferredCurrency,
       isPowerUser: isPowerUser,
+      subscriptionTier: subscriptionTier,
       onboardingCompleted: true,
       updatedAt: DateTime.now(),
     );

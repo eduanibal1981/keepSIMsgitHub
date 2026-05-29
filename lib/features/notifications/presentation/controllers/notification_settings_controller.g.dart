@@ -47,5 +47,26 @@ final userPreferencesControllerProvider =
     );
 
 typedef _$UserPreferencesController = AutoDisposeAsyncNotifier<UserPreferences>;
+String _$notificationChannelsControllerHash() =>
+    r'ecdd6ca7b43e1df50bd1747580f9d0c9ae50a97e';
+
+/// See also [NotificationChannelsController].
+@ProviderFor(NotificationChannelsController)
+final notificationChannelsControllerProvider =
+    AutoDisposeAsyncNotifierProvider<
+      NotificationChannelsController,
+      List<Map<String, dynamic>>
+    >.internal(
+      NotificationChannelsController.new,
+      name: r'notificationChannelsControllerProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$notificationChannelsControllerHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+typedef _$NotificationChannelsController =
+    AutoDisposeAsyncNotifier<List<Map<String, dynamic>>>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

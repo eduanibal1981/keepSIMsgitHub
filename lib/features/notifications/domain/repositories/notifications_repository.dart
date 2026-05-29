@@ -15,10 +15,18 @@ abstract class NotificationsRepository {
   Future<UserPreferences> getUserPreferences();
   Future<void> updateUserPreferences(UserPreferences preferences);
 
+  Future<List<Map<String, dynamic>>> getNotificationChannels();
+  Future<void> updateNotificationChannel({
+    required String channelType,
+    required bool isEnabled,
+    required Map<String, dynamic> config,
+  });
+
   Future<void> simulateNotification(
     String category,
     String title,
     String body, {
     String? simLineId,
+    int delayMinutes = 0,
   });
 }

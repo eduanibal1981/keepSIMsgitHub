@@ -18,6 +18,7 @@ _UserProfile _$UserProfileFromJson(Map<String, dynamic> json) => _UserProfile(
   referralCode: json['referral_code'] as String?,
   referredBy: json['referred_by'] as String?,
   onboardingCompleted: json['onboarding_completed'] as bool? ?? false,
+  subscriptionTier: json['subscription_tier'] as String? ?? 'standard',
   createdAt: json['created_at'] == null
       ? null
       : DateTime.parse(json['created_at'] as String),
@@ -39,6 +40,7 @@ Map<String, dynamic> _$UserProfileToJson(_UserProfile instance) =>
       'referral_code': instance.referralCode,
       'referred_by': instance.referredBy,
       'onboarding_completed': instance.onboardingCompleted,
+      'subscription_tier': instance.subscriptionTier,
       'created_at': instance.createdAt?.toIso8601String(),
       'updated_at': instance.updatedAt?.toIso8601String(),
     };

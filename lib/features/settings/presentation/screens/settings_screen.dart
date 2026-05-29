@@ -167,6 +167,65 @@ class SettingsScreen extends ConsumerWidget {
                                 ),
                               ),
                             ],
+                            const SizedBox(height: 6),
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: _getPlanColor(user.subscriptionTier).withOpacity(0.12),
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                      color: _getPlanColor(user.subscriptionTier).withOpacity(0.4),
+                                      width: 1.0,
+                                    ),
+                                  ),
+                                  child: Text(
+                                    '🛡️ ${_getPlanName(user.subscriptionTier).toUpperCase()}',
+                                    style: AppTextStyles.bodySmall.copyWith(
+                                      color: _getPlanColor(user.subscriptionTier),
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                InkWell(
+                                  onTap: () {
+                                    context.push('/settings/subscription');
+                                  },
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.05),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          'Upgrade',
+                                          style: AppTextStyles.bodySmall.copyWith(
+                                            color: Colors.purpleAccent,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        const Icon(
+                                          Icons.keyboard_arrow_right_rounded,
+                                          color: Colors.purpleAccent,
+                                          size: 14,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ],
                         ),
                       ),
@@ -186,6 +245,16 @@ class SettingsScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 12),
+
+              _buildMenuCard(
+                context: context,
+                icon: Icons.star_border_rounded,
+                iconColor: Colors.purpleAccent,
+                title: 'Upgrade & Subscription',
+                subtitle: 'Manage active protection plans, limits, and billing',
+                routePath: '/settings/subscription',
+              ),
+              const SizedBox(height: 16),
 
               _buildMenuCard(
                 context: context,
@@ -448,5 +517,31 @@ class SettingsScreen extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  Color _getPlanColor(String tier) {
+    switch (tier.toLowerCase()) {
+      case 'basic':
+        return Colors.blueAccent;
+      case 'standard':
+        return AppColors.primary;
+      case 'premium':
+        return Colors.purpleAccent;
+      default:
+        return AppColors.primary;
+    }
+  }
+
+  String _getPlanName(String tier) {
+    switch (tier.toLowerCase()) {
+      case 'basic':
+        return 'Free';
+      case 'standard':
+        return 'Starter';
+      case 'premium':
+        return 'Premium';
+      default:
+        return 'Starter';
+    }
   }
 }

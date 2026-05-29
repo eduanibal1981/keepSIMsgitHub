@@ -23,6 +23,7 @@ import 'package:keep_sims/features/settings/presentation/screens/preferences_scr
 import 'package:keep_sims/features/household/presentation/screens/household_screen.dart';
 import 'package:keep_sims/features/referrals/ui/referrals_screen.dart';
 import 'package:keep_sims/features/payments/ui/payments_screen.dart';
+import 'package:keep_sims/features/settings/presentation/screens/subscription_screen.dart';
 import 'package:keep_sims/features/geo/ui/geo_screen.dart';
 
 part 'app_router.g.dart';
@@ -43,6 +44,7 @@ abstract final class AppRoutes {
   static const String referrals = '/settings/referrals';
   static const String geo = '/settings/geo';
   static const String preferences = '/settings/preferences';
+  static const String subscription = '/settings/subscription';
 }
 
 @riverpod
@@ -205,6 +207,11 @@ GoRouter appRouter(Ref ref) {
                 path: 'preferences',
                 name: 'settingsPreferences',
                 builder: (context, state) => const PreferencesScreen(),
+              ),
+              GoRoute(
+                path: 'subscription',
+                name: 'settingsSubscription',
+                builder: (context, state) => const SubscriptionScreen(),
               ),
             ],
           ),

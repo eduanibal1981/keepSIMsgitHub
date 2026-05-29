@@ -1,0 +1,30 @@
+{
+  "name": "keep_sims",
+  "version": "1.0.0",
+  "description": "A new Flutter project.",
+  "main": "index.js",
+  "directories": {
+    "doc": "doc",
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eduanibal1981/keepSIMsgitHub.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/eduanibal1981/keepSIMsgitHub/issues"
+  },
+  "homepage": "https://github.com/eduanibal1981/keepSIMsgitHub#readme",
+  "dependencies": {
+    "express": "^5.2.1",
+    "qrcode-terminal": "^0.12.0",
+    "whatsapp-web.js": "^1.34.7"
+  }
+}

@@ -11,6 +11,7 @@ import 'package:keep_sims/core/supabase_client.dart';
 import 'package:keep_sims/core/theme/app_theme.dart';
 import 'package:keep_sims/core/router/app_router.dart';
 import 'package:keep_sims/features/notifications/presentation/controllers/notification_settings_controller.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,6 +19,14 @@ void main() async {
   // Lock to portrait on mobile
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
+  // Intialize OneSignal (for push notifications)
+    // Enable verbose logging for debugging (remove in production)
+  OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
+  // Initialize with your OneSignal App ID
+  OneSignal.initialize('434b9552-8005-4d08-b3b1-a7a35f0b15dc');
+  // Use this method to prompt for push notifications.
+  // We recommend removing this method after testing and instead use In-App Messages to prompt for notification permission.
+  OneSignal.Notifications.requestPermission(false);
   // Initialize Supabase
   await initSupabase();
 

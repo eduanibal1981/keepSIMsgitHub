@@ -129,6 +129,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           homeCountryCode: _selectedCountryCode,
           preferredCurrency: _selectedCurrency,
           isPowerUser: _isPowerUser,
+          subscriptionTier: _selectedTier,
         );
 
     if (mounted && result is Failure<UserProfile>) {
@@ -478,14 +479,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         children: [
           const SizedBox(height: 12),
           Text(
-            'Select Protection Tier',
+            'Select Protection Plan',
             style: AppTextStyles.headlineLarge.copyWith(
               color: AppColors.textPrimaryDark,
             ),
           ),
           const SizedBox(height: 8),
           Text(
-            'Select a base service plan per line. You can change this tier at any time.',
+            'Choose your account-wide protection plan. Upgrade, downgrade, or cancel at any time.',
             style: AppTextStyles.bodyMedium.copyWith(
               color: AppColors.textSecondaryDark,
               height: 1.4,
@@ -493,55 +494,60 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           ),
           const SizedBox(height: 32),
 
-          // Basic Tier Card
+          // Free Plan Card
           _buildTierCard(
             id: 'basic',
-            title: 'Basic Plan',
-            price: '\$1',
-            period: 'line/month',
+            title: 'Free Plan',
+            price: '\$0',
+            period: 'Always free',
             desc:
-                'Smart notifications before expiry. Validity calendar alerts.',
+                'Essential manual monitoring for a single line.',
             color: Colors.blueAccent,
             features: [
-              'Smart Expiry alerts',
-              'Quiet hours support',
-              'Line validity tracking',
+              'Protect 1 SIM line maximum',
+              'Mobile push notifications only',
+              'Telegram recharge requests',
+              'Manual in-app checks',
             ],
           ),
           const SizedBox(height: 16),
 
-          // Standard Tier Card
+          // Starter Plan Card
           _buildTierCard(
             id: 'standard',
-            title: 'Standard Plan',
-            price: '\$3',
-            period: 'line/month',
+            title: 'Starter Plan',
+            price: '\$0.20',
+            period: 'mo (billed annually)',
             desc:
-                'Automated validity checking + 1 secure backup auto-renewal top-up.',
+                'Smart notifications and basic automated shields for multi-SIM users.',
             color: AppColors.primary,
-            isPopular: true,
             features: [
-              'All Basic features',
-              '1 auto-recharge top-up/mo',
-              'Automatic operator detection',
+              'Protect up to 5 SIM lines',
+              'Push, WhatsApp, Telegram, Email alerts',
+              'WhatsApp & Telegram recharge requests',
+              'Travel / Home modes active',
+              '1× secure line verification check',
             ],
           ),
           const SizedBox(height: 16),
 
-          // Premium Tier Card
+          // Premium Shield Card
           _buildTierCard(
             id: 'premium',
             title: 'Premium Shield',
-            price: '\$5',
-            period: 'line/month',
+            price: '\$0.40',
+            period: 'mo (billed annually)',
             desc:
-                'Unlimited smart automatic top-ups, geofenced tracking, household bulk renew.',
+                'Ultimate automated peace of mind. Full smart features, diagnostics, and geofencing.',
             color: Colors.purpleAccent,
+            isPopular: true,
             features: [
-              'Unlimited auto top-ups',
-              'Smart geofenced freeze',
-              'Family Household view',
-              'Priority 24/7 support',
+              'Protect unlimited SIM lines',
+              'All standard notification channels',
+              'Fully automated in-app recharge',
+              'Smart Geolocation deactivation freeze',
+              'Baqa (local calls + data detection)',
+              'Unlimited secure line verifications',
             ],
           ),
         ],

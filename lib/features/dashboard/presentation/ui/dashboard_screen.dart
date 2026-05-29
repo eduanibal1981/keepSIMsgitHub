@@ -104,6 +104,12 @@ class DashboardScreen extends ConsumerWidget {
               _buildHeader(context, ref, welcomeName, isPowerUser),
               const SizedBox(height: 24),
 
+              // ── Subscription Warning Banner ────────────────────────
+              if (profile.subscriptionTier == 'basic') ...[
+                _buildDashboardUpsellBanner(context),
+                const SizedBox(height: 24),
+              ],
+
               // ── "At a Glance" Glassmorphic Hero Card ──────────────────
               _buildHeroCard(context, profile.preferredCurrency, data),
               const SizedBox(height: 28),
@@ -890,6 +896,85 @@ class DashboardScreen extends ConsumerWidget {
             },
           ),
       ],
+    );
+  }
+
+  Widget _buildDashboardUpsellBanner(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        context.push('/settings/subscription');
+      },
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Colors.redAccent.withOpacity(0.12),
+              Colors.purpleAccent.withOpacity(0.12),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: Colors.purpleAccent.withOpacity(0.3),
+            width: 1.5,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.purpleAccent.withOpacity(0.06),
+              blurRadius: 15,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.purpleAccent.withOpacity(0.15),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.error_outline_rounded,
+                color: Colors.purpleAccent,
+                size: 22,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Free Shield Guard Active 🚨',
+                    style: AppTextStyles.titleMedium.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Your international lines are at risk of deactivation! Upgrade to Premium Shield now for 100% automated renewal checks.',
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: AppColors.textSecondaryDark,
+                      height: 1.3,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            const Icon(
+              Icons.arrow_forward_ios_rounded,
+              color: Colors.purpleAccent,
+              size: 16,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

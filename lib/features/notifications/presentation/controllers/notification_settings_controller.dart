@@ -119,3 +119,62 @@ class UserPreferencesController extends _$UserPreferencesController {
     return hash.toRadixString(16);
   }
 }
+
+@riverpod
+class NotificationChannelsController extends _$NotificationChannelsController {
+  @override
+  FutureOr<List<Map<String, dynamic>>> build() async {
+    final repo = ref.watch(notificationsRepositoryProvider);
+    return repo.getNotificationChannels();
+  }
+
+  Future<void> toggleChannel(String channelType, bool isEnabled) async {
+    final repo = ref.read(notificationsRepositoryProvider);
+    final currentList = state.value ?? [];
+    
+    final matchIndex = currentList.indexWhere((c) => c['channel_type'] == channelType);
+    if (matchIndex == -1) return;
+
+    final updatedChannel = Map<String, dynamic>.from(currentList[matchIndex]);
+    updatedChannel['is_enabled'] = isEnabled;
+
+    final newList = List<Map<String, dynamic>>.from(currentList);
+    newList[matchIndex] = updatedChannel;
+    state = AsyncData(newList);
+
+    try {
+      await repo.updateNotificationChannel(
+        channelType: channelType,
+        isEnabled: isEnabled,
+        config: Map<String, dynamic>.from(updatedChannel['config'] ?? {}),
+      );
+    } catch (_) {
+      ref.invalidateSelf();
+    }
+  }
+
+  Future<void> updateChannelConfig(String channelType, Map<String, dynamic> config) async {
+    final repo = ref.read(notificationsRepositoryProvider);
+    final currentList = state.value ?? [];
+    
+    final matchIndex = currentList.indexWhere((c) => c['channel_type'] == channelType);
+    if (matchIndex == -1) return;
+
+    final updatedChannel = Map<String, dynamic>.from(currentList[matchIndex]);
+    updatedChannel['config'] = config;
+
+    final newList = List<Map<String, dynamic>>.from(currentList);
+    newList[matchIndex] = updatedChannel;
+    state = AsyncData(newList);
+
+    try {
+      await repo.updateNotificationChannel(
+        channelType: channelType,
+        isEnabled: updatedChannel['is_enabled'] ?? false,
+        config: config,
+      );
+    } catch (_) {
+      ref.invalidateSelf();
+    }
+  }
+}

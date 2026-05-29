@@ -96,6 +96,7 @@ class NotificationsController extends _$NotificationsController {
     required String title,
     required String body,
     String? simLineId,
+    int delayMinutes = 0,
   }) async {
     final repo = ref.read(notificationsRepositoryProvider);
     state = const AsyncLoading();
@@ -105,6 +106,7 @@ class NotificationsController extends _$NotificationsController {
         title,
         body,
         simLineId: simLineId,
+        delayMinutes: delayMinutes,
       );
       return repo.getNotifications();
     });

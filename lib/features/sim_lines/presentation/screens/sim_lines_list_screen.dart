@@ -19,6 +19,7 @@ import 'package:keep_sims/core/widgets/shimmer_loading.dart';
 import 'package:keep_sims/core/widgets/empty_state.dart';
 import 'package:keep_sims/core/widgets/error_state.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
+import 'package:keep_sims/features/profile/presentation/widgets/subscription_upsell_sheet.dart';
 
 class SimLinesListScreen extends ConsumerStatefulWidget {
   const SimLinesListScreen({super.key});
@@ -448,7 +449,7 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
                 children: [
                   // Tab 1: My SIM Cards
                   myLines.isEmpty
-                      ? _buildEmptyState(context)
+                      ? _buildEmptyState(context, myLines.length)
                       : _buildLinesList(
                           context,
                           myLines,
@@ -488,7 +489,7 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
     );
   }
 
-  Widget _buildEmptyState(BuildContext context) {
+  Widget _buildEmptyState(BuildContext context, int myLinesCount) {
     return EmptyStateView(
       icon: Icons.sim_card_outlined,
       title: 'No Protected Lines',
@@ -497,7 +498,7 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
       buttonText: 'Protect New Line',
       onButtonPressed: () async {
         await HapticHelper.lightTick();
-        context.push('/sim-lines/add');
+        _checkLineLimitAndAdd(context, myLinesCount);
       },
     );
   }
@@ -531,7 +532,7 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
         if (!isShared && index == 0) {
           return Padding(
             padding: const EdgeInsets.only(bottom: 16.0),
-            child: _buildAddHeaderCard(context),
+            child: _buildAddHeaderCard(context, lines.length),
           );
         }
 
@@ -579,11 +580,11 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
     );
   }
 
-  Widget _buildAddHeaderCard(BuildContext context) {
+  Widget _buildAddHeaderCard(BuildContext context, int myLinesCount) {
     return InkWell(
       onTap: () async {
         await HapticHelper.lightTick();
-        context.push('/sim-lines/add');
+        _checkLineLimitAndAdd(context, myLinesCount);
       },
       borderRadius: BorderRadius.circular(20),
       child: Container(
@@ -628,5 +629,41 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
         ),
       ),
     );
+  }
+
+  void _checkLineLimitAndAdd(BuildContext context, int myLinesCount) {
+    final user = ref.read(authControllerProvider).valueOrNull;
+    final tier = user?.subscriptionTier ?? 'standard';
+
+    if (tier == 'basic' && myLinesCount >= 1) {
+      SubscriptionUpsellSheet.show(
+        context: context,
+        title: 'Free Plan Limit Reached 🚨',
+        description: 'Under the Free Plan, you can protect up to 1 SIM line. Upgrade to Starter or Premium to keep more active international numbers protected simultaneously!',
+        requiredPlan: 'Starter Plan',
+        highlights: [
+          'Protect up to 5 SIM lines simultaneously',
+          'Unlock WhatsApp, Telegram & Email notifications',
+          'Enable Travel & Home automated renewal modes',
+        ],
+      );
+      return;
+    } else if (tier == 'standard' && myLinesCount >= 5) {
+      SubscriptionUpsellSheet.show(
+        context: context,
+        title: 'Starter Plan Limit Reached 🚨',
+        description: 'You have reached the 5 SIM card limit for the Starter Plan. Go Premium to unlock unlimited active protection shields!',
+        requiredPlan: 'Premium Shield',
+        highlights: [
+          'Protect UNLIMITED SIM lines simultaneously',
+          'Unlock 100% automated in-app balance top-ups',
+          'Smart Geolocation deactivation freeze shields',
+          'Baqa local calls + data operator detection',
+        ],
+      );
+      return;
+    }
+
+    context.push('/sim-lines/add');
   }
 }
