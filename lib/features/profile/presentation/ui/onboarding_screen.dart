@@ -34,7 +34,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   String _selectedTier = 'standard';
 
   // Step 4 Data
-  bool _isPowerUser = false;
+  final bool _isPowerUser = false;
   bool _agreedToTerms = false;
 
   final List<Map<String, String>> _countries = [
@@ -724,6 +724,16 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   // ── Step 4: Smart Preferences Screen ──────────────────────────────
   Widget _buildStepSmartPreferences() {
+    final selectedCountry = _countries.firstWhere(
+      (c) => c['code'] == _selectedCountryCode,
+      orElse: () => {'code': '', 'name': '', 'flag': ''},
+    );
+
+    final selectedCurrency = _currencies.firstWhere(
+      (curr) => curr['code'] == _selectedCurrency,
+      orElse: () => {'code': '', 'name': ''},
+    );
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -738,7 +748,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Configure power settings and complete terms validation to initiate active line shield guards.',
+            'Confirm your configuration and accept the terms of service to activate active line shield guards.',
             style: AppTextStyles.bodyMedium.copyWith(
               color: AppColors.textSecondaryDark,
               height: 1.4,
@@ -746,7 +756,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           ),
           const SizedBox(height: 36),
 
-          // Power-User Card
+          // Selection Summary Card
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
@@ -758,55 +768,63 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.orangeAccent.withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: const Icon(
-                            Icons.construction_rounded,
-                            color: Colors.orangeAccent,
-                            size: 20,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Text(
-                          'Power User Mode',
-                          style: AppTextStyles.titleMedium.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Switch(
-                      value: _isPowerUser,
-                      activeThumbColor: AppColors.primary,
-                      activeTrackColor: AppColors.primary.withValues(
-                        alpha: 0.3,
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                      inactiveThumbColor: AppColors.textTertiaryDark,
-                      inactiveTrackColor: AppColors.darkBorder,
-                      onChanged: (val) {
-                        setState(() {
-                          _isPowerUser = val;
-                        });
-                      },
+                      child: const Icon(
+                        Icons.assignment_turned_in_rounded,
+                        color: AppColors.primary,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      'Review Configuration',
+                      style: AppTextStyles.titleMedium.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
-                Text(
-                  'Enables advanced features including carrier validity threshold overriding, manual top-up trigger, and full API raw log inspectors.',
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: AppColors.textSecondaryDark,
-                    height: 1.4,
-                  ),
+                const SizedBox(height: 20),
+                _buildSummaryRow(
+                  label: 'Full Name',
+                  value: _nameController.text.trim().isEmpty
+                      ? 'Not specified'
+                      : _nameController.text.trim(),
+                  icon: Icons.person_rounded,
+                ),
+                const Divider(color: AppColors.darkBorder, height: 24),
+                _buildSummaryRow(
+                  label: 'Home Country',
+                  value: '${selectedCountry['flag']} ${selectedCountry['name']}',
+                  icon: Icons.public_rounded,
+                ),
+                const Divider(color: AppColors.darkBorder, height: 24),
+                _buildSummaryRow(
+                  label: 'Preferred Currency',
+                  value: selectedCurrency['name'] ?? _selectedCurrency,
+                  icon: Icons.payments_rounded,
+                ),
+                const Divider(color: AppColors.darkBorder, height: 24),
+                _buildSummaryRow(
+                  label: 'Selected Plan',
+                  value: _selectedTier == 'basic'
+                      ? 'Free Plan (\$0)'
+                      : (_selectedTier == 'standard'
+                          ? 'Starter Plan (\$0.20/mo base)'
+                          : 'Premium Shield (\$0.40/mo base)'),
+                  icon: Icons.shield_rounded,
+                  valueColor: _selectedTier == 'basic'
+                      ? Colors.blueAccent
+                      : (_selectedTier == 'standard'
+                          ? AppColors.primary
+                          : Colors.purpleAccent),
                 ),
               ],
             ),
@@ -862,6 +880,47 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildSummaryRow({
+    required String label,
+    required String value,
+    required IconData icon,
+    Color? valueColor,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Icon(
+          icon,
+          color: AppColors.textSecondaryDark,
+          size: 20,
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: AppTextStyles.caption.copyWith(
+                  color: AppColors.textTertiaryDark,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                value,
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: valueColor ?? Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
