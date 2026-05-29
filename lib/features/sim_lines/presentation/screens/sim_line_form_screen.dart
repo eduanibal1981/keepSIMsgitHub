@@ -81,6 +81,13 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
   Widget build(BuildContext context) {
     final lines = ref.watch(simLinesControllerProvider).valueOrNull ?? [];
     final countries = ref.watch(supportedCountriesProvider).valueOrNull ?? [];
+    final user = ref.watch(authControllerProvider).valueOrNull;
+    final globalTier = user?.subscriptionTier ?? 'standard';
+
+    final existingLinesCount = _isEdit
+        ? lines.where((l) => l.id != widget.id).length
+        : lines.length;
+    final lineOrdinalPosition = existingLinesCount + 1;
 
     if (_isEdit && !_hasPrepopulated) {
       _prepopulate(lines, countries);
@@ -234,10 +241,10 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                     _buildAvatarSelector(),
                     const SizedBox(height: 32),
 
-                    // Protection Tier Selection Card Grid
-                    _buildSectionHeader('PROTECTION SERVICE TIER'),
+                    // Protection Tier Dynamic Billing Info Card
+                    _buildSectionHeader('PROTECTION BILLING DETAILS'),
                     const SizedBox(height: 12),
-                    _buildTierGrid(),
+                    _buildDynamicBillingSection(globalTier, lineOrdinalPosition, widget.id),
                     const SizedBox(height: 48),
 
                     // Glowing Action Save Button
@@ -452,6 +459,222 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
         );
       }).toList(),
     );
+  }
+
+  Widget _buildDynamicBillingSection(
+    String globalTier,
+    int ordinalPosition,
+    String? currentLineId,
+  ) {
+    final bool isStarter = globalTier == 'standard';
+    final bool isPremium = globalTier == 'premium';
+    final bool isFree = globalTier == 'basic';
+
+    String planName = 'Starter Plan';
+    Color planColor = AppColors.primary;
+    if (isPremium) {
+      planName = 'Premium Shield';
+      planColor = Colors.purpleAccent;
+    } else if (isFree) {
+      planName = 'Free Plan';
+      planColor = Colors.blueAccent;
+    }
+
+    if (ordinalPosition <= 2) {
+      // Line is fully included in the base rate
+      return Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: AppColors.darkCard,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: planColor.withOpacity(0.3),
+            width: 1.5,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: planColor.withOpacity(0.05),
+              blurRadius: 15,
+              spreadRadius: 1,
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: planColor.withOpacity(0.12),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.verified_user_rounded,
+                    color: planColor,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Included in $planName',
+                    style: AppTextStyles.titleMedium.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppColors.success.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    'FREE',
+                    style: AppTextStyles.caption.copyWith(
+                      color: AppColors.success,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'This is protected line #$ordinalPosition in your account. Your $planName includes 2 SIM lines in the base subscription price. No additional charges will apply!',
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.textSecondaryDark,
+                height: 1.4,
+              ),
+            ),
+          ],
+        ),
+      );
+    } else {
+      // Dynamic Extra Line Billing Info (lines >= 3)
+      final String extraRateText = isStarter ? '\$0.10/mo (\$1.20/yr)' : '\$0.20/mo (\$2.40/yr)';
+
+      return Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: AppColors.darkCard,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: Colors.orangeAccent.withOpacity(0.3),
+            width: 1.5,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.orangeAccent.withOpacity(0.03),
+              blurRadius: 15,
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.orangeAccent.withOpacity(0.12),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.add_shopping_cart_rounded,
+                    color: Colors.orangeAccent,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Extra Line Surcharge',
+                        style: AppTextStyles.titleMedium.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Active tier: $planName',
+                        style: AppTextStyles.caption.copyWith(
+                          color: AppColors.textSecondaryDark,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.orangeAccent.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    extraRateText,
+                    style: AppTextStyles.caption.copyWith(
+                      color: Colors.orangeAccent,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            Text(
+              'Protecting this 3rd or subsequent SIM line will add a dynamic surcharge of $extraRateText to your active $planName billing, prorated for the rest of your annual period.',
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.textSecondaryDark,
+                height: 1.4,
+              ),
+            ),
+            if (isStarter) ...[
+              const SizedBox(height: 18),
+              SizedBox(
+                width: double.infinity,
+                height: 44,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    await HapticHelper.mediumImpact();
+                    context.push('/settings/subscription');
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.purpleAccent,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.stars_rounded, size: 16),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Go Premium for Unlimited Lines',
+                        style: AppTextStyles.labelLarge.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+      );
+    }
   }
 
   Widget _buildTierGrid() {
@@ -738,6 +961,10 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
     });
 
     try {
+      final user = ref.read(authControllerProvider).valueOrNull;
+      final globalTier = user?.subscriptionTier ?? 'standard';
+      final selectedProtectionTier = _isEdit ? _selectedTier : globalTier;
+
       if (_isEdit) {
         // Fetch current line copy to update
         final line = currentLines.firstWhereOrNull((l) => l.id == widget.id);
@@ -752,7 +979,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
           avatarIcon: _selectedIcon,
           countryId: _selectedCountry?.id,
           carrierId: _selectedCarrier?.id,
-          protectionTier: _selectedTier,
+          protectionTier: selectedProtectionTier,
         );
 
         await ref
@@ -769,7 +996,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
               avatarIcon: _selectedIcon,
               countryId: _selectedCountry?.id,
               carrierId: _selectedCarrier?.id,
-              protectionTier: _selectedTier,
+              protectionTier: selectedProtectionTier,
             );
       }
 
