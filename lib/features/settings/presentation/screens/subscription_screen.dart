@@ -7,6 +7,8 @@ import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import 'package:keep_sims/features/profile/presentation/controller/profile_controller.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
 import 'package:keep_sims/core/result.dart';
+import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
+
 
 class SubscriptionScreen extends ConsumerStatefulWidget {
   const SubscriptionScreen({super.key});
@@ -40,7 +42,7 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
       'color': AppColors.primary,
       'features': [
         '2 SIM lines included in base price',
-        'Extra lines: $0.10/mo ($1.20/yr) each',
+        'Extra lines: \$0.10/mo (\$1.20/yr) each',
         'Protect up to 5 SIM lines maximum',
         'Push, WhatsApp, Telegram, Email alerts',
         'WhatsApp & Telegram recharge requests',
@@ -56,7 +58,7 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
       'isPopular': true,
       'features': [
         '2 SIM lines included in base price',
-        'Extra lines: $0.20/mo ($2.40/yr) each',
+        'Extra lines: \$0.20/mo (\$2.40/yr) each',
         'Protect unlimited SIM lines',
         'All standard notification channels',
         'Fully automated in-app recharge',
