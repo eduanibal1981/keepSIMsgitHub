@@ -97,7 +97,13 @@ body {
 .price-note {
   font-size: 12px;
   color: #9ca3af;
-  margin-bottom: 1.25rem;
+  margin-bottom: 4px;
+}
+
+/* last price-note before CTA gets the larger gap */
+.price-note + .cta,
+.price-note + button {
+  margin-top: 1rem;
 }
 
 /* CTA buttons */

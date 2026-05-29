@@ -6,6 +6,7 @@ import 'package:keep_sims/features/notifications/data/models/alert_setting_model
 import 'package:keep_sims/features/notifications/presentation/controllers/notification_settings_controller.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
 import 'package:keep_sims/features/auth/controller/auth_controller.dart';
+import 'package:keep_sims/features/profile/presentation/widgets/subscription_upsell_sheet.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class NotificationSettingsScreen extends ConsumerWidget {
@@ -728,6 +729,10 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
     final icon = _getChannelIcon(type);
     final color = _getChannelColor(type);
 
+    final user = ref.watch(authControllerProvider).valueOrNull;
+    final globalTier = user?.subscriptionTier ?? 'standard';
+    final bool isLocked = type != 'push' && globalTier == 'basic';
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       decoration: BoxDecoration(
@@ -739,42 +744,70 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header Row with Switch
-          SwitchListTile(
-            value: _isEnabled,
-            activeThumbColor: color,
-            activeTrackColor: color.withOpacity(0.2),
-            inactiveThumbColor: AppColors.textTertiaryDark,
-            inactiveTrackColor: AppColors.darkBorder,
-            title: Row(
-              children: [
-                Icon(icon, color: color, size: 22),
-                const SizedBox(width: 12),
-                Text(
-                  name,
-                  style: AppTextStyles.titleMedium.copyWith(
-                    color: AppColors.textPrimaryDark,
-                    fontWeight: FontWeight.bold,
+          GestureDetector(
+            onTap: isLocked
+                ? () async {
+                    await HapticHelper.mediumImpact();
+                    SubscriptionUpsellSheet.show(
+                      context: context,
+                      title: '$name Locked 🔒',
+                      description: '$name alerts are Starter and Premium plan features. Upgrade your plan to unlock WhatsApp, Telegram, and Email alerts!',
+                      requiredPlan: 'Starter Plan',
+                      highlights: [
+                        'Protect up to 5 SIM lines simultaneously',
+                        'Unlock WhatsApp, Telegram & Email notifications',
+                        'Enable Travel & Home automated validity modes',
+                      ],
+                    );
+                  }
+                : null,
+            child: SwitchListTile(
+              value: isLocked ? false : _isEnabled,
+              activeThumbColor: color,
+              activeTrackColor: color.withOpacity(0.2),
+              inactiveThumbColor: AppColors.textTertiaryDark,
+              inactiveTrackColor: AppColors.darkBorder,
+              title: Row(
+                children: [
+                  Icon(icon, color: isLocked ? AppColors.textTertiaryDark : color, size: 22),
+                  const SizedBox(width: 12),
+                  Text(
+                    name,
+                    style: AppTextStyles.titleMedium.copyWith(
+                      color: isLocked ? AppColors.textSecondaryDark : AppColors.textPrimaryDark,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  if (isLocked) ...[
+                    const SizedBox(width: 8),
+                    const Icon(
+                      Icons.lock_rounded,
+                      color: Colors.amberAccent,
+                      size: 14,
+                    ),
+                  ],
+                ],
+              ),
+              subtitle: Padding(
+                padding: const EdgeInsets.only(top: 4.0),
+                child: Text(
+                  _getChannelDescription(type),
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.textSecondaryDark,
                   ),
                 ),
-              ],
-            ),
-            subtitle: Padding(
-              padding: const EdgeInsets.only(top: 4.0),
-              child: Text(
-                _getChannelDescription(type),
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: AppColors.textSecondaryDark,
-                ),
               ),
+              onChanged: isLocked
+                  ? null
+                  : (val) async {
+                      await HapticHelper.mediumImpact();
+                      setState(() => _isEnabled = val);
+                      await ref.read(notificationChannelsControllerProvider.notifier).toggleChannel(type, val);
+                    },
             ),
-            onChanged: (val) async {
-              await HapticHelper.mediumImpact();
-              setState(() => _isEnabled = val);
-              await ref.read(notificationChannelsControllerProvider.notifier).toggleChannel(type, val);
-            },
           ),
           
-          if (_isEnabled && type != 'push') ...[
+          if (_isEnabled && type != 'push' && !isLocked) ...[
             const Divider(color: AppColors.darkBorder, height: 1),
             Padding(
               padding: const EdgeInsets.all(16.0),
