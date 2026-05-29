@@ -210,24 +210,29 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
           .select()
           .eq('user_id', userId);
 
-      // If empty, seed default channels (push, email, telegram, whatsapp, webhook)
-      if ((response as List).isEmpty) {
-        final defaultChannels = [
-          {'user_id': userId, 'channel_type': 'push', 'is_enabled': true, 'config': {}},
-          {'user_id': userId, 'channel_type': 'email', 'is_enabled': false, 'config': {}},
-          {'user_id': userId, 'channel_type': 'telegram', 'is_enabled': false, 'config': {}},
-          {'user_id': userId, 'channel_type': 'whatsapp', 'is_enabled': false, 'config': {}},
-          {'user_id': userId, 'channel_type': 'webhook', 'is_enabled': false, 'config': {}},
-        ];
-        
+      final existingChannels = List<Map<String, dynamic>>.from(response as List);
+      final existingTypes = existingChannels.map((c) => c['channel_type'] as String).toSet();
+
+      final defaultTypes = ['push', 'email', 'telegram', 'whatsapp', 'webhook'];
+      final missingTypes = defaultTypes.where((t) => !existingTypes.contains(t)).toList();
+
+      if (missingTypes.isNotEmpty) {
+        final newChannels = missingTypes.map((type) => {
+          'user_id': userId,
+          'channel_type': type,
+          'is_enabled': type == 'push',
+          'config': {},
+        }).toList();
+
         final inserted = await _supabase
             .from('notification_channels')
-            .insert(defaultChannels)
+            .insert(newChannels)
             .select();
-        return List<Map<String, dynamic>>.from(inserted as List);
+        
+        existingChannels.addAll(List<Map<String, dynamic>>.from(inserted as List));
       }
 
-      return List<Map<String, dynamic>>.from(response);
+      return existingChannels;
     } on PostgrestException catch (e) {
       throw Exception('Failed to load notification channels: ${e.message}');
     }
