@@ -18,14 +18,12 @@ class SubscriptionScreen extends ConsumerStatefulWidget {
 class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
   bool _isAnnually = true;
   bool _isUpdating = false;
+  int _sliderLinesCount = 2;
 
   final List<Map<String, dynamic>> _plans = [
     {
       'id': 'basic',
       'title': 'Free Plan',
-      'priceAnnually': '0',
-      'priceMonthly': '0',
-      'period': 'Always free',
       'desc': 'Essential manual monitoring for a single SIM card.',
       'color': Colors.blueAccent,
       'features': [
@@ -38,13 +36,12 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
     {
       'id': 'standard',
       'title': 'Starter Plan',
-      'priceAnnually': '0.20',
-      'priceMonthly': '0.40',
-      'period': 'line/month',
       'desc': 'Basic automation and multi-channel validity shields.',
       'color': AppColors.primary,
       'features': [
-        'Protect up to 5 SIM lines',
+        '2 SIM lines included in base price',
+        'Extra lines: $0.10/mo ($1.20/yr) each',
+        'Protect up to 5 SIM lines maximum',
         'Push, WhatsApp, Telegram, Email alerts',
         'WhatsApp & Telegram recharge requests',
         'Travel / Home mode active',
@@ -53,14 +50,13 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
     },
     {
       'id': 'premium',
-      'title': 'Premium Shield',
-      'priceAnnually': '0.40',
-      'priceMonthly': '0.80',
-      'period': 'line/month',
+      'title': 'Premium',
       'desc': 'Unlocks 100% automated protection and intelligent features.',
       'color': Colors.purpleAccent,
       'isPopular': true,
       'features': [
+        '2 SIM lines included in base price',
+        'Extra lines: $0.20/mo ($2.40/yr) each',
         'Protect unlimited SIM lines',
         'All standard notification channels',
         'Fully automated in-app recharge',
@@ -70,6 +66,95 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
       ],
     },
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final simLines = ref.read(simLinesControllerProvider).valueOrNull ?? [];
+      if (simLines.isNotEmpty) {
+        setState(() {
+          _sliderLinesCount = simLines.length;
+        });
+      }
+    });
+  }
+
+  String _calculatePrice({
+    required String planId,
+    required int linesCount,
+    required bool isAnnually,
+  }) {
+    if (planId == 'basic') {
+      return '0.00';
+    }
+
+    if (planId == 'standard') {
+      if (linesCount > 5) return '0.00';
+      if (isAnnually) {
+        // Annually: $0.20/mo base (includes 2 lines) + $0.10/mo per extra line
+        double baseRate = 0.20;
+        double extraRate = 0.10;
+        double monthlyTotal = linesCount <= 2
+            ? baseRate
+            : baseRate + (linesCount - 2) * extraRate;
+        return monthlyTotal.toStringAsFixed(2);
+      } else {
+        // Monthly: $0.40/mo base (includes 2 lines) + $0.20/mo per extra line
+        double baseRate = 0.40;
+        double extraRate = 0.20;
+        double monthlyTotal = linesCount <= 2
+            ? baseRate
+            : baseRate + (linesCount - 2) * extraRate;
+        return monthlyTotal.toStringAsFixed(2);
+      }
+    }
+
+    if (planId == 'premium') {
+      if (isAnnually) {
+        // Annually: $0.40/mo base (includes 2 lines) + $0.20/mo per extra line
+        double baseRate = 0.40;
+        double extraRate = 0.20;
+        double monthlyTotal = linesCount <= 2
+            ? baseRate
+            : baseRate + (linesCount - 2) * extraRate;
+        return monthlyTotal.toStringAsFixed(2);
+      } else {
+        // Monthly: $0.80/mo base (includes 2 lines) + $0.40/mo per extra line
+        double baseRate = 0.80;
+        double extraRate = 0.40;
+        double monthlyTotal = linesCount <= 2
+            ? baseRate
+            : baseRate + (linesCount - 2) * extraRate;
+        return monthlyTotal.toStringAsFixed(2);
+      }
+    }
+
+    return '0.00';
+  }
+
+  String _getBillingNote({
+    required String planId,
+    required int linesCount,
+    required bool isAnnually,
+  }) {
+    if (planId == 'basic') {
+      return 'Always free';
+    }
+    if (planId == 'standard' && linesCount > 5) {
+      return 'Max 5 lines limit exceeded';
+    }
+
+    final priceStr = _calculatePrice(planId: planId, linesCount: linesCount, isAnnually: isAnnually);
+    final priceVal = double.tryParse(priceStr) ?? 0.0;
+
+    if (isAnnually) {
+      final annualTotal = priceVal * 12;
+      return 'Billed annually (\$${annualTotal.toStringAsFixed(2)}/yr)';
+    } else {
+      return 'Billed monthly';
+    }
+  }
 
   Future<void> _updatePlan(String tierId) async {
     final user = ref.read(authControllerProvider).valueOrNull;
@@ -213,6 +298,10 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                       _buildBillingToggle(),
                       const SizedBox(height: 28),
 
+                      // Interactive Calculator
+                      _buildInteractiveCalculator(),
+                      const SizedBox(height: 28),
+
                       // Active Plan Display Card
                       ..._plans.map((plan) {
                         final bool isCurrent = plan['id'] == currentTier;
@@ -311,12 +400,122 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
       ),
     );
   }
+  Widget _buildInteractiveCalculator() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.darkCard.withOpacity(0.8),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white.withOpacity(0.06)),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black26,
+            blurRadius: 10,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'SIM Lines Calculator',
+                      style: AppTextStyles.titleMedium.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Drag to preview pricing for your active lines',
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: AppColors.textSecondaryDark,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+                ),
+                child: Text(
+                  '$_sliderLinesCount ${_sliderLinesCount == 1 ? 'Line' : 'Lines'}',
+                  style: AppTextStyles.titleLarge.copyWith(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          SliderTheme(
+            data: SliderTheme.of(context).copyWith(
+              activeTrackColor: AppColors.primary,
+              inactiveTrackColor: Colors.white12,
+              thumbColor: Colors.white,
+              overlayColor: AppColors.primary.withOpacity(0.15),
+              valueIndicatorColor: AppColors.primary,
+              valueIndicatorTextStyle: const TextStyle(color: Colors.white),
+            ),
+            child: Slider(
+              value: _sliderLinesCount.toDouble(),
+              min: 1,
+              max: 10,
+              divisions: 9,
+              label: '$_sliderLinesCount lines',
+              onChanged: (val) async {
+                await HapticHelper.lightTick();
+                setState(() {
+                  _sliderLinesCount = val.toInt();
+                });
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('1 Line', style: AppTextStyles.caption.copyWith(color: AppColors.textSecondaryDark)),
+                Text('10+ Lines', style: AppTextStyles.caption.copyWith(color: AppColors.textSecondaryDark)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildPlanItem(Map<String, dynamic> plan, bool isCurrent) {
-    final String price = _isAnnually ? plan['priceAnnually'] : plan['priceMonthly'];
-    final bool isFree = plan['id'] == 'basic';
+    final String planId = plan['id'];
+    final String price = _calculatePrice(planId: planId, linesCount: _sliderLinesCount, isAnnually: _isAnnually);
+    final String billingNote = _getBillingNote(planId: planId, linesCount: _sliderLinesCount, isAnnually: _isAnnually);
+    final bool isFree = planId == 'basic';
     final Color planColor = plan['color'] as Color;
     final bool isPopular = plan['isPopular'] ?? false;
+
+    // Check if plan is disabled for current line count
+    bool isPlanDisabled = false;
+    String disabledMessage = '';
+    if (planId == 'basic' && _sliderLinesCount > 1) {
+      isPlanDisabled = true;
+      disabledMessage = 'Free Plan cap is 1 line';
+    } else if (planId == 'standard' && _sliderLinesCount > 5) {
+      isPlanDisabled = true;
+      disabledMessage = 'Starter Plan cap is 5 lines';
+    }
 
     return Container(
       decoration: BoxDecoration(
@@ -385,30 +584,59 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.baseline,
-                        textBaseline: TextBaseline.alphabetic,
-                        children: [
-                          Text(
-                            '\$$price',
-                            style: AppTextStyles.headlineLarge.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w900,
-                              fontSize: 32,
+                      if (!isPlanDisabled)
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.baseline,
+                          textBaseline: TextBaseline.alphabetic,
+                          children: [
+                            Text(
+                              '\$$price',
+                              style: AppTextStyles.headlineLarge.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w900,
+                                fontSize: 32,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              isFree ? 'Always free' : '/mo',
+                              style: AppTextStyles.bodySmall.copyWith(
+                                color: AppColors.textSecondaryDark,
+                              ),
+                            ),
+                          ],
+                        )
+                      else
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: AppColors.error.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: AppColors.error.withOpacity(0.2)),
+                          ),
+                          child: Text(
+                            'NOT AVAILABLE',
+                            style: AppTextStyles.caption.copyWith(
+                              color: AppColors.error,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                          const SizedBox(width: 4),
-                          Text(
-                            isFree ? 'Always free' : '/${plan['period']}',
-                            style: AppTextStyles.bodySmall.copyWith(
-                              color: AppColors.textSecondaryDark,
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 6),
+
+                  // Dynamic Billing Note / Limit Indicator
+                  if (!isPlanDisabled && !isFree) ...[
+                    Text(
+                      billingNote,
+                      style: AppTextStyles.caption.copyWith(
+                        color: planColor,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                  ],
 
                   // Description
                   Text(
@@ -447,7 +675,7 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                     width: double.infinity,
                     height: 52,
                     child: ElevatedButton(
-                      onPressed: isCurrent ? null : () => _updatePlan(plan['id']),
+                      onPressed: (isCurrent || isPlanDisabled) ? null : () => _updatePlan(plan['id']),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: isCurrent ? Colors.white.withOpacity(0.04) : planColor,
                         foregroundColor: Colors.white,
@@ -462,9 +690,13 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                         shadowColor: planColor.withOpacity(0.3),
                       ),
                       child: Text(
-                        isCurrent ? 'Your Current Active Plan' : 'Select ${plan['title']}',
+                        isCurrent
+                            ? 'Your Current Active Plan'
+                            : isPlanDisabled
+                                ? disabledMessage
+                                : 'Select ${plan['title']}',
                         style: TextStyle(
-                          color: isCurrent ? AppColors.textSecondaryDark : Colors.white,
+                          color: (isCurrent || isPlanDisabled) ? AppColors.textSecondaryDark : Colors.white,
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
                         ),

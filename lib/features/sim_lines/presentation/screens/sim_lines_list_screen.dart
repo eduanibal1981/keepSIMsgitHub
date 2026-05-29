@@ -639,12 +639,13 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
       SubscriptionUpsellSheet.show(
         context: context,
         title: 'Free Plan Limit Reached 🚨',
-        description: 'Under the Free Plan, you can protect up to 1 SIM line. Upgrade to Starter or Premium to keep more active international numbers protected simultaneously!',
+        description: 'Under the Free Plan, you can protect up to 1 SIM line. Upgrade to the Starter Plan to keep more active numbers protected!',
         requiredPlan: 'Starter Plan',
         highlights: [
-          'Protect up to 5 SIM lines simultaneously',
+          'Includes 2 SIM lines in base (\$2.40/yr)',
+          'Extra lines: \$0.10/mo (\$1.20/yr) each (max 5)',
           'Unlock WhatsApp, Telegram & Email notifications',
-          'Enable Travel & Home automated renewal modes',
+          'Enable Travel & Home automated validity modes',
         ],
       );
       return;
@@ -652,10 +653,11 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
       SubscriptionUpsellSheet.show(
         context: context,
         title: 'Starter Plan Limit Reached 🚨',
-        description: 'You have reached the 5 SIM card limit for the Starter Plan. Go Premium to unlock unlimited active protection shields!',
-        requiredPlan: 'Premium Shield',
+        description: 'You have reached the 5 SIM card limit for the Starter Plan. Upgrade to Premium for unlimited active protection shields!',
+        requiredPlan: 'Premium',
         highlights: [
-          'Protect UNLIMITED SIM lines simultaneously',
+          'Includes 2 SIM lines in base (\$4.80/yr)',
+          'Extra lines: \$0.20/mo (\$2.40/yr) each (unlimited)',
           'Unlock 100% automated in-app balance top-ups',
           'Smart Geolocation deactivation freeze shields',
           'Baqa local calls + data operator detection',
