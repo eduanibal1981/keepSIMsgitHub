@@ -673,11 +673,6 @@ class SimLineCard extends ConsumerWidget {
                     ],
                   ),
                 ),
-                const SizedBox(width: 8),
-                _SimulateRefillButton(
-                  scheduleId: schedule.id,
-                  isPremium: false,
-                ),
               ],
             ),
           ],
@@ -862,148 +857,11 @@ class SimLineCard extends ConsumerWidget {
                     ],
                   ),
                 ),
-                const SizedBox(width: 8),
-                if (!isPaused)
-                  _SimulateRefillButton(
-                    scheduleId: schedule.id,
-                    isPremium: true,
-                  ),
               ],
             ),
           ],
         ],
       ),
     );
-  }
-}
-
-class _SimulateRefillButton extends ConsumerStatefulWidget {
-  final String scheduleId;
-  final bool isPremium;
-
-  const _SimulateRefillButton({required this.scheduleId, required this.isPremium});
-
-  @override
-  ConsumerState<_SimulateRefillButton> createState() =>
-      _SimulateRefillButtonState();
-}
-
-class _SimulateRefillButtonState extends ConsumerState<_SimulateRefillButton> {
-  bool _isLoading = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final networkStatus = ref.watch(connectivityServiceProvider);
-    final isOffline = networkStatus == NetworkStatus.offline;
-
-    return ElevatedButton.icon(
-      onPressed: _isLoading
-          ? null
-          : (isOffline
-              ? () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        widget.isPremium
-                            ? 'Refill simulation requires an active internet connection.'
-                            : 'Renewal simulation requires an active internet connection.',
-                      ),
-                      backgroundColor: AppColors.error,
-                    ),
-                  );
-                }
-              : _simulate),
-      icon: _isLoading
-          ? SizedBox(
-              width: 14,
-              height: 14,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: context.onSurfaceColor,
-              ),
-            )
-          : Icon(
-              isOffline ? Icons.lock_outline_rounded : Icons.flash_on_rounded,
-              size: 14,
-              color: isOffline
-                  ? context.onSurfaceColor.withOpacity(0.4)
-                  : context.onSurfaceColor,
-            ),
-      label: Text(
-        isOffline
-            ? 'Simulation Locked 🔒'
-            : (widget.isPremium ? 'Simulate Refill' : 'Simulate Renewal'),
-        style: TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.bold,
-          color: isOffline
-              ? context.onSurfaceColor.withOpacity(0.4)
-              : context.onSurfaceColor,
-        ),
-      ),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: isOffline
-            ? Colors.grey.withOpacity(0.12)
-            : AppColors.secondaryDark,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      ),
-    );
-  }
-
-  Future<void> _simulate() async {
-    setState(() => _isLoading = true);
-    try {
-      final result = await ref
-          .read(scheduledTopupControllerProvider.notifier)
-          .executeMockTopup(widget.scheduleId);
-
-      if (mounted) {
-        switch (result) {
-          case Success():
-            ref.invalidate(simLinesControllerProvider);
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Row(
-                  children: [
-                    Icon(
-                      Icons.check_circle_rounded,
-                      color: context.onSurfaceColor,
-                    ),
-                    SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        widget.isPremium 
-                            ? 'Auto-refill execution simulated! Balance deducted & validity extended.'
-                            : 'Renewal execution simulated! Validity extended.',
-                      ),
-                    ),
-                  ],
-                ),
-                backgroundColor: AppColors.success,
-                duration: Duration(seconds: 4),
-              ),
-            );
-          case Failure(error: final err):
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(err.message),
-                backgroundColor: AppColors.error,
-              ),
-            );
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Simulated execution failed: $e'),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
-  }
+ }
 }

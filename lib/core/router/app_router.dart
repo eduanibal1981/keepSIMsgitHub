@@ -27,6 +27,7 @@ import 'package:keep_sims/features/payments/ui/payments_screen.dart';
 import 'package:keep_sims/features/settings/presentation/screens/subscription_screen.dart';
 import 'package:keep_sims/features/geo/ui/geo_screen.dart';
 import 'package:keep_sims/features/offline_recharge/ui/offline_refill_screen.dart';
+import 'package:keep_sims/features/settings/presentation/screens/alert_simulator_screen.dart';
 
 part 'app_router.g.dart';
 
@@ -49,6 +50,7 @@ abstract final class AppRoutes {
   static const String preferences = '/settings/preferences';
   static const String subscription = '/settings/subscription';
   static const String offlineRefill = '/settings/offline-recharge';
+  static const String simulators = '/settings/simulators';
 }
 
 @riverpod
@@ -231,6 +233,11 @@ GoRouter appRouter(Ref ref) {
                   final simLineId = state.uri.queryParameters['simLineId'];
                   return OfflineRefillScreen(simLineId: simLineId);
                 },
+              ),
+              GoRoute(
+                path: 'simulators',
+                name: 'settingsSimulators',
+                builder: (context, state) => const AlertSimulatorScreen(),
               ),
             ],
           ),

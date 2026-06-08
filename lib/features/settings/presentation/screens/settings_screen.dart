@@ -342,6 +342,20 @@ class SettingsScreen extends ConsumerWidget {
                 routePath: '/settings/preferences',
                 isComingSoon: false,
               ),
+              
+              if (user != null && user.isPowerUser) ...[
+                const SizedBox(height: 16),
+                _buildMenuCard(
+                  context: context,
+                  icon: Icons.developer_board_rounded,
+                  iconColor: Colors.amber,
+                  title: 'Power User',
+                  subtitle: 'Access system simulators and debugging tools',
+                  routePath: '/settings/simulators',
+                  isComingSoon: false,
+                ),
+              ],
+              
               const SizedBox(height: 36),
 
               // ── Log Out Button ─────────────────────────────────────
