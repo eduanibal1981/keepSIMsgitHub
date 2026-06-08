@@ -20,6 +20,11 @@ import 'package:keep_sims/features/referrals/contract/referrals_contract.dart';
 import 'package:keep_sims/features/referrals/repository/referrals_repository.dart';
 import 'package:keep_sims/features/payments/contract/payments_contract.dart';
 import 'package:keep_sims/features/payments/repository/payments_repository.dart';
+import 'package:keep_sims/features/offline_recharge/contract/offline_refill_contract.dart';
+import 'package:keep_sims/features/offline_recharge/repository/offline_refill_repository.dart';
+import 'package:keep_sims/core/services/connectivity_service.dart';
+import 'package:keep_sims/core/services/local_cache_service.dart';
+import 'package:keep_sims/core/services/sync_queue_service.dart';
 
 part 'providers.g.dart';
 
@@ -29,7 +34,11 @@ part 'providers.g.dart';
 
 /// Provides the [AuthContract] implementation.
 @riverpod
-AuthContract authRepository(Ref ref) => AuthRepository(supabase);
+AuthContract authRepository(Ref ref) {
+  final cache = ref.watch(localCacheServiceProvider);
+  final connectivity = ref.watch(connectivityServiceProvider.notifier);
+  return AuthRepository(supabase, cache, connectivity);
+}
 
 // ============================================================
 // Profile
@@ -45,7 +54,11 @@ ProfileContract profileRepository(Ref ref) => ProfileRepository(supabase);
 
 /// Provides the [WalletContract] implementation.
 @riverpod
-WalletContract walletRepository(Ref ref) => WalletRepository(supabase);
+WalletContract walletRepository(Ref ref) {
+  final cache = ref.watch(localCacheServiceProvider);
+  final connectivity = ref.watch(connectivityServiceProvider.notifier);
+  return WalletRepository(supabase, cache, connectivity);
+}
 
 // ============================================================
 // Scheduled Top-Ups
@@ -53,8 +66,12 @@ WalletContract walletRepository(Ref ref) => WalletRepository(supabase);
 
 /// Provides the [ScheduledTopupContract] implementation.
 @riverpod
-ScheduledTopupContract scheduledTopupRepository(Ref ref) =>
-    ScheduledTopupRepository(supabase);
+ScheduledTopupContract scheduledTopupRepository(Ref ref) {
+  final cache = ref.watch(localCacheServiceProvider);
+  final connectivity = ref.watch(connectivityServiceProvider.notifier);
+  final syncQueue = ref.watch(syncQueueProvider.notifier);
+  return ScheduledTopupRepository(supabase, cache, connectivity, syncQueue);
+}
 
 // ============================================================
 // Referrals
@@ -71,3 +88,12 @@ ReferralsContract referralsRepository(Ref ref) => ReferralsRepository(supabase);
 /// Provides the [PaymentsContract] implementation.
 @riverpod
 PaymentsContract paymentsRepository(Ref ref) => PaymentsRepository(supabase);
+
+// ============================================================
+// Offline Recharge / Refill
+// ============================================================
+
+/// Provides the [OfflineRefillContract] implementation.
+@riverpod
+OfflineRefillContract offlineRefillRepository(Ref ref) =>
+    OfflineRefillRepository(supabase);

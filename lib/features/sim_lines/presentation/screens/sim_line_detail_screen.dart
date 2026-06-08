@@ -6,10 +6,13 @@ import 'package:intl/intl.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/core/result.dart';
+import 'package:keep_sims/core/utils/build_context_extension.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/line_activity_log_model.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_line_detail_controller.dart';
+import 'package:keep_sims/core/widgets/glass_card.dart';
+import 'package:keep_sims/core/widgets/glass_toggle_switch.dart';
 import 'package:keep_sims/features/scheduled_topups/model/scheduled_topup_model.dart';
 import 'package:keep_sims/features/scheduled_topups/model/topup_execution_model.dart';
 import 'package:keep_sims/features/scheduled_topups/ui/widgets/scheduled_topup_sheet.dart';
@@ -20,6 +23,8 @@ import 'package:keep_sims/features/sim_lines/presentation/widgets/manual_refill_
 import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import 'package:keep_sims/core/router/app_router.dart';
 import 'package:keep_sims/features/household/presentation/controllers/household_controller.dart';
+import 'package:keep_sims/features/profile/presentation/widgets/subscription_upsell_sheet.dart';
+import 'package:keep_sims/features/offline_recharge/controller/offline_refill_controller.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SimLineDetailScreen extends ConsumerStatefulWidget {
@@ -48,19 +53,24 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
 
     _isShared = simLine != null && simLine.userId != user?.id;
     _membership = _isShared
-        ? householdState?.memberships.firstWhereOrNull((m) => m.ownerId == simLine!.userId)
+        ? householdState?.memberships.firstWhereOrNull(
+            (m) => m.ownerId == simLine!.userId,
+          )
         : null;
-    _isViewer = _isShared && (_membership == null || _membership.role == 'viewer');
+    _isViewer =
+        _isShared && (_membership == null || _membership.role == 'viewer');
+
+    final isDark = context.isDarkMode;
 
     return Scaffold(
-      backgroundColor: AppColors.darkBg,
+      backgroundColor: context.scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_ios_new,
-            color: AppColors.textPrimaryDark,
+            color: context.onSurfaceColor,
             size: 20,
           ),
           onPressed: () => context.pop(),
@@ -68,13 +78,16 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
         title: Text(
           'Protection Console',
           style: AppTextStyles.headlineMedium.copyWith(
-            color: AppColors.textPrimaryDark,
+            color: context.onSurfaceColor,
           ),
         ),
         actions: [
           if (simLine != null && simLine.userId == user?.id)
             IconButton(
-              icon: const Icon(Icons.delete_outline_rounded, color: AppColors.error),
+              icon: const Icon(
+                Icons.delete_outline_rounded,
+                color: AppColors.error,
+              ),
               tooltip: 'Delete Protection',
               onPressed: () async {
                 await HapticHelper.mediumImpact();
@@ -84,7 +97,10 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
               },
             ),
           IconButton(
-            icon: const Icon(Icons.refresh, color: AppColors.textSecondaryDark),
+            icon: Icon(
+              Icons.refresh,
+              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+            ),
             tooltip: 'Refresh',
             onPressed: () async {
               await HapticHelper.lightTick();
@@ -93,8 +109,9 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
           ),
         ],
       ),
-      body: detailAsync.when(
-        data: (detailState) {
+      body: () {
+        final detailState = detailAsync.valueOrNull;
+        if (detailState != null) {
           final countries = countriesState.valueOrNull ?? [];
           final country = countries.isEmpty
               ? null
@@ -105,8 +122,15 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
 
           bool isHomeCountry = false;
           if (user?.homeCountryCode != null && country != null) {
-            isHomeCountry = user!.homeCountryCode!.toUpperCase() == country.isoCode.toUpperCase();
+            isHomeCountry =
+                user!.homeCountryCode!.toUpperCase() ==
+                country.isoCode.toUpperCase();
           }
+
+          final isPremium =
+              detailState.simLine.protectionTier.toLowerCase() == 'premium' ||
+              (user != null &&
+                  user.subscriptionTier.toLowerCase() == 'premium');
 
           return SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
@@ -120,6 +144,12 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                 // 1. Line Header Card
                 _buildHeaderCard(context, detailState.simLine, country),
                 const SizedBox(height: 20),
+
+                // Manual Refill Section
+                if (!_isViewer && isPremium) ...[
+                  _buildManualRefillSection(context, detailState.simLine, isPremium),
+                  const SizedBox(height: 20),
+                ],
 
                 // Back Home Plan Card
                 if (isHomeCountry) ...[
@@ -149,11 +179,16 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
               ],
             ),
           );
-        },
-        loading: () => const Center(
-          child: CircularProgressIndicator(color: AppColors.primary),
-        ),
-        error: (err, stack) => Center(
+        }
+
+        if (detailAsync.isLoading) {
+          return const Center(
+            child: CircularProgressIndicator(color: AppColors.primary),
+          );
+        }
+
+        final err = detailAsync.error ?? Exception('Unknown error');
+        return Center(
           child: Padding(
             padding: const EdgeInsets.all(24.0),
             child: Column(
@@ -205,13 +240,20 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
               ],
             ),
           ),
-        ),
-      ),
+        );
+      }(),
     );
   }
 
   // ── 1. Header Card UI ──────────────────────────────────────────────────────
   Widget _buildHeaderCard(BuildContext context, SimLine line, dynamic country) {
+    final userProfile = ref.read(authControllerProvider).valueOrNull;
+    final bool isPremium =
+        line.protectionTier.toLowerCase() == 'premium' ||
+        (userProfile != null &&
+            userProfile.subscriptionTier.toLowerCase() == 'premium');
+    final isDark = context.isDarkMode;
+
     String flag = '🌐';
     if (country != null) {
       flag = country.flagEmoji as String;
@@ -233,12 +275,18 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: AppColors.darkCardGradient,
+        gradient: isDark
+            ? AppColors.darkCardGradient
+            : LinearGradient(
+                colors: [Colors.white, context.scaffoldBackgroundColor],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.darkBorder),
+        border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withOpacity(0.05),
+            color: (isDark ? AppColors.primary : AppColors.lightPrimary).withOpacity(0.05),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -253,13 +301,13 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                 width: 60,
                 height: 60,
                 decoration: BoxDecoration(
-                  color: AppColors.darkSurface,
+                  color: isDark ? AppColors.darkSurface : const Color(0xFFEAEEF1),
                   borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: AppColors.darkBorder),
+                  border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
                 ),
                 child: Icon(
                   getIcon(line.avatarIcon),
-                  color: AppColors.primaryLight,
+                  color: isDark ? AppColors.primaryLight : AppColors.lightPrimary,
                   size: 28,
                 ),
               ),
@@ -268,8 +316,8 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                 right: 2,
                 child: Container(
                   padding: const EdgeInsets.all(2),
-                  decoration: const BoxDecoration(
-                    color: AppColors.darkSurface,
+                  decoration: BoxDecoration(
+                    color: isDark ? AppColors.darkSurface : Colors.white,
                     shape: BoxShape.circle,
                   ),
                   child: Text(flag, style: const TextStyle(fontSize: 16)),
@@ -289,21 +337,23 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                       child: Text(
                         line.nickname ?? 'My SIM Card',
                         style: AppTextStyles.headlineSmall.copyWith(
-                          color: AppColors.textPrimaryDark,
+                          color: context.onSurfaceColor,
                           fontWeight: FontWeight.bold,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     const SizedBox(width: 8),
-                    _buildTierBadge(line.protectionTier),
+                    _buildTierBadge(
+                      isPremium ? 'premium' : line.protectionTier,
+                    ),
                   ],
                 ),
                 const SizedBox(height: 6),
                 Text(
                   line.phoneNumber,
                   style: AppTextStyles.bodyLarge.copyWith(
-                    color: AppColors.textSecondaryDark,
+                    color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                     fontFamily: 'monospace',
                     fontWeight: FontWeight.w600,
                   ),
@@ -313,7 +363,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                   Text(
                     country.name as String,
                     style: AppTextStyles.caption.copyWith(
-                      color: AppColors.primaryLight,
+                      color: isDark ? AppColors.primaryLight : AppColors.lightPrimary,
                     ),
                   ),
                 ],
@@ -321,16 +371,16 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                   const SizedBox(height: 6),
                   Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.people_outline,
-                        color: AppColors.primaryLight,
+                        color: isDark ? AppColors.primaryLight : AppColors.lightPrimary,
                         size: 14,
                       ),
                       const SizedBox(width: 4),
                       Text(
                         'Shared by: ${_membership?.ownerName ?? 'Family Member'} (${_isViewer ? 'Viewer' : 'Manager'})',
                         style: AppTextStyles.caption.copyWith(
-                          color: AppColors.primaryLight,
+                          color: isDark ? AppColors.primaryLight : AppColors.lightPrimary,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -340,40 +390,97 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
               ],
             ),
           ),
-          if (!_isViewer) ...[
-            const SizedBox(width: 8),
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  onPressed: () => _handleVerifyLineActivity(context, line),
-                  icon: const Icon(Icons.radar, size: 20),
-                  tooltip: line.verificationStatus == 'unverified' ? 'Verify' : 'Reverify',
-                  style: IconButton.styleFrom(
-                    backgroundColor: AppColors.success,
-                    foregroundColor: Colors.white,
-                  ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildManualRefillSection(
+    BuildContext context,
+    SimLine line,
+    bool isPremium,
+  ) {
+    if (_isViewer || !isPremium) {
+      return const SizedBox.shrink();
+    }
+    final isDark = context.isDarkMode;
+    final accentColor = isDark ? AppColors.secondary : AppColors.lightSecondary;
+
+    return GlassCard(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: accentColor.withOpacity(0.12),
+                  shape: BoxShape.circle,
                 ),
-                const SizedBox(height: 8),
-                IconButton(
-                  onPressed: () {
-                    showModalBottomSheet(
-                      context: context,
-                      isScrollControlled: true,
-                      backgroundColor: Colors.transparent,
-                      builder: (context) => ManualRefillBottomSheet(simLine: line),
-                    );
-                  },
-                  icon: const Icon(Icons.attach_money_rounded, size: 22),
-                  tooltip: 'Manual Refill',
-                  style: IconButton.styleFrom(
-                    backgroundColor: AppColors.secondary,
-                    foregroundColor: Colors.white,
-                  ),
+                child: Icon(
+                  Icons.attach_money_rounded,
+                  color: accentColor,
+                  size: 24,
                 ),
-              ],
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Manual Refill',
+                      style: AppTextStyles.titleLarge.copyWith(
+                        color: context.onSurfaceColor,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Deduct amount directly from your wallet to instantly recharge this SIM card manually.',
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (context) =>
+                      ManualRefillBottomSheet(simLine: line),
+                );
+              },
+              icon: const Icon(Icons.flash_on_rounded, size: 16, color: Colors.white),
+              label: const Text(
+                'Instant Manual Refill',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: accentColor,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                elevation: 2,
+                shadowColor: accentColor.withOpacity(0.3),
+              ),
             ),
-          ],
+          ),
         ],
       ),
     );
@@ -411,67 +518,69 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
   }
 
   // ── Back Home Plan Card UI ────────────────────────────────────────────────
-  Widget _buildBackHomeCard(BuildContext context, SimLine line, dynamic country) {
-    bool isPremium = line.protectionTier.toLowerCase() == 'premium';
+  Widget _buildBackHomeCard(
+    BuildContext context,
+    SimLine line,
+    dynamic country,
+  ) {
+    final userProfile = ref.read(authControllerProvider).valueOrNull;
+    final bool isPremium =
+        line.protectionTier.toLowerCase() == 'premium' ||
+        (userProfile != null &&
+            userProfile.subscriptionTier.toLowerCase() == 'premium');
+    final isDark = context.isDarkMode;
 
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.darkSurface,
+        color: isDark ? AppColors.darkSurface : Colors.white,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.darkBorder),
+        border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.flight_land, color: AppColors.primaryLight, size: 28),
+              Icon(
+                Icons.flight_land,
+                color: isDark ? AppColors.primaryLight : AppColors.lightPrimary,
+                size: 28,
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   'Back to ${country?.name ?? 'Home'}',
                   style: AppTextStyles.titleLarge.copyWith(
-                    color: Colors.white,
+                    color: context.onSurfaceColor,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+              ),
+              Switch.adaptive(
+                value: line.isHomeMode,
+                activeColor: isDark ? AppColors.secondary : AppColors.lightSecondary,
+                onChanged: _isViewer
+                    ? null
+                    : (val) {
+                        ref
+                            .read(simLinesControllerProvider.notifier)
+                            .toggleHomeMode(line.id, val);
+                      },
               ),
             ],
           ),
           const SizedBox(height: 12),
           Text(
-            line.isHomeMode 
-              ? 'Your SIM is currently in Home Mode. When you travel abroad again, return to Travel Mode to resume protection.'
-              : 'Prepare your SIM for your return. renewal(pause) - prepare a data/call plan before you arrive (premium).',
-            style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondaryDark),
+            line.isHomeMode
+                ? 'Your SIM is currently in Home Mode. When you travel abroad again, turn off Home Mode to resume protection.'
+                : 'Switch on to pause auto-renewal while in your home country. Feel free to get Baqa plan for uninterrupted calls & internet.',
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+            ),
           ),
           const SizedBox(height: 20),
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: _isViewer
-                      ? null
-                      : () {
-                          ref
-                              .read(simLinesControllerProvider.notifier)
-                              .toggleHomeMode(line.id, !line.isHomeMode);
-                        },
-                  icon: Icon(line.isHomeMode ? Icons.flight_takeoff : Icons.pause_circle_outline, size: 18),
-                  label: Text(line.isHomeMode ? 'Return to Travel Mode' : 'Activate Home Mode'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: line.isHomeMode ? Colors.lightBlue : AppColors.warning,
-                    side: BorderSide(color: line.isHomeMode ? Colors.lightBlue : AppColors.warning),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
+
           if (isPremium && !line.isHomeMode) ...[
             const SizedBox(height: 12),
             SizedBox(
@@ -480,13 +589,20 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                 onPressed: () {
                   // Prepare Baqa Plan logic
                 },
-                icon: const Icon(Icons.card_giftcard, size: 18, color: Colors.white),
+                icon: const Icon(
+                  Icons.card_giftcard,
+                  size: 18,
+                  color: Colors.white,
+                ),
                 label: const Text(
                   'Prepare "Baqa" Plan (100 Min / 1GB)',
-                  style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
+                  backgroundColor: isDark ? AppColors.primary : AppColors.lightPrimary,
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -499,18 +615,24 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppColors.darkCard,
+                color: isDark ? AppColors.darkCard : const Color(0xFFEAEEF1),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.darkBorder),
+                border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.lock_outline, color: AppColors.textTertiaryDark, size: 20),
+                  Icon(
+                    Icons.lock_outline,
+                    color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
+                    size: 20,
+                  ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
                       'Upgrade to Premium to pre-book a "Baqa" plan (calls & internet).',
-                      style: AppTextStyles.caption.copyWith(color: AppColors.textSecondaryDark),
+                      style: AppTextStyles.caption.copyWith(
+                        color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                      ),
                     ),
                   ),
                 ],
@@ -527,44 +649,64 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
     BuildContext context,
     SimLineDetailState detail,
   ) {
-    bool hasAutoRefill =
-        detail.scheduledTopup != null &&
-        detail.scheduledTopup!.status == 'active';
-    bool isVerified = detail.simLine.status == 'active';
-    bool recentRefill =
-        detail.simLine.lastTopupAt != null &&
-        DateTime.now().difference(detail.simLine.lastTopupAt!).inDays <= 80;
+    final userProfile = ref.read(authControllerProvider).valueOrNull;
+    final isPremium =
+        detail.simLine.protectionTier.toLowerCase() == 'premium' ||
+        (userProfile != null &&
+            userProfile.subscriptionTier.toLowerCase() == 'premium');
+    final line = detail.simLine;
+    final hasProtectionActive = isPremium
+        ? (detail.refillSchedule != null &&
+              detail.refillSchedule!.status == 'active')
+        : (detail.notifySchedule != null &&
+              detail.notifySchedule!.status == 'active');
+    final isVerified = line.status == 'active';
+    final recentRefill =
+        line.lastTopupAt != null &&
+        DateTime.now().difference(line.lastTopupAt!).inDays <= 80;
 
-    int dynamicScore =
-        (hasAutoRefill ? 50 : 0) +
-        (isVerified ? 25 : 0) +
-        (recentRefill ? 25 : 0);
-    
-    // Override score if in Home Mode
-    if (detail.simLine.isHomeMode) {
-      dynamicScore = 100;
-    }
-    final score = dynamicScore;
+    final score = line.isHomeMode
+        ? 100
+        : (!isPremium
+              ? (hasProtectionActive ? 100 : 0)
+              : ((hasProtectionActive ? 50 : 0) +
+                    (isVerified ? 25 : 0) +
+                    (recentRefill ? 25 : 0)));
 
     List<String> missingReasons = [];
     if (!detail.simLine.isHomeMode) {
-      if (!hasAutoRefill)
-        missingReasons.add("Missing 50%: Configure an Auto-Refill schedule.");
-      if (!isVerified)
-        missingReasons.add("Missing 25%: Verify your line activity.");
-      if (!recentRefill)
-        missingReasons.add("Missing 25%: Last refill was more than 80 days ago.");
+      if (!isPremium) {
+        if (!hasProtectionActive) {
+          missingReasons.add(
+            "Missing 100%: Configure alert notifications (Auto-Notify).",
+          );
+        }
+      } else {
+        if (!hasProtectionActive) {
+          missingReasons.add("Missing 50%: Configure an Auto-Refill schedule.");
+        }
+        if (!isVerified) {
+          missingReasons.add("Missing 25%: Verify your line activity.");
+        }
+        if (!recentRefill) {
+          missingReasons.add(
+            "Missing 25%: Last refill was more than 80 days ago.",
+          );
+        }
+      }
     }
 
     Color scoreColor = AppColors.healthGreen;
     String rating = 'SECURE';
-    String description =
-        'Your SIM card has active automated refill protection configured.';
+    String description = isPremium
+        ? 'SIM in Full protection'
+        : 'Your SIM card has automated alert notifications';
 
     if (detail.simLine.isHomeMode) {
       scoreColor = Colors.lightBlue;
       rating = 'HOME MODE';
-      description = 'Auto-renewal is paused while you are in your home country. Your line remains secure.';
+      description =
+          'Auto-renewal is paused while you are in your home country.';
     } else if (score < 50) {
       scoreColor = AppColors.healthRed;
       rating = 'CRITICAL RISK';
@@ -577,12 +719,23 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
           'Your line is partially protected. Address the missing criteria to reach 100%.';
     }
 
+    final isDark = context.isDarkMode;
+
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: AppColors.darkSurface,
+        color: isDark ? AppColors.darkSurface : Colors.white,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.darkBorder),
+        border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: AppColors.lightPrimary.withOpacity(0.04),
+                  blurRadius: 15,
+                  offset: const Offset(0, 4),
+                ),
+              ],
       ),
       child: Column(
         children: [
@@ -598,7 +751,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                     CircularProgressIndicator(
                       value: score / 100,
                       strokeWidth: 4,
-                      backgroundColor: AppColors.darkCard,
+                      backgroundColor: isDark ? AppColors.darkCard : const Color(0xFFEAEEF1),
                       valueColor: AlwaysStoppedAnimation<Color>(scoreColor),
                     ),
                     Text(
@@ -620,7 +773,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                     Text(
                       'Shield Health Score',
                       style: AppTextStyles.caption.copyWith(
-                        color: AppColors.textTertiaryDark,
+                        color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -636,7 +789,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                     Text(
                       description,
                       style: AppTextStyles.bodySmall.copyWith(
-                        color: AppColors.textSecondaryDark,
+                        color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                       ),
                     ),
                     if (missingReasons.isNotEmpty) ...[
@@ -671,27 +824,253 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
               ),
             ],
           ),
+          if (!_isViewer) ...[
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10.0),
+              child: Divider(color: isDark ? AppColors.darkBorder : AppColors.lightBorder, height: 1),
+            ),
+            _buildVerificationPanel(context, line),
+          ],
+        ],
+      ),
+    );
+  }
 
+  Widget _buildVerificationPanel(BuildContext context, SimLine line) {
+    final userProfile = ref.read(authControllerProvider).valueOrNull;
+    final String tier =
+        (userProfile != null &&
+            userProfile.subscriptionTier.toLowerCase() == 'premium')
+        ? 'premium'
+        : line.protectionTier.toLowerCase();
+    final bool isVerified = line.status == 'active';
+    final isDark = context.isDarkMode;
+
+    if (tier == 'basic') {
+      // Free Tier: Disabled completely
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.darkCard : const Color(0xFFEAEEF1),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.lock_outline,
+              color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
+              size: 20,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Line Verification Locked',
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'Line verification is only available on Starter and Premium plans.',
+                    style: AppTextStyles.caption.copyWith(
+                      color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (tier == 'standard') {
+      // Standard Tier: 1x only. If already verified, hide or show "Line Verified (1x Check Completed)"
+      if (isVerified) {
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            color: AppColors.success.withOpacity(0.05),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.success.withOpacity(0.15)),
+          ),
+          child: Row(
+            children: [
+              const Icon(
+                Icons.verified_user_rounded,
+                color: AppColors.success,
+                size: 20,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'SIM Line Verified',
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: AppColors.success,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Your Starter Plan 1x secure line check is completed and recorded.',
+                      style: AppTextStyles.caption.copyWith(
+                        color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      } else {
+        // Standard not yet verified
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            color: AppColors.warning.withOpacity(0.05),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.warning.withOpacity(0.15)),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Verify SIM Activity',
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: context.onSurfaceColor,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Starter plan includes 1x secure line verification check to confirm status.',
+                      style: AppTextStyles.caption.copyWith(
+                        color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              ElevatedButton.icon(
+                onPressed: () => _handleVerifyLineActivity(context, line),
+                icon: const Icon(Icons.radar, size: 14),
+                label: const Text('Verify'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.success,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 8,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      }
+    }
+
+    // Premium Tier: Always available, unlimited verifications
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: isVerified
+            ? AppColors.success.withOpacity(0.05)
+            : AppColors.warning.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isVerified
+              ? AppColors.success.withOpacity(0.15)
+              : AppColors.warning.withOpacity(0.15),
+        ),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              isVerified ? 'Test SIM Activity' : 'Test SIM Activity',
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: isVerified ? AppColors.success : context.onSurfaceColor,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          ElevatedButton.icon(
+            onPressed: () => _handleVerifyLineActivity(context, line),
+            icon: const Icon(Icons.radar, size: 14),
+            label: Text(isVerified ? 'Reverify' : 'Verify'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.success,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 
   // ── 3. Auto-Refill Schedule UI ─────────────────────────────────────────────
+  // ── 3. Auto-Notify & Auto-Refill Configuration Panels ──────────────────────
   Widget _buildAutoRefillSection(
     BuildContext context,
     SimLineDetailState detail,
   ) {
-    final schedule = detail.scheduledTopup;
+    final line = detail.simLine;
+    final userProfile = ref.read(authControllerProvider).valueOrNull;
+    final isPremium =
+        line.protectionTier.toLowerCase() == 'premium' ||
+        (userProfile != null &&
+            userProfile.subscriptionTier.toLowerCase() == 'premium');
 
-    if (schedule == null) {
-      return Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: AppColors.healthRed.withOpacity(0.05),
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: AppColors.healthRed.withOpacity(0.15)),
+    return Column(
+      children: [
+        _buildAutoNotifyDetailPanel(context, line, detail.notifySchedule),
+        const SizedBox(height: 20),
+        _buildAutoRefillDetailPanel(
+          context,
+          line,
+          detail.refillSchedule,
+          isPremium,
         ),
+      ],
+    );
+  }
+
+  Widget _buildAutoNotifyDetailPanel(
+    BuildContext context,
+    SimLine line,
+    ScheduledTopup? schedule,
+  ) {
+    final isConfigured = schedule != null;
+    final isPaused = schedule != null && !schedule.isActive;
+    final isDark = context.isDarkMode;
+
+    if (!isConfigured) {
+      return GlassCard(
+        padding: const EdgeInsets.all(20),
+        isActive: false,
+        activeColor: AppColors.healthRed,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -704,9 +1083,9 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  'Auto-Refill: Disabled',
+                  'Auto-Notify: Disabled',
                   style: AppTextStyles.titleLarge.copyWith(
-                    color: Colors.white,
+                    color: context.onSurfaceColor,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -714,30 +1093,31 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Your SIM card has no active automatic renewal schedule. SIM card will expire and get permanently deactivated if not recharged on time.',
+              'Your SIM card has no active alert notification schedule. You will not receive automatic reminders or deactivation alerts.',
               style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.textSecondaryDark,
+                color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
               ),
             ),
             const SizedBox(height: 16),
             if (_isViewer)
               Text(
-                'Please ask the household owner to configure auto-renewal.',
+                'Please ask the household owner to configure alerts.',
                 style: AppTextStyles.caption.copyWith(
-                  color: AppColors.textSecondaryDark,
+                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                   fontStyle: FontStyle.italic,
                 ),
               )
             else
               ElevatedButton.icon(
-                onPressed: () => _openScheduleSheet(
-                  context,
-                  detail.simLine,
-                  detail.scheduledTopup,
+                onPressed: () =>
+                    _openScheduleSheet(context, line, null, 'notify'),
+                icon: const Icon(
+                  Icons.add_circle_outline_rounded,
+                  size: 18,
+                  color: Colors.white,
                 ),
-                icon: const Icon(Icons.add, size: 18, color: Colors.white),
                 label: const Text(
-                  'Configure Auto-Renewal',
+                  'Configure Auto-Notify',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
@@ -760,17 +1140,13 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
     }
 
     final dateFormat = DateFormat('MMM dd, yyyy');
-    String getDueStr() {
-      return dateFormat.format(schedule.nextExecutionAt);
-    }
+    final isPausedByHome = line.isHomeMode;
+    final displayActive = schedule.isActive && !isPausedByHome;
 
-    return Container(
+    return GlassCard(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppColors.darkSurface,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.darkBorder),
-      ),
+      isActive: displayActive,
+      activeColor: AppColors.secondary,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -778,9 +1154,9 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Auto-Renewal Schedule',
+                'Auto-Notify Schedule',
                 style: AppTextStyles.titleLarge.copyWith(
-                  color: Colors.white,
+                  color: context.onSurfaceColor,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -793,23 +1169,25 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                     ),
                     decoration: BoxDecoration(
                       color:
-                          (schedule.isActive
+                          (displayActive
                                   ? AppColors.secondary
                                   : AppColors.warning)
                               .withOpacity(0.12),
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
                         color:
-                            (schedule.isActive
+                            (displayActive
                                     ? AppColors.secondary
                                     : AppColors.warning)
                                 .withOpacity(0.3),
                       ),
                     ),
                     child: Text(
-                      schedule.isActive ? 'ACTIVE' : 'PAUSED',
+                      displayActive
+                          ? 'ACTIVE'
+                          : (isPausedByHome ? 'PAUSED (HOME MODE)' : 'PAUSED'),
                       style: TextStyle(
-                        color: schedule.isActive
+                        color: displayActive
                             ? AppColors.secondary
                             : AppColors.warning,
                         fontSize: 9,
@@ -818,10 +1196,10 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  Switch.adaptive(
-                    value: schedule.isActive,
+                  GlassToggleSwitch(
+                    value: displayActive,
                     activeColor: AppColors.secondary,
-                    onChanged: _isViewer || _isToggling
+                    onChanged: _isViewer || _isToggling || isPausedByHome
                         ? null
                         : (val) =>
                               _handleToggleSchedule(context, schedule.id, val),
@@ -832,13 +1210,8 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
           ),
           const SizedBox(height: 16),
           _buildScheduleRowItem(
-            'Recharge Amount',
-            '\$${schedule.amount.toStringAsFixed(2)} ${schedule.currency}',
-            Icons.monetization_on_outlined,
-          ),
-          const SizedBox(height: 12),
-          _buildScheduleRowItem(
-            'Renewal Interval',
+            context,
+            'Renewal Check Interval',
             schedule.frequencyDays == 0
                 ? 'Every 1 hour'
                 : 'Every ${schedule.frequencyDays} days',
@@ -846,42 +1219,34 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
           ),
           const SizedBox(height: 12),
           _buildScheduleRowItem(
-            'Next Refill Due',
-            getDueStr(),
+            context,
+            'Next Alert Check',
+            isPausedByHome
+                ? 'Paused (Home Mode)'
+                : dateFormat.format(schedule.nextExecutionAt),
             Icons.date_range,
+            valueColor: isPausedByHome ? AppColors.warning : null,
           ),
-          if (schedule.retryCount > 0) ...[
-            const SizedBox(height: 12),
-            _buildScheduleRowItem(
-              'Failed Refill Attempts',
-              '${schedule.retryCount} / 4 retries',
-              Icons.warning_amber_rounded,
-              valueColor: AppColors.healthRed,
-            ),
-          ],
           if (!_isViewer) ...[
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 14.0),
-              child: Divider(color: AppColors.darkBorder, height: 1),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 14.0),
+              child: Divider(color: isDark ? AppColors.darkBorder : AppColors.lightBorder, height: 1),
             ),
             Row(
               children: [
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: () => _openScheduleSheet(
-                      context,
-                      detail.simLine,
-                      detail.scheduledTopup,
-                    ),
-                    icon: const Icon(
+                    onPressed: () =>
+                        _openScheduleSheet(context, line, schedule, 'notify'),
+                    icon: Icon(
                       Icons.edit_outlined,
                       size: 16,
-                      color: AppColors.textPrimaryDark,
+                      color: context.onSurfaceColor,
                     ),
-                    label: const Text(
-                      'Edit Schedule',
+                    label: Text(
+                      'Edit Notification Config',
                       style: TextStyle(
-                        color: AppColors.textPrimaryDark,
+                        color: context.onSurfaceColor,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -890,15 +1255,341 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      side: const BorderSide(color: AppColors.darkBorder),
+                      side: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
                     ),
                   ),
                 ),
                 const SizedBox(width: 12),
                 IconButton(
-                  icon: const Icon(Icons.delete_outline, color: AppColors.error),
-                  onPressed: () =>
-                      _showDeleteScheduleConfirmation(context, schedule.id),
+                  icon: const Icon(
+                    Icons.delete_outline,
+                    color: AppColors.error,
+                  ),
+                  onPressed: () => _showDeleteScheduleConfirmation(
+                    context,
+                    schedule.id,
+                    false,
+                  ),
+                  style: IconButton.styleFrom(
+                    backgroundColor: AppColors.error.withOpacity(0.08),
+                    padding: const EdgeInsets.all(12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: BorderSide(color: AppColors.error.withOpacity(0.2)),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAutoRefillDetailPanel(
+    BuildContext context,
+    SimLine line,
+    ScheduledTopup? schedule,
+    bool isPremium,
+  ) {
+    final isDark = context.isDarkMode;
+    if (!isPremium) {
+      // Locked for Free/Standard
+      return GlassCard(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.lock_outline_rounded,
+                  color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
+                  size: 28,
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  'Auto-Refill: Locked 🔒',
+                  style: AppTextStyles.titleLarge.copyWith(
+                    color: context.onSurfaceColor.withOpacity(0.6),
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Auto-Refill automatically purchases credit to top-up your balance and extend validity before expiration. This feature is exclusive to Premium Plan subscribers.',
+              style: AppTextStyles.bodySmall.copyWith(
+                color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+              ),
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () async {
+                  await HapticHelper.mediumImpact();
+                  SubscriptionUpsellSheet.show(
+                    context: context,
+                    title: 'Auto-Refill Locked 🔒',
+                    description:
+                        'Auto-Refill executes automatically with secure top-up and is exclusive to Premium users. Upgrade now to fully automate SIM renewal!',
+                    requiredPlan: 'Premium Plan',
+                    highlights: [
+                      'Unlimited high-speed SIM protection lines',
+                      'Zero-click Automated Auto-Refill executing balance updates',
+                      'Direct balance API synchronization & validation',
+                    ],
+                  );
+                },
+                icon: const Icon(
+                  Icons.star_rounded,
+                  size: 18,
+                  color: Colors.black,
+                ),
+                label: const Text(
+                  'Unlock Auto-Refill with Premium',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.amberAccent,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final isConfigured = schedule != null && schedule.amount > 0.0;
+    final isPaused = schedule != null && !schedule.isActive;
+
+    if (!isConfigured) {
+      return GlassCard(
+        padding: const EdgeInsets.all(20),
+        isActive: false,
+        activeColor: AppColors.healthRed,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(
+                  Icons.warning_amber_rounded,
+                  color: AppColors.healthRed,
+                  size: 28,
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  'Auto-Refill: Unconfigured',
+                  style: AppTextStyles.titleLarge.copyWith(
+                    color: context.onSurfaceColor,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Premium tier features automated top-ups. Set your refill amount and frequency interval to ensure your SIM is protected.',
+              style: AppTextStyles.bodySmall.copyWith(
+                color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+              ),
+            ),
+            const SizedBox(height: 16),
+            if (_isViewer)
+              Text(
+                'Please ask the household owner to configure Auto-Refill.',
+                style: AppTextStyles.caption.copyWith(
+                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                  fontStyle: FontStyle.italic,
+                ),
+              )
+            else
+              ElevatedButton.icon(
+                onPressed: () =>
+                    _openScheduleSheet(context, line, null, 'refill'),
+                icon: const Icon(Icons.add, size: 18, color: Colors.white),
+                label: const Text(
+                  'Configure Auto-Refill',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      );
+    }
+
+    final dateFormat = DateFormat('MMM dd, yyyy');
+    final isPausedByHome = line.isHomeMode;
+    final displayActive = schedule.isActive && !isPausedByHome;
+
+    return GlassCard(
+      padding: const EdgeInsets.all(20),
+      isActive: displayActive,
+      activeColor: AppColors.secondary,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Auto-Refill Schedule',
+                style: AppTextStyles.titleLarge.copyWith(
+                  color: context.onSurfaceColor,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
+                    decoration: BoxDecoration(
+                      color:
+                          (displayActive
+                                  ? AppColors.secondary
+                                  : AppColors.warning)
+                              .withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color:
+                            (displayActive
+                                    ? AppColors.secondary
+                                    : AppColors.warning)
+                                .withOpacity(0.3),
+                      ),
+                    ),
+                    child: Text(
+                      displayActive
+                          ? 'ACTIVE'
+                          : (isPausedByHome ? 'PAUSED (HOME MODE)' : 'PAUSED'),
+                      style: TextStyle(
+                        color: displayActive
+                            ? AppColors.secondary
+                            : AppColors.warning,
+                        fontSize: 9,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  GlassToggleSwitch(
+                    value: displayActive,
+                    activeColor: AppColors.secondary,
+                    onChanged: _isViewer || _isToggling || isPausedByHome
+                        ? null
+                        : (val) =>
+                              _handleToggleSchedule(context, schedule.id, val),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _buildScheduleRowItem(
+            context,
+            'Recharge Amount',
+            '\$${schedule.amount.toStringAsFixed(2)} ${schedule.currency}',
+            Icons.monetization_on_outlined,
+          ),
+          const SizedBox(height: 12),
+          _buildScheduleRowItem(
+            context,
+            'Refill Interval',
+            schedule.frequencyDays == 0
+                ? 'Every 1 hour'
+                : 'Every ${schedule.frequencyDays} days',
+            Icons.repeat,
+          ),
+          const SizedBox(height: 12),
+          _buildScheduleRowItem(
+            context,
+            'Next Refill Due',
+            isPausedByHome
+                ? 'Paused (Home Mode)'
+                : dateFormat.format(schedule.nextExecutionAt),
+            Icons.date_range,
+            valueColor: isPausedByHome ? AppColors.warning : null,
+          ),
+          if (schedule.retryCount > 0) ...[
+            const SizedBox(height: 12),
+            _buildScheduleRowItem(
+              context,
+              'Failed Refill Attempts',
+              '${schedule.retryCount} / 4 retries',
+              Icons.warning_amber_rounded,
+              valueColor: AppColors.healthRed,
+            ),
+          ],
+          if (!_isViewer) ...[
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 14.0),
+              child: Divider(color: isDark ? AppColors.darkBorder : AppColors.lightBorder, height: 1),
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () =>
+                        _openScheduleSheet(context, line, schedule, 'refill'),
+                    icon: Icon(
+                      Icons.edit_outlined,
+                      size: 16,
+                      color: context.onSurfaceColor,
+                    ),
+                    label: Text(
+                      'Edit Refill Amount',
+                      style: TextStyle(
+                        color: context.onSurfaceColor,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      side: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                IconButton(
+                  icon: const Icon(
+                    Icons.delete_outline,
+                    color: AppColors.error,
+                  ),
+                  onPressed: () => _showDeleteScheduleConfirmation(
+                    context,
+                    schedule.id,
+                    true,
+                  ),
                   style: IconButton.styleFrom(
                     backgroundColor: AppColors.error.withOpacity(0.08),
                     padding: const EdgeInsets.all(12),
@@ -917,26 +1608,28 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
   }
 
   Widget _buildScheduleRowItem(
+    BuildContext context,
     String label,
     String value,
     IconData icon, {
     Color? valueColor,
   }) {
+    final isDark = context.isDarkMode;
     return Row(
       children: [
-        Icon(icon, size: 16, color: AppColors.textTertiaryDark),
+        Icon(icon, size: 16, color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight),
         const SizedBox(width: 8),
         Text(
           label,
           style: AppTextStyles.bodyMedium.copyWith(
-            color: AppColors.textSecondaryDark,
+            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
           ),
         ),
         const Spacer(),
         Text(
           value,
           style: AppTextStyles.bodyMedium.copyWith(
-            color: valueColor ?? AppColors.textPrimaryDark,
+            color: valueColor ?? context.onSurfaceColor,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -949,22 +1642,50 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
     BuildContext context,
     SimLineDetailState detail,
   ) {
-    final list = detail.executions;
+    final userProfile = ref.read(authControllerProvider).valueOrNull;
+    final isPremium =
+        detail.simLine.protectionTier.toLowerCase() == 'premium' ||
+        (userProfile != null &&
+            userProfile.subscriptionTier.toLowerCase() == 'premium');
+    final isDark = context.isDarkMode;
+
+    if (!isPremium) {
+      return const SizedBox.shrink();
+    }
+
+    final list = detail.executions.where((ex) {
+      final txId = ex.reloadlyTransactionId;
+      if (txId != null && txId.toUpperCase().contains('MOCK')) {
+        return false;
+      }
+      return true;
+    }).take(5).toList();
 
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.darkSurface,
+        color: isDark ? AppColors.darkSurface : Colors.white,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.darkBorder),
+        border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: AppColors.lightPrimary.withOpacity(0.04),
+                  blurRadius: 15,
+                  offset: const Offset(0, 4),
+                ),
+              ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Refill Executions History',
+            isPremium
+                ? 'Refill Executions History'
+                : 'Renewal Executions History',
             style: AppTextStyles.titleLarge.copyWith(
-              color: Colors.white,
+              color: context.onSurfaceColor,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -973,9 +1694,11 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16.0),
               child: Text(
-                'No historical top-up executions recorded for this line yet.',
+                isPremium
+                    ? 'No historical top-up executions recorded for this line yet.'
+                    : 'No historical renewal executions recorded for this line yet.',
                 style: AppTextStyles.bodyMedium.copyWith(
-                  color: AppColors.textSecondaryDark,
+                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                 ),
               ),
             )
@@ -985,7 +1708,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
               physics: const NeverScrollableScrollPhysics(),
               itemCount: list.length,
               separatorBuilder: (context, index) =>
-                  const Divider(color: AppColors.darkBorder, height: 16),
+                  Divider(color: isDark ? AppColors.darkBorder : AppColors.lightBorder, height: 16),
               itemBuilder: (context, index) {
                 final ex = list[index];
                 final isSuccess = ex.status == 'success';
@@ -1023,7 +1746,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                               Text(
                                 '\$${ex.amount.toStringAsFixed(2)} ${ex.currency}',
                                 style: AppTextStyles.bodyMedium.copyWith(
-                                  color: Colors.white,
+                                  color: context.onSurfaceColor,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -1058,7 +1781,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                           Text(
                             dateStr,
                             style: AppTextStyles.caption.copyWith(
-                              color: AppColors.textTertiaryDark,
+                              color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
                             ),
                           ),
                           if (ex.reloadlyTransactionId != null) ...[
@@ -1066,7 +1789,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                             Text(
                               'Tx ID: ${ex.reloadlyTransactionId}',
                               style: AppTextStyles.caption.copyWith(
-                                color: AppColors.textSecondaryDark,
+                                color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                                 fontFamily: 'monospace',
                               ),
                             ),
@@ -1097,10 +1820,11 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                                     SizedBox(
                                       height: 28,
                                       child: ElevatedButton(
-                                        onPressed: () => _handleRetryFailedTopup(
-                                          context,
-                                          ex.id,
-                                        ),
+                                        onPressed: () =>
+                                            _handleRetryFailedTopup(
+                                              context,
+                                              ex.id,
+                                            ),
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: AppColors.error,
                                           foregroundColor: Colors.white,
@@ -1130,20 +1854,44 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                         ],
                       ),
                     ),
-                    // Actions
-                    if (!_isViewer)
-                      IconButton(
-                        icon: const Icon(
-                          Icons.delete_outline,
-                          color: AppColors.textTertiaryDark,
-                          size: 20,
-                        ),
-                        onPressed: () => _handleDeleteExecution(context, ex.id),
-                      ),
                   ],
                 );
               },
             ),
+          if (list.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  HapticHelper.lightTick();
+                  context.goNamed(
+                    'simLineExecutions',
+                    pathParameters: {'id': detail.simLine.id},
+                  );
+                },
+                icon: Icon(
+                  Icons.history_rounded,
+                  size: 16,
+                  color: isDark ? AppColors.primaryLight : AppColors.lightPrimary,
+                ),
+                label: Text(
+                  'View All History',
+                  style: TextStyle(
+                    color: isDark ? AppColors.primaryLight : AppColors.lightPrimary,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  side: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -1154,41 +1902,60 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
     BuildContext context,
     SimLineDetailState detail,
   ) {
-    final list = detail.activityLogs;
+    final isDark = context.isDarkMode;
+    final list = detail.activityLogs.where((log) {
+      if (log.metadata['is_mock'] == true ||
+          log.metadata['is_mock'] == 'true' ||
+          (log.description != null &&
+              log.description!.toUpperCase().contains('MOCK'))) {
+        return false;
+      }
+      return true;
+    }).take(13).toList();
 
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.darkSurface,
+        color: isDark ? AppColors.darkSurface : Colors.white,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.darkBorder),
+        border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: AppColors.lightPrimary.withOpacity(0.04),
+                  blurRadius: 15,
+                  offset: const Offset(0, 4),
+                ),
+              ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Security Activity Logs',
-                style: AppTextStyles.titleLarge.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
+              Expanded(
+                child: Text(
+                  'Security Activity Logs',
+                  style: AppTextStyles.titleLarge.copyWith(
+                    color: context.onSurfaceColor,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
               if (list.isNotEmpty && !_isViewer)
                 TextButton.icon(
                   onPressed: () => _handleCleanMockLogs(context),
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.cleaning_services,
                     size: 14,
-                    color: AppColors.primaryLight,
+                    color: isDark ? AppColors.primaryLight : AppColors.lightPrimary,
                   ),
-                  label: const Text(
-                    'Clean the Activity logs',
+                  label: Text(
+                    'Clear Logs',
                     style: TextStyle(
                       fontSize: 11,
-                      color: AppColors.primaryLight,
+                      color: isDark ? AppColors.primaryLight : AppColors.lightPrimary,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -1202,7 +1969,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
               child: Text(
                 'No activity logs recorded for this line yet.',
                 style: AppTextStyles.bodyMedium.copyWith(
-                  color: AppColors.textSecondaryDark,
+                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                 ),
               ),
             )
@@ -1215,7 +1982,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                 final log = list[index];
                 final isLast = index == list.length - 1;
 
-                Color iconColor = AppColors.primaryLight;
+                Color iconColor = isDark ? AppColors.primaryLight : AppColors.lightPrimary;
                 IconData iconData = Icons.info_outline;
 
                 if (log.eventType == 'topup_success') {
@@ -1225,10 +1992,10 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                   iconColor = AppColors.error;
                   iconData = Icons.error_outline;
                 } else if (log.eventType == 'health_update') {
-                  iconColor = AppColors.secondary;
+                  iconColor = isDark ? AppColors.secondary : AppColors.lightSecondary;
                   iconData = Icons.shield_outlined;
                 } else if (log.eventType == 'created') {
-                  iconColor = AppColors.primary;
+                  iconColor = isDark ? AppColors.primaryLight : AppColors.lightPrimary;
                   iconData = Icons.add_box_outlined;
                 }
 
@@ -1259,7 +2026,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                                 ? const SizedBox(height: 20)
                                 : Container(
                                     width: 2,
-                                    color: AppColors.darkBorder,
+                                    color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
                                     margin: const EdgeInsets.symmetric(
                                       vertical: 4,
                                     ),
@@ -1276,7 +2043,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                             Text(
                               log.description ?? '',
                               style: AppTextStyles.bodyMedium.copyWith(
-                                color: Colors.white,
+                                color: context.onSurfaceColor,
                                 height: 1.3,
                               ),
                             ),
@@ -1284,7 +2051,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                             Text(
                               dateStr,
                               style: AppTextStyles.caption.copyWith(
-                                color: AppColors.textTertiaryDark,
+                                color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
                               ),
                             ),
                             const SizedBox(height: 16),
@@ -1296,9 +2063,9 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                         Align(
                           alignment: Alignment.topRight,
                           child: IconButton(
-                            icon: const Icon(
+                            icon: Icon(
                               Icons.delete_outline,
-                              color: AppColors.textTertiaryDark,
+                              color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
                               size: 18,
                             ),
                             onPressed: () =>
@@ -1320,6 +2087,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
     BuildContext context,
     SimLine line,
     ScheduledTopup? existingSchedule,
+    String configMode,
   ) {
     showModalBottomSheet(
       context: context,
@@ -1329,6 +2097,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
         simLineId: line.id,
         simNickname: line.nickname ?? line.phoneNumber,
         existingSchedule: existingSchedule,
+        configMode: configMode,
       ),
     );
   }
@@ -1347,7 +2116,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
           .read(scheduledTopupControllerProvider.notifier)
           .toggleActive(scheduleId, isActive);
       if (result is Success<ScheduledTopup>) {
-        if (mounted) {
+        if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
@@ -1358,10 +2127,10 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
           );
         }
       } else if (result is Failure<ScheduledTopup>) {
-        throw Exception((result as Failure<ScheduledTopup>).error.message);
+        throw Exception(result.error.message);
       }
     } catch (e) {
-      if (mounted) {
+      if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed to update schedule: $e'),
@@ -1381,14 +2150,16 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
   void _showDeleteScheduleConfirmation(
     BuildContext context,
     String scheduleId,
+    bool isPremium,
   ) {
+    final isDark = context.isDarkMode;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: AppColors.darkSurface,
+        backgroundColor: isDark ? AppColors.darkSurface : Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24),
-          side: const BorderSide(color: AppColors.darkBorder),
+          side: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
         ),
         title: Row(
           children: [
@@ -1400,28 +2171,32 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
             const SizedBox(width: 12),
             Text(
               'Remove Schedule',
-              style: AppTextStyles.headlineSmall.copyWith(color: Colors.white),
+              style: AppTextStyles.headlineSmall.copyWith(color: context.onSurfaceColor),
             ),
           ],
         ),
         content: Text(
-          'Are you sure you want to delete this auto-refill schedule? Your SIM health score will drop significantly, risking deactivation.',
+          isPremium
+              ? 'Are you sure you want to delete this auto-refill schedule? Your SIM health score will drop significantly, risking deactivation.'
+              : 'Are you sure you want to delete this auto-renewal schedule? Your SIM health score will drop significantly, risking deactivation.',
           style: AppTextStyles.bodyMedium.copyWith(
-            color: AppColors.textSecondaryDark,
+            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text(
+            child: Text(
               'Cancel',
-              style: TextStyle(color: AppColors.textSecondaryDark),
+              style: TextStyle(color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
             ),
           ),
           ElevatedButton(
             onPressed: () async {
               Navigator.pop(context);
               try {
+                // Since they are now two completely separate database records,
+                // deleting either Auto-Notify or Auto-Refill simply removes its specific record completely!
                 final result = await ref
                     .read(scheduledTopupControllerProvider.notifier)
                     .removeSchedule(scheduleId);
@@ -1430,16 +2205,18 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                   ref.invalidate(simLinesControllerProvider);
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
+                      SnackBar(
                         content: Text(
-                          'Auto-renewal schedule removed successfully.',
+                          isPremium
+                              ? 'Auto-refill schedule removed successfully.'
+                              : 'Auto-renewal schedule removed successfully.',
                         ),
                         backgroundColor: AppColors.success,
                       ),
                     );
                   }
                 } else if (result is Failure<void>) {
-                  throw Exception((result as Failure<void>).error.message);
+                  throw Exception(result.error.message);
                 }
               } catch (e) {
                 if (context.mounted) {
@@ -1460,7 +2237,6 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
     );
   }
 
-
   Future<void> _handleRetryFailedTopup(
     BuildContext context,
     String executionId,
@@ -1469,11 +2245,23 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
       final result = await ref
           .read(simLineDetailControllerProvider(widget.id).notifier)
           .retryFailedTopup(executionId);
-      if (mounted) {
+      if (context.mounted) {
         if (result is Success<void>) {
+          final detailState = ref
+              .read(simLineDetailControllerProvider(widget.id))
+              .valueOrNull;
+          final userProfile = ref.read(authControllerProvider).valueOrNull;
+          final isPremium =
+              detailState?.simLine.protectionTier.toLowerCase() == 'premium' ||
+              (userProfile != null &&
+                  userProfile.subscriptionTier.toLowerCase() == 'premium');
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Refill retry completed successfully!'),
+            SnackBar(
+              content: Text(
+                isPremium
+                    ? 'Refill retry completed successfully!'
+                    : 'Renewal retry completed successfully!',
+              ),
               backgroundColor: AppColors.success,
             ),
           );
@@ -1481,7 +2269,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                'Retry failed: ${(result as Failure<void>).error.message}',
+                'Retry failed: ${result.error.message}',
               ),
               backgroundColor: AppColors.error,
             ),
@@ -1489,38 +2277,10 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
         }
       }
     } catch (e) {
-      if (mounted) {
+      if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Retry execution error: $e'),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      }
-    }
-  }
-
-  Future<void> _handleDeleteExecution(
-    BuildContext context,
-    String executionId,
-  ) async {
-    try {
-      await ref
-          .read(simLineDetailControllerProvider(widget.id).notifier)
-          .deleteExecution(executionId);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Execution record deleted.'),
-            backgroundColor: AppColors.success,
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to delete execution record: $e'),
             backgroundColor: AppColors.error,
           ),
         );
@@ -1536,7 +2296,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
       await ref
           .read(simLineDetailControllerProvider(widget.id).notifier)
           .deleteActivityLog(logId);
-      if (mounted) {
+      if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Activity log entry deleted.'),
@@ -1545,7 +2305,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
         );
       }
     } catch (e) {
-      if (mounted) {
+      if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed to delete activity log: $e'),
@@ -1560,20 +2320,20 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
     try {
       await ref
           .read(simLineDetailControllerProvider(widget.id).notifier)
-          .cleanMockLogs();
-      if (mounted) {
+          .clearAllActivityLogs();
+      if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Activity logs cleaned successfully.'),
+            content: Text('Activity logs cleared successfully.'),
             backgroundColor: AppColors.success,
           ),
         );
       }
     } catch (e) {
-      if (mounted) {
+      if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to clean mock records: $e'),
+            content: Text('Failed to clear activity logs: $e'),
             backgroundColor: AppColors.error,
           ),
         );
@@ -1594,13 +2354,14 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
   }
 
   void _showDeleteConfirmation(BuildContext context, SimLine line) {
+    final isDark = context.isDarkMode;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: AppColors.darkCard,
+        backgroundColor: isDark ? AppColors.darkCard : Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24),
-          side: const BorderSide(color: AppColors.darkBorder),
+          side: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
         ),
         title: Row(
           children: [
@@ -1612,47 +2373,43 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
             const SizedBox(width: 12),
             Text(
               'Remove Protection',
-              style: AppTextStyles.headlineSmall.copyWith(
-                color: Colors.white,
-              ),
+              style: AppTextStyles.headlineSmall.copyWith(color: context.onSurfaceColor),
             ),
           ],
         ),
         content: Text(
           'Are you sure you want to stop keeping ${line.nickname ?? line.phoneNumber} protected? Scheduled top-ups for this SIM line will be permanently cancelled.',
           style: AppTextStyles.bodyMedium.copyWith(
-            color: AppColors.textSecondaryDark,
+            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text(
+            child: Text(
               'Cancel',
-              style: TextStyle(color: AppColors.textSecondaryDark),
+              style: TextStyle(color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
             ),
           ),
           ElevatedButton(
             onPressed: () async {
               Navigator.pop(context); // Dismiss the confirm dialog
-              
+
               final goRouter = GoRouter.of(context);
               final scaffoldMessenger = ScaffoldMessenger.of(context);
-              
+
               // Instantly navigate back to the Home Page to prevent this screen
               // from rebuilding with a "SIM Line not found" error when the deletion completes.
               goRouter.go(AppRoutes.home);
-              
+
               try {
                 await ref
                     .read(simLinesControllerProvider.notifier)
                     .deleteSimLine(line.id);
-                
+
                 scaffoldMessenger.showSnackBar(
                   const SnackBar(
-                    content: Text(
-                      'SIM line protection removed successfully.',
-                    ),
+                    content: Text('SIM line protection removed successfully.'),
                     backgroundColor: AppColors.success,
                   ),
                 );
@@ -1666,10 +2423,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
-            child: const Text(
-              'Delete',
-              style: TextStyle(color: Colors.white),
-            ),
+            child: const Text('Delete', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -1677,26 +2431,29 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
   }
 
   Widget _buildP2PRechargeRequestCard(BuildContext context, SimLine line) {
+    final userProfile = ref.read(authControllerProvider).valueOrNull;
+    final isDark = context.isDarkMode;
+    final bool isBasic =
+        line.protectionTier.toLowerCase() == 'basic' &&
+        (userProfile == null ||
+            (userProfile.subscriptionTier.toLowerCase() != 'premium' &&
+                userProfile.subscriptionTier.toLowerCase() != 'standard'));
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [
-            Color(0xFF6366F1), // Indigo
-            Color(0xFF8B5CF6), // Purple
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: isDark ? AppColors.darkSurface : Colors.white,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white.withOpacity(0.1)),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF8B5CF6).withOpacity(0.2),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
+        border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: AppColors.lightPrimary.withOpacity(0.04),
+                  blurRadius: 15,
+                  offset: const Offset(0, 4),
+                ),
+              ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1706,12 +2463,12 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.12),
+                  color: (isDark ? AppColors.primary : AppColors.lightPrimary).withOpacity(0.12),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.ios_share_rounded,
-                  color: Colors.white,
+                  color: isDark ? AppColors.primaryLight : AppColors.lightPrimary,
                   size: 24,
                 ),
               ),
@@ -1720,7 +2477,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                 child: Text(
                   'Recharge from a Friend',
                   style: AppTextStyles.titleLarge.copyWith(
-                    color: Colors.white,
+                    color: context.onSurfaceColor,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -1729,38 +2486,108 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
           ),
           const SizedBox(height: 12),
           Text(
-            'Running low or need help extending validity? Share a secure payment link directly on WhatsApp and ask a friend or family member to recharge this card for you.',
+            isBasic
+                ? 'Running low or need help extending validity? Request a recharge directly on Telegram and ask a friend or family member to recharge this card for you.'
+                : 'Running low or need help extending validity? Request a recharge directly on WhatsApp or Telegram and ask a friend or family member to recharge this card for you.',
             style: AppTextStyles.bodyMedium.copyWith(
-              color: Colors.white.withOpacity(0.9),
+              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
               height: 1.3,
             ),
           ),
           const SizedBox(height: 20),
+          if (!isBasic) ...[
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () async {
+                  await HapticHelper.lightTick();
+                  final phone = line.phoneNumber;
+                  final templateText =
+                      'Hi! My KeepSIMs card ($phone) is expiring soon. Could you please recharge it for me?. Thank you!';
+                  final waUrl =
+                      'https://wa.me/?text=${Uri.encodeComponent(templateText)}';
+                  final uri = Uri.parse(waUrl);
+                  try {
+                    final launched = await launchUrl(
+                      uri,
+                      mode: LaunchMode.externalNonBrowserApplication,
+                    );
+                    if (!launched) {
+                      await launchUrl(uri, mode: LaunchMode.platformDefault);
+                    }
+                  } catch (_) {
+                    try {
+                      await launchUrl(uri, mode: LaunchMode.platformDefault);
+                    } catch (e) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Could not launch WhatsApp link: $e'),
+                            backgroundColor: AppColors.error,
+                          ),
+                        );
+                      }
+                    }
+                  }
+                },
+                icon: const Icon(
+                  Icons.chat_rounded,
+                  color: Color(0xFF25D366),
+                  size: 18,
+                ),
+                label: const Text(
+                  'Request via WhatsApp',
+                  style: TextStyle(
+                    color: Color(0xFF25D366),
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF25D366).withOpacity(0.12),
+                  elevation: 0,
+                  shadowColor: Colors.transparent,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    side: BorderSide(
+                      color: const Color(0xFF25D366).withOpacity(0.2),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+          ],
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
               onPressed: () async {
                 await HapticHelper.lightTick();
                 final phone = line.phoneNumber;
-                final templateText = 'Hi! My KeepSIMs card ($phone) is expiring soon. Could you please recharge it for me here? https://keep-sims.com/recharge?phone=$phone';
-                final waUrl = 'https://wa.me/?text=${Uri.encodeComponent(templateText)}';
-                final uri = Uri.parse(waUrl);
+                final templateText =
+                    'Hi! My KeepSIMs card ($phone) is expiring soon. Could you please recharge it for me?. Thank you!';
+                final tgAppUri = Uri.parse(
+                  'tg://msg?text=${Uri.encodeComponent(templateText)}',
+                );
+                final tgWebUri = Uri.parse(
+                  'https://t.me/share/url?url=https://keepsims.com&text=${Uri.encodeComponent(templateText)}',
+                );
                 try {
                   final launched = await launchUrl(
-                    uri,
+                    tgAppUri,
                     mode: LaunchMode.externalNonBrowserApplication,
                   );
                   if (!launched) {
-                    await launchUrl(uri, mode: LaunchMode.platformDefault);
+                    await launchUrl(tgWebUri, mode: LaunchMode.platformDefault);
                   }
                 } catch (_) {
                   try {
-                    await launchUrl(uri, mode: LaunchMode.platformDefault);
+                    await launchUrl(tgWebUri, mode: LaunchMode.platformDefault);
                   } catch (e) {
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text('Could not launch WhatsApp link: $e'),
+                          content: Text('Could not launch Telegram link: $e'),
                           backgroundColor: AppColors.error,
                         ),
                       );
@@ -1768,19 +2595,28 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                   }
                 }
               },
-              icon: const Icon(Icons.chat_rounded, color: Color(0xFF6366F1), size: 18),
+              icon: const Icon(
+                Icons.telegram_rounded,
+                color: Color(0xFF0088CC),
+                size: 18,
+              ),
               label: const Text(
-                'Request via WhatsApp',
+                'Request via Telegram',
                 style: TextStyle(
-                  color: Color(0xFF6366F1),
+                  color: Color(0xFF0088CC),
                   fontWeight: FontWeight.bold,
                 ),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
+                backgroundColor: const Color(0xFF0088CC).withOpacity(0.12),
+                elevation: 0,
+                shadowColor: Colors.transparent,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
+                  side: BorderSide(
+                    color: const Color(0xFF0088CC).withOpacity(0.2),
+                  ),
                 ),
               ),
             ),

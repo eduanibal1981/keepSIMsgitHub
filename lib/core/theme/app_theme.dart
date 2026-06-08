@@ -44,7 +44,7 @@ abstract final class AppTheme {
       color: AppColors.darkCard,
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(8),
         side: const BorderSide(color: AppColors.darkBorder, width: 1),
       ),
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
@@ -57,7 +57,7 @@ abstract final class AppTheme {
         foregroundColor: Colors.white,
         elevation: 0,
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         textStyle: AppTextStyles.titleMedium,
       ),
     ),
@@ -67,7 +67,7 @@ abstract final class AppTheme {
         foregroundColor: AppColors.primary,
         side: const BorderSide(color: AppColors.primary),
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         textStyle: AppTextStyles.titleMedium,
       ),
     ),
@@ -85,19 +85,19 @@ abstract final class AppTheme {
       fillColor: AppColors.darkCard,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8),
         borderSide: const BorderSide(color: AppColors.darkBorder),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8),
         borderSide: const BorderSide(color: AppColors.darkBorder),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8),
         borderSide: const BorderSide(color: AppColors.primary, width: 2),
       ),
       errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8),
         borderSide: const BorderSide(color: AppColors.error),
       ),
       hintStyle: AppTextStyles.bodyMedium.copyWith(
@@ -129,7 +129,7 @@ abstract final class AppTheme {
       contentTextStyle: AppTextStyles.bodyMedium.copyWith(
         color: AppColors.textPrimaryDark,
       ),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       behavior: SnackBarBehavior.floating,
     ),
 
@@ -146,14 +146,14 @@ abstract final class AppTheme {
     bottomSheetTheme: const BottomSheetThemeData(
       backgroundColor: AppColors.darkSurface,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
     ),
 
     // Dialog
     dialogTheme: DialogThemeData(
       backgroundColor: AppColors.darkSurface,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
     ),
   );
 
@@ -167,7 +167,10 @@ abstract final class AppTheme {
       primary: AppColors.lightPrimary,
       secondary: AppColors.lightSecondary,
       surface: AppColors.lightSurface,
-      error: AppColors.error,
+      error: Color(0xFFBA1A1A),
+      errorContainer: Color(0xFFFFDAD6),
+      onErrorContainer: Color(0xFF93000A),
+      primaryContainer: AppColors.lightPrimaryMid,
       onPrimary: Colors.white,
       onSecondary: Colors.white,
       onSurface: AppColors.textPrimaryLight,
@@ -231,7 +234,7 @@ abstract final class AppTheme {
     // Input Fields
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: const Color(0xFFF5F7FB), // Soft gray-blue matching subtle network lines
+      fillColor: AppColors.lightBg,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
@@ -247,7 +250,7 @@ abstract final class AppTheme {
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: AppColors.error),
+        borderSide: const BorderSide(color: Color(0xFFBA1A1A)),
       ),
       hintStyle: AppTextStyles.bodyMedium.copyWith(
         color: AppColors.textTertiaryLight,
@@ -274,8 +277,8 @@ abstract final class AppTheme {
 
     // Chips
     chipTheme: ChipThemeData(
-      backgroundColor: const Color(0xFFF5F7FB),
-      selectedColor: AppColors.lightPrimary.withValues(alpha: 0.15),
+      backgroundColor: const Color(0xFFEAEEF1),
+      selectedColor: AppColors.lightPrimary.withOpacity(0.15),
       labelStyle: AppTextStyles.labelMedium.copyWith(color: AppColors.textPrimaryLight),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       side: const BorderSide(color: AppColors.lightBorder),

@@ -11,6 +11,7 @@ import 'package:keep_sims/core/supabase_client.dart';
 import 'package:keep_sims/core/theme/app_theme.dart';
 import 'package:keep_sims/core/router/app_router.dart';
 import 'package:keep_sims/features/notifications/presentation/controllers/notification_settings_controller.dart';
+import 'package:keep_sims/core/services/sync_queue_service.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 
 void main() async {
@@ -39,6 +40,9 @@ class SimShieldApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Warm up offline sync queue & connectivity monitoring at app launch
+    ref.watch(syncQueueProvider);
+
     final router = ref.watch(appRouterProvider);
     final prefsState = ref.watch(userPreferencesControllerProvider);
 

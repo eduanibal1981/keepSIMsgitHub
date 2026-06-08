@@ -7,6 +7,7 @@ import 'package:keep_sims/features/notifications/presentation/controllers/notifi
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
 import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import 'package:keep_sims/features/profile/presentation/widgets/subscription_upsell_sheet.dart';
+import 'package:keep_sims/core/utils/build_context_extension.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class NotificationSettingsScreen extends ConsumerWidget {
@@ -94,14 +95,14 @@ class NotificationSettingsScreen extends ConsumerWidget {
     final userAsync = ref.watch(authControllerProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.darkBg,
+      backgroundColor: context.scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_rounded,
-            color: AppColors.textPrimaryDark,
+            color: context.onSurfaceColor,
           ),
           onPressed: () async {
             await HapticHelper.lightTick();
@@ -111,7 +112,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
         title: Text(
           'Alert Settings',
           style: AppTextStyles.headlineMedium.copyWith(
-            color: AppColors.textPrimaryDark,
+            color: context.onSurfaceColor,
           ),
         ),
       ),
@@ -122,13 +123,13 @@ class NotificationSettingsScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Do Not Disturb / Quiet Hours Preferences Card
-            _buildSectionHeader('Quiet Hours & Schedule'),
+            _buildSectionHeader(context, 'Quiet Hours & Schedule'),
             userPrefsAsync.when(
               data: (prefs) => _buildQuietHoursCard(context, ref, prefs),
-              loading: () => const Center(
+              loading: () => Center(
                 child: Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: CircularProgressIndicator(color: AppColors.primary),
+                  padding: const EdgeInsets.all(16.0),
+                  child: CircularProgressIndicator(color: context.primaryColor),
                 ),
               ),
               error: (err, _) => const SizedBox.shrink(),
@@ -137,13 +138,13 @@ class NotificationSettingsScreen extends ConsumerWidget {
             const SizedBox(height: 16),
 
             // Alert Delivery Channels
-            _buildSectionHeader('Alert Delivery Channels'),
+            _buildSectionHeader(context, 'Alert Delivery Channels'),
             channelsAsync.when(
               data: (channels) => _buildAlertDeliveryChannels(context, ref, channels, userAsync.valueOrNull?.id),
-              loading: () => const Center(
+              loading: () => Center(
                 child: Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: CircularProgressIndicator(color: AppColors.primary),
+                  padding: const EdgeInsets.all(16.0),
+                  child: CircularProgressIndicator(color: context.primaryColor),
                 ),
               ),
               error: (err, _) => const SizedBox.shrink(),
@@ -152,13 +153,13 @@ class NotificationSettingsScreen extends ConsumerWidget {
             const SizedBox(height: 16),
 
             // Incident Channels (Alert settings per category)
-            _buildSectionHeader('Incident Channels'),
+            _buildSectionHeader(context, 'Incident Channels'),
             alertSettingsAsync.when(
-              data: (settings) => _buildIncidentChannels(ref, settings),
-              loading: () => const Center(
+              data: (settings) => _buildIncidentChannels(context, ref, settings),
+              loading: () => Center(
                 child: Padding(
-                  padding: EdgeInsets.all(32.0),
-                  child: CircularProgressIndicator(color: AppColors.primary),
+                  padding: const EdgeInsets.all(32.0),
+                  child: CircularProgressIndicator(color: context.primaryColor),
                 ),
               ),
               error: (err, _) => Center(
@@ -176,13 +177,14 @@ class NotificationSettingsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSectionHeader(String title) {
+  Widget _buildSectionHeader(BuildContext context, String title) {
+    final isDark = context.isDarkMode;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
       child: Text(
         title.toUpperCase(),
         style: AppTextStyles.labelMedium.copyWith(
-          color: AppColors.textTertiaryDark,
+          color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
           letterSpacing: 1.2,
           fontWeight: FontWeight.bold,
         ),
@@ -198,35 +200,36 @@ class NotificationSettingsScreen extends ConsumerWidget {
     final startVal = prefs.quietHoursStart;
     final endVal = prefs.quietHoursEnd;
     final isQuietHoursActive = startVal != null && endVal != null;
+    final isDark = context.isDarkMode;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: AppColors.darkSurface,
+        color: isDark ? AppColors.darkSurface : AppColors.lightCard,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.darkBorder),
+        border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
       ),
       child: Column(
         children: [
           // Quiet Hours Toggle Row
           SwitchListTile(
             value: isQuietHoursActive,
-            activeThumbColor: AppColors.secondary,
-            activeTrackColor: AppColors.secondary.withValues(alpha: 0.2),
-            inactiveThumbColor: AppColors.textTertiaryDark,
-            inactiveTrackColor: AppColors.darkBorder,
+            activeColor: context.colorScheme.secondary,
+            activeTrackColor: context.colorScheme.secondary.withOpacity(0.2),
+            inactiveThumbColor: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
+            inactiveTrackColor: isDark ? AppColors.darkBorder : AppColors.lightBorder,
             title: Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.nights_stay_rounded,
-                  color: AppColors.secondary,
+                  color: context.colorScheme.secondary,
                   size: 20,
                 ),
                 const SizedBox(width: 12),
                 Text(
                   'Do Not Disturb (Quiet Hours)',
                   style: AppTextStyles.titleMedium.copyWith(
-                    color: AppColors.textPrimaryDark,
+                    color: context.onSurfaceColor,
                   ),
                 ),
               ],
@@ -234,7 +237,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
             subtitle: Text(
               'Mute push notifications during specified sleep hours.',
               style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.textSecondaryDark,
+                color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
               ),
             ),
             onChanged: (active) async {
@@ -254,7 +257,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
           ),
 
           if (isQuietHoursActive) ...[
-            const Divider(color: AppColors.darkBorder, height: 1),
+            Divider(color: isDark ? AppColors.darkBorder : AppColors.lightBorder, height: 1),
             // Time Pickers Row
             Padding(
               padding: const EdgeInsets.all(16),
@@ -290,27 +293,27 @@ class NotificationSettingsScreen extends ConsumerWidget {
             ),
           ],
 
-          const Divider(color: AppColors.darkBorder, height: 1),
+          Divider(color: isDark ? AppColors.darkBorder : AppColors.lightBorder, height: 1),
 
           // Weekly Digest Preference Row
           SwitchListTile(
             value: prefs.weeklyDigestEnabled,
-            activeThumbColor: AppColors.primaryLight,
-            activeTrackColor: AppColors.primary.withValues(alpha: 0.2),
-            inactiveThumbColor: AppColors.textTertiaryDark,
-            inactiveTrackColor: AppColors.darkBorder,
+            activeColor: context.primaryColor,
+            activeTrackColor: context.primaryColor.withOpacity(0.2),
+            inactiveThumbColor: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
+            inactiveTrackColor: isDark ? AppColors.darkBorder : AppColors.lightBorder,
             title: Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.summarize_rounded,
-                  color: AppColors.primaryLight,
+                  color: isDark ? AppColors.primaryLight : context.primaryColor,
                   size: 20,
                 ),
                 const SizedBox(width: 12),
                 Text(
                   'Weekly Summary Digest',
                   style: AppTextStyles.titleMedium.copyWith(
-                    color: AppColors.textPrimaryDark,
+                    color: context.onSurfaceColor,
                   ),
                 ),
               ],
@@ -318,7 +321,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
             subtitle: Text(
               'Compiled status report of all SIM cards every Sunday at 9:00 AM.',
               style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.textSecondaryDark,
+                color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
               ),
             ),
             onChanged: (active) async {
@@ -339,6 +342,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
     required String? timeStr,
     required ValueChanged<String> onTimeSelected,
   }) {
+    final isDark = context.isDarkMode;
     return InkWell(
       onTap: () async {
         await HapticHelper.lightTick();
@@ -349,12 +353,19 @@ class NotificationSettingsScreen extends ConsumerWidget {
           builder: (context, child) {
             return Theme(
               data: Theme.of(context).copyWith(
-                colorScheme: const ColorScheme.dark(
-                  primary: AppColors.primary,
-                  onPrimary: Colors.white,
-                  surface: AppColors.darkSurface,
-                  onSurface: AppColors.textPrimaryDark,
-                ),
+                colorScheme: isDark
+                    ? const ColorScheme.dark(
+                        primary: AppColors.primary,
+                        onPrimary: Colors.white,
+                        surface: AppColors.darkSurface,
+                        onSurface: AppColors.textPrimaryDark,
+                      )
+                    : ColorScheme.light(
+                        primary: context.primaryColor,
+                        onPrimary: Colors.white,
+                        surface: AppColors.lightSurface,
+                        onSurface: AppColors.textPrimaryLight,
+                      ),
               ),
               child: child!,
             );
@@ -368,9 +379,9 @@ class NotificationSettingsScreen extends ConsumerWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
-          color: AppColors.darkCard,
+          color: isDark ? AppColors.darkCard : AppColors.lightCard,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: AppColors.darkBorder),
+          border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -378,7 +389,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
             Text(
               label,
               style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.textTertiaryDark,
+                color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
               ),
             ),
             const SizedBox(height: 4),
@@ -388,14 +399,14 @@ class NotificationSettingsScreen extends ConsumerWidget {
                 Text(
                   _formatDisplayTime(timeStr),
                   style: AppTextStyles.titleMedium.copyWith(
-                    color: AppColors.textPrimaryDark,
+                    color: context.onSurfaceColor,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const Icon(
+                Icon(
                   Icons.access_time_rounded,
                   size: 16,
-                  color: AppColors.textSecondaryDark,
+                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                 ),
               ],
             ),
@@ -405,14 +416,15 @@ class NotificationSettingsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildIncidentChannels(WidgetRef ref, List<AlertSetting> settings) {
+  Widget _buildIncidentChannels(BuildContext context, WidgetRef ref, List<AlertSetting> settings) {
+    final isDark = context.isDarkMode;
     if (settings.isEmpty) {
-      return const Center(
+      return Center(
         child: Padding(
-          padding: EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16.0),
           child: Text(
             'No channels initialized.',
-            style: TextStyle(color: AppColors.textTertiaryDark),
+            style: TextStyle(color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight),
           ),
         ),
       );
@@ -437,20 +449,20 @@ class NotificationSettingsScreen extends ConsumerWidget {
         return Container(
           margin: const EdgeInsets.only(bottom: 12),
           decoration: BoxDecoration(
-            color: AppColors.darkSurface,
+            color: isDark ? AppColors.darkSurface : AppColors.lightCard,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: item.isEnabled
-                  ? AppColors.darkBorder
-                  : AppColors.darkBorder.withValues(alpha: 0.5),
+                  ? (isDark ? AppColors.darkBorder : AppColors.lightBorder)
+                  : (isDark ? AppColors.darkBorder.withValues(alpha: 0.5) : AppColors.lightBorder.withValues(alpha: 0.5)),
             ),
           ),
           child: SwitchListTile(
             value: item.isEnabled,
-            activeThumbColor: metadata.color,
+            activeColor: metadata.color,
             activeTrackColor: metadata.color.withValues(alpha: 0.2),
-            inactiveThumbColor: AppColors.textTertiaryDark,
-            inactiveTrackColor: AppColors.darkBorder,
+            inactiveThumbColor: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
+            inactiveTrackColor: isDark ? AppColors.darkBorder : AppColors.lightBorder,
             title: Row(
               children: [
                 Container(
@@ -459,14 +471,14 @@ class NotificationSettingsScreen extends ConsumerWidget {
                   decoration: BoxDecoration(
                     color: item.isEnabled
                         ? metadata.color.withValues(alpha: 0.1)
-                        : AppColors.darkBorder,
+                        : (isDark ? AppColors.darkBorder : Colors.black.withOpacity(0.04)),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     metadata.icon,
                     color: item.isEnabled
                         ? metadata.color
-                        : AppColors.textTertiaryDark,
+                        : (isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight),
                     size: 16,
                   ),
                 ),
@@ -476,8 +488,8 @@ class NotificationSettingsScreen extends ConsumerWidget {
                     metadata.name,
                     style: AppTextStyles.titleMedium.copyWith(
                       color: item.isEnabled
-                          ? AppColors.textPrimaryDark
-                          : AppColors.textSecondaryDark,
+                          ? context.onSurfaceColor
+                          : (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -489,7 +501,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
               child: Text(
                 metadata.description,
                 style: AppTextStyles.bodySmall.copyWith(
-                  color: AppColors.textSecondaryDark,
+                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                   height: 1.3,
                 ),
               ),
@@ -541,13 +553,14 @@ class NotificationSettingsScreen extends ConsumerWidget {
     List<Map<String, dynamic>> channels,
     String? userId,
   ) {
+    final isDark = context.isDarkMode;
     if (channels.isEmpty) {
-      return const Center(
+      return Center(
         child: Padding(
-          padding: EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16.0),
           child: Text(
             'No alert delivery channels configured.',
-            style: TextStyle(color: AppColors.textTertiaryDark),
+            style: TextStyle(color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight),
           ),
         ),
       );
@@ -663,7 +676,7 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('${_getChannelName(type)} settings updated.'),
-          backgroundColor: AppColors.secondary,
+          backgroundColor: context.colorScheme.secondary,
           duration: const Duration(seconds: 2),
         ),
       );
@@ -732,13 +745,14 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
     final user = ref.watch(authControllerProvider).valueOrNull;
     final globalTier = user?.subscriptionTier ?? 'standard';
     final bool isLocked = type != 'push' && globalTier == 'basic';
+    final isDark = context.isDarkMode;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       decoration: BoxDecoration(
-        color: AppColors.darkSurface,
+        color: isDark ? AppColors.darkSurface : AppColors.lightCard,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.darkBorder),
+        border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -763,10 +777,10 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
                 : null,
             child: SwitchListTile(
               value: isLocked ? false : _isEnabled,
-              activeThumbColor: color,
+              activeColor: color,
               activeTrackColor: color.withOpacity(0.2),
-              inactiveThumbColor: AppColors.textTertiaryDark,
-              inactiveTrackColor: AppColors.darkBorder,
+              inactiveThumbColor: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
+              inactiveTrackColor: isDark ? AppColors.darkBorder : AppColors.lightBorder,
               title: Row(
                 children: [
                   Icon(icon, color: isLocked ? AppColors.textTertiaryDark : color, size: 22),
@@ -774,7 +788,9 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
                   Text(
                     name,
                     style: AppTextStyles.titleMedium.copyWith(
-                      color: isLocked ? AppColors.textSecondaryDark : AppColors.textPrimaryDark,
+                      color: isLocked
+                          ? (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight)
+                          : context.onSurfaceColor,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -793,7 +809,7 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
                 child: Text(
                   _getChannelDescription(type),
                   style: AppTextStyles.bodySmall.copyWith(
-                    color: AppColors.textSecondaryDark,
+                    color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                   ),
                 ),
               ),
@@ -808,18 +824,18 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
           ),
           
           if (_isEnabled && type != 'push' && !isLocked) ...[
-            const Divider(color: AppColors.darkBorder, height: 1),
+            Divider(color: isDark ? AppColors.darkBorder : AppColors.lightBorder, height: 1),
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (type == 'telegram') ...[
-                    _buildTelegramContent(config)
+                    _buildTelegramContent(context, config)
                   ] else ...[
-                    _buildTextField(type),
+                    _buildTextField(context, type),
                     const SizedBox(height: 12),
-                    _buildSaveButton(),
+                    _buildSaveButton(context),
                   ],
                   if (type == 'email') ...[
                     const SizedBox(height: 10),
@@ -860,7 +876,8 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
     }
   }
 
-  Widget _buildTextField(String type) {
+  Widget _buildTextField(BuildContext context, String type) {
+    final isDark = context.isDarkMode;
     String label = '';
     String hint = '';
     IconData prefixIcon = Icons.edit;
@@ -889,7 +906,7 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
         Text(
           label,
           style: AppTextStyles.labelMedium.copyWith(
-            color: AppColors.textSecondaryDark,
+            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -897,21 +914,21 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
         TextField(
           controller: _textController,
           keyboardType: keyboardType,
-          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimaryDark),
+          style: AppTextStyles.bodyMedium.copyWith(color: context.onSurfaceColor),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: AppTextStyles.bodyMedium.copyWith(color: AppColors.textTertiaryDark),
-            prefixIcon: Icon(prefixIcon, color: AppColors.textSecondaryDark, size: 18),
+            hintStyle: AppTextStyles.bodyMedium.copyWith(color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight),
+            prefixIcon: Icon(prefixIcon, color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight, size: 18),
             filled: true,
-            fillColor: AppColors.darkCard,
+            fillColor: isDark ? AppColors.darkCard : AppColors.lightBg,
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(color: AppColors.darkBorder),
+              borderSide: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(color: AppColors.primary),
+              borderSide: BorderSide(color: context.primaryColor),
             ),
           ),
         ),
@@ -919,13 +936,13 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
     );
   }
 
-  Widget _buildSaveButton() {
+  Widget _buildSaveButton(BuildContext context) {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
         onPressed: _isSaving ? null : _saveConfig,
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
+          backgroundColor: context.primaryColor,
           padding: const EdgeInsets.symmetric(vertical: 12),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
@@ -937,9 +954,9 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
                 width: 18,
                 child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
               )
-            : Text(
+            : const Text(
                 'Save Settings',
-                style: AppTextStyles.titleMedium.copyWith(
+                style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
@@ -948,16 +965,17 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
     );
   }
 
-  Widget _buildTelegramContent(Map<String, dynamic> config) {
+  Widget _buildTelegramContent(BuildContext context, Map<String, dynamic> config) {
     final chatId = config['chat_id'];
     final isBound = chatId != null && chatId.toString().isNotEmpty;
+    final isDark = context.isDarkMode;
 
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.darkCard,
+        color: isDark ? AppColors.darkCard : AppColors.lightBg,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.darkBorder),
+        border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -982,7 +1000,7 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
           const SizedBox(height: 12),
           Text(
             'To receive free, interactive Telegram alerts, link our Telegram Bot with your account.',
-            style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondaryDark),
+            style: AppTextStyles.bodySmall.copyWith(color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
           ),
           const SizedBox(height: 12),
           SizedBox(

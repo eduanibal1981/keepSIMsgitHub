@@ -6,17 +6,40 @@ import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/line_activity_log_model.dart';
 import 'package:keep_sims/features/sim_lines/domain/repositories/sim_lines_repository.dart';
 import 'package:keep_sims/features/sim_lines/data/datasources/twilio_verification_service.dart';
+import 'package:keep_sims/core/services/connectivity_service.dart';
+import 'package:keep_sims/core/services/local_cache_service.dart';
+import 'package:keep_sims/core/services/sync_queue_service.dart';
 
 part 'sim_lines_repository_impl.g.dart';
 
 class SimLinesRepositoryImpl implements SimLinesRepository {
   final SupabaseClient _supabase;
+  final LocalCacheService _cache;
+  final ConnectivityService _connectivity;
+  final SyncQueue _syncQueue;
 
-  SimLinesRepositoryImpl({required SupabaseClient supabase})
-    : _supabase = supabase;
+  SimLinesRepositoryImpl({
+    required SupabaseClient supabase,
+    required LocalCacheService cache,
+    required ConnectivityService connectivity,
+    required SyncQueue syncQueue,
+  })  : _supabase = supabase,
+        _cache = cache,
+        _connectivity = connectivity,
+        _syncQueue = syncQueue;
 
   @override
   Future<List<SimLine>> getSimLines() async {
+    if (_connectivity.isOffline) {
+      final cached = _cache.readJson('cached_sim_lines');
+      if (cached is List) {
+        return cached
+            .map((json) => SimLine.fromJson(json as Map<String, dynamic>))
+            .toList();
+      }
+      return [];
+    }
+
     try {
       final userId = _supabase.auth.currentUser?.id;
       if (userId == null)
@@ -28,30 +51,54 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
           .order('created_at', ascending: false)
           .order('id', ascending: true);
 
-      return (response as List)
+      final list = (response as List)
           .map((json) => SimLine.fromJson(json as Map<String, dynamic>))
           .toList();
+
+      await _cache.writeJson('cached_sim_lines', response);
+      return list;
     } on PostgrestException catch (e) {
+      final cached = _cache.readJson('cached_sim_lines');
+      if (cached is List) {
+        return cached
+            .map((json) => SimLine.fromJson(json as Map<String, dynamic>))
+            .toList();
+      }
       throw Exception('Failed to load SIM lines: ${e.message}');
     }
   }
 
   @override
   Future<SimLine> addSimLine(SimLine line) async {
-    try {
-      final userId = _supabase.auth.currentUser?.id;
-      if (userId == null)
-        throw Exception('No authenticated user session found.');
+    final userId = _supabase.auth.currentUser?.id;
+    if (userId == null)
+      throw Exception('No authenticated user session found.');
 
-      final data = line.toJson();
+    final localId = line.id.isEmpty
+        ? 'offline_${DateTime.now().microsecondsSinceEpoch}'
+        : line.id;
+    final updatedLine = line.copyWith(id: localId, userId: userId);
+    final data = updatedLine.toJson();
+
+    if (_connectivity.isOffline) {
+      final cached = _cache.readJson('cached_sim_lines') as List? ?? [];
+      final updatedCache = [data, ...cached];
+      await _cache.writeJson('cached_sim_lines', updatedCache);
+
+      await _syncQueue.addToQueue('sim_line_add', data);
+      return updatedLine;
+    }
+
+    try {
+      final dataToSend = line.toJson();
       if (line.id.isEmpty) {
-        data.remove('id');
+        dataToSend.remove('id');
       }
-      data['user_id'] = userId;
+      dataToSend['user_id'] = userId;
 
       final response = await _supabase
           .from('sim_lines')
-          .insert(data)
+          .insert(dataToSend)
           .select()
           .single();
 
@@ -147,6 +194,20 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
 
   @override
   Future<SimLine> updateSimLine(SimLine line) async {
+    final data = line.toJson();
+
+    if (_connectivity.isOffline) {
+      final cached = _cache.readJson('cached_sim_lines') as List? ?? [];
+      final updatedCache = cached.map((item) {
+        if (item is Map && item['id'] == line.id) return data;
+        return item;
+      }).toList();
+      await _cache.writeJson('cached_sim_lines', updatedCache);
+
+      await _syncQueue.addToQueue('sim_line_update', data);
+      return line;
+    }
+
     try {
       final response = await _supabase
           .from('sim_lines')
@@ -163,6 +224,16 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
 
   @override
   Future<void> deleteSimLine(String id) async {
+    if (_connectivity.isOffline) {
+      final cached = _cache.readJson('cached_sim_lines') as List? ?? [];
+      final updatedCache =
+          cached.where((item) => item is Map && item['id'] != id).toList();
+      await _cache.writeJson('cached_sim_lines', updatedCache);
+
+      await _syncQueue.addToQueue('sim_line_delete', {'id': id});
+      return;
+    }
+
     try {
       await _supabase.from('sim_lines').delete().eq('id', id);
     } on PostgrestException catch (e) {
@@ -172,6 +243,16 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
 
   @override
   Future<List<Country>> getSupportedCountries() async {
+    if (_connectivity.isOffline) {
+      final cached = _cache.readJson('cached_countries');
+      if (cached is List) {
+        return cached
+            .map((json) => Country.fromJson(json as Map<String, dynamic>))
+            .toList();
+      }
+      return [];
+    }
+
     try {
       final response = await _supabase
           .from('countries')
@@ -209,8 +290,18 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
         return a.name.compareTo(b.name);
       });
 
+      await _cache.writeJson(
+        'cached_countries',
+        countries.map((c) => c.toJson()).toList(),
+      );
       return countries;
     } on PostgrestException catch (e) {
+      final cached = _cache.readJson('cached_countries');
+      if (cached is List) {
+        return cached
+            .map((json) => Country.fromJson(json as Map<String, dynamic>))
+            .toList();
+      }
       throw Exception('Failed to load countries: ${e.message}');
     }
   }
@@ -235,6 +326,19 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
 
   @override
   Future<List<LineActivityLog>> getLineActivityLogs(String simLineId) async {
+    final cacheKey = 'cached_logs_$simLineId';
+
+    if (_connectivity.isOffline) {
+      final cached = _cache.readJson(cacheKey);
+      if (cached is List) {
+        return cached
+            .map((json) =>
+                LineActivityLog.fromJson(json as Map<String, dynamic>))
+            .toList();
+      }
+      return [];
+    }
+
     try {
       final response = await _supabase
           .from('line_activity_log')
@@ -242,10 +346,20 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
           .eq('sim_line_id', simLineId)
           .order('created_at', ascending: false);
 
-      return (response as List)
+      final list = (response as List)
           .map((json) => LineActivityLog.fromJson(json as Map<String, dynamic>))
           .toList();
+
+      await _cache.writeJson(cacheKey, response);
+      return list;
     } on PostgrestException catch (e) {
+      final cached = _cache.readJson(cacheKey);
+      if (cached is List) {
+        return cached
+            .map((json) =>
+                LineActivityLog.fromJson(json as Map<String, dynamic>))
+            .toList();
+      }
       throw Exception('Failed to load line activity logs: ${e.message}');
     }
   }
@@ -277,6 +391,20 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
           .eq('metadata->>is_mock', 'true');
     } on PostgrestException catch (e) {
       throw Exception('Failed to clean mock logs: ${e.message}');
+    }
+  }
+
+  @override
+  Future<void> clearAllActivityLogs(String simLineId) async {
+    try {
+      await _supabase
+          .from('line_activity_log')
+          .delete()
+          .eq('sim_line_id', simLineId);
+      final cacheKey = 'cached_logs_$simLineId';
+      await _cache.writeJson(cacheKey, []);
+    } on PostgrestException catch (e) {
+      throw Exception('Failed to clear activity logs: ${e.message}');
     }
   }
 
@@ -382,5 +510,13 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
 
 @riverpod
 SimLinesRepository simLinesRepository(SimLinesRepositoryRef ref) {
-  return SimLinesRepositoryImpl(supabase: Supabase.instance.client);
+  final cache = ref.watch(localCacheServiceProvider);
+  final connectivity = ref.watch(connectivityServiceProvider.notifier);
+  final syncQueue = ref.watch(syncQueueProvider.notifier);
+  return SimLinesRepositoryImpl(
+    supabase: Supabase.instance.client,
+    cache: cache,
+    connectivity: connectivity,
+    syncQueue: syncQueue,
+  );
 }

@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
+import 'package:keep_sims/core/utils/build_context_extension.dart';
 import '../controller/auth_controller.dart';
 
 class LoginScreen extends ConsumerWidget {
@@ -17,6 +18,7 @@ class LoginScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authControllerProvider);
+    final isDark = context.isDarkMode;
 
     // Listen for errors and show snackbar
     ref.listen(authControllerProvider, (prev, next) {
@@ -31,7 +33,7 @@ class LoginScreen extends ConsumerWidget {
     });
 
     return Scaffold(
-      backgroundColor: AppColors.darkBg,
+      backgroundColor: context.scaffoldBackgroundColor,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -47,7 +49,7 @@ class LoginScreen extends ConsumerWidget {
                 Text(
                   'SIM Shield',
                   style: AppTextStyles.displayLarge.copyWith(
-                    color: AppColors.textPrimaryDark,
+                    color: context.onSurfaceColor,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -55,7 +57,7 @@ class LoginScreen extends ConsumerWidget {
                   'Protect your SIM cards from\ndeactivation, automatically.',
                   textAlign: TextAlign.center,
                   style: AppTextStyles.bodyLarge.copyWith(
-                    color: AppColors.textSecondaryDark,
+                    color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                     height: 1.5,
                   ),
                 ),
@@ -97,6 +99,7 @@ class LoginScreen extends ConsumerWidget {
                       elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
+                        side: isDark ? BorderSide.none : const BorderSide(color: AppColors.lightBorder),
                       ),
                     ),
                     child: authState.isLoading
@@ -139,7 +142,7 @@ class LoginScreen extends ConsumerWidget {
                   'By continuing, you agree to our\nTerms of Service and Privacy Policy',
                   textAlign: TextAlign.center,
                   style: AppTextStyles.caption.copyWith(
-                    color: AppColors.textTertiaryDark,
+                    color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
                     fontSize: 11,
                   ),
                 ),
@@ -234,12 +237,13 @@ class FeatureChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = context.isDarkMode;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: AppColors.darkCard,
+        color: isDark ? AppColors.darkCard : AppColors.lightCard,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.darkBorder),
+        border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
       ),
       child: Row(
         children: [
@@ -256,7 +260,7 @@ class FeatureChip extends StatelessWidget {
           Text(
             label,
             style: AppTextStyles.bodyMedium.copyWith(
-              color: AppColors.textPrimaryDark,
+              color: context.onSurfaceColor,
             ),
           ),
         ],

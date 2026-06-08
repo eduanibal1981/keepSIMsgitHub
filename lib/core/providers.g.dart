@@ -6,7 +6,7 @@ part of 'providers.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$authRepositoryHash() => r'8ad820d2288b61245a051b911babab44c626cb45';
+String _$authRepositoryHash() => r'9fb27787d792c45e75056c4229faf3868506a783';
 
 /// Provides the [AuthContract] implementation.
 ///
@@ -44,7 +44,7 @@ final profileRepositoryProvider = AutoDisposeProvider<ProfileContract>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef ProfileRepositoryRef = AutoDisposeProviderRef<ProfileContract>;
-String _$walletRepositoryHash() => r'fe7b631836d393ad73f6ea3bb0437105102701a1';
+String _$walletRepositoryHash() => r'891bf4e81f5ff59763fcd8cdce04083831c101c5';
 
 /// Provides the [WalletContract] implementation.
 ///
@@ -64,7 +64,7 @@ final walletRepositoryProvider = AutoDisposeProvider<WalletContract>.internal(
 // ignore: unused_element
 typedef WalletRepositoryRef = AutoDisposeProviderRef<WalletContract>;
 String _$scheduledTopupRepositoryHash() =>
-    r'b3e33d7f6c3cbddde0ffa6efcc15016b6a17ff53';
+    r'60313af8239799f60a41d7bfde4fd6597088fd65';
 
 /// Provides the [ScheduledTopupContract] implementation.
 ///
@@ -127,5 +127,27 @@ final paymentsRepositoryProvider =
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef PaymentsRepositoryRef = AutoDisposeProviderRef<PaymentsContract>;
+String _$offlineRefillRepositoryHash() =>
+    r'01e4bd5a228b47b94e281bf6376dc4d5cfa85d9d';
+
+/// Provides the [OfflineRefillContract] implementation.
+///
+/// Copied from [offlineRefillRepository].
+@ProviderFor(offlineRefillRepository)
+final offlineRefillRepositoryProvider =
+    AutoDisposeProvider<OfflineRefillContract>.internal(
+      offlineRefillRepository,
+      name: r'offlineRefillRepositoryProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$offlineRefillRepositoryHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef OfflineRefillRepositoryRef =
+    AutoDisposeProviderRef<OfflineRefillContract>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

@@ -48,6 +48,8 @@ class _EmptyStateViewState extends State<EmptyStateView>
 
   @override
   Widget build(BuildContext context) {
+    final isLight = Theme.of(context).brightness == Brightness.light;
+
     return FadeTransition(
       opacity: _fadeController,
       child: ScaleTransition(
@@ -74,7 +76,7 @@ class _EmptyStateViewState extends State<EmptyStateView>
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.primary.withOpacity(0.12),
+                            color: (isLight ? AppColors.lightPrimary : AppColors.primary).withOpacity(isLight ? 0.08 : 0.12),
                             blurRadius: 40,
                             spreadRadius: 10,
                           ),
@@ -87,17 +89,26 @@ class _EmptyStateViewState extends State<EmptyStateView>
                       height: 90,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: AppColors.darkSurface.withOpacity(0.6),
+                        color: isLight ? Colors.white : AppColors.darkSurface.withOpacity(0.6),
                         border: Border.all(
-                          color: AppColors.primary.withOpacity(0.2),
+                          color: (isLight ? AppColors.lightPrimary : AppColors.primary).withOpacity(0.2),
                           width: 1.5,
                         ),
+                        boxShadow: isLight
+                            ? [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.04),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 4),
+                                )
+                              ]
+                            : null,
                       ),
                       alignment: Alignment.center,
                       child: Icon(
                         widget.icon,
                         size: 42,
-                        color: AppColors.primaryLight,
+                        color: isLight ? AppColors.lightPrimary : AppColors.primaryLight,
                       ),
                     ),
                   ],
@@ -108,7 +119,7 @@ class _EmptyStateViewState extends State<EmptyStateView>
                 Text(
                   widget.title,
                   style: AppTextStyles.headlineMedium.copyWith(
-                    color: Colors.white,
+                    color: isLight ? AppColors.textPrimaryLight : Colors.white,
                     fontWeight: FontWeight.bold,
                     letterSpacing: -0.2,
                   ),
@@ -120,7 +131,7 @@ class _EmptyStateViewState extends State<EmptyStateView>
                 Text(
                   widget.description,
                   style: AppTextStyles.bodyMedium.copyWith(
-                    color: AppColors.textSecondaryDark,
+                    color: isLight ? AppColors.textSecondaryLight : AppColors.textSecondaryDark,
                     height: 1.5,
                   ),
                   textAlign: TextAlign.center,
@@ -138,10 +149,11 @@ class _EmptyStateViewState extends State<EmptyStateView>
                     child: Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(16),
-                        gradient: AppColors.primaryGradient,
+                        gradient: isLight ? null : AppColors.primaryGradient,
+                        color: isLight ? AppColors.lightPrimary : null,
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.primary.withOpacity(0.4),
+                            color: (isLight ? AppColors.lightPrimary : AppColors.primary).withOpacity(0.4),
                             blurRadius: 20,
                             offset: const Offset(0, 6),
                           ),

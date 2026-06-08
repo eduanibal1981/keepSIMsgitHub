@@ -10,7 +10,9 @@ import 'package:go_router/go_router.dart';
 import 'package:keep_sims/core/router/app_router.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
+import 'package:keep_sims/core/services/connectivity_service.dart';
 import 'package:keep_sims/features/auth/controller/auth_controller.dart';
+import 'package:keep_sims/features/auth/model/auth_model.dart';
 import 'package:keep_sims/features/dashboard/presentation/controller/dashboard_controller.dart';
 import 'package:intl/intl.dart';
 
@@ -18,15 +20,29 @@ import 'package:keep_sims/core/widgets/shimmer_loading.dart';
 import 'package:keep_sims/core/widgets/error_state.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
-import 'package:keep_sims/features/sim_lines/presentation/widgets/sim_line_card.dart';
+import 'package:keep_sims/features/dashboard/presentation/widgets/dashboard_sim_line_card.dart';
 import 'package:keep_sims/features/notifications/presentation/controllers/notifications_controller.dart';
 import 'package:keep_sims/features/household/presentation/controllers/household_controller.dart';
 
-class DashboardScreen extends ConsumerWidget {
+class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends ConsumerState<DashboardScreen> {
+  final PageController _pageController = PageController(viewportFraction: 0.9);
+  int _currentLineIndex = 0;
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final authProfileState = ref.watch(authControllerProvider);
     final dashboardState = ref.watch(dashboardControllerProvider);
 
@@ -45,19 +61,20 @@ class DashboardScreen extends ConsumerWidget {
 
           return AnimatedSwitcher(
             duration: const Duration(milliseconds: 500),
-            child: KeyedSubtree(
-              key: ValueKey(dashboardState.isLoading),
-              child: dashboardState.when(
-                data: (data) =>
-                    _buildDashboardContent(context, ref, profile, data),
-                loading: () => const DashboardShimmer(),
-                error: (err, stack) => ErrorStateView(
-                  errorMessage: 'Failed to load dashboard data',
-                  errorDetails: err.toString(),
-                  onRetry: () => ref.invalidate(dashboardControllerProvider),
-                ),
-              ),
-            ),
+            child: dashboardState.hasValue
+                ? _buildDashboardContent(
+                    context,
+                    ref,
+                    profile,
+                    dashboardState.value!,
+                  )
+                : dashboardState.hasError
+                ? ErrorStateView(
+                    errorMessage: 'Failed to load dashboard data',
+                    errorDetails: dashboardState.error.toString(),
+                    onRetry: () => ref.invalidate(dashboardControllerProvider),
+                  )
+                : const DashboardShimmer(),
           );
         },
         loading: () => Scaffold(
@@ -84,6 +101,9 @@ class DashboardScreen extends ConsumerWidget {
   ) {
     final String welcomeName = profile.fullName ?? 'User';
     final bool isPowerUser = profile.isPowerUser;
+    final networkStatus = ref.watch(connectivityServiceProvider);
+    final isOffline = networkStatus == NetworkStatus.offline;
+    final isLight = Theme.of(context).brightness == Brightness.light;
 
     return RefreshIndicator(
       color: AppColors.primary,
@@ -100,22 +120,84 @@ class DashboardScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // ── Offline Mode Banner ────────────────────────────────
+              if (isOffline) ...[
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.amberAccent.withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: Colors.amberAccent.withOpacity(0.4),
+                      width: 1.0,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.cloud_off_rounded,
+                        color: Colors.amberAccent,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Running Offline Mode',
+                              style: AppTextStyles.bodyMedium.copyWith(
+                                color: isLight ? AppColors.textPrimaryLight : Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'You can still manage your SIM cards! Changes will automatically sync when connection returns.',
+                              style: AppTextStyles.caption.copyWith(
+                                color: isLight ? AppColors.textSecondaryLight : AppColors.textSecondaryDark,
+                                height: 1.3,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+              ],
+
               // ── Header Row ──────────────────────────────────────────
-              _buildHeader(context, ref, welcomeName, isPowerUser),
+              _buildHeader(
+                context,
+                ref,
+                welcomeName,
+                isPowerUser,
+                profile.subscriptionTier,
+              ),
               const SizedBox(height: 24),
 
               // ── Subscription Warning Banner ────────────────────────
-              if (profile.subscriptionTier == 'basic') ...[
+              if (profile.subscriptionTier == 'basic')
                 _buildDashboardUpsellBanner(context),
+              if (profile.subscriptionTier == 'basic')
                 const SizedBox(height: 24),
-              ],
 
               // ── "At a Glance" Glassmorphic Hero Card ──────────────────
-              _buildHeroCard(context, profile.preferredCurrency, data),
+              _buildHeroCard(context, profile.preferredCurrency, data, profile),
               const SizedBox(height: 28),
 
               // ── Protected SIM Line Health Cards ─────────────────────
               _buildHealthSection(context, ref, profile.id),
+              const SizedBox(height: 28),
+
+              // ── Quick Actions ───────────────────────────────────────
+              _buildQuickActionsSection(context, profile),
               const SizedBox(height: 28),
 
               // ── Recent Activity timeline ────────────────────────────
@@ -128,7 +210,13 @@ class DashboardScreen extends ConsumerWidget {
   }
 
   // ── Header Widget ───────────────────────────────────────────────
-  Widget _buildHeader(BuildContext context, WidgetRef ref, String name, bool isPowerUser) {
+  Widget _buildHeader(
+    BuildContext context,
+    WidgetRef ref,
+    String name,
+    bool isPowerUser,
+    String subscriptionTier,
+  ) {
     final notificationsState = ref.watch(notificationsControllerProvider);
     final unreadCount = notificationsState.maybeWhen(
       data: (list) => list.where((n) => !n.isRead).length,
@@ -168,11 +256,17 @@ class DashboardScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Welcome Back',
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: context.onSurfaceColor.withValues(alpha: 0.6),
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Welcome Back',
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: context.onSurfaceColor.withValues(alpha: 0.6),
+                    ),
+                  ),
+                  _buildUserSubscriptionBadge(subscriptionTier),
+                ],
               ),
               Text(
                 name,
@@ -184,7 +278,7 @@ class DashboardScreen extends ConsumerWidget {
           ),
         ),
         // Power User Badge
-        if (isPowerUser) ...[
+        if (isPowerUser)
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
@@ -217,8 +311,7 @@ class DashboardScreen extends ConsumerWidget {
               ],
             ),
           ),
-          const SizedBox(width: 8),
-        ],
+        if (isPowerUser) const SizedBox(width: 8),
 
         // Help Icon Button
         IconButton(
@@ -261,8 +354,56 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
+  Widget _buildUserSubscriptionBadge(String tier) {
+    Color getTierColor() {
+      switch (tier.toLowerCase()) {
+        case 'premium':
+          return Colors.purpleAccent;
+        case 'standard':
+          return AppColors.primary;
+        case 'basic':
+          return Colors.blueAccent;
+        default:
+          return Colors.grey;
+      }
+    }
+
+    String getTierName() {
+      switch (tier.toLowerCase()) {
+        case 'premium':
+          return 'Premium';
+        case 'standard':
+          return 'Standard';
+        case 'basic':
+          return 'Free';
+        default:
+          return tier;
+      }
+    }
+
+    final Color color = getTierColor();
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: color.withValues(alpha: 0.4), width: 1.0),
+      ),
+      child: Text(
+        getTierName().toUpperCase(),
+        style: TextStyle(
+          color: color,
+          fontSize: 9,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 0.5,
+        ),
+      ),
+    );
+  }
+
   // ── Help Modal Sheet ───────────────────────────────────────────
   void _showHelpModalSheet(BuildContext context) {
+    final isLight = Theme.of(context).brightness == Brightness.light;
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -271,13 +412,13 @@ class DashboardScreen extends ConsumerWidget {
         return Container(
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: AppColors.darkSurface,
+            color: isLight ? AppColors.lightSurface : AppColors.darkSurface,
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(28),
               topRight: Radius.circular(28),
             ),
             border: Border(
-              top: BorderSide(color: AppColors.darkBorder, width: 1.5),
+              top: BorderSide(color: isLight ? AppColors.lightBorder : AppColors.darkBorder, width: 1.5),
             ),
           ),
           child: Column(
@@ -290,7 +431,7 @@ class DashboardScreen extends ConsumerWidget {
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 20),
                   decoration: BoxDecoration(
-                    color: AppColors.darkBorder,
+                    color: isLight ? AppColors.lightBorder : AppColors.darkBorder,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -300,12 +441,12 @@ class DashboardScreen extends ConsumerWidget {
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.15),
+                      color: context.primaryColor.withValues(alpha: 0.15),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.help_outline_rounded,
-                      color: AppColors.primary,
+                      color: context.primaryColor,
                       size: 24,
                     ),
                   ),
@@ -313,7 +454,7 @@ class DashboardScreen extends ConsumerWidget {
                   Text(
                     'Help & Support',
                     style: AppTextStyles.headlineMedium.copyWith(
-                      color: AppColors.textPrimaryDark,
+                      color: isLight ? AppColors.textPrimaryLight : AppColors.textPrimaryDark,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -323,23 +464,35 @@ class DashboardScreen extends ConsumerWidget {
               Text(
                 'Need assistance with your SIM Shield app? Our comprehensive support resources and customer care portal are currently being finalized.',
                 style: AppTextStyles.bodyMedium.copyWith(
-                  color: AppColors.textSecondaryDark,
+                  color: isLight ? AppColors.textSecondaryLight : AppColors.textSecondaryDark,
                 ),
               ),
               const SizedBox(height: 16),
               Text(
                 'In upcoming updates, you will be able to:',
                 style: AppTextStyles.bodyMedium.copyWith(
-                  color: AppColors.textPrimaryDark,
+                  color: isLight ? AppColors.textPrimaryLight : AppColors.textPrimaryDark,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 12),
-              _buildHelpBulletPoint(context, Icons.menu_book_rounded, 'Browse FAQs & troubleshooting guides'),
+              _buildHelpBulletPoint(
+                context,
+                Icons.menu_book_rounded,
+                'Browse FAQs & troubleshooting guides',
+              ),
               const SizedBox(height: 10),
-              _buildHelpBulletPoint(context, Icons.support_agent_rounded, 'Live chat with technical support agents'),
+              _buildHelpBulletPoint(
+                context,
+                Icons.support_agent_rounded,
+                'Live chat with technical support agents',
+              ),
               const SizedBox(height: 10),
-              _buildHelpBulletPoint(context, Icons.bug_report_rounded, 'Report bugs or submit feedback directly'),
+              _buildHelpBulletPoint(
+                context,
+                Icons.bug_report_rounded,
+                'Report bugs or submit feedback directly',
+              ),
               const SizedBox(height: 28),
               SizedBox(
                 width: double.infinity,
@@ -347,7 +500,7 @@ class DashboardScreen extends ConsumerWidget {
                 child: ElevatedButton(
                   onPressed: () => Navigator.pop(context),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
+                    backgroundColor: context.primaryColor,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
@@ -369,7 +522,12 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildHelpBulletPoint(BuildContext context, IconData icon, String text) {
+  Widget _buildHelpBulletPoint(
+    BuildContext context,
+    IconData icon,
+    String text,
+  ) {
+    final isLight = Theme.of(context).brightness == Brightness.light;
     return Row(
       children: [
         Icon(icon, color: AppColors.secondary, size: 18),
@@ -378,7 +536,7 @@ class DashboardScreen extends ConsumerWidget {
           child: Text(
             text,
             style: AppTextStyles.bodyMedium.copyWith(
-              color: AppColors.textSecondaryDark,
+              color: isLight ? AppColors.textSecondaryLight : AppColors.textSecondaryDark,
             ),
           ),
         ),
@@ -391,33 +549,44 @@ class DashboardScreen extends ConsumerWidget {
     BuildContext context,
     String currency,
     DashboardState data,
+    UserProfile profile,
   ) {
+    final bool isPremium = profile.subscriptionTier.toLowerCase() == 'premium';
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
     final int nextTopUpMinutes = data.nextTopUpDate != null
         ? data.nextTopUpDate!.difference(DateTime.now()).inMinutes.clamp(0, 60)
         : 0;
-    final bool isHourlyMode = data.nextTopUpTotalDays == 0 && data.nextTopUpId != null;
+    final bool isHourlyMode =
+        data.nextTopUpTotalDays == 0 && data.nextTopUpId != null;
 
     // Format the next top-up date
-    final DateTime dueDate = data.nextTopUpDate ?? DateTime.now().add(Duration(days: data.nextTopUpDays));
-    final String formattedDate = data.nextTopUpId != null 
-        ? (isHourlyMode 
-            ? DateFormat('MMMM dd, yyyy HH:mm').format(dueDate)
-            : DateFormat('MMMM dd, yyyy').format(dueDate))
-        : 'No Active Protection';
+    final DateTime dueDate =
+        data.nextTopUpDate ??
+        DateTime.now().add(Duration(days: data.nextTopUpDays));
+    final String formattedDate = data.nextTopUpDate != null
+        ? (isHourlyMode
+              ? DateFormat('MMMM dd, yyyy HH:mm').format(dueDate)
+              : DateFormat('MMMM dd, yyyy').format(dueDate))
+        : 'No Line Configuration';
 
-    final double progress = data.nextTopUpTotalDays > 0 
-        ? (data.nextTopUpDays / data.nextTopUpTotalDays).clamp(0.0, 1.0)
-        : (isHourlyMode ? (nextTopUpMinutes / 60.0).clamp(0.0, 1.0) : 1.0);
+    final double progress = data.nextTopUpDate != null
+        ? (data.nextTopUpTotalDays > 0
+              ? (data.nextTopUpDays / data.nextTopUpTotalDays).clamp(0.0, 1.0)
+              : (isHourlyMode
+                    ? (nextTopUpMinutes / 60.0).clamp(0.0, 1.0)
+                    : 1.0))
+        : 0.0;
 
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: AppColors.darkCard,
+        color: isDark ? AppColors.darkCard : AppColors.lightCard,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.darkBorder, width: 1.5),
+        border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder, width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.08),
+            color: context.primaryColor.withOpacity(isDark ? 0.08 : 0.04),
             blurRadius: 24,
             offset: const Offset(0, 8),
           ),
@@ -436,7 +605,7 @@ class DashboardScreen extends ConsumerWidget {
                 height: 150,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AppColors.success.withValues(alpha: 0.02),
+                  color: AppColors.success.withOpacity(isDark ? 0.02 : 0.01),
                 ),
               ),
             ),
@@ -450,13 +619,15 @@ class DashboardScreen extends ConsumerWidget {
                     await HapticHelper.mediumImpact();
                     if (!context.mounted) return;
                     if (data.nextTopUpId != null) {
-                      context.push('${AppRoutes.simLines}/detail/${data.nextTopUpId}');
+                      context.push(
+                        '${AppRoutes.simLines}/detail/${data.nextTopUpId}',
+                      );
                     } else {
                       context.push('${AppRoutes.simLines}/add');
                     }
                   },
-                  splashColor: context.onSurfaceColor.withValues(alpha: 0.05),
-                  highlightColor: context.onSurfaceColor.withValues(alpha: 0.02),
+                  splashColor: context.onSurfaceColor.withOpacity(0.05),
+                  highlightColor: context.onSurfaceColor.withOpacity(0.02),
                 ),
               ),
             ),
@@ -478,21 +649,26 @@ class DashboardScreen extends ConsumerWidget {
                               width: 82,
                               height: 82,
                               child: CircularProgressIndicator(
-                                value: data.nextTopUpId != null ? progress : 0.0,
+                                value: progress,
                                 strokeWidth: 7,
-                                backgroundColor: context.onSurfaceColor.withValues(alpha: 0.08),
-                                valueColor: const AlwaysStoppedAnimation<Color>(AppColors.success),
+                                backgroundColor: context.onSurfaceColor
+                                    .withOpacity(0.08),
+                                valueColor: const AlwaysStoppedAnimation<Color>(
+                                  AppColors.success,
+                                ),
                               ),
                             ),
                             Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Text(
-                                  data.nextTopUpId != null
-                                      ? (isHourlyMode ? '$nextTopUpMinutes' : '${data.nextTopUpDays}')
+                                  data.nextTopUpDate != null
+                                      ? (isHourlyMode
+                                            ? '$nextTopUpMinutes'
+                                            : '${data.nextTopUpDays}')
                                       : '0',
                                   style: AppTextStyles.headlineMedium.copyWith(
-                                    color: Colors.white,
+                                    color: context.onSurfaceColor,
                                     fontWeight: FontWeight.w900,
                                     height: 1.1,
                                   ),
@@ -500,7 +676,7 @@ class DashboardScreen extends ConsumerWidget {
                                 Text(
                                   isHourlyMode ? 'mins' : 'days',
                                   style: AppTextStyles.caption.copyWith(
-                                    color: AppColors.textSecondaryDark,
+                                    color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                                     fontSize: 10,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -517,32 +693,36 @@ class DashboardScreen extends ConsumerWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    'NEXT TOP-UP',
+                                    isPremium ? 'NEXT TOP-UP' : 'NEXT NOTIFY',
                                     style: AppTextStyles.labelSmall.copyWith(
-                                      color: AppColors.textSecondaryDark,
+                                      color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                                       fontWeight: FontWeight.bold,
                                       letterSpacing: 1.2,
                                     ),
                                   ),
-                                  if (data.nextTopUpId != null)
+                                  if (data.nextTopUpDate != null)
                                     Container(
                                       padding: const EdgeInsets.symmetric(
                                         horizontal: 10,
                                         vertical: 4,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: AppColors.success.withValues(alpha: 0.15),
+                                        color: AppColors.success.withOpacity(
+                                          0.15,
+                                        ),
                                         borderRadius: BorderRadius.circular(6),
                                       ),
                                       child: Text(
                                         'Active',
-                                        style: AppTextStyles.labelSmall.copyWith(
-                                          color: AppColors.success,
-                                          fontWeight: FontWeight.w800,
-                                        ),
+                                        style: AppTextStyles.labelSmall
+                                            .copyWith(
+                                              color: AppColors.success,
+                                              fontWeight: FontWeight.w800,
+                                            ),
                                       ),
                                     ),
                                 ],
@@ -551,7 +731,7 @@ class DashboardScreen extends ConsumerWidget {
                               Text(
                                 formattedDate,
                                 style: AppTextStyles.headlineSmall.copyWith(
-                                  color: Colors.white,
+                                  color: context.onSurfaceColor,
                                   fontWeight: FontWeight.w800,
                                 ),
                                 maxLines: 1,
@@ -559,13 +739,13 @@ class DashboardScreen extends ConsumerWidget {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                data.nextTopUpId != null
+                                data.nextTopUpDate != null
                                     ? (data.nextTopUpNickname != null
-                                        ? '${data.nextTopUpNickname} • ${data.nextTopUpPhone}'
-                                        : '${data.nextTopUpPhone}')
-                                    : 'Add a SIM line to begin tracking',
+                                          ? '${data.nextTopUpNickname} • ${data.nextTopUpPhone}'
+                                          : '${data.nextTopUpPhone}')
+                                    : 'Add or configure a SIM line',
                                 style: AppTextStyles.bodyMedium.copyWith(
-                                  color: AppColors.textSecondaryDark,
+                                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                                 ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -576,8 +756,8 @@ class DashboardScreen extends ConsumerWidget {
                       ],
                     ),
                     const SizedBox(height: 20),
-                    const Divider(
-                      color: AppColors.darkBorder,
+                    Divider(
+                      color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
                       height: 1,
                       thickness: 1.2,
                     ),
@@ -588,13 +768,17 @@ class DashboardScreen extends ConsumerWidget {
                         Text(
                           'Showing nearest line',
                           style: AppTextStyles.caption.copyWith(
-                            color: AppColors.textSecondaryDark.withValues(alpha: 0.7),
+                            color: (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight).withValues(
+                              alpha: 0.7,
+                            ),
                           ),
                         ),
                         Text(
-                          data.totalLines == 1 ? '1 line' : '${data.totalLines} lines',
+                          data.totalLines == 1
+                              ? '1 line'
+                              : '${data.totalLines} lines',
                           style: AppTextStyles.caption.copyWith(
-                            color: Colors.white,
+                            color: context.onSurfaceColor,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -652,21 +836,53 @@ class DashboardScreen extends ConsumerWidget {
             }
 
             return Column(
-              children: lines
-                  .asMap()
-                  .entries
-                  .map((entry) {
-                    final line = entry.value;
-                    final isShared = line.userId != currentUserId;
-                    return SimLineCard(
-                      line: line,
-                      index: entry.key,
-                      showActions: false,
-                      isShared: isShared,
-                      householdState: householdState,
-                    );
-                  })
-                  .toList(),
+              children: [
+                SizedBox(
+                  height: 250,
+                  child: PageView.builder(
+                    controller: _pageController,
+                    onPageChanged: (index) {
+                      setState(() {
+                        _currentLineIndex = index;
+                      });
+                    },
+                    itemCount: lines.length,
+                    itemBuilder: (context, index) {
+                      final line = lines[index];
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 6.0),
+                        child: DashboardSimLineCard(line: line),
+                      );
+                    },
+                  ),
+                ),
+                if (lines.length > 1) ...[
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(
+                      lines.length,
+                      (index) => AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        margin: const EdgeInsets.symmetric(horizontal: 4),
+                        width: _currentLineIndex == index ? 12 : 6,
+                        height: 6,
+                        decoration: BoxDecoration(
+                          color: _currentLineIndex == index
+                              ? context.primaryColor
+                              : (context.isDarkMode
+                                      ? AppColors.textSecondaryDark
+                                      : AppColors.textSecondaryLight)
+                                  .withValues(
+                                  alpha: 0.3,
+                                ),
+                          borderRadius: BorderRadius.circular(3),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ],
             );
           },
           loading: () => const Center(
@@ -767,8 +983,400 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
+  // ── Quick Actions Section ───────────────────────────────────────
+  // ── Quick Actions Section ───────────────────────────────────────
+  Widget _buildQuickActionsSection(BuildContext context, dynamic profile) {
+    final subscriptionTier =
+        profile.subscriptionTier?.toString().toLowerCase() ?? 'basic';
+    final isPremium = subscriptionTier == 'premium';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Quick Actions',
+          style: AppTextStyles.headlineSmall.copyWith(
+            color: context.onSurfaceColor,
+          ),
+        ),
+        const SizedBox(height: 16),
+        Row(
+          children: isPremium
+              ? [
+                  _buildQuickActionCard(
+                    context,
+                    icon: Icons.wifi_off_rounded,
+                    label: 'Offline Refill',
+                    color: Colors.deepOrangeAccent,
+                    onTap: () async {
+                      await HapticHelper.lightTick();
+                      context.push('/settings/offline-recharge');
+                    },
+                  ),
+                  const SizedBox(width: 12),
+                  _buildQuickActionCard(
+                    context,
+                    icon: Icons.account_balance_wallet_rounded,
+                    label: 'Wallet',
+                    color: const Color(0xFF14B8A6),
+                    onTap: () async {
+                      await HapticHelper.lightTick();
+                      context.go('/wallet');
+                    },
+                  ),
+                  const SizedBox(width: 12),
+                  _buildQuickActionCard(
+                    context,
+                    icon: Icons.support_agent_rounded,
+                    label: 'Open Ticket',
+                    color: Colors.blueAccent,
+                    onTap: () async {
+                      await HapticHelper.lightTick();
+                      _showOpenTicketSheet(context);
+                    },
+                  ),
+                ]
+              : [
+                  _buildQuickActionCard(
+                    context,
+                    icon: Icons.support_agent_rounded,
+                    label: 'Open Ticket',
+                    color: Colors.blueAccent,
+                    onTap: () async {
+                      await HapticHelper.lightTick();
+                      _showOpenTicketSheet(context);
+                    },
+                  ),
+                  const SizedBox(width: 12),
+                  _buildQuickActionCard(
+                    context,
+                    icon: Icons.person_rounded,
+                    label: 'Profile',
+                    color: const Color(0xFF10B981),
+                    onTap: () async {
+                      await HapticHelper.lightTick();
+                      context.go('/settings');
+                    },
+                  ),
+                  const SizedBox(width: 12),
+                  _buildQuickActionCard(
+                    context,
+                    icon: Icons.star_rounded,
+                    label: 'Upgrade',
+                    color: Colors.purpleAccent,
+                    onTap: () async {
+                      await HapticHelper.lightTick();
+                      context.push('/settings/subscription');
+                    },
+                  ),
+                ],
+        ),
+      ],
+    );
+  }
+
+  void _showOpenTicketSheet(BuildContext context) {
+    String selectedCategory = 'Technical Support';
+    final subjectController = TextEditingController();
+    final messageController = TextEditingController();
+    bool isSubmitting = false;
+    final isLight = Theme.of(context).brightness == Brightness.light;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Container(
+              padding: EdgeInsets.only(
+                left: 24,
+                right: 24,
+                top: 24,
+                bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+              ),
+              decoration: BoxDecoration(
+                color: isLight ? AppColors.lightSurface : AppColors.darkSurface,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(28),
+                  topRight: Radius.circular(28),
+                ),
+                border: Border(
+                  top: BorderSide(color: isLight ? AppColors.lightBorder : AppColors.darkBorder, width: 1.5),
+                ),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 48,
+                      height: 4,
+                      margin: const EdgeInsets.only(bottom: 20),
+                      decoration: BoxDecoration(
+                        color: isLight ? AppColors.lightBorder : AppColors.darkBorder,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.blueAccent.withOpacity(0.15),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.support_agent_rounded,
+                          color: Colors.blueAccent,
+                          size: 24,
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      Text(
+                        'Open Support Ticket',
+                        style: AppTextStyles.headlineMedium.copyWith(
+                          color: isLight ? AppColors.textPrimaryLight : AppColors.textPrimaryDark,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    'Ticket Category',
+                    style: AppTextStyles.labelSmall.copyWith(
+                      color: isLight ? AppColors.textSecondaryLight : AppColors.textSecondaryDark,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  DropdownButtonFormField<String>(
+                    value: selectedCategory,
+                    dropdownColor: isLight ? AppColors.lightCard : AppColors.darkCard,
+                    style: TextStyle(color: isLight ? AppColors.textPrimaryLight : Colors.white),
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: isLight ? const Color(0xFFEAEEF1) : Colors.black.withOpacity(0.15),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: isLight ? AppColors.lightBorder : Colors.white.withOpacity(0.1),
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Colors.blueAccent),
+                      ),
+                    ),
+                    items:
+                        [
+                              'Technical Support',
+                              'Billing & Wallet',
+                              'SIM Lines Management',
+                              'Feedback & Other',
+                            ]
+                            .map(
+                              (category) => DropdownMenuItem<String>(
+                                value: category,
+                                child: Text(category),
+                              ),
+                            )
+                            .toList(),
+                    onChanged: (val) {
+                      if (val != null) {
+                        setModalState(() {
+                          selectedCategory = val;
+                        });
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Subject',
+                    style: AppTextStyles.labelSmall.copyWith(
+                      color: isLight ? AppColors.textSecondaryLight : AppColors.textSecondaryDark,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: subjectController,
+                    style: TextStyle(color: isLight ? AppColors.textPrimaryLight : Colors.white),
+                    decoration: InputDecoration(
+                      hintText: 'Summary of the issue',
+                      hintStyle: TextStyle(
+                        color: isLight ? AppColors.textTertiaryLight : Colors.white.withOpacity(0.3),
+                      ),
+                      filled: true,
+                      fillColor: isLight ? const Color(0xFFEAEEF1) : Colors.black.withOpacity(0.15),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: isLight ? AppColors.lightBorder : Colors.white.withOpacity(0.1),
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Colors.blueAccent),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Message Details',
+                    style: AppTextStyles.labelSmall.copyWith(
+                      color: isLight ? AppColors.textSecondaryLight : AppColors.textSecondaryDark,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: messageController,
+                    maxLines: 4,
+                    style: TextStyle(color: isLight ? AppColors.textPrimaryLight : Colors.white),
+                    decoration: InputDecoration(
+                      hintText: 'Describe the issue or request in detail...',
+                      hintStyle: TextStyle(
+                        color: isLight ? AppColors.textTertiaryLight : Colors.white.withOpacity(0.3),
+                      ),
+                      filled: true,
+                      fillColor: isLight ? const Color(0xFFEAEEF1) : Colors.black.withOpacity(0.15),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: isLight ? AppColors.lightBorder : Colors.white.withOpacity(0.1),
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Colors.blueAccent),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 52,
+                    child: ElevatedButton(
+                      onPressed: isSubmitting
+                          ? null
+                          : () async {
+                              if (subjectController.text.trim().isEmpty ||
+                                  messageController.text.trim().isEmpty) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      'Please fill out all fields.',
+                                    ),
+                                    backgroundColor: AppColors.error,
+                                  ),
+                                );
+                                return;
+                              }
+
+                              setModalState(() {
+                                isSubmitting = true;
+                              });
+
+                              // Mock network delay
+                              await Future.delayed(const Duration(seconds: 1));
+
+                              if (context.mounted) {
+                                Navigator.pop(context);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Ticket submitted successfully under $selectedCategory! ID: #T-${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}',
+                                    ),
+                                    backgroundColor: AppColors.success,
+                                  ),
+                                );
+                              }
+                            },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blueAccent,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                      child: isSubmitting
+                          ? const SizedBox(
+                              height: 24,
+                              width: 24,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2.5,
+                              ),
+                            )
+                          : Text(
+                              'Submit Support Ticket',
+                              style: AppTextStyles.titleMedium.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    ).whenComplete(() {
+      subjectController.dispose();
+      messageController.dispose();
+    });
+  }
+
+  Widget _buildQuickActionCard(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: color.withValues(alpha: 0.3)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, color: color, size: 28),
+              const SizedBox(height: 8),
+              Text(
+                label,
+                textAlign: TextAlign.center,
+                style: AppTextStyles.labelSmall.copyWith(
+                  color: context.onSurfaceColor.withValues(alpha: 0.9),
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   // ── Recent Activity timeline Widget ─────────────────────────────
-  Widget _buildActivityTimeline(BuildContext context, List<DashboardActivity> activities) {
+  Widget _buildActivityTimeline(
+    BuildContext context,
+    List<DashboardActivity> activities,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -872,8 +1480,8 @@ class DashboardScreen extends ConsumerWidget {
                                 Text(
                                   act.timeAgo,
                                   style: AppTextStyles.caption.copyWith(
-                                    color: context.onSurfaceColor.withValues(alpha: 
-                                      0.4,
+                                    color: context.onSurfaceColor.withValues(
+                                      alpha: 0.4,
                                     ),
                                   ),
                                 ),
@@ -883,7 +1491,9 @@ class DashboardScreen extends ConsumerWidget {
                             Text(
                               act.subtitle,
                               style: AppTextStyles.bodySmall.copyWith(
-                                color: context.onSurfaceColor.withValues(alpha: 0.6),
+                                color: context.onSurfaceColor.withValues(
+                                  alpha: 0.6,
+                                ),
                               ),
                             ),
                           ],
@@ -900,6 +1510,7 @@ class DashboardScreen extends ConsumerWidget {
   }
 
   Widget _buildDashboardUpsellBanner(BuildContext context) {
+    final isLight = Theme.of(context).brightness == Brightness.light;
     return InkWell(
       onTap: () {
         context.push('/settings/subscription');
@@ -951,7 +1562,7 @@ class DashboardScreen extends ConsumerWidget {
                   Text(
                     'Free Shield Guard Active 🚨',
                     style: AppTextStyles.titleMedium.copyWith(
-                      color: Colors.white,
+                      color: isLight ? AppColors.textPrimaryLight : Colors.white,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -959,7 +1570,7 @@ class DashboardScreen extends ConsumerWidget {
                   Text(
                     'Your international lines are at risk of deactivation! Upgrade to Premium Shield now for 100% automated renewal checks.',
                     style: AppTextStyles.bodySmall.copyWith(
-                      color: AppColors.textSecondaryDark,
+                      color: isLight ? AppColors.textSecondaryLight : AppColors.textSecondaryDark,
                       height: 1.3,
                     ),
                   ),

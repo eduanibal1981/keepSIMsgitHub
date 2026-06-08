@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
+import 'package:keep_sims/core/utils/build_context_extension.dart';
 import 'package:keep_sims/features/payments/controller/payments_controller.dart';
 import 'package:keep_sims/features/payments/model/payment_method_model.dart';
 import 'package:keep_sims/features/auth/controller/auth_controller.dart';
@@ -47,8 +48,10 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
       });
     }
 
+    final isDark = context.isDarkMode;
+
     return Scaffold(
-      backgroundColor: AppColors.darkBg,
+      backgroundColor: context.scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -56,14 +59,14 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
           icon: Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: AppColors.darkSurface,
+              color: isDark ? AppColors.darkSurface : Colors.white,
               shape: BoxShape.circle,
-              border: Border.all(color: AppColors.darkBorder),
+              border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.arrow_back_ios_new_rounded,
               size: 14,
-              color: Colors.white,
+              color: context.onSurfaceColor,
             ),
           ),
           onPressed: () => context.pop(),
@@ -71,7 +74,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
         title: Text(
           'Payments & Auto-Fund',
           style: AppTextStyles.headlineMedium.copyWith(
-            color: Colors.white,
+            color: context.onSurfaceColor,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -93,22 +96,22 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                       Text(
                         'Linked Cards',
                         style: AppTextStyles.titleLarge.copyWith(
-                          color: Colors.white,
+                          color: context.onSurfaceColor,
                         ),
                       ),
                       TextButton.icon(
                         onPressed: state.isSubmitting
                             ? null
                             : () => _showAddCardSheet(context, ref),
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.add_rounded,
                           size: 18,
-                          color: AppColors.secondary,
+                          color: isDark ? AppColors.secondary : context.primaryColor,
                         ),
                         label: Text(
                           'Add Card',
                           style: AppTextStyles.labelLarge.copyWith(
-                            color: AppColors.secondary,
+                            color: isDark ? AppColors.secondary : context.primaryColor,
                           ),
                         ),
                       ),
@@ -144,8 +147,8 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
             ),
           );
         },
-        loading: () => const Center(
-          child: CircularProgressIndicator(color: AppColors.primary),
+        loading: () => Center(
+          child: CircularProgressIndicator(color: context.primaryColor),
         ),
         error: (err, stack) => Center(
           child: Column(
@@ -160,7 +163,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
               Text(
                 'Failed to load payment info',
                 style: AppTextStyles.headlineSmall.copyWith(
-                  color: Colors.white,
+                  color: context.onSurfaceColor,
                 ),
               ),
               const SizedBox(height: 8),
@@ -168,7 +171,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                 err.toString(),
                 textAlign: CenterAlign().textAlign,
                 style: AppTextStyles.bodyMedium.copyWith(
-                  color: AppColors.textSecondaryDark,
+                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                 ),
               ),
             ],
@@ -180,10 +183,17 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
 
   // ─── GLASSMORPHIC CARD BUILDER ────────────────────────────────────
   Widget _buildGlassmorphicCard(PaymentMethod card, String userName) {
+    final isDark = context.isDarkMode;
     final isDefault = card.isDefault;
     final bgGradient = isDefault
         ? AppColors.heroGradient
-        : AppColors.darkCardGradient;
+        : (isDark
+            ? AppColors.darkCardGradient
+            : const LinearGradient(
+                colors: [Colors.white, Color(0xFFF0F4F8)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ));
 
     return Container(
       width: 320,
@@ -193,8 +203,8 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
         gradient: bgGradient,
         boxShadow: [
           BoxShadow(
-            color: (isDefault ? AppColors.primary : Colors.black).withOpacity(
-              0.25,
+            color: (isDefault ? context.primaryColor : Colors.black).withOpacity(
+              isDark ? 0.25 : 0.08,
             ),
             blurRadius: 15,
             offset: const Offset(0, 8),
@@ -203,7 +213,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
         border: Border.all(
           color: isDefault
               ? Colors.white.withOpacity(0.3)
-              : AppColors.darkBorder.withOpacity(0.5),
+              : (isDark ? AppColors.darkBorder.withOpacity(0.5) : AppColors.lightBorder),
           width: 1.5,
         ),
       ),
@@ -242,14 +252,14 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                             card.provider?.toLowerCase() == 'visa'
                                 ? Icons.credit_card_rounded
                                 : Icons.payment_rounded,
-                            color: Colors.white,
+                            color: isDefault || isDark ? Colors.white : context.onSurfaceColor,
                             size: 26,
                           ),
                           const SizedBox(width: 8),
                           Text(
                             card.provider?.toUpperCase() ?? 'CARD',
                             style: AppTextStyles.titleMedium.copyWith(
-                              color: Colors.white,
+                              color: isDefault || isDark ? Colors.white : context.onSurfaceColor,
                               letterSpacing: 2,
                               fontWeight: FontWeight.w800,
                             ),
@@ -267,25 +277,25 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                color: AppColors.secondary.withOpacity(0.15),
+                                color: (isDark ? AppColors.secondary : AppColors.lightSecondary).withOpacity(0.15),
                                 borderRadius: BorderRadius.circular(20),
                                 border: Border.all(
-                                  color: AppColors.secondary.withOpacity(0.4),
+                                  color: (isDark ? AppColors.secondary : AppColors.lightSecondary).withOpacity(0.4),
                                 ),
                               ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  const Icon(
+                                  Icon(
                                     Icons.star_rounded,
                                     size: 10,
-                                    color: AppColors.secondary,
+                                    color: isDark ? AppColors.secondary : AppColors.lightSecondary,
                                   ),
                                   const SizedBox(width: 4),
                                   Text(
                                     'DEFAULT',
                                     style: AppTextStyles.labelSmall.copyWith(
-                                      color: AppColors.secondary,
+                                      color: isDark ? AppColors.secondary : AppColors.lightSecondary,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -296,9 +306,9 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                             IconButton(
                               padding: EdgeInsets.zero,
                               constraints: const BoxConstraints(),
-                              icon: const Icon(
+                              icon: Icon(
                                 Icons.star_border_rounded,
-                                color: Colors.white70,
+                                color: isDark ? Colors.white70 : AppColors.textSecondaryLight,
                                 size: 20,
                               ),
                               onPressed: () => _handleSetDefault(card.id!),
@@ -324,7 +334,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                   Text(
                     '••••  ••••  ••••  ${card.lastFour ?? '0000'}',
                     style: AppTextStyles.headlineMedium.copyWith(
-                      color: Colors.white,
+                      color: isDefault || isDark ? Colors.white : context.onSurfaceColor,
                       letterSpacing: 3,
                       fontWeight: FontWeight.w600,
                     ),
@@ -341,7 +351,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                           Text(
                             'CARDHOLDER',
                             style: AppTextStyles.caption.copyWith(
-                              color: Colors.white.withOpacity(0.5),
+                              color: isDefault || isDark ? Colors.white.withOpacity(0.5) : AppColors.textTertiaryLight,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -353,7 +363,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: AppTextStyles.bodyMedium.copyWith(
-                                color: Colors.white,
+                                color: isDefault || isDark ? Colors.white : context.onSurfaceColor,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -366,7 +376,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                           Text(
                             'EXPIRES',
                             style: AppTextStyles.caption.copyWith(
-                              color: Colors.white.withOpacity(0.5),
+                              color: isDefault || isDark ? Colors.white.withOpacity(0.5) : AppColors.textTertiaryLight,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -374,7 +384,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                           Text(
                             '${card.expiryMonth.toString().padLeft(2, '0')}/${(card.expiryYear ?? 0) % 100}',
                             style: AppTextStyles.bodyMedium.copyWith(
-                              color: Colors.white,
+                              color: isDefault || isDark ? Colors.white : context.onSurfaceColor,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -393,14 +403,15 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
 
   // ─── CARDS EMPTY STATE ────────────────────────────────────────────
   Widget _buildEmptyCardsState(BuildContext context) {
+    final isDark = context.isDarkMode;
     return Container(
       width: double.infinity,
       height: 180,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
-        color: AppColors.darkSurface,
+        color: isDark ? AppColors.darkSurface : Colors.white,
         border: Border.all(
-          color: AppColors.darkBorder,
+          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
           style: BorderStyle.values[0] /* Wait, outline dashed */,
         ),
       ),
@@ -413,25 +424,25 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.1),
+                color: (isDark ? AppColors.primary : AppColors.lightPrimary).withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.add_card_rounded,
-                color: AppColors.primary,
+                color: context.primaryColor,
                 size: 28,
               ),
             ),
             const SizedBox(height: 12),
             Text(
               'Link your first payment card',
-              style: AppTextStyles.titleMedium.copyWith(color: Colors.white),
+              style: AppTextStyles.titleMedium.copyWith(color: context.onSurfaceColor),
             ),
             const SizedBox(height: 4),
             Text(
               'Supports secure Visa & MasterCard debit or credit',
               style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.textSecondaryDark,
+                color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
               ),
             ),
           ],
@@ -442,13 +453,14 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
 
   // ─── AUTO-FUND PREFERENCES PANEL ──────────────────────────────────
   Widget _buildAutoFundingPanel(BuildContext context, bool isSubmitting) {
+    final isDark = context.isDarkMode;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
-        color: AppColors.darkSurface,
-        border: Border.all(color: AppColors.darkBorder),
+        color: isDark ? AppColors.darkSurface : Colors.white,
+        border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -459,12 +471,12 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: AppColors.secondary.withOpacity(0.1),
+                  color: (isDark ? AppColors.secondary : AppColors.lightSecondary).withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.bolt_rounded,
-                  color: AppColors.secondary,
+                  color: isDark ? AppColors.secondary : AppColors.lightSecondary,
                   size: 20,
                 ),
               ),
@@ -476,14 +488,14 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                     Text(
                       'Auto-Funding Rules',
                       style: AppTextStyles.titleMedium.copyWith(
-                        color: Colors.white,
+                        color: context.onSurfaceColor,
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       'Refill wallet when funds drop low',
                       style: AppTextStyles.bodySmall.copyWith(
-                        color: AppColors.textSecondaryDark,
+                        color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                       ),
                     ),
                   ],
@@ -491,10 +503,10 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
               ),
               Switch.adaptive(
                 value: _autoFundEnabled,
-                activeColor: AppColors.secondary,
-                activeTrackColor: AppColors.secondary.withOpacity(0.3),
-                inactiveThumbColor: AppColors.textSecondaryDark,
-                inactiveTrackColor: AppColors.darkBg,
+                activeColor: isDark ? AppColors.secondary : AppColors.lightSecondary,
+                activeTrackColor: (isDark ? AppColors.secondary : AppColors.lightSecondary).withOpacity(0.3),
+                inactiveThumbColor: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                inactiveTrackColor: isDark ? AppColors.darkBg : const Color(0xFFEAEEF1),
                 onChanged: (val) {
                   setState(() {
                     _autoFundEnabled = val;
@@ -506,7 +518,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
 
           if (_autoFundEnabled) ...[
             const SizedBox(height: 24),
-            const Divider(color: AppColors.darkBorder, height: 1),
+            Divider(color: isDark ? AppColors.darkBorder : AppColors.lightBorder, height: 1),
             const SizedBox(height: 24),
 
             // ─── LOW BALANCE SLIDER ──────────────────────────────────
@@ -516,14 +528,14 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                 Text(
                   'Low Balance Trigger',
                   style: AppTextStyles.bodyMedium.copyWith(
-                    color: Colors.white,
+                    color: context.onSurfaceColor,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
                   '\$${_autoFundThreshold.toInt()}',
                   style: AppTextStyles.titleMedium.copyWith(
-                    color: AppColors.secondary,
+                    color: isDark ? AppColors.secondary : AppColors.lightSecondary,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -535,8 +547,8 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
               min: 5.0,
               max: 100.0,
               divisions: 19,
-              activeColor: AppColors.primary,
-              inactiveColor: AppColors.darkBg,
+              activeColor: context.primaryColor,
+              inactiveColor: isDark ? AppColors.darkBg : const Color(0xFFEAEEF1),
               onChanged: (val) {
                 setState(() {
                   _autoFundThreshold = val;
@@ -551,19 +563,19 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                   Text(
                     '\$5',
                     style: AppTextStyles.bodySmall.copyWith(
-                      color: AppColors.textTertiaryDark,
+                      color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
                     ),
                   ),
                   Text(
                     'Trigger low top-up',
                     style: AppTextStyles.bodySmall.copyWith(
-                      color: AppColors.textTertiaryDark,
+                      color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
                     ),
                   ),
                   Text(
                     '\$100',
                     style: AppTextStyles.bodySmall.copyWith(
-                      color: AppColors.textTertiaryDark,
+                      color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
                     ),
                   ),
                 ],
@@ -579,14 +591,14 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                 Text(
                   'Reload Deposit Amount',
                   style: AppTextStyles.bodyMedium.copyWith(
-                    color: Colors.white,
+                    color: context.onSurfaceColor,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
                   '\$${_autoFundAmount.toInt()}',
                   style: AppTextStyles.titleMedium.copyWith(
-                    color: AppColors.primaryLight,
+                    color: isDark ? AppColors.primaryLight : AppColors.lightPrimaryMid,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -598,8 +610,8 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
               min: 10.0,
               max: 200.0,
               divisions: 19,
-              activeColor: AppColors.primary,
-              inactiveColor: AppColors.darkBg,
+              activeColor: context.primaryColor,
+              inactiveColor: isDark ? AppColors.darkBg : const Color(0xFFEAEEF1),
               onChanged: (val) {
                 setState(() {
                   _autoFundAmount = val;
@@ -614,19 +626,19 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                   Text(
                     '\$10',
                     style: AppTextStyles.bodySmall.copyWith(
-                      color: AppColors.textTertiaryDark,
+                      color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
                     ),
                   ),
                   Text(
                     'Amount to load',
                     style: AppTextStyles.bodySmall.copyWith(
-                      color: AppColors.textTertiaryDark,
+                      color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
                     ),
                   ),
                   Text(
                     '\$200',
                     style: AppTextStyles.bodySmall.copyWith(
-                      color: AppColors.textTertiaryDark,
+                      color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
                     ),
                   ),
                 ],
@@ -642,10 +654,12 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
-                  gradient: AppColors.primaryGradient,
+                  gradient: isDark
+                      ? AppColors.primaryGradient
+                      : const LinearGradient(colors: [AppColors.lightPrimary, AppColors.lightPrimaryMid]),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.primary.withOpacity(0.3),
+                      color: context.primaryColor.withOpacity(isDark ? 0.3 : 0.15),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -684,7 +698,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
             Text(
               'Keep SIM renewal running continuously by enabling automatic top-ups from your default credit card when the balance drops too low.',
               style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textSecondaryDark,
+                color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                 height: 1.5,
               ),
             ),
@@ -700,11 +714,12 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
     final expiryController = TextEditingController();
     final cvvController = TextEditingController();
     String detectedProvider = 'Visa';
+    final isDark = context.isDarkMode;
 
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.darkSurface,
+      backgroundColor: isDark ? AppColors.darkSurface : Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
       ),
@@ -729,14 +744,14 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                       Text(
                         'Link Credit/Debit Card',
                         style: AppTextStyles.headlineSmall.copyWith(
-                          color: Colors.white,
+                          color: context.onSurfaceColor,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.close_rounded,
-                          color: Colors.white70,
+                          color: isDark ? Colors.white70 : AppColors.textSecondaryLight,
                         ),
                         onPressed: () => Navigator.pop(sheetCtx),
                       ),
@@ -748,6 +763,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                   Text(
                     'CARD NUMBER',
                     style: AppTextStyles.caption.copyWith(
+                      color: isDark ? Colors.white70 : AppColors.textSecondaryLight,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -756,7 +772,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                     controller: numberController,
                     keyboardType: TextInputType.number,
                     maxLength: 19,
-                    style: const TextStyle(color: Colors.white),
+                    style: TextStyle(color: context.onSurfaceColor),
                     inputFormatters: [
                       FilteringTextInputFormatter.digitsOnly,
                       _CardNumberFormatter(),
@@ -776,36 +792,36 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                     decoration: InputDecoration(
                       hintText: '4242 4242 4242 4242',
                       hintStyle: TextStyle(
-                        color: Colors.white.withOpacity(0.3),
+                        color: isDark ? Colors.white.withOpacity(0.3) : AppColors.textTertiaryLight,
                       ),
                       counterText: '',
                       filled: true,
-                      fillColor: AppColors.darkBg,
+                      fillColor: isDark ? AppColors.darkBg : const Color(0xFFEAEEF1),
                       prefixIcon: Icon(
                         detectedProvider == 'Visa'
                             ? Icons.credit_card_rounded
                             : Icons.payment_rounded,
-                        color: AppColors.secondary,
+                        color: isDark ? AppColors.secondary : AppColors.lightSecondary,
                       ),
                       suffixIcon: Padding(
                         padding: const EdgeInsets.all(12.0),
                         child: Text(
                           detectedProvider.toUpperCase(),
                           style: AppTextStyles.labelSmall.copyWith(
-                            color: Colors.white70,
+                            color: isDark ? Colors.white70 : AppColors.textSecondaryLight,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(
-                          color: AppColors.darkBorder,
+                        borderSide: BorderSide(
+                          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(color: AppColors.primary),
+                        borderSide: BorderSide(color: context.primaryColor),
                       ),
                     ),
                   ),
@@ -822,6 +838,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                             Text(
                               'EXPIRY DATE',
                               style: AppTextStyles.caption.copyWith(
+                                color: isDark ? Colors.white70 : AppColors.textSecondaryLight,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -830,7 +847,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                               controller: expiryController,
                               keyboardType: TextInputType.number,
                               maxLength: 5,
-                              style: const TextStyle(color: Colors.white),
+                              style: TextStyle(color: context.onSurfaceColor),
                               inputFormatters: [
                                 FilteringTextInputFormatter.digitsOnly,
                                 _ExpiryDateFormatter(),
@@ -838,21 +855,21 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                               decoration: InputDecoration(
                                 hintText: 'MM/YY',
                                 hintStyle: TextStyle(
-                                  color: Colors.white.withOpacity(0.3),
+                                  color: isDark ? Colors.white.withOpacity(0.3) : AppColors.textTertiaryLight,
                                 ),
                                 counterText: '',
                                 filled: true,
-                                fillColor: AppColors.darkBg,
+                                fillColor: isDark ? AppColors.darkBg : const Color(0xFFEAEEF1),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(16),
-                                  borderSide: const BorderSide(
-                                    color: AppColors.darkBorder,
+                                  borderSide: BorderSide(
+                                    color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
                                   ),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(16),
-                                  borderSide: const BorderSide(
-                                    color: AppColors.primary,
+                                  borderSide: BorderSide(
+                                    color: context.primaryColor,
                                   ),
                                 ),
                               ),
@@ -870,6 +887,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                             Text(
                               'CVV CODE',
                               style: AppTextStyles.caption.copyWith(
+                                color: isDark ? Colors.white70 : AppColors.textSecondaryLight,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -879,28 +897,28 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                               keyboardType: TextInputType.number,
                               maxLength: 3,
                               obscureText: true,
-                              style: const TextStyle(color: Colors.white),
+                              style: TextStyle(color: context.onSurfaceColor),
                               inputFormatters: [
                                 FilteringTextInputFormatter.digitsOnly,
                               ],
                               decoration: InputDecoration(
                                 hintText: '•••',
                                 hintStyle: TextStyle(
-                                  color: Colors.white.withOpacity(0.3),
+                                  color: isDark ? Colors.white.withOpacity(0.3) : AppColors.textTertiaryLight,
                                 ),
                                 counterText: '',
                                 filled: true,
-                                fillColor: AppColors.darkBg,
+                                fillColor: isDark ? AppColors.darkBg : const Color(0xFFEAEEF1),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(16),
-                                  borderSide: const BorderSide(
-                                    color: AppColors.darkBorder,
+                                  borderSide: BorderSide(
+                                    color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
                                   ),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(16),
-                                  borderSide: const BorderSide(
-                                    color: AppColors.primary,
+                                  borderSide: BorderSide(
+                                    color: context.primaryColor,
                                   ),
                                 ),
                               ),
@@ -920,7 +938,9 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                     child: Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(16),
-                        gradient: AppColors.accentGradient,
+                        gradient: isDark
+                            ? AppColors.accentGradient
+                            : const LinearGradient(colors: [AppColors.lightPrimary, AppColors.lightPrimaryMid]),
                       ),
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
@@ -1025,25 +1045,26 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
 
   // ─── CARD DELETE ACTION ───────────────────────────────────────────
   void _confirmDeleteCard(String cardId) {
+    final isDark = context.isDarkMode;
     showDialog(
       context: context,
       builder: (dialogCtx) {
         return AlertDialog(
-          backgroundColor: AppColors.darkSurface,
+          backgroundColor: isDark ? AppColors.darkSurface : Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
           title: Text(
             'Remove Payment Card',
             style: AppTextStyles.headlineSmall.copyWith(
-              color: Colors.white,
+              color: context.onSurfaceColor,
               fontWeight: FontWeight.bold,
             ),
           ),
           content: Text(
             'Are you sure you want to remove this card? Linked auto-funding might fail if no default payment card remains.',
             style: AppTextStyles.bodyMedium.copyWith(
-              color: AppColors.textSecondaryDark,
+              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
             ),
           ),
           actions: [
@@ -1051,7 +1072,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
               onPressed: () => Navigator.pop(dialogCtx),
               child: Text(
                 'Cancel',
-                style: TextStyle(color: Colors.white.withOpacity(0.5)),
+                style: TextStyle(color: isDark ? Colors.white.withOpacity(0.5) : AppColors.textTertiaryLight),
               ),
             ),
             ElevatedButton(

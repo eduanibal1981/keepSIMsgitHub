@@ -13,12 +13,16 @@ part 'sim_line_detail_controller.g.dart';
 class SimLineDetailState {
   final SimLine simLine;
   final ScheduledTopup? scheduledTopup;
+  final ScheduledTopup? notifySchedule;
+  final ScheduledTopup? refillSchedule;
   final List<TopupExecution> executions;
   final List<LineActivityLog> activityLogs;
 
   const SimLineDetailState({
     required this.simLine,
     this.scheduledTopup,
+    this.notifySchedule,
+    this.refillSchedule,
     required this.executions,
     required this.activityLogs,
   });
@@ -36,8 +40,10 @@ class SimLineDetailController extends _$SimLineDetailController {
       orElse: () => throw Exception('SIM Line not found: $id'),
     );
 
-    // 2. Fetch ScheduledTopup if any
-    final scheduledTopup = ref.watch(scheduledTopupForLineProvider(id));
+    // 2. Fetch ScheduledTopups if any
+    final notifySchedule = ref.watch(scheduledNotifyForLineProvider(id));
+    final refillSchedule = ref.watch(scheduledRefillForLineProvider(id));
+    final scheduledTopup = refillSchedule ?? notifySchedule;
 
     // 3. Fetch Executions
     final executions = await ref.watch(
@@ -52,6 +58,8 @@ class SimLineDetailController extends _$SimLineDetailController {
     return SimLineDetailState(
       simLine: simLine,
       scheduledTopup: scheduledTopup,
+      notifySchedule: notifySchedule,
+      refillSchedule: refillSchedule,
       executions: executions,
       activityLogs: activityLogs,
     );
@@ -60,17 +68,18 @@ class SimLineDetailController extends _$SimLineDetailController {
   /// Triggers a mock refill execution
   Future<Result<void>> triggerRefill() async {
     final detailState = state.valueOrNull;
-    if (detailState == null || detailState.scheduledTopup == null) {
+    final refillSchedule = detailState?.refillSchedule;
+    if (detailState == null || refillSchedule == null) {
       return Failure(
         AppFailure.validation(
-          message: 'No scheduled top-up configuration found for this line.',
+          message: 'No active Auto-Refill configuration found for this line.',
         ),
       );
     }
 
     return ref
         .read(scheduledTopupControllerProvider.notifier)
-        .executeMockTopup(detailState.scheduledTopup!.id);
+        .executeMockTopup(refillSchedule.id);
   }
 
   /// Retries a failed execution
@@ -97,5 +106,10 @@ class SimLineDetailController extends _$SimLineDetailController {
   /// Cleans all mock logs (activity logs and execution records) for this line
   Future<void> cleanMockLogs() async {
     await ref.read(simLinesControllerProvider.notifier).cleanMockLogs(id);
+  }
+
+  /// Clears all activity logs for this line
+  Future<void> clearAllActivityLogs() async {
+    await ref.read(simLinesControllerProvider.notifier).clearAllActivityLogs(id);
   }
 }

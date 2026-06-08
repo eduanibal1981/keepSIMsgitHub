@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
+import 'package:keep_sims/core/utils/build_context_extension.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/country_model.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
@@ -38,7 +39,7 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 1, vsync: this);
     _tabController.addListener(() {
       if (mounted) {
         setState(() {
@@ -187,15 +188,15 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
         padding: const EdgeInsets.all(16.0),
         child: Container(
           decoration: BoxDecoration(
-            color: AppColors.darkSurface,
+            color: context.isDarkMode ? AppColors.darkSurface : Colors.white,
             borderRadius: BorderRadius.circular(24),
             border: Border.all(
-              color: AppColors.primary.withOpacity(0.3),
+              color: (context.isDarkMode ? AppColors.primary : AppColors.lightPrimary).withOpacity(0.3),
               width: 1.5,
             ),
             boxShadow: [
               BoxShadow(
-                color: AppColors.primary.withOpacity(0.15),
+                color: (context.isDarkMode ? AppColors.primary : AppColors.lightPrimary).withOpacity(0.15),
                 blurRadius: 24,
                 offset: const Offset(0, -4),
               ),
@@ -216,13 +217,13 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: AppColors.primary.withOpacity(0.2),
+                          color: (context.isDarkMode ? AppColors.primary : AppColors.lightPrimary).withOpacity(0.2),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
                           '$count Selected',
                           style: AppTextStyles.labelMedium.copyWith(
-                            color: AppColors.primaryLight,
+                            color: context.isDarkMode ? AppColors.primaryLight : AppColors.lightPrimary,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -231,16 +232,16 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
                       Text(
                         'Bulk Actions Console',
                         style: AppTextStyles.bodyLarge.copyWith(
-                          color: Colors.white,
+                          color: context.isDarkMode ? Colors.white : AppColors.textPrimaryLight,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                     ],
                   ),
                   IconButton(
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.close,
-                      color: AppColors.textSecondaryDark,
+                      color: context.isDarkMode ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                       size: 20,
                     ),
                     onPressed: () {
@@ -299,11 +300,11 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
               ),
               if (_isBulkActionLoading) ...[
                 const SizedBox(height: 12),
-                const ClipRRect(
-                  borderRadius: BorderRadius.all(Radius.circular(2)),
+                ClipRRect(
+                  borderRadius: const BorderRadius.all(Radius.circular(2)),
                   child: LinearProgressIndicator(
-                    color: AppColors.primary,
-                    backgroundColor: AppColors.darkBg,
+                    color: context.isDarkMode ? AppColors.primary : AppColors.lightPrimary,
+                    backgroundColor: context.isDarkMode ? AppColors.darkBg : AppColors.lightBg,
                   ),
                 ),
               ],
@@ -320,26 +321,33 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
     required Color color,
     required VoidCallback? onPressed,
   }) {
+    final isDark = context.isDarkMode;
+    final buttonColor = isDark
+        ? color
+        : (color == AppColors.secondary || color == AppColors.success
+            ? AppColors.lightSecondary
+            : (color == AppColors.warning ? AppColors.lightWarning : color));
+
     return ElevatedButton.icon(
       onPressed: onPressed,
-      icon: Icon(icon, size: 16, color: Colors.white),
+      icon: Icon(icon, size: 16, color: buttonColor),
       label: Text(
         label,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.bold,
-          color: Colors.white,
+          color: buttonColor,
         ),
       ),
       style: ElevatedButton.styleFrom(
-        backgroundColor: color.withOpacity(0.15),
-        foregroundColor: color,
+        backgroundColor: buttonColor.withOpacity(0.15),
+        foregroundColor: buttonColor,
         surfaceTintColor: Colors.transparent,
         shadowColor: Colors.transparent,
         padding: const EdgeInsets.symmetric(vertical: 12),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          side: BorderSide(color: color.withOpacity(0.3), width: 1),
+          side: BorderSide(color: buttonColor.withOpacity(0.3), width: 1),
         ),
       ),
     );
@@ -362,11 +370,11 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
     final visibleLines = _tabController.index == 0 ? myLines : sharedLines;
 
     return Scaffold(
-      backgroundColor: AppColors.darkBg,
+      backgroundColor: context.isDarkMode ? AppColors.darkBg : AppColors.lightBg,
       appBar: AppBar(
         leading: _isSelectMode
             ? IconButton(
-                icon: const Icon(Icons.close, color: Colors.white),
+                icon: Icon(Icons.close, color: context.isDarkMode ? Colors.white : AppColors.textPrimaryLight),
                 onPressed: () {
                   setState(() {
                     _isSelectMode = false;
@@ -378,7 +386,7 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
         title: Text(
           _isSelectMode ? '${_selectedIds.length} Selected' : 'Protected SIMs',
           style: AppTextStyles.headlineLarge.copyWith(
-            color: AppColors.textPrimaryDark,
+            color: context.isDarkMode ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
           ),
         ),
         backgroundColor: Colors.transparent,
@@ -390,7 +398,7 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
                 _selectedIds.length == visibleLines.length
                     ? Icons.deselect_rounded
                     : Icons.select_all_rounded,
-                color: Colors.white,
+                color: context.isDarkMode ? Colors.white : AppColors.textPrimaryLight,
               ),
               onPressed: () {
                 setState(() {
@@ -405,9 +413,9 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
             )
           else
             IconButton(
-              icon: const Icon(
+              icon: Icon(
                 Icons.refresh,
-                color: AppColors.textSecondaryDark,
+                color: context.isDarkMode ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
               ),
               onPressed: () async {
                 await HapticHelper.mediumImpact();
@@ -419,13 +427,13 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
         ],
         bottom: TabBar(
           controller: _tabController,
-          indicatorColor: AppColors.primary,
+          indicatorColor: context.isDarkMode ? AppColors.primary : AppColors.lightPrimary,
           indicatorWeight: 3,
-          labelColor: Colors.white,
-          unselectedLabelColor: AppColors.textSecondaryDark,
+          labelColor: context.isDarkMode ? Colors.white : AppColors.lightPrimary,
+          unselectedLabelColor: context.isDarkMode ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
           tabs: const [
             Tab(icon: Icon(Icons.person, size: 20), text: 'My SIM Cards'),
-            Tab(icon: Icon(Icons.people, size: 20), text: 'Family Shared SIMs'),
+            // Tab(icon: Icon(Icons.people, size: 20), text: 'Family Shared SIMs'),
           ],
         ),
       ),
@@ -459,17 +467,17 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
                           isShared: false,
                         ),
 
-                  // Tab 2: Family Shared SIMs
-                  sharedLines.isEmpty
-                      ? _buildSharedEmptyState(context)
-                      : _buildLinesList(
-                          context,
-                          sharedLines,
-                          countriesState.valueOrNull ?? [],
-                          currentUserId,
-                          householdState,
-                          isShared: true,
-                        ),
+                  // Tab 2: Family Shared SIMs (Hidden)
+                  // sharedLines.isEmpty
+                  //     ? _buildSharedEmptyState(context)
+                  //     : _buildLinesList(
+                  //         context,
+                  //         sharedLines,
+                  //         countriesState.valueOrNull ?? [],
+                  //         currentUserId,
+                  //         householdState,
+                  //         isShared: true,
+                  //       ),
                 ],
               ),
               _buildBulkActionsConsole(myLines),

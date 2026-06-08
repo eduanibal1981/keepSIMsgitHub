@@ -127,7 +127,7 @@ class LoginPlaceholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.darkBg,
+      backgroundColor: context.isDarkMode ? AppColors.darkBg : AppColors.lightBg,
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(32),
@@ -272,9 +272,9 @@ class AppShell extends StatelessWidget {
     final location = GoRouterState.of(context).uri.path;
     if (location.startsWith('/home')) return 0;
     if (location.startsWith('/notifications')) return 0; // Alerts is in Home header
-    if (location.startsWith('/wallet')) return 1;
+    if (location.startsWith('/sim-lines')) return 1;
+    if (location.startsWith('/wallet')) return 2; // Under More menu
     if (location.startsWith('/settings')) return 2;
-    if (location.startsWith('/sim-lines')) return 2; // Under More menu
     if (location.startsWith('/household')) return 2; // Under More menu
     return 0;
   }
@@ -290,7 +290,7 @@ class AppShell extends StatelessWidget {
             case 0:
               context.go(AppRoutes.home);
             case 1:
-              context.go(AppRoutes.wallet);
+              context.go(AppRoutes.simLines);
             case 2:
               context.go(AppRoutes.settings);
           }
@@ -302,9 +302,9 @@ class AppShell extends StatelessWidget {
             label: 'Home',
           ),
           CurvedNavigationBarItem(
-            icon: Icons.account_balance_wallet_outlined,
-            selectedIcon: Icons.account_balance_wallet_rounded,
-            label: 'Wallet',
+            icon: Icons.sim_card_outlined,
+            selectedIcon: Icons.sim_card_rounded,
+            label: 'SIMs',
           ),
           CurvedNavigationBarItem(
             icon: Icons.menu_rounded,
@@ -492,6 +492,7 @@ class _CurvedBottomNavigationBarState extends State<CurvedBottomNavigationBar>
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final singleWidth = width / widget.items.length;
+    final bottomPadding = MediaQuery.paddingOf(context).bottom;
 
     return AnimatedBuilder(
       animation: _animation,
@@ -499,7 +500,7 @@ class _CurvedBottomNavigationBarState extends State<CurvedBottomNavigationBar>
         final activeX = (_animation.value + 0.5) * singleWidth;
 
         return Container(
-          height: 85,
+          height: 85.0 + bottomPadding,
           color: Colors.transparent,
           child: Stack(
             clipBehavior: Clip.none,
@@ -583,12 +584,12 @@ class _CurvedBottomNavigationBarState extends State<CurvedBottomNavigationBar>
                               item.label,
                               style: AppTextStyles.labelSmall.copyWith(
                                 color: isSelected
-                                    ? AppColors.primaryLight
+                                    ? (context.isDarkMode ? AppColors.primaryLight : context.primaryColor)
                                     : context.onSurfaceColor.withValues(alpha: 0.4),
                                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                               ),
                             ),
-                            const SizedBox(height: 12),
+                            SizedBox(height: 12.0 + bottomPadding),
                           ],
                         ),
                       ),

@@ -41,6 +41,8 @@ dependencies:
   onesignal_flutter: ^5.5.5
   # Functional Error Handling
   dartz: ^0.10.1
+  connectivity_plus: ^7.1.1
+  shared_preferences: ^2.5.5
 
 dev_dependencies:
   flutter_test:
@@ -71,6 +73,7 @@ flutter:
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
+  remove_alpha_ios: true
   image_path: "assets/images/Logo.png"
   adaptive_icon_background: "#0d0e12"
   adaptive_icon_foreground: "assets/images/Logo.png"

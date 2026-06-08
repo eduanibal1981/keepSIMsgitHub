@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:keep_sims/features/auth/controller/auth_controller.dart';
-import 'package:keep_sims/features/dashboard/presentation/controller/dashboard_controller.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/country_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/carrier_model.dart';
@@ -9,7 +8,6 @@ import 'package:keep_sims/features/sim_lines/data/models/line_activity_log_model
 import 'package:keep_sims/features/sim_lines/data/repositories/sim_lines_repository_impl.dart';
 import 'package:keep_sims/features/scheduled_topups/controller/scheduled_topup_controller.dart';
 import 'package:keep_sims/features/wallet/controller/wallet_controller.dart';
-import 'package:keep_sims/features/dashboard/presentation/controller/dashboard_controller.dart';
 import 'package:keep_sims/core/providers.dart';
 
 part 'sim_lines_controller.g.dart';
@@ -94,6 +92,8 @@ class SimLinesController extends _$SimLinesController {
       final repo = ref.read(simLinesRepositoryProvider);
       await repo.deleteSimLine(id);
 
+      // Invalidate auto-refill schedules to keep local state synced with Supabase cascade deletes
+      ref.invalidate(scheduledTopupControllerProvider);
 
       return previousList.where((item) => item.id != id).toList();
     });
@@ -113,8 +113,10 @@ class SimLinesController extends _$SimLinesController {
       
       updatedLine = await repo.updateSimLine(updatedLine);
 
-      final schedule = ref.read(scheduledTopupForLineProvider(simLineId));
-      if (schedule != null) {
+      final schedules = ref.read(scheduledTopupControllerProvider).valueOrNull ?? [];
+      final lineSchedules = schedules.where((s) => s.simLineId == simLineId).toList();
+
+      for (final schedule in lineSchedules) {
         if (isHome) {
           // Pause schedule
           await ref.read(scheduledTopupControllerProvider.notifier).toggleActive(schedule.id, false);
@@ -133,8 +135,10 @@ class SimLinesController extends _$SimLinesController {
           
           final topupRepo = ref.read(scheduledTopupRepositoryProvider);
           await topupRepo.updateSchedule(updatedSchedule);
-          ref.invalidate(scheduledTopupControllerProvider);
         }
+      }
+      if (lineSchedules.isNotEmpty && !isHome) {
+        ref.invalidate(scheduledTopupControllerProvider);
       }
 
       state = AsyncData(previousList.map((item) => item.id == simLineId ? updatedLine : item).toList());
@@ -164,6 +168,17 @@ class SimLinesController extends _$SimLinesController {
       ref.invalidate(simLineActivityLogsProvider(simLineId));
       ref.invalidate(topupExecutionsForLineProvider(simLineId));
 
+      return previousList;
+    });
+  }
+
+  Future<void> clearAllActivityLogs(String simLineId) async {
+    final previousList = state.valueOrNull ?? [];
+    state = const AsyncLoading<List<SimLine>>().copyWithPrevious(state);
+    state = await AsyncValue.guard(() async {
+      final repo = ref.read(simLinesRepositoryProvider);
+      await repo.clearAllActivityLogs(simLineId);
+      ref.invalidate(simLineActivityLogsProvider(simLineId));
       return previousList;
     });
   }

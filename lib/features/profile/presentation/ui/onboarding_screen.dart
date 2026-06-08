@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:keep_sims/core/result.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
+import 'package:keep_sims/core/utils/build_context_extension.dart';
 import 'package:keep_sims/features/auth/model/auth_model.dart';
 import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 
@@ -147,7 +148,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     final profileState = ref.watch(profileControllerProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.darkBg,
+      backgroundColor: context.scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -183,6 +184,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   // ── Header Widget ───────────────────────────────────────────────
   Widget _buildHeader() {
+    final isDark = context.isDarkMode;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       child: Column(
@@ -193,14 +195,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               Text(
                 'Setup Protection',
                 style: AppTextStyles.titleMedium.copyWith(
-                  color: AppColors.textSecondaryDark,
+                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               Text(
                 'Step ${_currentPage + 1} of 4',
                 style: AppTextStyles.bodyMedium.copyWith(
-                  color: AppColors.primary,
+                  color: context.primaryColor,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -214,7 +216,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 height: 4,
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: AppColors.darkBorder,
+                  color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -249,21 +251,22 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           'assets/images/startinwhite.png',
           fit: BoxFit.contain,
           errorBuilder: (context, error, stackTrace) {
+            final isDark = context.isDarkMode;
             return SingleChildScrollView(
               padding: const EdgeInsets.all(24),
               child: Column(
                 children: [
                   const SizedBox(height: 80),
-                  const Icon(
+                  Icon(
                     Icons.shield_rounded,
-                    color: AppColors.primary,
+                    color: context.primaryColor,
                     size: 80,
                   ),
                   const SizedBox(height: 24),
                   Text(
                     'Welcome to KeepSIMs',
                     style: AppTextStyles.headlineLarge.copyWith(
-                      color: Colors.white,
+                      color: context.onSurfaceColor,
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -271,14 +274,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     'Keep your international SIM cards protected from carrier deactivation due to inactivity automatically.',
                     textAlign: TextAlign.center,
                     style: AppTextStyles.bodyLarge.copyWith(
-                      color: AppColors.textSecondaryDark,
+                      color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                     ),
                   ),
                   const SizedBox(height: 40),
                   ElevatedButton(
                     onPressed: _nextPage,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
+                      backgroundColor: context.primaryColor,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 32,
                         vertical: 16,
@@ -300,6 +303,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   // ── Step 2: Personalize Profile Screen ───────────────────────────
   Widget _buildStepProfile() {
+    final isDark = context.isDarkMode;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -309,14 +313,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           Text(
             'Personalize Profile',
             style: AppTextStyles.headlineLarge.copyWith(
-              color: AppColors.textPrimaryDark,
+              color: context.onSurfaceColor,
             ),
           ),
           const SizedBox(height: 8),
           Text(
             'Tell us who you are and select your defaults to let us tailor currency displays and geo-tracking features.',
             style: AppTextStyles.bodyMedium.copyWith(
-              color: AppColors.textSecondaryDark,
+              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
               height: 1.4,
             ),
           ),
@@ -326,37 +330,37 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           Text(
             'Full Name',
             style: AppTextStyles.bodyMedium.copyWith(
-              color: AppColors.textPrimaryDark,
+              color: context.onSurfaceColor,
               fontWeight: FontWeight.w600,
             ),
           ),
           const SizedBox(height: 8),
           TextField(
             controller: _nameController,
-            style: const TextStyle(color: Colors.white),
+            style: TextStyle(color: context.onSurfaceColor),
             decoration: InputDecoration(
               hintText: 'John Doe',
-              hintStyle: TextStyle(color: AppColors.textTertiaryDark),
+              hintStyle: TextStyle(color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight),
               filled: true,
-              fillColor: AppColors.darkCard,
+              fillColor: isDark ? AppColors.darkCard : Colors.white,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(14),
-                borderSide: const BorderSide(color: AppColors.darkBorder),
+                borderSide: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(14),
-                borderSide: const BorderSide(color: AppColors.darkBorder),
+                borderSide: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(14),
-                borderSide: const BorderSide(
-                  color: AppColors.primary,
+                borderSide: BorderSide(
+                  color: context.primaryColor,
                   width: 1.5,
                 ),
               ),
               prefixIcon: Icon(
                 Icons.person_rounded,
-                color: AppColors.textSecondaryDark,
+                color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
               ),
             ),
           ),
@@ -366,7 +370,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           Text(
             'Home Country',
             style: AppTextStyles.bodyMedium.copyWith(
-              color: AppColors.textPrimaryDark,
+              color: context.onSurfaceColor,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -374,17 +378,17 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             decoration: BoxDecoration(
-              color: AppColors.darkCard,
+              color: isDark ? AppColors.darkCard : Colors.white,
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: AppColors.darkBorder),
+              border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
             ),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
                 value: _selectedCountryCode,
-                dropdownColor: AppColors.darkSurface,
+                dropdownColor: isDark ? AppColors.darkSurface : Colors.white,
                 icon: Icon(
                   Icons.keyboard_arrow_down_rounded,
-                  color: AppColors.textSecondaryDark,
+                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                 ),
                 isExpanded: true,
                 items: _countries.map((country) {
@@ -400,7 +404,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                         Text(
                           country['name']!,
                           style: AppTextStyles.bodyLarge.copyWith(
-                            color: Colors.white,
+                            color: context.onSurfaceColor,
                           ),
                         ),
                       ],
@@ -423,7 +427,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           Text(
             'Preferred Currency',
             style: AppTextStyles.bodyMedium.copyWith(
-              color: AppColors.textPrimaryDark,
+              color: context.onSurfaceColor,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -431,17 +435,17 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             decoration: BoxDecoration(
-              color: AppColors.darkCard,
+              color: isDark ? AppColors.darkCard : Colors.white,
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: AppColors.darkBorder),
+              border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
             ),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
                 value: _selectedCurrency,
-                dropdownColor: AppColors.darkSurface,
+                dropdownColor: isDark ? AppColors.darkSurface : Colors.white,
                 icon: Icon(
                   Icons.keyboard_arrow_down_rounded,
-                  color: AppColors.textSecondaryDark,
+                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                 ),
                 isExpanded: true,
                 items: _currencies.map((curr) {
@@ -450,7 +454,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     child: Text(
                       curr['name']!,
                       style: AppTextStyles.bodyLarge.copyWith(
-                        color: Colors.white,
+                        color: context.onSurfaceColor,
                       ),
                     ),
                   );
@@ -472,6 +476,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   // ── Step 3: Choose Protection Tier Screen ────────────────────────
   Widget _buildStepTiers() {
+    final isDark = context.isDarkMode;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -481,14 +486,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           Text(
             'Select Protection Plan',
             style: AppTextStyles.headlineLarge.copyWith(
-              color: AppColors.textPrimaryDark,
+              color: context.onSurfaceColor,
             ),
           ),
           const SizedBox(height: 8),
           Text(
             'Choose your account-wide protection plan. Upgrade, downgrade, or cancel at any time.',
             style: AppTextStyles.bodyMedium.copyWith(
-              color: AppColors.textSecondaryDark,
+              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
               height: 1.4,
             ),
           ),
@@ -520,7 +525,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             period: 'mo base',
             desc:
                 'Includes 2 SIM lines. Extra lines: \$0.10/mo each (annually). Max 5 lines.',
-            color: AppColors.primary,
+            color: context.primaryColor,
             features: [
               'Includes 2 lines in base (\$2.40/yr)',
               'Extra lines: \$0.10/mo (\$1.20/yr) each',
@@ -570,6 +575,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     required List<String> features,
   }) {
     final bool isSelected = _selectedTier == id;
+    final isDark = context.isDarkMode;
 
     return GestureDetector(
       onTap: () {
@@ -580,10 +586,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
         decoration: BoxDecoration(
-          color: AppColors.darkCard,
+          color: isDark ? AppColors.darkCard : Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? color : AppColors.darkBorder,
+            color: isSelected ? color : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
             width: isSelected ? 2.0 : 1.0,
           ),
           boxShadow: isSelected
@@ -610,7 +616,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       vertical: 16,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.15),
+                      color: context.primaryColor.withValues(alpha: 0.15),
                       borderRadius: const BorderRadius.only(
                         bottomLeft: Radius.circular(20),
                       ),
@@ -618,7 +624,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     child: Text(
                       'POPULAR',
                       style: AppTextStyles.caption.copyWith(
-                        color: AppColors.primary,
+                        color: context.primaryColor,
                         fontWeight: FontWeight.w800,
                         fontSize: 9,
                         letterSpacing: 1.0,
@@ -645,7 +651,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                                 border: Border.all(
                                   color: isSelected
                                       ? color
-                                      : AppColors.textTertiaryDark,
+                                      : (isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight),
                                   width: 2,
                                 ),
                               ),
@@ -654,7 +660,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                             Text(
                               title,
                               style: AppTextStyles.titleLarge.copyWith(
-                                color: Colors.white,
+                                color: context.onSurfaceColor,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
@@ -667,7 +673,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                             Text(
                               price,
                               style: AppTextStyles.headlineLarge.copyWith(
-                                color: Colors.white,
+                                color: context.onSurfaceColor,
                                 fontWeight: FontWeight.w800,
                               ),
                             ),
@@ -675,7 +681,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                             Text(
                               '/$period',
                               style: AppTextStyles.caption.copyWith(
-                                color: AppColors.textSecondaryDark,
+                                color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                               ),
                             ),
                           ],
@@ -686,11 +692,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     Text(
                       desc,
                       style: AppTextStyles.bodyMedium.copyWith(
-                        color: AppColors.textSecondaryDark,
+                        color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                         height: 1.3,
                       ),
                     ),
-                    const Divider(color: AppColors.darkBorder, height: 24),
+                    Divider(color: isDark ? AppColors.darkBorder : AppColors.lightBorder, height: 24),
                     Column(
                       children: features.map((feat) {
                         return Padding(
@@ -703,7 +709,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                                 child: Text(
                                   feat,
                                   style: AppTextStyles.bodyMedium.copyWith(
-                                    color: AppColors.textPrimaryDark,
+                                    color: context.onSurfaceColor,
                                   ),
                                 ),
                               ),
@@ -724,6 +730,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   // ── Step 4: Smart Preferences Screen ──────────────────────────────
   Widget _buildStepSmartPreferences() {
+    final isDark = context.isDarkMode;
     final selectedCountry = _countries.firstWhere(
       (c) => c['code'] == _selectedCountryCode,
       orElse: () => {'code': '', 'name': '', 'flag': ''},
@@ -743,14 +750,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           Text(
             'Smart Preferences',
             style: AppTextStyles.headlineLarge.copyWith(
-              color: AppColors.textPrimaryDark,
+              color: context.onSurfaceColor,
             ),
           ),
           const SizedBox(height: 8),
           Text(
             'Confirm your configuration and accept the terms of service to activate active line shield guards.',
             style: AppTextStyles.bodyMedium.copyWith(
-              color: AppColors.textSecondaryDark,
+              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
               height: 1.4,
             ),
           ),
@@ -760,9 +767,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: AppColors.darkCard,
+              color: isDark ? AppColors.darkCard : Colors.white,
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppColors.darkBorder),
+              border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -772,12 +779,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.12),
+                        color: context.primaryColor.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.assignment_turned_in_rounded,
-                        color: AppColors.primary,
+                        color: context.primaryColor,
                         size: 20,
                       ),
                     ),
@@ -785,7 +792,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     Text(
                       'Review Configuration',
                       style: AppTextStyles.titleMedium.copyWith(
-                        color: Colors.white,
+                        color: context.onSurfaceColor,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -799,19 +806,19 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       : _nameController.text.trim(),
                   icon: Icons.person_rounded,
                 ),
-                const Divider(color: AppColors.darkBorder, height: 24),
+                Divider(color: isDark ? AppColors.darkBorder : AppColors.lightBorder, height: 24),
                 _buildSummaryRow(
                   label: 'Home Country',
                   value: '${selectedCountry['flag']} ${selectedCountry['name']}',
                   icon: Icons.public_rounded,
                 ),
-                const Divider(color: AppColors.darkBorder, height: 24),
+                Divider(color: isDark ? AppColors.darkBorder : AppColors.lightBorder, height: 24),
                 _buildSummaryRow(
                   label: 'Preferred Currency',
                   value: selectedCurrency['name'] ?? _selectedCurrency,
                   icon: Icons.payments_rounded,
                 ),
-                const Divider(color: AppColors.darkBorder, height: 24),
+                Divider(color: isDark ? AppColors.darkBorder : AppColors.lightBorder, height: 24),
                 _buildSummaryRow(
                   label: 'Selected Plan',
                   value: _selectedTier == 'basic'
@@ -823,7 +830,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   valueColor: _selectedTier == 'basic'
                       ? Colors.blueAccent
                       : (_selectedTier == 'standard'
-                          ? AppColors.primary
+                          ? context.primaryColor
                           : Colors.purpleAccent),
                 ),
               ],
@@ -847,12 +854,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   height: 22,
                   decoration: BoxDecoration(
                     color: _agreedToTerms
-                        ? AppColors.primary
+                        ? context.primaryColor
                         : Colors.transparent,
                     border: Border.all(
                       color: _agreedToTerms
-                          ? AppColors.primary
-                          : AppColors.darkBorder,
+                          ? context.primaryColor
+                          : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
                       width: 2,
                     ),
                     borderRadius: BorderRadius.circular(6),
@@ -870,7 +877,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   child: Text(
                     'I confirm that I understand and agree to the SIM Shield Terms of Service and Privacy Policy. I authorize smart checks on my protected lines.',
                     style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.textPrimaryDark,
+                      color: context.onSurfaceColor,
                       height: 1.4,
                     ),
                   ),
@@ -889,12 +896,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     required IconData icon,
     Color? valueColor,
   }) {
+    final isDark = context.isDarkMode;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Icon(
           icon,
-          color: AppColors.textSecondaryDark,
+          color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
           size: 20,
         ),
         const SizedBox(width: 12),
@@ -905,7 +913,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               Text(
                 label,
                 style: AppTextStyles.caption.copyWith(
-                  color: AppColors.textTertiaryDark,
+                  color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -913,7 +921,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               Text(
                 value,
                 style: AppTextStyles.bodyMedium.copyWith(
-                  color: valueColor ?? Colors.white,
+                  color: valueColor ?? context.onSurfaceColor,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -926,10 +934,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   // ── Footer Navigation Buttons ────────────────────────────────────
   Widget _buildFooter(bool isLoading) {
+    final isDark = context.isDarkMode;
     return Container(
       padding: const EdgeInsets.all(24),
-      decoration: const BoxDecoration(
-        border: Border(top: BorderSide(color: AppColors.darkBorder, width: 1)),
+      decoration: BoxDecoration(
+        border: Border(top: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.lightBorder, width: 1)),
       ),
       child: Row(
         children: [
@@ -943,8 +952,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   child: OutlinedButton(
                     onPressed: isLoading ? null : _prevPage,
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      side: const BorderSide(color: AppColors.darkBorder),
+                      foregroundColor: context.onSurfaceColor,
+                      side: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
                       ),
@@ -967,9 +976,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     ? _submit
                     : _nextPage,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
+                  backgroundColor: context.primaryColor,
                   foregroundColor: Colors.white,
-                  disabledBackgroundColor: AppColors.primary.withValues(
+                  disabledBackgroundColor: context.primaryColor.withValues(
                     alpha: 0.5,
                   ),
                   shape: RoundedRectangleBorder(

@@ -13,6 +13,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:keep_sims/core/failure.dart';
 import 'package:keep_sims/core/result.dart';
+import 'package:keep_sims/core/services/connectivity_service.dart';
+import 'package:keep_sims/core/services/local_cache_service.dart';
 import '../contract/auth_contract.dart';
 import '../model/auth_model.dart';
 
@@ -24,9 +26,11 @@ const _iosClientId =
 
 class AuthRepository implements AuthContract {
   final SupabaseClient _client;
+  final LocalCacheService _cache;
+  final ConnectivityService _connectivity;
   bool _googleInitialized = false;
 
-  AuthRepository(this._client);
+  AuthRepository(this._client, this._cache, this._connectivity);
 
   // ── Google Sign-In ──────────────────────────────────────────
 
@@ -105,10 +109,18 @@ class AuthRepository implements AuthContract {
   Future<Result<void>> signOut() async {
     try {
       await _client.auth.signOut();
+      await _cache.remove('cached_user_profile');
+      await _cache.remove('cached_sim_lines');
+      await _cache.remove('cached_countries');
+      await _cache.remove('cached_schedules');
+      await _cache.remove('cached_wallet');
+      await _cache.remove('cached_wallet_transactions');
       return const Success(null);
     } on AuthException catch (e) {
+      await _cache.remove('cached_user_profile');
       return Failure(AppFailure.auth(message: e.message));
     } catch (e) {
+      await _cache.remove('cached_user_profile');
       return Failure(AppFailure.unknown(message: e.toString()));
     }
   }
@@ -117,6 +129,18 @@ class AuthRepository implements AuthContract {
 
   @override
   Future<Result<UserProfile>> getCurrentProfile() async {
+    if (_connectivity.isOffline) {
+      final cached = _cache.readJson('cached_user_profile');
+      if (cached != null) {
+        return Success(UserProfile.fromJson(cached as Map<String, dynamic>));
+      }
+      return const Failure(
+        AppFailure.auth(
+          message: 'No internet connection and no cached profile found.',
+        ),
+      );
+    }
+
     try {
       final userId = _client.auth.currentUser?.id;
       if (userId == null) {
@@ -131,8 +155,14 @@ class AuthRepository implements AuthContract {
           .eq('id', userId)
           .single();
 
+      await _cache.writeJson('cached_user_profile', response);
       return Success(UserProfile.fromJson(response));
     } on PostgrestException catch (e) {
+      final cached = _cache.readJson('cached_user_profile');
+      if (cached != null) {
+        return Success(UserProfile.fromJson(cached as Map<String, dynamic>));
+      }
+
       if (e.code == 'PGRST116') {
         return const Failure(
           AppFailure.notFound(message: 'Profile not found.'),
@@ -140,6 +170,10 @@ class AuthRepository implements AuthContract {
       }
       return Failure(AppFailure.server(message: e.message));
     } catch (e) {
+      final cached = _cache.readJson('cached_user_profile');
+      if (cached != null) {
+        return Success(UserProfile.fromJson(cached as Map<String, dynamic>));
+      }
       return Failure(AppFailure.unknown(message: e.toString()));
     }
   }

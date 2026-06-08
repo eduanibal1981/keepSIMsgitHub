@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
+import 'package:keep_sims/core/utils/build_context_extension.dart';
 import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/country_model.dart';
@@ -120,19 +121,21 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
       }
     }
 
+    final isDark = context.isDarkMode;
+
     return Scaffold(
-      backgroundColor: AppColors.darkBg,
+      backgroundColor: context.scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(
           _isEdit ? 'Edit Protected Line' : 'Protect New Line',
           style: AppTextStyles.headlineLarge.copyWith(
-            color: AppColors.textPrimaryDark,
+            color: context.onSurfaceColor,
           ),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.textPrimaryDark),
+          icon: Icon(Icons.arrow_back, color: context.onSurfaceColor),
           onPressed: () => context.pop(),
         ),
       ),
@@ -141,6 +144,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
               child: CircularProgressIndicator(color: AppColors.primary),
             )
           : SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
               padding: const EdgeInsets.all(24.0),
               child: Form(
                 key: _formKey,
@@ -148,13 +152,13 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Country Selection Lookups
-                    _buildSectionHeader('COUNTRY OF HOME'),
+                    _buildSectionHeader(context, 'COUNTRY OF HOME'),
                     const SizedBox(height: 12),
-                    _buildCountryPicker(countries),
+                    _buildCountryPicker(context, countries),
                     const SizedBox(height: 24),
 
                     // Phone Number Field
-                    _buildSectionHeader('SIM PHONE NUMBER'),
+                    _buildSectionHeader(context, 'SIM PHONE NUMBER'),
                     const SizedBox(height: 12),
                     Row(
                       children: [
@@ -164,9 +168,18 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                             vertical: 16,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.darkCard,
+                            color: isDark ? AppColors.darkCard : Colors.white,
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: AppColors.darkBorder),
+                            border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+                            boxShadow: isDark
+                                ? null
+                                : [
+                                    BoxShadow(
+                                      color: AppColors.lightPrimary.withOpacity(0.04),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -180,8 +193,8 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                               const SizedBox(width: 8),
                               Text(
                                 _selectedCountry?.dialingCode ?? '+00',
-                                style: const TextStyle(
-                                  color: Colors.white,
+                                style: TextStyle(
+                                  color: context.onSurfaceColor,
                                   fontSize: 16,
                                   fontFamily: 'monospace',
                                 ),
@@ -194,43 +207,45 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                           child: TextFormField(
                             controller: _phoneController,
                             keyboardType: TextInputType.phone,
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(
+                              color: context.onSurfaceColor,
                               fontSize: 16,
                               fontFamily: 'monospace',
                             ),
                             decoration: _buildInputDecoration(
+                              context,
                               hintText: 'Your SIM card phone number',
                               icon: Icons.phone_android,
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Please enter phone number';
-                              }
-                              if (_selectedCountry == null) {
-                                return 'Please select a country first';
-                              }
-                              return null;
-                            },
+                                  return 'Please enter phone number';
+                                }
+                                if (_selectedCountry == null) {
+                                  return 'Please select a country first';
+                                }
+                                return null;
+                              },
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
+                        ],
+                      ),
                     const SizedBox(height: 24),
 
                     // Dynamic Carrier brand dropdown
-                    _buildSectionHeader('CARRIER BRAND'),
+                    _buildSectionHeader(context, 'CARRIER BRAND'),
                     const SizedBox(height: 12),
                     _buildCarrierPicker(carriers),
                     const SizedBox(height: 24),
 
                     // Custom Nickname
-                    _buildSectionHeader('NICKNAME (OPTIONAL)'),
+                    _buildSectionHeader(context, 'NICKNAME (OPTIONAL)'),
                     const SizedBox(height: 12),
                     TextFormField(
                       controller: _nicknameController,
-                      style: const TextStyle(color: Colors.white, fontSize: 16),
+                      style: TextStyle(color: context.onSurfaceColor, fontSize: 16),
                       decoration: _buildInputDecoration(
+                        context,
                         hintText: 'e.g. My Egypt Orange SIM',
                         icon: Icons.label_outline,
                       ),
@@ -238,13 +253,13 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                     const SizedBox(height: 24),
 
                     // Avatar Selector
-                    _buildSectionHeader('SELECT AVATAR ICON'),
+                    _buildSectionHeader(context, 'SELECT AVATAR ICON'),
                     const SizedBox(height: 12),
                     _buildAvatarSelector(),
                     const SizedBox(height: 32),
 
                     // Protection Tier Dynamic Billing Info Card
-                    _buildSectionHeader('PROTECTION BILLING DETAILS'),
+                    _buildSectionHeader(context, 'PROTECTION BILLING DETAILS'),
                     const SizedBox(height: 12),
                     _buildDynamicBillingSection(globalTier, lineOrdinalPosition, widget.id),
                     const SizedBox(height: 48),
@@ -282,39 +297,42 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
     );
   }
 
-  Widget _buildSectionHeader(String title) {
+  Widget _buildSectionHeader(BuildContext context, String title) {
+    final isDark = context.isDarkMode;
     return Text(
       title,
       style: AppTextStyles.labelMedium.copyWith(
-        color: AppColors.primaryLight,
+        color: isDark ? AppColors.primaryLight : AppColors.lightPrimary,
         fontWeight: FontWeight.bold,
         letterSpacing: 1.5,
       ),
     );
   }
 
-  InputDecoration _buildInputDecoration({
+  InputDecoration _buildInputDecoration(
+    BuildContext context, {
     required String hintText,
     required IconData icon,
     String? prefixText,
   }) {
+    final isDark = context.isDarkMode;
     return InputDecoration(
       hintText: hintText,
-      hintStyle: const TextStyle(color: AppColors.textTertiaryDark),
+      hintStyle: TextStyle(color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight),
       prefixText: prefixText,
       prefixStyle: const TextStyle(fontSize: 16),
-      prefixIcon: Icon(icon, color: AppColors.primaryLight, size: 20),
+      prefixIcon: Icon(icon, color: isDark ? AppColors.primaryLight : AppColors.lightPrimary, size: 20),
       filled: true,
-      fillColor: AppColors.darkCard,
+      fillColor: isDark ? AppColors.darkCard : const Color(0xFFEAEEF1),
       errorStyle: const TextStyle(color: AppColors.error),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: AppColors.darkBorder),
+        borderSide: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: AppColors.primary),
+        borderSide: BorderSide(color: isDark ? AppColors.primary : AppColors.lightPrimary),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
@@ -327,16 +345,26 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
     );
   }
 
-  Widget _buildCountryPicker(List<Country> countries) {
+  Widget _buildCountryPicker(BuildContext context, List<Country> countries) {
+    final isDark = context.isDarkMode;
     return InkWell(
       onTap: () => _showCountrySearchSheet(countries),
       borderRadius: BorderRadius.circular(16),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.darkCard,
+          color: isDark ? AppColors.darkCard : Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.darkBorder),
+          border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+          boxShadow: isDark
+              ? null
+              : [
+                  BoxShadow(
+                    color: AppColors.lightPrimary.withOpacity(0.04),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
         ),
         child: Row(
           children: [
@@ -354,15 +382,15 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                     : 'Select Country',
                 style: TextStyle(
                   color: _selectedCountry != null
-                      ? Colors.white
-                      : AppColors.textTertiaryDark,
+                      ? context.onSurfaceColor
+                      : (isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight),
                   fontSize: 16,
                 ),
               ),
             ),
-            const Icon(
+            Icon(
               Icons.arrow_drop_down,
-              color: AppColors.textSecondaryDark,
+              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
             ),
           ],
         ),
@@ -371,25 +399,35 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
   }
 
   Widget _buildCarrierPicker(List<Carrier> carriers) {
+    final isDark = context.isDarkMode;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: AppColors.darkCard,
+        color: isDark ? AppColors.darkCard : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.darkBorder),
+        border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: AppColors.lightPrimary.withOpacity(0.04),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButtonFormField<Carrier>(
           value: _selectedCarrier,
-          hint: const Text(
+          hint: Text(
             'Select Carrier brand',
-            style: TextStyle(color: AppColors.textTertiaryDark, fontSize: 16),
+            style: TextStyle(color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight, fontSize: 16),
           ),
-          dropdownColor: AppColors.darkSurface,
-          style: const TextStyle(color: Colors.white, fontSize: 16),
-          icon: const Icon(
+          dropdownColor: isDark ? AppColors.darkSurface : Colors.white,
+          style: TextStyle(color: context.onSurfaceColor, fontSize: 16),
+          icon: Icon(
             Icons.arrow_drop_down,
-            color: AppColors.textSecondaryDark,
+            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
           ),
           items: carriers.map((c) {
             return DropdownMenuItem<Carrier>(value: c, child: Text(c.name));
@@ -412,6 +450,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
   }
 
   Widget _buildAvatarSelector() {
+    final isDark = context.isDarkMode;
     final icons = ['sim_card', 'phone', 'person', 'home'];
     IconData getIcon(String key) {
       switch (key) {
@@ -442,19 +481,30 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
             height: 64,
             decoration: BoxDecoration(
               color: isSelected
-                  ? AppColors.primary.withOpacity(0.15)
-                  : AppColors.darkCard,
+                  ? (isDark ? AppColors.primary : AppColors.lightPrimary).withOpacity(0.15)
+                  : (isDark ? AppColors.darkCard : Colors.white),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: isSelected ? AppColors.primary : AppColors.darkBorder,
+                color: isSelected
+                    ? (isDark ? AppColors.primary : AppColors.lightPrimary)
+                    : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
                 width: 2,
               ),
+              boxShadow: isDark
+                  ? null
+                  : [
+                      BoxShadow(
+                        color: AppColors.lightPrimary.withOpacity(0.04),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
             ),
             child: Icon(
               getIcon(iconKey),
               color: isSelected
-                  ? AppColors.primaryLight
-                  : AppColors.textSecondaryDark,
+                  ? (isDark ? AppColors.primaryLight : AppColors.lightPrimary)
+                  : (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
               size: 28,
             ),
           ),
@@ -468,18 +518,19 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
     int ordinalPosition,
     String? currentLineId,
   ) {
+    final isDark = context.isDarkMode;
     final bool isStarter = globalTier == 'standard';
     final bool isPremium = globalTier == 'premium';
     final bool isFree = globalTier == 'basic';
 
     String planName = 'Starter Plan';
-    Color planColor = AppColors.primary;
+    Color planColor = isDark ? AppColors.primary : AppColors.lightPrimary;
     if (isPremium) {
       planName = 'Premium Shield';
-      planColor = Colors.purpleAccent;
+      planColor = isDark ? Colors.purpleAccent : Colors.purple;
     } else if (isFree) {
       planName = 'Free Plan';
-      planColor = Colors.blueAccent;
+      planColor = isDark ? Colors.blueAccent : Colors.blue;
     }
 
     if (ordinalPosition <= 2) {
@@ -487,7 +538,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
       return Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: AppColors.darkCard,
+          color: isDark ? AppColors.darkCard : Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: planColor.withOpacity(0.3),
@@ -495,7 +546,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
           ),
           boxShadow: [
             BoxShadow(
-              color: planColor.withOpacity(0.05),
+              color: planColor.withOpacity(isDark ? 0.05 : 0.08),
               blurRadius: 15,
               spreadRadius: 1,
             ),
@@ -523,7 +574,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                   child: Text(
                     'Included in $planName',
                     style: AppTextStyles.titleMedium.copyWith(
-                      color: Colors.white,
+                      color: context.onSurfaceColor,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -548,7 +599,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
             Text(
               'This is protected line #$ordinalPosition in your account. Your $planName includes 2 SIM lines in the base subscription price. No additional charges will apply!',
               style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textSecondaryDark,
+                color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                 height: 1.4,
               ),
             ),
@@ -562,7 +613,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
       return Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: AppColors.darkCard,
+          color: isDark ? AppColors.darkCard : Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: Colors.orangeAccent.withOpacity(0.3),
@@ -570,7 +621,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.orangeAccent.withOpacity(0.03),
+              color: Colors.orangeAccent.withOpacity(isDark ? 0.03 : 0.06),
               blurRadius: 15,
             ),
           ],
@@ -600,7 +651,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                       Text(
                         'Extra Line Surcharge',
                         style: AppTextStyles.titleMedium.copyWith(
-                          color: Colors.white,
+                          color: context.onSurfaceColor,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -608,7 +659,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                       Text(
                         'Active tier: $planName',
                         style: AppTextStyles.caption.copyWith(
-                          color: AppColors.textSecondaryDark,
+                          color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                         ),
                       ),
                     ],
@@ -634,7 +685,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
             Text(
               'Protecting this 3rd or subsequent SIM line will add a dynamic surcharge of $extraRateText to your active $planName billing, prorated for the rest of your annual period.',
               style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textSecondaryDark,
+                color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                 height: 1.4,
               ),
             ),
@@ -680,6 +731,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
   }
 
   Widget _buildTierGrid() {
+    final isDark = context.isDarkMode;
     final tiers = [
       {
         'key': 'basic',
@@ -715,20 +767,31 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: isSelected
-                    ? AppColors.primary.withOpacity(0.1)
-                    : AppColors.darkCard,
+                    ? (isDark ? AppColors.primary : AppColors.lightPrimary).withOpacity(0.1)
+                    : (isDark ? AppColors.darkCard : Colors.white),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: isSelected ? AppColors.primary : AppColors.darkBorder,
+                  color: isSelected
+                      ? (isDark ? AppColors.primary : AppColors.lightPrimary)
+                      : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
                   width: 2,
                 ),
+                boxShadow: isDark
+                    ? null
+                    : [
+                        BoxShadow(
+                          color: AppColors.lightPrimary.withOpacity(0.04),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
               ),
               child: Row(
                 children: [
                   Radio<String>(
                     value: tier['key']!,
                     groupValue: _selectedTier,
-                    activeColor: AppColors.primaryLight,
+                    activeColor: isDark ? AppColors.primaryLight : AppColors.lightPrimary,
                     onChanged: (val) {
                       if (val != null) {
                         setState(() {
@@ -745,9 +808,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                         Text(
                           tier['name']!,
                           style: TextStyle(
-                            color: isSelected
-                                ? Colors.white
-                                : AppColors.textPrimaryDark,
+                            color: context.onSurfaceColor,
                             fontSize: 15,
                             fontWeight: FontWeight.bold,
                           ),
@@ -756,9 +817,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                         Text(
                           tier['desc']!,
                           style: TextStyle(
-                            color: isSelected
-                                ? Colors.white70
-                                : AppColors.textSecondaryDark,
+                            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                             fontSize: 12,
                           ),
                         ),
@@ -779,7 +838,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.darkSurface,
+      backgroundColor: context.isDarkMode ? AppColors.darkSurface : AppColors.lightSurface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -809,7 +868,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                           height: 5,
                           margin: const EdgeInsets.only(bottom: 16),
                           decoration: BoxDecoration(
-                            color: Colors.white24,
+                            color: context.isDarkMode ? Colors.white24 : Colors.black12,
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
@@ -817,30 +876,34 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                       Text(
                         'Supported Countries',
                         style: AppTextStyles.headlineSmall.copyWith(
-                          color: Colors.white,
+                          color: context.isDarkMode ? Colors.white : AppColors.textPrimaryLight,
                         ),
                       ),
                       const SizedBox(height: 16),
                       TextField(
-                        style: const TextStyle(color: Colors.white),
+                        style: TextStyle(color: context.isDarkMode ? Colors.white : AppColors.textPrimaryLight),
                         decoration: InputDecoration(
                           hintText: 'Search country or code...',
-                          hintStyle: const TextStyle(color: AppColors.textTertiaryDark),
-                          prefixIcon: const Icon(Icons.search, color: AppColors.primaryLight),
+                          hintStyle: TextStyle(color: context.isDarkMode ? AppColors.textTertiaryDark : AppColors.textTertiaryLight),
+                          prefixIcon: Icon(Icons.search, color: context.isDarkMode ? AppColors.primaryLight : AppColors.lightPrimary),
                           filled: true,
-                          fillColor: AppColors.darkCard,
+                          fillColor: context.isDarkMode ? AppColors.darkCard : const Color(0xFFEAEEF1),
                           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: AppColors.darkBorder),
+                            borderSide: BorderSide(
+                              color: context.isDarkMode ? AppColors.darkBorder : AppColors.lightBorder,
+                            ),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: AppColors.primary),
+                            borderSide: BorderSide(
+                              color: context.isDarkMode ? AppColors.primary : AppColors.lightPrimary,
+                            ),
                           ),
                           suffixIcon: searchQuery.isNotEmpty
                               ? IconButton(
-                                  icon: const Icon(Icons.clear, color: AppColors.textSecondaryDark),
+                                  icon: Icon(Icons.clear, color: context.isDarkMode ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
                                   onPressed: () {
                                     setModalState(() {
                                       searchQuery = '';
@@ -858,10 +921,13 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                       const SizedBox(height: 16),
                       Expanded(
                         child: filteredCountries.isEmpty
-                            ? const Center(
+                            ? Center(
                                 child: Text(
                                   'No countries found',
-                                  style: TextStyle(color: AppColors.textSecondaryDark, fontSize: 16),
+                                  style: TextStyle(
+                                    color: context.isDarkMode ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                                    fontSize: 16,
+                                  ),
                                 ),
                               )
                             : ListView.builder(
@@ -874,7 +940,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                                     margin: const EdgeInsets.only(bottom: 4),
                                     decoration: BoxDecoration(
                                       color: isSelected
-                                          ? AppColors.primary.withOpacity(0.15)
+                                          ? (context.isDarkMode ? AppColors.primary.withOpacity(0.15) : AppColors.lightPrimary.withOpacity(0.15))
                                           : Colors.transparent,
                                       borderRadius: BorderRadius.circular(12),
                                     ),
@@ -886,19 +952,24 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                                       title: Text(
                                         c.name,
                                         style: TextStyle(
-                                          color: isSelected ? AppColors.primaryLight : Colors.white,
+                                          color: isSelected
+                                              ? (context.isDarkMode ? AppColors.primaryLight : AppColors.lightPrimary)
+                                              : (context.isDarkMode ? Colors.white : AppColors.textPrimaryLight),
                                           fontSize: 16,
                                           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                                         ),
                                       ),
                                       subtitle: Text(
                                         c.dialingCode,
-                                        style: const TextStyle(
-                                          color: AppColors.textSecondaryDark,
+                                        style: TextStyle(
+                                          color: context.isDarkMode ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                                         ),
                                       ),
                                       trailing: isSelected
-                                          ? const Icon(Icons.check_circle_rounded, color: AppColors.primaryLight)
+                                          ? Icon(
+                                              Icons.check_circle_rounded,
+                                              color: context.isDarkMode ? AppColors.primaryLight : AppColors.lightPrimary,
+                                            )
                                           : null,
                                       onTap: () {
                                         setState(() {

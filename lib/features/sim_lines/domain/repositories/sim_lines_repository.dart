@@ -13,6 +13,7 @@ abstract class SimLinesRepository {
   Future<List<LineActivityLog>> getLineActivityLogs(String simLineId);
   Future<void> deleteLineActivityLog(String id);
   Future<void> cleanMockLogs(String simLineId);
+  Future<void> clearAllActivityLogs(String simLineId);
   Future<void> recordManualTopupExecution({
     required String simLineId,
     required double amount,

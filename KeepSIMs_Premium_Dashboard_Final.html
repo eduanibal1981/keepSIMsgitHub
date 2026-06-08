@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Global SIM Manager Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-variant": "#2e353f",
+                        "on-surface-variant": "#bcc9cd",
+                        "surface-container": "#192029",
+                        "secondary-container": "#00a572",
+                        "on-secondary": "#003824",
+                        "tertiary-fixed": "#ffddb8",
+                        "surface": "#0d141d",
+                        "primary": "#4cd7f6",
+                        "tertiary": "#ffb95f",
+                        "on-secondary-container": "#00311f",
+                        "surface-container-lowest": "#080f17",
+                        "on-error": "#690005",
+                        "on-tertiary-fixed": "#2a1700",
+                        "secondary-fixed": "#6ffbbe",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "primary-fixed": "#acedff",
+                        "on-tertiary": "#472a00",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "tertiary-container": "#e79400",
+                        "inverse-primary": "#00687a",
+                        "error": "#ffb4ab",
+                        "surface-bright": "#333a44",
+                        "on-error-container": "#ffdad6",
+                        "secondary": "#4edea3",
+                        "on-primary-fixed": "#001f26",
+                        "surface-container-high": "#232a34",
+                        "surface-container-low": "#151c25",
+                        "surface-tint": "#4cd7f6",
+                        "surface-container-highest": "#2e353f",
+                        "error-container": "#93000a",
+                        "primary-fixed-dim": "#4cd7f6",
+                        "outline-variant": "#3d494c",
+                        "on-surface": "#dce3f0",
+                        "secondary-fixed-dim": "#4edea3",
+                        "on-secondary-fixed": "#002113",
+                        "on-primary-container": "#00424f",
+                        "inverse-on-surface": "#2a313b",
+                        "on-secondary-fixed-variant": "#005236",
+                        "outline": "#869397",
+                        "on-primary": "#003640",
+                        "surface-dim": "#0d141d",
+                        "on-tertiary-container": "#563400",
+                        "primary-container": "#06b6d4",
+                        "background": "#0d141d",
+                        "inverse-surface": "#dce3f0",
+                        "on-primary-fixed-variant": "#004e5c",
+                        "on-background": "#dce3f0"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-mobile": "16px",
+                        "xl": "80px",
+                        "container-max": "1440px",
+                        "margin-desktop": "32px",
+                        "gutter": "24px",
+                        "lg": "48px",
+                        "base": "8px",
+                        "md": "24px",
+                        "sm": "12px",
+                        "xs": "4px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Outfit"],
+                        "title-lg": ["Outfit"],
+                        "label-md": ["Outfit"],
+                        "headline-lg-mobile": ["Outfit"],
+                        "body-lg": ["Outfit"],
+                        "display-lg": ["Outfit"],
+                        "body-md": ["Outfit"],
+                        "numeric-data": ["Outfit"],
+                        "headline-md": ["Outfit"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "title-lg": ["20px", { "lineHeight": "28px", "fontWeight": "500" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "numeric-data": ["18px", { "lineHeight": "24px", "letterSpacing": "0.02em", "fontWeight": "700" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #080b12; /* Deep charcoal */
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(76, 215, 246, 0.03), transparent 30%),
+                radial-gradient(circle at 85% 20%, rgba(78, 222, 163, 0.02), transparent 30%),
+                radial-gradient(circle at 50% 90%, rgba(255, 185, 95, 0.02), transparent 40%),
+                url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 20.5V18H0v-2h20v-2H0v-2h20v-2H0V8h20V6H0V4h20V2H0V0h22v20h2V0h2v20h2V0h2v20h2V0h2v20h2V0h2v20h2v2H20v-1.5zM0 20h2v20H0V20zm4 0h2v20H4V20zm4 0h2v20H8V20zm4 0h2v20h-2V20zm4 0h2v20h-2V20zm4 4h20v2H20v-2zm0 4h20v2H20v-2zm0 4h20v2H20v-2zm0 4h20v2H20v-2z' fill='%23ffffff' fill-opacity='0.02' fill-rule='evenodd'/%3E%3C/svg%3E");
+            color: #dce3f0;
+            min-height: max(884px, 100dvh);
+        }
+        
+        /* Glassmorphism Utilities */
+        .glass-panel {
+            background: rgba(21, 28, 37, 0.4); /* surface-container-low equivalent */
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.05), 0 8px 32px -8px rgba(0, 0, 0, 0.5);
+        }
+        
+        .glass-card {
+            background: linear-gradient(135deg, rgba(35, 42, 52, 0.5) 0%, rgba(21, 28, 37, 0.3) 100%);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.08), 0 12px 40px -12px rgba(0, 0, 0, 0.6);
+        }
+
+        /* Neon Glows */
+        .glow-active {
+            box-shadow: 0 0 35px -5px rgba(78, 222, 163, 0.2), inset 0 0 20px -5px rgba(78, 222, 163, 0.1), inset 0 1px 0 0 rgba(255, 255, 255, 0.08), 0 12px 40px -12px rgba(0, 0, 0, 0.6);
+            border-color: rgba(78, 222, 163, 0.3);
+        }
+        .glow-warning {
+            box-shadow: 0 0 35px -5px rgba(255, 185, 95, 0.2), inset 0 0 20px -5px rgba(255, 185, 95, 0.1), inset 0 1px 0 0 rgba(255, 255, 255, 0.08), 0 12px 40px -12px rgba(0, 0, 0, 0.6);
+            border-color: rgba(255, 185, 95, 0.3);
+        }
+        .glow-info {
+            box-shadow: 0 0 35px -5px rgba(76, 215, 246, 0.2), inset 0 0 20px -5px rgba(76, 215, 246, 0.1), inset 0 1px 0 0 rgba(255, 255, 255, 0.08), 0 12px 40px -12px rgba(0, 0, 0, 0.6);
+            border-color: rgba(76, 215, 246, 0.3);
+        }
+        
+        .text-glow-primary {
+            text-shadow: 0 0 15px rgba(76, 215, 246, 0.5);
+        }
+
+        /* Hide scrollbar for horizontal scrolling */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* Custom Toggle Switch */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #4cd7f6;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #4cd7f6;
+            box-shadow: 0 0 10px rgba(76, 215, 246, 0.4);
+        }
+    </style>
+</head>
+<body class="font-body-md text-body-md antialiased pb-24 min-h-screen">
+<!-- TopAppBar -->
+<header class="bg-transparent backdrop-blur-md flex justify-between items-center px-margin-mobile py-sm w-full docked full-width top-0 sticky z-40 flat no shadows border-b border-white/5">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 rounded-full overflow-hidden border border-white/10 shrink-0">
+<img alt="User Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBst6lEka8jekA-9G3mASI9SXK_hpMuN1x57b0AEpgepL5i10qu-lqZf32aYDwFSOG3W4CuTs8nHJCNnJtVlkMsaNd8kDiY8fH-LYTq9qKIxomT6_iv6rEZtUIu_bMspqoukrDj60I11OYueI5Ev0W8k5qEEmnsYMGRX1ZVOjltYXQodPq6nNmlOXMmr43GJAIA_OpsvW7eGq3qrij9nUr128Lr323NxF4RfwQ4lua4g7j4pyXIvEHFxdia4b4bWb19IML3FBq7jKg"/>
+</div>
+<h1 class="font-headline-md text-headline-md font-bold text-primary tracking-tight text-glow-primary">Global SIM Manager</h1>
+</div>
+<button class="relative p-2 rounded-full hover:bg-white/5 transition-colors text-primary hover:opacity-80 scale-95 active:scale-90 transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full shadow-[0_0_10px_rgba(255,180,171,1)]"></span>
+</button>
+</header>
+<main class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-lg space-y-lg">
+<!-- Section 1: SIM Cards Horizontal Scroll -->
+<section>
+<div class="flex justify-between items-end mb-md">
+<h2 class="font-title-lg text-title-lg text-on-surface drop-shadow-sm">Active SIM Profiles</h2>
+<a class="font-label-md text-label-md text-primary hover:text-primary-fixed transition-colors" href="#">View All</a>
+</div>
+<div class="flex overflow-x-auto gap-md pb-4 no-scrollbar -mx-margin-mobile px-margin-mobile md:mx-0 md:px-0 snap-x">
+<!-- Card 1: Active -->
+<div class="glass-card rounded-xl p-md min-w-[300px] w-[300px] shrink-0 snap-center glow-active relative overflow-hidden group">
+<div class="absolute -right-10 -top-10 w-32 h-32 bg-secondary/10 rounded-full blur-3xl group-hover:bg-secondary/20 transition-all"></div>
+<div class="flex justify-between items-start mb-sm relative z-10">
+<div>
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider block mb-1">Owner: Alex</span>
+<h3 class="font-headline-md text-headline-md text-on-surface text-secondary/90" style="text-shadow: 0 0 8px rgba(78,222,163,0.3)">SIM 1</h3>
+</div>
+<div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-secondary shadow-[0_0_10px_rgba(78,222,163,1)]"></div><span class="font-label-md text-label-md text-secondary text-glow-primary" style="text-shadow: 0 0 10px rgba(78,222,163,0.8)">Active</span></div>
+</div>
+<div class="mb-md relative z-10">
+<span class="font-numeric-data text-numeric-data text-secondary/80 block drop-shadow-sm" style="text-shadow: 0 0 5px rgba(78,222,163,0.2)">+1 234 567 8901</span>
+</div>
+<div class="space-y-3 pt-4 border-t border-white/10 relative z-10">
+<div class="flex justify-between items-center">
+<span class="font-body-md text-body-md text-on-surface-variant">Auto-Notify</span>
+<div class="relative inline-block w-12 h-6 align-middle select-none transition duration-300 ease-in-out">
+<div class="block w-full h-full rounded-full bg-secondary/20 border border-secondary/40 shadow-[0_0_15px_rgba(78,222,163,0.2)]"></div>
+<div class="absolute top-1 right-1 w-4 h-4 rounded-full bg-secondary backdrop-blur-md border border-white/30 shadow-[0_0_10px_rgba(78,222,163,0.8)] transition-all duration-300"></div>
+</div>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-body-md text-body-md text-on-surface-variant">Auto-Refill</span>
+<div class="relative inline-block w-12 h-6 align-middle select-none transition duration-300 ease-in-out">
+<div class="block w-full h-full rounded-full bg-on-tertiary-fixed-variant/20 border border-on-tertiary-fixed-variant/30"></div>
+<div class="absolute top-1 left-1 w-4 h-4 rounded-full bg-surface-bright backdrop-blur-sm border border-white/10 transition-all duration-300"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Card 2: Expiring Soon -->
+<div class="glass-card rounded-xl p-md min-w-[300px] w-[300px] shrink-0 snap-center glow-warning relative overflow-hidden group">
+<div class="absolute -right-10 -top-10 w-32 h-32 bg-tertiary/10 rounded-full blur-3xl group-hover:bg-tertiary/20 transition-all"></div>
+<div class="flex justify-between items-start mb-sm relative z-10">
+<div>
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider block mb-1">Owner: Alex</span>
+<h3 class="font-headline-md text-headline-md text-on-surface">SIM 2</h3>
+</div>
+<div class="bg-tertiary/10 px-3 py-1 rounded-full border border-tertiary/30 flex items-center gap-2 backdrop-blur-sm">
+<div class="w-2 h-2 rounded-full bg-tertiary shadow-[0_0_10px_rgba(255,185,95,1)] animate-pulse"></div>
+<span class="font-label-md text-label-md text-tertiary">Expiring Soon</span>
+</div>
+</div>
+<div class="mb-md relative z-10">
+<span class="font-numeric-data text-numeric-data text-on-surface block drop-shadow-sm">+1 987 654 3210</span>
+</div>
+<div class="space-y-3 pt-4 border-t border-white/10 relative z-10">
+<div class="flex justify-between items-center">
+<span class="font-body-md text-body-md text-on-surface-variant">Auto-Notify</span>
+<div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+<input class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer z-10 transition-all" id="toggle3" name="toggle3" type="checkbox"/>
+<label class="toggle-label block overflow-hidden h-5 rounded-full bg-surface-variant cursor-pointer transition-colors shadow-inner" for="toggle3"></label>
+</div>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-body-md text-body-md text-on-surface-variant">Auto-Refill</span>
+<div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+<input class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer z-10 transition-all" id="toggle4" name="toggle4" type="checkbox"/>
+<label class="toggle-label block overflow-hidden h-5 rounded-full bg-surface-variant cursor-pointer transition-colors shadow-inner" for="toggle4"></label>
+</div>
+</div>
+</div>
+</div>
+<!-- Card 3: Backup -->
+<div class="glass-card rounded-xl p-md min-w-[300px] w-[300px] shrink-0 snap-center glow-info relative overflow-hidden group">
+<div class="absolute -right-10 -top-10 w-32 h-32 bg-primary/10 rounded-full blur-3xl group-hover:bg-primary/20 transition-all"></div>
+<div class="flex justify-between items-start mb-sm relative z-10">
+<div>
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider block mb-1">Owner: Alex</span>
+<h3 class="font-headline-md text-headline-md text-on-surface">SIM 3</h3>
+</div>
+<div class="bg-primary/10 px-3 py-1 rounded-full border border-primary/30 flex items-center gap-2 backdrop-blur-sm">
+<div class="w-2 h-2 rounded-full bg-primary shadow-[0_0_10px_rgba(76,215,246,1)]"></div>
+<span class="font-label-md text-label-md text-primary">Backup</span>
+</div>
+</div>
+<div class="mb-md relative z-10">
+<span class="font-numeric-data text-numeric-data text-on-surface block drop-shadow-sm">+44 7700 900077</span>
+</div>
+<div class="space-y-3 pt-4 border-t border-white/10 relative z-10">
+<div class="flex justify-between items-center">
+<span class="font-body-md text-body-md text-on-surface-variant">Auto-Notify</span>
+<div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+<input checked="" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer z-10 checked:right-0 checked:border-primary transition-all" id="toggle5" name="toggle5" type="checkbox"/>
+<label class="toggle-label block overflow-hidden h-5 rounded-full bg-surface-variant cursor-pointer transition-colors checked:bg-primary shadow-inner" for="toggle5"></label>
+</div>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-body-md text-body-md text-on-surface-variant">Auto-Refill</span>
+<div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+<input class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer z-10 transition-all" id="toggle6" name="toggle6" type="checkbox"/>
+<label class="toggle-label block overflow-hidden h-5 rounded-full bg-surface-variant cursor-pointer transition-colors shadow-inner" for="toggle6"></label>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 2 & 3: Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<!-- Left Side: Quick Actions -->
+<section class="md:col-span-5">
+<h2 class="font-title-lg text-title-lg text-on-surface mb-md drop-shadow-sm">Quick Actions</h2>
+<div class="glass-panel rounded-xl p-md flex flex-col gap-sm">
+<button class="w-full bg-primary/20 backdrop-blur-md text-primary border border-primary/40 font-label-md text-label-md py-3 px-4 rounded-lg flex items-center justify-between hover:bg-primary/30 transition-all shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] group">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform" style="font-variation-settings: 'FILL' 1;">add_circle</span>
+<span class="">Top-Up Data</span>
+</div>
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+<button class="w-full bg-white/5 backdrop-blur-md border border-white/10 text-on-surface font-label-md text-label-md py-3 px-4 rounded-lg flex items-center justify-between hover:bg-white/10 hover:border-white/20 transition-all shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] group">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform drop-shadow-[0_0_5px_rgba(76,215,246,0.5)]">info</span>
+<span class="">Plan Details</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</button>
+<button class="w-full bg-white/5 backdrop-blur-md border border-white/10 text-on-surface font-label-md text-label-md py-3 px-4 rounded-lg flex items-center justify-between hover:bg-white/10 hover:border-white/20 transition-all shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] group">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform drop-shadow-[0_0_5px_rgba(76,215,246,0.5)]">sim_card</span>
+<span class="">Manage SIMs</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</button>
+<button class="w-full bg-white/5 backdrop-blur-md border border-white/10 text-on-surface font-label-md text-label-md py-3 px-4 rounded-lg flex items-center justify-between hover:bg-white/10 hover:border-white/20 transition-all shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] group">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform drop-shadow-[0_0_5px_rgba(76,215,246,0.5)]">bar_chart</span>
+<span class="">Usage Stats</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</button>
+</div>
+</section>
+<!-- Right Side: Recent Activity -->
+<section class="md:col-span-7">
+<h2 class="font-title-lg text-title-lg text-on-surface mb-md drop-shadow-sm">Recent Activity</h2>
+<div class="glass-panel rounded-xl p-md h-[calc(100%-48px)]">
+<div class="relative border-l border-white/10 ml-4 space-y-8 py-2">
+<!-- Timeline Item 1 -->
+<div class="relative pl-6 group">
+<div class="absolute -left-[5px] top-1 w-2 h-2 rounded-full bg-secondary shadow-[0_0_10px_rgba(78,222,163,0.8)] group-hover:shadow-[0_0_15px_rgba(78,222,163,1)] transition-shadow"></div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-secondary mb-1 drop-shadow-[0_0_5px_rgba(78,222,163,0.3)]">Today, 10:45 AM</span>
+<h4 class="font-body-lg text-body-lg text-on-surface font-medium drop-shadow-sm">SIM 1 Refilled</h4>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">Auto-refill triggered. 5GB data added to SIM 1 profile successfully.</p>
+</div>
+</div>
+<!-- Timeline Item 2 -->
+<div class="relative pl-6 group">
+<div class="absolute -left-[5px] top-1 w-2 h-2 rounded-full bg-tertiary shadow-[0_0_10px_rgba(255,185,95,0.8)] group-hover:shadow-[0_0_15px_rgba(255,185,95,1)] transition-shadow"></div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-tertiary mb-1 drop-shadow-[0_0_5px_rgba(255,185,95,0.3)]">Yesterday, 14:20 PM</span>
+<h4 class="font-body-lg text-body-lg text-on-surface font-medium drop-shadow-sm">SIM 2 Alert</h4>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">SIM 2 is nearing expiration date. Less than 3 days remaining.</p>
+</div>
+</div>
+<!-- Timeline Item 3 -->
+<div class="relative pl-6 group">
+<div class="absolute -left-[5px] top-1 w-2 h-2 rounded-full bg-primary shadow-[0_0_10px_rgba(76,215,246,0.8)] group-hover:shadow-[0_0_15px_rgba(76,215,246,1)] transition-shadow"></div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-primary mb-1 drop-shadow-[0_0_5px_rgba(76,215,246,0.3)]">Oct 24, 09:00 AM</span>
+<h4 class="font-body-lg text-body-lg text-on-surface font-medium drop-shadow-sm">Plan Updated</h4>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">Global roaming plan active for SIM 3. Coverage expanded to EU region.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="md:hidden glass-panel fixed bottom-0 w-full rounded-t-xl z-50 flex justify-around items-center px-4 pt-1 pb-1">
+<!-- Active Tab: Dashboard -->
+<a class="flex flex-col items-center justify-center text-primary border-t-2 border-primary shadow-[0_-15px_20px_-10px_rgba(76,215,246,0.5)] pt-2 pb-4 active:scale-95 transition-all duration-200 hover:text-primary/80 transition-colors w-1/4 relative" href="#">
+<div class="absolute top-0 w-full h-[1px] bg-primary/50 shadow-[0_0_10px_rgba(76,215,246,1)]"></div>
+<span class="material-symbols-outlined mb-1 drop-shadow-[0_0_8px_rgba(76,215,246,0.6)]" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-label-md text-label-md-mobile drop-shadow-[0_0_5px_rgba(76,215,246,0.4)]">Dashboard</span>
+</a>
+<!-- Inactive Tab: SIM Lines -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant pt-3 pb-4 active:scale-95 transition-all duration-200 hover:text-on-surface transition-colors w-1/4" href="#">
+<span class="material-symbols-outlined mb-1">sim_card</span>
+<span class="font-label-md text-label-md-mobile">SIM Lines</span>
+</a>
+<!-- Inactive Tab: Wallet -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant pt-3 pb-4 active:scale-95 transition-all duration-200 hover:text-on-surface transition-colors w-1/4" href="#">
+<span class="material-symbols-outlined mb-1">credit_card</span>
+<span class="font-label-md text-label-md-mobile">Wallet</span>
+</a>
+<!-- Inactive Tab: More -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant pt-3 pb-4 active:scale-95 transition-all duration-200 hover:text-on-surface transition-colors w-1/4" href="#">
+<span class="material-symbols-outlined mb-1">menu</span>
+<span class="font-label-md text-label-md-mobile">More</span>
+</a>
+</nav>
+<!-- Desktop SideNav Placeholder (Hidden on mobile, visible on md+) - Simulated structural requirement for dashboard -->
+<nav class="hidden md:flex flex-col w-[280px] h-screen fixed left-0 top-0 glass-panel border-r border-white/5 z-30 pt-24 px-md">
+<div class="space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg bg-primary/10 text-primary border border-primary/20 shadow-[0_0_15px_rgba(76,215,246,0.15)]" href="#">
+<span class="material-symbols-outlined drop-shadow-[0_0_5px_rgba(76,215,246,0.5)]" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-white/5 transition-colors hover:text-on-surface" href="#">
+<span class="material-symbols-outlined">sim_card</span>
+<span class="font-label-md text-label-md">SIM Lines</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-white/5 transition-colors hover:text-on-surface" href="#">
+<span class="material-symbols-outlined">credit_card</span>
+<span class="font-label-md text-label-md">Wallet</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-white/5 transition-colors hover:text-on-surface" href="#">
+<span class="material-symbols-outlined">menu</span>
+<span class="font-label-md text-label-md">More</span>
+</a>
+</div>
+</nav>
+<!-- Adjust main content margin for desktop to accommodate sidebar -->
+<style>
+        @media (min-width: 768px) {
+            main {
+                margin-left: 280px;
+                max-width: calc(100% - 280px);
+            }
+            header {
+                padding-left: calc(280px + 32px);
+            }
+        }
+    </style>
+</body></html>

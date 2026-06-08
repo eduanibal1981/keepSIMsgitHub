@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
+import 'package:keep_sims/core/utils/build_context_extension.dart';
 import 'package:keep_sims/features/notifications/data/models/notification_model.dart';
 import 'package:keep_sims/features/notifications/presentation/controllers/notifications_controller.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
@@ -67,8 +68,10 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
     final notificationsAsync = ref.watch(notificationsControllerProvider);
     final unreadCount = ref.watch(unreadNotificationsCountProvider);
 
+    final isDark = context.isDarkMode;
+
     return Scaffold(
-      backgroundColor: AppColors.darkBg,
+      backgroundColor: context.scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -77,7 +80,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
             Text(
               'Alerts',
               style: AppTextStyles.headlineLarge.copyWith(
-                color: AppColors.textPrimaryDark,
+                color: context.onSurfaceColor,
               ),
             ),
             if (unreadCount > 0) ...[
@@ -114,8 +117,8 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
                   ? Icons.terminal_rounded
                   : Icons.terminal_outlined,
               color: _isSimulatorExpanded
-                  ? AppColors.secondary
-                  : AppColors.textSecondaryDark,
+                  ? (isDark ? AppColors.secondary : context.primaryColor)
+                  : (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
             ),
             tooltip: 'Toggle Alert Simulator',
             onPressed: () async {
@@ -127,9 +130,9 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
           ),
           // Settings button
           IconButton(
-            icon: const Icon(
+            icon: Icon(
               Icons.tune_rounded,
-              color: AppColors.textSecondaryDark,
+              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
             ),
             tooltip: 'Alert Preferences',
             onPressed: () async {
@@ -142,36 +145,44 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
       body: Column(
         children: [
           // Live Alert Simulator Dashboard
-          AnimatedCrossFade(
-            firstChild: const SizedBox.shrink(),
-            secondChild: _buildSimulatorDashboard(context),
-            crossFadeState: _isSimulatorExpanded
-                ? CrossFadeState.showSecond
-                : CrossFadeState.showFirst,
-            duration: const Duration(milliseconds: 300),
+          Flexible(
+            child: AnimatedCrossFade(
+              firstChild: const SizedBox.shrink(),
+              secondChild: Container(
+                constraints: const BoxConstraints(maxHeight: 320),
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: _buildSimulatorDashboard(context),
+                ),
+              ),
+              crossFadeState: _isSimulatorExpanded
+                  ? CrossFadeState.showSecond
+                  : CrossFadeState.showFirst,
+              duration: const Duration(milliseconds: 300),
+            ),
           ),
 
           // Tab Bar selector
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             decoration: BoxDecoration(
-              color: AppColors.darkSurface,
+              color: isDark ? AppColors.darkSurface : const Color(0xFFEAEEF1),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.darkBorder),
+              border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
             ),
             child: TabBar(
               controller: _tabController,
               indicatorSize: TabBarIndicatorSize.tab,
               dividerColor: Colors.transparent,
               indicator: BoxDecoration(
-                color: AppColors.darkCard,
+                color: isDark ? AppColors.darkCard : Colors.white,
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
-                  color: AppColors.primary.withValues(alpha: 0.3),
+                  color: (isDark ? AppColors.primary : AppColors.lightPrimary).withValues(alpha: 0.3),
                 ),
               ),
-              labelColor: AppColors.textPrimaryDark,
-              unselectedLabelColor: AppColors.textTertiaryDark,
+              labelColor: context.onSurfaceColor,
+              unselectedLabelColor: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
               labelStyle: AppTextStyles.titleMedium,
               tabs: const [
                 Tab(text: 'All'),
@@ -216,17 +227,18 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
 
   Widget _buildSimulatorDashboard(BuildContext context) {
     final simLinesAsync = ref.watch(simLinesControllerProvider);
+    final isDark = context.isDarkMode;
 
     return Container(
-      margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       decoration: BoxDecoration(
-        color: AppColors.darkSurface,
+        color: isDark ? AppColors.darkSurface : const Color(0xFFEAEEF1),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
+        border: Border.all(color: (isDark ? AppColors.primary : AppColors.lightPrimary).withValues(alpha: 0.2)),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.05),
+            color: (isDark ? AppColors.primary : AppColors.lightPrimary).withValues(alpha: 0.05),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
@@ -237,46 +249,47 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
         children: [
           Row(
             children: [
-              const Icon(
+              Icon(
                 Icons.terminal_rounded,
-                color: AppColors.secondary,
+                color: isDark ? AppColors.secondary : AppColors.lightSecondary,
                 size: 18,
               ),
               const SizedBox(width: 8),
               Text(
                 'Live Incident Simulator',
                 style: AppTextStyles.titleMedium.copyWith(
-                  color: AppColors.textPrimaryDark,
+                  color: context.onSurfaceColor,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
 
           // Dropdown for categories
           Text(
             'Select Incident Template',
             style: AppTextStyles.bodySmall.copyWith(
-              color: AppColors.textSecondaryDark,
+              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 4),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            height: 38,
             decoration: BoxDecoration(
-              color: AppColors.darkCard,
+              color: isDark ? AppColors.darkCard : Colors.white,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: AppColors.darkBorder),
+              border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
             ),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
                 value: _selectedCategory,
                 isExpanded: true,
-                dropdownColor: AppColors.darkBg,
-                icon: const Icon(
+                dropdownColor: context.scaffoldBackgroundColor,
+                icon: Icon(
                   Icons.arrow_drop_down_rounded,
-                  color: AppColors.primaryLight,
+                  color: isDark ? AppColors.primaryLight : AppColors.lightPrimaryMid,
                 ),
                 items: _simulatorCategories.entries.map((e) {
                   return DropdownMenuItem<String>(
@@ -284,7 +297,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
                     child: Text(
                       e.value,
                       style: AppTextStyles.bodyMedium.copyWith(
-                        color: AppColors.textPrimaryDark,
+                        color: context.onSurfaceColor,
                       ),
                     ),
                   );
@@ -300,160 +313,200 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
               ),
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
 
-          // Dropdown for target SIM card
-          Text(
-            'Link to SIM Card (Optional)',
-            style: AppTextStyles.bodySmall.copyWith(
-              color: AppColors.textSecondaryDark,
-            ),
-          ),
-          const SizedBox(height: 6),
-          simLinesAsync.maybeWhen(
-            data: (lines) {
-              if (lines.isEmpty) {
-                return Text(
-                  'No SIM lines added yet.',
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: AppColors.textTertiaryDark,
-                  ),
-                );
-              }
-
-              // Pre-select first line if null
-              if (_selectedSimLineId == null && lines.isNotEmpty) {
-                _selectedSimLineId = lines.first.id;
-              }
-
-              return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(
-                  color: AppColors.darkCard,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: AppColors.darkBorder),
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: _selectedSimLineId,
-                    isExpanded: true,
-                    dropdownColor: AppColors.darkBg,
-                    icon: const Icon(
-                      Icons.arrow_drop_down_rounded,
-                      color: AppColors.primaryLight,
+          // Side-by-side SIM Card and Timing
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Link to SIM Card (Optional)
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Link to SIM Card',
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    items: lines.map((l) {
-                      return DropdownMenuItem<String>(
-                        value: l.id,
-                        child: Text(
-                          '${l.nickname ?? "SIM Card"} (${l.phoneNumber})',
-                          style: AppTextStyles.bodyMedium.copyWith(
-                            color: AppColors.textPrimaryDark,
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                    onChanged: (val) async {
-                      await HapticHelper.lightTick();
-                      setState(() {
-                        _selectedSimLineId = val;
-                        if (val != null) {
-                          final match = lines.firstWhere((l) => l.id == val);
-                          _whatsappPhoneController.text = match.phoneNumber;
+                    const SizedBox(height: 4),
+                    simLinesAsync.maybeWhen(
+                      data: (lines) {
+                        if (lines.isEmpty) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8.0),
+                            child: Text(
+                              'No SIM lines.',
+                              style: AppTextStyles.bodySmall.copyWith(
+                                color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
+                              ),
+                            ),
+                          );
                         }
-                      });
-                    },
-                  ),
-                ),
-              );
-            },
-            orElse: () => const SizedBox.shrink(),
-          ),
 
-          // Delivery delay selector
-          const SizedBox(height: 12),
-          Text(
-            'Delivery Timing',
-            style: AppTextStyles.bodySmall.copyWith(
-              color: AppColors.textSecondaryDark,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            decoration: BoxDecoration(
-              color: AppColors.darkCard,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: AppColors.darkBorder),
-            ),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<int>(
-                value: _selectedDelayMinutes,
-                isExpanded: true,
-                dropdownColor: AppColors.darkBg,
-                icon: const Icon(
-                  Icons.schedule_rounded,
-                  color: AppColors.primaryLight,
-                  size: 20,
+                        // Pre-select first line if null
+                        if (_selectedSimLineId == null && lines.isNotEmpty) {
+                          _selectedSimLineId = lines.first.id;
+                        }
+
+                        return Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          height: 38,
+                          decoration: BoxDecoration(
+                            color: isDark ? AppColors.darkCard : Colors.white,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              value: _selectedSimLineId,
+                              isExpanded: true,
+                              dropdownColor: context.scaffoldBackgroundColor,
+                              icon: Icon(
+                                Icons.arrow_drop_down_rounded,
+                                color: isDark ? AppColors.primaryLight : AppColors.lightPrimaryMid,
+                              ),
+                              items: lines.map((l) {
+                                return DropdownMenuItem<String>(
+                                  value: l.id,
+                                  child: Text(
+                                    l.nickname ?? l.phoneNumber,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: AppTextStyles.bodyMedium.copyWith(
+                                      color: context.onSurfaceColor,
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                              onChanged: (val) async {
+                                await HapticHelper.lightTick();
+                                setState(() {
+                                  _selectedSimLineId = val;
+                                  if (val != null) {
+                                    final match = lines.firstWhere((l) => l.id == val);
+                                    _whatsappPhoneController.text = match.phoneNumber;
+                                  }
+                                });
+                              },
+                            ),
+                          ),
+                        );
+                      },
+                      orElse: () => const SizedBox.shrink(),
+                    ),
+                  ],
                 ),
-                items: const [
-                  DropdownMenuItem<int>(
-                    value: 0,
-                    child: Text('Instant Delivery (1-2 seconds)'),
-                  ),
-                  DropdownMenuItem<int>(
-                    value: 1,
-                    child: Text('Delayed: 1 Minute (Quick background test)'),
-                  ),
-                  DropdownMenuItem<int>(
-                    value: 10,
-                    child: Text('Delayed: 10 Minutes (Lock screen test)'),
-                  ),
-                ],
-                onChanged: (val) async {
-                  if (val != null) {
-                    await HapticHelper.lightTick();
-                    setState(() {
-                      _selectedDelayMinutes = val;
-                    });
-                  }
-                },
               ),
-            ),
+              const SizedBox(width: 12),
+              // Delivery Timing
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Delivery Timing',
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      height: 38,
+                      decoration: BoxDecoration(
+                        color: isDark ? AppColors.darkCard : Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+                      ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<int>(
+                          value: _selectedDelayMinutes,
+                          isExpanded: true,
+                          dropdownColor: context.scaffoldBackgroundColor,
+                          icon: Icon(
+                            Icons.schedule_rounded,
+                            color: isDark ? AppColors.primaryLight : AppColors.lightPrimaryMid,
+                            size: 16,
+                          ),
+                          items: [
+                            DropdownMenuItem<int>(
+                              value: 0,
+                              child: Text(
+                                'Instant',
+                                style: TextStyle(color: context.onSurfaceColor),
+                              ),
+                            ),
+                            DropdownMenuItem<int>(
+                              value: 1,
+                              child: Text(
+                                '1 Min',
+                                style: TextStyle(color: context.onSurfaceColor),
+                              ),
+                            ),
+                            DropdownMenuItem<int>(
+                              value: 10,
+                              child: Text(
+                                '10 Min',
+                                style: TextStyle(color: context.onSurfaceColor),
+                              ),
+                            ),
+                          ],
+                          onChanged: (val) async {
+                            if (val != null) {
+                              await HapticHelper.lightTick();
+                              setState(() {
+                                _selectedDelayMinutes = val;
+                              });
+                            }
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
+          const SizedBox(height: 10),
 
           // Local WhatsApp Server test toggle
-          const SizedBox(height: 12),
           Container(
             decoration: BoxDecoration(
-              color: AppColors.darkCard,
+              color: isDark ? AppColors.darkCard : Colors.white,
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
                 color: _sendLocalWhatsApp 
-                    ? AppColors.primary.withValues(alpha: 0.3) 
-                    : AppColors.darkBorder,
+                    ? (isDark ? AppColors.primary : AppColors.lightPrimary).withValues(alpha: 0.3) 
+                    : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
               ),
             ),
             child: Theme(
               data: ThemeData(
-                unselectedWidgetColor: AppColors.textTertiaryDark,
+                unselectedWidgetColor: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
               ),
               child: CheckboxListTile(
+                dense: true,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
                 title: Text(
-                  'Trigger Local WhatsApp Server Alert',
+                  'Trigger WhatsApp Server Alert',
                   style: AppTextStyles.bodyMedium.copyWith(
-                    color: AppColors.textPrimaryDark,
+                    color: context.onSurfaceColor,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 subtitle: Text(
-                  'Sends alert via your local server.js to WhatsApp',
+                  'Sends alert via local server.js to WhatsApp',
                   style: AppTextStyles.bodySmall.copyWith(
-                    color: AppColors.textSecondaryDark,
+                    color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                   ),
                 ),
                 value: _sendLocalWhatsApp,
-                activeColor: AppColors.primary,
+                activeColor: isDark ? AppColors.primary : AppColors.lightPrimary,
                 checkColor: Colors.white,
                 onChanged: (val) async {
                   await HapticHelper.lightTick();
@@ -466,61 +519,58 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
           ),
 
           if (_sendLocalWhatsApp) ...[
-            const SizedBox(height: 12),
-            Text(
-              'WhatsApp Recipient Phone Number',
-              style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.textSecondaryDark,
-              ),
-            ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 10),
             TextField(
               controller: _whatsappPhoneController,
               keyboardType: TextInputType.phone,
               style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textPrimaryDark,
+                color: context.onSurfaceColor,
               ),
               decoration: InputDecoration(
+                labelText: 'WhatsApp Recipient Phone Number',
+                labelStyle: AppTextStyles.bodySmall.copyWith(
+                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                ),
                 hintText: 'e.g. 96891234567',
                 hintStyle: AppTextStyles.bodyMedium.copyWith(
-                  color: AppColors.textTertiaryDark,
+                  color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
                 ),
                 filled: true,
-                fillColor: AppColors.darkCard,
+                fillColor: isDark ? AppColors.darkCard : Colors.white,
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 12,
-                  vertical: 10,
+                  vertical: 8,
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: const BorderSide(color: AppColors.darkBorder),
+                  borderSide: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: const BorderSide(color: AppColors.primary),
+                  borderSide: BorderSide(color: context.primaryColor),
                 ),
-                prefixIcon: const Icon(
+                prefixIcon: Icon(
                   Icons.phone_iphone_rounded,
-                  color: AppColors.textSecondaryDark,
-                  size: 20,
+                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                  size: 18,
                 ),
               ),
             ),
           ],
 
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
 
           // Trigger Button
           SizedBox(
             width: double.infinity,
-            height: 40,
+            height: 38,
             child: ElevatedButton.icon(
               onPressed: () async {
                 await HapticHelper.mediumImpact();
                 _triggerSimulatedAlert();
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
+                backgroundColor: context.primaryColor,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -643,6 +693,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
     BuildContext context,
     List<AppNotification> list,
   ) {
+    final isDark = context.isDarkMode;
     if (list.isEmpty) {
       return EmptyStateView(
         icon: Icons.done_all_rounded,
@@ -683,7 +734,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
                   icon: const Icon(Icons.done_all_rounded, size: 18),
                   label: const Text('Mark All Read'),
                   style: TextButton.styleFrom(
-                    foregroundColor: AppColors.primaryLight,
+                    foregroundColor: isDark ? AppColors.primaryLight : AppColors.lightPrimaryMid,
                   ),
                 ),
               ],
@@ -698,6 +749,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
   }
 
   Widget _buildNotificationCard(BuildContext context, AppNotification item) {
+    final isDark = context.isDarkMode;
     Color indicatorColor = AppColors.primary;
     IconData icon = Icons.notifications_rounded;
 
@@ -759,11 +811,11 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
         },
         child: Container(
           decoration: BoxDecoration(
-            color: AppColors.darkSurface,
+            color: isDark ? AppColors.darkSurface : Colors.white,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: item.isRead
-                  ? AppColors.darkBorder
+                  ? (isDark ? AppColors.darkBorder : AppColors.lightBorder)
                   : indicatorColor.withValues(alpha: 0.25),
               width: 1,
             ),
@@ -833,8 +885,8 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
                                     item.title,
                                     style: AppTextStyles.titleMedium.copyWith(
                                       color: item.isRead
-                                          ? AppColors.textSecondaryDark
-                                          : AppColors.textPrimaryDark,
+                                          ? (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight)
+                                          : context.onSurfaceColor,
                                       fontWeight: item.isRead
                                           ? FontWeight.w500
                                           : FontWeight.bold,
@@ -847,7 +899,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
                                 Text(
                                   _formatTimeAgo(item.createdAt),
                                   style: AppTextStyles.bodySmall.copyWith(
-                                    color: AppColors.textTertiaryDark,
+                                    color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
                                     fontSize: 11,
                                   ),
                                 ),
@@ -858,8 +910,8 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
                               item.body,
                               style: AppTextStyles.bodyMedium.copyWith(
                                 color: item.isRead
-                                    ? AppColors.textTertiaryDark
-                                    : AppColors.textSecondaryDark,
+                                    ? (isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight)
+                                    : (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
                                 height: 1.3,
                               ),
                             ),
@@ -878,12 +930,12 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
                     child: Container(
                       width: 8,
                       height: 8,
-                      decoration: const BoxDecoration(
-                        color: AppColors.primaryLight,
+                      decoration: BoxDecoration(
+                        color: isDark ? AppColors.primaryLight : AppColors.lightPrimaryMid,
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.primary,
+                            color: isDark ? AppColors.primary : AppColors.lightPrimary,
                             blurRadius: 4,
                             spreadRadius: 1,
                           ),
@@ -914,27 +966,28 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
   }
 
   void _confirmClearAll(BuildContext context) {
+    final isDark = context.isDarkMode;
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.darkSurface,
+        backgroundColor: isDark ? AppColors.darkSurface : Colors.white,
         title: Text(
           'Clear all alerts?',
           style: AppTextStyles.titleLarge.copyWith(
-            color: AppColors.textPrimaryDark,
+            color: context.onSurfaceColor,
           ),
         ),
         content: Text(
           'This will permanently delete all notifications from your account timeline history.',
           style: AppTextStyles.bodyMedium.copyWith(
-            color: AppColors.textSecondaryDark,
+            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
           ),
         ),
         actions: [
           TextButton(
-            child: const Text(
+            child: Text(
               'Cancel',
-              style: TextStyle(color: AppColors.textTertiaryDark),
+              style: TextStyle(color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight),
             ),
             onPressed: () async {
               await HapticHelper.lightTick();
@@ -943,7 +996,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.healthRed,
+              backgroundColor: isDark ? AppColors.healthRed : const Color(0xFFBA1A1A),
             ),
             child: const Text(
               'Clear All',

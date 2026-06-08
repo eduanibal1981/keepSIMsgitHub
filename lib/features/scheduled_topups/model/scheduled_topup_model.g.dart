@@ -22,6 +22,7 @@ _ScheduledTopup _$ScheduledTopupFromJson(Map<String, dynamic> json) =>
       retryCount: (json['retry_count'] as num?)?.toInt() ?? 0,
       maxRetries: (json['max_retries'] as num?)?.toInt() ?? 4,
       status: json['status'] as String? ?? 'active',
+      scheduleType: json['schedule_type'] as String? ?? 'notify',
       createdAt: json['created_at'] == null
           ? null
           : DateTime.parse(json['created_at'] as String),
@@ -44,6 +45,7 @@ Map<String, dynamic> _$ScheduledTopupToJson(_ScheduledTopup instance) =>
       'retry_count': instance.retryCount,
       'max_retries': instance.maxRetries,
       'status': instance.status,
+      'schedule_type': instance.scheduleType,
       'created_at': instance.createdAt?.toIso8601String(),
       'updated_at': instance.updatedAt?.toIso8601String(),
     };

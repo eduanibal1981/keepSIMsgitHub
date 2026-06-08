@@ -5,6 +5,7 @@ library;
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:keep_sims/features/auth/controller/auth_controller.dart';
+import 'package:keep_sims/features/auth/model/auth_model.dart';
 
 import 'package:keep_sims/features/wallet/controller/wallet_controller.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
@@ -82,7 +83,7 @@ class DashboardController extends _$DashboardController {
     final simLines = await ref.watch(simLinesControllerProvider.future);
     final schedules = await ref.watch(scheduledTopupControllerProvider.future);
 
-    return _fetchDashboardData(walletState, simLines, schedules, profile.id);
+    return _fetchDashboardData(walletState, simLines, schedules, profile);
   }
 
   DashboardState _loadingState() {
@@ -106,7 +107,7 @@ class DashboardController extends _$DashboardController {
     WalletState walletState,
     List<SimLine> simLines,
     List<ScheduledTopup> schedules,
-    String? currentUserId,
+    UserProfile? profile,
   ) {
     final balance = walletState.wallet.balance;
     final transactions = walletState.transactions;
@@ -151,31 +152,11 @@ class DashboardController extends _$DashboardController {
       );
     }
 
-    if (recentActivities.isEmpty) {
-      recentActivities.addAll([
-        const DashboardActivity(
-          id: 'act_1',
-          title: 'Auto-Renew Complete',
-          subtitle: 'Egypt line 🇪🇬 (+201019...) renewed successfully',
-          type: 'topup',
-          timeAgo: '2 hours ago',
-          isSuccess: true,
-        ),
-        const DashboardActivity(
-          id: 'act_2',
-          title: 'Wallet Funds Deposited',
-          subtitle: '+\$20.00 USD added via VISA ending in 4242',
-          type: 'deposit',
-          timeAgo: '1 day ago',
-          isSuccess: true,
-        ),
-      ]);
-    }
-
     // 1. Calculate Active Lines (including shared ones)
     final totalLines = simLines.where((l) => l.status == 'active').length;
 
     // Filter to only consider owned lines for last charged and nearest top-up calculations
+    final currentUserId = profile?.id;
     final ownedLines = simLines.where((l) => l.userId == currentUserId).toList();
 
     // 2. Find last auto-charged line
@@ -198,19 +179,34 @@ class DashboardController extends _$DashboardController {
     }
 
     // 3. Calculate next top up days and find nearest line
-    int nextTopUpDays = 30;
+    int nextTopUpDays = 0; // Show 0 in circular progress if none
     int nextTopUpTotalDays = 30;
     bool foundNextDue = false;
     SimLine? nextDueLine;
+    DateTime? nextDueLineDate;
+
+    bool isPremiumUser = profile?.subscriptionTier.toLowerCase() == 'premium';
+
     for (final line in ownedLines) {
-      if (line.nextTopupDue != null) {
-        final diff = line.nextTopupDue!.difference(DateTime.now()).inDays;
+      final lineSchedules = schedules
+          .where((s) => s.simLineId == line.id && s.isActive && s.status == 'active')
+          .toList();
+      final refillSchedule = lineSchedules.where((s) => s.scheduleType == 'refill').firstOrNull;
+      final notifySchedule = lineSchedules.where((s) => s.scheduleType == 'notify').firstOrNull;
+
+      bool isPremiumLine = line.protectionTier.toLowerCase() == 'premium' || isPremiumUser;
+
+      final DateTime? targetDate = isPremiumLine 
+          ? refillSchedule?.nextExecutionAt
+          : notifySchedule?.nextExecutionAt;
+
+      if (targetDate != null) {
+        final diff = targetDate.difference(DateTime.now()).inDays;
         if (diff >= 0 && (!foundNextDue || diff < nextTopUpDays)) {
           nextTopUpDays = diff;
           nextDueLine = line;
-          final schedule = schedules
-              .where((s) => s.simLineId == line.id && s.status == 'active')
-              .firstOrNull;
+          nextDueLineDate = targetDate;
+          final schedule = isPremiumLine ? refillSchedule : notifySchedule;
           if (schedule != null && schedule.frequencyDays >= 0) {
             nextTopUpTotalDays = schedule.frequencyDays;
           } else {
@@ -219,20 +215,6 @@ class DashboardController extends _$DashboardController {
           foundNextDue = true;
         }
       }
-    }
-    if (!foundNextDue && ownedLines.isNotEmpty) {
-      // Fallback: if none are found in future, pick the first active/inactive SIM
-      nextDueLine = ownedLines.first;
-      if (nextDueLine.nextTopupDue != null) {
-        nextTopUpDays = nextDueLine.nextTopupDue!.difference(DateTime.now()).inDays;
-        if (nextTopUpDays < 0) nextTopUpDays = 0;
-      } else {
-        nextTopUpDays = 12;
-      }
-      nextTopUpTotalDays = 30;
-    } else if (!foundNextDue) {
-      nextTopUpDays = 12; // Muted fallback matching previous design
-      nextTopUpTotalDays = 30;
     }
 
     return DashboardState(
@@ -247,7 +229,7 @@ class DashboardController extends _$DashboardController {
       nextTopUpId: nextDueLine?.id,
       nextTopUpPhone: nextDueLine?.phoneNumber,
       nextTopUpNickname: nextDueLine?.nickname,
-      nextTopUpDate: nextDueLine?.nextTopupDue,
+      nextTopUpDate: nextDueLineDate,
       nextTopUpStatus: nextDueLine?.status,
     );
   }
@@ -263,7 +245,7 @@ class DashboardController extends _$DashboardController {
       final walletState = await ref.read(walletControllerProvider.future);
       final simLines = await ref.read(simLinesControllerProvider.future);
       final schedules = await ref.read(scheduledTopupControllerProvider.future);
-      return _fetchDashboardData(walletState, simLines, schedules, profile?.id);
+      return _fetchDashboardData(walletState, simLines, schedules, profile);
     });
   }
 }

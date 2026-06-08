@@ -19,9 +19,13 @@ class SkeletonLoader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final base = isDark ? AppColors.darkCard : const Color(0xFFE2E8F0);
+    final highlight = isDark ? const Color(0xFF2D2D52) : const Color(0xFFF7FAFC);
+
     return Shimmer.fromColors(
-      baseColor: AppColors.darkCard,
-      highlightColor: const Color(0xFF2D2D52),
+      baseColor: base,
+      highlightColor: highlight,
       period: const Duration(milliseconds: 1500),
       child: Container(
         width: width,
@@ -44,6 +48,12 @@ class DashboardShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? AppColors.darkCard.withOpacity(0.5) : const Color(0xFFFFFFFF);
+    final borderCol = isDark ? AppColors.darkBorder.withOpacity(0.5) : const Color(0xFFBDC8CE);
+    final cardBgAlt = isDark ? AppColors.darkCard.withOpacity(0.4) : const Color(0xFFFFFFFF);
+    final borderColAlt = isDark ? Colors.transparent : const Color(0xFFBDC8CE).withOpacity(0.4);
+
     return SingleChildScrollView(
       physics: const NeverScrollableScrollPhysics(),
       child: Padding(
@@ -78,10 +88,10 @@ class DashboardShimmer extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: AppColors.darkCard.withOpacity(0.5),
+                color: cardBg,
                 borderRadius: BorderRadius.circular(24),
                 border: Border.all(
-                  color: AppColors.darkBorder.withOpacity(0.5),
+                  color: borderCol,
                 ),
               ),
               child: Column(
@@ -137,10 +147,10 @@ class DashboardShimmer extends StatelessWidget {
               itemBuilder: (context, index) {
                 return Container(
                   decoration: BoxDecoration(
-                    color: AppColors.darkCard.withOpacity(0.5),
+                    color: cardBg,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: AppColors.darkBorder.withOpacity(0.5),
+                      color: borderCol,
                     ),
                   ),
                   padding: const EdgeInsets.all(16),
@@ -178,8 +188,11 @@ class DashboardShimmer extends StatelessWidget {
                   margin: const EdgeInsets.only(bottom: 12),
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: AppColors.darkCard.withOpacity(0.4),
+                    color: cardBgAlt,
                     borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: borderColAlt,
+                    ),
                   ),
                   child: Row(
                     children: [
@@ -222,6 +235,10 @@ class SIMLinesShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? AppColors.darkCard.withOpacity(0.5) : const Color(0xFFFFFFFF);
+    final borderCol = isDark ? AppColors.darkBorder.withOpacity(0.5) : const Color(0xFFBDC8CE);
+
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: Column(
@@ -249,10 +266,10 @@ class SIMLinesShimmer extends StatelessWidget {
                   margin: const EdgeInsets.only(bottom: 16),
                   padding: const EdgeInsets.all(18),
                   decoration: BoxDecoration(
-                    color: AppColors.darkCard.withOpacity(0.5),
+                    color: cardBg,
                     borderRadius: BorderRadius.circular(24),
                     border: Border.all(
-                      color: AppColors.darkBorder.withOpacity(0.5),
+                      color: borderCol,
                     ),
                   ),
                   child: Column(
@@ -335,6 +352,13 @@ class WalletShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? AppColors.darkCard.withOpacity(0.5) : const Color(0xFFFFFFFF);
+    final borderCol = isDark ? AppColors.darkBorder.withOpacity(0.5) : const Color(0xFFBDC8CE);
+    final rowBg = isDark ? AppColors.darkCard.withOpacity(0.2) : const Color(0xFFFFFFFF);
+    final borderColAlt = isDark ? Colors.transparent : const Color(0xFFBDC8CE).withOpacity(0.4);
+    final topupBg = isDark ? AppColors.darkCard.withOpacity(0.3) : const Color(0xFFEAEEF1);
+
     return SingleChildScrollView(
       physics: const NeverScrollableScrollPhysics(),
       child: Padding(
@@ -347,10 +371,10 @@ class WalletShimmer extends StatelessWidget {
               width: double.infinity,
               height: 220,
               decoration: BoxDecoration(
-                color: AppColors.darkCard.withOpacity(0.5),
+                color: cardBg,
                 borderRadius: BorderRadius.circular(28),
                 border: Border.all(
-                  color: AppColors.darkBorder.withOpacity(0.5),
+                  color: borderCol,
                 ),
               ),
               padding: const EdgeInsets.all(24),
@@ -382,8 +406,11 @@ class WalletShimmer extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.darkCard.withOpacity(0.3),
+                color: topupBg,
                 borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: isDark ? Colors.transparent : const Color(0xFFBDC8CE),
+                ),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -411,8 +438,11 @@ class WalletShimmer extends StatelessWidget {
                     horizontal: 16,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.darkCard.withOpacity(0.2),
+                    color: rowBg,
                     borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: borderColAlt,
+                    ),
                   ),
                   child: Row(
                     children: [
@@ -451,6 +481,10 @@ class NotificationsShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? AppColors.darkCard.withOpacity(0.4) : const Color(0xFFFFFFFF);
+    final borderCol = isDark ? AppColors.darkBorder.withOpacity(0.3) : const Color(0xFFBDC8CE);
+
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: Column(
@@ -473,10 +507,10 @@ class NotificationsShimmer extends StatelessWidget {
                   margin: const EdgeInsets.only(bottom: 12),
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: AppColors.darkCard.withOpacity(0.4),
+                    color: cardBg,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: AppColors.darkBorder.withOpacity(0.3),
+                      color: borderCol,
                     ),
                   ),
                   child: Row(

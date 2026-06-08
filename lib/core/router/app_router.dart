@@ -15,6 +15,7 @@ import 'package:keep_sims/features/dashboard/presentation/ui/dashboard_screen.da
 import 'package:keep_sims/features/sim_lines/presentation/screens/sim_lines_list_screen.dart';
 import 'package:keep_sims/features/sim_lines/presentation/screens/sim_line_form_screen.dart';
 import 'package:keep_sims/features/sim_lines/presentation/screens/sim_line_detail_screen.dart';
+import 'package:keep_sims/features/sim_lines/presentation/screens/sim_line_executions_history_screen.dart';
 import 'package:keep_sims/features/wallet/ui/wallet_screen.dart';
 import 'package:keep_sims/features/notifications/presentation/screens/notifications_screen.dart';
 import 'package:keep_sims/features/notifications/presentation/screens/notification_settings_screen.dart';
@@ -25,6 +26,7 @@ import 'package:keep_sims/features/referrals/ui/referrals_screen.dart';
 import 'package:keep_sims/features/payments/ui/payments_screen.dart';
 import 'package:keep_sims/features/settings/presentation/screens/subscription_screen.dart';
 import 'package:keep_sims/features/geo/ui/geo_screen.dart';
+import 'package:keep_sims/features/offline_recharge/ui/offline_refill_screen.dart';
 
 part 'app_router.g.dart';
 
@@ -36,6 +38,7 @@ abstract final class AppRoutes {
   static const String home = '/home';
   static const String simLines = '/sim-lines';
   static const String simLineDetail = '/sim-lines/detail/:id';
+  static const String simLineExecutions = '/sim-lines/detail/:id/executions';
   static const String wallet = '/wallet';
   static const String notifications = '/notifications';
   static const String settings = '/settings';
@@ -45,6 +48,7 @@ abstract final class AppRoutes {
   static const String geo = '/settings/geo';
   static const String preferences = '/settings/preferences';
   static const String subscription = '/settings/subscription';
+  static const String offlineRefill = '/settings/offline-recharge';
 }
 
 @riverpod
@@ -77,7 +81,6 @@ GoRouter appRouter(Ref ref) {
         return currentPath == AppRoutes.splash ? null : AppRoutes.splash;
       }
 
-      final isLoading = authState.isLoading;
       final profile = authState.valueOrNull;
       final isLoggedIn = profile != null;
 
@@ -158,6 +161,14 @@ GoRouter appRouter(Ref ref) {
                 name: 'simLineDetail',
                 builder: (context, state) =>
                     SimLineDetailScreen(id: state.pathParameters['id']!),
+                routes: [
+                  GoRoute(
+                    path: 'executions',
+                    name: 'simLineExecutions',
+                    builder: (context, state) =>
+                        SimLineExecutionsHistoryScreen(simLineId: state.pathParameters['id']!),
+                  ),
+                ],
               ),
             ],
           ),
@@ -212,6 +223,14 @@ GoRouter appRouter(Ref ref) {
                 path: 'subscription',
                 name: 'settingsSubscription',
                 builder: (context, state) => const SubscriptionScreen(),
+              ),
+              GoRoute(
+                path: 'offline-recharge',
+                name: 'settingsOfflineRecharge',
+                builder: (context, state) {
+                  final simLineId = state.uri.queryParameters['simLineId'];
+                  return OfflineRefillScreen(simLineId: simLineId);
+                },
               ),
             ],
           ),

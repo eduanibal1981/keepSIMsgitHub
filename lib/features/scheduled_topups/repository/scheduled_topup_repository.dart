@@ -7,17 +7,39 @@ import 'dart:math';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:keep_sims/core/failure.dart';
 import 'package:keep_sims/core/result.dart';
+import 'package:keep_sims/core/services/connectivity_service.dart';
+import 'package:keep_sims/core/services/local_cache_service.dart';
+import 'package:keep_sims/core/services/sync_queue_service.dart';
 import '../contract/scheduled_topup_contract.dart';
 import '../model/scheduled_topup_model.dart';
 import '../model/topup_execution_model.dart';
 
 class ScheduledTopupRepository implements ScheduledTopupContract {
   final SupabaseClient _client;
+  final LocalCacheService _cache;
+  final ConnectivityService _connectivity;
+  final SyncQueue _syncQueue;
 
-  ScheduledTopupRepository(this._client);
+  ScheduledTopupRepository(
+    this._client,
+    this._cache,
+    this._connectivity,
+    this._syncQueue,
+  );
 
   @override
   Future<Result<List<ScheduledTopup>>> getSchedules() async {
+    if (_connectivity.isOffline) {
+      final cached = _cache.readJson('cached_schedules');
+      if (cached is List) {
+        return Success(cached
+            .map((json) =>
+                ScheduledTopup.fromJson(json as Map<String, dynamic>))
+            .toList());
+      }
+      return const Success([]);
+    }
+
     try {
       final userId = _client.auth.currentUser?.id;
       if (userId == null) {
@@ -31,12 +53,21 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
           .select()
           .eq('user_id', userId);
 
+      await _cache.writeJson('cached_schedules', response);
+
       final schedules = (response as List)
           .map((json) => ScheduledTopup.fromJson(json as Map<String, dynamic>))
           .toList();
 
       return Success(schedules);
     } on PostgrestException catch (e) {
+      final cached = _cache.readJson('cached_schedules');
+      if (cached is List) {
+        return Success(cached
+            .map((json) =>
+                ScheduledTopup.fromJson(json as Map<String, dynamic>))
+            .toList());
+      }
       return Failure(AppFailure.server(message: e.message));
     } catch (e) {
       return Failure(AppFailure.unknown(message: e.toString()));
@@ -45,6 +76,17 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
 
   @override
   Future<Result<ScheduledTopup?>> getScheduleForLine(String simLineId) async {
+    if (_connectivity.isOffline) {
+      final cached = _cache.readJson('cached_schedules') as List? ?? [];
+      final matches = cached.where((e) => e is Map && e['sim_line_id'] == simLineId);
+      if (matches.isNotEmpty) {
+        return Success(
+          ScheduledTopup.fromJson(matches.first as Map<String, dynamic>),
+        );
+      }
+      return const Success(null);
+    }
+
     try {
       final userId = _client.auth.currentUser?.id;
       if (userId == null) {
@@ -58,6 +100,7 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
           .select()
           .eq('sim_line_id', simLineId)
           .eq('user_id', userId)
+          .limit(1)
           .maybeSingle();
 
       if (response == null) {
@@ -66,6 +109,13 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
 
       return Success(ScheduledTopup.fromJson(response));
     } on PostgrestException catch (e) {
+      final cached = _cache.readJson('cached_schedules') as List? ?? [];
+      final matches = cached.where((e) => e is Map && e['sim_line_id'] == simLineId);
+      if (matches.isNotEmpty) {
+        return Success(
+          ScheduledTopup.fromJson(matches.first as Map<String, dynamic>),
+        );
+      }
       return Failure(AppFailure.server(message: e.message));
     } catch (e) {
       return Failure(AppFailure.unknown(message: e.toString()));
@@ -74,6 +124,37 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
 
   @override
   Future<Result<ScheduledTopup>> createSchedule(ScheduledTopup schedule) async {
+    if (_connectivity.isOffline) {
+      if (schedule.scheduleType == 'refill') {
+        return const Failure(
+          AppFailure.server(
+            message: 'Auto-Refill settings require an active internet connection.',
+          ),
+        );
+      }
+
+      // Handle Notify Schedule Offline
+      final userId = _client.auth.currentUser?.id ?? '';
+      final localId = schedule.id.isEmpty
+          ? 'offline_sched_${DateTime.now().microsecondsSinceEpoch}'
+          : schedule.id;
+      final updatedSchedule = schedule.copyWith(id: localId, userId: userId);
+      final data = updatedSchedule.toJson();
+
+      final cached = _cache.readJson('cached_schedules') as List? ?? [];
+      final updatedCache = cached
+          .where((item) =>
+              item is Map &&
+              !(item['sim_line_id'] == schedule.simLineId &&
+                  item['schedule_type'] == schedule.scheduleType))
+          .toList();
+      updatedCache.add(data);
+      await _cache.writeJson('cached_schedules', updatedCache);
+
+      await _syncQueue.addToQueue('topup_schedule_save', data);
+      return Success(updatedSchedule);
+    }
+
     try {
       final userId = _client.auth.currentUser?.id;
       if (userId == null) {
@@ -82,12 +163,13 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
         );
       }
 
-      // Check if a schedule already exists for this SIM line to prevent duplicates
+      // Check if a schedule already exists of the same type (notify/refill) for this SIM line
       final existingRes = await _client
           .from('scheduled_topups')
           .select('id')
           .eq('sim_line_id', schedule.simLineId)
           .eq('user_id', userId)
+          .eq('schedule_type', schedule.scheduleType)
           .maybeSingle();
 
       if (existingRes != null) {
@@ -98,11 +180,15 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
         return updateSchedule(updatedSchedule);
       }
 
-      final data = schedule.toJson();
-      if (schedule.id.isEmpty) {
+      final updatedSchedule = schedule.copyWith(
+        nextExecutionAt: schedule.nextExecutionAt.toUtc(),
+        lastExecutionAt: schedule.lastExecutionAt?.toUtc(),
+      );
+      final data = updatedSchedule.toJson();
+      if (updatedSchedule.id.isEmpty) {
         data.remove('id');
       }
-      if (schedule.userId.isEmpty) {
+      if (updatedSchedule.userId.isEmpty) {
         data.remove('user_id');
       }
       data['user_id'] = userId;
@@ -113,7 +199,17 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
           .select()
           .single();
 
-      return Success(ScheduledTopup.fromJson(response));
+      final created = ScheduledTopup.fromJson(response);
+
+      // Update local cache
+      final cached = _cache.readJson('cached_schedules') as List? ?? [];
+      final updatedCache = cached
+          .where((item) => item is Map && item['id'] != created.id)
+          .toList();
+      updatedCache.add(response);
+      await _cache.writeJson('cached_schedules', updatedCache);
+
+      return Success(created);
     } on PostgrestException catch (e) {
       return Failure(AppFailure.server(message: e.message));
     } catch (e) {
@@ -123,6 +219,28 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
 
   @override
   Future<Result<ScheduledTopup>> updateSchedule(ScheduledTopup schedule) async {
+    if (_connectivity.isOffline) {
+      if (schedule.scheduleType == 'refill') {
+        return const Failure(
+          AppFailure.server(
+            message: 'Auto-Refill settings require an active internet connection.',
+          ),
+        );
+      }
+
+      // Handle Notify Schedule Offline
+      final data = schedule.toJson();
+      final cached = _cache.readJson('cached_schedules') as List? ?? [];
+      final updatedCache = cached.map((item) {
+        if (item is Map && item['id'] == schedule.id) return data;
+        return item;
+      }).toList();
+      await _cache.writeJson('cached_schedules', updatedCache);
+
+      await _syncQueue.addToQueue('topup_schedule_save', data);
+      return Success(schedule);
+    }
+
     try {
       final userId = _client.auth.currentUser?.id;
       if (userId == null) {
@@ -131,9 +249,21 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
         );
       }
 
-      final data = schedule.toJson();
+      final updatedSchedule = schedule.copyWith(
+        nextExecutionAt: schedule.nextExecutionAt.toUtc(),
+        lastExecutionAt: schedule.lastExecutionAt?.toUtc(),
+      );
+      final data = updatedSchedule.toJson();
       data.remove('created_at');
-      data['updated_at'] = DateTime.now().toIso8601String();
+      data['updated_at'] = DateTime.now().toUtc().toIso8601String();
+      if (updatedSchedule.id.isEmpty) {
+        data.remove('id');
+      }
+      if (updatedSchedule.userId.isEmpty) {
+        data.remove('user_id');
+      } else {
+        data['user_id'] = userId;
+      }
 
       final response = await _client
           .from('scheduled_topups')
@@ -143,7 +273,17 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
           .select()
           .single();
 
-      return Success(ScheduledTopup.fromJson(response));
+      final updated = ScheduledTopup.fromJson(response);
+
+      // Update cache
+      final cached = _cache.readJson('cached_schedules') as List? ?? [];
+      final updatedCache = cached.map((item) {
+        if (item is Map && item['id'] == updated.id) return response;
+        return item;
+      }).toList();
+      await _cache.writeJson('cached_schedules', updatedCache);
+
+      return Success(updated);
     } on PostgrestException catch (e) {
       return Failure(AppFailure.server(message: e.message));
     } catch (e) {
@@ -169,7 +309,7 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
           .update({
             'is_active': isActive,
             'status': isActive ? 'active' : 'paused',
-            'updated_at': DateTime.now().toIso8601String(),
+            'updated_at': DateTime.now().toUtc().toIso8601String(),
           })
           .eq('id', id)
           .eq('user_id', userId)
@@ -210,6 +350,14 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
 
   @override
   Future<Result<void>> simulateExecution(String id) async {
+    if (_connectivity.isOffline) {
+      return const Failure(
+        AppFailure.server(
+          message: 'Refill simulations require an active internet connection.',
+        ),
+      );
+    }
+
     try {
       final userId = _client.auth.currentUser?.id;
       if (userId == null) {
@@ -247,8 +395,8 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
           'currency': schedule.currency,
           'status': 'failed',
           'failure_reason': 'Insufficient wallet balance',
-          'executed_at': DateTime.now().toIso8601String(),
-          'completed_at': DateTime.now().toIso8601String(),
+          'executed_at': DateTime.now().toUtc().toIso8601String(),
+          'completed_at': DateTime.now().toUtc().toIso8601String(),
         });
 
         // Increment retry count
@@ -259,7 +407,7 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
             .update({
               'retry_count': newRetryCount,
               'status': failedPermanently ? 'failed_permanently' : 'active',
-              'updated_at': DateTime.now().toIso8601String(),
+              'updated_at': DateTime.now().toUtc().toIso8601String(),
             })
             .eq('id', schedule.id);
 
@@ -280,7 +428,7 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
             .update({
               'health_score': newHealth,
               'status': newStatus,
-              'updated_at': DateTime.now().toIso8601String(),
+              'updated_at': DateTime.now().toUtc().toIso8601String(),
             })
             .eq('id', schedule.simLineId);
 
@@ -296,7 +444,7 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
             'max_retries': schedule.maxRetries,
             'health_score_after': newHealth,
           },
-          'created_at': DateTime.now().toIso8601String(),
+          'created_at': DateTime.now().toUtc().toIso8601String(),
         });
 
         return const Failure(
@@ -338,30 +486,35 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
         'currency': schedule.currency,
         'status': 'success',
         'reloadly_transaction_id': mockTxId,
-        'executed_at': DateTime.now().toIso8601String(),
-        'completed_at': DateTime.now().toIso8601String(),
+        'executed_at': DateTime.now().toUtc().toIso8601String(),
+        'completed_at': DateTime.now().toUtc().toIso8601String(),
         'validity_days_added': schedule.frequencyDays,
       });
 
       // 7. Update Schedule Dates
-      final nextExec = DateTime.now().add(
+      int delayDays = schedule.frequencyDays;
+      if (delayDays == 90) delayDays = 85;
+      else if (delayDays == 30) delayDays = 28;
+      else if (delayDays == 14) delayDays = 13;
+
+      final nextExec = DateTime.now().toUtc().add(
         schedule.frequencyDays == 0
             ? const Duration(hours: 1)
-            : Duration(days: schedule.frequencyDays),
+            : Duration(days: delayDays),
       );
       await _client
           .from('scheduled_topups')
           .update({
-            'last_execution_at': DateTime.now().toIso8601String(),
+            'last_execution_at': DateTime.now().toUtc().toIso8601String(),
             'next_execution_at': nextExec.toIso8601String(),
             'retry_count': 0,
             'status': 'active',
-            'updated_at': DateTime.now().toIso8601String(),
+            'updated_at': DateTime.now().toUtc().toIso8601String(),
           })
           .eq('id', schedule.id);
 
       // 8. Update SIM Line validity + reset Health Score
-      final nextDue = DateTime.now().add(
+      final nextDue = DateTime.now().toUtc().add(
         schedule.frequencyDays == 0
             ? const Duration(hours: 1)
             : Duration(days: schedule.frequencyDays),
@@ -374,12 +527,12 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
       await _client
           .from('sim_lines')
           .update({
-            'last_topup_at': DateTime.now().toIso8601String(),
+            'last_topup_at': DateTime.now().toUtc().toIso8601String(),
             'next_topup_due': nextDue.toIso8601String(),
             'validity_expires_at': validityExpires.toIso8601String(),
             'health_score': 100,
             'status': 'active',
-            'updated_at': DateTime.now().toIso8601String(),
+            'updated_at': DateTime.now().toUtc().toIso8601String(),
           })
           .eq('id', schedule.simLineId);
 
@@ -396,7 +549,7 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
           'reloadly_transaction_id': mockTxId,
           'validity_days_added': schedule.frequencyDays,
         },
-        'created_at': DateTime.now().toIso8601String(),
+        'created_at': DateTime.now().toUtc().toIso8601String(),
       });
 
       return const Success(null);
@@ -425,6 +578,44 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
           .eq('sim_line_id', simLineId)
           .eq('user_id', userId)
           .order('executed_at', ascending: false);
+
+      final list = (response as List)
+          .map((json) => TopupExecution.fromJson(json as Map<String, dynamic>))
+          .toList();
+
+      return Success(list);
+    } on PostgrestException catch (e) {
+      return Failure(AppFailure.server(message: e.message));
+    } catch (e) {
+      return Failure(AppFailure.unknown(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Result<List<TopupExecution>>> getExecutionsForLinePaginated({
+    required String simLineId,
+    required int page,
+    required int pageSize,
+  }) async {
+    try {
+      final userId = _client.auth.currentUser?.id;
+      if (userId == null) {
+        return const Failure(
+          AppFailure.auth(message: 'No authenticated user.'),
+        );
+      }
+
+      final start = (page - 1) * pageSize;
+      final end = page * pageSize - 1;
+
+      final response = await _client
+          .from('topup_executions')
+          .select()
+          .eq('sim_line_id', simLineId)
+          .eq('user_id', userId)
+          .or('reloadly_transaction_id.is.null,reloadly_transaction_id.not.like.MOCK_%')
+          .order('executed_at', ascending: false)
+          .range(start, end);
 
       final list = (response as List)
           .map((json) => TopupExecution.fromJson(json as Map<String, dynamic>))
@@ -500,7 +691,7 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
             .update({
               'retry_count': newRetryCount,
               'status': failedPermanently ? 'failed_permanently' : 'active',
-              'updated_at': DateTime.now().toIso8601String(),
+              'updated_at': DateTime.now().toUtc().toIso8601String(),
             })
             .eq('id', schedule.id);
 
@@ -513,8 +704,8 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
           'status': 'failed',
           'failure_reason': 'Retry failed: Insufficient wallet balance',
           'retry_of': executionId,
-          'executed_at': DateTime.now().toIso8601String(),
-          'completed_at': DateTime.now().toIso8601String(),
+          'executed_at': DateTime.now().toUtc().toIso8601String(),
+          'completed_at': DateTime.now().toUtc().toIso8601String(),
         });
 
         // Log failed retry activity
@@ -528,7 +719,7 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
             'retry_count': newRetryCount,
             'max_retries': schedule.maxRetries,
           },
-          'created_at': DateTime.now().toIso8601String(),
+          'created_at': DateTime.now().toUtc().toIso8601String(),
         });
 
         return const Failure(
@@ -570,8 +761,8 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
         'status': 'success',
         'reloadly_transaction_id': mockTxId,
         'retry_of': executionId,
-        'executed_at': DateTime.now().toIso8601String(),
-        'completed_at': DateTime.now().toIso8601String(),
+        'executed_at': DateTime.now().toUtc().toIso8601String(),
+        'completed_at': DateTime.now().toUtc().toIso8601String(),
         'validity_days_added': schedule.frequencyDays,
       });
 
@@ -585,24 +776,29 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
           .eq('id', executionId);
 
       // 8. Update Schedule Dates and reset retry count
-      final nextExec = DateTime.now().add(
+      int delayDays = schedule.frequencyDays;
+      if (delayDays == 90) delayDays = 85;
+      else if (delayDays == 30) delayDays = 28;
+      else if (delayDays == 14) delayDays = 13;
+
+      final nextExec = DateTime.now().toUtc().add(
         schedule.frequencyDays == 0
             ? const Duration(hours: 1)
-            : Duration(days: schedule.frequencyDays),
+            : Duration(days: delayDays),
       );
       await _client
           .from('scheduled_topups')
           .update({
-            'last_execution_at': DateTime.now().toIso8601String(),
+            'last_execution_at': DateTime.now().toUtc().toIso8601String(),
             'next_execution_at': nextExec.toIso8601String(),
             'retry_count': 0,
             'status': 'active',
-            'updated_at': DateTime.now().toIso8601String(),
+            'updated_at': DateTime.now().toUtc().toIso8601String(),
           })
           .eq('id', schedule.id);
 
       // 9. Update SIM Line
-      final nextDue = DateTime.now().add(
+      final nextDue = DateTime.now().toUtc().add(
         schedule.frequencyDays == 0
             ? const Duration(hours: 1)
             : Duration(days: schedule.frequencyDays),
@@ -615,12 +811,12 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
       await _client
           .from('sim_lines')
           .update({
-            'last_topup_at': DateTime.now().toIso8601String(),
+            'last_topup_at': DateTime.now().toUtc().toIso8601String(),
             'next_topup_due': nextDue.toIso8601String(),
             'validity_expires_at': validityExpires.toIso8601String(),
             'health_score': 100,
             'status': 'active',
-            'updated_at': DateTime.now().toIso8601String(),
+            'updated_at': DateTime.now().toUtc().toIso8601String(),
           })
           .eq('id', failedExec.simLineId);
 
@@ -634,7 +830,7 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
           'amount': failedExec.amount,
           'reloadly_transaction_id': mockTxId,
         },
-        'created_at': DateTime.now().toIso8601String(),
+        'created_at': DateTime.now().toUtc().toIso8601String(),
       });
 
       return const Success(null);

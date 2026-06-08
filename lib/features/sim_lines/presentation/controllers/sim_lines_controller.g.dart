@@ -294,7 +294,7 @@ class _SimLineActivityLogsProviderElement
 }
 
 String _$simLinesControllerHash() =>
-    r'eacc3989cdaed9e5ef49fca4486d987a4ee9847c';
+    r'e167c540ad4303fe51f8470564b6106672b9f5ab';
 
 /// See also [SimLinesController].
 @ProviderFor(SimLinesController)

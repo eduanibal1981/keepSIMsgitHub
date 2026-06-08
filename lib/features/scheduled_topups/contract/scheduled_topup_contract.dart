@@ -36,6 +36,13 @@ abstract interface class ScheduledTopupContract {
   /// Fetches execution history for a SIM line.
   Future<Result<List<TopupExecution>>> getExecutionsForLine(String simLineId);
 
+  /// Fetches paginated execution history for a SIM line, excluding mock data.
+  Future<Result<List<TopupExecution>>> getExecutionsForLinePaginated({
+    required String simLineId,
+    required int page,
+    required int pageSize,
+  });
+
   /// Retries a failed execution by ID.
   Future<Result<void>> retryExecution(String executionId);
 

@@ -2,6 +2,7 @@ import 'package:keep_sims/core/utils/build_context_extension.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:keep_sims/core/services/connectivity_service.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
@@ -14,6 +15,11 @@ import 'package:keep_sims/features/scheduled_topups/ui/widgets/scheduled_topup_s
 import 'package:keep_sims/core/result.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
 import 'package:keep_sims/features/household/presentation/controllers/household_controller.dart';
+import 'package:keep_sims/features/scheduled_topups/model/scheduled_topup_model.dart';
+import 'package:keep_sims/features/profile/presentation/widgets/subscription_upsell_sheet.dart';
+import 'package:keep_sims/features/auth/controller/auth_controller.dart';
+import 'package:keep_sims/core/widgets/glass_card.dart';
+
 
 
 class SimLineCard extends ConsumerWidget {
@@ -51,16 +57,24 @@ class SimLineCard extends ConsumerWidget {
             .valueOrNull
             ?.firstWhereOrNull((c) => c.id == line.countryId);
 
-    final schedule = ref.watch(scheduledTopupForLineProvider(line.id));
-    bool hasAutoRefill = schedule != null && schedule.status == 'active';
+    final notifySchedule = ref.watch(scheduledNotifyForLineProvider(line.id));
+    final refillSchedule = ref.watch(scheduledRefillForLineProvider(line.id));
+    final user = ref.watch(authControllerProvider).valueOrNull;
+    bool isPremium = line.protectionTier.toLowerCase() == 'premium' ||
+        (user != null && user.subscriptionTier.toLowerCase() == 'premium');
+    bool hasProtectionActive = isPremium
+        ? (refillSchedule != null && refillSchedule.status == 'active')
+        : (notifySchedule != null && notifySchedule.status == 'active');
     bool isVerified = line.status == 'active';
     bool recentRefill =
         line.lastTopupAt != null &&
         DateTime.now().difference(line.lastTopupAt!).inDays <= 80;
     int computedHealthScore = line.isHomeMode ? 100 :
-        (hasAutoRefill ? 50 : 0) +
-        (isVerified ? 25 : 0) +
-        (recentRefill ? 25 : 0);
+        (!isPremium
+            ? (hasProtectionActive ? 100 : 0)
+            : ((hasProtectionActive ? 50 : 0) +
+               (isVerified ? 25 : 0) +
+               (recentRefill ? 25 : 0)));
 
     final bool isAlternate = index != null && index! % 2 == 1;
     final backgroundColor = isSelected
@@ -68,41 +82,47 @@ class SimLineCard extends ConsumerWidget {
         : (isAlternate 
             ? (context.isDarkMode 
                 ? const Color(0xFF1A1000) // Elegant deep royal plum/violet for dark mode
-                : const Color.fromARGB(255, 245, 235, 248)) // Gentle, soft lavender-plum tint for light mode
+                : const Color.fromARGB(255, 246, 250, 215)) // Gentle, soft lavender-plum tint for light mode
             : context.cardColor);
 
-    return Card(
+    Color glowColor = AppColors.healthGreen;
+    if (isSelected) {
+      glowColor = AppColors.primary;
+    } else if (line.isHomeMode) {
+      glowColor = Colors.lightBlue;
+    } else if (computedHealthScore < 30) {
+      glowColor = AppColors.healthRed;
+    } else if (computedHealthScore < 60) {
+      glowColor = AppColors.healthAmber;
+    }
+
+    return GlassCard(
       margin: const EdgeInsets.only(bottom: 16),
-      color: backgroundColor,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: BorderSide(
-          color: isSelected
-              ? AppColors.primary
-              : context.dividerColor.withOpacity(0.5),
-          width: isSelected ? 1.5 : 1,
-        ),
-      ),
-      child: InkWell(
-        onLongPress: isShared
-            ? null
-            : () async {
-                if (onLongPress != null) {
-                  onLongPress!();
-                }
-              },
-        onTap: () async {
-          await HapticHelper.lightTick();
-          if (onTap != null) {
-            onTap!();
-          } else {
-            context.push('/sim-lines/detail/${line.id}');
-          }
-        },
-        borderRadius: BorderRadius.circular(20),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
+      padding: EdgeInsets.zero,
+      isActive: true,
+      activeColor: glowColor,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onLongPress: isShared
+              ? null
+              : () async {
+                  if (onLongPress != null) {
+                    onLongPress!();
+                  }
+                },
+          onTap: () async {
+            await HapticHelper.lightTick();
+            if (onTap != null) {
+              onTap!();
+            } else {
+              context.push('/sim-lines/detail/${line.id}');
+            }
+          },
+          borderRadius: BorderRadius.circular(20),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
             children: [
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -131,18 +151,12 @@ class SimLineCard extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            Text(
-                              line.nickname ?? 'My SIM Card',
-                              style: AppTextStyles.headlineSmall.copyWith(
-                                color: context.onSurfaceColor,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            _buildTierBadge(line.protectionTier),
-                          ],
+                        Text(
+                          line.nickname ?? 'My SIM Card',
+                          style: AppTextStyles.headlineSmall.copyWith(
+                            color: context.onSurfaceColor,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         const SizedBox(height: 4),
                         Text(
@@ -269,7 +283,7 @@ class SimLineCard extends ConsumerWidget {
           ),
         ),
       ),
-    );
+    ));
   }
 
   Widget _buildAvatar(BuildContext context, SimLine line, Country? country) {
@@ -317,36 +331,7 @@ class SimLineCard extends ConsumerWidget {
     );
   }
 
-  Widget _buildTierBadge(String tier) {
-    Color getTierColor() {
-      switch (tier.toLowerCase()) {
-        case 'premium':
-          return const Color(0xFFF59E0B);
-        case 'standard':
-          return AppColors.primary;
-        default:
-          return Colors.grey;
-      }
-    }
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      decoration: BoxDecoration(
-        color: getTierColor().withOpacity(0.15),
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: getTierColor().withOpacity(0.3), width: 1),
-      ),
-      child: Text(
-        tier.toUpperCase(),
-        style: TextStyle(
-          color: getTierColor(),
-          fontSize: 9,
-          fontWeight: FontWeight.bold,
-          letterSpacing: 0.5,
-        ),
-      ),
-    );
-  }
 
   Widget _buildHealthScoreRing(BuildContext context, int score, bool isHomeMode) {
     Color color = AppColors.healthGreen;
@@ -427,41 +412,48 @@ class SimLineCard extends ConsumerWidget {
   }
 
   Widget _buildInfoColumn(
-    BuildContext context,
-    String label,
-    String value,
-    IconData icon,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Icon(
-              icon,
-              size: 12,
-              color: context.onSurfaceColor.withOpacity(0.4),
-            ),
-            const SizedBox(width: 4),
-            Text(
+  BuildContext context,
+  String label,
+  String value,
+  IconData icon,
+) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: 12,
+            color: context.onSurfaceColor.withOpacity(0.4),
+          ),
+          const SizedBox(width: 4),
+          Flexible(
+            child: Text(
               label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: AppTextStyles.caption.copyWith(
                 color: context.onSurfaceColor.withOpacity(0.4),
               ),
             ),
-          ],
-        ),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: AppTextStyles.bodySmall.copyWith(
-            color: context.onSurfaceColor,
-            fontWeight: FontWeight.w600,
           ),
+        ],
+      ),
+      const SizedBox(height: 4),
+      Text(
+        value,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: AppTextStyles.bodySmall.copyWith(
+          color: context.onSurfaceColor,
+          fontWeight: FontWeight.w600,
         ),
-      ],
-    );
-  }
+      ),
+    ],
+  );
+}
 
   void _showDeleteConfirmation(
     BuildContext context,
@@ -550,93 +542,11 @@ class SimLineCard extends ConsumerWidget {
     WidgetRef ref,
     SimLine line,
   ) {
-    final schedule = ref.watch(scheduledTopupForLineProvider(line.id));
-
-    if (schedule == null) {
-      return Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12.0),
-            child: Divider(color: context.dividerColor, height: 1),
-          ),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppColors.healthRed.withOpacity(0.05),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.healthRed.withOpacity(0.15)),
-            ),
-            child: Row(
-              children: [
-                const Icon(
-                  Icons.warning_amber_rounded,
-                  color: AppColors.healthRed,
-                  size: 20,
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Auto-Refill: Disabled',
-                        style: AppTextStyles.bodyMedium.copyWith(
-                          color: context.onSurfaceColor,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        'Critical risk of SIM deactivation.',
-                        style: AppTextStyles.caption.copyWith(
-                          color: context.onSurfaceColor.withOpacity(0.6),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    showModalBottomSheet(
-                      context: context,
-                      isScrollControlled: true,
-                      backgroundColor: Colors.transparent,
-                      builder: (context) => ScheduledTopupSheet(
-                        simLineId: line.id,
-                        simNickname: line.nickname ?? line.phoneNumber,
-                      ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: context.onSurfaceColor,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 8,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: const Text(
-                    'Configure',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      );
-    }
-
-    final dateFormat = DateFormat('MMM dd, yyyy');
-    final isPaused = !schedule.isActive;
-    final cardColor = isPaused ? AppColors.warning : AppColors.secondary;
-    final statusIcon = isPaused
-        ? Icons.pause_circle_outline_rounded
-        : Icons.verified_user;
-    final statusText = isPaused ? 'Auto-Refill: Paused' : 'Auto-Refill: Active';
+    final notifySchedule = ref.watch(scheduledNotifyForLineProvider(line.id));
+    final refillSchedule = ref.watch(scheduledRefillForLineProvider(line.id));
+    final user = ref.watch(authControllerProvider).valueOrNull;
+    final bool isPremium = line.protectionTier.toLowerCase() == 'premium' ||
+        (user != null && user.subscriptionTier.toLowerCase() == 'premium');
 
     return Column(
       children: [
@@ -644,112 +554,334 @@ class SimLineCard extends ConsumerWidget {
           padding: const EdgeInsets.symmetric(vertical: 12.0),
           child: Divider(color: context.dividerColor, height: 1),
         ),
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: cardColor.withOpacity(0.05),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: cardColor.withOpacity(0.15)),
-          ),
-          child: Column(
+        // 1. Auto-Notify Section (for all tiers)
+        _buildAutoNotifySection(context, ref, line, notifySchedule),
+        const SizedBox(height: 12),
+        // 2. Auto-Refill Section (Premium active, Free/Standard locked)
+        _buildAutoRefillSection(context, ref, line, refillSchedule, isPremium),
+      ],
+    );
+  }
+
+  Widget _buildAutoNotifySection(
+    BuildContext context,
+    WidgetRef ref,
+    SimLine line,
+    ScheduledTopup? schedule,
+  ) {
+    final bool isConfigured = schedule != null;
+    final bool isPaused = schedule != null && !schedule.isActive;
+    final dateFormat = DateFormat('MMM dd, yyyy');
+
+    final cardColor = !isConfigured
+        ? AppColors.healthRed
+        : (isPaused ? AppColors.warning : AppColors.success);
+    final statusIcon = !isConfigured
+        ? Icons.warning_amber_rounded
+        : (isPaused ? Icons.pause_circle_outline_rounded : Icons.notifications_active_rounded);
+
+    final statusText = !isConfigured
+        ? 'Auto-Notify: Disabled'
+        : (isPaused ? 'Auto-Notify: Paused' : 'Auto-Notify: Active');
+
+    final subtitleText = !isConfigured
+        ? 'Critical risk of missing deactivation alerts.'
+        : (isPaused
+            ? 'Alert notifications are temporarily suspended'
+            : (schedule.frequencyDays == 0
+                ? 'Validity check & alert reminders every 1 hour'
+                : 'Validity check & alert reminders every ${schedule.frequencyDays} days'));
+
+    return GlassCard(
+      padding: const EdgeInsets.all(12),
+      isActive: false,
+      activeColor: cardColor,
+      child: Column(
+        children: [
+          Row(
             children: [
-              Row(
-                children: [
-                  Icon(statusIcon, color: cardColor, size: 20),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          statusText,
-                          style: AppTextStyles.bodyMedium.copyWith(
-                            color: context.onSurfaceColor,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          isPaused
-                              ? 'Schedule is currently suspended'
-                              : (schedule.frequencyDays == 0
-                                  ? '\$${schedule.amount.toStringAsFixed(2)} USD every 1 hour'
-                                  : '\$${schedule.amount.toStringAsFixed(2)} USD every ${schedule.frequencyDays} days'),
-                          style: AppTextStyles.caption.copyWith(
-                            color: context.onSurfaceColor.withOpacity(0.6),
-                          ),
-                        ),
-                      ],
+              Icon(statusIcon, color: cardColor, size: 20),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      statusText,
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: context.onSurfaceColor,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  IconButton(
-                    icon: const Icon(
-                      //Icons.settings,
-                      Icons.edit_rounded,
-                      color: AppColors.primaryLight,
-                      size: 20,
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitleText,
+                      style: AppTextStyles.caption.copyWith(
+                        color: context.onSurfaceColor.withOpacity(0.6),
+                      ),
                     ),
-                    onPressed: () {
-                      showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        backgroundColor: Colors.transparent,
-                        builder: (context) => ScheduledTopupSheet(
-                          simLineId: line.id,
-                          simNickname: line.nickname ?? line.phoneNumber,
-                          existingSchedule: schedule,
-                        ),
-                      );
-                    },
-                  ),
-                ],
+                  ],
+                ),
               ),
-              const SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          isPaused
-                              ? 'Resume renewal to enable'
-                              : 'Next Auto-Refill:',
-                          style: AppTextStyles.caption.copyWith(
-                            color: context.onSurfaceColor.withOpacity(0.4),
-                            fontSize: 10,
-                          ),
-                        ),
-                        if (!isPaused) ...[
-                          const SizedBox(height: 2),
-                          Text(
-                            dateFormat.format(schedule.nextExecutionAt),
-                            style: AppTextStyles.bodySmall.copyWith(
-                              color: context.onSurfaceColor,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ],
+              IconButton(
+                icon: Icon(
+                  isConfigured ? Icons.edit_rounded : Icons.add_circle_outline_rounded,
+                  color: AppColors.primaryLight,
+                  size: 20,
+                ),
+                onPressed: () {
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    builder: (context) => ScheduledTopupSheet(
+                      simLineId: line.id,
+                      simNickname: line.nickname ?? line.phoneNumber,
+                      existingSchedule: schedule,
+                      configMode: 'notify',
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  if (!isPaused) _SimulateRefillButton(scheduleId: schedule.id),
-                ],
+                  );
+                },
+                tooltip: isConfigured ? 'Edit Auto-Notify' : 'Configure Auto-Notify',
               ),
             ],
           ),
+          if (isConfigured && !isPaused) ...[
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Next Alert Check:',
+                        style: AppTextStyles.caption.copyWith(
+                          color: context.onSurfaceColor.withOpacity(0.4),
+                          fontSize: 10,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        dateFormat.format(schedule.nextExecutionAt),
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: context.onSurfaceColor,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                _SimulateRefillButton(
+                  scheduleId: schedule.id,
+                  isPremium: false,
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAutoRefillSection(
+    BuildContext context,
+    WidgetRef ref,
+    SimLine line,
+    ScheduledTopup? schedule,
+    bool isPremium,
+  ) {
+    if (!isPremium) {
+      // Locked for Free/Standard
+      return GlassCard(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          children: [
+            Icon(
+              Icons.lock_outline_rounded,
+              color: context.isDarkMode ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
+              size: 20,
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Auto-Refill: Locked 🔒',
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      color: context.onSurfaceColor.withOpacity(0.5),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'Available on Premium Plan. Automatically buy credit before expiration.',
+                    style: AppTextStyles.caption.copyWith(
+                      color: context.onSurfaceColor.withOpacity(0.4),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            TextButton(
+              onPressed: () async {
+                await HapticHelper.mediumImpact();
+                SubscriptionUpsellSheet.show(
+                  context: context,
+                  title: 'Auto-Refill Locked 🔒',
+                  description: 'Auto-Refill executes automatically with secure top-up and is exclusive to Premium users. Upgrade now to fully automate SIM renewal!',
+                  requiredPlan: 'Premium Plan',
+                  highlights: [
+                    'Unlimited high-speed SIM protection lines',
+                    'Zero-click Automated Auto-Refill executing balance updates',
+                    'Direct balance API synchronization & validation',
+                  ],
+                );
+              },
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+              child: const Text(
+                'Unlock',
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.amberAccent),
+              ),
+            ),
+          ],
         ),
-      ],
+      );
+    }
+
+    // Configured or Unconfigured for Premium
+    final bool isConfigured = schedule != null && schedule.amount > 0.0;
+    final bool isPaused = schedule != null && !schedule.isActive;
+    final dateFormat = DateFormat('MMM dd, yyyy');
+
+    final cardColor = !isConfigured
+        ? AppColors.healthRed
+        : (isPaused ? AppColors.warning : AppColors.secondary);
+    final statusIcon = !isConfigured
+        ? Icons.warning_amber_rounded
+        : (isPaused ? Icons.pause_circle_outline_rounded : Icons.verified_user);
+
+    final statusText = !isConfigured
+        ? 'Auto-Refill: Unconfigured'
+        : (isPaused ? 'Auto-Refill: Paused' : 'Auto-Refill: Active');
+
+    final subtitleText = !isConfigured
+        ? 'Configure automatic balance refills to keep SIM alive.'
+        : (isPaused
+            ? 'Automatic refills are suspended'
+            : (schedule.frequencyDays == 0
+                ? '\$${schedule.amount.toStringAsFixed(2)} USD refill every 1 hour'
+                : '\$${schedule.amount.toStringAsFixed(2)} USD refill every ${schedule.frequencyDays} days'));
+
+    return GlassCard(
+      padding: const EdgeInsets.all(12),
+      isActive: false,
+      activeColor: cardColor,
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Icon(statusIcon, color: cardColor, size: 20),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      statusText,
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: context.onSurfaceColor,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitleText,
+                      style: AppTextStyles.caption.copyWith(
+                        color: context.onSurfaceColor.withOpacity(0.6),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              IconButton(
+                icon: Icon(
+                  isConfigured ? Icons.edit_rounded : Icons.add_circle_outline_rounded,
+                  color: AppColors.primaryLight,
+                  size: 20,
+                ),
+                onPressed: () {
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    builder: (context) => ScheduledTopupSheet(
+                      simLineId: line.id,
+                      simNickname: line.nickname ?? line.phoneNumber,
+                      existingSchedule: schedule,
+                      configMode: 'refill',
+                    ),
+                  );
+                },
+                tooltip: isConfigured ? 'Edit Auto-Refill' : 'Configure Auto-Refill',
+              ),
+            ],
+          ),
+          if (isConfigured) ...[
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        isPaused ? 'Resume renewal to enable' : 'Next Auto-Refill:',
+                        style: AppTextStyles.caption.copyWith(
+                          color: context.onSurfaceColor.withOpacity(0.4),
+                          fontSize: 10,
+                        ),
+                      ),
+                      if (!isPaused) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          dateFormat.format(schedule.nextExecutionAt),
+                          style: AppTextStyles.bodySmall.copyWith(
+                            color: context.onSurfaceColor,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                if (!isPaused)
+                  _SimulateRefillButton(
+                    scheduleId: schedule.id,
+                    isPremium: true,
+                  ),
+              ],
+            ),
+          ],
+        ],
+      ),
     );
   }
 }
 
 class _SimulateRefillButton extends ConsumerStatefulWidget {
   final String scheduleId;
+  final bool isPremium;
 
-  const _SimulateRefillButton({required this.scheduleId});
+  const _SimulateRefillButton({required this.scheduleId, required this.isPremium});
 
   @override
   ConsumerState<_SimulateRefillButton> createState() =>
@@ -761,8 +893,26 @@ class _SimulateRefillButtonState extends ConsumerState<_SimulateRefillButton> {
 
   @override
   Widget build(BuildContext context) {
+    final networkStatus = ref.watch(connectivityServiceProvider);
+    final isOffline = networkStatus == NetworkStatus.offline;
+
     return ElevatedButton.icon(
-      onPressed: _isLoading ? null : _simulate,
+      onPressed: _isLoading
+          ? null
+          : (isOffline
+              ? () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        widget.isPremium
+                            ? 'Refill simulation requires an active internet connection.'
+                            : 'Renewal simulation requires an active internet connection.',
+                      ),
+                      backgroundColor: AppColors.error,
+                    ),
+                  );
+                }
+              : _simulate),
       icon: _isLoading
           ? SizedBox(
               width: 14,
@@ -773,20 +923,28 @@ class _SimulateRefillButtonState extends ConsumerState<_SimulateRefillButton> {
               ),
             )
           : Icon(
-              Icons.flash_on_rounded,
+              isOffline ? Icons.lock_outline_rounded : Icons.flash_on_rounded,
               size: 14,
-              color: context.onSurfaceColor,
+              color: isOffline
+                  ? context.onSurfaceColor.withOpacity(0.4)
+                  : context.onSurfaceColor,
             ),
       label: Text(
-        'Simulate Refill',
+        isOffline
+            ? 'Simulation Locked 🔒'
+            : (widget.isPremium ? 'Simulate Refill' : 'Simulate Renewal'),
         style: TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.bold,
-          color: context.onSurfaceColor,
+          color: isOffline
+              ? context.onSurfaceColor.withOpacity(0.4)
+              : context.onSurfaceColor,
         ),
       ),
       style: ElevatedButton.styleFrom(
-        backgroundColor: AppColors.secondaryDark,
+        backgroundColor: isOffline
+            ? Colors.grey.withOpacity(0.12)
+            : AppColors.secondaryDark,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
@@ -815,7 +973,9 @@ class _SimulateRefillButtonState extends ConsumerState<_SimulateRefillButton> {
                     SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Auto-refill execution simulated! Balance deducted & validity extended.',
+                        widget.isPremium 
+                            ? 'Auto-refill execution simulated! Balance deducted & validity extended.'
+                            : 'Renewal execution simulated! Validity extended.',
                       ),
                     ),
                   ],

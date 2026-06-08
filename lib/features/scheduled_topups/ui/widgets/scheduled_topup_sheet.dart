@@ -23,12 +23,14 @@ class ScheduledTopupSheet extends ConsumerStatefulWidget {
   final String simLineId;
   final String simNickname;
   final ScheduledTopup? existingSchedule;
+  final String configMode; // 'notify' or 'refill'
 
   const ScheduledTopupSheet({
     super.key,
     required this.simLineId,
     required this.simNickname,
     this.existingSchedule,
+    required this.configMode,
   });
 
   @override
@@ -66,17 +68,27 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
     final user = ref.watch(authControllerProvider).valueOrNull;
     final globalTier = user?.subscriptionTier ?? 'standard';
     final bool isPremium = globalTier == 'premium';
+    final bool isNotifyMode = widget.configMode == 'notify';
+    final String labelPrefix = isNotifyMode ? 'Auto-Notify' : 'Auto-Refill';
     final String? userId = user?.id;
 
     DateTime calculatedNextExecution;
     if (isEditMode &&
         widget.existingSchedule!.frequencyDays == _frequencyDays) {
-      calculatedNextExecution = widget.existingSchedule!.nextExecutionAt;
+      calculatedNextExecution = widget.existingSchedule!.nextExecutionAt.toUtc();
     } else {
-      calculatedNextExecution = DateTime.now().add(
+      int delayDays = _frequencyDays;
+      if (_frequencyDays == 90) {
+        delayDays = 85;
+      } else if (_frequencyDays == 30) {
+        delayDays = 28;
+      } else if (_frequencyDays == 14) {
+        delayDays = 13;
+      }
+      calculatedNextExecution = DateTime.now().toUtc().add(
         _frequencyDays == 0
             ? const Duration(hours: 1)
-            : Duration(days: _frequencyDays),
+            : Duration(days: delayDays),
       );
     }
 
@@ -130,7 +142,7 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                     ),
                   ),
                   child: Icon(
-                    isPremium ? Icons.verified_user : Icons.notifications_active,
+                    isNotifyMode ? Icons.notifications_active_rounded : Icons.verified_user,
                     color: AppColors.secondary,
                     size: 24,
                   ),
@@ -141,9 +153,7 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        isPremium
-                            ? (isEditMode ? 'Edit Auto-Refill' : 'Enable Auto-Refill')
-                            : (isEditMode ? 'Edit Reminder Schedule' : 'Enable Reminder Schedule'),
+                        isEditMode ? 'Edit $labelPrefix' : 'Enable $labelPrefix',
                         style: AppTextStyles.headlineMedium.copyWith(
                           color: context.onSurfaceColor,
                           fontWeight: FontWeight.bold,
@@ -160,11 +170,160 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                     ],
                   ),
                 ),
+                IconButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  icon: Icon(
+                    Icons.close_rounded,
+                    color: context.onSurfaceColor.withOpacity(0.6),
+                  ),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  splashRadius: 24,
+                ),
               ],
             ),
             const SizedBox(height: 24),
 
-            if (isPremium) ...[
+            if (isNotifyMode) ...[
+              // Notification Alert Channels Section for All Users
+              Text(
+                'Select Notification Channels',
+                style: AppTextStyles.titleMedium.copyWith(
+                  color: context.onSurfaceColor,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 12),
+              ref.watch(notificationChannelsControllerProvider).when(
+                data: (channels) {
+                  final order = {'push': 1, 'email': 2, 'whatsapp': 3, 'telegram': 4};
+                  final filtered = channels.where((c) => order.containsKey(c['channel_type'])).toList()
+                    ..sort((a, b) => (order[a['channel_type']] ?? 99).compareTo(order[b['channel_type']] ?? 99));
+
+                  return Container(
+                    decoration: BoxDecoration(
+                      color: context.cardColor,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: context.dividerColor),
+                    ),
+                    child: ListView.separated(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: filtered.length,
+                      separatorBuilder: (context, index) => Divider(color: context.dividerColor, height: 1),
+                      itemBuilder: (context, index) {
+                        final ch = filtered[index];
+                        final type = ch['channel_type'] as String;
+                        final isEnabled = ch['is_enabled'] ?? false;
+                        
+                        String label = '';
+                        IconData icon = Icons.notifications;
+                        Color color = AppColors.primary;
+                        switch (type) {
+                          case 'push':
+                            label = 'Push Notifications';
+                            icon = Icons.notifications_active_rounded;
+                            color = AppColors.primaryLight;
+                            break;
+                          case 'whatsapp':
+                            label = 'WhatsApp Alerts';
+                            icon = Icons.chat_bubble_outline_rounded;
+                            color = const Color(0xFF4ADE80);
+                            break;
+                          case 'telegram':
+                            label = 'Telegram Bot';
+                            icon = Icons.telegram_rounded;
+                            color = const Color(0xFF22D3EE);
+                            break;
+                          case 'email':
+                            label = 'Email Alerts';
+                            icon = Icons.email_rounded;
+                            color = const Color(0xFF38BDF8);
+                            break;
+                        }
+
+                        final bool isLocked = type != 'push' && globalTier == 'basic';
+
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            GestureDetector(
+                              onTap: isLocked
+                                  ? () async {
+                                      await HapticHelper.mediumImpact();
+                                      if (!context.mounted) return;
+                                      SubscriptionUpsellSheet.show(
+                                        context: context,
+                                        title: '$label Locked 🔒',
+                                        description: '$label alerts are Starter and Premium plan features. Upgrade your plan to unlock WhatsApp, Telegram, and Email alerts!',
+                                        requiredPlan: 'Starter Plan',
+                                        highlights: [
+                                          'Protect up to 5 SIM lines simultaneously',
+                                          'Unlock WhatsApp, Telegram & Email notifications',
+                                          'Enable Travel & Home automated validity modes',
+                                        ],
+                                      );
+                                    }
+                                  : null,
+                              child: SwitchListTile(
+                                value: isLocked ? false : isEnabled,
+                                activeThumbColor: color,
+                                activeTrackColor: color.withOpacity(0.2),
+                                inactiveThumbColor: AppColors.textTertiaryDark,
+                                inactiveTrackColor: AppColors.darkBorder,
+                                title: Row(
+                                  children: [
+                                    Icon(icon, color: isLocked ? AppColors.textTertiaryDark : color, size: 20),
+                                    const SizedBox(width: 12),
+                                    Text(
+                                      label,
+                                      style: AppTextStyles.bodyMedium.copyWith(
+                                        color: isLocked ? AppColors.textSecondaryDark : context.onSurfaceColor,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    if (isLocked) ...[
+                                      const SizedBox(width: 8),
+                                      const Icon(
+                                        Icons.lock_rounded,
+                                        color: Colors.amberAccent,
+                                        size: 14,
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                                onChanged: isLocked
+                                    ? null
+                                    : (val) async {
+                                        await ref.read(notificationChannelsControllerProvider.notifier).toggleChannel(type, val);
+                                      },
+                              ),
+                            ),
+                            if (isEnabled && type != 'push' && !isLocked) ...[
+                              _InlineChannelConfig(
+                                channel: ch,
+                                userId: userId,
+                                ref: ref,
+                              ),
+                            ],
+                          ],
+                        );
+                      },
+                    ),
+                  );
+                },
+                loading: () => const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: CircularProgressIndicator(color: AppColors.primary),
+                  ),
+                ),
+                error: (err, _) => const SizedBox.shrink(),
+              ),
+              const SizedBox(height: 24),
+            ],
+
+            if (!isNotifyMode && isPremium) ...[
               // Select Refill Amount Section
               Text(
                 'Select Refill Amount',
@@ -250,148 +409,12 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                   },
                 ),
               ),
-              const SizedBox(height: 20),
-            ] else ...[
-              // Notification Alert Channels Section for Standard/Basic Users
-              Text(
-                'Select Notification Channels',
-                style: AppTextStyles.titleMedium.copyWith(
-                  color: context.onSurfaceColor,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 12),
-              ref.watch(notificationChannelsControllerProvider).when(
-                data: (channels) {
-                  final order = {'push': 1, 'email': 2, 'whatsapp': 3, 'telegram': 4};
-                  final filtered = channels.where((c) => order.containsKey(c['channel_type'])).toList()
-                    ..sort((a, b) => (order[a['channel_type']] ?? 99).compareTo(order[b['channel_type']] ?? 99));
-
-                  return Container(
-                    decoration: BoxDecoration(
-                      color: context.cardColor,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: context.dividerColor),
-                    ),
-                    child: ListView.separated(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: filtered.length,
-                      separatorBuilder: (context, index) => Divider(color: context.dividerColor, height: 1),
-                      itemBuilder: (context, index) {
-                        final ch = filtered[index];
-                        final type = ch['channel_type'] as String;
-                        final isEnabled = ch['is_enabled'] ?? false;
-                        
-                        String label = '';
-                        IconData icon = Icons.notifications;
-                        Color color = AppColors.primary;
-                        switch (type) {
-                          case 'push':
-                            label = 'Push Notifications';
-                            icon = Icons.notifications_active_rounded;
-                            color = AppColors.primaryLight;
-                            break;
-                          case 'whatsapp':
-                            label = 'WhatsApp Alerts';
-                            icon = Icons.chat_bubble_outline_rounded;
-                            color = const Color(0xFF4ADE80);
-                            break;
-                          case 'telegram':
-                            label = 'Telegram Bot';
-                            icon = Icons.telegram_rounded;
-                            color = const Color(0xFF22D3EE);
-                            break;
-                          case 'email':
-                            label = 'Email Alerts';
-                            icon = Icons.email_rounded;
-                            color = const Color(0xFF38BDF8);
-                            break;
-                        }
-
-                        final bool isLocked = type != 'push' && globalTier == 'basic';
-
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            GestureDetector(
-                              onTap: isLocked
-                                  ? () async {
-                                      await HapticHelper.mediumImpact();
-                                      SubscriptionUpsellSheet.show(
-                                        context: context,
-                                        title: '$label Locked 🔒',
-                                        description: '$label alerts are Starter and Premium plan features. Upgrade your plan to unlock WhatsApp, Telegram, and Email alerts!',
-                                        requiredPlan: 'Starter Plan',
-                                        highlights: [
-                                          'Protect up to 5 SIM lines simultaneously',
-                                          'Unlock WhatsApp, Telegram & Email notifications',
-                                          'Enable Travel & Home automated validity modes',
-                                        ],
-                                      );
-                                    }
-                                  : null,
-                              child: SwitchListTile(
-                                value: isLocked ? false : isEnabled,
-                                activeThumbColor: color,
-                                activeTrackColor: color.withOpacity(0.2),
-                                inactiveThumbColor: AppColors.textTertiaryDark,
-                                inactiveTrackColor: AppColors.darkBorder,
-                                title: Row(
-                                  children: [
-                                    Icon(icon, color: isLocked ? AppColors.textTertiaryDark : color, size: 20),
-                                    const SizedBox(width: 12),
-                                    Text(
-                                      label,
-                                      style: AppTextStyles.bodyMedium.copyWith(
-                                        color: isLocked ? AppColors.textSecondaryDark : context.onSurfaceColor,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    if (isLocked) ...[
-                                      const SizedBox(width: 8),
-                                      const Icon(
-                                        Icons.lock_rounded,
-                                        color: Colors.amberAccent,
-                                        size: 14,
-                                      ),
-                                    ],
-                                  ],
-                                ),
-                                onChanged: isLocked
-                                    ? null
-                                    : (val) async {
-                                        await ref.read(notificationChannelsControllerProvider.notifier).toggleChannel(type, val);
-                                      },
-                              ),
-                            ),
-                            if (isEnabled && type != 'push' && !isLocked) ...[
-                              _InlineChannelConfig(
-                                channel: ch,
-                                userId: userId,
-                                ref: ref,
-                              ),
-                            ],
-                          ],
-                        );
-                      },
-                    ),
-                  );
-                },
-                loading: () => const Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: CircularProgressIndicator(color: AppColors.primary),
-                  ),
-                ),
-                error: (err, _) => const SizedBox.shrink(),
-              ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
             ],
 
             // Select Refill Frequency Section
             Text(
-              isPremium ? 'Select Refill Interval' : 'Select Reminder Interval',
+              isNotifyMode ? 'Select Renewal Interval' : 'Select Refill Interval',
               style: AppTextStyles.titleMedium.copyWith(
                 color: context.onSurfaceColor,
                 fontWeight: FontWeight.bold,
@@ -466,7 +489,7 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          isPremium ? 'Estimated Next Execution:' : 'Estimated Next Reminder:',
+                          isNotifyMode ? 'Estimated Next Renewal:' : 'Estimated Next Execution:',
                           style: AppTextStyles.caption.copyWith(
                             color: context.onSurfaceColor.withOpacity(0.4),
                           ),
@@ -475,7 +498,7 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                         Text(
                           DateFormat(
                             'EEEE, MMM dd, yyyy',
-                          ).format(calculatedNextExecution),
+                          ).format(calculatedNextExecution.toLocal()),
                           style: AppTextStyles.bodyMedium.copyWith(
                             color: context.onSurfaceColor,
                             fontWeight: FontWeight.w600,
@@ -541,23 +564,23 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                       ),
                     ),
                     child: _isSaving
-                      ? SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2.5,
-                            color: context.onSurfaceColor,
+                        ? SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.5,
+                              color: context.onSurfaceColor,
+                            ),
+                          )
+                        : Text(
+                            isEditMode
+                                ? 'Save Configuration'
+                                : (isNotifyMode ? 'Enable Auto-Notify' : 'Enable Auto-Refill'),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                            ),
                           ),
-                        )
-                      : Text(
-                          isEditMode
-                              ? 'Save Configuration'
-                              : (isPremium ? 'Enable Renewal Schedule' : 'Enable Reminder Schedule'),
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15,
-                          ),
-                        ),
                   ),
                 ),
               ],
@@ -574,29 +597,39 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
       final user = ref.read(authControllerProvider).valueOrNull;
       final globalTier = user?.subscriptionTier ?? 'standard';
       final bool isPremium = globalTier == 'premium';
+      final bool isNotifyMode = widget.configMode == 'notify';
 
       DateTime calculatedNextExecution;
       if (widget.existingSchedule != null &&
           widget.existingSchedule!.frequencyDays == _frequencyDays) {
-        calculatedNextExecution = widget.existingSchedule!.nextExecutionAt;
+        calculatedNextExecution = widget.existingSchedule!.nextExecutionAt.toUtc();
       } else {
-        calculatedNextExecution = DateTime.now().add(
+        int delayDays = _frequencyDays;
+        if (_frequencyDays == 90) {
+          delayDays = 85;
+        } else if (_frequencyDays == 30) {
+          delayDays = 28;
+        } else if (_frequencyDays == 14) {
+          delayDays = 13;
+        }
+        calculatedNextExecution = DateTime.now().toUtc().add(
           _frequencyDays == 0
               ? const Duration(hours: 1)
-              : Duration(days: _frequencyDays),
+              : Duration(days: delayDays),
         );
       }
 
       final schedule = ScheduledTopup(
         id: widget.existingSchedule?.id ?? '',
         simLineId: widget.simLineId,
-        userId: widget.existingSchedule?.userId ?? '',
-        amount: isPremium ? _amount : 0.0,
+        userId: widget.existingSchedule?.userId ?? user?.id ?? '',
+        amount: isNotifyMode ? 0.0 : (isPremium ? _amount : 0.0),
         currency: 'USD',
         frequencyDays: _frequencyDays,
         nextExecutionAt: calculatedNextExecution,
         isActive: _isActive,
         status: widget.existingSchedule?.status ?? 'active',
+        scheduleType: widget.configMode, // 'notify' or 'refill'
       );
 
       final result = await ref
@@ -610,9 +643,9 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
-                  isPremium
-                      ? 'Auto-Refill renewal schedule saved successfully.'
-                      : 'Validity reminder schedule saved successfully.',
+                  isNotifyMode
+                      ? 'Auto-Notify configuration saved successfully.'
+                      : 'Auto-Refill configuration saved successfully.',
                 ),
                 backgroundColor: AppColors.success,
               ),
@@ -645,10 +678,10 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
 
     setState(() => _isDeleting = true);
     try {
-      final user = ref.read(authControllerProvider).valueOrNull;
-      final globalTier = user?.subscriptionTier ?? 'standard';
-      final bool isPremium = globalTier == 'premium';
+      final isNotifyMode = widget.configMode == 'notify';
 
+      // Since they are now two completely separate database records,
+      // deleting either Auto-Notify or Auto-Refill simply removes its specific record completely!
       final result = await ref
           .read(scheduledTopupControllerProvider.notifier)
           .removeSchedule(widget.existingSchedule!.id);
@@ -660,9 +693,9 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
-                  isPremium
-                      ? 'Auto-Refill renewal schedule cancelled successfully.'
-                      : 'Validity reminder schedule cancelled successfully.',
+                  isNotifyMode
+                      ? 'Auto-Notify configuration cancelled successfully.'
+                      : 'Auto-Refill configuration cancelled successfully.',
                 ),
                 backgroundColor: AppColors.success,
               ),

@@ -161,6 +161,37 @@ ScheduledTopup? scheduledTopupForLine(
   return null;
 }
 
+/// Helper provider to get Notify schedule for a specific SIM line.
+@riverpod
+ScheduledTopup? scheduledNotifyForLine(
+  ScheduledNotifyForLineRef ref,
+  String simLineId,
+) {
+  final schedulesAsync = ref.watch(scheduledTopupControllerProvider);
+  final list = schedulesAsync.valueOrNull;
+  if (list == null) return null;
+  for (final s in list) {
+    if (s.simLineId == simLineId && s.scheduleType == 'notify') return s;
+  }
+  return null;
+}
+
+/// Helper provider to get Refill schedule for a specific SIM line.
+@riverpod
+ScheduledTopup? scheduledRefillForLine(
+  ScheduledRefillForLineRef ref,
+  String simLineId,
+) {
+  final schedulesAsync = ref.watch(scheduledTopupControllerProvider);
+  final list = schedulesAsync.valueOrNull;
+  if (list == null) return null;
+  for (final s in list) {
+    if (s.simLineId == simLineId && s.scheduleType == 'refill') return s;
+  }
+  return null;
+}
+
+
 /// Family provider to watch execution history for a SIM Line.
 @riverpod
 FutureOr<List<TopupExecution>> topupExecutionsForLine(
@@ -173,4 +204,59 @@ FutureOr<List<TopupExecution>> topupExecutionsForLine(
     Success(data: final list) => list,
     Failure(error: final failure) => throw Exception(failure.message),
   };
+}
+
+/// Paginated execution history provider.
+@riverpod
+class SimLineExecutionsHistory extends _$SimLineExecutionsHistory {
+  int _currentPage = 1;
+  bool _hasMore = true;
+  bool _isLoadingMore = false;
+
+  bool get hasMore => _hasMore;
+  bool get isLoadingMore => _isLoadingMore;
+
+  @override
+  FutureOr<List<TopupExecution>> build(String simLineId) async {
+    _currentPage = 1;
+    _hasMore = true;
+    _isLoadingMore = false;
+    return _fetchPage(1);
+  }
+
+  Future<List<TopupExecution>> _fetchPage(int page) async {
+    final repo = ref.read(scheduledTopupRepositoryProvider);
+    final result = await repo.getExecutionsForLinePaginated(
+      simLineId: simLineId,
+      page: page,
+      pageSize: 15,
+    );
+    return switch (result) {
+      Success(data: final list) => list,
+      Failure(error: final failure) => throw Exception(failure.message),
+    };
+  }
+
+  Future<void> loadNextPage() async {
+    if (_isLoadingMore || !_hasMore) return;
+
+    _isLoadingMore = true;
+    final currentList = state.valueOrNull ?? [];
+    
+    try {
+      final nextPage = _currentPage + 1;
+      final result = await _fetchPage(nextPage);
+      
+      if (result.isEmpty || result.length < 15) {
+        _hasMore = false;
+      }
+      
+      _currentPage = nextPage;
+      state = AsyncValue.data([...currentList, ...result]);
+    } catch (e, st) {
+      // Keep previous list
+    } finally {
+      _isLoadingMore = false;
+    }
+  }
 }

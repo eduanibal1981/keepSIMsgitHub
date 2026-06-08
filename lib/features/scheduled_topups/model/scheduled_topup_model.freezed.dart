@@ -16,6 +16,7 @@ T _$identity<T>(T value) => value;
 mixin _$ScheduledTopup {
 
  String get id; String get simLineId; String get userId; double get amount; String get currency; int get frequencyDays; DateTime get nextExecutionAt; DateTime? get lastExecutionAt; bool get isActive; int get retryCount; int get maxRetries; String get status;// 'active', 'paused', 'failed_permanently', 'completed'
+ String get scheduleType;// 'notify', 'refill'
  DateTime? get createdAt; DateTime? get updatedAt;
 /// Create a copy of ScheduledTopup
 /// with the given fields replaced by the non-null parameter values.
@@ -29,16 +30,16 @@ $ScheduledTopupCopyWith<ScheduledTopup> get copyWith => _$ScheduledTopupCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ScheduledTopup&&(identical(other.id, id) || other.id == id)&&(identical(other.simLineId, simLineId) || other.simLineId == simLineId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.currency, currency) || other.currency == currency)&&(identical(other.frequencyDays, frequencyDays) || other.frequencyDays == frequencyDays)&&(identical(other.nextExecutionAt, nextExecutionAt) || other.nextExecutionAt == nextExecutionAt)&&(identical(other.lastExecutionAt, lastExecutionAt) || other.lastExecutionAt == lastExecutionAt)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.retryCount, retryCount) || other.retryCount == retryCount)&&(identical(other.maxRetries, maxRetries) || other.maxRetries == maxRetries)&&(identical(other.status, status) || other.status == status)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ScheduledTopup&&(identical(other.id, id) || other.id == id)&&(identical(other.simLineId, simLineId) || other.simLineId == simLineId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.currency, currency) || other.currency == currency)&&(identical(other.frequencyDays, frequencyDays) || other.frequencyDays == frequencyDays)&&(identical(other.nextExecutionAt, nextExecutionAt) || other.nextExecutionAt == nextExecutionAt)&&(identical(other.lastExecutionAt, lastExecutionAt) || other.lastExecutionAt == lastExecutionAt)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.retryCount, retryCount) || other.retryCount == retryCount)&&(identical(other.maxRetries, maxRetries) || other.maxRetries == maxRetries)&&(identical(other.status, status) || other.status == status)&&(identical(other.scheduleType, scheduleType) || other.scheduleType == scheduleType)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,simLineId,userId,amount,currency,frequencyDays,nextExecutionAt,lastExecutionAt,isActive,retryCount,maxRetries,status,createdAt,updatedAt);
+int get hashCode => Object.hash(runtimeType,id,simLineId,userId,amount,currency,frequencyDays,nextExecutionAt,lastExecutionAt,isActive,retryCount,maxRetries,status,scheduleType,createdAt,updatedAt);
 
 @override
 String toString() {
-  return 'ScheduledTopup(id: $id, simLineId: $simLineId, userId: $userId, amount: $amount, currency: $currency, frequencyDays: $frequencyDays, nextExecutionAt: $nextExecutionAt, lastExecutionAt: $lastExecutionAt, isActive: $isActive, retryCount: $retryCount, maxRetries: $maxRetries, status: $status, createdAt: $createdAt, updatedAt: $updatedAt)';
+  return 'ScheduledTopup(id: $id, simLineId: $simLineId, userId: $userId, amount: $amount, currency: $currency, frequencyDays: $frequencyDays, nextExecutionAt: $nextExecutionAt, lastExecutionAt: $lastExecutionAt, isActive: $isActive, retryCount: $retryCount, maxRetries: $maxRetries, status: $status, scheduleType: $scheduleType, createdAt: $createdAt, updatedAt: $updatedAt)';
 }
 
 
@@ -49,7 +50,7 @@ abstract mixin class $ScheduledTopupCopyWith<$Res>  {
   factory $ScheduledTopupCopyWith(ScheduledTopup value, $Res Function(ScheduledTopup) _then) = _$ScheduledTopupCopyWithImpl;
 @useResult
 $Res call({
- String id, String simLineId, String userId, double amount, String currency, int frequencyDays, DateTime nextExecutionAt, DateTime? lastExecutionAt, bool isActive, int retryCount, int maxRetries, String status, DateTime? createdAt, DateTime? updatedAt
+ String id, String simLineId, String userId, double amount, String currency, int frequencyDays, DateTime nextExecutionAt, DateTime? lastExecutionAt, bool isActive, int retryCount, int maxRetries, String status, String scheduleType, DateTime? createdAt, DateTime? updatedAt
 });
 
 
@@ -66,7 +67,7 @@ class _$ScheduledTopupCopyWithImpl<$Res>
 
 /// Create a copy of ScheduledTopup
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? simLineId = null,Object? userId = null,Object? amount = null,Object? currency = null,Object? frequencyDays = null,Object? nextExecutionAt = null,Object? lastExecutionAt = freezed,Object? isActive = null,Object? retryCount = null,Object? maxRetries = null,Object? status = null,Object? createdAt = freezed,Object? updatedAt = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? simLineId = null,Object? userId = null,Object? amount = null,Object? currency = null,Object? frequencyDays = null,Object? nextExecutionAt = null,Object? lastExecutionAt = freezed,Object? isActive = null,Object? retryCount = null,Object? maxRetries = null,Object? status = null,Object? scheduleType = null,Object? createdAt = freezed,Object? updatedAt = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,simLineId: null == simLineId ? _self.simLineId : simLineId // ignore: cast_nullable_to_non_nullable
@@ -80,6 +81,7 @@ as DateTime?,isActive: null == isActive ? _self.isActive : isActive // ignore: c
 as bool,retryCount: null == retryCount ? _self.retryCount : retryCount // ignore: cast_nullable_to_non_nullable
 as int,maxRetries: null == maxRetries ? _self.maxRetries : maxRetries // ignore: cast_nullable_to_non_nullable
 as int,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as String,scheduleType: null == scheduleType ? _self.scheduleType : scheduleType // ignore: cast_nullable_to_non_nullable
 as String,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,updatedAt: freezed == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,
@@ -167,10 +169,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String simLineId,  String userId,  double amount,  String currency,  int frequencyDays,  DateTime nextExecutionAt,  DateTime? lastExecutionAt,  bool isActive,  int retryCount,  int maxRetries,  String status,  DateTime? createdAt,  DateTime? updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String simLineId,  String userId,  double amount,  String currency,  int frequencyDays,  DateTime nextExecutionAt,  DateTime? lastExecutionAt,  bool isActive,  int retryCount,  int maxRetries,  String status,  String scheduleType,  DateTime? createdAt,  DateTime? updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ScheduledTopup() when $default != null:
-return $default(_that.id,_that.simLineId,_that.userId,_that.amount,_that.currency,_that.frequencyDays,_that.nextExecutionAt,_that.lastExecutionAt,_that.isActive,_that.retryCount,_that.maxRetries,_that.status,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.id,_that.simLineId,_that.userId,_that.amount,_that.currency,_that.frequencyDays,_that.nextExecutionAt,_that.lastExecutionAt,_that.isActive,_that.retryCount,_that.maxRetries,_that.status,_that.scheduleType,_that.createdAt,_that.updatedAt);case _:
   return orElse();
 
 }
@@ -188,10 +190,10 @@ return $default(_that.id,_that.simLineId,_that.userId,_that.amount,_that.currenc
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String simLineId,  String userId,  double amount,  String currency,  int frequencyDays,  DateTime nextExecutionAt,  DateTime? lastExecutionAt,  bool isActive,  int retryCount,  int maxRetries,  String status,  DateTime? createdAt,  DateTime? updatedAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String simLineId,  String userId,  double amount,  String currency,  int frequencyDays,  DateTime nextExecutionAt,  DateTime? lastExecutionAt,  bool isActive,  int retryCount,  int maxRetries,  String status,  String scheduleType,  DateTime? createdAt,  DateTime? updatedAt)  $default,) {final _that = this;
 switch (_that) {
 case _ScheduledTopup():
-return $default(_that.id,_that.simLineId,_that.userId,_that.amount,_that.currency,_that.frequencyDays,_that.nextExecutionAt,_that.lastExecutionAt,_that.isActive,_that.retryCount,_that.maxRetries,_that.status,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.id,_that.simLineId,_that.userId,_that.amount,_that.currency,_that.frequencyDays,_that.nextExecutionAt,_that.lastExecutionAt,_that.isActive,_that.retryCount,_that.maxRetries,_that.status,_that.scheduleType,_that.createdAt,_that.updatedAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -208,10 +210,10 @@ return $default(_that.id,_that.simLineId,_that.userId,_that.amount,_that.currenc
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String simLineId,  String userId,  double amount,  String currency,  int frequencyDays,  DateTime nextExecutionAt,  DateTime? lastExecutionAt,  bool isActive,  int retryCount,  int maxRetries,  String status,  DateTime? createdAt,  DateTime? updatedAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String simLineId,  String userId,  double amount,  String currency,  int frequencyDays,  DateTime nextExecutionAt,  DateTime? lastExecutionAt,  bool isActive,  int retryCount,  int maxRetries,  String status,  String scheduleType,  DateTime? createdAt,  DateTime? updatedAt)?  $default,) {final _that = this;
 switch (_that) {
 case _ScheduledTopup() when $default != null:
-return $default(_that.id,_that.simLineId,_that.userId,_that.amount,_that.currency,_that.frequencyDays,_that.nextExecutionAt,_that.lastExecutionAt,_that.isActive,_that.retryCount,_that.maxRetries,_that.status,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.id,_that.simLineId,_that.userId,_that.amount,_that.currency,_that.frequencyDays,_that.nextExecutionAt,_that.lastExecutionAt,_that.isActive,_that.retryCount,_that.maxRetries,_that.status,_that.scheduleType,_that.createdAt,_that.updatedAt);case _:
   return null;
 
 }
@@ -223,7 +225,7 @@ return $default(_that.id,_that.simLineId,_that.userId,_that.amount,_that.currenc
 
 @JsonSerializable(fieldRename: FieldRename.snake)
 class _ScheduledTopup implements ScheduledTopup {
-  const _ScheduledTopup({required this.id, required this.simLineId, required this.userId, required this.amount, this.currency = 'USD', required this.frequencyDays, required this.nextExecutionAt, this.lastExecutionAt, this.isActive = true, this.retryCount = 0, this.maxRetries = 4, this.status = 'active', this.createdAt, this.updatedAt});
+  const _ScheduledTopup({required this.id, required this.simLineId, required this.userId, required this.amount, this.currency = 'USD', required this.frequencyDays, required this.nextExecutionAt, this.lastExecutionAt, this.isActive = true, this.retryCount = 0, this.maxRetries = 4, this.status = 'active', this.scheduleType = 'notify', this.createdAt, this.updatedAt});
   factory _ScheduledTopup.fromJson(Map<String, dynamic> json) => _$ScheduledTopupFromJson(json);
 
 @override final  String id;
@@ -239,6 +241,8 @@ class _ScheduledTopup implements ScheduledTopup {
 @override@JsonKey() final  int maxRetries;
 @override@JsonKey() final  String status;
 // 'active', 'paused', 'failed_permanently', 'completed'
+@override@JsonKey() final  String scheduleType;
+// 'notify', 'refill'
 @override final  DateTime? createdAt;
 @override final  DateTime? updatedAt;
 
@@ -255,16 +259,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ScheduledTopup&&(identical(other.id, id) || other.id == id)&&(identical(other.simLineId, simLineId) || other.simLineId == simLineId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.currency, currency) || other.currency == currency)&&(identical(other.frequencyDays, frequencyDays) || other.frequencyDays == frequencyDays)&&(identical(other.nextExecutionAt, nextExecutionAt) || other.nextExecutionAt == nextExecutionAt)&&(identical(other.lastExecutionAt, lastExecutionAt) || other.lastExecutionAt == lastExecutionAt)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.retryCount, retryCount) || other.retryCount == retryCount)&&(identical(other.maxRetries, maxRetries) || other.maxRetries == maxRetries)&&(identical(other.status, status) || other.status == status)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ScheduledTopup&&(identical(other.id, id) || other.id == id)&&(identical(other.simLineId, simLineId) || other.simLineId == simLineId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.currency, currency) || other.currency == currency)&&(identical(other.frequencyDays, frequencyDays) || other.frequencyDays == frequencyDays)&&(identical(other.nextExecutionAt, nextExecutionAt) || other.nextExecutionAt == nextExecutionAt)&&(identical(other.lastExecutionAt, lastExecutionAt) || other.lastExecutionAt == lastExecutionAt)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.retryCount, retryCount) || other.retryCount == retryCount)&&(identical(other.maxRetries, maxRetries) || other.maxRetries == maxRetries)&&(identical(other.status, status) || other.status == status)&&(identical(other.scheduleType, scheduleType) || other.scheduleType == scheduleType)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,simLineId,userId,amount,currency,frequencyDays,nextExecutionAt,lastExecutionAt,isActive,retryCount,maxRetries,status,createdAt,updatedAt);
+int get hashCode => Object.hash(runtimeType,id,simLineId,userId,amount,currency,frequencyDays,nextExecutionAt,lastExecutionAt,isActive,retryCount,maxRetries,status,scheduleType,createdAt,updatedAt);
 
 @override
 String toString() {
-  return 'ScheduledTopup(id: $id, simLineId: $simLineId, userId: $userId, amount: $amount, currency: $currency, frequencyDays: $frequencyDays, nextExecutionAt: $nextExecutionAt, lastExecutionAt: $lastExecutionAt, isActive: $isActive, retryCount: $retryCount, maxRetries: $maxRetries, status: $status, createdAt: $createdAt, updatedAt: $updatedAt)';
+  return 'ScheduledTopup(id: $id, simLineId: $simLineId, userId: $userId, amount: $amount, currency: $currency, frequencyDays: $frequencyDays, nextExecutionAt: $nextExecutionAt, lastExecutionAt: $lastExecutionAt, isActive: $isActive, retryCount: $retryCount, maxRetries: $maxRetries, status: $status, scheduleType: $scheduleType, createdAt: $createdAt, updatedAt: $updatedAt)';
 }
 
 
@@ -275,7 +279,7 @@ abstract mixin class _$ScheduledTopupCopyWith<$Res> implements $ScheduledTopupCo
   factory _$ScheduledTopupCopyWith(_ScheduledTopup value, $Res Function(_ScheduledTopup) _then) = __$ScheduledTopupCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String simLineId, String userId, double amount, String currency, int frequencyDays, DateTime nextExecutionAt, DateTime? lastExecutionAt, bool isActive, int retryCount, int maxRetries, String status, DateTime? createdAt, DateTime? updatedAt
+ String id, String simLineId, String userId, double amount, String currency, int frequencyDays, DateTime nextExecutionAt, DateTime? lastExecutionAt, bool isActive, int retryCount, int maxRetries, String status, String scheduleType, DateTime? createdAt, DateTime? updatedAt
 });
 
 
@@ -292,7 +296,7 @@ class __$ScheduledTopupCopyWithImpl<$Res>
 
 /// Create a copy of ScheduledTopup
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? simLineId = null,Object? userId = null,Object? amount = null,Object? currency = null,Object? frequencyDays = null,Object? nextExecutionAt = null,Object? lastExecutionAt = freezed,Object? isActive = null,Object? retryCount = null,Object? maxRetries = null,Object? status = null,Object? createdAt = freezed,Object? updatedAt = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? simLineId = null,Object? userId = null,Object? amount = null,Object? currency = null,Object? frequencyDays = null,Object? nextExecutionAt = null,Object? lastExecutionAt = freezed,Object? isActive = null,Object? retryCount = null,Object? maxRetries = null,Object? status = null,Object? scheduleType = null,Object? createdAt = freezed,Object? updatedAt = freezed,}) {
   return _then(_ScheduledTopup(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,simLineId: null == simLineId ? _self.simLineId : simLineId // ignore: cast_nullable_to_non_nullable
@@ -306,6 +310,7 @@ as DateTime?,isActive: null == isActive ? _self.isActive : isActive // ignore: c
 as bool,retryCount: null == retryCount ? _self.retryCount : retryCount // ignore: cast_nullable_to_non_nullable
 as int,maxRetries: null == maxRetries ? _self.maxRetries : maxRetries // ignore: cast_nullable_to_non_nullable
 as int,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as String,scheduleType: null == scheduleType ? _self.scheduleType : scheduleType // ignore: cast_nullable_to_non_nullable
 as String,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,updatedAt: freezed == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,

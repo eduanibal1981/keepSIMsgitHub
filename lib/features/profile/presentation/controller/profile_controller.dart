@@ -6,6 +6,7 @@ library;
 import 'dart:async';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:keep_sims/core/failure.dart';
 import 'package:keep_sims/core/result.dart';
@@ -58,6 +59,17 @@ class ProfileController extends _$ProfileController {
 
     switch (result) {
       case Success(data: final updated):
+        // Sync existing SIM lines' protection_tier with the new subscription tier
+        try {
+          final supabase = Supabase.instance.client;
+          await supabase
+              .from('sim_lines')
+              .update({'protection_tier': subscriptionTier})
+              .eq('user_id', profile.id);
+        } catch (e) {
+          // Silent catch to prevent onboarding or subscription upgrade failure if offline or error
+        }
+
         state = const AsyncValue.data(null);
         // Invalidate auth state to reload the profile across the entire app
         ref.invalidate(authControllerProvider);

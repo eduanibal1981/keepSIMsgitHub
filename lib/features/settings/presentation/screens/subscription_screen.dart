@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
+import 'package:keep_sims/core/utils/build_context_extension.dart';
 import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import 'package:keep_sims/features/profile/presentation/controller/profile_controller.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
@@ -218,16 +219,17 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
     final authState = ref.watch(authControllerProvider);
     final user = authState.valueOrNull;
     final String currentTier = user?.subscriptionTier ?? 'standard';
+    final isDark = context.isDarkMode;
 
     return Scaffold(
-      backgroundColor: AppColors.darkBg,
+      backgroundColor: context.scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_ios_new_rounded,
-            color: Colors.white,
+            color: context.onSurfaceColor,
             size: 20,
           ),
           onPressed: () async {
@@ -238,15 +240,15 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
         title: Text(
           'Subscription Plans',
           style: AppTextStyles.titleLarge.copyWith(
-            color: Colors.white,
+            color: context.onSurfaceColor,
             fontWeight: FontWeight.bold,
           ),
         ),
         centerTitle: true,
       ),
       body: _isUpdating
-          ? const Center(
-              child: CircularProgressIndicator(color: AppColors.primary),
+          ? Center(
+              child: CircularProgressIndicator(color: isDark ? AppColors.primary : AppColors.lightPrimary),
             )
           : Stack(
               children: [
@@ -261,7 +263,7 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.primary.withOpacity(0.12),
+                          color: (isDark ? AppColors.primary : AppColors.lightPrimary).withOpacity(0.12),
                           blurRadius: 100,
                           spreadRadius: 30,
                         ),
@@ -280,7 +282,7 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                       Text(
                         'Premium Shields & Automation',
                         style: AppTextStyles.headlineLarge.copyWith(
-                          color: Colors.white,
+                          color: context.onSurfaceColor,
                           fontSize: 24,
                           fontWeight: FontWeight.w800,
                         ),
@@ -290,7 +292,7 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                         'Keep your international SIM cards protected automatically without carrier inactivity deletions.',
                         textAlign: TextAlign.center,
                         style: AppTextStyles.bodyMedium.copyWith(
-                          color: AppColors.textSecondaryDark,
+                          color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                           height: 1.4,
                         ),
                       ),
@@ -324,12 +326,13 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
   }
 
   Widget _buildBillingToggle() {
+    final isDark = context.isDarkMode;
     return Container(
       padding: const EdgeInsets.all(4.0),
       decoration: BoxDecoration(
-        color: AppColors.darkCard,
+        color: isDark ? AppColors.darkCard : const Color(0xFFEAEEF1),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.darkBorder, width: 1.2),
+        border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder, width: 1.2),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -344,13 +347,18 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               decoration: BoxDecoration(
-                color: !_isAnnually ? AppColors.darkBorder : Colors.transparent,
+                color: !_isAnnually ? (isDark ? AppColors.darkBorder : Colors.white) : Colors.transparent,
                 borderRadius: BorderRadius.circular(12),
+                boxShadow: !_isAnnually && !isDark
+                    ? const [
+                        BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2)),
+                      ]
+                    : null,
               ),
               child: Text(
                 'Monthly',
                 style: AppTextStyles.labelLarge.copyWith(
-                  color: !_isAnnually ? Colors.white : AppColors.textSecondaryDark,
+                  color: !_isAnnually ? context.onSurfaceColor : (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -366,15 +374,20 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               decoration: BoxDecoration(
-                color: _isAnnually ? AppColors.darkBorder : Colors.transparent,
+                color: _isAnnually ? (isDark ? AppColors.darkBorder : Colors.white) : Colors.transparent,
                 borderRadius: BorderRadius.circular(12),
+                boxShadow: _isAnnually && !isDark
+                    ? const [
+                        BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2)),
+                      ]
+                    : null,
               ),
               child: Row(
                 children: [
                   Text(
                     'Annually',
                     style: AppTextStyles.labelLarge.copyWith(
-                      color: _isAnnually ? Colors.white : AppColors.textSecondaryDark,
+                      color: _isAnnually ? context.onSurfaceColor : (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -402,18 +415,22 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
       ),
     );
   }
+
   Widget _buildInteractiveCalculator() {
+    final isDark = context.isDarkMode;
+    final primaryThemeColor = isDark ? AppColors.primary : AppColors.lightPrimary;
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.darkCard.withOpacity(0.8),
+        color: isDark ? AppColors.darkCard.withOpacity(0.8) : Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withOpacity(0.06)),
-        boxShadow: const [
+        border: Border.all(color: isDark ? Colors.white.withOpacity(0.06) : AppColors.lightBorder),
+        boxShadow: [
           BoxShadow(
-            color: Colors.black26,
+            color: isDark ? Colors.black26 : Colors.black.withOpacity(0.04),
             blurRadius: 10,
-            offset: Offset(0, 4),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -429,7 +446,7 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                     Text(
                       'SIM Lines Calculator',
                       style: AppTextStyles.titleMedium.copyWith(
-                        color: Colors.white,
+                        color: context.onSurfaceColor,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -437,7 +454,7 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                     Text(
                       'Drag to preview pricing for your active lines',
                       style: AppTextStyles.bodySmall.copyWith(
-                        color: AppColors.textSecondaryDark,
+                        color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                       ),
                     ),
                   ],
@@ -447,14 +464,14 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.15),
+                  color: primaryThemeColor.withOpacity(0.15),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+                  border: Border.all(color: primaryThemeColor.withOpacity(0.3)),
                 ),
                 child: Text(
                   '$_sliderLinesCount ${_sliderLinesCount == 1 ? 'Line' : 'Lines'}',
                   style: AppTextStyles.titleLarge.copyWith(
-                    color: AppColors.primary,
+                    color: primaryThemeColor,
                     fontWeight: FontWeight.w900,
                   ),
                 ),
@@ -464,11 +481,11 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
           const SizedBox(height: 16),
           SliderTheme(
             data: SliderTheme.of(context).copyWith(
-              activeTrackColor: AppColors.primary,
-              inactiveTrackColor: Colors.white12,
-              thumbColor: Colors.white,
-              overlayColor: AppColors.primary.withOpacity(0.15),
-              valueIndicatorColor: AppColors.primary,
+              activeTrackColor: primaryThemeColor,
+              inactiveTrackColor: isDark ? Colors.white12 : Colors.black12,
+              thumbColor: isDark ? Colors.white : primaryThemeColor,
+              overlayColor: primaryThemeColor.withOpacity(0.15),
+              valueIndicatorColor: primaryThemeColor,
               valueIndicatorTextStyle: const TextStyle(color: Colors.white),
             ),
             child: Slider(
@@ -490,8 +507,8 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('1 Line', style: AppTextStyles.caption.copyWith(color: AppColors.textSecondaryDark)),
-                Text('10+ Lines', style: AppTextStyles.caption.copyWith(color: AppColors.textSecondaryDark)),
+                Text('1 Line', style: AppTextStyles.caption.copyWith(color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight)),
+                Text('10+ Lines', style: AppTextStyles.caption.copyWith(color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight)),
               ],
             ),
           ),
@@ -507,6 +524,7 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
     final bool isFree = planId == 'basic';
     final Color planColor = plan['color'] as Color;
     final bool isPopular = plan['isPopular'] ?? false;
+    final isDark = context.isDarkMode;
 
     // Check if plan is disabled for current line count
     bool isPlanDisabled = false;
@@ -521,23 +539,23 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.darkCard.withOpacity(0.6),
+        color: isDark ? AppColors.darkCard.withOpacity(0.6) : Colors.white,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: isCurrent ? planColor : Colors.white.withOpacity(0.08),
+          color: isCurrent ? planColor : (isDark ? Colors.white.withOpacity(0.08) : AppColors.lightBorder),
           width: isCurrent ? 2.0 : 1.0,
         ),
         boxShadow: isCurrent
             ? [
                 BoxShadow(
-                  color: planColor.withOpacity(0.12),
+                  color: planColor.withOpacity(isDark ? 0.12 : 0.08),
                   blurRadius: 20,
                   offset: const Offset(0, 10),
                 )
               ]
             : [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
+                  color: isDark ? Colors.black.withOpacity(0.2) : Colors.black.withOpacity(0.03),
                   blurRadius: 15,
                   offset: const Offset(0, 6),
                 )
@@ -582,7 +600,7 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                       Text(
                         plan['title'],
                         style: AppTextStyles.headlineSmall.copyWith(
-                          color: Colors.white,
+                          color: context.onSurfaceColor,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -594,7 +612,7 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                             Text(
                               '\$$price',
                               style: AppTextStyles.headlineLarge.copyWith(
-                                color: Colors.white,
+                                color: context.onSurfaceColor,
                                 fontWeight: FontWeight.w900,
                                 fontSize: 32,
                               ),
@@ -603,7 +621,7 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                             Text(
                               isFree ? 'Always free' : '/mo',
                               style: AppTextStyles.bodySmall.copyWith(
-                                color: AppColors.textSecondaryDark,
+                                color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                               ),
                             ),
                           ],
@@ -644,11 +662,11 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                   Text(
                     plan['desc'],
                     style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.textSecondaryDark,
+                      color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                       height: 1.3,
                     ),
                   ),
-                  const Divider(color: AppColors.darkBorder, height: 28, thickness: 1.2),
+                  Divider(color: isDark ? AppColors.darkBorder : AppColors.lightBorder, height: 28, thickness: 1.2),
 
                   // Feature Checklist
                   ...((plan['features'] as List<String>).map((feature) {
@@ -662,7 +680,7 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                             child: Text(
                               feature,
                               style: AppTextStyles.bodyMedium.copyWith(
-                                color: Colors.white.withOpacity(0.9),
+                                color: context.onSurfaceColor.withOpacity(0.9),
                               ),
                             ),
                           ),
@@ -679,13 +697,13 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                     child: ElevatedButton(
                       onPressed: (isCurrent || isPlanDisabled) ? null : () => _updatePlan(plan['id']),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: isCurrent ? Colors.white.withOpacity(0.04) : planColor,
+                        backgroundColor: isCurrent ? (isDark ? Colors.white.withOpacity(0.04) : Colors.black.withOpacity(0.04)) : planColor,
                         foregroundColor: Colors.white,
-                        disabledBackgroundColor: Colors.white.withOpacity(0.04),
+                        disabledBackgroundColor: isDark ? Colors.white.withOpacity(0.04) : Colors.black.withOpacity(0.04),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                           side: isCurrent
-                              ? BorderSide(color: Colors.white.withOpacity(0.1))
+                              ? BorderSide(color: isDark ? Colors.white.withOpacity(0.1) : Colors.black.withOpacity(0.1))
                               : BorderSide.none,
                         ),
                         elevation: isCurrent ? 0 : 5,
@@ -698,7 +716,7 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                                 ? disabledMessage
                                 : 'Select ${plan['title']}',
                         style: TextStyle(
-                          color: (isCurrent || isPlanDisabled) ? AppColors.textSecondaryDark : Colors.white,
+                          color: (isCurrent || isPlanDisabled) ? (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight) : Colors.white,
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
                         ),
