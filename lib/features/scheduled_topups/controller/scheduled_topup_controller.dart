@@ -176,21 +176,35 @@ ScheduledTopup? scheduledNotifyForLine(
   return null;
 }
 
-/// Helper provider to get Refill schedule for a specific SIM line.
+/// Helper provider to get Custom Refill schedule for a specific SIM line.
 @riverpod
-ScheduledTopup? scheduledRefillForLine(
-  ScheduledRefillForLineRef ref,
+ScheduledTopup? scheduledCustomRefillForLine(
+  ScheduledCustomRefillForLineRef ref,
   String simLineId,
 ) {
   final schedulesAsync = ref.watch(scheduledTopupControllerProvider);
   final list = schedulesAsync.valueOrNull;
   if (list == null) return null;
   for (final s in list) {
-    if (s.simLineId == simLineId && s.scheduleType == 'refill') return s;
+    if (s.simLineId == simLineId && s.scheduleType == 'refill custom') return s;
   }
   return null;
 }
 
+/// Helper provider to get Mini Refill schedule for a specific SIM line.
+@riverpod
+ScheduledTopup? scheduledMiniRefillForLine(
+  ScheduledMiniRefillForLineRef ref,
+  String simLineId,
+) {
+  final schedulesAsync = ref.watch(scheduledTopupControllerProvider);
+  final list = schedulesAsync.valueOrNull;
+  if (list == null) return null;
+  for (final s in list) {
+    if (s.simLineId == simLineId && s.scheduleType == 'refill mini') return s;
+  }
+  return null;
+}
 
 /// Family provider to watch execution history for a SIM Line.
 @riverpod
@@ -242,15 +256,15 @@ class SimLineExecutionsHistory extends _$SimLineExecutionsHistory {
 
     _isLoadingMore = true;
     final currentList = state.valueOrNull ?? [];
-    
+
     try {
       final nextPage = _currentPage + 1;
       final result = await _fetchPage(nextPage);
-      
+
       if (result.isEmpty || result.length < 15) {
         _hasMore = false;
       }
-      
+
       _currentPage = nextPage;
       state = AsyncValue.data([...currentList, ...result]);
     } catch (e, st) {

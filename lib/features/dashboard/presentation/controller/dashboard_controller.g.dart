@@ -7,7 +7,7 @@ part of 'dashboard_controller.dart';
 // **************************************************************************
 
 String _$dashboardControllerHash() =>
-    r'6a1841d09c73ccbba1835dd6d864f0103dd53b95';
+    r'c482c929d06537f7c17d5e55384c1391d5e041a0';
 
 /// Managing aggregated dashboard state.
 ///

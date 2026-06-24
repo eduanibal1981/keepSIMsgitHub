@@ -689,7 +689,9 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
       decoration: BoxDecoration(
         color: context.cardColor.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: context.onSurfaceColor.withValues(alpha: 0.06)),
+        border: Border.all(
+          color: context.onSurfaceColor.withValues(alpha: 0.06),
+        ),
       ),
       child: Row(
         children: modes.map((mode) {
@@ -718,7 +720,9 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
                   boxShadow: isSelected
                       ? [
                           BoxShadow(
-                            color: const Color(0xFF6366F1).withValues(alpha: 0.3),
+                            color: const Color(
+                              0xFF6366F1,
+                            ).withValues(alpha: 0.3),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
@@ -776,7 +780,9 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
       decoration: BoxDecoration(
         color: context.cardColor.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: context.onSurfaceColor.withValues(alpha: 0.06)),
+        border: Border.all(
+          color: context.onSurfaceColor.withValues(alpha: 0.06),
+        ),
       ),
       child: ListTile(
         onTap: () async {
@@ -849,7 +855,9 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
       decoration: BoxDecoration(
         color: context.cardColor.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: context.onSurfaceColor.withValues(alpha: 0.06)),
+        border: Border.all(
+          color: context.onSurfaceColor.withValues(alpha: 0.06),
+        ),
       ),
       child: Column(
         children: [
@@ -897,7 +905,10 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
             ),
           ),
 
-          Divider(color: context.onSurfaceColor.withValues(alpha: 0.05), height: 1),
+          Divider(
+            color: context.onSurfaceColor.withValues(alpha: 0.05),
+            height: 1,
+          ),
 
           // Transaction PIN Card Trigger
           ListTile(
@@ -973,7 +984,9 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
       decoration: BoxDecoration(
         color: context.cardColor.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: context.onSurfaceColor.withValues(alpha: 0.06)),
+        border: Border.all(
+          color: context.onSurfaceColor.withValues(alpha: 0.06),
+        ),
       ),
       child: Column(
         children: [
@@ -1023,7 +1036,10 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
             ),
           ),
 
-          Divider(color: context.onSurfaceColor.withValues(alpha: 0.05), height: 1),
+          Divider(
+            color: context.onSurfaceColor.withValues(alpha: 0.05),
+            height: 1,
+          ),
 
           // Quiet Hours Config Row
           Padding(
@@ -1069,10 +1085,14 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
                             horizontal: 16,
                           ),
                           decoration: BoxDecoration(
-                            color: context.onSurfaceColor.withValues(alpha: 0.04),
+                            color: context.onSurfaceColor.withValues(
+                              alpha: 0.04,
+                            ),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: context.onSurfaceColor.withValues(alpha: 0.05),
+                              color: context.onSurfaceColor.withValues(
+                                alpha: 0.05,
+                              ),
                             ),
                           ),
                           child: Column(
@@ -1081,8 +1101,8 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
                               Text(
                                 'START TIME',
                                 style: AppTextStyles.bodySmall.copyWith(
-                                  color: context.onSurfaceColor.withValues(alpha: 
-                                    0.6,
+                                  color: context.onSurfaceColor.withValues(
+                                    alpha: 0.6,
                                   ),
                                   fontSize: 9,
                                   fontWeight: FontWeight.bold,
@@ -1125,10 +1145,14 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
                             horizontal: 16,
                           ),
                           decoration: BoxDecoration(
-                            color: context.onSurfaceColor.withValues(alpha: 0.04),
+                            color: context.onSurfaceColor.withValues(
+                              alpha: 0.04,
+                            ),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: context.onSurfaceColor.withValues(alpha: 0.05),
+                              color: context.onSurfaceColor.withValues(
+                                alpha: 0.05,
+                              ),
                             ),
                           ),
                           child: Column(
@@ -1137,8 +1161,8 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
                               Text(
                                 'END TIME',
                                 style: AppTextStyles.bodySmall.copyWith(
-                                  color: context.onSurfaceColor.withValues(alpha: 
-                                    0.6,
+                                  color: context.onSurfaceColor.withValues(
+                                    alpha: 0.6,
                                   ),
                                   fontSize: 9,
                                   fontWeight: FontWeight.bold,

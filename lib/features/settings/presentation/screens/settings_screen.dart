@@ -37,7 +37,9 @@ class SettingsScreen extends ConsumerWidget {
               Text(
                 'Manage your profile, SIM lines, alerts, and shared preferences',
                 style: AppTextStyles.bodyMedium.copyWith(
-                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                  color: isDark
+                      ? AppColors.textSecondaryDark
+                      : AppColors.textSecondaryLight,
                 ),
               ),
               const SizedBox(height: 24),
@@ -47,10 +49,14 @@ class SettingsScreen extends ConsumerWidget {
                 Container(
                   padding: const EdgeInsets.all(20.0),
                   decoration: BoxDecoration(
-                    color: isDark ? AppColors.darkCard.withOpacity(0.6) : AppColors.lightCard,
+                    color: isDark
+                        ? AppColors.darkCard.withOpacity(0.6)
+                        : AppColors.lightCard,
                     borderRadius: BorderRadius.circular(24),
                     border: Border.all(
-                      color: isDark ? Colors.white.withOpacity(0.08) : AppColors.lightBorder,
+                      color: isDark
+                          ? Colors.white.withOpacity(0.08)
+                          : AppColors.lightBorder,
                       width: 1.0,
                     ),
                     boxShadow: [
@@ -146,7 +152,9 @@ class SettingsScreen extends ConsumerWidget {
                             Text(
                               user.email,
                               style: AppTextStyles.bodyMedium.copyWith(
-                                color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                                color: isDark
+                                    ? AppColors.textSecondaryDark
+                                    : AppColors.textSecondaryLight,
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -158,77 +166,25 @@ class SettingsScreen extends ConsumerWidget {
                                   vertical: 4,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: isDark ? Colors.white.withOpacity(0.06) : Colors.black.withOpacity(0.04),
+                                  color: isDark
+                                      ? Colors.white.withOpacity(0.06)
+                                      : Colors.black.withOpacity(0.04),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Text(
                                   '🌍 Home Country: ${user.homeCountryCode!.toUpperCase()}',
                                   style: AppTextStyles.bodySmall.copyWith(
-                                    color: isDark ? Colors.white.withOpacity(0.8) : context.onSurfaceColor.withOpacity(0.8),
+                                    color: isDark
+                                        ? Colors.white.withOpacity(0.8)
+                                        : context.onSurfaceColor.withOpacity(
+                                            0.8,
+                                          ),
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
                               ),
                             ],
                             const SizedBox(height: 6),
-                            Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 4,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: _getPlanColor(user.subscriptionTier).withOpacity(0.12),
-                                    borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(
-                                      color: _getPlanColor(user.subscriptionTier).withOpacity(0.4),
-                                      width: 1.0,
-                                    ),
-                                  ),
-                                  child: Text(
-                                    '🛡️ ${_getPlanName(user.subscriptionTier).toUpperCase()}',
-                                    style: AppTextStyles.bodySmall.copyWith(
-                                      color: _getPlanColor(user.subscriptionTier),
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                InkWell(
-                                  onTap: () {
-                                    context.push('/settings/subscription');
-                                  },
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 4,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.04),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Text(
-                                          'Upgrade',
-                                          style: AppTextStyles.bodySmall.copyWith(
-                                            color: Colors.purpleAccent,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        const Icon(
-                                          Icons.keyboard_arrow_right_rounded,
-                                          color: Colors.purpleAccent,
-                                          size: 14,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
                           ],
                         ),
                       ),
@@ -242,22 +198,16 @@ class SettingsScreen extends ConsumerWidget {
               Text(
                 'Console',
                 style: AppTextStyles.bodyMedium.copyWith(
-                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                  color: isDark
+                      ? AppColors.textSecondaryDark
+                      : AppColors.textSecondaryLight,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1.0,
                 ),
               ),
               const SizedBox(height: 12),
 
-              _buildMenuCard(
-                context: context,
-                icon: Icons.star_border_rounded,
-                iconColor: Colors.purpleAccent,
-                title: 'Upgrade & Subscription',
-                subtitle: 'Manage active protection plans, limits, and billing',
-                routePath: '/settings/subscription',
-              ),
-              const SizedBox(height: 16),
+
 
               _buildMenuCard(
                 context: context,
@@ -289,7 +239,6 @@ class SettingsScreen extends ConsumerWidget {
               //   routePath: '/settings/household',
               // ),
               // const SizedBox(height: 16),
-
               _buildMenuCard(
                 context: context,
                 icon: Icons.notifications_none_rounded,
@@ -342,7 +291,7 @@ class SettingsScreen extends ConsumerWidget {
                 routePath: '/settings/preferences',
                 isComingSoon: false,
               ),
-              
+
               if (user != null && user.isPowerUser) ...[
                 const SizedBox(height: 16),
                 _buildMenuCard(
@@ -355,7 +304,7 @@ class SettingsScreen extends ConsumerWidget {
                   isComingSoon: false,
                 ),
               ],
-              
+
               const SizedBox(height: 36),
 
               // ── Log Out Button ─────────────────────────────────────
@@ -407,9 +356,16 @@ class SettingsScreen extends ConsumerWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkCard.withOpacity(0.4) : AppColors.lightCard,
+        color: isDark
+            ? AppColors.darkCard.withOpacity(0.4)
+            : AppColors.lightCard,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: isDark ? Colors.white.withOpacity(0.06) : AppColors.lightBorder, width: 1.0),
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withOpacity(0.06)
+              : AppColors.lightBorder,
+          width: 1.0,
+        ),
         boxShadow: isDark
             ? null
             : [
@@ -430,9 +386,13 @@ class SettingsScreen extends ConsumerWidget {
                 SnackBar(
                   content: Text(
                     '$title feature is coming soon!',
-                    style: TextStyle(color: isDark ? Colors.white : AppColors.textPrimaryLight),
+                    style: TextStyle(
+                      color: isDark ? Colors.white : AppColors.textPrimaryLight,
+                    ),
                   ),
-                  backgroundColor: isDark ? AppColors.darkCard : AppColors.lightCard,
+                  backgroundColor: isDark
+                      ? AppColors.darkCard
+                      : AppColors.lightCard,
                 ),
               );
             } else {
@@ -481,13 +441,17 @@ class SettingsScreen extends ConsumerWidget {
                                 vertical: 2,
                               ),
                               decoration: BoxDecoration(
-                                color: isDark ? Colors.white.withOpacity(0.08) : Colors.black.withOpacity(0.04),
+                                color: isDark
+                                    ? Colors.white.withOpacity(0.08)
+                                    : Colors.black.withOpacity(0.04),
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
                                 'SOON',
                                 style: AppTextStyles.bodySmall.copyWith(
-                                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                                  color: isDark
+                                      ? AppColors.textSecondaryDark
+                                      : AppColors.textSecondaryLight,
                                   fontSize: 8,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -500,7 +464,9 @@ class SettingsScreen extends ConsumerWidget {
                       Text(
                         subtitle,
                         style: AppTextStyles.bodySmall.copyWith(
-                          color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                          color: isDark
+                              ? AppColors.textSecondaryDark
+                              : AppColors.textSecondaryLight,
                         ),
                       ),
                     ],
@@ -508,7 +474,9 @@ class SettingsScreen extends ConsumerWidget {
                 ),
                 Icon(
                   Icons.chevron_right_rounded,
-                  color: isDark ? Colors.white.withOpacity(0.3) : AppColors.textTertiaryLight,
+                  color: isDark
+                      ? Colors.white.withOpacity(0.3)
+                      : AppColors.textTertiaryLight,
                   size: 24,
                 ),
               ],
@@ -528,19 +496,27 @@ class SettingsScreen extends ConsumerWidget {
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
-          side: isDark ? BorderSide.none : const BorderSide(color: AppColors.lightBorder),
+          side: isDark
+              ? BorderSide.none
+              : const BorderSide(color: AppColors.lightBorder),
         ),
         title: Text('Log Out', style: TextStyle(color: context.onSurfaceColor)),
         content: Text(
           'Are you sure you want to log out of SIM Shield?',
-          style: TextStyle(color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+          style: TextStyle(
+            color: isDark
+                ? AppColors.textSecondaryDark
+                : AppColors.textSecondaryLight,
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(
               'Cancel',
-              style: TextStyle(color: isDark ? Colors.white70 : AppColors.textSecondaryLight),
+              style: TextStyle(
+                color: isDark ? Colors.white70 : AppColors.textSecondaryLight,
+              ),
             ),
           ),
           ElevatedButton(
@@ -561,29 +537,4 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-  Color _getPlanColor(String tier) {
-    switch (tier.toLowerCase()) {
-      case 'basic':
-        return Colors.blueAccent;
-      case 'standard':
-        return AppColors.primary;
-      case 'premium':
-        return Colors.purpleAccent;
-      default:
-        return AppColors.primary;
-    }
-  }
-
-  String _getPlanName(String tier) {
-    switch (tier.toLowerCase()) {
-      case 'basic':
-        return 'Free';
-      case 'standard':
-        return 'Starter';
-      case 'premium':
-        return 'Premium';
-      default:
-        return 'Starter';
-    }
-  }
 }

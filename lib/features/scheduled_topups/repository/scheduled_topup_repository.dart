@@ -32,10 +32,13 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
     if (_connectivity.isOffline) {
       final cached = _cache.readJson('cached_schedules');
       if (cached is List) {
-        return Success(cached
-            .map((json) =>
-                ScheduledTopup.fromJson(json as Map<String, dynamic>))
-            .toList());
+        return Success(
+          cached
+              .map(
+                (json) => ScheduledTopup.fromJson(json as Map<String, dynamic>),
+              )
+              .toList(),
+        );
       }
       return const Success([]);
     }
@@ -63,10 +66,13 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
     } on PostgrestException catch (e) {
       final cached = _cache.readJson('cached_schedules');
       if (cached is List) {
-        return Success(cached
-            .map((json) =>
-                ScheduledTopup.fromJson(json as Map<String, dynamic>))
-            .toList());
+        return Success(
+          cached
+              .map(
+                (json) => ScheduledTopup.fromJson(json as Map<String, dynamic>),
+              )
+              .toList(),
+        );
       }
       return Failure(AppFailure.server(message: e.message));
     } catch (e) {
@@ -78,7 +84,9 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
   Future<Result<ScheduledTopup?>> getScheduleForLine(String simLineId) async {
     if (_connectivity.isOffline) {
       final cached = _cache.readJson('cached_schedules') as List? ?? [];
-      final matches = cached.where((e) => e is Map && e['sim_line_id'] == simLineId);
+      final matches = cached.where(
+        (e) => e is Map && e['sim_line_id'] == simLineId,
+      );
       if (matches.isNotEmpty) {
         return Success(
           ScheduledTopup.fromJson(matches.first as Map<String, dynamic>),
@@ -110,7 +118,9 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
       return Success(ScheduledTopup.fromJson(response));
     } on PostgrestException catch (e) {
       final cached = _cache.readJson('cached_schedules') as List? ?? [];
-      final matches = cached.where((e) => e is Map && e['sim_line_id'] == simLineId);
+      final matches = cached.where(
+        (e) => e is Map && e['sim_line_id'] == simLineId,
+      );
       if (matches.isNotEmpty) {
         return Success(
           ScheduledTopup.fromJson(matches.first as Map<String, dynamic>),
@@ -125,10 +135,11 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
   @override
   Future<Result<ScheduledTopup>> createSchedule(ScheduledTopup schedule) async {
     if (_connectivity.isOffline) {
-      if (schedule.scheduleType == 'refill') {
+      if (schedule.scheduleType.startsWith('refill')) {
         return const Failure(
           AppFailure.server(
-            message: 'Auto-Refill settings require an active internet connection.',
+            message:
+                'Auto-Refill settings require an active internet connection.',
           ),
         );
       }
@@ -143,10 +154,12 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
 
       final cached = _cache.readJson('cached_schedules') as List? ?? [];
       final updatedCache = cached
-          .where((item) =>
-              item is Map &&
-              !(item['sim_line_id'] == schedule.simLineId &&
-                  item['schedule_type'] == schedule.scheduleType))
+          .where(
+            (item) =>
+                item is Map &&
+                !(item['sim_line_id'] == schedule.simLineId &&
+                    item['schedule_type'] == schedule.scheduleType),
+          )
           .toList();
       updatedCache.add(data);
       await _cache.writeJson('cached_schedules', updatedCache);
@@ -220,10 +233,11 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
   @override
   Future<Result<ScheduledTopup>> updateSchedule(ScheduledTopup schedule) async {
     if (_connectivity.isOffline) {
-      if (schedule.scheduleType == 'refill') {
+      if (schedule.scheduleType.startsWith('refill')) {
         return const Failure(
           AppFailure.server(
-            message: 'Auto-Refill settings require an active internet connection.',
+            message:
+                'Auto-Refill settings require an active internet connection.',
           ),
         );
       }
@@ -493,9 +507,12 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
 
       // 7. Update Schedule Dates
       int delayDays = schedule.frequencyDays;
-      if (delayDays == 90) delayDays = 85;
-      else if (delayDays == 30) delayDays = 28;
-      else if (delayDays == 14) delayDays = 13;
+      if (delayDays == 90)
+        delayDays = 85;
+      else if (delayDays == 30)
+        delayDays = 28;
+      else if (delayDays == 14)
+        delayDays = 13;
 
       final nextExec = DateTime.now().toUtc().add(
         schedule.frequencyDays == 0
@@ -613,7 +630,9 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
           .select()
           .eq('sim_line_id', simLineId)
           .eq('user_id', userId)
-          .or('reloadly_transaction_id.is.null,reloadly_transaction_id.not.like.MOCK_%')
+          .or(
+            'reloadly_transaction_id.is.null,reloadly_transaction_id.not.like.MOCK_%',
+          )
           .order('executed_at', ascending: false)
           .range(start, end);
 
@@ -777,9 +796,12 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
 
       // 8. Update Schedule Dates and reset retry count
       int delayDays = schedule.frequencyDays;
-      if (delayDays == 90) delayDays = 85;
-      else if (delayDays == 30) delayDays = 28;
-      else if (delayDays == 14) delayDays = 13;
+      if (delayDays == 90)
+        delayDays = 85;
+      else if (delayDays == 30)
+        delayDays = 28;
+      else if (delayDays == 14)
+        delayDays = 13;
 
       final nextExec = DateTime.now().toUtc().add(
         schedule.frequencyDays == 0

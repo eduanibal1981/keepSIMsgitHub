@@ -10,7 +10,12 @@ import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/country_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/carrier_model.dart';
+//import 'package:keep_sims/features/sim_lines/domain/entities/sim_line.dart';
+import 'package:keep_sims/features/settings/presentation/screens/paypal_simulator_screen.dart';
+import 'package:keep_sims/features/sim_lines/data/repositories/sim_lines_repository_impl.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
+
+import '../../data/models/carrier_rule_model.dart';
 
 class SimLineFormScreen extends ConsumerStatefulWidget {
   final String? id;
@@ -29,7 +34,8 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
   Country? _selectedCountry;
   Carrier? _selectedCarrier;
   String _selectedIcon = 'sim_card';
-  String _selectedTier = 'standard';
+  String _selectedTier = 'free'; // default to free
+  bool _isFreePlanDisabled = false;
 
   bool _isEdit = false;
   bool _hasPrepopulated = false;
@@ -123,6 +129,17 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
 
     final isDark = context.isDarkMode;
 
+    // Fetch premium pricing if carrier is selected
+    CarrierRule? premiumRule;
+    bool isPremiumLoading = false;
+    if (_selectedCountry != null && _selectedCarrier != null) {
+      final ruleAsync = ref.watch(
+        carrierRuleProvider(_selectedCarrier!.id),
+      );
+      premiumRule = ruleAsync.valueOrNull;
+      isPremiumLoading = ruleAsync.isLoading;
+    }
+
     return Scaffold(
       backgroundColor: context.scaffoldBackgroundColor,
       appBar: AppBar(
@@ -170,12 +187,18 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                           decoration: BoxDecoration(
                             color: isDark ? AppColors.darkCard : Colors.white,
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+                            border: Border.all(
+                              color: isDark
+                                  ? AppColors.darkBorder
+                                  : AppColors.lightBorder,
+                            ),
                             boxShadow: isDark
                                 ? null
                                 : [
                                     BoxShadow(
-                                      color: AppColors.lightPrimary.withOpacity(0.04),
+                                      color: AppColors.lightPrimary.withOpacity(
+                                        0.04,
+                                      ),
                                       blurRadius: 10,
                                       offset: const Offset(0, 4),
                                     ),
@@ -219,17 +242,17 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                  return 'Please enter phone number';
-                                }
-                                if (_selectedCountry == null) {
-                                  return 'Please select a country first';
-                                }
-                                return null;
-                              },
-                            ),
+                                return 'Please enter phone number';
+                              }
+                              if (_selectedCountry == null) {
+                                return 'Please select a country first';
+                              }
+                              return null;
+                            },
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
+                    ),
                     const SizedBox(height: 24),
 
                     // Dynamic Carrier brand dropdown
@@ -243,7 +266,10 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                     const SizedBox(height: 12),
                     TextFormField(
                       controller: _nicknameController,
-                      style: TextStyle(color: context.onSurfaceColor, fontSize: 16),
+                      style: TextStyle(
+                        color: context.onSurfaceColor,
+                        fontSize: 16,
+                      ),
                       decoration: _buildInputDecoration(
                         context,
                         hintText: 'e.g. My Egypt Orange SIM',
@@ -261,7 +287,13 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                     // Protection Tier Dynamic Billing Info Card
                     _buildSectionHeader(context, 'PROTECTION BILLING DETAILS'),
                     const SizedBox(height: 12),
-                    _buildDynamicBillingSection(globalTier, lineOrdinalPosition, widget.id),
+                    _buildTierGrid(premiumRule, isPremiumLoading),
+                    const SizedBox(height: 32),
+                    _buildDynamicBillingSection(
+                      _selectedTier,
+                      premiumRule,
+                      isPremiumLoading,
+                    ),
                     const SizedBox(height: 48),
 
                     // Glowing Action Save Button
@@ -297,15 +329,30 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
     );
   }
 
-  Widget _buildSectionHeader(BuildContext context, String title) {
+  Widget _buildSectionHeader(BuildContext context, String title, {VoidCallback? onHelpTap}) {
     final isDark = context.isDarkMode;
-    return Text(
+    final textWidget = Text(
       title,
       style: AppTextStyles.labelMedium.copyWith(
         color: isDark ? AppColors.primaryLight : AppColors.lightPrimary,
         fontWeight: FontWeight.bold,
         letterSpacing: 1.5,
       ),
+    );
+
+    if (onHelpTap == null) return textWidget;
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        textWidget,
+        IconButton(
+          onPressed: onHelpTap,
+          icon: Icon(Icons.help_outline_rounded, color: context.primaryColor, size: 20),
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints(),
+        ),
+      ],
     );
   }
 
@@ -318,21 +365,33 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
     final isDark = context.isDarkMode;
     return InputDecoration(
       hintText: hintText,
-      hintStyle: TextStyle(color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight),
+      hintStyle: TextStyle(
+        color: isDark
+            ? AppColors.textTertiaryDark
+            : AppColors.textTertiaryLight,
+      ),
       prefixText: prefixText,
       prefixStyle: const TextStyle(fontSize: 16),
-      prefixIcon: Icon(icon, color: isDark ? AppColors.primaryLight : AppColors.lightPrimary, size: 20),
+      prefixIcon: Icon(
+        icon,
+        color: isDark ? AppColors.primaryLight : AppColors.lightPrimary,
+        size: 20,
+      ),
       filled: true,
       fillColor: isDark ? AppColors.darkCard : const Color(0xFFEAEEF1),
       errorStyle: const TextStyle(color: AppColors.error),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+        borderSide: BorderSide(
+          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+        ),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(color: isDark ? AppColors.primary : AppColors.lightPrimary),
+        borderSide: BorderSide(
+          color: isDark ? AppColors.primary : AppColors.lightPrimary,
+        ),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
@@ -355,7 +414,9 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
         decoration: BoxDecoration(
           color: isDark ? AppColors.darkCard : Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+          border: Border.all(
+            color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+          ),
           boxShadow: isDark
               ? null
               : [
@@ -383,14 +444,18 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                 style: TextStyle(
                   color: _selectedCountry != null
                       ? context.onSurfaceColor
-                      : (isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight),
+                      : (isDark
+                            ? AppColors.textTertiaryDark
+                            : AppColors.textTertiaryLight),
                   fontSize: 16,
                 ),
               ),
             ),
             Icon(
               Icons.arrow_drop_down,
-              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+              color: isDark
+                  ? AppColors.textSecondaryDark
+                  : AppColors.textSecondaryLight,
             ),
           ],
         ),
@@ -405,7 +470,9 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCard : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+        border: Border.all(
+          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+        ),
         boxShadow: isDark
             ? null
             : [
@@ -421,13 +488,20 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
           value: _selectedCarrier,
           hint: Text(
             'Select Carrier brand',
-            style: TextStyle(color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight, fontSize: 16),
+            style: TextStyle(
+              color: isDark
+                  ? AppColors.textTertiaryDark
+                  : AppColors.textTertiaryLight,
+              fontSize: 16,
+            ),
           ),
           dropdownColor: isDark ? AppColors.darkSurface : Colors.white,
           style: TextStyle(color: context.onSurfaceColor, fontSize: 16),
           icon: Icon(
             Icons.arrow_drop_down,
-            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+            color: isDark
+                ? AppColors.textSecondaryDark
+                : AppColors.textSecondaryLight,
           ),
           items: carriers.map((c) {
             return DropdownMenuItem<Carrier>(value: c, child: Text(c.name));
@@ -481,7 +555,8 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
             height: 64,
             decoration: BoxDecoration(
               color: isSelected
-                  ? (isDark ? AppColors.primary : AppColors.lightPrimary).withOpacity(0.15)
+                  ? (isDark ? AppColors.primary : AppColors.lightPrimary)
+                        .withOpacity(0.15)
                   : (isDark ? AppColors.darkCard : Colors.white),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
@@ -504,7 +579,9 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
               getIcon(iconKey),
               color: isSelected
                   ? (isDark ? AppColors.primaryLight : AppColors.lightPrimary)
-                  : (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+                  : (isDark
+                        ? AppColors.textSecondaryDark
+                        : AppColors.textSecondaryLight),
               size: 28,
             ),
           ),
@@ -514,317 +591,260 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
   }
 
   Widget _buildDynamicBillingSection(
-    String globalTier,
-    int ordinalPosition,
-    String? currentLineId,
+    String selectedTier,
+    CarrierRule? premiumRule,
+    bool isPremiumLoading,
   ) {
     final isDark = context.isDarkMode;
-    final bool isStarter = globalTier == 'standard';
-    final bool isPremium = globalTier == 'premium';
-    final bool isFree = globalTier == 'basic';
+    final bool isStandard = selectedTier == 'standard';
+    final bool isPremium = selectedTier == 'premium';
+    final bool isFree = selectedTier == 'free';
 
-    String planName = 'Starter Plan';
-    Color planColor = isDark ? AppColors.primary : AppColors.lightPrimary;
+    String planName = 'Free Plan';
+    Color planColor = isDark ? Colors.blueAccent : Colors.blue;
+    String billingDesc =
+        'This line is protected for free. Basic alerts only. No auto-refills.';
+    String billingRate = 'FREE';
+
     if (isPremium) {
-      planName = 'Premium Shield';
+      planName = 'Premium Plan';
       planColor = isDark ? Colors.purpleAccent : Colors.purple;
-    } else if (isFree) {
-      planName = 'Free Plan';
-      planColor = isDark ? Colors.blueAccent : Colors.blue;
+      if (isPremiumLoading) {
+        billingDesc = "Loading premium pricing rules for this carrier...";
+        billingRate = '\$2.50/yr + ...';
+      } else if (premiumRule != null) {
+        billingDesc =
+            'Fully automated top-ups. You will be billed \$2.50/yr + ${premiumRule.inappPricing} ${premiumRule.inappPricingCurrency.toUpperCase()} every ${premiumRule.topupValidityDays} days.';
+        billingRate = '\$2.50/yr + Refill';
+      } else {
+        billingDesc =
+            "Premium auto-refill is not yet supported for this carrier. Please choose the Standard Plan.";
+        planColor = isDark ? AppColors.error : Colors.redAccent;
+        billingRate = 'Not Supported';
+      }
+    } else if (isStandard) {
+      planName = 'Standard Plan';
+      planColor = isDark ? AppColors.primary : AppColors.lightPrimary;
+      billingDesc =
+          "Automated tracking & notifications. You will be billed \$2.50/yr for this line.";
+      billingRate = '\$2.50/yr';
     }
 
-    if (ordinalPosition <= 2) {
-      // Line is fully included in the base rate
-      return Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: isDark ? AppColors.darkCard : Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: planColor.withOpacity(0.3),
-            width: 1.5,
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkCard : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: planColor.withOpacity(0.3), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: planColor.withOpacity(isDark ? 0.05 : 0.08),
+            blurRadius: 15,
+            spreadRadius: 1,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: planColor.withOpacity(isDark ? 0.05 : 0.08),
-              blurRadius: 15,
-              spreadRadius: 1,
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: planColor.withOpacity(0.12),
-                    shape: BoxShape.circle,
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: planColor.withOpacity(0.12),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.verified_user_rounded,
+                  color: planColor,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  planName,
+                  style: AppTextStyles.titleMedium.copyWith(
+                    color: context.onSurfaceColor,
+                    fontWeight: FontWeight.bold,
                   ),
-                  child: Icon(
-                    Icons.verified_user_rounded,
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: planColor.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  billingRate,
+                  style: AppTextStyles.caption.copyWith(
                     color: planColor,
-                    size: 20,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'Included in $planName',
-                    style: AppTextStyles.titleMedium.copyWith(
-                      color: context.onSurfaceColor,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: AppColors.success.withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    'FREE',
-                    style: AppTextStyles.caption.copyWith(
-                      color: AppColors.success,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'This is protected line #$ordinalPosition in your account. Your $planName includes 2 SIM lines in the base subscription price. No additional charges will apply!',
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
-                height: 1.4,
-              ),
-            ),
-          ],
-        ),
-      );
-    } else {
-      // Dynamic Extra Line Billing Info (lines >= 3)
-      final String extraRateText = isStarter ? '\$0.10/mo (\$1.20/yr)' : '\$0.20/mo (\$2.40/yr)';
-
-      return Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: isDark ? AppColors.darkCard : Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: Colors.orangeAccent.withOpacity(0.3),
-            width: 1.5,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.orangeAccent.withOpacity(isDark ? 0.03 : 0.06),
-              blurRadius: 15,
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.orangeAccent.withOpacity(0.12),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.add_shopping_cart_rounded,
-                    color: Colors.orangeAccent,
-                    size: 20,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Extra Line Surcharge',
-                        style: AppTextStyles.titleMedium.copyWith(
-                          color: context.onSurfaceColor,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        'Active tier: $planName',
-                        style: AppTextStyles.caption.copyWith(
-                          color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.orangeAccent.withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    extraRateText,
-                    style: AppTextStyles.caption.copyWith(
-                      color: Colors.orangeAccent,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 14),
-            Text(
-              'Protecting this 3rd or subsequent SIM line will add a dynamic surcharge of $extraRateText to your active $planName billing, prorated for the rest of your annual period.',
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
-                height: 1.4,
-              ),
-            ),
-            if (isStarter) ...[
-              const SizedBox(height: 18),
-              SizedBox(
-                width: double.infinity,
-                height: 44,
-                child: ElevatedButton(
-                  onPressed: () async {
-                    await HapticHelper.mediumImpact();
-                    context.push('/settings/subscription');
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.purpleAccent,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    elevation: 0,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.stars_rounded, size: 16),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Go Premium for Unlimited Lines',
-                        style: AppTextStyles.labelLarge.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
+                    fontWeight: FontWeight.w900,
                   ),
                 ),
               ),
             ],
-          ],
-        ),
-      );
-    }
+          ),
+          const SizedBox(height: 12),
+          Text(
+            billingDesc,
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: isDark
+                  ? AppColors.textSecondaryDark
+                  : AppColors.textSecondaryLight,
+              height: 1.4,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
-  Widget _buildTierGrid() {
+  Widget _buildTierGrid(CarrierRule? premiumRule, bool isPremiumLoading) {
     final isDark = context.isDarkMode;
+    final currentLines = ref.read(simLinesControllerProvider).valueOrNull ?? [];
+
+    // Check if free plan should be disabled
+    final hasFreeLine = currentLines.any(
+      (l) => l.planType == 'free' && l.id != widget.id,
+    );
+    _isFreePlanDisabled = hasFreeLine;
+
+    // if free is disabled and currently selected, auto-select standard
+    if (_isFreePlanDisabled && _selectedTier == 'free') {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted)
+          setState(() {
+            _selectedTier = 'standard';
+          });
+      });
+    }
+
     final tiers = [
       {
-        'key': 'basic',
-        'name': 'Basic Protection',
-        'desc': 'Keeps line active with minimal scheduled top-ups.',
+        'key': 'free',
+        'name': 'Free Plan',
+        'desc': 'Limited to 1 line. Basic alerts.',
       },
       {
         'key': 'standard',
-        'name': 'Standard Shield',
-        'desc': 'Optimized inactivity checker + buffer safety days.',
+        'name': 'Standard Plan',
+        'desc': 'Automated tracking & notifications.',
       },
       {
         'key': 'premium',
-        'name': 'Premium Shield',
-        'desc':
-            'Fast automated grace extensions & detailed deactivation alert logs.',
+        'name': 'Premium Plan',
+        'desc': 'Fully automated top-ups & extensions.',
       },
     ];
 
     return Column(
       children: tiers.map((tier) {
         final isSelected = _selectedTier == tier['key'];
+        final isDisabled = tier['key'] == 'free' && _isFreePlanDisabled;
+
         return Container(
           margin: const EdgeInsets.only(bottom: 12),
           child: InkWell(
-            onTap: () {
-              setState(() {
-                _selectedTier = tier['key']!;
-              });
-            },
+            onTap: isDisabled
+                ? null
+                : () {
+                    setState(() {
+                      _selectedTier = tier['key']!;
+                    });
+                  },
             borderRadius: BorderRadius.circular(16),
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? (isDark ? AppColors.primary : AppColors.lightPrimary).withOpacity(0.1)
-                    : (isDark ? AppColors.darkCard : Colors.white),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
+            child: Opacity(
+              opacity: isDisabled ? 0.5 : 1.0,
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
                   color: isSelected
                       ? (isDark ? AppColors.primary : AppColors.lightPrimary)
-                      : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
-                  width: 2,
+                            .withOpacity(0.1)
+                      : (isDark ? AppColors.darkCard : Colors.white),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: isSelected
+                        ? (isDark ? AppColors.primary : AppColors.lightPrimary)
+                        : (isDark
+                              ? AppColors.darkBorder
+                              : AppColors.lightBorder),
+                    width: 2,
+                  ),
+                  boxShadow: isDark
+                      ? null
+                      : [
+                          BoxShadow(
+                            color: AppColors.lightPrimary.withOpacity(0.04),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
                 ),
-                boxShadow: isDark
-                    ? null
-                    : [
-                        BoxShadow(
-                          color: AppColors.lightPrimary.withOpacity(0.04),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-              ),
-              child: Row(
-                children: [
-                  Radio<String>(
-                    value: tier['key']!,
-                    groupValue: _selectedTier,
-                    activeColor: isDark ? AppColors.primaryLight : AppColors.lightPrimary,
-                    onChanged: (val) {
-                      if (val != null) {
-                        setState(() {
-                          _selectedTier = val;
-                        });
-                      }
-                    },
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          tier['name']!,
-                          style: TextStyle(
-                            color: context.onSurfaceColor,
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          tier['desc']!,
-                          style: TextStyle(
-                            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
+                child: Row(
+                  children: [
+                    Radio<String>(
+                      value: tier['key']!,
+                      groupValue: _selectedTier,
+                      activeColor: isDark
+                          ? AppColors.primaryLight
+                          : AppColors.lightPrimary,
+                      onChanged: isDisabled
+                          ? null
+                          : (val) {
+                              if (val != null) {
+                                setState(() {
+                                  _selectedTier = val;
+                                });
+                              }
+                            },
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            tier['name']!,
+                            style: TextStyle(
+                              color: context.onSurfaceColor,
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            tier['desc']! +
+                                (isDisabled ? ' (Limit Reached)' : ''),
+                            style: TextStyle(
+                              color: isDark
+                                  ? AppColors.textSecondaryDark
+                                  : AppColors.textSecondaryLight,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => _showPlanFeaturesDialog(
+                        context,
+                        tier['key']!,
+                        premiumRule,
+                        isPremiumLoading,
+                      ),
+                      icon: Icon(Icons.help_outline_rounded, color: context.primaryColor, size: 22),
+                      padding: const EdgeInsets.all(8),
+                      constraints: const BoxConstraints(),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -838,7 +858,9 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: context.isDarkMode ? AppColors.darkSurface : AppColors.lightSurface,
+      backgroundColor: context.isDarkMode
+          ? AppColors.darkSurface
+          : AppColors.lightSurface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -868,7 +890,9 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                           height: 5,
                           margin: const EdgeInsets.only(bottom: 16),
                           decoration: BoxDecoration(
-                            color: context.isDarkMode ? Colors.white24 : Colors.black12,
+                            color: context.isDarkMode
+                                ? Colors.white24
+                                : Colors.black12,
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
@@ -876,34 +900,63 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                       Text(
                         'Supported Countries',
                         style: AppTextStyles.headlineSmall.copyWith(
-                          color: context.isDarkMode ? Colors.white : AppColors.textPrimaryLight,
+                          color: context.isDarkMode
+                              ? Colors.white
+                              : AppColors.textPrimaryLight,
                         ),
                       ),
                       const SizedBox(height: 16),
                       TextField(
-                        style: TextStyle(color: context.isDarkMode ? Colors.white : AppColors.textPrimaryLight),
+                        style: TextStyle(
+                          color: context.isDarkMode
+                              ? Colors.white
+                              : AppColors.textPrimaryLight,
+                        ),
                         decoration: InputDecoration(
                           hintText: 'Search country or code...',
-                          hintStyle: TextStyle(color: context.isDarkMode ? AppColors.textTertiaryDark : AppColors.textTertiaryLight),
-                          prefixIcon: Icon(Icons.search, color: context.isDarkMode ? AppColors.primaryLight : AppColors.lightPrimary),
+                          hintStyle: TextStyle(
+                            color: context.isDarkMode
+                                ? AppColors.textTertiaryDark
+                                : AppColors.textTertiaryLight,
+                          ),
+                          prefixIcon: Icon(
+                            Icons.search,
+                            color: context.isDarkMode
+                                ? AppColors.primaryLight
+                                : AppColors.lightPrimary,
+                          ),
                           filled: true,
-                          fillColor: context.isDarkMode ? AppColors.darkCard : const Color(0xFFEAEEF1),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          fillColor: context.isDarkMode
+                              ? AppColors.darkCard
+                              : const Color(0xFFEAEEF1),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                             borderSide: BorderSide(
-                              color: context.isDarkMode ? AppColors.darkBorder : AppColors.lightBorder,
+                              color: context.isDarkMode
+                                  ? AppColors.darkBorder
+                                  : AppColors.lightBorder,
                             ),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                             borderSide: BorderSide(
-                              color: context.isDarkMode ? AppColors.primary : AppColors.lightPrimary,
+                              color: context.isDarkMode
+                                  ? AppColors.primary
+                                  : AppColors.lightPrimary,
                             ),
                           ),
                           suffixIcon: searchQuery.isNotEmpty
                               ? IconButton(
-                                  icon: Icon(Icons.clear, color: context.isDarkMode ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+                                  icon: Icon(
+                                    Icons.clear,
+                                    color: context.isDarkMode
+                                        ? AppColors.textSecondaryDark
+                                        : AppColors.textSecondaryLight,
+                                  ),
                                   onPressed: () {
                                     setModalState(() {
                                       searchQuery = '';
@@ -925,7 +978,9 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                                 child: Text(
                                   'No countries found',
                                   style: TextStyle(
-                                    color: context.isDarkMode ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                                    color: context.isDarkMode
+                                        ? AppColors.textSecondaryDark
+                                        : AppColors.textSecondaryLight,
                                     fontSize: 16,
                                   ),
                                 ),
@@ -935,12 +990,18 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                                 itemCount: filteredCountries.length,
                                 itemBuilder: (context, index) {
                                   final c = filteredCountries[index];
-                                  final isSelected = _selectedCountry?.id == c.id;
+                                  final isSelected =
+                                      _selectedCountry?.id == c.id;
                                   return Container(
                                     margin: const EdgeInsets.only(bottom: 4),
                                     decoration: BoxDecoration(
                                       color: isSelected
-                                          ? (context.isDarkMode ? AppColors.primary.withOpacity(0.15) : AppColors.lightPrimary.withOpacity(0.15))
+                                          ? (context.isDarkMode
+                                                ? AppColors.primary.withOpacity(
+                                                    0.15,
+                                                  )
+                                                : AppColors.lightPrimary
+                                                      .withOpacity(0.15))
                                           : Colors.transparent,
                                       borderRadius: BorderRadius.circular(12),
                                     ),
@@ -953,28 +1014,40 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                                         c.name,
                                         style: TextStyle(
                                           color: isSelected
-                                              ? (context.isDarkMode ? AppColors.primaryLight : AppColors.lightPrimary)
-                                              : (context.isDarkMode ? Colors.white : AppColors.textPrimaryLight),
+                                              ? (context.isDarkMode
+                                                    ? AppColors.primaryLight
+                                                    : AppColors.lightPrimary)
+                                              : (context.isDarkMode
+                                                    ? Colors.white
+                                                    : AppColors
+                                                          .textPrimaryLight),
                                           fontSize: 16,
-                                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                          fontWeight: isSelected
+                                              ? FontWeight.bold
+                                              : FontWeight.normal,
                                         ),
                                       ),
                                       subtitle: Text(
                                         c.dialingCode,
                                         style: TextStyle(
-                                          color: context.isDarkMode ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                                          color: context.isDarkMode
+                                              ? AppColors.textSecondaryDark
+                                              : AppColors.textSecondaryLight,
                                         ),
                                       ),
                                       trailing: isSelected
                                           ? Icon(
                                               Icons.check_circle_rounded,
-                                              color: context.isDarkMode ? AppColors.primaryLight : AppColors.lightPrimary,
+                                              color: context.isDarkMode
+                                                  ? AppColors.primaryLight
+                                                  : AppColors.lightPrimary,
                                             )
                                           : null,
                                       onTap: () {
                                         setState(() {
                                           _selectedCountry = c;
-                                          _selectedCarrier = null; // Reset carrier
+                                          _selectedCarrier =
+                                              null; // Reset carrier
                                         });
                                         Navigator.pop(context);
                                       },
@@ -1034,34 +1107,38 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
     });
 
     try {
-      final user = ref.read(authControllerProvider).valueOrNull;
-      final globalTier = user?.subscriptionTier ?? 'standard';
-      final selectedProtectionTier = _isEdit ? _selectedTier : globalTier;
+      final selectedPlanType = _selectedTier;
+      String? carrierRuleId;
+      DateTime? planExpiresAt;
 
-      if (_isEdit) {
-        // Fetch current line copy to update
-        final line = currentLines.firstWhereOrNull((l) => l.id == widget.id);
-        if (line == null)
-          throw StateError('SIM line not found for ID: ${widget.id}');
+      // Ensure premium lines have pricing
+      if (selectedPlanType == 'premium' &&
+          _selectedCountry != null &&
+          _selectedCarrier != null) {
+        final rule = await ref
+            .read(simLinesRepositoryProvider)
+            .getCarrierRule(_selectedCarrier!.id);
+        if (rule != null) {
+          carrierRuleId = rule.id;
+        } else {
+          throw Exception(
+            'Premium pricing not configured for this carrier. Please select Standard plan.',
+          );
+        }
+      }
+      if (selectedPlanType != 'free') {
+        planExpiresAt = DateTime.now().add(const Duration(days: 365));
+      }
 
-        final updatedLine = line.copyWith(
-          phoneNumber: fullPhoneNumber,
-          nickname: _nicknameController.text.isNotEmpty
-              ? _nicknameController.text
-              : null,
-          avatarIcon: _selectedIcon,
-          countryId: _selectedCountry?.id,
-          carrierId: _selectedCarrier?.id,
-          protectionTier: selectedProtectionTier,
-        );
+      final commitSave = () async {
+        try {
+          if (_isEdit) {
+            // Fetch current line copy to update
+            final line = currentLines.firstWhereOrNull((l) => l.id == widget.id);
+            if (line == null)
+              throw StateError('SIM line not found for ID: ${widget.id}');
 
-        await ref
-            .read(simLinesControllerProvider.notifier)
-            .updateSimLine(updatedLine);
-      } else {
-        await ref
-            .read(simLinesControllerProvider.notifier)
-            .addSimLine(
+            final updatedLine = line.copyWith(
               phoneNumber: fullPhoneNumber,
               nickname: _nicknameController.text.isNotEmpty
                   ? _nicknameController.text
@@ -1069,38 +1146,484 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
               avatarIcon: _selectedIcon,
               countryId: _selectedCountry?.id,
               carrierId: _selectedCarrier?.id,
-              protectionTier: selectedProtectionTier,
+              planType: selectedPlanType,
+              protectionTier:
+                  selectedPlanType == 'free' ? 'basic' : selectedPlanType,
+              planExpiresAt: planExpiresAt,
+              carrierRuleId: carrierRuleId,
             );
+
+            await ref
+                .read(simLinesControllerProvider.notifier)
+                .updateSimLine(updatedLine);
+          } else {
+            await ref
+                .read(simLinesControllerProvider.notifier)
+                .addSimLine(
+                  phoneNumber: fullPhoneNumber,
+                  nickname: _nicknameController.text.isNotEmpty
+                      ? _nicknameController.text
+                      : null,
+                  avatarIcon: _selectedIcon,
+                  countryId: _selectedCountry?.id,
+                  carrierId: _selectedCarrier?.id,
+                  planType: selectedPlanType,
+                  protectionTier: selectedPlanType == 'free' ? 'basic' : selectedPlanType,
+                  planExpiresAt: planExpiresAt,
+                  carrierRuleId: carrierRuleId,
+                );
+          }
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('SIM line saved successfully.'),
+                backgroundColor: AppColors.success,
+              ),
+            );
+            Navigator.pop(context); // Close the form
+          }
+        } catch (e) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Failed to save SIM line: $e'),
+                backgroundColor: AppColors.error,
+              ),
+            );
+            setState(() {
+              _isSaving = false;
+            });
+          }
+        }
+      };
+
+      if (selectedPlanType != 'free') {
+        // We have to calculate the amount.
+        double amountToCharge = selectedPlanType == 'standard' ? 2.50 : 2.50; // Base service fee
+        if (selectedPlanType == 'premium' && carrierRuleId != null) {
+            final rule = await ref.read(simLinesRepositoryProvider).getCarrierRule(_selectedCarrier!.id);
+            if (rule != null) {
+                int refillsPerYear = 365 ~/ rule.topupValidityDays;
+                amountToCharge += refillsPerYear * rule.inappPricing;
+            }
+        }
+        
+        amountToCharge = double.parse(amountToCharge.toStringAsFixed(2));
+        
+        setState(() {
+          _isSaving = false;
+        });
+        
+        if (mounted) {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => PaypalSimulatorScreen(
+                initialAmount: amountToCharge,
+                paymentReason: 'Payment for $selectedPlanType protection plan',
+                depositToWallet: false, // direct payment, don't deposit to wallet
+                onSuccess: () {
+                  Navigator.of(context).pop(); // pop Paypal screen
+                  setState(() => _isSaving = true);
+                  commitSave();
+                },
+              ),
+            ),
+          );
+        }
+      } else {
+        await commitSave();
       }
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              _isEdit
-                  ? 'SIM line details saved successfully.'
-                  : 'SIM card added to shield protection!',
-            ),
-            backgroundColor: AppColors.success,
-          ),
-        );
-        context.pop();
-      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to save SIM details: $e'),
+            content: Text('Failed to process line: $e'),
             backgroundColor: AppColors.error,
           ),
         );
       }
     } finally {
-      if (mounted) {
+      if (mounted && _selectedTier == 'free') {
         setState(() {
           _isSaving = false;
         });
       }
     }
+  }
+
+  // ── Info Dialog ────────────────────────────────────────────────────────────
+  void _showPlanFeaturesDialog(
+    BuildContext context,
+    String planKey,
+    CarrierRule? premiumRule,
+    bool isPremiumLoading,
+  ) {
+    final isDark = context.isDarkMode;
+
+    final String title;
+    final IconData icon;
+    final Color accentColor;
+    final String priceStr;
+    final String billingPeriod;
+    final List<String> features;
+    final bool isPremium = planKey == 'premium';
+    final bool isStandard = planKey == 'standard';
+
+    if (isPremium) {
+      title = 'Premium Plan';
+      icon = Icons.workspace_premium_rounded;
+      accentColor = const Color(0xFF2E7D32); // Green
+      priceStr = '\$2.50';
+      billingPeriod = '/yr per line';
+      features = [
+        'Everything in Standard',
+        'Automated Keep-Alive auto-refill',
+        'Custom auto-refill scheduling',
+        'Real-time balance monitoring',
+        'Unlimited SIM lines',
+        'Priority support',
+      ];
+    } else if (isStandard) {
+      title = 'Standard Plan';
+      icon = Icons.verified_user_rounded;
+      accentColor = const Color(0xFF1565C0); // Blue
+      priceStr = '\$2.50';
+      billingPeriod = '/yr per line';
+      features = [
+        'Push notification alerts',
+        'Telegram recharge requests',
+        'Manual status & expiry checks',
+        'Up to 5 SIM lines',
+      ];
+    } else {
+      title = 'Free Plan';
+      icon = Icons.info_outline_rounded;
+      accentColor = const Color(0xFF757575); // Grey
+      priceStr = 'FREE';
+      billingPeriod = 'no charge';
+      features = [
+        'Basic expiry alerts',
+        'Limited to 1 line per account',
+        'Manual verification checks',
+        'Standard email support',
+      ];
+    }
+
+    final cardBgColor = isDark
+        ? accentColor.withOpacity(0.12)
+        : accentColor.withOpacity(0.05);
+    final cardBorderColor = accentColor.withOpacity(0.3);
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: context.scaffoldBackgroundColor,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      isScrollControlled: true,
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(24.0, 16.0, 24.0, 24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Drag handle
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 5,
+                  margin: const EdgeInsets.only(bottom: 20),
+                  decoration: BoxDecoration(
+                    color: isDark ? Colors.white24 : Colors.black12,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Plan Details',
+                    style: AppTextStyles.titleLarge.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: context.onSurfaceColor,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close),
+                    color: context.onSurfaceColor.withOpacity(0.6),
+                    iconSize: 20,
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              // Main Plan Card
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: cardBgColor,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: cardBorderColor,
+                    width: 2,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: accentColor.withOpacity(isDark ? 0.05 : 0.08),
+                      blurRadius: 15,
+                      spreadRadius: 1,
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Top row
+                    Row(
+                      children: [
+                        // Shield/Plan Icon badge
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: accentColor.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Icon(icon, color: accentColor, size: 22),
+                        ),
+                        const SizedBox(width: 12),
+                        // Plan Name
+                        Expanded(
+                          child: Text(
+                            title,
+                            style: AppTextStyles.titleMedium.copyWith(
+                              color: context.onSurfaceColor,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        // Pricing
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              priceStr,
+                              style: AppTextStyles.titleLarge.copyWith(
+                                color: accentColor,
+                                fontWeight: FontWeight.w900,
+                                fontSize: 22,
+                              ),
+                            ),
+                            Text(
+                              billingPeriod,
+                              style: AppTextStyles.caption.copyWith(
+                                color: context.onSurfaceColor.withOpacity(0.5),
+                                fontSize: 10,
+                              ),
+                              textAlign: TextAlign.end,
+                            ),
+                            if (isPremium && premiumRule != null)
+                              Text(
+                                '+ ${premiumRule.inappPricing} ${premiumRule.inappPricingCurrency.toUpperCase()} refill',
+                                style: TextStyle(
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.w600,
+                                  color: accentColor.withOpacity(0.7),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Divider(
+                      color: accentColor.withOpacity(0.2),
+                      height: 1,
+                      thickness: 1,
+                    ),
+                    const SizedBox(height: 16),
+                    // Features list
+                    ...features.map((feat) => Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(
+                            Icons.check_circle_rounded,
+                            size: 16,
+                            color: accentColor,
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              feat,
+                              style: AppTextStyles.bodyMedium.copyWith(
+                                color: context.onSurfaceColor.withOpacity(0.8),
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )),
+                    // Auto refill rule (Premium only)
+                    if (isPremium) ...[
+                      const SizedBox(height: 16),
+                      if (isPremiumLoading)
+                        Row(
+                          children: [
+                            const SizedBox(
+                              width: 14,
+                              height: 14,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Loading auto-refill pricing...',
+                              style: AppTextStyles.caption.copyWith(
+                                color: context.onSurfaceColor.withOpacity(0.5),
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
+                          ],
+                        )
+                      else if (premiumRule != null)
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: accentColor.withOpacity(0.08),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: accentColor.withOpacity(0.15),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.autorenew_rounded,
+                                size: 16,
+                                color: accentColor,
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  'Auto-refill: ${premiumRule.inappPricing} ${premiumRule.inappPricingCurrency.toUpperCase()} every ${premiumRule.topupValidityDays} days (telecom, VAT included)',
+                                  style: AppTextStyles.caption.copyWith(
+                                    color: context.onSurfaceColor.withOpacity(0.7),
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 11,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      else
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.orange.withOpacity(0.08),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: Colors.orange.withOpacity(0.15),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.info_outline_rounded,
+                                size: 16,
+                                color: Colors.orange.shade700,
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  'Auto-refill pricing not available for this carrier yet.',
+                                  style: AppTextStyles.caption.copyWith(
+                                    color: Colors.orange.shade700,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 11,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                    ],
+                    // Badges
+                    if (isPremium) ...[
+                      const SizedBox(height: 16),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFC8E6C9), // Light green badge
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text('✨ ', style: TextStyle(fontSize: 12)),
+                            Text(
+                              'Most Popular',
+                              style: TextStyle(
+                                color: Color(0xFF2E7D32),
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ] else if (isStandard) ...[
+                      const SizedBox(height: 16),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFBBDEFB), // Light blue badge
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              '👍 Recommended',
+                              style: TextStyle(
+                                color: Color(0xFF1565C0),
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ]
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: context.primaryColor,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: const Text('Got it'),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }

@@ -157,7 +157,9 @@ class DashboardController extends _$DashboardController {
 
     // Filter to only consider owned lines for last charged and nearest top-up calculations
     final currentUserId = profile?.id;
-    final ownedLines = simLines.where((l) => l.userId == currentUserId).toList();
+    final ownedLines = simLines
+        .where((l) => l.userId == currentUserId)
+        .toList();
 
     // 2. Find last auto-charged line
     SimLine? lastChargedLine;
@@ -185,18 +187,25 @@ class DashboardController extends _$DashboardController {
     SimLine? nextDueLine;
     DateTime? nextDueLineDate;
 
-    bool isPremiumUser = profile?.subscriptionTier.toLowerCase() == 'premium';
+    bool isPremiumUser = profile?.subscriptionTier == 'premium' || profile?.isPowerUser == true;
 
     for (final line in ownedLines) {
       final lineSchedules = schedules
-          .where((s) => s.simLineId == line.id && s.isActive && s.status == 'active')
+          .where(
+            (s) => s.simLineId == line.id && s.isActive && s.status == 'active',
+          )
           .toList();
-      final refillSchedule = lineSchedules.where((s) => s.scheduleType == 'refill').firstOrNull;
-      final notifySchedule = lineSchedules.where((s) => s.scheduleType == 'notify').firstOrNull;
+      final refillSchedule = lineSchedules
+          .where((s) => s.scheduleType.startsWith('refill'))
+          .firstOrNull;
+      final notifySchedule = lineSchedules
+          .where((s) => s.scheduleType == 'notify')
+          .firstOrNull;
 
-      bool isPremiumLine = line.protectionTier.toLowerCase() == 'premium' || isPremiumUser;
+      bool isPremiumLine =
+          line.protectionTier.toLowerCase() == 'premium' || isPremiumUser;
 
-      final DateTime? targetDate = isPremiumLine 
+      final DateTime? targetDate = isPremiumLine
           ? refillSchedule?.nextExecutionAt
           : notifySchedule?.nextExecutionAt;
 

@@ -4,11 +4,13 @@ import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/country_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/carrier_model.dart';
+import 'package:keep_sims/features/sim_lines/data/models/carrier_rule_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/line_activity_log_model.dart';
 import 'package:keep_sims/features/sim_lines/data/repositories/sim_lines_repository_impl.dart';
 import 'package:keep_sims/features/scheduled_topups/controller/scheduled_topup_controller.dart';
 import 'package:keep_sims/features/wallet/controller/wallet_controller.dart';
 import 'package:keep_sims/core/providers.dart';
+import 'package:keep_sims/features/scheduled_topups/model/scheduled_topup_model.dart';
 
 part 'sim_lines_controller.g.dart';
 
@@ -24,7 +26,7 @@ class SimLinesController extends _$SimLinesController {
 
     final repo = ref.watch(simLinesRepositoryProvider);
     final lines = await repo.getSimLines();
-    
+
     // Sort deterministically by nickname (if available) then phone number
     // to prevent the list from randomly rearranging when updated.
     lines.sort((a, b) {
@@ -32,7 +34,7 @@ class SimLinesController extends _$SimLinesController {
       final bName = (b.nickname ?? b.phoneNumber).toLowerCase();
       return aName.compareTo(bName);
     });
-    
+
     return lines;
   }
 
@@ -43,6 +45,9 @@ class SimLinesController extends _$SimLinesController {
     String? countryId,
     String? carrierId,
     required String protectionTier,
+    String planType = 'free',
+    DateTime? planExpiresAt,
+    String? carrierRuleId,
   }) async {
     final userId = ref.read(authControllerProvider).valueOrNull?.id;
     if (userId == null)
@@ -62,10 +67,61 @@ class SimLinesController extends _$SimLinesController {
         countryId: countryId,
         carrierId: carrierId,
         protectionTier: protectionTier,
+        planType: planType,
+        planExpiresAt: planExpiresAt,
+        carrierRuleId: carrierRuleId,
       );
 
       final added = await repo.addSimLine(newLine);
 
+      // Auto-configure Scheduled Topups
+      int frequencyDays = 30;
+      final targetRuleId = carrierRuleId ?? added.carrierId;
+      if (targetRuleId != null) {
+        final rule = await repo.getCarrierRule(targetRuleId);
+        if (rule != null) {
+          frequencyDays = rule.topupValidityDays;
+        }
+      }
+
+      final topupNotifier = ref.read(scheduledTopupControllerProvider.notifier);
+
+      // All plans (Free/Basic, Standard, Premium) get Auto-Notify
+      int notifyDelay = frequencyDays;
+      if (frequencyDays == 90 || frequencyDays == 85) notifyDelay = 85;
+      else if (frequencyDays == 30) notifyDelay = 28;
+      else if (frequencyDays == 14) notifyDelay = 13;
+      
+      final notifySchedule = ScheduledTopup(
+        id: '',
+        simLineId: added.id,
+        userId: userId,
+        amount: 0.0,
+        currency: 'USD',
+        frequencyDays: frequencyDays,
+        nextExecutionAt: DateTime.now().toUtc().add(Duration(days: notifyDelay)),
+        isActive: true,
+        status: 'active',
+        scheduleType: 'notify',
+      );
+      await topupNotifier.saveSchedule(notifySchedule);
+
+      // Premium gets Auto-Refill
+      if (planType == 'premium') {
+        final refillSchedule = ScheduledTopup(
+          id: '',
+          simLineId: added.id,
+          userId: added.userId,
+          amount: 0.0,
+          currency: 'USD',
+          frequencyDays: frequencyDays,
+          nextExecutionAt: DateTime.now().toUtc().add(Duration(days: notifyDelay)),
+          isActive: true,
+          status: 'active',
+          scheduleType: 'refill mini',
+        );
+        await topupNotifier.saveSchedule(refillSchedule);
+      }
 
       return [added, ...previousList];
     });
@@ -78,6 +134,72 @@ class SimLinesController extends _$SimLinesController {
       final repo = ref.read(simLinesRepositoryProvider);
       final updated = await repo.updateSimLine(line);
 
+      final oldLine = previousList.where((l) => l.id == line.id).firstOrNull;
+      if (oldLine != null) {
+        final wasFree = oldLine.planType == 'free';
+        final wasStandard = oldLine.planType == 'standard';
+        final isStandard = line.planType == 'standard';
+        final isPremium = line.planType == 'premium';
+
+        if ((wasFree && (isStandard || isPremium)) || (wasStandard && isPremium)) {
+          int frequencyDays = 90;
+          final carrierIdToUse = line.carrierId ?? oldLine.carrierId;
+          if (carrierIdToUse != null) {
+            final rule = await repo.getCarrierRule(carrierIdToUse);
+            if (rule != null) {
+              frequencyDays = rule.topupValidityDays;
+            }
+          }
+
+          final topupNotifier = ref.read(scheduledTopupControllerProvider.notifier);
+
+          // Standard and Premium get Auto-Notify
+          int notifyDelay = frequencyDays;
+          if (frequencyDays == 90 || frequencyDays == 85) {
+            notifyDelay = 85;
+          } else if (frequencyDays == 30) {
+            notifyDelay = 28;
+          } else if (frequencyDays == 14) {
+            notifyDelay = 13;
+          }
+
+          // 1. Create Notify Schedule if it doesn't exist yet
+          final schedules = ref.read(scheduledTopupControllerProvider).valueOrNull ?? [];
+          final hasNotifySchedule = schedules.any((s) => s.simLineId == line.id && s.scheduleType == 'notify');
+          if (!hasNotifySchedule) {
+            final notifySchedule = ScheduledTopup(
+              id: '',
+              simLineId: line.id,
+              userId: line.userId,
+              amount: 0.0,
+              currency: 'USD',
+              frequencyDays: frequencyDays,
+              nextExecutionAt: DateTime.now().toUtc().add(Duration(days: notifyDelay)),
+              isActive: true,
+              status: 'active',
+              scheduleType: 'notify',
+            );
+            await topupNotifier.saveSchedule(notifySchedule);
+          }
+
+          // 2. Create Refill Mini Schedule if moving to premium from a non-premium plan
+          if (isPremium && oldLine.planType != 'premium') {
+            final refillSchedule = ScheduledTopup(
+              id: '',
+              simLineId: line.id,
+              userId: line.userId,
+              amount: 0.0,
+              currency: 'USD',
+              frequencyDays: frequencyDays,
+              nextExecutionAt: DateTime.now().toUtc().add(Duration(days: notifyDelay)),
+              isActive: true,
+              status: 'active',
+              scheduleType: 'refill mini',
+            );
+            await topupNotifier.saveSchedule(refillSchedule);
+          }
+        }
+      }
 
       return previousList
           .map((item) => item.id == line.id ? updated : item)
@@ -104,22 +226,27 @@ class SimLinesController extends _$SimLinesController {
       final repo = ref.read(simLinesRepositoryProvider);
       final previousList = state.valueOrNull ?? [];
       final line = previousList.firstWhere((l) => l.id == simLineId);
-      
+
       SimLine updatedLine = line.copyWith(isHomeMode: isHome);
       if (!isHome) {
         // Returning to abroad mode: treat as recent refill
         updatedLine = updatedLine.copyWith(lastTopupAt: DateTime.now());
       }
-      
+
       updatedLine = await repo.updateSimLine(updatedLine);
 
-      final schedules = ref.read(scheduledTopupControllerProvider).valueOrNull ?? [];
-      final lineSchedules = schedules.where((s) => s.simLineId == simLineId).toList();
+      final schedules =
+          ref.read(scheduledTopupControllerProvider).valueOrNull ?? [];
+      final lineSchedules = schedules
+          .where((s) => s.simLineId == simLineId)
+          .toList();
 
       for (final schedule in lineSchedules) {
         if (isHome) {
           // Pause schedule
-          await ref.read(scheduledTopupControllerProvider.notifier).toggleActive(schedule.id, false);
+          await ref
+              .read(scheduledTopupControllerProvider.notifier)
+              .toggleActive(schedule.id, false);
         } else {
           // Resume and adjust nextExecutionAt
           final nextDue = DateTime.now().add(
@@ -128,11 +255,11 @@ class SimLinesController extends _$SimLinesController {
                 : Duration(days: schedule.frequencyDays),
           );
           final updatedSchedule = schedule.copyWith(
-            isActive: true, 
+            isActive: true,
             status: 'active',
             nextExecutionAt: nextDue,
           );
-          
+
           final topupRepo = ref.read(scheduledTopupRepositoryProvider);
           await topupRepo.updateSchedule(updatedSchedule);
         }
@@ -141,8 +268,11 @@ class SimLinesController extends _$SimLinesController {
         ref.invalidate(scheduledTopupControllerProvider);
       }
 
-      state = AsyncData(previousList.map((item) => item.id == simLineId ? updatedLine : item).toList());
-
+      state = AsyncData(
+        previousList
+            .map((item) => item.id == simLineId ? updatedLine : item)
+            .toList(),
+      );
     } catch (e, st) {
       state = AsyncError(e, st);
     }
@@ -185,10 +315,12 @@ class SimLinesController extends _$SimLinesController {
 
   Future<void> performManualRefill(SimLine line, double amount) async {
     // 1. Deduct from wallet
-    final success = await ref.read(walletControllerProvider.notifier).deduct(
-      amount,
-      description: 'Manual Refill for ${line.nickname ?? line.phoneNumber}',
-    );
+    final success = await ref
+        .read(walletControllerProvider.notifier)
+        .deduct(
+          amount,
+          description: 'Manual Refill for ${line.nickname ?? line.phoneNumber}',
+        );
 
     final repo = ref.read(simLinesRepositoryProvider);
 
@@ -216,7 +348,7 @@ class SimLinesController extends _$SimLinesController {
         status: 'failed',
         failureReason: 'Insufficient wallet balance',
       );
-      
+
       // Let the walletController state throw/handle the UI, or we can just invalidate
       ref.invalidateSelf();
       ref.invalidate(topupExecutionsForLineProvider(line.id));
@@ -236,6 +368,16 @@ Future<List<Carrier>> carriersForCountry(
   String countryId,
 ) {
   return ref.watch(simLinesRepositoryProvider).getCarriersForCountry(countryId);
+}
+
+@riverpod
+Future<CarrierRule?> carrierRule(
+  CarrierRuleRef ref,
+  String carrierId,
+) {
+  return ref
+      .watch(simLinesRepositoryProvider)
+      .getCarrierRule(carrierId);
 }
 
 @riverpod

@@ -25,7 +25,9 @@ abstract class OfflineRefillSettings with _$OfflineRefillSettings {
     String? id,
     @JsonKey(name: 'user_id') required String userId,
     @JsonKey(name: 'is_enabled') @Default(true) bool isEnabled,
-    @JsonKey(name: 'default_refill_amount') @Default(10.00) double defaultRefillAmount,
+    @JsonKey(name: 'default_refill_amount')
+    @Default(10.00)
+    double defaultRefillAmount,
     @JsonKey(name: 'target_sim_line_id') String? targetSimLineId,
     @JsonKey(name: 'custom_phone_number') String? customPhoneNumber,
     @JsonKey(name: 'created_at') DateTime? createdAt,

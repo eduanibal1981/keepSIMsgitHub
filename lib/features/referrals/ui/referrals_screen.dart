@@ -76,7 +76,9 @@ class _ReferralsScreenState extends ConsumerState<ReferralsScreen> {
                   IconButton(
                     icon: Icon(
                       Icons.close,
-                      color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                      color: isDark
+                          ? AppColors.textSecondaryDark
+                          : AppColors.textSecondaryLight,
                     ),
                     onPressed: () => Navigator.pop(context),
                   ),
@@ -86,7 +88,9 @@ class _ReferralsScreenState extends ConsumerState<ReferralsScreen> {
               Text(
                 'Invite your expat friends to secure their prepaid SIMs. Both you and your friend will receive \$2.00 wallet credit immediately upon code validation!',
                 style: AppTextStyles.bodyMedium.copyWith(
-                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                  color: isDark
+                      ? AppColors.textSecondaryDark
+                      : AppColors.textSecondaryLight,
                 ),
               ),
               const SizedBox(height: 24),
@@ -139,7 +143,9 @@ class _ReferralsScreenState extends ConsumerState<ReferralsScreen> {
                   _ShareTargetButton(
                     icon: Icons.link,
                     label: 'Copy Link',
-                    color: isDark ? AppColors.secondary : AppColors.lightSecondary,
+                    color: isDark
+                        ? AppColors.secondary
+                        : AppColors.lightSecondary,
                     onTap: () {
                       Navigator.pop(context);
                       Clipboard.setData(
@@ -199,7 +205,9 @@ class _ReferralsScreenState extends ConsumerState<ReferralsScreen> {
               children: [
                 Icon(
                   Icons.stars,
-                  color: isDark ? AppColors.secondary : AppColors.lightSecondary,
+                  color: isDark
+                      ? AppColors.secondary
+                      : AppColors.lightSecondary,
                   size: 28,
                 ),
                 const SizedBox(width: 12),
@@ -215,7 +223,9 @@ class _ReferralsScreenState extends ConsumerState<ReferralsScreen> {
             content: Text(
               'Welcome credit applied successfully! Your wallet has been credited with \$2.00 reward balance immediately.',
               style: AppTextStyles.bodyMedium.copyWith(
-                color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                color: isDark
+                    ? AppColors.textSecondaryDark
+                    : AppColors.textSecondaryLight,
               ),
             ),
             actions: [
@@ -224,7 +234,9 @@ class _ReferralsScreenState extends ConsumerState<ReferralsScreen> {
                 child: Text(
                   'AWESOME',
                   style: AppTextStyles.labelLarge.copyWith(
-                    color: isDark ? AppColors.secondary : AppColors.lightSecondary,
+                    color: isDark
+                        ? AppColors.secondary
+                        : AppColors.lightSecondary,
                   ),
                 ),
               ),
@@ -281,7 +293,9 @@ class _ReferralsScreenState extends ConsumerState<ReferralsScreen> {
         ),
         child: referralsAsync.when(
           loading: () => Center(
-            child: CircularProgressIndicator(color: isDark ? AppColors.primary : AppColors.lightPrimary),
+            child: CircularProgressIndicator(
+              color: isDark ? AppColors.primary : AppColors.lightPrimary,
+            ),
           ),
           error: (err, stack) => Center(
             child: Padding(
@@ -305,7 +319,9 @@ class _ReferralsScreenState extends ConsumerState<ReferralsScreen> {
                   Text(
                     err.toString(),
                     style: AppTextStyles.bodyMedium.copyWith(
-                      color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                      color: isDark
+                          ? AppColors.textSecondaryDark
+                          : AppColors.textSecondaryLight,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -314,7 +330,9 @@ class _ReferralsScreenState extends ConsumerState<ReferralsScreen> {
                     onPressed: () =>
                         ref.invalidate(referralsControllerProvider),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: isDark ? AppColors.primary : AppColors.lightPrimary,
+                      backgroundColor: isDark
+                          ? AppColors.primary
+                          : AppColors.lightPrimary,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 24,
                         vertical: 12,
@@ -344,7 +362,9 @@ class _ReferralsScreenState extends ConsumerState<ReferralsScreen> {
                           value: '${state.referrals.length}',
                           subtitle: 'Friends referred',
                           icon: Icons.people_outline,
-                          glowColor: isDark ? AppColors.primary : AppColors.lightPrimary,
+                          glowColor: isDark
+                              ? AppColors.primary
+                              : AppColors.lightPrimary,
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -354,7 +374,9 @@ class _ReferralsScreenState extends ConsumerState<ReferralsScreen> {
                           value: '\$${earnedAmount.toStringAsFixed(2)}',
                           subtitle: 'Wallet credit',
                           icon: Icons.account_balance_wallet_outlined,
-                          glowColor: isDark ? AppColors.secondary : AppColors.lightSecondary,
+                          glowColor: isDark
+                              ? AppColors.secondary
+                              : AppColors.lightSecondary,
                         ),
                       ),
                     ],
@@ -373,18 +395,29 @@ class _ReferralsScreenState extends ConsumerState<ReferralsScreen> {
                               end: Alignment.bottomRight,
                             )
                           : LinearGradient(
-                              colors: [context.primaryColor.withOpacity(0.08), Colors.white],
+                              colors: [
+                                context.primaryColor.withOpacity(0.08),
+                                Colors.white,
+                              ],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             ),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: (isDark ? AppColors.primary : AppColors.lightPrimary).withOpacity(0.4),
+                        color:
+                            (isDark
+                                    ? AppColors.primary
+                                    : AppColors.lightPrimary)
+                                .withOpacity(0.4),
                         width: 1.5,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: (isDark ? AppColors.primary : AppColors.lightPrimary).withOpacity(0.1),
+                          color:
+                              (isDark
+                                      ? AppColors.primary
+                                      : AppColors.lightPrimary)
+                                  .withOpacity(0.1),
                           blurRadius: 20,
                           offset: const Offset(0, 8),
                         ),
@@ -401,12 +434,18 @@ class _ReferralsScreenState extends ConsumerState<ReferralsScreen> {
                                 Container(
                                   padding: const EdgeInsets.all(8),
                                   decoration: BoxDecoration(
-                                    color: (isDark ? AppColors.primary : AppColors.lightPrimary).withOpacity(0.2),
+                                    color:
+                                        (isDark
+                                                ? AppColors.primary
+                                                : AppColors.lightPrimary)
+                                            .withOpacity(0.2),
                                     shape: BoxShape.circle,
                                   ),
                                   child: Icon(
                                     Icons.verified_user_outlined,
-                                    color: isDark ? AppColors.secondary : AppColors.lightSecondary,
+                                    color: isDark
+                                        ? AppColors.secondary
+                                        : AppColors.lightSecondary,
                                     size: 24,
                                   ),
                                 ),
@@ -425,7 +464,9 @@ class _ReferralsScreenState extends ConsumerState<ReferralsScreen> {
                                     Text(
                                       'Active Line Protection',
                                       style: AppTextStyles.labelSmall.copyWith(
-                                        color: isDark ? AppColors.secondary : AppColors.lightSecondary,
+                                        color: isDark
+                                            ? AppColors.secondary
+                                            : AppColors.lightSecondary,
                                       ),
                                     ),
                                   ],
@@ -438,16 +479,26 @@ class _ReferralsScreenState extends ConsumerState<ReferralsScreen> {
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                color: (isDark ? AppColors.secondary : AppColors.lightSecondary).withOpacity(0.15),
+                                color:
+                                    (isDark
+                                            ? AppColors.secondary
+                                            : AppColors.lightSecondary)
+                                        .withOpacity(0.15),
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
-                                  color: (isDark ? AppColors.secondary : AppColors.lightSecondary).withOpacity(0.5),
+                                  color:
+                                      (isDark
+                                              ? AppColors.secondary
+                                              : AppColors.lightSecondary)
+                                          .withOpacity(0.5),
                                 ),
                               ),
                               child: Text(
                                 'VIP PASS',
                                 style: AppTextStyles.labelSmall.copyWith(
-                                  color: isDark ? AppColors.secondaryLight : AppColors.lightSecondary,
+                                  color: isDark
+                                      ? AppColors.secondaryLight
+                                      : AppColors.lightSecondary,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -457,14 +508,18 @@ class _ReferralsScreenState extends ConsumerState<ReferralsScreen> {
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 20),
                           child: Divider(
-                            color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                            color: isDark
+                                ? AppColors.darkBorder
+                                : AppColors.lightBorder,
                             height: 1,
                           ),
                         ),
                         Text(
                           'YOUR EXCLUSIVES REFERRAL CODE',
                           style: AppTextStyles.labelSmall.copyWith(
-                            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                            color: isDark
+                                ? AppColors.textSecondaryDark
+                                : AppColors.textSecondaryLight,
                             letterSpacing: 1.5,
                           ),
                         ),
@@ -501,7 +556,9 @@ class _ReferralsScreenState extends ConsumerState<ReferralsScreen> {
                                   vertical: 8,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: isDark ? AppColors.primary : AppColors.lightPrimary,
+                                  color: isDark
+                                      ? AppColors.primary
+                                      : AppColors.lightPrimary,
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: Row(
@@ -528,7 +585,9 @@ class _ReferralsScreenState extends ConsumerState<ReferralsScreen> {
                         Text(
                           'Share this pass code with friends. Once they enter your code, both of your accounts get credited with a \$2.00 reward bonus instantly!',
                           style: AppTextStyles.bodySmall.copyWith(
-                            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                            color: isDark
+                                ? AppColors.textSecondaryDark
+                                : AppColors.textSecondaryLight,
                             height: 1.5,
                           ),
                         ),
@@ -540,7 +599,9 @@ class _ReferralsScreenState extends ConsumerState<ReferralsScreen> {
                                 _showShareSimulation(context, userReferralCode),
                             style: OutlinedButton.styleFrom(
                               side: BorderSide(
-                                color: isDark ? AppColors.secondary : AppColors.lightPrimary,
+                                color: isDark
+                                    ? AppColors.secondary
+                                    : AppColors.lightPrimary,
                               ),
                               padding: const EdgeInsets.symmetric(vertical: 14),
                               shape: RoundedRectangleBorder(
@@ -549,13 +610,17 @@ class _ReferralsScreenState extends ConsumerState<ReferralsScreen> {
                             ),
                             icon: Icon(
                               Icons.share_outlined,
-                              color: isDark ? AppColors.secondary : AppColors.lightPrimary,
+                              color: isDark
+                                  ? AppColors.secondary
+                                  : AppColors.lightPrimary,
                               size: 18,
                             ),
                             label: Text(
                               'SHARE PASS CARD',
                               style: AppTextStyles.labelLarge.copyWith(
-                                color: isDark ? AppColors.secondary : AppColors.lightPrimary,
+                                color: isDark
+                                    ? AppColors.secondary
+                                    : AppColors.lightPrimary,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -581,7 +646,11 @@ class _ReferralsScreenState extends ConsumerState<ReferralsScreen> {
                     decoration: BoxDecoration(
                       color: isDark ? AppColors.darkSurface : Colors.white,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+                      border: Border.all(
+                        color: isDark
+                            ? AppColors.darkBorder
+                            : AppColors.lightBorder,
+                      ),
                     ),
                     child: hasReferredBy
                         ? Column(
@@ -608,7 +677,9 @@ class _ReferralsScreenState extends ConsumerState<ReferralsScreen> {
                               Text(
                                 'You successfully claimed your \$2.00 welcome bonus using referral code: ${profile?.referredBy}. Enjoy expat shield protection!',
                                 style: AppTextStyles.bodyMedium.copyWith(
-                                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                                  color: isDark
+                                      ? AppColors.textSecondaryDark
+                                      : AppColors.textSecondaryLight,
                                 ),
                               ),
                             ],
@@ -621,7 +692,9 @@ class _ReferralsScreenState extends ConsumerState<ReferralsScreen> {
                                 Text(
                                   'Were you referred by a friend? Enter their referral code below to claim your free \$2.00 start-up credit!',
                                   style: AppTextStyles.bodySmall.copyWith(
-                                    color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                                    color: isDark
+                                        ? AppColors.textSecondaryDark
+                                        : AppColors.textSecondaryLight,
                                     height: 1.5,
                                   ),
                                 ),
@@ -637,10 +710,14 @@ class _ReferralsScreenState extends ConsumerState<ReferralsScreen> {
                                   decoration: InputDecoration(
                                     hintText: 'ENTER CODE (e.g. SSXXXXXX)',
                                     hintStyle: TextStyle(
-                                      color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
+                                      color: isDark
+                                          ? AppColors.textTertiaryDark
+                                          : AppColors.textTertiaryLight,
                                     ),
                                     filled: true,
-                                    fillColor: isDark ? AppColors.darkBg : AppColors.lightBg,
+                                    fillColor: isDark
+                                        ? AppColors.darkBg
+                                        : AppColors.lightBg,
                                     contentPadding: const EdgeInsets.symmetric(
                                       horizontal: 16,
                                       vertical: 14,
@@ -648,19 +725,25 @@ class _ReferralsScreenState extends ConsumerState<ReferralsScreen> {
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10),
                                       borderSide: BorderSide(
-                                        color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                                        color: isDark
+                                            ? AppColors.darkBorder
+                                            : AppColors.lightBorder,
                                       ),
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10),
                                       borderSide: BorderSide(
-                                        color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                                        color: isDark
+                                            ? AppColors.darkBorder
+                                            : AppColors.lightBorder,
                                       ),
                                     ),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10),
                                       borderSide: BorderSide(
-                                        color: isDark ? AppColors.primary : AppColors.lightPrimary,
+                                        color: isDark
+                                            ? AppColors.primary
+                                            : AppColors.lightPrimary,
                                       ),
                                     ),
                                     errorStyle: const TextStyle(
@@ -705,24 +788,32 @@ class _ReferralsScreenState extends ConsumerState<ReferralsScreen> {
                                         ? null
                                         : () => _submitReferralCode(state),
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: isDark ? AppColors.secondary : AppColors.lightPrimary,
-                                      foregroundColor:
-                                          isDark ? AppColors.textPrimaryLight : Colors.white,
+                                      backgroundColor: isDark
+                                          ? AppColors.secondary
+                                          : AppColors.lightPrimary,
+                                      foregroundColor: isDark
+                                          ? AppColors.textPrimaryLight
+                                          : Colors.white,
                                       padding: const EdgeInsets.symmetric(
                                         vertical: 14,
                                       ),
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(10),
                                       ),
-                                      disabledBackgroundColor: (isDark ? AppColors.secondary : AppColors.lightPrimary)
-                                          .withOpacity(0.4),
+                                      disabledBackgroundColor:
+                                          (isDark
+                                                  ? AppColors.secondary
+                                                  : AppColors.lightPrimary)
+                                              .withOpacity(0.4),
                                     ),
                                     child: state.isSubmitting
                                         ? SizedBox(
                                             height: 20,
                                             width: 20,
                                             child: CircularProgressIndicator(
-                                              color: isDark ? AppColors.textPrimaryLight : Colors.white,
+                                              color: isDark
+                                                  ? AppColors.textPrimaryLight
+                                                  : Colors.white,
                                               strokeWidth: 2,
                                             ),
                                           )
@@ -761,14 +852,22 @@ class _ReferralsScreenState extends ConsumerState<ReferralsScreen> {
                       decoration: BoxDecoration(
                         color: isDark ? AppColors.darkSurface : Colors.white,
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+                        border: Border.all(
+                          color: isDark
+                              ? AppColors.darkBorder
+                              : AppColors.lightBorder,
+                        ),
                       ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
                             Icons.supervised_user_circle_outlined,
-                            color: (isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight).withOpacity(0.4),
+                            color:
+                                (isDark
+                                        ? AppColors.textTertiaryDark
+                                        : AppColors.textTertiaryLight)
+                                    .withOpacity(0.4),
                             size: 64,
                           ),
                           const SizedBox(height: 12),
@@ -782,7 +881,9 @@ class _ReferralsScreenState extends ConsumerState<ReferralsScreen> {
                           Text(
                             'Share your referral code and invite expats to get \$2.00 rewards!',
                             style: AppTextStyles.bodySmall.copyWith(
-                              color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
+                              color: isDark
+                                  ? AppColors.textTertiaryDark
+                                  : AppColors.textTertiaryLight,
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -808,21 +909,31 @@ class _ReferralsScreenState extends ConsumerState<ReferralsScreen> {
                         return Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: isDark ? AppColors.darkSurface : Colors.white,
+                            color: isDark
+                                ? AppColors.darkSurface
+                                : Colors.white,
                             borderRadius: BorderRadius.circular(14),
-                            border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+                            border: Border.all(
+                              color: isDark
+                                  ? AppColors.darkBorder
+                                  : AppColors.lightBorder,
+                            ),
                           ),
                           child: Row(
                             children: [
                               CircleAvatar(
                                 radius: 22,
-                                backgroundColor: (isDark ? AppColors.primary : AppColors.lightPrimary).withOpacity(
-                                  0.2,
-                                ),
+                                backgroundColor:
+                                    (isDark
+                                            ? AppColors.primary
+                                            : AppColors.lightPrimary)
+                                        .withOpacity(0.2),
                                 child: Text(
                                   _getInitials(name),
                                   style: AppTextStyles.titleMedium.copyWith(
-                                    color: isDark ? AppColors.primaryLight : AppColors.lightPrimary,
+                                    color: isDark
+                                        ? AppColors.primaryLight
+                                        : AppColors.lightPrimary,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -843,7 +954,9 @@ class _ReferralsScreenState extends ConsumerState<ReferralsScreen> {
                                     Text(
                                       email,
                                       style: AppTextStyles.bodySmall.copyWith(
-                                        color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                                        color: isDark
+                                            ? AppColors.textSecondaryDark
+                                            : AppColors.textSecondaryLight,
                                       ),
                                     ),
                                   ],
@@ -855,13 +968,19 @@ class _ReferralsScreenState extends ConsumerState<ReferralsScreen> {
                                   vertical: 6,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: (isDark ? AppColors.success : AppColors.lightSuccess).withOpacity(0.15),
+                                  color:
+                                      (isDark
+                                              ? AppColors.success
+                                              : AppColors.lightSuccess)
+                                          .withOpacity(0.15),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Text(
                                   '+\$${item.rewardAmount.toStringAsFixed(2)}',
                                   style: AppTextStyles.labelMedium.copyWith(
-                                    color: isDark ? AppColors.healthGreen : AppColors.lightSuccess,
+                                    color: isDark
+                                        ? AppColors.healthGreen
+                                        : AppColors.lightSuccess,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -905,7 +1024,9 @@ class _MetricCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkSurface : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+        border: Border.all(
+          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -916,11 +1037,19 @@ class _MetricCard extends StatelessWidget {
               Text(
                 title,
                 style: AppTextStyles.labelSmall.copyWith(
-                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                  color: isDark
+                      ? AppColors.textSecondaryDark
+                      : AppColors.textSecondaryLight,
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              Icon(icon, color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight, size: 18),
+              Icon(
+                icon,
+                color: isDark
+                    ? AppColors.textTertiaryDark
+                    : AppColors.textTertiaryLight,
+                size: 18,
+              ),
             ],
           ),
           const SizedBox(height: 12),
@@ -929,16 +1058,18 @@ class _MetricCard extends StatelessWidget {
             style: AppTextStyles.headlineLarge.copyWith(
               color: context.onSurfaceColor,
               fontWeight: FontWeight.bold,
-              shadows: isDark ? [
-                Shadow(color: glowColor.withOpacity(0.3), blurRadius: 10),
-              ] : null,
+              shadows: isDark
+                  ? [Shadow(color: glowColor.withOpacity(0.3), blurRadius: 10)]
+                  : null,
             ),
           ),
           const SizedBox(height: 4),
           Text(
             subtitle,
             style: AppTextStyles.bodySmall.copyWith(
-              color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
+              color: isDark
+                  ? AppColors.textTertiaryDark
+                  : AppColors.textTertiaryLight,
             ),
           ),
         ],
@@ -983,7 +1114,9 @@ class _ShareTargetButton extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               label,
-              style: AppTextStyles.labelSmall.copyWith(color: isDark ? Colors.white : AppColors.textPrimaryLight),
+              style: AppTextStyles.labelSmall.copyWith(
+                color: isDark ? Colors.white : AppColors.textPrimaryLight,
+              ),
             ),
           ],
         ),

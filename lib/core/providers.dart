@@ -25,6 +25,8 @@ import 'package:keep_sims/features/offline_recharge/repository/offline_refill_re
 import 'package:keep_sims/core/services/connectivity_service.dart';
 import 'package:keep_sims/core/services/local_cache_service.dart';
 import 'package:keep_sims/core/services/sync_queue_service.dart';
+import 'package:keep_sims/features/support/contract/support_contract.dart';
+import 'package:keep_sims/features/support/repository/support_repository.dart';
 
 part 'providers.g.dart';
 
@@ -97,3 +99,11 @@ PaymentsContract paymentsRepository(Ref ref) => PaymentsRepository(supabase);
 @riverpod
 OfflineRefillContract offlineRefillRepository(Ref ref) =>
     OfflineRefillRepository(supabase);
+
+// ============================================================
+// Support
+// ============================================================
+
+/// Provides the [SupportContract] implementation.
+@riverpod
+SupportContract supportRepository(Ref ref) => SupportRepository(supabase);

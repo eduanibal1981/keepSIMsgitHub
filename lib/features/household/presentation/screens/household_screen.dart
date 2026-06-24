@@ -66,12 +66,16 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
           controller: _tabController,
           indicatorColor: const Color(0xFF6366F1),
           labelColor: context.onSurfaceColor,
-          unselectedLabelColor: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+          unselectedLabelColor: isDark
+              ? AppColors.textSecondaryDark
+              : AppColors.textSecondaryLight,
           labelStyle: AppTextStyles.bodyMedium.copyWith(
             fontWeight: FontWeight.bold,
           ),
           unselectedLabelStyle: AppTextStyles.bodyMedium,
-          dividerColor: isDark ? Colors.white.withOpacity(0.05) : AppColors.lightBorder.withOpacity(0.3),
+          dividerColor: isDark
+              ? Colors.white.withOpacity(0.05)
+              : AppColors.lightBorder.withOpacity(0.3),
           tabs: const [
             Tab(text: 'My Family'),
             Tab(text: 'Received'),
@@ -135,10 +139,14 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
           margin: const EdgeInsets.only(bottom: 14.0),
           padding: const EdgeInsets.all(16.0),
           decoration: BoxDecoration(
-            color: isDark ? AppColors.darkCard.withOpacity(0.4) : AppColors.lightCard,
+            color: isDark
+                ? AppColors.darkCard.withOpacity(0.4)
+                : AppColors.lightCard,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: isDark ? Colors.white.withOpacity(0.06) : AppColors.lightBorder,
+              color: isDark
+                  ? Colors.white.withOpacity(0.06)
+                  : AppColors.lightBorder,
               width: 1.0,
             ),
           ),
@@ -148,7 +156,9 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
               CircleAvatar(
                 radius: 24,
                 backgroundColor: isPending
-                    ? (isDark ? Colors.white.withOpacity(0.06) : Colors.black.withOpacity(0.04))
+                    ? (isDark
+                          ? Colors.white.withOpacity(0.06)
+                          : Colors.black.withOpacity(0.04))
                     : const Color(0xFF6366F1).withOpacity(0.1),
                 child: Text(
                   (member.memberName ?? member.memberEmail)
@@ -156,8 +166,10 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                       .toUpperCase(),
                   style: TextStyle(
                     color: isPending
-                      ? (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight)
-                      : const Color(0xFF6366F1),
+                        ? (isDark
+                              ? AppColors.textSecondaryDark
+                              : AppColors.textSecondaryLight)
+                        : const Color(0xFF6366F1),
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -182,7 +194,9 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                       Text(
                         member.memberEmail,
                         style: AppTextStyles.caption.copyWith(
-                          color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                          color: isDark
+                              ? AppColors.textSecondaryDark
+                              : AppColors.textSecondaryLight,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -283,10 +297,14 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
           margin: const EdgeInsets.only(bottom: 14.0),
           padding: const EdgeInsets.all(18.0),
           decoration: BoxDecoration(
-            color: isDark ? AppColors.darkCard.withOpacity(0.4) : AppColors.lightCard,
+            color: isDark
+                ? AppColors.darkCard.withOpacity(0.4)
+                : AppColors.lightCard,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: isDark ? Colors.white.withOpacity(0.06) : AppColors.lightBorder,
+              color: isDark
+                  ? Colors.white.withOpacity(0.06)
+                  : AppColors.lightBorder,
               width: 1.0,
             ),
           ),
@@ -320,7 +338,9 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                         Text(
                           'Invited you as a ${invite.role.toUpperCase()}',
                           style: AppTextStyles.caption.copyWith(
-                            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                            color: isDark
+                                ? AppColors.textSecondaryDark
+                                : AppColors.textSecondaryLight,
                           ),
                         ),
                       ],
@@ -338,7 +358,9 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                         _handleRespond(invite.id, false);
                       },
                       style: TextButton.styleFrom(
-                        backgroundColor: isDark ? Colors.white.withOpacity(0.06) : Colors.black.withOpacity(0.04),
+                        backgroundColor: isDark
+                            ? Colors.white.withOpacity(0.06)
+                            : Colors.black.withOpacity(0.04),
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -404,10 +426,14 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
           margin: const EdgeInsets.only(bottom: 14.0),
           padding: const EdgeInsets.all(16.0),
           decoration: BoxDecoration(
-            color: isDark ? AppColors.darkCard.withOpacity(0.4) : AppColors.lightCard,
+            color: isDark
+                ? AppColors.darkCard.withOpacity(0.4)
+                : AppColors.lightCard,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: isDark ? Colors.white.withOpacity(0.06) : AppColors.lightBorder,
+              color: isDark
+                  ? Colors.white.withOpacity(0.06)
+                  : AppColors.lightBorder,
               width: 1.0,
             ),
           ),
@@ -496,7 +522,9 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
           surfaceTintColor: Colors.transparent,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
-            side: isDark ? BorderSide.none : const BorderSide(color: AppColors.lightBorder),
+            side: isDark
+                ? BorderSide.none
+                : const BorderSide(color: AppColors.lightBorder),
           ),
           title: Text(
             'Invite Family Member',
@@ -512,7 +540,9 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
               Text(
                 'Enter email below to invite them to view or manage your shared SIM lines.',
                 style: AppTextStyles.bodyMedium.copyWith(
-                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                  color: isDark
+                      ? AppColors.textSecondaryDark
+                      : AppColors.textSecondaryLight,
                 ),
               ),
               const SizedBox(height: 20),
@@ -522,20 +552,28 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                 decoration: InputDecoration(
                   labelText: 'Email Address',
                   labelStyle: TextStyle(
-                    color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                    color: isDark
+                        ? AppColors.textSecondaryDark
+                        : AppColors.textSecondaryLight,
                   ),
                   filled: true,
-                  fillColor: isDark ? Colors.white.withOpacity(0.04) : Colors.black.withOpacity(0.03),
+                  fillColor: isDark
+                      ? Colors.white.withOpacity(0.04)
+                      : Colors.black.withOpacity(0.03),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
                     borderSide: BorderSide(
-                      color: isDark ? Colors.white.withOpacity(0.08) : AppColors.lightBorder,
+                      color: isDark
+                          ? Colors.white.withOpacity(0.08)
+                          : AppColors.lightBorder,
                     ),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
                     borderSide: BorderSide(
-                      color: isDark ? Colors.white.withOpacity(0.08) : AppColors.lightBorder,
+                      color: isDark
+                          ? Colors.white.withOpacity(0.08)
+                          : AppColors.lightBorder,
                     ),
                   ),
                   focusedBorder: OutlineInputBorder(
@@ -568,12 +606,16 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                         decoration: BoxDecoration(
                           color: selectedRole == 'viewer'
                               ? const Color(0xFF3B82F6).withOpacity(0.12)
-                              : (isDark ? Colors.white.withOpacity(0.03) : Colors.black.withOpacity(0.02)),
+                              : (isDark
+                                    ? Colors.white.withOpacity(0.03)
+                                    : Colors.black.withOpacity(0.02)),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color: selectedRole == 'viewer'
                                 ? const Color(0xFF3B82F6)
-                                : (isDark ? Colors.white.withOpacity(0.06) : AppColors.lightBorder),
+                                : (isDark
+                                      ? Colors.white.withOpacity(0.06)
+                                      : AppColors.lightBorder),
                           ),
                         ),
                         child: Column(
@@ -582,7 +624,9 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                               Icons.visibility_rounded,
                               color: selectedRole == 'viewer'
                                   ? const Color(0xFF3B82F6)
-                                  : (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+                                  : (isDark
+                                        ? AppColors.textSecondaryDark
+                                        : AppColors.textSecondaryLight),
                             ),
                             const SizedBox(height: 6),
                             Text(
@@ -596,7 +640,9 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                             Text(
                               'Read-only',
                               style: TextStyle(
-                                color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                                color: isDark
+                                    ? AppColors.textSecondaryDark
+                                    : AppColors.textSecondaryLight,
                                 fontSize: 10,
                               ),
                             ),
@@ -617,12 +663,16 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                         decoration: BoxDecoration(
                           color: selectedRole == 'manager'
                               ? const Color(0xFFA855F7).withOpacity(0.12)
-                              : (isDark ? Colors.white.withOpacity(0.03) : Colors.black.withOpacity(0.02)),
+                              : (isDark
+                                    ? Colors.white.withOpacity(0.03)
+                                    : Colors.black.withOpacity(0.02)),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color: selectedRole == 'manager'
                                 ? const Color(0xFFA855F7)
-                                : (isDark ? Colors.white.withOpacity(0.06) : AppColors.lightBorder),
+                                : (isDark
+                                      ? Colors.white.withOpacity(0.06)
+                                      : AppColors.lightBorder),
                           ),
                         ),
                         child: Column(
@@ -631,7 +681,9 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                               Icons.manage_accounts_rounded,
                               color: selectedRole == 'manager'
                                   ? const Color(0xFFA855F7)
-                                  : (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+                                  : (isDark
+                                        ? AppColors.textSecondaryDark
+                                        : AppColors.textSecondaryLight),
                             ),
                             const SizedBox(height: 6),
                             Text(
@@ -645,7 +697,9 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                             Text(
                               'Read/Write',
                               style: TextStyle(
-                                color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                                color: isDark
+                                    ? AppColors.textSecondaryDark
+                                    : AppColors.textSecondaryLight,
                                 fontSize: 10,
                               ),
                             ),
@@ -666,7 +720,9 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
               },
               child: Text(
                 'Cancel',
-                style: TextStyle(color: isDark ? Colors.white70 : AppColors.textSecondaryLight),
+                style: TextStyle(
+                  color: isDark ? Colors.white70 : AppColors.textSecondaryLight,
+                ),
               ),
             ),
             ElevatedButton(
@@ -768,7 +824,9 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
-          side: isDark ? BorderSide.none : const BorderSide(color: AppColors.lightBorder),
+          side: isDark
+              ? BorderSide.none
+              : const BorderSide(color: AppColors.lightBorder),
         ),
         title: Text(
           'Remove Family Member',
@@ -776,7 +834,11 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
         ),
         content: Text(
           'Are you sure you want to revoke access/remove ${member.memberEmail} from your household?',
-          style: TextStyle(color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+          style: TextStyle(
+            color: isDark
+                ? AppColors.textSecondaryDark
+                : AppColors.textSecondaryLight,
+          ),
         ),
         actions: [
           TextButton(
@@ -786,7 +848,9 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
             },
             child: Text(
               'Cancel',
-              style: TextStyle(color: isDark ? Colors.white70 : AppColors.textSecondaryLight),
+              style: TextStyle(
+                color: isDark ? Colors.white70 : AppColors.textSecondaryLight,
+              ),
             ),
           ),
           ElevatedButton(
@@ -815,7 +879,9 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
-          side: isDark ? BorderSide.none : const BorderSide(color: AppColors.lightBorder),
+          side: isDark
+              ? BorderSide.none
+              : const BorderSide(color: AppColors.lightBorder),
         ),
         title: Text(
           'Leave Household',
@@ -823,7 +889,11 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
         ),
         content: Text(
           'Are you sure you want to leave the household shared by ${membership.ownerName ?? 'Family Owner'}? You will lose all access to their shared lines.',
-          style: TextStyle(color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+          style: TextStyle(
+            color: isDark
+                ? AppColors.textSecondaryDark
+                : AppColors.textSecondaryLight,
+          ),
         ),
         actions: [
           TextButton(
@@ -833,7 +903,9 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
             },
             child: Text(
               'Cancel',
-              style: TextStyle(color: isDark ? Colors.white70 : AppColors.textSecondaryLight),
+              style: TextStyle(
+                color: isDark ? Colors.white70 : AppColors.textSecondaryLight,
+              ),
             ),
           ),
           ElevatedButton(

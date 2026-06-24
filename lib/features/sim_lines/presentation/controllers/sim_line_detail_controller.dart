@@ -14,7 +14,8 @@ class SimLineDetailState {
   final SimLine simLine;
   final ScheduledTopup? scheduledTopup;
   final ScheduledTopup? notifySchedule;
-  final ScheduledTopup? refillSchedule;
+  final ScheduledTopup? miniRefillSchedule;
+  final ScheduledTopup? customRefillSchedule;
   final List<TopupExecution> executions;
   final List<LineActivityLog> activityLogs;
 
@@ -22,7 +23,8 @@ class SimLineDetailState {
     required this.simLine,
     this.scheduledTopup,
     this.notifySchedule,
-    this.refillSchedule,
+    this.miniRefillSchedule,
+    this.customRefillSchedule,
     required this.executions,
     required this.activityLogs,
   });
@@ -42,8 +44,9 @@ class SimLineDetailController extends _$SimLineDetailController {
 
     // 2. Fetch ScheduledTopups if any
     final notifySchedule = ref.watch(scheduledNotifyForLineProvider(id));
-    final refillSchedule = ref.watch(scheduledRefillForLineProvider(id));
-    final scheduledTopup = refillSchedule ?? notifySchedule;
+    final miniRefillSchedule = ref.watch(scheduledMiniRefillForLineProvider(id));
+    final customRefillSchedule = ref.watch(scheduledCustomRefillForLineProvider(id));
+    final scheduledTopup = customRefillSchedule ?? miniRefillSchedule ?? notifySchedule;
 
     // 3. Fetch Executions
     final executions = await ref.watch(
@@ -59,7 +62,8 @@ class SimLineDetailController extends _$SimLineDetailController {
       simLine: simLine,
       scheduledTopup: scheduledTopup,
       notifySchedule: notifySchedule,
-      refillSchedule: refillSchedule,
+      miniRefillSchedule: miniRefillSchedule,
+      customRefillSchedule: customRefillSchedule,
       executions: executions,
       activityLogs: activityLogs,
     );
@@ -68,7 +72,7 @@ class SimLineDetailController extends _$SimLineDetailController {
   /// Triggers a mock refill execution
   Future<Result<void>> triggerRefill() async {
     final detailState = state.valueOrNull;
-    final refillSchedule = detailState?.refillSchedule;
+    final refillSchedule = detailState?.customRefillSchedule ?? detailState?.miniRefillSchedule;
     if (detailState == null || refillSchedule == null) {
       return Failure(
         AppFailure.validation(
@@ -110,6 +114,8 @@ class SimLineDetailController extends _$SimLineDetailController {
 
   /// Clears all activity logs for this line
   Future<void> clearAllActivityLogs() async {
-    await ref.read(simLinesControllerProvider.notifier).clearAllActivityLogs(id);
+    await ref
+        .read(simLinesControllerProvider.notifier)
+        .clearAllActivityLogs(id);
   }
 }

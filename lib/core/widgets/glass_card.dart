@@ -11,6 +11,8 @@ class GlassCard extends StatelessWidget {
   final double borderRadius;
   final double? width;
   final double? height;
+  final Gradient? customGradient;
+  final BoxBorder? customBorder;
 
   const GlassCard({
     super.key,
@@ -22,13 +24,15 @@ class GlassCard extends StatelessWidget {
     this.borderRadius = 24.0,
     this.width,
     this.height,
+    this.customGradient,
+    this.customBorder,
   });
 
   @override
   Widget build(BuildContext context) {
     final glowColor = activeColor ?? AppColors.primary;
     final isLight = Theme.of(context).brightness == Brightness.light;
-    
+
     return Container(
       width: width,
       height: height,
@@ -41,7 +45,7 @@ class GlassCard extends StatelessWidget {
                   color: glowColor.withOpacity(isLight ? 0.08 : 0.3),
                   blurRadius: 20,
                   spreadRadius: 2,
-                )
+                ),
               ]
             : null,
       ),
@@ -52,18 +56,20 @@ class GlassCard extends StatelessWidget {
           child: Container(
             padding: padding,
             decoration: BoxDecoration(
-              gradient: isLight
+              gradient: customGradient ?? (isLight
                   ? const LinearGradient(
                       colors: [Color(0xCCFFFFFF), Color(0xB3FFFFFF)],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     )
-                  : AppColors.darkCardGradient,
+                  : AppColors.darkCardGradient),
               borderRadius: BorderRadius.circular(borderRadius),
-              border: Border.all(
+              border: customBorder ?? Border.all(
                 color: isActive
-                    ? glowColor.withOpacity(isLight ? 0.3 : 0.5)
-                    : (isLight ? AppColors.lightBorderSoft : AppColors.darkBorder),
+                    ? glowColor.withValues(alpha: isLight ? 0.3 : 0.5)
+                    : (isLight
+                          ? AppColors.lightBorderSoft
+                          : AppColors.darkBorder),
                 width: 1,
               ),
             ),

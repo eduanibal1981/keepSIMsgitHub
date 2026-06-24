@@ -9,6 +9,7 @@ import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import 'package:keep_sims/features/profile/presentation/widgets/subscription_upsell_sheet.dart';
 import 'package:keep_sims/core/utils/build_context_extension.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
 
 class NotificationSettingsScreen extends ConsumerWidget {
   const NotificationSettingsScreen({super.key});
@@ -93,6 +94,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
     final userPrefsAsync = ref.watch(userPreferencesControllerProvider);
     final channelsAsync = ref.watch(notificationChannelsControllerProvider);
     final userAsync = ref.watch(authControllerProvider);
+    final isDark = context.isDarkMode;
 
     return Scaffold(
       backgroundColor: context.scaffoldBackgroundColor,
@@ -100,10 +102,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_rounded,
-            color: context.onSurfaceColor,
-          ),
+          icon: Icon(Icons.arrow_back_rounded, color: context.onSurfaceColor),
           onPressed: () async {
             await HapticHelper.lightTick();
             Navigator.pop(context);
@@ -137,17 +136,91 @@ class NotificationSettingsScreen extends ConsumerWidget {
 
             const SizedBox(height: 16),
 
-            // Alert Delivery Channels
-            _buildSectionHeader(context, 'Alert Delivery Channels'),
-            channelsAsync.when(
-              data: (channels) => _buildAlertDeliveryChannels(context, ref, channels, userAsync.valueOrNull?.id),
-              loading: () => Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: CircularProgressIndicator(color: context.primaryColor),
+            // Alert Delivery Channels Highlighted Container
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: Colors.orange.withValues(alpha: isDark ? 0.08 : 0.04),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: Colors.orange.withValues(alpha: isDark ? 0.3 : 0.25),
+                  width: 1.5,
                 ),
               ),
-              error: (err, _) => const SizedBox.shrink(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'ALERT DELIVERY CHANNELS',
+                          style: AppTextStyles.labelMedium.copyWith(
+                            color: Colors.orange.shade700,
+                            letterSpacing: 1.2,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.orange.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: Colors.orange.withValues(alpha: 0.3),
+                              width: 1,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.star_rounded,
+                                color: Colors.orange.shade700,
+                                size: 12,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                'MOST IMPORTANT',
+                                style: AppTextStyles.caption.copyWith(
+                                  color: Colors.orange.shade700,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 9,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  channelsAsync.when(
+                    data: (channels) => _buildAlertDeliveryChannels(
+                      context,
+                      ref,
+                      channels,
+                      userAsync.valueOrNull?.id,
+                      isNested: true,
+                    ),
+                    loading: () => Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(24.0),
+                        child: CircularProgressIndicator(
+                          color: Colors.orange.shade700,
+                        ),
+                      ),
+                    ),
+                    error: (err, _) => const SizedBox.shrink(),
+                  ),
+                  const SizedBox(height: 10),
+                ],
+              ),
             ),
 
             const SizedBox(height: 16),
@@ -155,7 +228,8 @@ class NotificationSettingsScreen extends ConsumerWidget {
             // Incident Channels (Alert settings per category)
             _buildSectionHeader(context, 'Incident Channels'),
             alertSettingsAsync.when(
-              data: (settings) => _buildIncidentChannels(context, ref, settings),
+              data: (settings) =>
+                  _buildIncidentChannels(context, ref, settings),
               loading: () => Center(
                 child: Padding(
                   padding: const EdgeInsets.all(32.0),
@@ -184,7 +258,9 @@ class NotificationSettingsScreen extends ConsumerWidget {
       child: Text(
         title.toUpperCase(),
         style: AppTextStyles.labelMedium.copyWith(
-          color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
+          color: isDark
+              ? AppColors.textTertiaryDark
+              : AppColors.textTertiaryLight,
           letterSpacing: 1.2,
           fontWeight: FontWeight.bold,
         ),
@@ -207,7 +283,9 @@ class NotificationSettingsScreen extends ConsumerWidget {
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkSurface : AppColors.lightCard,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+        border: Border.all(
+          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+        ),
       ),
       child: Column(
         children: [
@@ -216,8 +294,12 @@ class NotificationSettingsScreen extends ConsumerWidget {
             value: isQuietHoursActive,
             activeColor: context.colorScheme.secondary,
             activeTrackColor: context.colorScheme.secondary.withOpacity(0.2),
-            inactiveThumbColor: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
-            inactiveTrackColor: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+            inactiveThumbColor: isDark
+                ? AppColors.textTertiaryDark
+                : AppColors.textTertiaryLight,
+            inactiveTrackColor: isDark
+                ? AppColors.darkBorder
+                : AppColors.lightBorder,
             title: Row(
               children: [
                 Icon(
@@ -237,7 +319,9 @@ class NotificationSettingsScreen extends ConsumerWidget {
             subtitle: Text(
               'Mute push notifications during specified sleep hours.',
               style: AppTextStyles.bodySmall.copyWith(
-                color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                color: isDark
+                    ? AppColors.textSecondaryDark
+                    : AppColors.textSecondaryLight,
               ),
             ),
             onChanged: (active) async {
@@ -257,7 +341,10 @@ class NotificationSettingsScreen extends ConsumerWidget {
           ),
 
           if (isQuietHoursActive) ...[
-            Divider(color: isDark ? AppColors.darkBorder : AppColors.lightBorder, height: 1),
+            Divider(
+              color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+              height: 1,
+            ),
             // Time Pickers Row
             Padding(
               padding: const EdgeInsets.all(16),
@@ -293,15 +380,22 @@ class NotificationSettingsScreen extends ConsumerWidget {
             ),
           ],
 
-          Divider(color: isDark ? AppColors.darkBorder : AppColors.lightBorder, height: 1),
+          Divider(
+            color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+            height: 1,
+          ),
 
           // Weekly Digest Preference Row
           SwitchListTile(
             value: prefs.weeklyDigestEnabled,
             activeColor: context.primaryColor,
             activeTrackColor: context.primaryColor.withOpacity(0.2),
-            inactiveThumbColor: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
-            inactiveTrackColor: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+            inactiveThumbColor: isDark
+                ? AppColors.textTertiaryDark
+                : AppColors.textTertiaryLight,
+            inactiveTrackColor: isDark
+                ? AppColors.darkBorder
+                : AppColors.lightBorder,
             title: Row(
               children: [
                 Icon(
@@ -321,7 +415,9 @@ class NotificationSettingsScreen extends ConsumerWidget {
             subtitle: Text(
               'Compiled status report of all SIM cards every Sunday at 9:00 AM.',
               style: AppTextStyles.bodySmall.copyWith(
-                color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                color: isDark
+                    ? AppColors.textSecondaryDark
+                    : AppColors.textSecondaryLight,
               ),
             ),
             onChanged: (active) async {
@@ -381,7 +477,9 @@ class NotificationSettingsScreen extends ConsumerWidget {
         decoration: BoxDecoration(
           color: isDark ? AppColors.darkCard : AppColors.lightCard,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+          border: Border.all(
+            color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -389,7 +487,9 @@ class NotificationSettingsScreen extends ConsumerWidget {
             Text(
               label,
               style: AppTextStyles.bodySmall.copyWith(
-                color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
+                color: isDark
+                    ? AppColors.textTertiaryDark
+                    : AppColors.textTertiaryLight,
               ),
             ),
             const SizedBox(height: 4),
@@ -406,7 +506,9 @@ class NotificationSettingsScreen extends ConsumerWidget {
                 Icon(
                   Icons.access_time_rounded,
                   size: 16,
-                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                  color: isDark
+                      ? AppColors.textSecondaryDark
+                      : AppColors.textSecondaryLight,
                 ),
               ],
             ),
@@ -416,7 +518,11 @@ class NotificationSettingsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildIncidentChannels(BuildContext context, WidgetRef ref, List<AlertSetting> settings) {
+  Widget _buildIncidentChannels(
+    BuildContext context,
+    WidgetRef ref,
+    List<AlertSetting> settings,
+  ) {
     final isDark = context.isDarkMode;
     if (settings.isEmpty) {
       return Center(
@@ -424,7 +530,11 @@ class NotificationSettingsScreen extends ConsumerWidget {
           padding: const EdgeInsets.all(16.0),
           child: Text(
             'No channels initialized.',
-            style: TextStyle(color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight),
+            style: TextStyle(
+              color: isDark
+                  ? AppColors.textTertiaryDark
+                  : AppColors.textTertiaryLight,
+            ),
           ),
         ),
       );
@@ -454,15 +564,21 @@ class NotificationSettingsScreen extends ConsumerWidget {
             border: Border.all(
               color: item.isEnabled
                   ? (isDark ? AppColors.darkBorder : AppColors.lightBorder)
-                  : (isDark ? AppColors.darkBorder.withValues(alpha: 0.5) : AppColors.lightBorder.withValues(alpha: 0.5)),
+                  : (isDark
+                        ? AppColors.darkBorder.withValues(alpha: 0.5)
+                        : AppColors.lightBorder.withValues(alpha: 0.5)),
             ),
           ),
           child: SwitchListTile(
             value: item.isEnabled,
             activeColor: metadata.color,
             activeTrackColor: metadata.color.withValues(alpha: 0.2),
-            inactiveThumbColor: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
-            inactiveTrackColor: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+            inactiveThumbColor: isDark
+                ? AppColors.textTertiaryDark
+                : AppColors.textTertiaryLight,
+            inactiveTrackColor: isDark
+                ? AppColors.darkBorder
+                : AppColors.lightBorder,
             title: Row(
               children: [
                 Container(
@@ -471,14 +587,18 @@ class NotificationSettingsScreen extends ConsumerWidget {
                   decoration: BoxDecoration(
                     color: item.isEnabled
                         ? metadata.color.withValues(alpha: 0.1)
-                        : (isDark ? AppColors.darkBorder : Colors.black.withOpacity(0.04)),
+                        : (isDark
+                              ? AppColors.darkBorder
+                              : Colors.black.withOpacity(0.04)),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     metadata.icon,
                     color: item.isEnabled
                         ? metadata.color
-                        : (isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight),
+                        : (isDark
+                              ? AppColors.textTertiaryDark
+                              : AppColors.textTertiaryLight),
                     size: 16,
                   ),
                 ),
@@ -489,7 +609,9 @@ class NotificationSettingsScreen extends ConsumerWidget {
                     style: AppTextStyles.titleMedium.copyWith(
                       color: item.isEnabled
                           ? context.onSurfaceColor
-                          : (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+                          : (isDark
+                                ? AppColors.textSecondaryDark
+                                : AppColors.textSecondaryLight),
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -501,7 +623,9 @@ class NotificationSettingsScreen extends ConsumerWidget {
               child: Text(
                 metadata.description,
                 style: AppTextStyles.bodySmall.copyWith(
-                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                  color: isDark
+                      ? AppColors.textSecondaryDark
+                      : AppColors.textSecondaryLight,
                   height: 1.3,
                 ),
               ),
@@ -551,8 +675,9 @@ class NotificationSettingsScreen extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     List<Map<String, dynamic>> channels,
-    String? userId,
-  ) {
+    String? userId, {
+    bool isNested = false,
+  }) {
     final isDark = context.isDarkMode;
     if (channels.isEmpty) {
       return Center(
@@ -560,15 +685,20 @@ class NotificationSettingsScreen extends ConsumerWidget {
           padding: const EdgeInsets.all(16.0),
           child: Text(
             'No alert delivery channels configured.',
-            style: TextStyle(color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight),
+            style: TextStyle(
+              color: isDark
+                  ? AppColors.textTertiaryDark
+                  : AppColors.textTertiaryLight,
+            ),
           ),
         ),
       );
     }
 
     // Sort channels so they are displayed in a clean, consistent order
-    // Order: push, email, whatsapp, telegram, webhook
-    final order = {'push': 1, 'email': 2, 'whatsapp': 3, 'telegram': 4, 'webhook': 5};
+    // Order: push, email, whatsapp, telegram (webhook temporarily disabled)
+    // final order = {'push': 1, 'email': 2, 'whatsapp': 3, 'telegram': 4, 'webhook': 5};
+    final order = {'push': 1, 'email': 2, 'whatsapp': 3, 'telegram': 4};
     final sortedChannels = List<Map<String, dynamic>>.from(channels)
       ..sort((a, b) {
         final aOrder = order[a['channel_type']] ?? 99;
@@ -585,6 +715,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
         return ChannelConfigCard(
           channel: channel,
           userId: userId,
+          isNested: isNested,
         );
       },
     );
@@ -597,11 +728,13 @@ class NotificationSettingsScreen extends ConsumerWidget {
 class ChannelConfigCard extends ConsumerStatefulWidget {
   final Map<String, dynamic> channel;
   final String? userId;
+  final bool isNested;
 
   const ChannelConfigCard({
     super.key,
     required this.channel,
     required this.userId,
+    this.isNested = false,
   });
 
   @override
@@ -624,9 +757,9 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
       initialText = config['email'] ?? '';
     } else if (type == 'whatsapp') {
       initialText = config['phone'] ?? '';
-    } else if (type == 'webhook') {
+    } /* else if (type == 'webhook') {
       initialText = config['webhook_url'] ?? '';
-    }
+    } */
     _textController = TextEditingController(text: initialText);
   }
 
@@ -642,9 +775,9 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
         currentText = config['email'] ?? '';
       } else if (type == 'whatsapp') {
         currentText = config['phone'] ?? '';
-      } else if (type == 'webhook') {
+      } /* else if (type == 'webhook') {
         currentText = config['webhook_url'] ?? '';
-      }
+      } */
       if (_textController.text != currentText) {
         _textController.text = currentText;
       }
@@ -660,17 +793,49 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
   Future<void> _saveConfig() async {
     setState(() => _isSaving = true);
     final type = widget.channel['channel_type'] as String;
-    final currentConfig = Map<String, dynamic>.from(widget.channel['config'] ?? {});
-    
+    final currentConfig = Map<String, dynamic>.from(
+      widget.channel['config'] ?? {},
+    );
+
     if (type == 'email') {
       currentConfig['email'] = _textController.text.trim();
     } else if (type == 'whatsapp') {
-      currentConfig['phone'] = _textController.text.trim();
-    } else if (type == 'webhook') {
+      String val = _textController.text.trim();
+      val = val.replaceAll(RegExp(r'[\s\-\(\)]'), '');
+      if (val.startsWith('00')) {
+        val = '+${val.substring(2)}';
+      }
+      if (!val.startsWith('+') && val.isNotEmpty) {
+        if (val.length <= 9) {
+          final profile = ref.read(authControllerProvider).valueOrNull;
+          final homeCode = profile?.homeCountryCode;
+          final countries =
+              ref.read(supportedCountriesProvider).valueOrNull ?? [];
+          String homeDial = '+20';
+          if (countries.isNotEmpty) {
+            try {
+              homeDial = countries
+                  .firstWhere((c) => c.isoCode == homeCode)
+                  .dialingCode;
+            } catch (_) {}
+          }
+          if (val.startsWith('0')) {
+            val = val.substring(1);
+          }
+          val = '$homeDial$val';
+        } else {
+          val = '+$val';
+        }
+      }
+      _textController.text = val;
+      currentConfig['phone'] = val;
+    } /* else if (type == 'webhook') {
       currentConfig['webhook_url'] = _textController.text.trim();
-    }
+    } */
 
-    await ref.read(notificationChannelsControllerProvider.notifier).updateChannelConfig(type, currentConfig);
+    await ref
+        .read(notificationChannelsControllerProvider.notifier)
+        .updateChannelConfig(type, currentConfig);
     if (mounted) {
       setState(() => _isSaving = false);
       ScaffoldMessenger.of(context).showSnackBar(
@@ -693,8 +858,8 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
         return 'WhatsApp Alerts';
       case 'telegram':
         return 'Telegram Bot';
-      case 'webhook':
-        return 'Emergency Webhooks';
+      /* case 'webhook':
+        return 'Emergency Webhooks'; */
       default:
         return type.toUpperCase();
     }
@@ -710,8 +875,8 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
         return Icons.chat_bubble_outline_rounded;
       case 'telegram':
         return Icons.telegram_rounded;
-      case 'webhook':
-        return Icons.webhook_rounded;
+      /* case 'webhook':
+        return Icons.webhook_rounded; */
       default:
         return Icons.device_unknown_rounded;
     }
@@ -722,13 +887,13 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
       case 'push':
         return AppColors.primaryLight;
       case 'email':
-        return const Color(0xFF38BDF8); 
+        return const Color(0xFF38BDF8);
       case 'whatsapp':
-        return const Color(0xFF4ADE80); 
+        return const Color(0xFF4ADE80);
       case 'telegram':
-        return const Color(0xFF22D3EE); 
-      case 'webhook':
-        return const Color(0xFFC084FC); 
+        return const Color(0xFF22D3EE);
+      /* case 'webhook':
+        return const Color(0xFFC084FC); */
       default:
         return AppColors.primary;
     }
@@ -744,15 +909,26 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
 
     final user = ref.watch(authControllerProvider).valueOrNull;
     final globalTier = user?.subscriptionTier ?? 'standard';
-    final bool isLocked = type != 'push' && globalTier == 'basic';
+    final simLines = ref.watch(simLinesControllerProvider).valueOrNull ?? [];
+    final hasStandardOrPremiumLine = simLines.any((line) {
+      final tier = line.protectionTier.trim().toLowerCase();
+      final plan = line.planType.trim().toLowerCase();
+      return tier == 'standard' || tier == 'premium' || plan == 'standard' || plan == 'premium';
+    });
+    final bool isLocked = type != 'push' && globalTier == 'basic' && !hasStandardOrPremiumLine;
     final isDark = context.isDarkMode;
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      margin: EdgeInsets.symmetric(
+        horizontal: widget.isNested ? 12 : 16,
+        vertical: 6,
+      ),
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkSurface : AppColors.lightCard,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+        border: Border.all(
+          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -765,7 +941,8 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
                     SubscriptionUpsellSheet.show(
                       context: context,
                       title: '$name Locked 🔒',
-                      description: '$name alerts are Starter and Premium plan features. Upgrade your plan to unlock WhatsApp, Telegram, and Email alerts!',
+                      description:
+                          '$name alerts are Starter and Premium plan features. Upgrade your plan to unlock WhatsApp, Telegram, and Email alerts!',
                       requiredPlan: 'Starter Plan',
                       highlights: [
                         'Protect up to 5 SIM lines simultaneously',
@@ -779,17 +956,27 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
               value: isLocked ? false : _isEnabled,
               activeColor: color,
               activeTrackColor: color.withOpacity(0.2),
-              inactiveThumbColor: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
-              inactiveTrackColor: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+              inactiveThumbColor: isDark
+                  ? AppColors.textTertiaryDark
+                  : AppColors.textTertiaryLight,
+              inactiveTrackColor: isDark
+                  ? AppColors.darkBorder
+                  : AppColors.lightBorder,
               title: Row(
                 children: [
-                  Icon(icon, color: isLocked ? AppColors.textTertiaryDark : color, size: 22),
+                  Icon(
+                    icon,
+                    color: isLocked ? AppColors.textTertiaryDark : color,
+                    size: 22,
+                  ),
                   const SizedBox(width: 12),
                   Text(
                     name,
                     style: AppTextStyles.titleMedium.copyWith(
                       color: isLocked
-                          ? (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight)
+                          ? (isDark
+                                ? AppColors.textSecondaryDark
+                                : AppColors.textSecondaryLight)
                           : context.onSurfaceColor,
                       fontWeight: FontWeight.bold,
                     ),
@@ -809,7 +996,9 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
                 child: Text(
                   _getChannelDescription(type),
                   style: AppTextStyles.bodySmall.copyWith(
-                    color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                    color: isDark
+                        ? AppColors.textSecondaryDark
+                        : AppColors.textSecondaryLight,
                   ),
                 ),
               ),
@@ -818,20 +1007,25 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
                   : (val) async {
                       await HapticHelper.mediumImpact();
                       setState(() => _isEnabled = val);
-                      await ref.read(notificationChannelsControllerProvider.notifier).toggleChannel(type, val);
+                      await ref
+                          .read(notificationChannelsControllerProvider.notifier)
+                          .toggleChannel(type, val);
                     },
             ),
           ),
-          
+
           if (_isEnabled && type != 'push' && !isLocked) ...[
-            Divider(color: isDark ? AppColors.darkBorder : AppColors.lightBorder, height: 1),
+            Divider(
+              color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+              height: 1,
+            ),
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (type == 'telegram') ...[
-                    _buildTelegramContent(context, config)
+                    _buildTelegramContent(context, config),
                   ] else ...[
                     _buildTextField(context, type),
                     const SizedBox(height: 12),
@@ -868,9 +1062,9 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
       case 'whatsapp':
         return 'Refill failure alerts pushed directly to WhatsApp.';
       case 'telegram':
-        return 'Bound interactive Telegram bot chat notifications.';
-      case 'webhook':
-        return 'Post JSON alerts to custom REST API endpoints.';
+        return 'Bound interactive Telegram chat notifications.';
+      /* case 'webhook':
+        return 'Post JSON alerts to custom REST API endpoints.'; */
       default:
         return 'Alert delivery route configuration.';
     }
@@ -893,12 +1087,12 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
       hint = 'e.g. +96891234567';
       prefixIcon = Icons.phone_rounded;
       keyboardType = TextInputType.phone;
-    } else if (type == 'webhook') {
+    } /* else if (type == 'webhook') {
       label = 'Emergency Endpoint Webhook URL';
       hint = 'e.g. https://api.domain.com/alert';
       prefixIcon = Icons.link_rounded;
       keyboardType = TextInputType.url;
-    }
+    } */
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -906,7 +1100,9 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
         Text(
           label,
           style: AppTextStyles.labelMedium.copyWith(
-            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+            color: isDark
+                ? AppColors.textSecondaryDark
+                : AppColors.textSecondaryLight,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -914,17 +1110,34 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
         TextField(
           controller: _textController,
           keyboardType: keyboardType,
-          style: AppTextStyles.bodyMedium.copyWith(color: context.onSurfaceColor),
+          style: AppTextStyles.bodyMedium.copyWith(
+            color: context.onSurfaceColor,
+          ),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: AppTextStyles.bodyMedium.copyWith(color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight),
-            prefixIcon: Icon(prefixIcon, color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight, size: 18),
+            hintStyle: AppTextStyles.bodyMedium.copyWith(
+              color: isDark
+                  ? AppColors.textTertiaryDark
+                  : AppColors.textTertiaryLight,
+            ),
+            prefixIcon: Icon(
+              prefixIcon,
+              color: isDark
+                  ? AppColors.textSecondaryDark
+                  : AppColors.textSecondaryLight,
+              size: 18,
+            ),
             filled: true,
             fillColor: isDark ? AppColors.darkCard : AppColors.lightBg,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 12,
+            ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+              borderSide: BorderSide(
+                color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+              ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
@@ -932,6 +1145,22 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
             ),
           ),
         ),
+        if (type == 'whatsapp') ...[
+          const SizedBox(height: 6),
+          Padding(
+            padding: const EdgeInsets.only(left: 4.0),
+            child: Text(
+              'Enter full international format starting with + (e.g. +96893990492)',
+              style: AppTextStyles.bodySmall.copyWith(
+                color: isDark
+                    ? AppColors.textSecondaryDark
+                    : AppColors.textSecondaryLight,
+                fontSize: 11,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ),
+        ],
       ],
     );
   }
@@ -952,7 +1181,10 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
             ? const SizedBox(
                 height: 18,
                 width: 18,
-                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 2,
+                ),
               )
             : const Text(
                 'Save Settings',
@@ -965,7 +1197,10 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
     );
   }
 
-  Widget _buildTelegramContent(BuildContext context, Map<String, dynamic> config) {
+  Widget _buildTelegramContent(
+    BuildContext context,
+    Map<String, dynamic> config,
+  ) {
     final chatId = config['chat_id'];
     final isBound = chatId != null && chatId.toString().isNotEmpty;
     final isDark = context.isDarkMode;
@@ -975,7 +1210,9 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCard : AppColors.lightBg,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+        border: Border.all(
+          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -983,13 +1220,17 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
           Row(
             children: [
               Icon(
-                isBound ? Icons.check_circle_rounded : Icons.pending_actions_rounded,
+                isBound
+                    ? Icons.check_circle_rounded
+                    : Icons.pending_actions_rounded,
                 color: isBound ? AppColors.success : AppColors.warning,
                 size: 18,
               ),
               const SizedBox(width: 8),
               Text(
-                isBound ? 'Status: Bound (Chat ID: $chatId)' : 'Status: Unbound',
+                isBound
+                    ? 'Status: Bound (Chat ID: $chatId)'
+                    : 'Status: Unbound',
                 style: AppTextStyles.bodyMedium.copyWith(
                   color: isBound ? AppColors.success : AppColors.warning,
                   fontWeight: FontWeight.bold,
@@ -1000,7 +1241,11 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
           const SizedBox(height: 12),
           Text(
             'To receive free, interactive Telegram alerts, link our Telegram Bot with your account.',
-            style: AppTextStyles.bodySmall.copyWith(color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+            style: AppTextStyles.bodySmall.copyWith(
+              color: isDark
+                  ? AppColors.textSecondaryDark
+                  : AppColors.textSecondaryLight,
+            ),
           ),
           const SizedBox(height: 12),
           SizedBox(
@@ -1010,7 +1255,7 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
                 await HapticHelper.lightTick();
                 final userId = widget.userId;
                 if (userId == null) return;
-                final botUrl = 'https://t.me/KeepSimsShieldBot?start=bind_$userId';
+                final botUrl = 'https://t.me/KeepSIMsBot?start=bind_$userId';
                 final uri = Uri.parse(botUrl);
                 if (await canLaunchUrl(uri)) {
                   await launchUrl(uri, mode: LaunchMode.externalApplication);
@@ -1019,7 +1264,10 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
               icon: const Icon(Icons.telegram, color: Colors.white, size: 20),
               label: const Text(
                 'Link Telegram Bot',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF22D3EE),

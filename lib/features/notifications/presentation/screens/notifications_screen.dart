@@ -94,7 +94,9 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
           IconButton(
             icon: Icon(
               Icons.tune_rounded,
-              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+              color: isDark
+                  ? AppColors.textSecondaryDark
+                  : AppColors.textSecondaryLight,
             ),
             tooltip: 'Alert Preferences',
             onPressed: () async {
@@ -112,7 +114,9 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
             decoration: BoxDecoration(
               color: isDark ? AppColors.darkSurface : const Color(0xFFEAEEF1),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+              border: Border.all(
+                color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+              ),
             ),
             child: TabBar(
               controller: _tabController,
@@ -122,11 +126,14 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
                 color: isDark ? AppColors.darkCard : Colors.white,
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
-                  color: (isDark ? AppColors.primary : AppColors.lightPrimary).withValues(alpha: 0.3),
+                  color: (isDark ? AppColors.primary : AppColors.lightPrimary)
+                      .withValues(alpha: 0.3),
                 ),
               ),
               labelColor: context.onSurfaceColor,
-              unselectedLabelColor: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
+              unselectedLabelColor: isDark
+                  ? AppColors.textTertiaryDark
+                  : AppColors.textTertiaryLight,
               labelStyle: AppTextStyles.titleMedium,
               tabs: const [
                 Tab(text: 'All'),
@@ -223,7 +230,9 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
                   icon: const Icon(Icons.done_all_rounded, size: 18),
                   label: const Text('Mark All Read'),
                   style: TextButton.styleFrom(
-                    foregroundColor: isDark ? AppColors.primaryLight : AppColors.lightPrimaryMid,
+                    foregroundColor: isDark
+                        ? AppColors.primaryLight
+                        : AppColors.lightPrimaryMid,
                   ),
                 ),
               ],
@@ -374,7 +383,9 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
                                     item.title,
                                     style: AppTextStyles.titleMedium.copyWith(
                                       color: item.isRead
-                                          ? (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight)
+                                          ? (isDark
+                                                ? AppColors.textSecondaryDark
+                                                : AppColors.textSecondaryLight)
                                           : context.onSurfaceColor,
                                       fontWeight: item.isRead
                                           ? FontWeight.w500
@@ -388,7 +399,9 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
                                 Text(
                                   _formatTimeAgo(item.createdAt),
                                   style: AppTextStyles.bodySmall.copyWith(
-                                    color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
+                                    color: isDark
+                                        ? AppColors.textTertiaryDark
+                                        : AppColors.textTertiaryLight,
                                     fontSize: 11,
                                   ),
                                 ),
@@ -399,8 +412,12 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
                               item.body,
                               style: AppTextStyles.bodyMedium.copyWith(
                                 color: item.isRead
-                                    ? (isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight)
-                                    : (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+                                    ? (isDark
+                                          ? AppColors.textTertiaryDark
+                                          : AppColors.textTertiaryLight)
+                                    : (isDark
+                                          ? AppColors.textSecondaryDark
+                                          : AppColors.textSecondaryLight),
                                 height: 1.3,
                               ),
                             ),
@@ -420,11 +437,15 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
                       width: 8,
                       height: 8,
                       decoration: BoxDecoration(
-                        color: isDark ? AppColors.primaryLight : AppColors.lightPrimaryMid,
+                        color: isDark
+                            ? AppColors.primaryLight
+                            : AppColors.lightPrimaryMid,
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: isDark ? AppColors.primary : AppColors.lightPrimary,
+                            color: isDark
+                                ? AppColors.primary
+                                : AppColors.lightPrimary,
                             blurRadius: 4,
                             spreadRadius: 1,
                           ),
@@ -469,14 +490,20 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
         content: Text(
           'This will permanently delete all notifications from your account timeline history.',
           style: AppTextStyles.bodyMedium.copyWith(
-            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+            color: isDark
+                ? AppColors.textSecondaryDark
+                : AppColors.textSecondaryLight,
           ),
         ),
         actions: [
           TextButton(
             child: Text(
               'Cancel',
-              style: TextStyle(color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight),
+              style: TextStyle(
+                color: isDark
+                    ? AppColors.textTertiaryDark
+                    : AppColors.textTertiaryLight,
+              ),
             ),
             onPressed: () async {
               await HapticHelper.lightTick();
@@ -485,7 +512,9 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: isDark ? AppColors.healthRed : const Color(0xFFBA1A1A),
+              backgroundColor: isDark
+                  ? AppColors.healthRed
+                  : const Color(0xFFBA1A1A),
             ),
             child: const Text(
               'Clear All',

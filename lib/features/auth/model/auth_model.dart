@@ -21,10 +21,10 @@ abstract class UserProfile with _$UserProfile {
     String? homeCountryCode,
     @Default('USD') String preferredCurrency,
     @Default(false) bool isPowerUser,
+    @JsonKey(name: 'subscription_tier') @Default('standard') String subscriptionTier,
     String? referralCode,
     String? referredBy,
     @Default(false) bool onboardingCompleted,
-    @Default('standard') String subscriptionTier,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) = _UserProfile;

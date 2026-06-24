@@ -34,21 +34,27 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
     final isOffline = networkStatus == NetworkStatus.offline;
 
     return Scaffold(
-      backgroundColor: context.isDarkMode ? AppColors.darkBg : AppColors.lightBg,
+      backgroundColor: context.isDarkMode
+          ? AppColors.darkBg
+          : AppColors.lightBg,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text(
           'Wallet Ledger',
           style: AppTextStyles.headlineLarge.copyWith(
-            color: context.isDarkMode ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+            color: context.isDarkMode
+                ? AppColors.textPrimaryDark
+                : AppColors.textPrimaryLight,
           ),
         ),
         actions: [
           IconButton(
             icon: Icon(
               Icons.refresh_rounded,
-              color: context.isDarkMode ? AppColors.primaryLight : AppColors.lightPrimary,
+              color: context.isDarkMode
+                  ? AppColors.primaryLight
+                  : AppColors.lightPrimary,
             ),
             onPressed: () async {
               await HapticHelper.mediumImpact();
@@ -72,7 +78,11 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
     );
   }
 
-  Widget _buildContent(BuildContext context, WalletState state, bool isOffline) {
+  Widget _buildContent(
+    BuildContext context,
+    WalletState state,
+    bool isOffline,
+  ) {
     final balance = state.wallet.balance;
     final isLowBalance = balance < 10.0;
     final transactions = state.transactions;
@@ -103,7 +113,9 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
               Text(
                 'Spend Analysis',
                 style: AppTextStyles.titleLarge.copyWith(
-                  color: context.isDarkMode ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                  color: context.isDarkMode
+                      ? AppColors.textPrimaryDark
+                      : AppColors.textPrimaryLight,
                 ),
               ),
               const SizedBox(height: 12),
@@ -118,13 +130,17 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                   Text(
                     'Transaction History',
                     style: AppTextStyles.titleLarge.copyWith(
-                      color: context.isDarkMode ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                      color: context.isDarkMode
+                          ? AppColors.textPrimaryDark
+                          : AppColors.textPrimaryLight,
                     ),
                   ),
                   Text(
                     '${transactions.length} items',
                     style: AppTextStyles.bodySmall.copyWith(
-                      color: context.isDarkMode ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
+                      color: context.isDarkMode
+                          ? AppColors.textTertiaryDark
+                          : AppColors.textTertiaryLight,
                     ),
                   ),
                 ],
@@ -141,24 +157,37 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
             sliver: SliverToBoxAdapter(
               child: Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 40,
+                  horizontal: 24,
+                ),
                 decoration: BoxDecoration(
-                  color: context.isDarkMode ? AppColors.darkSurface : Colors.white,
+                  color: context.isDarkMode
+                      ? AppColors.darkSurface
+                      : Colors.white,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: context.isDarkMode ? AppColors.darkBorder : AppColors.lightBorder),
+                  border: Border.all(
+                    color: context.isDarkMode
+                        ? AppColors.darkBorder
+                        : AppColors.lightBorder,
+                  ),
                 ),
                 child: Column(
                   children: [
                     Icon(
                       Icons.history_toggle_off_rounded,
-                      color: context.isDarkMode ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
+                      color: context.isDarkMode
+                          ? AppColors.textTertiaryDark
+                          : AppColors.textTertiaryLight,
                       size: 40,
                     ),
                     const SizedBox(height: 12),
                     Text(
                       'No transactions recorded yet.',
                       style: AppTextStyles.bodyMedium.copyWith(
-                        color: context.isDarkMode ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                        color: context.isDarkMode
+                            ? AppColors.textSecondaryDark
+                            : AppColors.textSecondaryLight,
                       ),
                     ),
                   ],
@@ -170,22 +199,17 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 20.0),
             sliver: SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  final tx = transactions[index];
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 10.0),
-                    child: _buildTransactionItem(tx),
-                  );
-                },
-                childCount: transactions.length,
-              ),
+              delegate: SliverChildBuilderDelegate((context, index) {
+                final tx = transactions[index];
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 10.0),
+                  child: _buildTransactionItem(tx),
+                );
+              }, childCount: transactions.length),
             ),
           ),
 
-        const SliverToBoxAdapter(
-          child: SizedBox(height: 40),
-        ),
+        const SliverToBoxAdapter(child: SizedBox(height: 40)),
       ],
     );
   }
@@ -241,7 +265,10 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
 
             // Card content layout
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20.0,
+                vertical: 16.0,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -417,7 +444,9 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                 Text(
                   'Your balance is below \$10.00. Scheduled SIM topups may fail soon.',
                   style: AppTextStyles.bodySmall.copyWith(
-                    color: context.isDarkMode ? Colors.yellow : AppColors.textSecondaryLight,
+                    color: context.isDarkMode
+                        ? Colors.yellow
+                        : AppColors.textSecondaryLight,
                   ),
                 ),
               ],
@@ -437,7 +466,9 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
             child: _buildActionButton(
               icon: Icons.add_circle_rounded,
               label: 'Deposit Funds',
-              color: context.isDarkMode ? AppColors.primaryLight : AppColors.lightPrimary,
+              color: context.isDarkMode
+                  ? AppColors.primaryLight
+                  : AppColors.lightPrimary,
               onTap: isOffline
                   ? () {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -458,10 +489,14 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
           child: _buildActionButton(
             icon: Icons.history_edu_rounded,
             label: 'Export Ledger',
-            color: context.isDarkMode ? AppColors.secondaryLight : AppColors.lightSecondary,
+            color: context.isDarkMode
+                ? AppColors.secondaryLight
+                : AppColors.lightSecondary,
             onTap: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Ledger history exported as CSV.')),
+                const SnackBar(
+                  content: Text('Ledger history exported as CSV.'),
+                ),
               );
             },
           ),
@@ -487,7 +522,12 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
         decoration: BoxDecoration(
           color: context.isDarkMode ? AppColors.darkSurface : Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: context.isDarkMode ? AppColors.darkBorder : AppColors.lightBorder, width: 1),
+          border: Border.all(
+            color: context.isDarkMode
+                ? AppColors.darkBorder
+                : AppColors.lightBorder,
+            width: 1,
+          ),
         ),
         child: Column(
           children: [
@@ -496,7 +536,9 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
             Text(
               label,
               style: AppTextStyles.bodySmall.copyWith(
-                color: context.isDarkMode ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                color: context.isDarkMode
+                    ? AppColors.textPrimaryDark
+                    : AppColors.textPrimaryLight,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -526,7 +568,8 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
         // Find which of the 6 months it belongs to
         for (int i = 0; i < 6; i++) {
           final monthDate = last6Months[i];
-          if (txDate.year == monthDate.year && txDate.month == monthDate.month) {
+          if (txDate.year == monthDate.year &&
+              txDate.month == monthDate.month) {
             monthlySpend[i] = (monthlySpend[i] ?? 0.0) + tx.amount;
             break;
           }
@@ -539,7 +582,8 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
     double totalSpendLast12Months = 0.0;
     for (final tx in transactions) {
       if (tx.type == 'topup_debit' && tx.createdAt != null) {
-        if (tx.createdAt!.isAfter(twelveMonthsAgo) || tx.createdAt!.isAtSameMomentAs(twelveMonthsAgo)) {
+        if (tx.createdAt!.isAfter(twelveMonthsAgo) ||
+            tx.createdAt!.isAtSameMomentAs(twelveMonthsAgo)) {
           totalSpendLast12Months += tx.amount;
         }
       }
@@ -548,14 +592,30 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
 
     // 5. Generate Labels (e.g. 'Jan', 'Feb')
     final List<String> monthLabels = last6Months.map((d) {
-      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const monthNames = [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+      ];
       return monthNames[d.month - 1];
     }).toList();
 
     // 6. Normalize data points for the painter (0.0 to 1.0)
-    double maxSpend = monthlySpend.values.fold(0.0, (max, val) => val > max ? val : max);
+    double maxSpend = monthlySpend.values.fold(
+      0.0,
+      (max, val) => val > max ? val : max,
+    );
     if (maxSpend == 0.0) maxSpend = 1.0; // avoid division by zero
-    
+
     final List<double> normalizedPoints = [];
     for (int i = 0; i < 6; i++) {
       normalizedPoints.add(monthlySpend[i]! / maxSpend);
@@ -568,7 +628,12 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
       decoration: BoxDecoration(
         color: context.isDarkMode ? AppColors.darkSurface : Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: context.isDarkMode ? AppColors.darkBorder : AppColors.lightBorder, width: 1),
+        border: Border.all(
+          color: context.isDarkMode
+              ? AppColors.darkBorder
+              : AppColors.lightBorder,
+          width: 1,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -580,7 +645,9 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                 child: Text(
                   'Prepaid Monthly Outflow',
                   style: AppTextStyles.bodyMedium.copyWith(
-                    color: context.isDarkMode ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                    color: context.isDarkMode
+                        ? AppColors.textSecondaryDark
+                        : AppColors.textSecondaryLight,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -590,7 +657,9 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
               Text(
                 'Avg: \$${avgSpend.toStringAsFixed(2)}/mo (12M)',
                 style: AppTextStyles.labelMedium.copyWith(
-                  color: context.isDarkMode ? AppColors.secondary : AppColors.lightSecondary,
+                  color: context.isDarkMode
+                      ? AppColors.secondary
+                      : AppColors.lightSecondary,
                 ),
               ),
             ],
@@ -603,7 +672,9 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
               child: CustomPaint(
                 painter: AnalyticsChartPainter(
                   normalizedPoints: normalizedPoints,
-                  primaryColor: context.isDarkMode ? AppColors.primary : AppColors.lightPrimary,
+                  primaryColor: context.isDarkMode
+                      ? AppColors.primary
+                      : AppColors.lightPrimary,
                 ),
               ),
             ),
@@ -612,7 +683,9 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
           // Months labels
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: monthLabels.map((label) => _buildChartLabel(label)).toList(),
+            children: monthLabels
+                .map((label) => _buildChartLabel(label))
+                .toList(),
           ),
         ],
       ),
@@ -622,11 +695,13 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
   Widget _buildChartLabel(String text) {
     return Text(
       text,
-      style: AppTextStyles.caption.copyWith(color: context.isDarkMode ? AppColors.textTertiaryDark : AppColors.textTertiaryLight),
+      style: AppTextStyles.caption.copyWith(
+        color: context.isDarkMode
+            ? AppColors.textTertiaryDark
+            : AppColors.textTertiaryLight,
+      ),
     );
   }
-
-
 
   Widget _buildTransactionItem(WalletTransaction tx) {
     final isDeposit = tx.type == 'deposit' || tx.type == 'auto_fund';
@@ -657,7 +732,10 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkSurface : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder, width: 1),
+        border: Border.all(
+          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+          width: 1,
+        ),
       ),
       child: Row(
         children: [
@@ -680,7 +758,9 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                   tx.description ??
                       (isDeposit ? 'Deposit Funds' : 'Line Renewal'),
                   style: AppTextStyles.titleMedium.copyWith(
-                    color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                    color: isDark
+                        ? AppColors.textPrimaryDark
+                        : AppColors.textPrimaryLight,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -691,7 +771,9 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                       ? '${tx.createdAt!.day}/${tx.createdAt!.month}/${tx.createdAt!.year}'
                       : 'Just now',
                   style: AppTextStyles.caption.copyWith(
-                    color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
+                    color: isDark
+                        ? AppColors.textTertiaryDark
+                        : AppColors.textTertiaryLight,
                   ),
                 ),
               ],
@@ -728,7 +810,10 @@ class AnalyticsChartPainter extends CustomPainter {
   final List<double> normalizedPoints;
   final Color primaryColor;
 
-  const AnalyticsChartPainter({required this.normalizedPoints, required this.primaryColor});
+  const AnalyticsChartPainter({
+    required this.normalizedPoints,
+    required this.primaryColor,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -759,7 +844,9 @@ class AnalyticsChartPainter extends CustomPainter {
     final numPoints = normalizedPoints.isEmpty ? 6 : normalizedPoints.length;
     final points = List.generate(numPoints, (i) {
       final x = size.width * (i / (numPoints - 1));
-      final normalizedValue = (normalizedPoints.length > i) ? normalizedPoints[i] : 0.0;
+      final normalizedValue = (normalizedPoints.length > i)
+          ? normalizedPoints[i]
+          : 0.0;
       // Map 0.0 -> height * 0.85, 1.0 -> height * 0.15
       final y = size.height * (0.85 - 0.7 * normalizedValue);
       return Offset(x, y);
@@ -781,7 +868,14 @@ class AnalyticsChartPainter extends CustomPainter {
         final controlX2 = pStart.dx + 2.0 * (pEnd.dx - pStart.dx) / 3.0;
         final controlY2 = pEnd.dy;
 
-        path.cubicTo(controlX1, controlY1, controlX2, controlY2, pEnd.dx, pEnd.dy);
+        path.cubicTo(
+          controlX1,
+          controlY1,
+          controlX2,
+          controlY2,
+          pEnd.dx,
+          pEnd.dy,
+        );
       }
     }
 
@@ -813,7 +907,8 @@ class AnalyticsChartPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant AnalyticsChartPainter oldDelegate) {
-    if (oldDelegate.normalizedPoints.length != normalizedPoints.length) return true;
+    if (oldDelegate.normalizedPoints.length != normalizedPoints.length)
+      return true;
     for (int i = 0; i < normalizedPoints.length; i++) {
       if (oldDelegate.normalizedPoints[i] != normalizedPoints[i]) return true;
     }
@@ -917,7 +1012,9 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
   void _showSavedCards() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: context.isDarkMode ? AppColors.darkSurface : AppColors.lightSurface,
+      backgroundColor: context.isDarkMode
+          ? AppColors.darkSurface
+          : AppColors.lightSurface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -935,7 +1032,11 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
                   children: [
                     Text(
                       'No saved payment methods found.',
-                      style: AppTextStyles.bodyMedium.copyWith(color: context.isDarkMode ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: context.isDarkMode
+                            ? AppColors.textSecondaryDark
+                            : AppColors.textSecondaryLight,
+                      ),
                     ),
                     const SizedBox(height: 24),
                     ElevatedButton.icon(
@@ -946,7 +1047,9 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
                       icon: const Icon(Icons.add_card, size: 20),
                       label: const Text('Add Payment Method'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: context.isDarkMode ? AppColors.primary : AppColors.lightPrimary,
+                        backgroundColor: context.isDarkMode
+                            ? AppColors.primary
+                            : AppColors.lightPrimary,
                         foregroundColor: Colors.white,
                         minimumSize: const Size(double.infinity, 48),
                         shape: RoundedRectangleBorder(
@@ -969,7 +1072,11 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
                     padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: Text(
                       'Saved Payment Methods',
-                      style: AppTextStyles.titleLarge.copyWith(color: context.isDarkMode ? AppColors.textPrimaryDark : AppColors.textPrimaryLight),
+                      style: AppTextStyles.titleLarge.copyWith(
+                        color: context.isDarkMode
+                            ? AppColors.textPrimaryDark
+                            : AppColors.textPrimaryLight,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -980,20 +1087,38 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
                       itemBuilder: (context, index) {
                         final method = methods[index];
                         return ListTile(
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                          leading: Icon(Icons.credit_card, color: context.isDarkMode ? AppColors.primaryLight : AppColors.lightPrimary),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 8,
+                          ),
+                          leading: Icon(
+                            Icons.credit_card,
+                            color: context.isDarkMode
+                                ? AppColors.primaryLight
+                                : AppColors.lightPrimary,
+                          ),
                           title: Text(
                             '•••• •••• •••• ${method.lastFour ?? "****"}',
-                            style: AppTextStyles.bodyLarge.copyWith(color: context.isDarkMode ? AppColors.textPrimaryDark : AppColors.textPrimaryLight),
+                            style: AppTextStyles.bodyLarge.copyWith(
+                              color: context.isDarkMode
+                                  ? AppColors.textPrimaryDark
+                                  : AppColors.textPrimaryLight,
+                            ),
                           ),
                           subtitle: Text(
                             'Expires ${method.expiryMonth?.toString().padLeft(2, "0") ?? "--"}/${method.expiryYear?.toString().substring(method.expiryYear.toString().length > 2 ? method.expiryYear.toString().length - 2 : 0) ?? "--"}',
-                            style: AppTextStyles.caption.copyWith(color: context.isDarkMode ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+                            style: AppTextStyles.caption.copyWith(
+                              color: context.isDarkMode
+                                  ? AppColors.textSecondaryDark
+                                  : AppColors.textSecondaryLight,
+                            ),
                           ),
                           onTap: () {
                             setState(() {
-                              _cardNumberController.text = '4242 4242 4242 ${method.lastFour ?? "4242"}';
-                              _expiryController.text = '${method.expiryMonth?.toString().padLeft(2, "0") ?? "12"}/${method.expiryYear?.toString().substring(method.expiryYear.toString().length > 2 ? method.expiryYear.toString().length - 2 : 0) ?? "30"}';
+                              _cardNumberController.text =
+                                  '4242 4242 4242 ${method.lastFour ?? "4242"}';
+                              _expiryController.text =
+                                  '${method.expiryMonth?.toString().padLeft(2, "0") ?? "12"}/${method.expiryYear?.toString().substring(method.expiryYear.toString().length > 2 ? method.expiryYear.toString().length - 2 : 0) ?? "30"}';
                               _cvvController.text = '123';
                             });
                             Navigator.pop(context);
@@ -1013,11 +1138,17 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
                       icon: const Icon(Icons.add),
                       label: const Text('Add another payment method'),
                       style: TextButton.styleFrom(
-                        foregroundColor: context.isDarkMode ? AppColors.secondary : AppColors.lightSecondary,
+                        foregroundColor: context.isDarkMode
+                            ? AppColors.secondary
+                            : AppColors.lightSecondary,
                         minimumSize: const Size(double.infinity, 48),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
-                          side: BorderSide(color: context.isDarkMode ? AppColors.darkBorder : AppColors.lightBorder),
+                          side: BorderSide(
+                            color: context.isDarkMode
+                                ? AppColors.darkBorder
+                                : AppColors.lightBorder,
+                          ),
                         ),
                       ),
                     ),
@@ -1038,13 +1169,20 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
     return Container(
       padding: EdgeInsets.fromLTRB(24, 24, 24, 24 + isWebMobileOffset),
       decoration: BoxDecoration(
-        color: context.isDarkMode ? AppColors.darkSurface : AppColors.lightSurface,
+        color: context.isDarkMode
+            ? AppColors.darkSurface
+            : AppColors.lightSurface,
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(28),
           topRight: Radius.circular(28),
         ),
         border: Border(
-          top: BorderSide(color: context.isDarkMode ? AppColors.darkBorder : AppColors.lightBorder, width: 1.5),
+          top: BorderSide(
+            color: context.isDarkMode
+                ? AppColors.darkBorder
+                : AppColors.lightBorder,
+            width: 1.5,
+          ),
         ),
       ),
       child: Form(
@@ -1061,7 +1199,9 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 20),
                   decoration: BoxDecoration(
-                    color: context.isDarkMode ? AppColors.darkBorder : AppColors.lightBorder,
+                    color: context.isDarkMode
+                        ? AppColors.darkBorder
+                        : AppColors.lightBorder,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -1072,7 +1212,9 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
                   Text(
                     'Load Credit Funds',
                     style: AppTextStyles.headlineMedium.copyWith(
-                      color: context.isDarkMode ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                      color: context.isDarkMode
+                          ? AppColors.textPrimaryDark
+                          : AppColors.textPrimaryLight,
                     ),
                   ),
                   if (_isSubmitting)
@@ -1081,7 +1223,9 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
                       height: 20,
                       child: CircularProgressIndicator(
                         strokeWidth: 2.5,
-                        color: context.isDarkMode ? AppColors.primary : AppColors.lightPrimary,
+                        color: context.isDarkMode
+                            ? AppColors.primary
+                            : AppColors.lightPrimary,
                       ),
                     ),
                 ],
@@ -1107,25 +1251,41 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
                   decimal: true,
                 ),
                 style: AppTextStyles.bodyLarge.copyWith(
-                  color: context.isDarkMode ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                  color: context.isDarkMode
+                      ? AppColors.textPrimaryDark
+                      : AppColors.textPrimaryLight,
                 ),
                 decoration: InputDecoration(
                   labelText: 'Deposit Amount (USD)',
-                  labelStyle: TextStyle(color: context.isDarkMode ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+                  labelStyle: TextStyle(
+                    color: context.isDarkMode
+                        ? AppColors.textSecondaryDark
+                        : AppColors.textSecondaryLight,
+                  ),
                   prefixIcon: Icon(
                     Icons.attach_money_rounded,
-                    color: context.isDarkMode ? AppColors.primary : AppColors.lightPrimary,
+                    color: context.isDarkMode
+                        ? AppColors.primary
+                        : AppColors.lightPrimary,
                   ),
                   filled: true,
-                  fillColor: context.isDarkMode ? AppColors.darkBg : const Color(0xFFEAEEF1),
+                  fillColor: context.isDarkMode
+                      ? AppColors.darkBg
+                      : const Color(0xFFEAEEF1),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide(color: context.isDarkMode ? AppColors.darkBorder : AppColors.lightBorder),
+                    borderSide: BorderSide(
+                      color: context.isDarkMode
+                          ? AppColors.darkBorder
+                          : AppColors.lightBorder,
+                    ),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
                     borderSide: BorderSide(
-                      color: context.isDarkMode ? AppColors.primary : AppColors.lightPrimary,
+                      color: context.isDarkMode
+                          ? AppColors.primary
+                          : AppColors.lightPrimary,
                       width: 1.5,
                     ),
                   ),
@@ -1148,7 +1308,9 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
                   Text(
                     'Card Details',
                     style: AppTextStyles.labelLarge.copyWith(
-                      color: context.isDarkMode ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                      color: context.isDarkMode
+                          ? AppColors.textPrimaryDark
+                          : AppColors.textPrimaryLight,
                     ),
                   ),
                   TextButton.icon(
@@ -1156,7 +1318,9 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
                     icon: const Icon(Icons.credit_card, size: 16),
                     label: const Text('Saved Cards'),
                     style: TextButton.styleFrom(
-                      foregroundColor: context.isDarkMode ? AppColors.secondary : AppColors.lightSecondary,
+                      foregroundColor: context.isDarkMode
+                          ? AppColors.secondary
+                          : AppColors.lightSecondary,
                       padding: EdgeInsets.zero,
                       minimumSize: Size.zero,
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -1174,26 +1338,42 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
                   CardNumberInputFormatter(),
                 ],
                 style: AppTextStyles.bodyLarge.copyWith(
-                  color: context.isDarkMode ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                  color: context.isDarkMode
+                      ? AppColors.textPrimaryDark
+                      : AppColors.textPrimaryLight,
                 ),
                 decoration: InputDecoration(
                   labelText: 'Visa Card Number',
-                  labelStyle: TextStyle(color: context.isDarkMode ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+                  labelStyle: TextStyle(
+                    color: context.isDarkMode
+                        ? AppColors.textSecondaryDark
+                        : AppColors.textSecondaryLight,
+                  ),
                   prefixIcon: Icon(
                     Icons.credit_card_rounded,
-                    color: context.isDarkMode ? AppColors.secondary : AppColors.lightSecondary,
+                    color: context.isDarkMode
+                        ? AppColors.secondary
+                        : AppColors.lightSecondary,
                   ),
                   counterText: '',
                   filled: true,
-                  fillColor: context.isDarkMode ? AppColors.darkBg : const Color(0xFFEAEEF1),
+                  fillColor: context.isDarkMode
+                      ? AppColors.darkBg
+                      : const Color(0xFFEAEEF1),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide(color: context.isDarkMode ? AppColors.darkBorder : AppColors.lightBorder),
+                    borderSide: BorderSide(
+                      color: context.isDarkMode
+                          ? AppColors.darkBorder
+                          : AppColors.lightBorder,
+                    ),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
                     borderSide: BorderSide(
-                      color: context.isDarkMode ? AppColors.secondary : AppColors.lightSecondary,
+                      color: context.isDarkMode
+                          ? AppColors.secondary
+                          : AppColors.lightSecondary,
                       width: 1.5,
                     ),
                   ),
@@ -1220,26 +1400,36 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
                         CardExpiryInputFormatter(),
                       ],
                       style: AppTextStyles.bodyLarge.copyWith(
-                        color: context.isDarkMode ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                        color: context.isDarkMode
+                            ? AppColors.textPrimaryDark
+                            : AppColors.textPrimaryLight,
                       ),
                       decoration: InputDecoration(
                         labelText: 'Expiry (MM/YY)',
                         labelStyle: TextStyle(
-                          color: context.isDarkMode ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                          color: context.isDarkMode
+                              ? AppColors.textSecondaryDark
+                              : AppColors.textSecondaryLight,
                         ),
                         counterText: '',
                         filled: true,
-                        fillColor: context.isDarkMode ? AppColors.darkBg : const Color(0xFFEAEEF1),
+                        fillColor: context.isDarkMode
+                            ? AppColors.darkBg
+                            : const Color(0xFFEAEEF1),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
                           borderSide: BorderSide(
-                            color: context.isDarkMode ? AppColors.darkBorder : AppColors.lightBorder,
+                            color: context.isDarkMode
+                                ? AppColors.darkBorder
+                                : AppColors.lightBorder,
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
                           borderSide: BorderSide(
-                            color: context.isDarkMode ? AppColors.primary : AppColors.lightPrimary,
+                            color: context.isDarkMode
+                                ? AppColors.primary
+                                : AppColors.lightPrimary,
                             width: 1.5,
                           ),
                         ),
@@ -1260,26 +1450,36 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
                       maxLength: 3,
                       obscureText: true,
                       style: AppTextStyles.bodyLarge.copyWith(
-                        color: context.isDarkMode ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                        color: context.isDarkMode
+                            ? AppColors.textPrimaryDark
+                            : AppColors.textPrimaryLight,
                       ),
                       decoration: InputDecoration(
                         labelText: 'CVV',
                         labelStyle: TextStyle(
-                          color: context.isDarkMode ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                          color: context.isDarkMode
+                              ? AppColors.textSecondaryDark
+                              : AppColors.textSecondaryLight,
                         ),
                         counterText: '',
                         filled: true,
-                        fillColor: context.isDarkMode ? AppColors.darkBg : const Color(0xFFEAEEF1),
+                        fillColor: context.isDarkMode
+                            ? AppColors.darkBg
+                            : const Color(0xFFEAEEF1),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
                           borderSide: BorderSide(
-                            color: context.isDarkMode ? AppColors.darkBorder : AppColors.lightBorder,
+                            color: context.isDarkMode
+                                ? AppColors.darkBorder
+                                : AppColors.lightBorder,
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
                           borderSide: BorderSide(
-                            color: context.isDarkMode ? AppColors.primary : AppColors.lightPrimary,
+                            color: context.isDarkMode
+                                ? AppColors.primary
+                                : AppColors.lightPrimary,
                             width: 1.5,
                           ),
                         ),
@@ -1302,7 +1502,9 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
                 child: ElevatedButton(
                   onPressed: _isSubmitting ? null : _submitDeposit,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: context.isDarkMode ? AppColors.primary : AppColors.lightPrimary,
+                    backgroundColor: context.isDarkMode
+                        ? AppColors.primary
+                        : AppColors.lightPrimary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
@@ -1336,13 +1538,21 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
           color: active
-              ? (context.isDarkMode ? AppColors.primary.withValues(alpha: 0.15) : AppColors.lightPrimary.withValues(alpha: 0.15))
-              : (context.isDarkMode ? AppColors.darkBg : const Color(0xFFEAEEF1)),
+              ? (context.isDarkMode
+                    ? AppColors.primary.withValues(alpha: 0.15)
+                    : AppColors.lightPrimary.withValues(alpha: 0.15))
+              : (context.isDarkMode
+                    ? AppColors.darkBg
+                    : const Color(0xFFEAEEF1)),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
             color: active
-                ? (context.isDarkMode ? AppColors.primary : AppColors.lightPrimary)
-                : (context.isDarkMode ? AppColors.darkBorder : AppColors.lightBorder),
+                ? (context.isDarkMode
+                      ? AppColors.primary
+                      : AppColors.lightPrimary)
+                : (context.isDarkMode
+                      ? AppColors.darkBorder
+                      : AppColors.lightBorder),
             width: 1.2,
           ),
         ),
@@ -1350,8 +1560,12 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
           '\$$amount',
           style: AppTextStyles.labelMedium.copyWith(
             color: active
-                ? (context.isDarkMode ? AppColors.primaryLight : AppColors.lightPrimary)
-                : (context.isDarkMode ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+                ? (context.isDarkMode
+                      ? AppColors.primaryLight
+                      : AppColors.lightPrimary)
+                : (context.isDarkMode
+                      ? AppColors.textSecondaryDark
+                      : AppColors.textSecondaryLight),
             fontWeight: FontWeight.bold,
           ),
         ),

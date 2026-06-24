@@ -17,7 +17,7 @@ class GlassToggleSwitch extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = activeColor ?? AppColors.secondary;
     final isLight = Theme.of(context).brightness == Brightness.light;
-    
+
     return GestureDetector(
       onTap: () {
         if (onChanged != null) {
@@ -46,7 +46,7 @@ class GlassToggleSwitch extends StatelessWidget {
                     color: color.withOpacity(isLight ? 0.12 : 0.3),
                     blurRadius: 10,
                     spreadRadius: 1,
-                  )
+                  ),
                 ]
               : null,
         ),
@@ -61,14 +61,16 @@ class GlassToggleSwitch extends StatelessWidget {
               shape: BoxShape.circle,
               color: value
                   ? color
-                  : (isLight ? AppColors.textTertiaryLight : AppColors.textTertiaryDark),
+                  : (isLight
+                        ? AppColors.textTertiaryLight
+                        : AppColors.textTertiaryDark),
               boxShadow: value
                   ? [
                       BoxShadow(
                         color: color.withOpacity(0.5),
                         blurRadius: 6,
                         spreadRadius: 1,
-                      )
+                      ),
                     ]
                   : null,
             ),

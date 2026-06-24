@@ -155,7 +155,9 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
             Container(
               color: Colors.black.withOpacity(0.6),
               child: Center(
-                child: CircularProgressIndicator(color: context.colorScheme.secondary),
+                child: CircularProgressIndicator(
+                  color: context.colorScheme.secondary,
+                ),
               ),
             ),
         ],
@@ -218,8 +220,11 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
                   : AppColors.primaryGradient,
               boxShadow: [
                 BoxShadow(
-                  color: (travelMode ? context.colorScheme.secondary : context.primaryColor)
-                      .withOpacity(0.4),
+                  color:
+                      (travelMode
+                              ? context.colorScheme.secondary
+                              : context.primaryColor)
+                          .withOpacity(0.4),
                   blurRadius: 25,
                   spreadRadius: 2,
                 ),
@@ -246,7 +251,9 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCard : AppColors.lightCard,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+        border: Border.all(
+          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+        ),
       ),
       child: Column(
         children: [
@@ -256,12 +263,17 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: (isHome ? context.primaryColor : context.colorScheme.secondary)
-                      .withOpacity(0.15),
+                  color:
+                      (isHome
+                              ? context.primaryColor
+                              : context.colorScheme.secondary)
+                          .withOpacity(0.15),
                 ),
                 child: Icon(
                   isHome ? Icons.home_rounded : Icons.public_rounded,
-                  color: isHome ? (isDark ? AppColors.primaryLight : context.primaryColor) : context.colorScheme.secondary,
+                  color: isHome
+                      ? (isDark ? AppColors.primaryLight : context.primaryColor)
+                      : context.colorScheme.secondary,
                   size: 26,
                 ),
               ),
@@ -274,7 +286,9 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
                       isHome ? 'AT HOME' : 'ABROAD / TRAVELING',
                       style: AppTextStyles.labelSmall.copyWith(
                         color: isHome
-                            ? (isDark ? AppColors.primaryLight : context.primaryColor)
+                            ? (isDark
+                                  ? AppColors.primaryLight
+                                  : context.primaryColor)
                             : context.colorScheme.secondary,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 1.2,
@@ -293,14 +307,19 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
               ),
             ],
           ),
-          Divider(color: isDark ? AppColors.darkBorder : AppColors.lightBorder, height: 30),
+          Divider(
+            color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+            height: 30,
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 'Shield Protection',
                 style: AppTextStyles.bodyMedium.copyWith(
-                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                  color: isDark
+                      ? AppColors.textSecondaryDark
+                      : AppColors.textSecondaryLight,
                 ),
               ),
               Row(
@@ -364,7 +383,9 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
           Text(
             'We detected you are currently in your Home Country. You can freeze renewals on your international lines to prevent unwanted wallet balance depletion.',
             style: AppTextStyles.bodyMedium.copyWith(
-              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+              color: isDark
+                  ? AppColors.textSecondaryDark
+                  : AppColors.textSecondaryLight,
               height: 1.4,
             ),
           ),
@@ -412,7 +433,9 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
                 child: Text(
                   'Dismiss',
                   style: AppTextStyles.labelLarge.copyWith(
-                    color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                    color: isDark
+                        ? AppColors.textSecondaryDark
+                        : AppColors.textSecondaryLight,
                   ),
                 ),
               ),
@@ -431,7 +454,9 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
       decoration: BoxDecoration(
         color: context.colorScheme.secondary.withOpacity(0.08),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: context.colorScheme.secondary.withOpacity(0.25)),
+        border: Border.all(
+          color: context.colorScheme.secondary.withOpacity(0.25),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -457,7 +482,9 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
           Text(
             'You are traveling abroad. Please resume your paused international SIM renewals to ensure uninterrupted mobile network coverage.',
             style: AppTextStyles.bodyMedium.copyWith(
-              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+              color: isDark
+                  ? AppColors.textSecondaryDark
+                  : AppColors.textSecondaryLight,
               height: 1.4,
             ),
           ),
@@ -505,7 +532,9 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
                 child: Text(
                   'Dismiss',
                   style: AppTextStyles.labelLarge.copyWith(
-                    color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                    color: isDark
+                        ? AppColors.textSecondaryDark
+                        : AppColors.textSecondaryLight,
                   ),
                 ),
               ),
@@ -524,7 +553,9 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCard : AppColors.lightCard,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+        border: Border.all(
+          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+        ),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -544,7 +575,9 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
                 Text(
                   'Allows automated geofencing rules to activate border-crossing routines.',
                   style: AppTextStyles.bodySmall.copyWith(
-                    color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                    color: isDark
+                        ? AppColors.textSecondaryDark
+                        : AppColors.textSecondaryLight,
                   ),
                 ),
               ],
@@ -554,25 +587,15 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
             value: geoState.travelModeEnabled,
             activeColor: context.colorScheme.secondary,
             activeTrackColor: context.colorScheme.secondary.withOpacity(0.3),
-            inactiveThumbColor: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
-            inactiveTrackColor: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+            inactiveThumbColor: isDark
+                ? AppColors.textSecondaryDark
+                : AppColors.textSecondaryLight,
+            inactiveTrackColor: isDark
+                ? AppColors.darkBorder
+                : AppColors.lightBorder,
             onChanged: (val) async {
               final user = ref.read(authControllerProvider).valueOrNull;
-              final tier = user?.subscriptionTier ?? 'standard';
-              if (tier == 'basic') {
-                SubscriptionUpsellSheet.show(
-                  context: context,
-                  title: 'Starter Feature Locked 🔒',
-                  description: 'Automated Global Travel & Home modes are available starting from the Starter Plan. Upgrade now to freeze renewals when you are home!',
-                  requiredPlan: 'Starter Plan',
-                  highlights: [
-                    'Smart Travel / Home modes active',
-                    'Protect up to 5 SIM cards simultaneously',
-                    'All notifications (WhatsApp, Telegram, Email)',
-                  ],
-                );
-                return;
-              }
+              // Feature unlocked for all users or handled by line-specific logic
               await HapticHelper.mediumImpact();
               ref.read(geoControllerProvider.notifier).toggleTravelMode(val);
             },
@@ -592,7 +615,9 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCard : AppColors.lightCard,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+        border: Border.all(
+          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -618,7 +643,9 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
           Text(
             'Simulate boardings to trigger smart freeze or active country resumption rules.',
             style: AppTextStyles.bodySmall.copyWith(
-              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+              color: isDark
+                  ? AppColors.textSecondaryDark
+                  : AppColors.textSecondaryLight,
             ),
           ),
           const SizedBox(height: 20),
@@ -699,7 +726,9 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
               ? context.colorScheme.secondary.withOpacity(0.08)
               : Colors.transparent,
           side: BorderSide(
-            color: isCurrent ? context.colorScheme.secondary : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
+            color: isCurrent
+                ? context.colorScheme.secondary
+                : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
             width: isCurrent ? 1.5 : 1.0,
           ),
           shape: RoundedRectangleBorder(
@@ -708,21 +737,7 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
         ),
         onPressed: () async {
           final user = ref.read(authControllerProvider).valueOrNull;
-          final tier = user?.subscriptionTier ?? 'standard';
-          if (tier == 'basic') {
-            SubscriptionUpsellSheet.show(
-              context: context,
-              title: 'Starter Feature Locked 🔒',
-              description: 'The Border Crossing Simulator allows testing automated freeze/resume scripts. This feature requires at least the Starter Plan!',
-              requiredPlan: 'Starter Plan',
-              highlights: [
-                'Test and simulate geofencing scenarios',
-                'Smart Travel / Home modes active',
-                'WhatsApp & Telegram notification channels',
-              ],
-            );
-            return;
-          }
+          // Feature unlocked
           await HapticHelper.mediumImpact();
           ref
               .read(geoControllerProvider.notifier)
@@ -736,7 +751,9 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
             Text(
               label,
               style: AppTextStyles.labelLarge.copyWith(
-                color: isCurrent ? context.colorScheme.secondary : context.onSurfaceColor,
+                color: isCurrent
+                    ? context.colorScheme.secondary
+                    : context.onSurfaceColor,
                 fontWeight: isCurrent ? FontWeight.bold : FontWeight.normal,
               ),
             ),
@@ -754,7 +771,11 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
       decoration: BoxDecoration(
         color: isDark ? Colors.black.withOpacity(0.4) : const Color(0xFFEAEEF1),
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: isDark ? Colors.white.withOpacity(0.05) : AppColors.lightBorder),
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withOpacity(0.05)
+              : AppColors.lightBorder,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -765,7 +786,9 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
               Text(
                 'SYSTEM DIAGNOSTICS LOGS',
                 style: AppTextStyles.labelSmall.copyWith(
-                  color: isDark ? AppColors.secondary : AppColors.lightSecondary,
+                  color: isDark
+                      ? AppColors.secondary
+                      : AppColors.lightSecondary,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1.5,
                 ),
@@ -773,13 +796,17 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: (isDark ? AppColors.secondary : AppColors.lightSecondary).withOpacity(0.1),
+                  color:
+                      (isDark ? AppColors.secondary : AppColors.lightSecondary)
+                          .withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   'ONLINE',
                   style: AppTextStyles.labelSmall.copyWith(
-                    color: isDark ? AppColors.secondary : AppColors.lightSecondary,
+                    color: isDark
+                        ? AppColors.secondary
+                        : AppColors.lightSecondary,
                     fontWeight: FontWeight.bold,
                     fontSize: 8,
                   ),
@@ -803,7 +830,9 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
                     style: TextStyle(
                       fontFamily: 'Courier',
                       fontSize: 12,
-                      color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                      color: isDark
+                          ? AppColors.textSecondaryDark
+                          : AppColors.textSecondaryLight,
                     ),
                   ),
                 );

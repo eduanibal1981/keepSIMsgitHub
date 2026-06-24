@@ -31,6 +31,10 @@ _SimLine _$SimLineFromJson(Map<String, dynamic> json) => _SimLine(
   isAutoDetected: json['is_auto_detected'] as bool? ?? false,
   isHomeMode: json['is_home_mode'] as bool? ?? false,
   householdId: json['household_id'] as String?,
+  planType: json['plan_type'] as String? ?? 'free',
+  planExpiresAt: json['plan_expires_at'] == null
+      ? null
+      : DateTime.parse(json['plan_expires_at'] as String),
   createdAt: json['created_at'] == null
       ? null
       : DateTime.parse(json['created_at'] as String),
@@ -58,6 +62,8 @@ Map<String, dynamic> _$SimLineToJson(_SimLine instance) => <String, dynamic>{
   'is_auto_detected': instance.isAutoDetected,
   'is_home_mode': instance.isHomeMode,
   'household_id': instance.householdId,
+  'plan_type': instance.planType,
+  'plan_expires_at': instance.planExpiresAt?.toIso8601String(),
   'created_at': instance.createdAt?.toIso8601String(),
   'updated_at': instance.updatedAt?.toIso8601String(),
 };

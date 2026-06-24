@@ -10,6 +10,9 @@ import 'package:keep_sims/whatsapp_service.dart';
 import 'package:keep_sims/features/scheduled_topups/controller/scheduled_topup_controller.dart';
 import 'package:keep_sims/core/result.dart';
 import 'package:keep_sims/core/services/connectivity_service.dart';
+import 'package:keep_sims/features/settings/presentation/screens/paypal_simulator_screen.dart';
+import 'package:keep_sims/features/settings/presentation/screens/zendit_simulator_screen.dart';
+
 class AlertSimulatorScreen extends ConsumerStatefulWidget {
   const AlertSimulatorScreen({super.key});
 
@@ -63,6 +66,66 @@ class _AlertSimulatorScreenState extends ConsumerState<AlertSimulatorScreen> {
             fontSize: 24,
           ),
         ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: TextButton.icon(
+              style: TextButton.styleFrom(
+                backgroundColor: Colors.deepPurple.withOpacity(0.08),
+                foregroundColor: Colors.deepPurple,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  side: const BorderSide(color: Colors.deepPurple, width: 1),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const ZenditSimulatorScreen(),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.phonelink_ring, size: 16),
+              label: const Text(
+                'Zendit',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: TextButton.icon(
+              style: TextButton.styleFrom(
+                backgroundColor: const Color(0xFF003087).withOpacity(0.08),
+                foregroundColor: const Color(0xFF0070BA),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  side: const BorderSide(color: Color(0xFF0070BA), width: 1),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const PaypalSimulatorScreen(),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.payment_rounded, size: 16),
+              label: const Text(
+                'PayPal Test',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+              ),
+            ),
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
@@ -82,10 +145,14 @@ class _AlertSimulatorScreenState extends ConsumerState<AlertSimulatorScreen> {
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkSurface : const Color(0xFFEAEEF1),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: (isDark ? AppColors.primary : AppColors.lightPrimary).withValues(alpha: 0.2)),
+        border: Border.all(
+          color: (isDark ? AppColors.primary : AppColors.lightPrimary)
+              .withValues(alpha: 0.2),
+        ),
         boxShadow: [
           BoxShadow(
-            color: (isDark ? AppColors.primary : AppColors.lightPrimary).withValues(alpha: 0.05),
+            color: (isDark ? AppColors.primary : AppColors.lightPrimary)
+                .withValues(alpha: 0.05),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
@@ -117,7 +184,9 @@ class _AlertSimulatorScreenState extends ConsumerState<AlertSimulatorScreen> {
           Text(
             'Select Incident Template',
             style: AppTextStyles.bodySmall.copyWith(
-              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+              color: isDark
+                  ? AppColors.textSecondaryDark
+                  : AppColors.textSecondaryLight,
             ),
           ),
           const SizedBox(height: 4),
@@ -127,7 +196,9 @@ class _AlertSimulatorScreenState extends ConsumerState<AlertSimulatorScreen> {
             decoration: BoxDecoration(
               color: isDark ? AppColors.darkCard : Colors.white,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+              border: Border.all(
+                color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+              ),
             ),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
@@ -136,7 +207,9 @@ class _AlertSimulatorScreenState extends ConsumerState<AlertSimulatorScreen> {
                 dropdownColor: context.scaffoldBackgroundColor,
                 icon: Icon(
                   Icons.arrow_drop_down_rounded,
-                  color: isDark ? AppColors.primaryLight : AppColors.lightPrimaryMid,
+                  color: isDark
+                      ? AppColors.primaryLight
+                      : AppColors.lightPrimaryMid,
                 ),
                 items: _simulatorCategories.entries.map((e) {
                   return DropdownMenuItem<String>(
@@ -174,7 +247,9 @@ class _AlertSimulatorScreenState extends ConsumerState<AlertSimulatorScreen> {
                     Text(
                       'Link to SIM Card',
                       style: AppTextStyles.bodySmall.copyWith(
-                        color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                        color: isDark
+                            ? AppColors.textSecondaryDark
+                            : AppColors.textSecondaryLight,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -188,7 +263,9 @@ class _AlertSimulatorScreenState extends ConsumerState<AlertSimulatorScreen> {
                             child: Text(
                               'No SIM lines.',
                               style: AppTextStyles.bodySmall.copyWith(
-                                color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
+                                color: isDark
+                                    ? AppColors.textTertiaryDark
+                                    : AppColors.textTertiaryLight,
                               ),
                             ),
                           );
@@ -205,7 +282,11 @@ class _AlertSimulatorScreenState extends ConsumerState<AlertSimulatorScreen> {
                           decoration: BoxDecoration(
                             color: isDark ? AppColors.darkCard : Colors.white,
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+                            border: Border.all(
+                              color: isDark
+                                  ? AppColors.darkBorder
+                                  : AppColors.lightBorder,
+                            ),
                           ),
                           child: DropdownButtonHideUnderline(
                             child: DropdownButton<String>(
@@ -214,7 +295,9 @@ class _AlertSimulatorScreenState extends ConsumerState<AlertSimulatorScreen> {
                               dropdownColor: context.scaffoldBackgroundColor,
                               icon: Icon(
                                 Icons.arrow_drop_down_rounded,
-                                color: isDark ? AppColors.primaryLight : AppColors.lightPrimaryMid,
+                                color: isDark
+                                    ? AppColors.primaryLight
+                                    : AppColors.lightPrimaryMid,
                               ),
                               items: lines.map((l) {
                                 return DropdownMenuItem<String>(
@@ -233,8 +316,11 @@ class _AlertSimulatorScreenState extends ConsumerState<AlertSimulatorScreen> {
                                 setState(() {
                                   _selectedSimLineId = val;
                                   if (val != null) {
-                                    final match = lines.firstWhere((l) => l.id == val);
-                                    _whatsappPhoneController.text = match.phoneNumber;
+                                    final match = lines.firstWhere(
+                                      (l) => l.id == val,
+                                    );
+                                    _whatsappPhoneController.text =
+                                        match.phoneNumber;
                                   }
                                 });
                               },
@@ -256,7 +342,9 @@ class _AlertSimulatorScreenState extends ConsumerState<AlertSimulatorScreen> {
                     Text(
                       'Delivery Timing',
                       style: AppTextStyles.bodySmall.copyWith(
-                        color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                        color: isDark
+                            ? AppColors.textSecondaryDark
+                            : AppColors.textSecondaryLight,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -268,7 +356,11 @@ class _AlertSimulatorScreenState extends ConsumerState<AlertSimulatorScreen> {
                       decoration: BoxDecoration(
                         color: isDark ? AppColors.darkCard : Colors.white,
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+                        border: Border.all(
+                          color: isDark
+                              ? AppColors.darkBorder
+                              : AppColors.lightBorder,
+                        ),
                       ),
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<int>(
@@ -277,7 +369,9 @@ class _AlertSimulatorScreenState extends ConsumerState<AlertSimulatorScreen> {
                           dropdownColor: context.scaffoldBackgroundColor,
                           icon: Icon(
                             Icons.schedule_rounded,
-                            color: isDark ? AppColors.primaryLight : AppColors.lightPrimaryMid,
+                            color: isDark
+                                ? AppColors.primaryLight
+                                : AppColors.lightPrimaryMid,
                             size: 16,
                           ),
                           items: [
@@ -327,18 +421,24 @@ class _AlertSimulatorScreenState extends ConsumerState<AlertSimulatorScreen> {
               color: isDark ? AppColors.darkCard : Colors.white,
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: _sendLocalWhatsApp 
-                    ? (isDark ? AppColors.primary : AppColors.lightPrimary).withValues(alpha: 0.3) 
+                color: _sendLocalWhatsApp
+                    ? (isDark ? AppColors.primary : AppColors.lightPrimary)
+                          .withValues(alpha: 0.3)
                     : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
               ),
             ),
             child: Theme(
               data: ThemeData(
-                unselectedWidgetColor: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
+                unselectedWidgetColor: isDark
+                    ? AppColors.textTertiaryDark
+                    : AppColors.textTertiaryLight,
               ),
               child: CheckboxListTile(
                 dense: true,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 0,
+                ),
                 title: Text(
                   'Trigger WhatsApp Server Alert',
                   style: AppTextStyles.bodyMedium.copyWith(
@@ -349,11 +449,15 @@ class _AlertSimulatorScreenState extends ConsumerState<AlertSimulatorScreen> {
                 subtitle: Text(
                   'Sends alert via local server.js to WhatsApp',
                   style: AppTextStyles.bodySmall.copyWith(
-                    color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                    color: isDark
+                        ? AppColors.textSecondaryDark
+                        : AppColors.textSecondaryLight,
                   ),
                 ),
                 value: _sendLocalWhatsApp,
-                activeColor: isDark ? AppColors.primary : AppColors.lightPrimary,
+                activeColor: isDark
+                    ? AppColors.primary
+                    : AppColors.lightPrimary,
                 checkColor: Colors.white,
                 onChanged: (val) async {
                   await HapticHelper.lightTick();
@@ -376,11 +480,15 @@ class _AlertSimulatorScreenState extends ConsumerState<AlertSimulatorScreen> {
               decoration: InputDecoration(
                 labelText: 'WhatsApp Recipient Phone Number',
                 labelStyle: AppTextStyles.bodySmall.copyWith(
-                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                  color: isDark
+                      ? AppColors.textSecondaryDark
+                      : AppColors.textSecondaryLight,
                 ),
                 hintText: 'e.g. 96891234567',
                 hintStyle: AppTextStyles.bodyMedium.copyWith(
-                  color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
+                  color: isDark
+                      ? AppColors.textTertiaryDark
+                      : AppColors.textTertiaryLight,
                 ),
                 filled: true,
                 fillColor: isDark ? AppColors.darkCard : Colors.white,
@@ -390,7 +498,11 @@ class _AlertSimulatorScreenState extends ConsumerState<AlertSimulatorScreen> {
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+                  borderSide: BorderSide(
+                    color: isDark
+                        ? AppColors.darkBorder
+                        : AppColors.lightBorder,
+                  ),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -398,7 +510,9 @@ class _AlertSimulatorScreenState extends ConsumerState<AlertSimulatorScreen> {
                 ),
                 prefixIcon: Icon(
                   Icons.phone_iphone_rounded,
-                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                  color: isDark
+                      ? AppColors.textSecondaryDark
+                      : AppColors.textSecondaryLight,
                   size: 18,
                 ),
               ),
@@ -458,14 +572,24 @@ class _AlertSimulatorScreenState extends ConsumerState<AlertSimulatorScreen> {
   Widget _buildScheduleSimulatorSection(BuildContext context) {
     if (_selectedSimLineId == null) return const SizedBox.shrink();
 
-    final notifySchedule = ref.watch(scheduledNotifyForLineProvider(_selectedSimLineId!));
-    final refillSchedule = ref.watch(scheduledRefillForLineProvider(_selectedSimLineId!));
+    final notifySchedule = ref.watch(
+      scheduledNotifyForLineProvider(_selectedSimLineId!),
+    );
+    final miniRefill = ref.watch(
+      scheduledMiniRefillForLineProvider(_selectedSimLineId!),
+    );
+    final customRefill = ref.watch(
+      scheduledCustomRefillForLineProvider(_selectedSimLineId!),
+    );
+    final refillSchedule = customRefill ?? miniRefill;
 
     if (notifySchedule == null && refillSchedule == null) {
       return Text(
         'No active schedules for this SIM line.',
         style: AppTextStyles.bodySmall.copyWith(
-          color: context.isDarkMode ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
+          color: context.isDarkMode
+              ? AppColors.textTertiaryDark
+              : AppColors.textTertiaryLight,
         ),
       );
     }
@@ -498,7 +622,6 @@ class _AlertSimulatorScreenState extends ConsumerState<AlertSimulatorScreen> {
     required String scheduleId,
     required bool isRefill,
   }) {
-    final isDark = context.isDarkMode;
     final networkStatus = ref.watch(connectivityServiceProvider);
     final isOffline = networkStatus == NetworkStatus.offline;
 
@@ -509,19 +632,19 @@ class _AlertSimulatorScreenState extends ConsumerState<AlertSimulatorScreen> {
         onPressed: _isSimulatingSchedule
             ? null
             : (isOffline
-                ? () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          isRefill
-                              ? 'Refill simulation requires an active internet connection.'
-                              : 'Notify simulation requires an active internet connection.',
+                  ? () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            isRefill
+                                ? 'Refill simulation requires an active internet connection.'
+                                : 'Notify simulation requires an active internet connection.',
+                          ),
+                          backgroundColor: AppColors.error,
                         ),
-                        backgroundColor: AppColors.error,
-                      ),
-                    );
-                  }
-                : () => _simulateSchedule(scheduleId, isRefill)),
+                      );
+                    }
+                  : () => _simulateSchedule(scheduleId, isRefill)),
         icon: _isSimulatingSchedule
             ? SizedBox(
                 width: 14,
@@ -550,9 +673,7 @@ class _AlertSimulatorScreenState extends ConsumerState<AlertSimulatorScreen> {
           backgroundColor: isOffline
               ? Colors.grey.withOpacity(0.12)
               : (isRefill ? AppColors.secondaryDark : AppColors.primary),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
       ),
     );
@@ -682,9 +803,11 @@ class _AlertSimulatorScreenState extends ConsumerState<AlertSimulatorScreen> {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(sent 
-                  ? 'WhatsApp mock alert sent successfully!' 
-                  : 'Failed to send WhatsApp mock alert (check server.js!)'),
+                content: Text(
+                  sent
+                      ? 'WhatsApp mock alert sent successfully!'
+                      : 'Failed to send WhatsApp mock alert (check server.js!)',
+                ),
                 backgroundColor: sent ? AppColors.success : AppColors.healthRed,
                 behavior: SnackBarBehavior.floating,
               ),

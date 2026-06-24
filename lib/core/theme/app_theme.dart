@@ -279,7 +279,9 @@ abstract final class AppTheme {
     chipTheme: ChipThemeData(
       backgroundColor: const Color(0xFFEAEEF1),
       selectedColor: AppColors.lightPrimary.withOpacity(0.15),
-      labelStyle: AppTextStyles.labelMedium.copyWith(color: AppColors.textPrimaryLight),
+      labelStyle: AppTextStyles.labelMedium.copyWith(
+        color: AppColors.textPrimaryLight,
+      ),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       side: const BorderSide(color: AppColors.lightBorder),
     ),

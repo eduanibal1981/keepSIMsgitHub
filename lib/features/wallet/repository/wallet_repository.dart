@@ -79,10 +79,14 @@ class WalletRepository implements WalletContract {
     if (_connectivity.isOffline) {
       final cached = _cache.readJson('cached_wallet_transactions');
       if (cached is List) {
-        return Success(cached
-            .map((json) =>
-                WalletTransaction.fromJson(json as Map<String, dynamic>))
-            .toList());
+        return Success(
+          cached
+              .map(
+                (json) =>
+                    WalletTransaction.fromJson(json as Map<String, dynamic>),
+              )
+              .toList(),
+        );
       }
       return const Success([]);
     }
@@ -263,7 +267,9 @@ class WalletRepository implements WalletContract {
       final wallet = (walletResult as Success<Wallet>).data;
       if (wallet.balance < amount) {
         return const Failure(
-          AppFailure.validation(message: 'Insufficient funds for this transaction.'),
+          AppFailure.validation(
+            message: 'Insufficient funds for this transaction.',
+          ),
         );
       }
 
@@ -273,7 +279,8 @@ class WalletRepository implements WalletContract {
       final txData = {
         'user_id': userId,
         'wallet_id': wallet.id,
-        'amount': amount, // amount is positive in UI, but represents a deduction
+        'amount':
+            amount, // amount is positive in UI, but represents a deduction
         'balance_before': wallet.balance,
         'balance_after': newBalance,
         'type': type,

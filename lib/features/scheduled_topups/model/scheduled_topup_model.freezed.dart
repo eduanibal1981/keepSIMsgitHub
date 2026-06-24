@@ -16,7 +16,7 @@ T _$identity<T>(T value) => value;
 mixin _$ScheduledTopup {
 
  String get id; String get simLineId; String get userId; double get amount; String get currency; int get frequencyDays; DateTime get nextExecutionAt; DateTime? get lastExecutionAt; bool get isActive; int get retryCount; int get maxRetries; String get status;// 'active', 'paused', 'failed_permanently', 'completed'
- String get scheduleType;// 'notify', 'refill'
+ String get scheduleType;// 'notify', 'refill mini', 'refill custom'
  DateTime? get createdAt; DateTime? get updatedAt;
 /// Create a copy of ScheduledTopup
 /// with the given fields replaced by the non-null parameter values.
@@ -242,7 +242,7 @@ class _ScheduledTopup implements ScheduledTopup {
 @override@JsonKey() final  String status;
 // 'active', 'paused', 'failed_permanently', 'completed'
 @override@JsonKey() final  String scheduleType;
-// 'notify', 'refill'
+// 'notify', 'refill mini', 'refill custom'
 @override final  DateTime? createdAt;
 @override final  DateTime? updatedAt;
 

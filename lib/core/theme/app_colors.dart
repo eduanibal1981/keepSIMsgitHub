@@ -32,9 +32,9 @@ abstract final class AppColors {
   /// Dark background color
   static const Color darkBg = Color(0xFF0D141D);
   static const Color darkSurface = Color(0xFF192029);
-  
+
   // Glass card uses #15181E at 60% opacity with 16px blur
-  static const Color darkCard = Color(0x9915181E); 
+  static const Color darkCard = Color(0x9915181E);
   static const Color darkCardHover = Color(0xFF232A34);
   static const Color darkBorder = Color(0x1AFFFFFF); // 10% white opacity
 
@@ -50,7 +50,9 @@ abstract final class AppColors {
   static const Color lightSurface = Color(0xFFF6FAFD);
   static const Color lightCard = Color(0xFFFFFFFF); // Pure white card
   static const Color lightBorder = Color(0xFFBDC8CE); // Outline variant
-  static const Color lightBorderSoft = Color(0x3300647C); // 20% opacity primary border
+  static const Color lightBorderSoft = Color(
+    0x3300647C,
+  ); // 20% opacity primary border
 
   // ── Text Colors ───────────────────────────────────────────
   static const Color textPrimaryDark = Color(0xFFFFFFFF);
@@ -58,7 +60,9 @@ abstract final class AppColors {
   static const Color textTertiaryDark = Color(0xFFBCC9CD);
 
   static const Color textPrimaryLight = Color(0xFF171C1E); // on-surface
-  static const Color textSecondaryLight = Color(0xFF3E484D); // on-surface-variant
+  static const Color textSecondaryLight = Color(
+    0xFF3E484D,
+  ); // on-surface-variant
   static const Color textTertiaryLight = Color(0xFF6E797E); // outline
 
   // ── Gradients ─────────────────────────────────────────────

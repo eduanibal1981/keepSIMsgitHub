@@ -168,6 +168,125 @@ class _CarriersForCountryProviderElement
   String get countryId => (origin as CarriersForCountryProvider).countryId;
 }
 
+String _$carrierRuleHash() => r'8b8517ec4dfbfc986ddd909c4448e2d099593faf';
+
+/// See also [carrierRule].
+@ProviderFor(carrierRule)
+const carrierRuleProvider = CarrierRuleFamily();
+
+/// See also [carrierRule].
+class CarrierRuleFamily extends Family<AsyncValue<CarrierRule?>> {
+  /// See also [carrierRule].
+  const CarrierRuleFamily();
+
+  /// See also [carrierRule].
+  CarrierRuleProvider call(String carrierId) {
+    return CarrierRuleProvider(carrierId);
+  }
+
+  @override
+  CarrierRuleProvider getProviderOverride(
+    covariant CarrierRuleProvider provider,
+  ) {
+    return call(provider.carrierId);
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'carrierRuleProvider';
+}
+
+/// See also [carrierRule].
+class CarrierRuleProvider extends AutoDisposeFutureProvider<CarrierRule?> {
+  /// See also [carrierRule].
+  CarrierRuleProvider(String carrierId)
+    : this._internal(
+        (ref) => carrierRule(ref as CarrierRuleRef, carrierId),
+        from: carrierRuleProvider,
+        name: r'carrierRuleProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$carrierRuleHash,
+        dependencies: CarrierRuleFamily._dependencies,
+        allTransitiveDependencies: CarrierRuleFamily._allTransitiveDependencies,
+        carrierId: carrierId,
+      );
+
+  CarrierRuleProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.carrierId,
+  }) : super.internal();
+
+  final String carrierId;
+
+  @override
+  Override overrideWith(
+    FutureOr<CarrierRule?> Function(CarrierRuleRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: CarrierRuleProvider._internal(
+        (ref) => create(ref as CarrierRuleRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        carrierId: carrierId,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<CarrierRule?> createElement() {
+    return _CarrierRuleProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is CarrierRuleProvider && other.carrierId == carrierId;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, carrierId.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin CarrierRuleRef on AutoDisposeFutureProviderRef<CarrierRule?> {
+  /// The parameter `carrierId` of this provider.
+  String get carrierId;
+}
+
+class _CarrierRuleProviderElement
+    extends AutoDisposeFutureProviderElement<CarrierRule?>
+    with CarrierRuleRef {
+  _CarrierRuleProviderElement(super.provider);
+
+  @override
+  String get carrierId => (origin as CarrierRuleProvider).carrierId;
+}
+
 String _$simLineActivityLogsHash() =>
     r'e44c4e8afe24bf4c29f2bad20db784c72c129622';
 
@@ -294,7 +413,7 @@ class _SimLineActivityLogsProviderElement
 }
 
 String _$simLinesControllerHash() =>
-    r'e167c540ad4303fe51f8470564b6106672b9f5ab';
+    r'37fd9c452126464010342a0e94a976c738c2555e';
 
 /// See also [SimLinesController].
 @ProviderFor(SimLinesController)

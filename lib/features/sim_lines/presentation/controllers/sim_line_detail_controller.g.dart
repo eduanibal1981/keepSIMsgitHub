@@ -7,7 +7,7 @@ part of 'sim_line_detail_controller.dart';
 // **************************************************************************
 
 String _$simLineDetailControllerHash() =>
-    r'4f2a80b18bcaf71b5a492ecbdcd6d22a3db353c1';
+    r'8c37ac327129067eafdad79cd01ed1791148cb5c';
 
 /// Copied from Dart SDK
 class _SystemHash {

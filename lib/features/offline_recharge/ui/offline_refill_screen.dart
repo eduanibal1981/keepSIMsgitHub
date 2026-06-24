@@ -70,7 +70,10 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
               topRight: Radius.circular(28),
             ),
             border: Border(
-              top: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.lightBorder, width: 1.5),
+              top: BorderSide(
+                color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                width: 1.5,
+              ),
             ),
           ),
           child: Column(
@@ -83,7 +86,9 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 20),
                   decoration: BoxDecoration(
-                    color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                    color: isDark
+                        ? AppColors.darkBorder
+                        : AppColors.lightBorder,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -120,7 +125,11 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
                   child: Center(
                     child: Text(
                       'No registered SIM lines found.',
-                      style: TextStyle(color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+                      style: TextStyle(
+                        color: isDark
+                            ? AppColors.textSecondaryDark
+                            : AppColors.textSecondaryLight,
+                      ),
                     ),
                   ),
                 )
@@ -140,13 +149,19 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
                         margin: const EdgeInsets.only(bottom: 12),
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? Colors.purpleAccent.withOpacity(isDark ? 0.08 : 0.1)
-                              : (isDark ? AppColors.darkCard.withOpacity(0.4) : const Color(0xFFEAEEF1)),
+                              ? Colors.purpleAccent.withOpacity(
+                                  isDark ? 0.08 : 0.1,
+                                )
+                              : (isDark
+                                    ? AppColors.darkCard.withOpacity(0.4)
+                                    : const Color(0xFFEAEEF1)),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
                             color: isSelected
                                 ? Colors.purpleAccent
-                                : (isDark ? Colors.white.withOpacity(0.05) : AppColors.lightBorder),
+                                : (isDark
+                                      ? Colors.white.withOpacity(0.05)
+                                      : AppColors.lightBorder),
                             width: 1.0,
                           ),
                         ),
@@ -178,7 +193,9 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
                           subtitle: Text(
                             line.phoneNumber,
                             style: TextStyle(
-                              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                              color: isDark
+                                  ? AppColors.textSecondaryDark
+                                  : AppColors.textSecondaryLight,
                               fontFamily: 'monospace',
                             ),
                           ),
@@ -206,8 +223,7 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
     final user = authState.valueOrNull;
 
     // Check Premium subscription restriction
-    final isPremium =
-        user != null && user.subscriptionTier.toLowerCase() == 'premium';
+    final bool isPremium = true;
 
     final isDark = context.isDarkMode;
 
@@ -253,7 +269,9 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
           Container(
             padding: const EdgeInsets.all(28.0),
             decoration: BoxDecoration(
-              color: isDark ? AppColors.darkCard.withOpacity(0.6) : Colors.white,
+              color: isDark
+                  ? AppColors.darkCard.withOpacity(0.6)
+                  : Colors.white,
               shape: BoxShape.circle,
               border: Border.all(
                 color: Colors.purpleAccent.withOpacity(0.2),
@@ -306,7 +324,9 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
           Text(
             'Never get stranded without mobile data again. SIM Shield Premium allows you to refill your SIM card balance offline over standard local SMS or WhatsApp messages when you have zero internet connection.',
             style: AppTextStyles.bodyMedium.copyWith(
-              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+              color: isDark
+                  ? AppColors.textSecondaryDark
+                  : AppColors.textSecondaryLight,
               height: 1.6,
             ),
             textAlign: TextAlign.center,
@@ -353,7 +373,7 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
                 ],
               ),
               child: ElevatedButton(
-                onPressed: () => context.push('/settings/subscription'),
+                onPressed: () => context.pop(),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.transparent,
                   shadowColor: Colors.transparent,
@@ -362,7 +382,7 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
                   ),
                 ),
                 child: Text(
-                  'Upgrade to Premium',
+                  'Close',
                   style: AppTextStyles.titleMedium.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -387,7 +407,11 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCard.withOpacity(0.4) : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: isDark ? Colors.white.withOpacity(0.05) : AppColors.lightBorder),
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withOpacity(0.05)
+              : AppColors.lightBorder,
+        ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -417,7 +441,9 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
                 Text(
                   subtitle,
                   style: AppTextStyles.bodySmall.copyWith(
-                    color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                    color: isDark
+                        ? AppColors.textSecondaryDark
+                        : AppColors.textSecondaryLight,
                     fontSize: 13,
                     height: 1.4,
                   ),
@@ -466,9 +492,15 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
                 Container(
                   padding: const EdgeInsets.all(18.0),
                   decoration: BoxDecoration(
-                    color: isDark ? AppColors.darkCard.withOpacity(0.3) : const Color(0xFFEAEEF1),
+                    color: isDark
+                        ? AppColors.darkCard.withOpacity(0.3)
+                        : const Color(0xFFEAEEF1),
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: isDark ? Colors.white.withOpacity(0.05) : AppColors.lightBorder),
+                    border: Border.all(
+                      color: isDark
+                          ? Colors.white.withOpacity(0.05)
+                          : AppColors.lightBorder,
+                    ),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -495,7 +527,9 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
                       RichText(
                         text: TextSpan(
                           style: AppTextStyles.bodySmall.copyWith(
-                            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                            color: isDark
+                                ? AppColors.textSecondaryDark
+                                : AppColors.textSecondaryLight,
                             height: 1.5,
                           ),
                           children: const [
@@ -519,16 +553,22 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
                         width: double.infinity,
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: isDark ? Colors.black.withOpacity(0.2) : Colors.white,
+                          color: isDark
+                              ? Colors.black.withOpacity(0.2)
+                              : Colors.white,
                           borderRadius: BorderRadius.circular(12),
-                          border: isDark ? null : Border.all(color: AppColors.lightBorder),
+                          border: isDark
+                              ? null
+                              : Border.all(color: AppColors.lightBorder),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(
                               Icons.phone_android_rounded,
-                              color: isDark ? Colors.white70 : AppColors.textSecondaryLight,
+                              color: isDark
+                                  ? Colors.white70
+                                  : AppColors.textSecondaryLight,
                               size: 18,
                             ),
                             const SizedBox(width: 8),
@@ -555,7 +595,9 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
                 Text(
                   'TARGET SIM LINE',
                   style: AppTextStyles.bodySmall.copyWith(
-                    color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                    color: isDark
+                        ? AppColors.textSecondaryDark
+                        : AppColors.textSecondaryLight,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 1.0,
                   ),
@@ -566,9 +608,15 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
                   child: Container(
                     padding: const EdgeInsets.all(16.0),
                     decoration: BoxDecoration(
-                      color: isDark ? AppColors.darkCard.withOpacity(0.4) : Colors.white,
+                      color: isDark
+                          ? AppColors.darkCard.withOpacity(0.4)
+                          : Colors.white,
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: isDark ? Colors.white.withOpacity(0.06) : AppColors.lightBorder),
+                      border: Border.all(
+                        color: isDark
+                            ? Colors.white.withOpacity(0.06)
+                            : AppColors.lightBorder,
+                      ),
                     ),
                     child: Row(
                       children: [
@@ -601,7 +649,9 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
                               Text(
                                 activeSim.phoneNumber,
                                 style: TextStyle(
-                                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                                  color: isDark
+                                      ? AppColors.textSecondaryDark
+                                      : AppColors.textSecondaryLight,
                                   fontSize: 14,
                                   fontFamily: 'monospace',
                                 ),
@@ -669,7 +719,9 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
               Text(
                 'CONFIGURE CASH REFILL AMOUNT',
                 style: AppTextStyles.bodySmall.copyWith(
-                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                  color: isDark
+                      ? AppColors.textSecondaryDark
+                      : AppColors.textSecondaryLight,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1.0,
                 ),
@@ -678,9 +730,15 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
               Container(
                 padding: const EdgeInsets.all(18.0),
                 decoration: BoxDecoration(
-                  color: isDark ? AppColors.darkCard.withOpacity(0.4) : Colors.white,
+                  color: isDark
+                      ? AppColors.darkCard.withOpacity(0.4)
+                      : Colors.white,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: isDark ? Colors.white.withOpacity(0.06) : AppColors.lightBorder),
+                  border: Border.all(
+                    color: isDark
+                        ? Colors.white.withOpacity(0.06)
+                        : AppColors.lightBorder,
+                  ),
                 ),
                 child: Column(
                   children: [
@@ -723,7 +781,9 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
                             decoration: BoxDecoration(
                               color: isSel
                                   ? Colors.deepOrangeAccent.withOpacity(0.12)
-                                  : (isDark ? Colors.white.withOpacity(0.04) : const Color(0xFFEAEEF1)),
+                                  : (isDark
+                                        ? Colors.white.withOpacity(0.04)
+                                        : const Color(0xFFEAEEF1)),
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
                                 color: isSel
@@ -764,7 +824,9 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
                             style: TextStyle(
                               color: walletBalance < _refillAmount
                                   ? AppColors.error
-                                  : (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+                                  : (isDark
+                                        ? AppColors.textSecondaryDark
+                                        : AppColors.textSecondaryLight),
                               fontSize: 13,
                             ),
                           ),
@@ -790,39 +852,49 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
                 Text(
                   'LOCAL CARRIER PLAN SUGGESTIONS',
                   style: AppTextStyles.bodySmall.copyWith(
-                    color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                    color: isDark
+                        ? AppColors.textSecondaryDark
+                        : AppColors.textSecondaryLight,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 1.0,
                   ),
                 ),
                 const SizedBox(height: 8),
                 ref
-                  .watch(carrierUssdSuggestionsProvider(activeSim.carrierId!))
-                  .when(
-                    data: (suggestions) {
-                      if (suggestions.isEmpty) {
-                        return Container(
-                          padding: const EdgeInsets.all(18),
-                          decoration: BoxDecoration(
-                            color: isDark ? AppColors.darkCard.withOpacity(0.2) : const Color(0xFFEAEEF1),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Text(
-                            'No standard USSD dial codes found for this carrier. You will still receive the cash refill successfully on your line.',
-                            style: AppTextStyles.bodySmall.copyWith(
-                              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                    .watch(carrierUssdSuggestionsProvider(activeSim.carrierId!))
+                    .when(
+                      data: (suggestions) {
+                        if (suggestions.isEmpty) {
+                          return Container(
+                            padding: const EdgeInsets.all(18),
+                            decoration: BoxDecoration(
+                              color: isDark
+                                  ? AppColors.darkCard.withOpacity(0.2)
+                                  : const Color(0xFFEAEEF1),
+                              borderRadius: BorderRadius.circular(16),
                             ),
-                          ),
-                        );
-                      }
+                            child: Text(
+                              'No standard USSD dial codes found for this carrier. You will still receive the cash refill successfully on your line.',
+                              style: AppTextStyles.bodySmall.copyWith(
+                                color: isDark
+                                    ? AppColors.textSecondaryDark
+                                    : AppColors.textSecondaryLight,
+                              ),
+                            ),
+                          );
+                        }
 
                         return Container(
                           padding: const EdgeInsets.all(18.0),
                           decoration: BoxDecoration(
-                            color: isDark ? AppColors.darkCard.withOpacity(0.4) : Colors.white,
+                            color: isDark
+                                ? AppColors.darkCard.withOpacity(0.4)
+                                : Colors.white,
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(
-                              color: isDark ? Colors.white.withOpacity(0.06) : AppColors.lightBorder,
+                              color: isDark
+                                  ? Colors.white.withOpacity(0.06)
+                                  : AppColors.lightBorder,
                             ),
                           ),
                           child: Column(
@@ -840,7 +912,9 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
                               Text(
                                 'After the offline refill completes, the bot will suggest dialing these exact codes on your phone to instantly unlock Data+Calls offline:',
                                 style: AppTextStyles.bodySmall.copyWith(
-                                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                                  color: isDark
+                                      ? AppColors.textSecondaryDark
+                                      : AppColors.textSecondaryLight,
                                   height: 1.4,
                                 ),
                               ),
@@ -856,7 +930,9 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
                                           vertical: 4,
                                         ),
                                         decoration: BoxDecoration(
-                                          color: isDark ? Colors.white.withOpacity(0.04) : const Color(0xFFEAEEF1),
+                                          color: isDark
+                                              ? Colors.white.withOpacity(0.04)
+                                              : const Color(0xFFEAEEF1),
                                           borderRadius: BorderRadius.circular(
                                             6,
                                           ),
@@ -889,7 +965,11 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
                                             Text(
                                               'Cost: \$${s.cost.toStringAsFixed(2)}',
                                               style: TextStyle(
-                                                color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                                                color: isDark
+                                                    ? AppColors
+                                                          .textSecondaryDark
+                                                    : AppColors
+                                                          .textSecondaryLight,
                                                 fontSize: 12,
                                               ),
                                             ),
@@ -924,7 +1004,9 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
               Text(
                 'WHATSAPP/SMS SENDER OVERRIDE',
                 style: AppTextStyles.bodySmall.copyWith(
-                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                  color: isDark
+                      ? AppColors.textSecondaryDark
+                      : AppColors.textSecondaryLight,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1.0,
                 ),
@@ -933,9 +1015,15 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
               Container(
                 padding: const EdgeInsets.all(18.0),
                 decoration: BoxDecoration(
-                  color: isDark ? AppColors.darkCard.withOpacity(0.4) : Colors.white,
+                  color: isDark
+                      ? AppColors.darkCard.withOpacity(0.4)
+                      : Colors.white,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: isDark ? Colors.white.withOpacity(0.06) : AppColors.lightBorder),
+                  border: Border.all(
+                    color: isDark
+                        ? Colors.white.withOpacity(0.06)
+                        : AppColors.lightBorder,
+                  ),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -951,7 +1039,9 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
                     Text(
                       'If you trigger refills from a different number than your main profile phone, enter it below with country code (e.g. 96891234567).',
                       style: AppTextStyles.bodySmall.copyWith(
-                        color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                        color: isDark
+                            ? AppColors.textSecondaryDark
+                            : AppColors.textSecondaryLight,
                         height: 1.4,
                       ),
                     ),
@@ -963,21 +1053,25 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
                       decoration: InputDecoration(
                         hintText: 'Enter phone number (digits only)',
                         hintStyle: TextStyle(
-                          color: isDark ? Colors.white.withOpacity(0.3) : AppColors.textTertiaryLight,
+                          color: isDark
+                              ? Colors.white.withOpacity(0.3)
+                              : AppColors.textTertiaryLight,
                         ),
                         filled: true,
-                        fillColor: isDark ? Colors.black.withOpacity(0.15) : const Color(0xFFEAEEF1),
+                        fillColor: isDark
+                            ? Colors.black.withOpacity(0.15)
+                            : const Color(0xFFEAEEF1),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide(
-                            color: isDark ? Colors.white.withOpacity(0.1) : AppColors.lightBorder,
+                            color: isDark
+                                ? Colors.white.withOpacity(0.1)
+                                : AppColors.lightBorder,
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: context.primaryColor,
-                          ),
+                          borderSide: BorderSide(color: context.primaryColor),
                         ),
                       ),
                     ),

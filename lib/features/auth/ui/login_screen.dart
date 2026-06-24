@@ -57,7 +57,9 @@ class LoginScreen extends ConsumerWidget {
                   'Protect your SIM cards from\ndeactivation, automatically.',
                   textAlign: TextAlign.center,
                   style: AppTextStyles.bodyLarge.copyWith(
-                    color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                    color: isDark
+                        ? AppColors.textSecondaryDark
+                        : AppColors.textSecondaryLight,
                     height: 1.5,
                   ),
                 ),
@@ -99,7 +101,9 @@ class LoginScreen extends ConsumerWidget {
                       elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
-                        side: isDark ? BorderSide.none : const BorderSide(color: AppColors.lightBorder),
+                        side: isDark
+                            ? BorderSide.none
+                            : const BorderSide(color: AppColors.lightBorder),
                       ),
                     ),
                     child: authState.isLoading
@@ -142,7 +146,9 @@ class LoginScreen extends ConsumerWidget {
                   'By continuing, you agree to our\nTerms of Service and Privacy Policy',
                   textAlign: TextAlign.center,
                   style: AppTextStyles.caption.copyWith(
-                    color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
+                    color: isDark
+                        ? AppColors.textTertiaryDark
+                        : AppColors.textTertiaryLight,
                     fontSize: 11,
                   ),
                 ),
@@ -218,10 +224,7 @@ class _AnimatedLogoState extends State<_AnimatedLogo>
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(28),
-          child: Image.asset(
-            'assets/images/Logo.png',
-            fit: BoxFit.contain,
-          ),
+          child: Image.asset('assets/images/Logo.png', fit: BoxFit.contain),
         ),
       ),
     );
@@ -243,7 +246,9 @@ class FeatureChip extends StatelessWidget {
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCard : AppColors.lightCard,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+        border: Border.all(
+          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+        ),
       ),
       child: Row(
         children: [

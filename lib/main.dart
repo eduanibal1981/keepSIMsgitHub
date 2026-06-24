@@ -21,7 +21,7 @@ void main() async {
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
   // Intialize OneSignal (for push notifications)
-    // Enable verbose logging for debugging (remove in production)
+  // Enable verbose logging for debugging (remove in production)
   OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
   // Initialize with your OneSignal App ID
   OneSignal.initialize('434b9552-8005-4d08-b3b1-a7a35f0b15dc');

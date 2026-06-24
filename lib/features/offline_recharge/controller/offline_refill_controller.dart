@@ -12,7 +12,7 @@ class OfflineRefillController extends _$OfflineRefillController {
   FutureOr<OfflineRefillSettings> build() async {
     final repo = ref.watch(offlineRefillRepositoryProvider);
     final result = await repo.getSettings();
-    
+
     return switch (result) {
       Success(data: final settings) => settings,
       Failure(error: final e) => throw Exception(e.message),
@@ -21,10 +21,10 @@ class OfflineRefillController extends _$OfflineRefillController {
 
   Future<bool> saveSettings(OfflineRefillSettings settings) async {
     state = const AsyncLoading<OfflineRefillSettings>().copyWithPrevious(state);
-    
+
     final repo = ref.read(offlineRefillRepositoryProvider);
     final result = await repo.saveSettings(settings);
-    
+
     switch (result) {
       case Success(data: final updated):
         state = AsyncData(updated);
@@ -44,7 +44,7 @@ Future<List<CarrierUssdSuggestion>> carrierUssdSuggestions(
 ) async {
   final repo = ref.watch(offlineRefillRepositoryProvider);
   final result = await repo.getUssdSuggestions(carrierId);
-  
+
   return switch (result) {
     Success(data: final list) => list,
     Failure(error: final e) => throw Exception(e.message),

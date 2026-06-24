@@ -210,29 +210,48 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
           .select()
           .eq('user_id', userId);
 
-      final existingChannels = List<Map<String, dynamic>>.from(response as List);
-      final existingTypes = existingChannels.map((c) => c['channel_type'] as String).toSet();
+      final existingChannels = List<Map<String, dynamic>>.from(
+        response as List,
+      );
+      final existingTypes = existingChannels
+          .map((c) => c['channel_type'] as String)
+          .toSet();
 
-      final defaultTypes = ['push', 'email', 'telegram', 'whatsapp', 'webhook'];
-      final missingTypes = defaultTypes.where((t) => !existingTypes.contains(t)).toList();
+      // Temporarily disabled webhook for MVP:
+      // final defaultTypes = ['push', 'email', 'telegram', 'whatsapp', 'webhook'];
+      final defaultTypes = ['push', 'email', 'telegram', 'whatsapp'];
+      final missingTypes = defaultTypes
+          .where((t) => !existingTypes.contains(t))
+          .toList();
 
       if (missingTypes.isNotEmpty) {
-        final newChannels = missingTypes.map((type) => {
-          'user_id': userId,
-          'channel_type': type,
-          'is_enabled': type == 'push',
-          'config': {},
-        }).toList();
+        final newChannels = missingTypes
+            .map(
+              (type) => {
+                'user_id': userId,
+                'channel_type': type,
+                'is_enabled': type == 'push',
+                'config': {},
+              },
+            )
+            .toList();
 
         final inserted = await _supabase
             .from('notification_channels')
             .insert(newChannels)
             .select();
-        
-        existingChannels.addAll(List<Map<String, dynamic>>.from(inserted as List));
+
+        existingChannels.addAll(
+          List<Map<String, dynamic>>.from(inserted as List),
+        );
       }
 
-      return existingChannels;
+      // Filter out webhook so it doesn't show in the UI for existing users who already have the row
+      final filteredChannels = existingChannels
+          .where((c) => c['channel_type'] != 'webhook')
+          .toList();
+
+      return filteredChannels;
     } on PostgrestException catch (e) {
       throw Exception('Failed to load notification channels: ${e.message}');
     }
@@ -246,7 +265,7 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
   }) async {
     try {
       final userId = _currentUserId;
-      
+
       // Upsert the channel configuration
       await _supabase.from('notification_channels').upsert({
         'user_id': userId,
@@ -269,13 +288,16 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
   }) async {
     try {
       if (delayMinutes > 0) {
-        await _supabase.rpc('schedule_delayed_notification', params: {
-          'p_user_id': _currentUserId,
-          'p_category': category,
-          'p_title': title,
-          'p_body': body,
-          'p_delay_minutes': delayMinutes,
-        });
+        await _supabase.rpc(
+          'schedule_delayed_notification',
+          params: {
+            'p_user_id': _currentUserId,
+            'p_category': category,
+            'p_title': title,
+            'p_body': body,
+            'p_delay_minutes': delayMinutes,
+          },
+        );
       } else {
         await _supabase.from('notifications').insert({
           'user_id': _currentUserId,

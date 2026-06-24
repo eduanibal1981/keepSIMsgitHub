@@ -30,7 +30,7 @@ class ProfileController extends _$ProfileController {
     required String homeCountryCode,
     required String preferredCurrency,
     required bool isPowerUser,
-    required String subscriptionTier,
+    String? subscriptionTier,
   }) async {
     state = const AsyncValue.loading();
 
@@ -49,7 +49,7 @@ class ProfileController extends _$ProfileController {
       homeCountryCode: homeCountryCode,
       preferredCurrency: preferredCurrency,
       isPowerUser: isPowerUser,
-      subscriptionTier: subscriptionTier,
+      subscriptionTier: subscriptionTier ?? (isPowerUser ? 'premium' : 'standard'),
       onboardingCompleted: true,
       updatedAt: DateTime.now(),
     );
@@ -59,16 +59,7 @@ class ProfileController extends _$ProfileController {
 
     switch (result) {
       case Success(data: final updated):
-        // Sync existing SIM lines' protection_tier with the new subscription tier
-        try {
-          final supabase = Supabase.instance.client;
-          await supabase
-              .from('sim_lines')
-              .update({'protection_tier': subscriptionTier})
-              .eq('user_id', profile.id);
-        } catch (e) {
-          // Silent catch to prevent onboarding or subscription upgrade failure if offline or error
-        }
+        // No longer syncing global tier to SIM lines, as tiers are line-specific
 
         state = const AsyncValue.data(null);
         // Invalidate auth state to reload the profile across the entire app

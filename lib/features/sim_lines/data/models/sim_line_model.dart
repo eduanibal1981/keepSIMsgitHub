@@ -15,7 +15,9 @@ abstract class SimLine with _$SimLine {
     @JsonKey(name: 'carrier_id') String? carrierId,
     @JsonKey(name: 'carrier_rule_id') String? carrierRuleId,
     @Default('active') String status,
-    @JsonKey(name: 'verification_status') @Default('unverified') String verificationStatus,
+    @JsonKey(name: 'verification_status')
+    @Default('unverified')
+    String verificationStatus,
     @JsonKey(name: 'health_score') @Default(100) int healthScore,
     @JsonKey(name: 'last_topup_at') DateTime? lastTopupAt,
     @JsonKey(name: 'next_topup_due') DateTime? nextTopupDue,
@@ -26,6 +28,8 @@ abstract class SimLine with _$SimLine {
     @JsonKey(name: 'is_auto_detected') @Default(false) bool isAutoDetected,
     @JsonKey(name: 'is_home_mode') @Default(false) bool isHomeMode,
     @JsonKey(name: 'household_id') String? householdId,
+    @JsonKey(name: 'plan_type') @Default('free') String planType,
+    @JsonKey(name: 'plan_expires_at') DateTime? planExpiresAt,
     @JsonKey(name: 'created_at') DateTime? createdAt,
     @JsonKey(name: 'updated_at') DateTime? updatedAt,
   }) = _SimLine;

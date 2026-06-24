@@ -12,11 +12,13 @@ class WhatsAppService {
   }) async {
     try {
       debugPrint('[WhatsAppService] Sending to $phone via $_baseUrl/send');
-      final response = await http.post(
-        Uri.parse('$_baseUrl/send'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'phone': phone, 'message': message}),
-      ).timeout(const Duration(seconds: 30));
+      final response = await http
+          .post(
+            Uri.parse('$_baseUrl/send'),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({'phone': phone, 'message': message}),
+          )
+          .timeout(const Duration(seconds: 30));
       debugPrint('[WhatsAppService] Response status: ${response.statusCode}');
       debugPrint('[WhatsAppService] Response body: ${response.body}');
       final data = jsonDecode(response.body);

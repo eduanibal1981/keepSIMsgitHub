@@ -16,10 +16,7 @@ import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_line_d
 class SimLineExecutionsHistoryScreen extends ConsumerStatefulWidget {
   final String simLineId;
 
-  const SimLineExecutionsHistoryScreen({
-    super.key,
-    required this.simLineId,
-  });
+  const SimLineExecutionsHistoryScreen({super.key, required this.simLineId});
 
   @override
   ConsumerState<SimLineExecutionsHistoryScreen> createState() =>
@@ -58,8 +55,9 @@ class _SimLineExecutionsHistoryScreenState
   ) async {
     try {
       await HapticHelper.mediumImpact();
-      final detailController =
-          ref.read(simLineDetailControllerProvider(widget.simLineId).notifier);
+      final detailController = ref.read(
+        simLineDetailControllerProvider(widget.simLineId).notifier,
+      );
       final res = await detailController.retryFailedTopup(executionId);
 
       if (context.mounted) {
@@ -97,23 +95,30 @@ class _SimLineExecutionsHistoryScreenState
   @override
   Widget build(BuildContext context) {
     // 1. Determine viewer status and premium status from details provider
-    final detailAsync = ref.watch(simLineDetailControllerProvider(widget.simLineId));
+    final detailAsync = ref.watch(
+      simLineDetailControllerProvider(widget.simLineId),
+    );
     final detailState = detailAsync.valueOrNull;
     final householdState = ref.watch(householdControllerProvider).valueOrNull;
-    
+
     if (detailState != null) {
       final user = ref.watch(authControllerProvider).valueOrNull;
       final isShared = detailState.simLine.userId != user?.id;
       final membership = isShared
           ? householdState?.memberships
-              .where((m) => m.ownerId == detailState.simLine.userId)
-              .firstOrNull
+                .where((m) => m.ownerId == detailState.simLine.userId)
+                .firstOrNull
           : null;
-      _isViewer = isShared && (membership == null || membership.role == 'viewer');
+      _isViewer =
+          isShared && (membership == null || membership.role == 'viewer');
     }
 
-    final stateAsync = ref.watch(simLineExecutionsHistoryProvider(widget.simLineId));
-    final notifier = ref.read(simLineExecutionsHistoryProvider(widget.simLineId).notifier);
+    final stateAsync = ref.watch(
+      simLineExecutionsHistoryProvider(widget.simLineId),
+    );
+    final notifier = ref.read(
+      simLineExecutionsHistoryProvider(widget.simLineId).notifier,
+    );
     final isDark = context.isDarkMode;
 
     return Scaffold(
@@ -129,7 +134,10 @@ class _SimLineExecutionsHistoryScreenState
           ),
         ),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded, color: context.onSurfaceColor),
+          icon: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: context.onSurfaceColor,
+          ),
           onPressed: () => context.pop(),
         ),
       ),
@@ -144,7 +152,9 @@ class _SimLineExecutionsHistoryScreenState
                   children: [
                     Icon(
                       Icons.history_toggle_off_rounded,
-                      color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                      color: isDark
+                          ? AppColors.textSecondaryDark
+                          : AppColors.textSecondaryLight,
                       size: 64,
                     ),
                     const SizedBox(height: 16),
@@ -159,7 +169,9 @@ class _SimLineExecutionsHistoryScreenState
                     Text(
                       'No top-up or renewal executions have been recorded for this SIM line yet.',
                       style: AppTextStyles.bodyMedium.copyWith(
-                        color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                        color: isDark
+                            ? AppColors.textSecondaryDark
+                            : AppColors.textSecondaryLight,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -172,8 +184,12 @@ class _SimLineExecutionsHistoryScreenState
           return RefreshIndicator(
             color: AppColors.primary,
             onRefresh: () async {
-              ref.invalidate(simLineExecutionsHistoryProvider(widget.simLineId));
-              await ref.read(simLineExecutionsHistoryProvider(widget.simLineId).future);
+              ref.invalidate(
+                simLineExecutionsHistoryProvider(widget.simLineId),
+              );
+              await ref.read(
+                simLineExecutionsHistoryProvider(widget.simLineId).future,
+              );
             },
             child: ListView.builder(
               controller: _scrollController,
@@ -210,15 +226,18 @@ class _SimLineExecutionsHistoryScreenState
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: (isSuccess ? AppColors.success : AppColors.error)
-                              .withOpacity(0.08),
+                          color:
+                              (isSuccess ? AppColors.success : AppColors.error)
+                                  .withOpacity(0.08),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
                           isSuccess
                               ? Icons.check_circle_outline
                               : Icons.error_outline,
-                          color: isSuccess ? AppColors.success : AppColors.error,
+                          color: isSuccess
+                              ? AppColors.success
+                              : AppColors.error,
                           size: 20,
                         ),
                       ),
@@ -268,7 +287,9 @@ class _SimLineExecutionsHistoryScreenState
                             Text(
                               dateStr,
                               style: AppTextStyles.caption.copyWith(
-                                color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
+                                color: isDark
+                                    ? AppColors.textTertiaryDark
+                                    : AppColors.textTertiaryLight,
                               ),
                             ),
                             if (ex.reloadlyTransactionId != null) ...[
@@ -276,7 +297,9 @@ class _SimLineExecutionsHistoryScreenState
                               Text(
                                 'Tx ID: ${ex.reloadlyTransactionId}',
                                 style: AppTextStyles.caption.copyWith(
-                                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                                  color: isDark
+                                      ? AppColors.textSecondaryDark
+                                      : AppColors.textSecondaryLight,
                                   fontFamily: 'monospace',
                                 ),
                               ),
@@ -319,9 +342,8 @@ class _SimLineExecutionsHistoryScreenState
                                               horizontal: 12,
                                             ),
                                             shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(
-                                                6,
-                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(6),
                                             ),
                                           ),
                                           child: const Text(
@@ -373,13 +395,17 @@ class _SimLineExecutionsHistoryScreenState
                 Text(
                   err.toString(),
                   style: AppTextStyles.bodyMedium.copyWith(
-                    color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                    color: isDark
+                        ? AppColors.textSecondaryDark
+                        : AppColors.textSecondaryLight,
                   ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton(
-                  onPressed: () => ref.invalidate(simLineExecutionsHistoryProvider(widget.simLineId)),
+                  onPressed: () => ref.invalidate(
+                    simLineExecutionsHistoryProvider(widget.simLineId),
+                  ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                   ),

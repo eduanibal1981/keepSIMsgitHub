@@ -2,16 +2,15 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/core/utils/build_context_extension.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/country_model.dart';
+import 'package:keep_sims/features/sim_lines/data/models/carrier_model.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/sim_line_card.dart';
 import 'package:keep_sims/features/scheduled_topups/controller/scheduled_topup_controller.dart';
-import 'package:keep_sims/features/scheduled_topups/ui/widgets/scheduled_topup_sheet.dart';
 import 'package:keep_sims/features/scheduled_topups/model/scheduled_topup_model.dart';
 import 'package:keep_sims/core/result.dart';
 import 'package:keep_sims/features/household/presentation/controllers/household_controller.dart';
@@ -131,7 +130,7 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
           } else {
             failCount++;
             if (res is Failure) {
-              errorMessage = (res as Failure).error.message;
+              errorMessage = res.error.message;
             }
           }
         } else {
@@ -191,12 +190,20 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
             color: context.isDarkMode ? AppColors.darkSurface : Colors.white,
             borderRadius: BorderRadius.circular(24),
             border: Border.all(
-              color: (context.isDarkMode ? AppColors.primary : AppColors.lightPrimary).withOpacity(0.3),
+              color:
+                  (context.isDarkMode
+                          ? AppColors.primary
+                          : AppColors.lightPrimary)
+                      .withOpacity(0.3),
               width: 1.5,
             ),
             boxShadow: [
               BoxShadow(
-                color: (context.isDarkMode ? AppColors.primary : AppColors.lightPrimary).withOpacity(0.15),
+                color:
+                    (context.isDarkMode
+                            ? AppColors.primary
+                            : AppColors.lightPrimary)
+                        .withOpacity(0.15),
                 blurRadius: 24,
                 offset: const Offset(0, -4),
               ),
@@ -217,13 +224,19 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: (context.isDarkMode ? AppColors.primary : AppColors.lightPrimary).withOpacity(0.2),
+                          color:
+                              (context.isDarkMode
+                                      ? AppColors.primary
+                                      : AppColors.lightPrimary)
+                                  .withOpacity(0.2),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
                           '$count Selected',
                           style: AppTextStyles.labelMedium.copyWith(
-                            color: context.isDarkMode ? AppColors.primaryLight : AppColors.lightPrimary,
+                            color: context.isDarkMode
+                                ? AppColors.primaryLight
+                                : AppColors.lightPrimary,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -232,7 +245,9 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
                       Text(
                         'Bulk Actions Console',
                         style: AppTextStyles.bodyLarge.copyWith(
-                          color: context.isDarkMode ? Colors.white : AppColors.textPrimaryLight,
+                          color: context.isDarkMode
+                              ? Colors.white
+                              : AppColors.textPrimaryLight,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -241,7 +256,9 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
                   IconButton(
                     icon: Icon(
                       Icons.close,
-                      color: context.isDarkMode ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                      color: context.isDarkMode
+                          ? AppColors.textSecondaryDark
+                          : AppColors.textSecondaryLight,
                       size: 20,
                     ),
                     onPressed: () {
@@ -303,8 +320,12 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
                 ClipRRect(
                   borderRadius: const BorderRadius.all(Radius.circular(2)),
                   child: LinearProgressIndicator(
-                    color: context.isDarkMode ? AppColors.primary : AppColors.lightPrimary,
-                    backgroundColor: context.isDarkMode ? AppColors.darkBg : AppColors.lightBg,
+                    color: context.isDarkMode
+                        ? AppColors.primary
+                        : AppColors.lightPrimary,
+                    backgroundColor: context.isDarkMode
+                        ? AppColors.darkBg
+                        : AppColors.lightBg,
                   ),
                 ),
               ],
@@ -325,8 +346,8 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
     final buttonColor = isDark
         ? color
         : (color == AppColors.secondary || color == AppColors.success
-            ? AppColors.lightSecondary
-            : (color == AppColors.warning ? AppColors.lightWarning : color));
+              ? AppColors.lightSecondary
+              : (color == AppColors.warning ? AppColors.lightWarning : color));
 
     return ElevatedButton.icon(
       onPressed: onPressed,
@@ -370,11 +391,18 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
     final visibleLines = _tabController.index == 0 ? myLines : sharedLines;
 
     return Scaffold(
-      backgroundColor: context.isDarkMode ? AppColors.darkBg : AppColors.lightBg,
+      backgroundColor: context.isDarkMode
+          ? AppColors.darkBg
+          : AppColors.lightBg,
       appBar: AppBar(
         leading: _isSelectMode
             ? IconButton(
-                icon: Icon(Icons.close, color: context.isDarkMode ? Colors.white : AppColors.textPrimaryLight),
+                icon: Icon(
+                  Icons.close,
+                  color: context.isDarkMode
+                      ? Colors.white
+                      : AppColors.textPrimaryLight,
+                ),
                 onPressed: () {
                   setState(() {
                     _isSelectMode = false;
@@ -386,7 +414,9 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
         title: Text(
           _isSelectMode ? '${_selectedIds.length} Selected' : 'Protected SIMs',
           style: AppTextStyles.headlineLarge.copyWith(
-            color: context.isDarkMode ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+            color: context.isDarkMode
+                ? AppColors.textPrimaryDark
+                : AppColors.textPrimaryLight,
           ),
         ),
         backgroundColor: Colors.transparent,
@@ -398,7 +428,9 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
                 _selectedIds.length == visibleLines.length
                     ? Icons.deselect_rounded
                     : Icons.select_all_rounded,
-                color: context.isDarkMode ? Colors.white : AppColors.textPrimaryLight,
+                color: context.isDarkMode
+                    ? Colors.white
+                    : AppColors.textPrimaryLight,
               ),
               onPressed: () {
                 setState(() {
@@ -415,7 +447,9 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
             IconButton(
               icon: Icon(
                 Icons.refresh,
-                color: context.isDarkMode ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                color: context.isDarkMode
+                    ? AppColors.textSecondaryDark
+                    : AppColors.textSecondaryLight,
               ),
               onPressed: () async {
                 await HapticHelper.mediumImpact();
@@ -427,10 +461,16 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
         ],
         bottom: TabBar(
           controller: _tabController,
-          indicatorColor: context.isDarkMode ? AppColors.primary : AppColors.lightPrimary,
+          indicatorColor: context.isDarkMode
+              ? AppColors.primary
+              : AppColors.lightPrimary,
           indicatorWeight: 3,
-          labelColor: context.isDarkMode ? Colors.white : AppColors.lightPrimary,
-          unselectedLabelColor: context.isDarkMode ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+          labelColor: context.isDarkMode
+              ? Colors.white
+              : AppColors.lightPrimary,
+          unselectedLabelColor: context.isDarkMode
+              ? AppColors.textSecondaryDark
+              : AppColors.textSecondaryLight,
           tabs: const [
             Tab(icon: Icon(Icons.person, size: 20), text: 'My SIM Cards'),
             // Tab(icon: Icon(Icons.people, size: 20), text: 'Family Shared SIMs'),
@@ -445,9 +485,6 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
               ?.id;
           final myLines = lines
               .where((line) => line.userId == currentUserId)
-              .toList();
-          final sharedLines = lines
-              .where((line) => line.userId != currentUserId)
               .toList();
 
           return Stack(
@@ -549,12 +586,22 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
             ? null
             : countries.firstWhereOrNull((c) => c.id == line.countryId);
 
+        // Resolve carrier from the carriers list for this line's country.
+        final carriersAsync = line.countryId != null
+            ? ref.watch(carriersForCountryProvider(line.countryId!))
+            : null;
+        final allCarriers = carriersAsync?.valueOrNull ?? <Carrier>[];
+        final carrier = allCarriers.firstWhereOrNull(
+          (c) => c.id == line.carrierId,
+        );
+
         final isSelected = _selectedIds.contains(line.id);
 
         return SimLineCard(
           line: line,
           index: isShared ? index : index - 1,
           country: country,
+          carrier: carrier,
           isShared: isShared,
           isSelected: isSelected,
           isSelectMode: _isSelectMode,
@@ -647,7 +694,8 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
       SubscriptionUpsellSheet.show(
         context: context,
         title: 'Free Plan Limit Reached 🚨',
-        description: 'Under the Free Plan, you can protect up to 1 SIM line. Upgrade to the Starter Plan to keep more active numbers protected!',
+        description:
+            'Under the Free Plan, you can protect up to 1 SIM line. Upgrade to the Starter Plan to keep more active numbers protected!',
         requiredPlan: 'Starter Plan',
         highlights: [
           'Includes 2 SIM lines in base (\$2.40/yr)',
@@ -661,7 +709,8 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
       SubscriptionUpsellSheet.show(
         context: context,
         title: 'Starter Plan Limit Reached 🚨',
-        description: 'You have reached the 5 SIM card limit for the Starter Plan. Upgrade to Premium for unlimited active protection shields!',
+        description:
+            'You have reached the 5 SIM card limit for the Starter Plan. Upgrade to Premium for unlimited active protection shields!',
         requiredPlan: 'Premium',
         highlights: [
           'Includes 2 SIM lines in base (\$4.80/yr)',

@@ -7,7 +7,8 @@ part 'sync_queue_service.g.dart';
 
 class SyncOperation {
   final String id;
-  final String type; // 'sim_line_add', 'sim_line_update', 'sim_line_delete', 'topup_schedule_save'
+  final String
+  type; // 'sim_line_add', 'sim_line_update', 'sim_line_delete', 'topup_schedule_save'
   final Map<String, dynamic> payload;
   final DateTime createdAt;
 
@@ -19,18 +20,18 @@ class SyncOperation {
   });
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'type': type,
-        'payload': payload,
-        'createdAt': createdAt.toIso8601String(),
-      };
+    'id': id,
+    'type': type,
+    'payload': payload,
+    'createdAt': createdAt.toIso8601String(),
+  };
 
   factory SyncOperation.fromJson(Map<String, dynamic> json) => SyncOperation(
-        id: json['id'] as String,
-        type: json['type'] as String,
-        payload: json['payload'] as Map<String, dynamic>,
-        createdAt: DateTime.parse(json['createdAt'] as String),
-      );
+    id: json['id'] as String,
+    type: json['type'] as String,
+    payload: json['payload'] as Map<String, dynamic>,
+    createdAt: DateTime.parse(json['createdAt'] as String),
+  );
 }
 
 @Riverpod(keepAlive: true)
@@ -108,7 +109,9 @@ class SyncQueue extends _$SyncQueue {
         await removeFromQueue(op.id);
       } on PostgrestException catch (e) {
         // If there's a database constraint or issue, log and skip/remove to avoid blocking
-        print('Offline Sync Queue POSTGREST Exception [Op: ${op.id}]: ${e.message}');
+        print(
+          'Offline Sync Queue POSTGREST Exception [Op: ${op.id}]: ${e.message}',
+        );
         await removeFromQueue(op.id);
       } catch (e) {
         // Network failures should pause the sync queue processing

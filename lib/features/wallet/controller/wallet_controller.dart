@@ -94,7 +94,11 @@ class WalletController extends _$WalletController {
   }
 
   /// Triggers a debit deduction and invalidates related screens.
-  Future<bool> deduct(double amount, {String? description, String? referenceId}) async {
+  Future<bool> deduct(
+    double amount, {
+    String? description,
+    String? referenceId,
+  }) async {
     final current = state.valueOrNull;
     if (current == null) return false;
 

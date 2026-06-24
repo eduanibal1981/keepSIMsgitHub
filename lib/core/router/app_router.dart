@@ -27,7 +27,13 @@ import 'package:keep_sims/features/payments/ui/payments_screen.dart';
 import 'package:keep_sims/features/settings/presentation/screens/subscription_screen.dart';
 import 'package:keep_sims/features/geo/ui/geo_screen.dart';
 import 'package:keep_sims/features/offline_recharge/ui/offline_refill_screen.dart';
+import 'package:keep_sims/features/offline_recharge/ui/offline_refill_screen.dart';
 import 'package:keep_sims/features/settings/presentation/screens/alert_simulator_screen.dart';
+import 'package:keep_sims/features/support/presentation/ui/support_screen.dart';
+import 'package:keep_sims/features/support/presentation/ui/create_ticket_screen.dart';
+import 'package:keep_sims/features/support/presentation/ui/faq_screen.dart';
+import 'package:keep_sims/features/support/presentation/ui/ticket_details_screen.dart';
+import 'package:keep_sims/features/support/data/models/support_ticket.dart';
 
 part 'app_router.g.dart';
 
@@ -48,9 +54,9 @@ abstract final class AppRoutes {
   static const String referrals = '/settings/referrals';
   static const String geo = '/settings/geo';
   static const String preferences = '/settings/preferences';
-  static const String subscription = '/settings/subscription';
   static const String offlineRefill = '/settings/offline-recharge';
   static const String simulators = '/settings/simulators';
+  static const String support = '/support';
 }
 
 @riverpod
@@ -59,7 +65,7 @@ class SplashCompleted extends _$SplashCompleted {
   bool build() => false;
 
   void complete() => state = true;
-  
+
   void reset() => state = false;
 }
 
@@ -152,12 +158,7 @@ GoRouter appRouter(Ref ref) {
                 name: 'simLineAdd',
                 builder: (context, state) => const SimLineFormScreen(),
               ),
-              GoRoute(
-                path: 'edit/:id',
-                name: 'simLineEdit',
-                builder: (context, state) =>
-                    SimLineFormScreen(id: state.pathParameters['id']),
-              ),
+
               GoRoute(
                 path: 'detail/:id',
                 name: 'simLineDetail',
@@ -167,8 +168,9 @@ GoRouter appRouter(Ref ref) {
                   GoRoute(
                     path: 'executions',
                     name: 'simLineExecutions',
-                    builder: (context, state) =>
-                        SimLineExecutionsHistoryScreen(simLineId: state.pathParameters['id']!),
+                    builder: (context, state) => SimLineExecutionsHistoryScreen(
+                      simLineId: state.pathParameters['id']!,
+                    ),
                   ),
                 ],
               ),
@@ -221,11 +223,7 @@ GoRouter appRouter(Ref ref) {
                 name: 'settingsPreferences',
                 builder: (context, state) => const PreferencesScreen(),
               ),
-              GoRoute(
-                path: 'subscription',
-                name: 'settingsSubscription',
-                builder: (context, state) => const SubscriptionScreen(),
-              ),
+
               GoRoute(
                 path: 'offline-recharge',
                 name: 'settingsOfflineRecharge',
@@ -245,6 +243,34 @@ GoRouter appRouter(Ref ref) {
             path: AppRoutes.household,
             name: 'household',
             builder: (context, state) => const HouseholdScreen(),
+          ),
+          GoRoute(
+            path: AppRoutes.support,
+            name: 'support',
+            builder: (context, state) => const SupportScreen(),
+            routes: [
+              GoRoute(
+                path: 'create',
+                name: 'supportCreate',
+                builder: (context, state) {
+                  final initialCategory = state.uri.queryParameters['category'];
+                  return CreateTicketScreen(initialCategory: initialCategory);
+                },
+              ),
+              GoRoute(
+                path: 'faq',
+                name: 'supportFaq',
+                builder: (context, state) => const FaqScreen(),
+              ),
+              GoRoute(
+                path: ':id',
+                name: 'supportDetail',
+                builder: (context, state) {
+                  final ticket = state.extra as SupportTicket;
+                  return TicketDetailsScreen(ticket: ticket);
+                },
+              ),
+            ],
           ),
         ],
       ),

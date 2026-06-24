@@ -30,21 +30,24 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   void initState() {
     super.initState();
     _videoController = VideoPlayerController.asset('assets/splashfastcp.mp4');
-    
+
     // Mute video to bypass modern browser autoplay blocking rules (critical for Web)
     _videoController.setVolume(0.0);
-    
-    _videoController.initialize().then((_) {
-      if (mounted) {
-        setState(() {
-          _isInitialized = true;
+
+    _videoController
+        .initialize()
+        .then((_) {
+          if (mounted) {
+            setState(() {
+              _isInitialized = true;
+            });
+            _videoController.play();
+          }
+        })
+        .catchError((error) {
+          debugPrint("Splash video initialization failed: $error");
+          _navigateToNext(); // Navigate immediately if load/init fails
         });
-        _videoController.play();
-      }
-    }).catchError((error) {
-      debugPrint("Splash video initialization failed: $error");
-      _navigateToNext(); // Navigate immediately if load/init fails
-    });
 
     _videoController.addListener(() {
       if (mounted) {
@@ -87,7 +90,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0A295A), // Matches the exact background color of presplash.png and splashfastcp.mp4
+      backgroundColor: const Color(
+        0xFF0A295A,
+      ), // Matches the exact background color of presplash.png and splashfastcp.mp4
       body: Stack(
         children: [
           // 1. Full-screen Video Player (renders when initialized)
@@ -127,7 +132,9 @@ class LoginPlaceholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: context.isDarkMode ? AppColors.darkBg : AppColors.lightBg,
+      backgroundColor: context.isDarkMode
+          ? AppColors.darkBg
+          : AppColors.lightBg,
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(32),
@@ -271,7 +278,8 @@ class AppShell extends StatelessWidget {
   int _currentIndex(BuildContext context) {
     final location = GoRouterState.of(context).uri.path;
     if (location.startsWith('/home')) return 0;
-    if (location.startsWith('/notifications')) return 0; // Alerts is in Home header
+    if (location.startsWith('/notifications'))
+      return 0; // Alerts is in Home header
     if (location.startsWith('/sim-lines')) return 1;
     if (location.startsWith('/wallet')) return 2; // Under More menu
     if (location.startsWith('/settings')) return 2;
@@ -375,16 +383,8 @@ class CurvedNavigationBarPainter extends CustomPainter {
     path.lineTo(x - R, 0);
 
     // Smooth Bezier Curve dip
-    path.cubicTo(
-      x - R + 10, 0,
-      x - R + 6, D,
-      x, D,
-    );
-    path.cubicTo(
-      x + R - 6, D,
-      x + R - 10, 0,
-      x + R, 0,
-    );
+    path.cubicTo(x - R + 10, 0, x - R + 6, D, x, D);
+    path.cubicTo(x + R - 6, D, x + R - 10, 0, x + R, 0);
 
     // Line to top-right corner
     path.lineTo(width - cornerRadius, 0);
@@ -411,16 +411,8 @@ class CurvedNavigationBarPainter extends CustomPainter {
     borderPath.moveTo(0, cornerRadius);
     borderPath.quadraticBezierTo(0, 0, cornerRadius, 0);
     borderPath.lineTo(x - R, 0);
-    borderPath.cubicTo(
-      x - R + 10, 0,
-      x - R + 6, D,
-      x, D,
-    );
-    borderPath.cubicTo(
-      x + R - 6, D,
-      x + R - 10, 0,
-      x + R, 0,
-    );
+    borderPath.cubicTo(x - R + 10, 0, x - R + 6, D, x, D);
+    borderPath.cubicTo(x + R - 6, D, x + R - 10, 0, x + R, 0);
     borderPath.lineTo(width - cornerRadius, 0);
     borderPath.quadraticBezierTo(width, 0, width, cornerRadius);
 
@@ -449,7 +441,8 @@ class CurvedBottomNavigationBar extends StatefulWidget {
   });
 
   @override
-  State<CurvedBottomNavigationBar> createState() => _CurvedBottomNavigationBarState();
+  State<CurvedBottomNavigationBar> createState() =>
+      _CurvedBottomNavigationBarState();
 }
 
 class _CurvedBottomNavigationBarState extends State<CurvedBottomNavigationBar>
@@ -474,10 +467,13 @@ class _CurvedBottomNavigationBarState extends State<CurvedBottomNavigationBar>
   void didUpdateWidget(covariant CurvedBottomNavigationBar oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.selectedIndex != widget.selectedIndex) {
-      _animation = Tween<double>(
-        begin: _animation.value,
-        end: widget.selectedIndex.toDouble(),
-      ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
+      _animation =
+          Tween<double>(
+            begin: _animation.value,
+            end: widget.selectedIndex.toDouble(),
+          ).animate(
+            CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
+          );
       _controller.forward(from: 0.0);
     }
   }
@@ -513,7 +509,9 @@ class _CurvedBottomNavigationBarState extends State<CurvedBottomNavigationBar>
                       activeIndex: _animation.value,
                       itemCount: widget.items.length,
                       backgroundColor: context.surfaceColor,
-                      borderColor: context.onSurfaceColor.withValues(alpha: 0.08),
+                      borderColor: context.onSurfaceColor.withValues(
+                        alpha: 0.08,
+                      ),
                     ),
                   ),
                 ),
@@ -574,7 +572,9 @@ class _CurvedBottomNavigationBarState extends State<CurvedBottomNavigationBar>
                               opacity: opacity,
                               child: Icon(
                                 item.icon,
-                                color: context.onSurfaceColor.withValues(alpha: 0.6),
+                                color: context.onSurfaceColor.withValues(
+                                  alpha: 0.6,
+                                ),
                                 size: 24,
                               ),
                             ),
@@ -584,9 +584,15 @@ class _CurvedBottomNavigationBarState extends State<CurvedBottomNavigationBar>
                               item.label,
                               style: AppTextStyles.labelSmall.copyWith(
                                 color: isSelected
-                                    ? (context.isDarkMode ? AppColors.primaryLight : context.primaryColor)
-                                    : context.onSurfaceColor.withValues(alpha: 0.4),
-                                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                    ? (context.isDarkMode
+                                          ? AppColors.primaryLight
+                                          : context.primaryColor)
+                                    : context.onSurfaceColor.withValues(
+                                        alpha: 0.4,
+                                      ),
+                                fontWeight: isSelected
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
                               ),
                             ),
                             SizedBox(height: 12.0 + bottomPadding),

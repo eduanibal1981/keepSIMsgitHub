@@ -14,7 +14,9 @@ class OfflineRefillRepository implements OfflineRefillContract {
     try {
       final userId = _client.auth.currentUser?.id;
       if (userId == null) {
-        return const Failure(AppFailure.auth(message: 'No authenticated user.'));
+        return const Failure(
+          AppFailure.auth(message: 'No authenticated user.'),
+        );
       }
 
       try {
@@ -50,17 +52,19 @@ class OfflineRefillRepository implements OfflineRefillContract {
 
   @override
   Future<Result<OfflineRefillSettings>> saveSettings(
-      OfflineRefillSettings settings) async {
+    OfflineRefillSettings settings,
+  ) async {
     try {
       final userId = _client.auth.currentUser?.id;
       if (userId == null) {
-        return const Failure(AppFailure.auth(message: 'No authenticated user.'));
+        return const Failure(
+          AppFailure.auth(message: 'No authenticated user.'),
+        );
       }
 
-      final data = settings.copyWith(
-        userId: userId,
-        updatedAt: DateTime.now(),
-      ).toJson();
+      final data = settings
+          .copyWith(userId: userId, updatedAt: DateTime.now())
+          .toJson();
 
       // Upsert
       final response = await _client
@@ -79,7 +83,8 @@ class OfflineRefillRepository implements OfflineRefillContract {
 
   @override
   Future<Result<List<CarrierUssdSuggestion>>> getUssdSuggestions(
-      String carrierId) async {
+    String carrierId,
+  ) async {
     try {
       final response = await _client
           .from('carrier_ussd_suggestions')
@@ -87,7 +92,10 @@ class OfflineRefillRepository implements OfflineRefillContract {
           .eq('carrier_id', carrierId);
 
       final list = (response as List)
-          .map((json) => CarrierUssdSuggestion.fromJson(json as Map<String, dynamic>))
+          .map(
+            (json) =>
+                CarrierUssdSuggestion.fromJson(json as Map<String, dynamic>),
+          )
           .toList();
 
       return Success(list);

@@ -299,34 +299,35 @@ class _ScheduledNotifyForLineProviderElement
   String get simLineId => (origin as ScheduledNotifyForLineProvider).simLineId;
 }
 
-String _$scheduledRefillForLineHash() =>
-    r'cb4743a289873d277ba8d519da82e720b551915b';
+String _$scheduledCustomRefillForLineHash() =>
+    r'67d381791665ccbb14f5444e9757776d2f365ddd';
 
-/// Helper provider to get Refill schedule for a specific SIM line.
+/// Helper provider to get Custom Refill schedule for a specific SIM line.
 ///
-/// Copied from [scheduledRefillForLine].
-@ProviderFor(scheduledRefillForLine)
-const scheduledRefillForLineProvider = ScheduledRefillForLineFamily();
+/// Copied from [scheduledCustomRefillForLine].
+@ProviderFor(scheduledCustomRefillForLine)
+const scheduledCustomRefillForLineProvider =
+    ScheduledCustomRefillForLineFamily();
 
-/// Helper provider to get Refill schedule for a specific SIM line.
+/// Helper provider to get Custom Refill schedule for a specific SIM line.
 ///
-/// Copied from [scheduledRefillForLine].
-class ScheduledRefillForLineFamily extends Family<ScheduledTopup?> {
-  /// Helper provider to get Refill schedule for a specific SIM line.
+/// Copied from [scheduledCustomRefillForLine].
+class ScheduledCustomRefillForLineFamily extends Family<ScheduledTopup?> {
+  /// Helper provider to get Custom Refill schedule for a specific SIM line.
   ///
-  /// Copied from [scheduledRefillForLine].
-  const ScheduledRefillForLineFamily();
+  /// Copied from [scheduledCustomRefillForLine].
+  const ScheduledCustomRefillForLineFamily();
 
-  /// Helper provider to get Refill schedule for a specific SIM line.
+  /// Helper provider to get Custom Refill schedule for a specific SIM line.
   ///
-  /// Copied from [scheduledRefillForLine].
-  ScheduledRefillForLineProvider call(String simLineId) {
-    return ScheduledRefillForLineProvider(simLineId);
+  /// Copied from [scheduledCustomRefillForLine].
+  ScheduledCustomRefillForLineProvider call(String simLineId) {
+    return ScheduledCustomRefillForLineProvider(simLineId);
   }
 
   @override
-  ScheduledRefillForLineProvider getProviderOverride(
-    covariant ScheduledRefillForLineProvider provider,
+  ScheduledCustomRefillForLineProvider getProviderOverride(
+    covariant ScheduledCustomRefillForLineProvider provider,
   ) {
     return call(provider.simLineId);
   }
@@ -343,33 +344,35 @@ class ScheduledRefillForLineFamily extends Family<ScheduledTopup?> {
       _allTransitiveDependencies;
 
   @override
-  String? get name => r'scheduledRefillForLineProvider';
+  String? get name => r'scheduledCustomRefillForLineProvider';
 }
 
-/// Helper provider to get Refill schedule for a specific SIM line.
+/// Helper provider to get Custom Refill schedule for a specific SIM line.
 ///
-/// Copied from [scheduledRefillForLine].
-class ScheduledRefillForLineProvider
+/// Copied from [scheduledCustomRefillForLine].
+class ScheduledCustomRefillForLineProvider
     extends AutoDisposeProvider<ScheduledTopup?> {
-  /// Helper provider to get Refill schedule for a specific SIM line.
+  /// Helper provider to get Custom Refill schedule for a specific SIM line.
   ///
-  /// Copied from [scheduledRefillForLine].
-  ScheduledRefillForLineProvider(String simLineId)
+  /// Copied from [scheduledCustomRefillForLine].
+  ScheduledCustomRefillForLineProvider(String simLineId)
     : this._internal(
-        (ref) =>
-            scheduledRefillForLine(ref as ScheduledRefillForLineRef, simLineId),
-        from: scheduledRefillForLineProvider,
-        name: r'scheduledRefillForLineProvider',
+        (ref) => scheduledCustomRefillForLine(
+          ref as ScheduledCustomRefillForLineRef,
+          simLineId,
+        ),
+        from: scheduledCustomRefillForLineProvider,
+        name: r'scheduledCustomRefillForLineProvider',
         debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
             ? null
-            : _$scheduledRefillForLineHash,
-        dependencies: ScheduledRefillForLineFamily._dependencies,
+            : _$scheduledCustomRefillForLineHash,
+        dependencies: ScheduledCustomRefillForLineFamily._dependencies,
         allTransitiveDependencies:
-            ScheduledRefillForLineFamily._allTransitiveDependencies,
+            ScheduledCustomRefillForLineFamily._allTransitiveDependencies,
         simLineId: simLineId,
       );
 
-  ScheduledRefillForLineProvider._internal(
+  ScheduledCustomRefillForLineProvider._internal(
     super._createNotifier, {
     required super.name,
     required super.dependencies,
@@ -383,12 +386,12 @@ class ScheduledRefillForLineProvider
 
   @override
   Override overrideWith(
-    ScheduledTopup? Function(ScheduledRefillForLineRef provider) create,
+    ScheduledTopup? Function(ScheduledCustomRefillForLineRef provider) create,
   ) {
     return ProviderOverride(
       origin: this,
-      override: ScheduledRefillForLineProvider._internal(
-        (ref) => create(ref as ScheduledRefillForLineRef),
+      override: ScheduledCustomRefillForLineProvider._internal(
+        (ref) => create(ref as ScheduledCustomRefillForLineRef),
         from: from,
         name: null,
         dependencies: null,
@@ -401,12 +404,12 @@ class ScheduledRefillForLineProvider
 
   @override
   AutoDisposeProviderElement<ScheduledTopup?> createElement() {
-    return _ScheduledRefillForLineProviderElement(this);
+    return _ScheduledCustomRefillForLineProviderElement(this);
   }
 
   @override
   bool operator ==(Object other) {
-    return other is ScheduledRefillForLineProvider &&
+    return other is ScheduledCustomRefillForLineProvider &&
         other.simLineId == simLineId;
   }
 
@@ -421,18 +424,159 @@ class ScheduledRefillForLineProvider
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-mixin ScheduledRefillForLineRef on AutoDisposeProviderRef<ScheduledTopup?> {
+mixin ScheduledCustomRefillForLineRef
+    on AutoDisposeProviderRef<ScheduledTopup?> {
   /// The parameter `simLineId` of this provider.
   String get simLineId;
 }
 
-class _ScheduledRefillForLineProviderElement
+class _ScheduledCustomRefillForLineProviderElement
     extends AutoDisposeProviderElement<ScheduledTopup?>
-    with ScheduledRefillForLineRef {
-  _ScheduledRefillForLineProviderElement(super.provider);
+    with ScheduledCustomRefillForLineRef {
+  _ScheduledCustomRefillForLineProviderElement(super.provider);
 
   @override
-  String get simLineId => (origin as ScheduledRefillForLineProvider).simLineId;
+  String get simLineId =>
+      (origin as ScheduledCustomRefillForLineProvider).simLineId;
+}
+
+String _$scheduledMiniRefillForLineHash() =>
+    r'dbfda98772458ea32b6f79ab11f36586cdf44e28';
+
+/// Helper provider to get Mini Refill schedule for a specific SIM line.
+///
+/// Copied from [scheduledMiniRefillForLine].
+@ProviderFor(scheduledMiniRefillForLine)
+const scheduledMiniRefillForLineProvider = ScheduledMiniRefillForLineFamily();
+
+/// Helper provider to get Mini Refill schedule for a specific SIM line.
+///
+/// Copied from [scheduledMiniRefillForLine].
+class ScheduledMiniRefillForLineFamily extends Family<ScheduledTopup?> {
+  /// Helper provider to get Mini Refill schedule for a specific SIM line.
+  ///
+  /// Copied from [scheduledMiniRefillForLine].
+  const ScheduledMiniRefillForLineFamily();
+
+  /// Helper provider to get Mini Refill schedule for a specific SIM line.
+  ///
+  /// Copied from [scheduledMiniRefillForLine].
+  ScheduledMiniRefillForLineProvider call(String simLineId) {
+    return ScheduledMiniRefillForLineProvider(simLineId);
+  }
+
+  @override
+  ScheduledMiniRefillForLineProvider getProviderOverride(
+    covariant ScheduledMiniRefillForLineProvider provider,
+  ) {
+    return call(provider.simLineId);
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'scheduledMiniRefillForLineProvider';
+}
+
+/// Helper provider to get Mini Refill schedule for a specific SIM line.
+///
+/// Copied from [scheduledMiniRefillForLine].
+class ScheduledMiniRefillForLineProvider
+    extends AutoDisposeProvider<ScheduledTopup?> {
+  /// Helper provider to get Mini Refill schedule for a specific SIM line.
+  ///
+  /// Copied from [scheduledMiniRefillForLine].
+  ScheduledMiniRefillForLineProvider(String simLineId)
+    : this._internal(
+        (ref) => scheduledMiniRefillForLine(
+          ref as ScheduledMiniRefillForLineRef,
+          simLineId,
+        ),
+        from: scheduledMiniRefillForLineProvider,
+        name: r'scheduledMiniRefillForLineProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$scheduledMiniRefillForLineHash,
+        dependencies: ScheduledMiniRefillForLineFamily._dependencies,
+        allTransitiveDependencies:
+            ScheduledMiniRefillForLineFamily._allTransitiveDependencies,
+        simLineId: simLineId,
+      );
+
+  ScheduledMiniRefillForLineProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.simLineId,
+  }) : super.internal();
+
+  final String simLineId;
+
+  @override
+  Override overrideWith(
+    ScheduledTopup? Function(ScheduledMiniRefillForLineRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: ScheduledMiniRefillForLineProvider._internal(
+        (ref) => create(ref as ScheduledMiniRefillForLineRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        simLineId: simLineId,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeProviderElement<ScheduledTopup?> createElement() {
+    return _ScheduledMiniRefillForLineProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is ScheduledMiniRefillForLineProvider &&
+        other.simLineId == simLineId;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, simLineId.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin ScheduledMiniRefillForLineRef on AutoDisposeProviderRef<ScheduledTopup?> {
+  /// The parameter `simLineId` of this provider.
+  String get simLineId;
+}
+
+class _ScheduledMiniRefillForLineProviderElement
+    extends AutoDisposeProviderElement<ScheduledTopup?>
+    with ScheduledMiniRefillForLineRef {
+  _ScheduledMiniRefillForLineProviderElement(super.provider);
+
+  @override
+  String get simLineId =>
+      (origin as ScheduledMiniRefillForLineProvider).simLineId;
 }
 
 String _$topupExecutionsForLineHash() =>

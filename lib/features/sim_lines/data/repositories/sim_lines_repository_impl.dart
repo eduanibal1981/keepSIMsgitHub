@@ -2,6 +2,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:keep_sims/features/sim_lines/data/models/country_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/carrier_model.dart';
+import 'package:keep_sims/features/sim_lines/data/models/carrier_rule_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/line_activity_log_model.dart';
 import 'package:keep_sims/features/sim_lines/domain/repositories/sim_lines_repository.dart';
@@ -23,10 +24,10 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
     required LocalCacheService cache,
     required ConnectivityService connectivity,
     required SyncQueue syncQueue,
-  })  : _supabase = supabase,
-        _cache = cache,
-        _connectivity = connectivity,
-        _syncQueue = syncQueue;
+  }) : _supabase = supabase,
+       _cache = cache,
+       _connectivity = connectivity,
+       _syncQueue = syncQueue;
 
   @override
   Future<List<SimLine>> getSimLines() async {
@@ -71,8 +72,7 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
   @override
   Future<SimLine> addSimLine(SimLine line) async {
     final userId = _supabase.auth.currentUser?.id;
-    if (userId == null)
-      throw Exception('No authenticated user session found.');
+    if (userId == null) throw Exception('No authenticated user session found.');
 
     final localId = line.id.isEmpty
         ? 'offline_${DateTime.now().microsecondsSinceEpoch}'
@@ -226,8 +226,9 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
   Future<void> deleteSimLine(String id) async {
     if (_connectivity.isOffline) {
       final cached = _cache.readJson('cached_sim_lines') as List? ?? [];
-      final updatedCache =
-          cached.where((item) => item is Map && item['id'] != id).toList();
+      final updatedCache = cached
+          .where((item) => item is Map && item['id'] != id)
+          .toList();
       await _cache.writeJson('cached_sim_lines', updatedCache);
 
       await _syncQueue.addToQueue('sim_line_delete', {'id': id});
@@ -260,30 +261,31 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
           .eq('is_supported', true)
           .order('name', ascending: true);
 
-      final countries = (response as List)
-          .map((json) => Country.fromJson(json as Map<String, dynamic>))
-          .toList();
-
-      const preferredOrder = [
-        'Egypt',
-        'India',
-        'Pakistan',
-        'Bangladesh',
-        'Philippines',
-        'Syria',
-        'Lebanon',
-        'Sudan',
-        'Yemen',
-        'Turkey',
-        'Jordan',
-        'Tunisia',
-        'Morocco',
-        'Algeria',
+      const targetCountries = [
+        'saudi arabia',
+        'united arab emirates',
+        'uae',
+        'qatar',
+        'kuwait',
+        'bahrain',
+        'oman',
+        'egypt',
+        'india',
+        'pakistan',
+        'bangladesh',
+        'philippines',
+        'nepal',
+        'sri lanka',
       ];
 
+      final countries = (response as List)
+          .map((json) => Country.fromJson(json as Map<String, dynamic>))
+          .where((c) => targetCountries.contains(c.name.toLowerCase()))
+          .toList();
+
       countries.sort((a, b) {
-        final aIndex = preferredOrder.indexOf(a.name);
-        final bIndex = preferredOrder.indexOf(b.name);
+        final aIndex = targetCountries.indexOf(a.name.toLowerCase());
+        final bIndex = targetCountries.indexOf(b.name.toLowerCase());
         if (aIndex != -1 && bIndex != -1) return aIndex.compareTo(bIndex);
         if (aIndex != -1) return -1;
         if (bIndex != -1) return 1;
@@ -325,6 +327,36 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
   }
 
   @override
+  Future<CarrierRule?> getCarrierRule(String carrierId) async {
+    try {
+      final response = await _supabase
+          .from('carrier_rules')
+          .select()
+          .eq('carrier_id', carrierId)
+          .eq('rule_type', 'default')
+          .maybeSingle();
+
+      if (response == null) {
+        // Fallback to prepaid if default rule_type doesn't exist
+        final prepaidResponse = await _supabase
+            .from('carrier_rules')
+            .select()
+            .eq('carrier_id', carrierId)
+            .eq('rule_type', 'prepaid')
+            .maybeSingle();
+            
+        if (prepaidResponse == null) {
+            return null;
+        }
+        return CarrierRule.fromJson(prepaidResponse);
+      }
+      return CarrierRule.fromJson(response);
+    } on PostgrestException catch (e) {
+      throw Exception('Failed to load carrier rule: ${e.message}');
+    }
+  }
+
+  @override
   Future<List<LineActivityLog>> getLineActivityLogs(String simLineId) async {
     final cacheKey = 'cached_logs_$simLineId';
 
@@ -332,8 +364,9 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
       final cached = _cache.readJson(cacheKey);
       if (cached is List) {
         return cached
-            .map((json) =>
-                LineActivityLog.fromJson(json as Map<String, dynamic>))
+            .map(
+              (json) => LineActivityLog.fromJson(json as Map<String, dynamic>),
+            )
             .toList();
       }
       return [];
@@ -356,8 +389,9 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
       final cached = _cache.readJson(cacheKey);
       if (cached is List) {
         return cached
-            .map((json) =>
-                LineActivityLog.fromJson(json as Map<String, dynamic>))
+            .map(
+              (json) => LineActivityLog.fromJson(json as Map<String, dynamic>),
+            )
             .toList();
       }
       throw Exception('Failed to load line activity logs: ${e.message}');
@@ -430,7 +464,8 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
         'executed_at': DateTime.now().toIso8601String(),
         'completed_at': DateTime.now().toIso8601String(),
         if (status == 'success')
-          'reloadly_transaction_id': 'TX_MANUAL_${DateTime.now().millisecondsSinceEpoch}',
+          'reloadly_transaction_id':
+              'TX_MANUAL_${DateTime.now().millisecondsSinceEpoch}',
       });
 
       // Also log the activity

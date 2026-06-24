@@ -41,7 +41,9 @@ class SubscriptionUpsellSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isPremium = requiredPlan.toLowerCase() == 'premium';
-    final Color accentColor = isPremium ? Colors.purpleAccent : AppColors.primary;
+    final Color accentColor = isPremium
+        ? Colors.purpleAccent
+        : AppColors.primary;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
@@ -52,10 +54,7 @@ class SubscriptionUpsellSheet extends StatelessWidget {
           topRight: Radius.circular(28),
         ),
         border: Border(
-          top: BorderSide(
-            color: accentColor.withOpacity(0.2),
-            width: 1.5,
-          ),
+          top: BorderSide(color: accentColor.withOpacity(0.2), width: 1.5),
         ),
       ),
       child: Column(
@@ -131,11 +130,7 @@ class SubscriptionUpsellSheet extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Icon(
-                      Icons.star_rounded,
-                      color: accentColor,
-                      size: 16,
-                    ),
+                    Icon(Icons.star_rounded, color: accentColor, size: 16),
                     const SizedBox(width: 8),
                     Text(
                       'UNLOCKS WITH ${requiredPlan.toUpperCase()}',
@@ -148,27 +143,25 @@ class SubscriptionUpsellSheet extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 12),
-                ...highlights.map((feat) => Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4.0),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.check_rounded,
-                            color: accentColor,
-                            size: 16,
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              feat,
-                              style: AppTextStyles.bodyMedium.copyWith(
-                                color: Colors.white.withOpacity(0.9),
-                              ),
+                ...highlights.map(
+                  (feat) => Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4.0),
+                    child: Row(
+                      children: [
+                        Icon(Icons.check_rounded, color: accentColor, size: 16),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            feat,
+                            style: AppTextStyles.bodyMedium.copyWith(
+                              color: Colors.white.withOpacity(0.9),
                             ),
                           ),
-                        ],
-                      ),
-                    )),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -182,7 +175,6 @@ class SubscriptionUpsellSheet extends StatelessWidget {
               onPressed: () async {
                 await HapticHelper.mediumImpact();
                 Navigator.pop(context);
-                context.push('/settings/subscription');
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: accentColor,

@@ -131,8 +131,10 @@ class NotificationChannelsController extends _$NotificationChannelsController {
   Future<void> toggleChannel(String channelType, bool isEnabled) async {
     final repo = ref.read(notificationsRepositoryProvider);
     final currentList = state.value ?? [];
-    
-    final matchIndex = currentList.indexWhere((c) => c['channel_type'] == channelType);
+
+    final matchIndex = currentList.indexWhere(
+      (c) => c['channel_type'] == channelType,
+    );
     if (matchIndex == -1) return;
 
     final updatedChannel = Map<String, dynamic>.from(currentList[matchIndex]);
@@ -153,11 +155,16 @@ class NotificationChannelsController extends _$NotificationChannelsController {
     }
   }
 
-  Future<void> updateChannelConfig(String channelType, Map<String, dynamic> config) async {
+  Future<void> updateChannelConfig(
+    String channelType,
+    Map<String, dynamic> config,
+  ) async {
     final repo = ref.read(notificationsRepositoryProvider);
     final currentList = state.value ?? [];
-    
-    final matchIndex = currentList.indexWhere((c) => c['channel_type'] == channelType);
+
+    final matchIndex = currentList.indexWhere(
+      (c) => c['channel_type'] == channelType,
+    );
     if (matchIndex == -1) return;
 
     final updatedChannel = Map<String, dynamic>.from(currentList[matchIndex]);

@@ -151,7 +151,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                             Text(
                               'Running Offline Mode',
                               style: AppTextStyles.bodyMedium.copyWith(
-                                color: isLight ? AppColors.textPrimaryLight : Colors.white,
+                                color: isLight
+                                    ? AppColors.textPrimaryLight
+                                    : Colors.white,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -159,7 +161,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                             Text(
                               'You can still manage your SIM cards! Changes will automatically sync when connection returns.',
                               style: AppTextStyles.caption.copyWith(
-                                color: isLight ? AppColors.textSecondaryLight : AppColors.textSecondaryDark,
+                                color: isLight
+                                    ? AppColors.textSecondaryLight
+                                    : AppColors.textSecondaryDark,
                                 height: 1.3,
                               ),
                             ),
@@ -178,15 +182,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 ref,
                 welcomeName,
                 isPowerUser,
-                profile.subscriptionTier,
               ),
               const SizedBox(height: 24),
-
-              // ── Subscription Warning Banner ────────────────────────
-              if (profile.subscriptionTier == 'basic')
-                _buildDashboardUpsellBanner(context),
-              if (profile.subscriptionTier == 'basic')
-                const SizedBox(height: 24),
 
               // ── "At a Glance" Glassmorphic Hero Card ──────────────────
               _buildHeroCard(context, profile.preferredCurrency, data, profile),
@@ -215,7 +212,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     WidgetRef ref,
     String name,
     bool isPowerUser,
-    String subscriptionTier,
   ) {
     final notificationsState = ref.watch(notificationsControllerProvider);
     final unreadCount = notificationsState.maybeWhen(
@@ -256,17 +252,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Welcome Back',
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: context.onSurfaceColor.withValues(alpha: 0.6),
-                    ),
-                  ),
-                  _buildUserSubscriptionBadge(subscriptionTier),
-                ],
+              Text(
+                'Welcome Back',
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: context.onSurfaceColor.withValues(alpha: 0.6),
+                ),
               ),
               Text(
                 name,
@@ -277,42 +267,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             ],
           ),
         ),
-        // Power User Badge
-        if (isPowerUser)
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            decoration: BoxDecoration(
-              gradient: AppColors.accentGradient,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.secondary.withValues(alpha: 0.25),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(
-                  Icons.bolt,
-                  color: AppColors.textPrimaryLight,
-                  size: 14,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  'POWER USER',
-                  style: AppTextStyles.labelSmall.copyWith(
-                    color: AppColors.textPrimaryLight,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        if (isPowerUser) const SizedBox(width: 8),
-
+        
         // Help Icon Button
         IconButton(
           icon: const Icon(Icons.help_outline_rounded, size: 22),
@@ -354,53 +309,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     );
   }
 
-  Widget _buildUserSubscriptionBadge(String tier) {
-    Color getTierColor() {
-      switch (tier.toLowerCase()) {
-        case 'premium':
-          return Colors.purpleAccent;
-        case 'standard':
-          return AppColors.primary;
-        case 'basic':
-          return Colors.blueAccent;
-        default:
-          return Colors.grey;
-      }
-    }
-
-    String getTierName() {
-      switch (tier.toLowerCase()) {
-        case 'premium':
-          return 'Premium';
-        case 'standard':
-          return 'Standard';
-        case 'basic':
-          return 'Free';
-        default:
-          return tier;
-      }
-    }
-
-    final Color color = getTierColor();
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withValues(alpha: 0.4), width: 1.0),
-      ),
-      child: Text(
-        getTierName().toUpperCase(),
-        style: TextStyle(
-          color: color,
-          fontSize: 9,
-          fontWeight: FontWeight.bold,
-          letterSpacing: 0.5,
-        ),
-      ),
-    );
-  }
-
   // ── Help Modal Sheet ───────────────────────────────────────────
   void _showHelpModalSheet(BuildContext context) {
     final isLight = Theme.of(context).brightness == Brightness.light;
@@ -418,7 +326,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               topRight: Radius.circular(28),
             ),
             border: Border(
-              top: BorderSide(color: isLight ? AppColors.lightBorder : AppColors.darkBorder, width: 1.5),
+              top: BorderSide(
+                color: isLight ? AppColors.lightBorder : AppColors.darkBorder,
+                width: 1.5,
+              ),
             ),
           ),
           child: Column(
@@ -431,7 +342,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 20),
                   decoration: BoxDecoration(
-                    color: isLight ? AppColors.lightBorder : AppColors.darkBorder,
+                    color: isLight
+                        ? AppColors.lightBorder
+                        : AppColors.darkBorder,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -454,7 +367,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   Text(
                     'Help & Support',
                     style: AppTextStyles.headlineMedium.copyWith(
-                      color: isLight ? AppColors.textPrimaryLight : AppColors.textPrimaryDark,
+                      color: isLight
+                          ? AppColors.textPrimaryLight
+                          : AppColors.textPrimaryDark,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -462,59 +377,44 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               ),
               const SizedBox(height: 20),
               Text(
-                'Need assistance with your SIM Shield app? Our comprehensive support resources and customer care portal are currently being finalized.',
+                'How can we help you?',
                 style: AppTextStyles.bodyMedium.copyWith(
-                  color: isLight ? AppColors.textSecondaryLight : AppColors.textSecondaryDark,
+                  color: isLight
+                      ? AppColors.textSecondaryLight
+                      : AppColors.textSecondaryDark,
                 ),
               ),
               const SizedBox(height: 16),
-              Text(
-                'In upcoming updates, you will be able to:',
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: isLight ? AppColors.textPrimaryLight : AppColors.textPrimaryDark,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 12),
               _buildHelpBulletPoint(
                 context,
                 Icons.menu_book_rounded,
                 'Browse FAQs & troubleshooting guides',
+                onTap: () {
+                  Navigator.pop(context);
+                  context.push('/support/faq');
+                },
               ),
               const SizedBox(height: 10),
               _buildHelpBulletPoint(
                 context,
                 Icons.support_agent_rounded,
-                'Live chat with technical support agents',
+                'Open Ticket to report your problem',
+                onTap: () {
+                  Navigator.pop(context);
+                  context.push('/support/create?category=Technical Support');
+                },
               ),
               const SizedBox(height: 10),
               _buildHelpBulletPoint(
                 context,
                 Icons.bug_report_rounded,
-                'Report bugs or submit feedback directly',
+                'Submit Feedback and request improvements',
+                onTap: () {
+                  Navigator.pop(context);
+                  context.push('/support/create?category=Feedback & Other');
+                },
               ),
               const SizedBox(height: 28),
-              SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: ElevatedButton(
-                  onPressed: () => Navigator.pop(context),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: context.primaryColor,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                  ),
-                  child: Text(
-                    'Got It',
-                    style: AppTextStyles.titleMedium.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
             ],
           ),
         );
@@ -525,33 +425,133 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   Widget _buildHelpBulletPoint(
     BuildContext context,
     IconData icon,
-    String text,
-  ) {
+    String text, {
+    VoidCallback? onTap,
+  }) {
     final isLight = Theme.of(context).brightness == Brightness.light;
-    return Row(
-      children: [
-        Icon(icon, color: AppColors.secondary, size: 18),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Text(
-            text,
-            style: AppTextStyles.bodyMedium.copyWith(
-              color: isLight ? AppColors.textSecondaryLight : AppColors.textSecondaryDark,
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+        child: Row(
+          children: [
+            Icon(icon, color: AppColors.secondary, size: 18),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                text,
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: isLight
+                      ? AppColors.textPrimaryLight
+                      : AppColors.textPrimaryDark,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
-          ),
+            Icon(
+              Icons.chevron_right,
+              color: isLight ? Colors.black26 : Colors.white30,
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 
   // ── Hero Card Widget ────────────────────────────────────────────
+  void _showHeroCardActionSheet(BuildContext context, String topUpId) {
+    final isLight = Theme.of(context).brightness == Brightness.light;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: isLight ? AppColors.lightSurface : AppColors.darkSurface,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(28),
+              topRight: Radius.circular(28),
+            ),
+            border: Border(
+              top: BorderSide(
+                color: isLight ? AppColors.lightBorder : AppColors.darkBorder,
+                width: 1.5,
+              ),
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 48,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 20),
+                  decoration: BoxDecoration(
+                    color: isLight
+                        ? AppColors.lightBorder
+                        : AppColors.darkBorder,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              Text(
+                'Line Action',
+                style: AppTextStyles.headlineMedium.copyWith(
+                  color: isLight
+                      ? AppColors.textPrimaryLight
+                      : AppColors.textPrimaryDark,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'What would you like to do?',
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: isLight
+                      ? AppColors.textSecondaryLight
+                      : AppColors.textSecondaryDark,
+                ),
+              ),
+              const SizedBox(height: 24),
+              _buildHelpBulletPoint(
+                context,
+                Icons.sim_card_outlined,
+                'Open nearest top-up line',
+                onTap: () {
+                  Navigator.pop(context);
+                  context.push('${AppRoutes.simLines}/detail/$topUpId');
+                },
+              ),
+              const SizedBox(height: 10),
+              _buildHelpBulletPoint(
+                context,
+                Icons.add_circle_outline,
+                'Protect new line',
+                onTap: () {
+                  Navigator.pop(context);
+                  context.push('${AppRoutes.simLines}/add');
+                },
+              ),
+              const SizedBox(height: 28),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildHeroCard(
     BuildContext context,
     String currency,
     DashboardState data,
     UserProfile profile,
   ) {
-    final bool isPremium = profile.subscriptionTier.toLowerCase() == 'premium';
+    final bool isPremium = profile.isPowerUser;
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
 
     final int nextTopUpMinutes = data.nextTopUpDate != null
@@ -583,7 +583,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCard : AppColors.lightCard,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder, width: 1.5),
+        border: Border.all(
+          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+          width: 1.5,
+        ),
         boxShadow: [
           BoxShadow(
             color: context.primaryColor.withOpacity(isDark ? 0.08 : 0.04),
@@ -619,9 +622,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     await HapticHelper.mediumImpact();
                     if (!context.mounted) return;
                     if (data.nextTopUpId != null) {
-                      context.push(
-                        '${AppRoutes.simLines}/detail/${data.nextTopUpId}',
-                      );
+                      _showHeroCardActionSheet(context, data.nextTopUpId!);
                     } else {
                       context.push('${AppRoutes.simLines}/add');
                     }
@@ -676,7 +677,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                 Text(
                                   isHourlyMode ? 'mins' : 'days',
                                   style: AppTextStyles.caption.copyWith(
-                                    color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                                    color: isDark
+                                        ? AppColors.textSecondaryDark
+                                        : AppColors.textSecondaryLight,
                                     fontSize: 10,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -699,7 +702,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                   Text(
                                     isPremium ? 'NEXT TOP-UP' : 'NEXT NOTIFY',
                                     style: AppTextStyles.labelSmall.copyWith(
-                                      color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                                      color: isDark
+                                          ? AppColors.textSecondaryDark
+                                          : AppColors.textSecondaryLight,
                                       fontWeight: FontWeight.bold,
                                       letterSpacing: 1.2,
                                     ),
@@ -745,7 +750,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                           : '${data.nextTopUpPhone}')
                                     : 'Add or configure a SIM line',
                                 style: AppTextStyles.bodyMedium.copyWith(
-                                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                                  color: isDark
+                                      ? AppColors.textSecondaryDark
+                                      : AppColors.textSecondaryLight,
                                 ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -757,7 +764,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     ),
                     const SizedBox(height: 20),
                     Divider(
-                      color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                      color: isDark
+                          ? AppColors.darkBorder
+                          : AppColors.lightBorder,
                       height: 1,
                       thickness: 1.2,
                     ),
@@ -768,9 +777,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         Text(
                           'Showing nearest line',
                           style: AppTextStyles.caption.copyWith(
-                            color: (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight).withValues(
-                              alpha: 0.7,
-                            ),
+                            color:
+                                (isDark
+                                        ? AppColors.textSecondaryDark
+                                        : AppColors.textSecondaryLight)
+                                    .withValues(alpha: 0.7),
                           ),
                         ),
                         Text(
@@ -809,15 +820,27 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Protected Lines',
+              'Lines to Protect',
               style: AppTextStyles.headlineSmall.copyWith(
                 color: context.onSurfaceColor,
               ),
             ),
-            IconButton(
+            TextButton.icon(
               icon: const Icon(
                 Icons.add_circle_outline_rounded,
                 color: AppColors.primary,
+              ),
+              label: Text(
+                'Add SIM',
+                style: AppTextStyles.labelLarge.copyWith(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
               onPressed: () async {
                 await HapticHelper.lightTick();
@@ -838,7 +861,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             return Column(
               children: [
                 SizedBox(
-                  height: 250,
+                  height: 260,
                   child: PageView.builder(
                     controller: _pageController,
                     onPageChanged: (index) {
@@ -871,11 +894,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           color: _currentLineIndex == index
                               ? context.primaryColor
                               : (context.isDarkMode
-                                      ? AppColors.textSecondaryDark
-                                      : AppColors.textSecondaryLight)
-                                  .withValues(
-                                  alpha: 0.3,
-                                ),
+                                        ? AppColors.textSecondaryDark
+                                        : AppColors.textSecondaryLight)
+                                    .withValues(alpha: 0.3),
                           borderRadius: BorderRadius.circular(3),
                         ),
                       ),
@@ -984,12 +1005,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 
   // ── Quick Actions Section ───────────────────────────────────────
-  // ── Quick Actions Section ───────────────────────────────────────
   Widget _buildQuickActionsSection(BuildContext context, dynamic profile) {
-    final subscriptionTier =
-        profile.subscriptionTier?.toString().toLowerCase() ?? 'basic';
-    final isPremium = subscriptionTier == 'premium';
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1001,75 +1017,42 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         ),
         const SizedBox(height: 16),
         Row(
-          children: isPremium
-              ? [
-                  _buildQuickActionCard(
-                    context,
-                    icon: Icons.wifi_off_rounded,
-                    label: 'Offline Refill',
-                    color: Colors.deepOrangeAccent,
-                    onTap: () async {
-                      await HapticHelper.lightTick();
-                      context.push('/settings/offline-recharge');
-                    },
-                  ),
-                  const SizedBox(width: 12),
-                  _buildQuickActionCard(
-                    context,
-                    icon: Icons.account_balance_wallet_rounded,
-                    label: 'Wallet',
-                    color: const Color(0xFF14B8A6),
-                    onTap: () async {
-                      await HapticHelper.lightTick();
-                      context.go('/wallet');
-                    },
-                  ),
-                  const SizedBox(width: 12),
-                  _buildQuickActionCard(
-                    context,
-                    icon: Icons.support_agent_rounded,
-                    label: 'Open Ticket',
-                    color: Colors.blueAccent,
-                    onTap: () async {
-                      await HapticHelper.lightTick();
-                      _showOpenTicketSheet(context);
-                    },
-                  ),
-                ]
-              : [
-                  _buildQuickActionCard(
-                    context,
-                    icon: Icons.support_agent_rounded,
-                    label: 'Open Ticket',
-                    color: Colors.blueAccent,
-                    onTap: () async {
-                      await HapticHelper.lightTick();
-                      _showOpenTicketSheet(context);
-                    },
-                  ),
-                  const SizedBox(width: 12),
-                  _buildQuickActionCard(
-                    context,
-                    icon: Icons.person_rounded,
-                    label: 'Profile',
-                    color: const Color(0xFF10B981),
-                    onTap: () async {
-                      await HapticHelper.lightTick();
-                      context.go('/settings');
-                    },
-                  ),
-                  const SizedBox(width: 12),
-                  _buildQuickActionCard(
-                    context,
-                    icon: Icons.star_rounded,
-                    label: 'Upgrade',
-                    color: Colors.purpleAccent,
-                    onTap: () async {
-                      await HapticHelper.lightTick();
-                      context.push('/settings/subscription');
-                    },
-                  ),
-                ],
+          children: [
+            _buildQuickActionCard(
+              context,
+              icon: Icons.wifi_off_rounded,
+              label: 'Offline Refill',
+              color: Colors.deepOrangeAccent,
+              onTap: () async {
+                await HapticHelper.lightTick();
+                context.push('/settings/offline-recharge');
+              },
+            ),
+            const SizedBox(width: 12),
+            _buildQuickActionCard(
+              context,
+              icon: Icons.account_balance_wallet_rounded,
+              label: 'Wallet',
+              color: const Color(0xFF14B8A6),
+              onTap: () async {
+                await HapticHelper.lightTick();
+                context.go('/wallet');
+              },
+            ),
+            const SizedBox(width: 12),
+            _buildQuickActionCard(
+              context,
+              icon: Icons.support_agent_rounded,
+              label: 'Open Ticket',
+              color: Colors.blueAccent,
+              onTap: () async {
+                await HapticHelper.lightTick();
+                if (context.mounted) {
+                  context.push('/support/create');
+                }
+              },
+            ),
+          ],
         ),
       ],
     );
@@ -1103,7 +1086,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   topRight: Radius.circular(28),
                 ),
                 border: Border(
-                  top: BorderSide(color: isLight ? AppColors.lightBorder : AppColors.darkBorder, width: 1.5),
+                  top: BorderSide(
+                    color: isLight
+                        ? AppColors.lightBorder
+                        : AppColors.darkBorder,
+                    width: 1.5,
+                  ),
                 ),
               ),
               child: Column(
@@ -1116,7 +1104,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       height: 4,
                       margin: const EdgeInsets.only(bottom: 20),
                       decoration: BoxDecoration(
-                        color: isLight ? AppColors.lightBorder : AppColors.darkBorder,
+                        color: isLight
+                            ? AppColors.lightBorder
+                            : AppColors.darkBorder,
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
@@ -1139,7 +1129,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       Text(
                         'Open Support Ticket',
                         style: AppTextStyles.headlineMedium.copyWith(
-                          color: isLight ? AppColors.textPrimaryLight : AppColors.textPrimaryDark,
+                          color: isLight
+                              ? AppColors.textPrimaryLight
+                              : AppColors.textPrimaryDark,
                           fontWeight: FontWeight.bold,
                           fontSize: 20,
                         ),
@@ -1150,22 +1142,34 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   Text(
                     'Ticket Category',
                     style: AppTextStyles.labelSmall.copyWith(
-                      color: isLight ? AppColors.textSecondaryLight : AppColors.textSecondaryDark,
+                      color: isLight
+                          ? AppColors.textSecondaryLight
+                          : AppColors.textSecondaryDark,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 8),
                   DropdownButtonFormField<String>(
                     value: selectedCategory,
-                    dropdownColor: isLight ? AppColors.lightCard : AppColors.darkCard,
-                    style: TextStyle(color: isLight ? AppColors.textPrimaryLight : Colors.white),
+                    dropdownColor: isLight
+                        ? AppColors.lightCard
+                        : AppColors.darkCard,
+                    style: TextStyle(
+                      color: isLight
+                          ? AppColors.textPrimaryLight
+                          : Colors.white,
+                    ),
                     decoration: InputDecoration(
                       filled: true,
-                      fillColor: isLight ? const Color(0xFFEAEEF1) : Colors.black.withOpacity(0.15),
+                      fillColor: isLight
+                          ? const Color(0xFFEAEEF1)
+                          : Colors.black.withOpacity(0.15),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: isLight ? AppColors.lightBorder : Colors.white.withOpacity(0.1),
+                          color: isLight
+                              ? AppColors.lightBorder
+                              : Colors.white.withOpacity(0.1),
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
@@ -1199,25 +1203,37 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   Text(
                     'Subject',
                     style: AppTextStyles.labelSmall.copyWith(
-                      color: isLight ? AppColors.textSecondaryLight : AppColors.textSecondaryDark,
+                      color: isLight
+                          ? AppColors.textSecondaryLight
+                          : AppColors.textSecondaryDark,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 8),
                   TextField(
                     controller: subjectController,
-                    style: TextStyle(color: isLight ? AppColors.textPrimaryLight : Colors.white),
+                    style: TextStyle(
+                      color: isLight
+                          ? AppColors.textPrimaryLight
+                          : Colors.white,
+                    ),
                     decoration: InputDecoration(
                       hintText: 'Summary of the issue',
                       hintStyle: TextStyle(
-                        color: isLight ? AppColors.textTertiaryLight : Colors.white.withOpacity(0.3),
+                        color: isLight
+                            ? AppColors.textTertiaryLight
+                            : Colors.white.withOpacity(0.3),
                       ),
                       filled: true,
-                      fillColor: isLight ? const Color(0xFFEAEEF1) : Colors.black.withOpacity(0.15),
+                      fillColor: isLight
+                          ? const Color(0xFFEAEEF1)
+                          : Colors.black.withOpacity(0.15),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: isLight ? AppColors.lightBorder : Colors.white.withOpacity(0.1),
+                          color: isLight
+                              ? AppColors.lightBorder
+                              : Colors.white.withOpacity(0.1),
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
@@ -1230,7 +1246,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   Text(
                     'Message Details',
                     style: AppTextStyles.labelSmall.copyWith(
-                      color: isLight ? AppColors.textSecondaryLight : AppColors.textSecondaryDark,
+                      color: isLight
+                          ? AppColors.textSecondaryLight
+                          : AppColors.textSecondaryDark,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -1238,18 +1256,28 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   TextField(
                     controller: messageController,
                     maxLines: 4,
-                    style: TextStyle(color: isLight ? AppColors.textPrimaryLight : Colors.white),
+                    style: TextStyle(
+                      color: isLight
+                          ? AppColors.textPrimaryLight
+                          : Colors.white,
+                    ),
                     decoration: InputDecoration(
                       hintText: 'Describe the issue or request in detail...',
                       hintStyle: TextStyle(
-                        color: isLight ? AppColors.textTertiaryLight : Colors.white.withOpacity(0.3),
+                        color: isLight
+                            ? AppColors.textTertiaryLight
+                            : Colors.white.withOpacity(0.3),
                       ),
                       filled: true,
-                      fillColor: isLight ? const Color(0xFFEAEEF1) : Colors.black.withOpacity(0.15),
+                      fillColor: isLight
+                          ? const Color(0xFFEAEEF1)
+                          : Colors.black.withOpacity(0.15),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: isLight ? AppColors.lightBorder : Colors.white.withOpacity(0.1),
+                          color: isLight
+                              ? AppColors.lightBorder
+                              : Colors.white.withOpacity(0.1),
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
@@ -1506,86 +1534,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             },
           ),
       ],
-    );
-  }
-
-  Widget _buildDashboardUpsellBanner(BuildContext context) {
-    final isLight = Theme.of(context).brightness == Brightness.light;
-    return InkWell(
-      onTap: () {
-        context.push('/settings/subscription');
-      },
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        padding: const EdgeInsets.all(18),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Colors.redAccent.withOpacity(0.12),
-              Colors.purpleAccent.withOpacity(0.12),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: Colors.purpleAccent.withOpacity(0.3),
-            width: 1.5,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.purpleAccent.withOpacity(0.06),
-              blurRadius: 15,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: Colors.purpleAccent.withOpacity(0.15),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.error_outline_rounded,
-                color: Colors.purpleAccent,
-                size: 22,
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Free Shield Guard Active 🚨',
-                    style: AppTextStyles.titleMedium.copyWith(
-                      color: isLight ? AppColors.textPrimaryLight : Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Your international lines are at risk of deactivation! Upgrade to Premium Shield now for 100% automated renewal checks.',
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: isLight ? AppColors.textSecondaryLight : AppColors.textSecondaryDark,
-                      height: 1.3,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 12),
-            const Icon(
-              Icons.arrow_forward_ios_rounded,
-              color: Colors.purpleAccent,
-              size: 16,
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
