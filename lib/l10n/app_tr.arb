@@ -1,0 +1,686 @@
+{
+    "@@locale": "tr",
+    "appName":  "KeepSIMs",
+    "@appName": {
+        "description": "The name of the application"
+    },
+    "preferencesAndSecurity": "Tercihler ve Güvenlik",
+    "appAppearance": "Uygulama Görünümü",
+    "systemTheme": "Sistem",
+    "darkMode": "Karanlık Mod",
+    "lightMode": "Aydınlık Mod",
+    "localizationAndRegional": "Yerelleştirme ve Bölgesel Ayarlar",
+    "appLanguage": "Uygulama Dili",
+    "currentlyUsing": "Şu anda bölgesel {langName} kullanılıyor",
+    "@currentlyUsing": {
+        "placeholders": {
+            "langName": {
+                "type": "String"
+            }
+        }
+    },
+    "selectAppLanguage": "Uygulama Dilini Seçin",
+    "securityAndAccessLock": "Güvenlik ve Erişim Kilidi",
+    "biometricSecurity": "Biyometrik Güvenlik",
+    "biometricDesc": "Face ID veya Touch ID kullanarak giriş yapın",
+    "transactionPin": "İşlem PIN'i",
+    "transactionPinDesc": "Yenilemeleri ve para çekme işlemlerini güvene alın",
+    "setup": "KURULUM",
+    "pinSuccess": "İşlem PIN'i başarıyla güncellendi!",
+    "pinMismatch": "PIN'ler eşleşmiyor. Tekrar deneyin!",
+    "pinActiveAndSecure": "PIN kurulumu etkin ve güvenli",
+    "automatedSummaryAndAlerts": "Otomatik Özet ve Uyarılar",
+    "weeklyDigest": "Haftalık Özet",
+    "welcomeBack": "Tekrar Hoş Geldiniz",
+    "nextNotify": "SIRADAKİ BİLDİRİM",
+    "days": "gün",
+    "showingNearestLine": "En yakın hat gösteriliyor",
+    "addSim": "SIM Ekle",
+    "linesToProtect": "Korunacak Hatlar",
+    "active": "Aktif",
+    "upgrade": "YÜKSELT",
+    "standard": "STANDART",
+    "autoNotify": "Otomatik Bildirim",
+    "configure": "Yapılandır",
+    "autoRefill": "Otomatik Yükleme",
+    "quickActions": "Hızlı İşlemler",
+    "navHome": "Ana Sayfa",
+    "navSims": "SIM'ler",
+    "navMore": "Daha Fazla",
+    "protectedSims": "Korunan SIM'ler",
+    "mySimCards": "SIM Kartlarım",
+    "familySharedSims": "Aile ile Paylaşılan SIM'ler",
+    "protectAnotherSimLine": "Başka Bir SIM Hattını Koru",
+    "keepInfiniteNumbersAlive": "Sınırsız uluslararası numarayı aktif tutun",
+    "bulkActionsConsole": "Toplu İşlemler Konsolu",
+    "resume": "Devam Ettir",
+    "pause": "Duraklat",
+    "simulate": "Simüle Et",
+    "noProtectedLines": "Korunan Hat Yok",
+    "noInternationalSimsAdded": "Henüz bir uluslararası SIM kart eklemediniz. Sürekli aktif tutmak için şimdi ilk kartınızı koruyun.",
+    "protectNewLine": "Yeni Hat Koru",
+    "noSharedSimsYet": "Henüz Paylaşılan SIM Yok",
+    "inviteFamilyMembers": "Hanenize katılmaları için aile üyelerini davet edin. Kabul ettiklerinde, korunan SIM hatları ortak izleme için burada görünecek.",
+    "manageHousehold": "Haneyi Yönet",
+    "manageProfileDesc": "Profilinizi, SIM hatlarınızı, uyarılarınızı ve paylaşılan tercihlerinizi yönetin",
+    "keepSIMsUser": "KeepSIMs Kullanıcısı",
+    "pro": "PRO",
+    "homeCountry": "Ana Ülke: ",
+    "console": "Konsol",
+    "offlineRefill": "Çevrimdışı Yükleme (SMS/WA)",
+    "refillSimOfflineDesc": "SMS veya WhatsApp ile çevrimdışı SIM bakiyesi yükleyin",
+    "wallet": "Cüzdan",
+    "manageBalancesDesc": "Bakiyelerinizi yönetin ve işlem geçmişini görüntüleyin",
+    "alertPreferences": "Uyarı Tercihleri",
+    "togglePushEmailDesc": "Yenileme/bakiye için push ve e-posta ayarlarını değiştirin",
+    "referAndEarn": "Davet Et ve Kazan",
+    "shareKeepSIMsDesc": "KeepSIMs'i paylaşın, dinamik bakiye ödülleri kazanın",
+    "paymentMethods": "Ödeme Yöntemleri",
+    "addBankCardsDesc": "Banka kartları ekleyin veya otomatik çekim hesapları bağlayın",
+    "travelAndGeolocation": "Seyahat ve Konum",
+    "manageHomeCountryDesc": "Ana ülke dondurma kurallarını ve seyahat modunu yönetin",
+    "dataAndPrivacy": "Veri ve Gizlilik",
+    "manageTrackingConsentDesc": "Takip izninizi yönetin, verilerinizi dışa aktarın veya hesabınızı silin",
+    "powerUser": "İleri Düzey Kullanıcı",
+    "accessSystemSimulatorsDesc": "Sistem simülatörlerine ve hata ayıklama araçlarına erişin",
+    "testChecklist": "Test Kontrol Listesi",
+    "manualUiTestingDesc": "Kalite güvencesi için manuel UI test kontrol listesi",
+    "soon": "YAKINDA",
+    "featureComingSoon": "{feature} özelliği yakında geliyor!",
+    "@featureComingSoon": {
+        "placeholders": {
+            "feature": {
+                "type": "String"
+            }
+        }
+    },
+    "logOut": "Çıkış Yap",
+    "confirmLogOut": "KeepSIMs'den çıkış yapmak istediğinizden emin misiniz?",
+    "walletLedger": "Cüzdan Defteri",
+    "keepSIMsPrepaid": "KeepSIMs ÖN ÖDEMELİ",
+    "offlineMode": "ÇEVRİMDIŞI MOD",
+    "activeBalance": "Aktif Bakiye",
+    "criticalBalanceLevel": "Kritik Bakiye Seviyesi",
+    "balanceBelow10": "Bakiyeniz 10,00 $'ın altında. Planlanmış SIM yüklemeleri yakında başarısız olabilir.",
+    "depositFunds": "Para Yatır",
+    "walletDepositsRequireInternet": "Cüzdana para yatırmak için aktif internet bağlantısı gerekir.",
+    "exportLedger": "Defteri Dışa Aktar",
+    "ledgerHistoryExported": "Defter geçmişi CSV olarak dışa aktarıldı.",
+    "spendAnalysis": "Harcama Analizi",
+    "transactionHistory": "İşlem Geçmişi",
+    "itemsCount": "{count} öğe",
+    "@itemsCount": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "noTransactionsRecorded": "Henüz kayıtlı işlem yok.",
+    "prepaidMonthlyOutflow": "Ön Ödemeli Aylık Gider",
+    "avgMonthlySpend": "Ortalama: ${amount}/ay (12A)",
+    "@avgMonthlySpend": {
+        "placeholders": {
+            "amount": {
+                "type": "String"
+            }
+        }
+    },
+    "depositViaCard": "Sonu {last4} ile biten kart ile yatır",
+    "@depositViaCard": {
+        "placeholders": {
+            "last4": {
+                "type": "String"
+            }
+        }
+    },
+    "lineRenewal": "Hat Yenileme",
+    "justNow": "Az önce",
+    "loadCreditFunds": "Kredi Bakiyesi Yükle",
+    "depositAmountUsd": "Yatırılacak Tutar (USD)",
+    "pleaseEnterAmount": "Lütfen bir tutar girin",
+    "enterPositiveNumber": "Pozitif bir sayı girin",
+    "cardDetails": "Kart Bilgileri",
+    "savedCards": "Kayıtlı Kartlar",
+    "visaCardNumber": "Visa Kart Numarası",
+    "pleaseEnterCardNumber": "Lütfen kart numarasını girin",
+    "mustBe16Digits": "16 hane olmalı",
+    "expiryMmYy": "Son Kullanma (AA/YY)",
+    "expiryRequired": "Son kullanma tarihi gerekli",
+    "invalid": "Geçersiz",
+    "cvv": "CVV",
+    "cvvRequired": "CVV gerekli",
+    "verifyingCardSecurity": "Kart güvenliği doğrulanıyor...",
+    "authorizeDepositFunds": "Para Yatırmayı Onayla",
+    "successfullyDeposited": "${amount} USD başarıyla yatırıldı!",
+    "@successfullyDeposited": {
+        "placeholders": {
+            "amount": {
+                "type": "String"
+            }
+        }
+    },
+    "failedToDepositFunds": "Para yatırma başarısız oldu. Lütfen kart bağlantınızı kontrol edin.",
+    "noSavedPaymentMethods": "Kayıtlı ödeme yöntemi bulunamadı.",
+    "addPaymentMethod": "Ödeme Yöntemi Ekle",
+    "savedPaymentMethods": "Kayıtlı Ödeme Yöntemleri",
+    "addAnotherPaymentMethod": "Başka bir ödeme yöntemi ekle",
+    "expiresMmYy": "{month}/{year} tarihinde sona erer",
+    "@expiresMmYy": {
+        "placeholders": {
+            "month": {
+                "type": "String"
+            },
+            "year": {
+                "type": "String"
+            }
+        }
+    },
+    "offlineRefillTitle": "Çevrimdışı Yükleme (SMS/WA)",
+    "selectTargetSimLine": "Hedef SIM Hattını Seçin",
+    "noRegisteredSimLines": "Kayıtlı SIM hattı bulunamadı.",
+    "targetSimLine": "Hedef SIM Hattı",
+    "simLine": "SIM Hattı",
+    "carrier": "OPERATÖR",
+    "change": "Değiştir",
+    "offlineRefillProtection": "Çevrimdışı Yükleme Koruması",
+    "premiumExclusive": "PREMIUM ÖZEL",
+    "neverGetStrandedDesc": "Mobil veri olmadan bir daha asla mahsur kalmayın. KeepSIMs Premium, sıfır internet bağlantısı olsa bile standart yerel SMS veya WhatsApp mesajları aracılığıyla SIM kartınızın bakiyesini çevrimdışı yüklemenize olanak tanır.",
+    "offlineCapability100": "%100 Çevrimdışı Yetenek",
+    "deductsFromKeepSIMsDesc": "Yerel SMS ağ geçidi yedeklemeleri aracılığıyla hattınıza yükleme yapmak için KeepSIMs cüzdanınızdan tutar düşülür.",
+    "dynamicUssdPlanActivation": "Dinamik USSD Plan Aktivasyonu",
+    "exactCopyPasteDialCodesDesc": "Çevrimdışı Veri+Arama paketlerini etkinleştirmek için tam kopyala-yapıştır arama kodları (örn. *900*1#) sağlar.",
+    "dualChannelSupport": "Çift Kanallı Destek",
+    "textRefillDesc": "Mevcut hücresel kapsama alanına bağlı olarak standart SMS veya WhatsApp kullanarak \"REFILL\" yazın.",
+    "close": "Kapat",
+    "howToTriggerOfflineRefill": "Çevrimdışı Yükleme Nasıl Tetiklenir",
+    "ifZeroMobileDataDesc1": "Sıfır mobil verinizin olması durumunda, güvenli sistem ağ geçidimize sadece ",
+    "refill": "REFILL",
+    "toOurSecureGatewayDesc2": " kelimesini içeren standart bir SMS veya WhatsApp mesajı gönderin:",
+    "targetSimLineLabel": "HEDEF SIM HATTI",
+    "configureCashRefillAmount": "NAKİT YÜKLEME TUTARINI YAPILANDIR",
+    "refillAmount": "Yükleme Tutarı",
+    "walletBalanceUsd": "Cüzdan Bakiyesi: ${amount} USD",
+    "@walletBalanceUsd": {
+        "placeholders": {
+            "amount": {
+                "type": "String"
+            }
+        }
+    },
+    "lowBalanceWarning": "⚠️ Düşük Bakiye",
+    "localCarrierPlanSuggestions": "YEREL OPERATÖR PLAN ÖNERİLERİ",
+    "noStandardUssdDialCodes": "Bu operatör için standart USSD arama kodu bulunamadı. Yine de nakit yükleme hattınıza başarıyla ulaşacak.",
+    "dynamicDialCodesPreview": "Dinamik Arama Kodları Önizleme",
+    "botSuggestDialingCodes": "Çevrimdışı yükleme tamamlandıktan sonra, bot Veri+Arama'yı anında çevrimdışı olarak açmak için telefonunuzda bu tam kodları aramayı önerecektir:",
+    "costAmount": "Maliyet: ${amount}",
+    "@costAmount": {
+        "placeholders": {
+            "amount": {
+                "type": "String"
+            }
+        }
+    },
+    "whatsappSmsSenderOverride": "WHATSAPP/SMS GÖNDEREN GEÇERSİZ KILMA",
+    "verificationNumber": "Doğrulama Numarası",
+    "triggerRefillsDifferentNumber": "Yüklemeleri ana profil telefonunuzdan farklı bir numaradan tetikliyorsanız, aşağıya ülke koduyla birlikte girin (örn. 96891234567).",
+    "enterPhoneNumberDigits": "Telefon numarasını girin (sadece rakamlar)",
+    "offlineRefillSettingsSaved": "Çevrimdışı Yükleme ayarları başarıyla kaydedildi!",
+    "saveSettings": "Ayarları Kaydet",
+    "errorLoadingSettings": "Ayarlar yüklenirken hata oluştu: {error}",
+    "@errorLoadingSettings": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "retry": "Tekrar Dene",
+    "editProtectedLine": "Korunan Hattı Düzenle",
+    "saveChanges": "Değişiklikleri Kaydet",
+    "activateShieldProtection": "Shield Korumasını Etkinleştir",
+    "phoneNumber": "Telefon Numarası",
+    "nicknameOptional": "Takma Ad (İsteğe Bağlı)",
+    "whatsappAlerts": "WhatsApp Uyarıları",
+    "emailAlertsDesc": "Resend aracılığıyla gönderilen kritik devre dışı bırakma uyarıları",
+    "refillWalletLow": "Fonlar azaldığında cüzdanı yükle",
+    "legalPoliciesDesc": "KeepSIMs'i kullanarak şartlarımızı kabul edersiniz. KeepSIMs, SIM yaşam döngünüzü yönetmenize yardımcı olacak araçlar sağlar, ancak üçüncü taraf telekom sağlayıcılarından kaynaklanan doğrudan veya dolaylı kayıp, zarar veya hizmet kesintilerinden sorumlu değiliz.",
+    "globalTravelModeDesc": "Sınır geçişi rutinlerini etkinleştirmek için otomatik coğrafi sınırlama kurallarına izin verir",
+    "dataPreferences": "Veri Tercihleri",
+    "doNotDisturb": "Rahatsız Etme",
+    "linkedCards": "Bağlı Kartlar",
+    "analyticsTracking": "Analitik ve Takip",
+    "dubai": "Dubai",
+    "flyHome": "Eve Uç",
+    "managePreferencesAndSecurityDesc": "Temayı, dili ve biyometrik kilitlenmeleri yönetin",
+    "autoFundingRulesDesc": "Bakiye çok düştüğünde varsayılan kredi kartınızdan otomatik yüklemeyi etkinleştirerek SIM yenilemelerini sürekli aktif tutun",
+    "pushNotifications": "Push Bildirimleri",
+    "quietHoursSchedule": "Sessiz Saatler ve Program",
+    "exportMyDataDesc": "Profilinizin ve tercihlerinizin JSON kopyasını indirin (GDPR Erişim Hakkı)",
+    "borderSimulatorTitle": "Sınır Geçişi Simülatörü",
+    "yourData": "Verileriniz",
+    "mostImportant": "En Önemli",
+    "emailAlerts": "E-posta Uyarıları",
+    "pushNotificationsDesc": "Bu cihazda yoğun yerel bildirimler",
+    "alertSettingsTitle": "Uyarı Ayarları",
+    "atHome": "EVDE",
+    "telegramBotDesc": "Bağlı interaktif Telegram sohbet bildirimleri",
+    "alertChannels": "Uyarı Kanalları",
+    "london": "Londra",
+    "shieldProtection": "Shield Koruması",
+    "legalPolicies": "Yasal ve Politikalar",
+    "supportVisaMastercard": "Güvenli Visa ve MasterCard banka/kredi kartını destekler",
+    "exportMyData": "Verilerimi Dışa Aktar",
+    "dangerZone": "Tehlikeli Bölge",
+    "analyticsTrackingDesc": "Anonim kullanım verilerini paylaşarak uygulamayı geliştirmemize yardımcı olun. Kapatmak temel uygulama işlevselliğini etkilemez",
+    "autoFundingRules": "Otomatik Fonlama Kuralları",
+    "singapore": "Singapur",
+    "weeklySummaryDigest": "Haftalık Özet Bülteni",
+    "fullyShielded": "Tam Korumalı",
+    "dndDesc": "Belirlenen uyku saatlerinde push bildirimlerini sessize al",
+    "paymentsAutoFundTitle": "Ödemeler ve Otomatik Fonlama",
+    "travelGeolocationTitle": "Seyahat ve Konum",
+    "telegramBot": "Telegram Botu",
+    "weeklyDigestDesc": "Her Pazar sabah 9:00'da tüm SIM kartların derlenmiş durum raporu",
+    "borderSimulatorDesc": "Akıllı dondurma veya aktif ülke devam ettirme kurallarını tetiklemek için sınır geçişlerini simüle edin.",
+    "linkFirstCard": "İlk ödeme kartınızı bağlayın",
+    "globalTravelMode": "Küresel Seyahat Modu",
+    "readPrivacyPolicy": "Tam Gizlilik Politikasını ve Şartları Okuyun",
+    "whatsappAlertsDesc": "Yükleme başarısızlık uyarıları doğrudan WhatsApp'a gönderilir",
+    "abroadTraveling": "YURT DIŞI / SEYAHATTE",
+    "freezeAllLines": "Tüm Hatları Dondur",
+    "resumeRenewals": "Yenilemeleri Devam Ettir",
+    "freezeRecommendationDesc": "Şu anda ana ülkenizde olduğunuzu tespit ettik. İstenmeyen cüzdan bakiyesi tükenmesini önlemek için uluslararası hatlarınızdaki yenilemeleri dondurabilirsiniz.",
+    "travelDetected": "Seyahat Tespit Edildi! ✈️",
+    "resumeRecommendationDesc": "Yurt dışında seyahat ediyorsunuz. Kesintisiz mobil ağ kapsama alanı sağlamak için lütfen duraklatılmış uluslararası SIM yenilemelerinizi devam ettirin.",
+    "dismiss": "Kapat",
+    "welcomeHome": "Evinize Hoş Geldiniz! 🏡",
+    "addCard": "Kart Ekle",
+    "noAlertChannelsConfigured": "Hiç uyarı iletim kanalı yapılandırılmadı.",
+    "channelSettingsUpdated": "{channelName} ayarları güncellendi.",
+    "@channelSettingsUpdated": {
+        "placeholders": {
+            "channelName": {
+                "type": "String"
+            }
+        }
+    },
+    "channelLocked": "{channelName} Kilitli 🔒",
+    "@channelLocked": {
+        "placeholders": {
+            "channelName": {
+                "type": "String"
+            }
+        }
+    },
+    "lockedAlertSubtitle": "{channelName} uyarıları Starter ve Premium plan özellikleridir. WhatsApp, Telegram ve E-posta uyarılarının kilidini açmak için planınızı yükseltin!",
+    "@lockedAlertSubtitle": {
+        "placeholders": {
+            "channelName": {
+                "type": "String"
+            }
+        }
+    },
+    "upsellProtect5Lines": "Aynı anda 5 SIM hattına kadar koruyun",
+    "upsellUnlockChannels": "WhatsApp, Telegram ve E-posta bildirimlerinin kilidini açın",
+    "upsellEnableTravelModes": "Seyahat ve Ev otomatik geçerlilik modlarını etkinleştirin",
+    "emailAddressLabel": "Bildirim E-posta Adresi",
+    "emailAddressHint": "örn. kullanici@alanadi.com",
+    "whatsappNumberLabel": "WhatsApp Numarası (Uluslararası Format)",
+    "whatsappNumberHint": "örn. +96891234567",
+    "whatsappFormatInstruction": "+ ile başlayan tam uluslararası formatı girin (örn. +96893990492)",
+    "telegramStatusBound": "Durum: Bağlı (Sohbet ID: {chatId})",
+    "@telegramStatusBound": {
+        "placeholders": {
+            "chatId": {
+                "type": "String"
+            }
+        }
+    },
+    "telegramStatusUnbound": "Durum: Bağlı Değil",
+    "telegramLinkInstructions": "Ücretsiz, interaktif Telegram uyarıları almak için Telegram Botumuzu hesabınızla bağlayın.",
+    "linkTelegramBot": "Telegram Botunu Bağla",
+    "emailFreePlanGuarded": "Resend Ücretsiz Plan Korumalı: Yalnızca devre dışı bırakma tetikleyicileriyle sınırlıdır. Tanıtım spam'i yoktur.",
+    "whatsappMetaCloudCapped": "Doğrudan Meta Cloud Sınırlı: Her yükleme programı için en fazla 1 mesaj, yalnızca otomatik yükleme etkin değilse veya başarısız olursa gönderilir.",
+    "failedToLoadPaymentInfo": "Ödeme bilgisi yüklenemedi",
+    "defaultCardIndicator": "VARSAYILAN",
+    "cardholder": "KART SAHİBİ",
+    "expires": "SON KULLANMA",
+    "lowBalanceTrigger": "Düşük Bakiye Tetikleyicisi",
+    "triggerLowTopUp": "Düşük bakiyede yüklemeyi tetikle",
+    "reloadDepositAmount": "Yeniden Yükleme Tutarı",
+    "amountToLoad": "Yüklenecek tutar",
+    "linkCreditDebitCard": "Kredi/Banka Kartı Bağla",
+    "cardNumberLabel": "KART NUMARASI",
+    "expiryDateLabel": "SON KULLANMA TARİHİ",
+    "cvvCodeLabel": "CVV KODU",
+    "securelyLinkCard": "Kartı Güvenle Bağla",
+    "pleaseEnterValidCardNumber": "Lütfen geçerli 16 haneli bir kart numarası girin.",
+    "pleaseEnterValidExpiryDate": "Lütfen geçerli bir son kullanma tarihi girin (AA/YY).",
+    "invalidExpiryMonth": "Geçersiz son kullanma ayı.",
+    "cvvMustBe3Digits": "CVV 3 hane olmalı.",
+    "cardLinkedSuccessfully": "Güvenli fatura kartı başarıyla bağlandı!",
+    "defaultPaymentCardUpdated": "Varsayılan ödeme kartı güncellendi!",
+    "removePaymentCard": "Ödeme Kartını Kaldır",
+    "confirmRemoveCardDesc": "Bu kartı kaldırmak istediğinizden emin misiniz? Varsayılan ödeme kartı kalmazsa bağlı otomatik fonlama başarısız olabilir.",
+    "cancel": "İptal",
+    "remove": "Kaldır",
+    "billingCardSuccessfullyRemoved": "Fatura kartı başarıyla kaldırıldı.",
+    "pleaseAddDefaultCardFirst": "Otomatik fonlamayı etkinleştirmek için lütfen önce bir varsayılan ödeme kartı ekleyip seçin.",
+    "autoFundPrefsSavedSuccess": "Otomatik Fonlama tercihleri başarıyla kaydedildi!",
+    "preparingDataExport": "Veri dışa aktarımı hazırlanıyor...",
+    "exportFailed": "Dışa aktarma başarısız oldu: {error}",
+    "@exportFailed": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "deleteAccountWarning": "Hesabınızı sildikten sonra geri dönüş yoktur. Lütfen emin olun.",
+    "deleteAccount": "Hesabı Sil",
+    "deleteAccountIrreversible": "Bu işlem geri alınamaz. Tüm verileriniz kalıcı olarak silinecektir.",
+    "typeDeleteToConfirm": "Onaylamak için \"DELETE\" yazın:",
+    "deleteWord": "DELETE",
+    "systemDiagnosticsLogs": "SİSTEM TANILAMA GÜNLÜKLERİ",
+    "online": "ÇEVRİMİÇİ",
+    "errorLoadingPrefs": "Tercihler yüklenirken hata oluştu: {error}",
+    "@errorLoadingPrefs": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "privacyPolicyLoaded": "Gizlilik Politikası ayrıntıları yüklendi.",
+    "protectionConsole": "Koruma Konsolu",
+    "deleteProtectionTooltip": "Korumayı Sil",
+    "refreshTooltip": "Yenile",
+    "failedToLoadDetails": "Ayrıntılar yüklenemedi",
+    "retryConnection": "Bağlantıyı Tekrar Dene",
+    "healthLabel": "sağlık",
+    "mySimCardDefault": "SIM Kartım",
+    "upLabel": "YUKARI",
+    "sharedByFamily": "Paylaşan: {ownerName} ({role})",
+    "@sharedByFamily": {
+        "placeholders": {
+            "ownerName": {
+                "type": "String"
+            },
+            "role": {
+                "type": "String"
+            }
+        }
+    },
+    "criticalRisk": "Kritik risk",
+    "simDeactivationRisk": "İşlem yapılmazsa SIM devre dışı kalabilir",
+    "missingAlertsDesc": "Hiç uyarı bildirimi yapılandırılmadı — 100 puan eksik",
+    "missingAutoRefillDesc": "Otomatik yükleme yapılandırılmadı — 50 puan eksik",
+    "missingVerificationDesc": "Telefon numarası doğrulanmadı — 25 puan eksik",
+    "missingRecentRefillDesc": "Son yükleme 80 günden daha önce yapıldı — 25 puan eksik",
+    "quickActionsLabel": "Hızlı İşlemler",
+    "manualRefillLabel": "Manuel Yükleme",
+    "chargeFromWalletNow": "Şimdi cüzdandan yükle",
+    "rechargeFromFriend": "Arkadaştan Yükleme İste",
+    "requestViaTelegram": "Telegram ile İste",
+    "shareViaWaTg": "WhatsApp/Telegram ile Paylaş",
+    "testSimActivity": "SIM Etkinliğini Test Et",
+    "verifyLineReachable": "Hattın erişilebilir olduğunu doğrula",
+    "checkCompleted1x": "1x Kontrol Tamamlandı",
+    "starterPlan1xCompleted": "Starter planı 1x kontrolü tamamlandı. Sınırsız kontrol için Premium'a yükseltin.",
+    "leaveCountry": "{countryName}'dan Ayrıl",
+    "@leaveCountry": {
+        "placeholders": {
+            "countryName": {
+                "type": "String"
+            }
+        }
+    },
+    "resumeProtectionLayers": "Koruma katmanlarını devam ettir",
+    "backToCountryMode": "{countryName} moduna geri dön",
+    "@backToCountryMode": {
+        "placeholders": {
+            "countryName": {
+                "type": "String"
+            }
+        }
+    },
+    "pauseWhileVisitingHome": "Eve dönerken duraklat",
+    "rechargeFromFriendTitle": "Bir Arkadaştan Yükleme İste",
+    "selectPlatformShare": "Arkadaşınızla bir yükleme isteği mesajı paylaşmak için bir platform seçin.",
+    "rechargeRequestTemplate": "Merhaba! KeepSIMs kartım ({phone}) yakında sona eriyor. Benim için yükleme yapabilir misin? Teşekkürler!",
+    "@rechargeRequestTemplate": {
+        "placeholders": {
+            "phone": {
+                "type": "String"
+            }
+        }
+    },
+    "requestViaWhatsApp": "WhatsApp ile İste",
+    "couldNotLaunchLink": "{platformName} bağlantısı açılamadı: {error}",
+    "@couldNotLaunchLink": {
+        "placeholders": {
+            "platformName": {
+                "type": "String"
+            },
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "couldNotLaunchTelegram": "Telegram bağlantısı açılamadı: {error}",
+    "@couldNotLaunchTelegram": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "protectionLayersLabel": "Koruma Katmanları",
+    "autoNotifyDisabled": "Otomatik Bildirim: Devre Dışı",
+    "noActiveAlertSchedule": "SIM kartınızın aktif bir uyarı bildirim programı yok. Otomatik hatırlatmalar veya devre dışı bırakma uyarıları almayacaksınız.",
+    "askOwnerConfigureAlerts": "Lütfen uyarıları yapılandırması için hane sahibinden isteyin.",
+    "configureAutoNotify": "Otomatik Bildirimi Yapılandır",
+    "activeLabel": "AKTİF",
+    "pausedHomeMode": "DURAKLATILDI (EV MODU)",
+    "pausedLabel": "DURAKLATILDI",
+    "everyHour": "Her 1 saatte",
+    "everyNDays": "Her {days} günde",
+    "@everyNDays": {
+        "placeholders": {
+            "days": {
+                "type": "int"
+            }
+        }
+    },
+    "nextAlertCheck": "Sıradaki Uyarı Kontrolü",
+    "premiumKeepAliveRefill": "Premium Aktif Tutma Yüklemesi",
+    "autoRefillIncludedText": "Otomatik yükleme dahil - ~3,5 USD (telekom, KDV dahil) her 85 günde,\\nsıradaki yükleme {date} tarihinde",
+    "@autoRefillIncludedText": {
+        "placeholders": {
+            "date": {
+                "type": "String"
+            }
+        }
+    },
+    "premiumKeepAliveDisabled": "Premium aktif tutma yüklemesi şu anda devre dışı.",
+    "customAutoRefill": "Özel Otomatik Yükleme",
+    "addAdditionalScheduledRecharge": "SIM'inizde ekstra bakiye tutmak için ek bir planlı yükleme tutarı ekleyin.",
+    "askOwnerConfigureRefill": "Lütfen Otomatik Yüklemeyi yapılandırması için hane sahibinden isteyin.",
+    "configureCustomAutoRefill": "Özel Otomatik Yüklemeyi Yapılandır",
+    "rechargeAmount": "Yükleme Tutarı",
+    "refillInterval": "Yükleme Aralığı",
+    "nextRefillDue": "Sıradaki Yükleme Tarihi",
+    "failedRefillAttempts": "Başarısız Yükleme Denemeleri",
+    "retriesCount": "{count} / 4 deneme",
+    "@retriesCount": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "editRefillAmount": "Yükleme Tutarını Düzenle",
+    "refillExecutionsHistory": "Yükleme İşlemleri Geçmişi",
+    "renewalExecutionsHistory": "Yenileme İşlemleri Geçmişi",
+    "noHistoricalTopup": "Bu hat için henüz geçmiş yükleme işlemi kaydedilmedi.",
+    "noHistoricalRenewal": "Bu hat için henüz geçmiş yenileme işlemi kaydedilmedi.",
+    "viewAllHistory": "Tüm Geçmişi Görüntüle",
+    "securityActivityLogs": "Güvenlik Etkinlik Günlükleri",
+    "clearLogs": "Günlükleri Temizle",
+    "noActivityLogsRecorded": "Bu hat için henüz etkinlik günlüğü kaydedilmedi.",
+    "activityLogDeleted": "Etkinlik günlüğü kaydı silindi.",
+    "activityLogsCleared": "Etkinlik günlükleri başarıyla temizlendi.",
+    "autoRenewalStatusUpdated": "Otomatik Yenileme başarıyla {status} oldu.",
+    "@autoRenewalStatusUpdated": {
+        "placeholders": {
+            "status": {
+                "type": "String"
+            }
+        }
+    },
+    "failedToUpdateSchedule": "Program güncellenemedi: {error}",
+    "@failedToUpdateSchedule": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "premiumRefillEnabled": "Premium aktif tutma yüklemesi başarıyla etkinleştirildi.",
+    "failedToEnableAutoRefill": "Otomatik yükleme etkinleştirilemedi: {error}",
+    "@failedToEnableAutoRefill": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "removeScheduleTitle": "Programı Kaldır",
+    "confirmDeleteAutoRefill": "Bu otomatik yükleme programını silmek istediğinizden emin misiniz? SIM sağlık puanınız önemli ölçüde düşecek ve devre dışı kalma riskini artıracaktır.",
+    "confirmDeleteAutoRenewal": "Bu otomatik yenileme programını silmek istediğinizden emin misiniz? SIM sağlık puanınız önemli ölçüde düşecek ve devre dışı kalma riskini artıracaktır.",
+    "autoRefillRemoved": "Otomatik yükleme programı başarıyla kaldırıldı.",
+    "autoRenewalRemoved": "Otomatik yenileme programı başarıyla kaldırıldı.",
+    "failedToDeleteSchedule": "Program silinemedi: {error}",
+    "@failedToDeleteSchedule": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "refillRetrySuccess": "Yükleme tekrar denemesi başarıyla tamamlandı!",
+    "renewalRetrySuccess": "Yenileme tekrar denemesi başarıyla tamamlandı!",
+    "retryFailed": "Tekrar deneme başarısız oldu: {error}",
+    "@retryFailed": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "retryExecutionError": "Tekrar deneme yürütme hatası: {error}",
+    "@retryExecutionError": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "failedToDeleteActivityLog": "Etkinlik günlüğü silinemedi: {error}",
+    "@failedToDeleteActivityLog": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "failedToClearActivityLogs": "Etkinlik günlükleri temizlenemedi: {error}",
+    "@failedToClearActivityLogs": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "removeProtectionTitle": "Korumayı Kaldır",
+    "confirmRemoveProtectionDesc": "{name}'i korumayı durdurmak istediğinizden emin misiniz? Bu SIM hattı için planlanmış yüklemeler kalıcı olarak iptal edilecek.",
+    "@confirmRemoveProtectionDesc": {
+        "placeholders": {
+            "name": {
+                "type": "String"
+            }
+        }
+    },
+    "simLineProtectionRemoved": "SIM hattı koruması başarıyla kaldırıldı.",
+    "failedToDeleteSimLine": "Silinemedi: {error}",
+    "@failedToDeleteSimLine": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "editSimNameTitle": "SIM Adını Düzenle",
+    "enterNicknameInstruction": "Bu SIM kart hattı için bir takma ad girin:",
+    "nicknameExampleHint": "örn. Orange Egypt SIM'im",
+    "simNameUpdatedSuccess": "SIM adı başarıyla güncellendi.",
+    "failedToUpdateSimName": "SIM adı güncellenemedi: {error}",
+    "@failedToUpdateSimName": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "saveButton": "Kaydet",
+    "deleteButton": "Sil",
+    "autoNotifySchedule": "Otomatik Bildirim Programı",
+    "renewalCheckInterval": "Yenileme Kontrol Aralığı",
+    "editNotificationConfig": "Bildirim Yapılandırmasını Düzenle",
+    "openTicket": "Talep Aç",
+    "offlineRefillLabel": "Çevrimdışı Yükleme",
+    "categoryLabel": "Kategori",
+    "techSupportCategory": "Teknik Destek",
+    "billingWalletCategory": "Faturalama ve Cüzdan",
+    "simLinesCategory": "SIM Hat Yönetimi",
+    "feedbackOtherCategory": "Geri Bildirim ve Diğer",
+    "subjectLabel": "Konu",
+    "subjectHint": "Sorunun kısa özeti",
+    "descriptionLabel": "Açıklama",
+    "descriptionHint": "Sorununuzu detaylı olarak açıklayın...",
+    "attachmentLabel": "Ek (İsteğe Bağlı)",
+    "uploadScreenshot": "Ekran Görüntüsü Yükle",
+    "submitTicketButton": "Talebi Gönder",
+    "pleaseFillFields": "Lütfen konuyu ve açıklamayı doldurun",
+    "ticketSubmittedSuccess": "Talep başarıyla gönderildi!",
+    "lastRefillLabel": "Son Yükleme",
+    "noRefillYet": "Henüz yükleme yok",
+    "nextAlertLabel": "Sıradaki Uyarı",
+    "protectionLabel": "KORUMA",
+    "actionRequiredLabel": "İşlem Gerekli",
+    "protectionOffLabel": "Koruma Kapalı",
+    "notSet": "Ayarlanmadı",
+    "homeMode": "Ev Modu",
+    "incidentChannelsTitle": "Olay Kanalları",
+    "topUpSuccessTitle": "Yükleme Başarılı",
+    "topUpSuccessDesc": "Otomatik SIM geçerlilik uzatması başarıyla tamamlandığında beni bilgilendir.",
+    "topUpFailedTitle": "Yükleme Başarısız (Kritik)",
+    "topUpFailedDesc": "Operatör veya cüzdan sorunları nedeniyle otomatik yüklemeler başarısız olduğunda kritik uyarılar.",
+    "walletLowTitle": "Düşük Cüzdan Bakiyesi",
+    "walletLowDesc": "Birincil bakiye güvenlik eşiğinin altına düştüğünde beni uyar.",
+    "walletDepletedTitle": "Cüzdan Tükendi",
+    "walletDepletedDesc": "Cüzdan bakiyesi tamamen tükendiğinde ve yenilemeler durduğunda askıya alınmış uyarılar.",
+    "lineCriticalTitle": "Geçerlilik Süresi Dolma Uyarısı",
+    "lineCriticalDesc": "Bir SIM geçerlilik penceresi 48 saat içinde sona erecekken beni uyar.",
+    "lineEnteringGraceTitle": "Ek Süreye Giriliyor",
+    "lineEnteringGraceDesc": "Operatör devre dışı bırakma ek süreleri tespit edildiğinde beni bilgilendir.",
+    "geoFenceTriggeredTitle": "Konum / Dolaşım Uyarıları",
+    "geoFenceTriggeredDesc": "Operatör dolaşım kümelerini veya ağ düğümlerini değiştirdiğinde uyarılar.",
+    "welcomeHomeReadyTitle": "Eve Hoş Geldin Senkronu",
+    "welcomeHomeReadyDesc": "Ana ülke ağ düğümü otomatik senkronizasyonları tetiklediğinde uyarılar.",
+    "referralRewardTitle": "Davet ve Ödüller",
+    "referralRewardDesc": "Arkadaş davetleri cüzdanıma promosyon bakiyesi yatırdığında beni bilgilendir.",
+    "systemUpdatesTitle": "Genel Sistem Güncellemeleri",
+    "systemUpdatesDesc": "Önemli motor güncellemeleri, bakım ve platform duyuruları."
+}

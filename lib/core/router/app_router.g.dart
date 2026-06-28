@@ -6,40 +6,103 @@ part of 'app_router.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$appRouterHash() => r'57eb23a44eb7a01671f7683fedb63e48b04c3526';
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
 
-/// Provides the app's GoRouter instance with auth-based redirects.
-///
-/// Copied from [appRouter].
-@ProviderFor(appRouter)
-final appRouterProvider = AutoDisposeProvider<GoRouter>.internal(
-  appRouter,
-  name: r'appRouterProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$appRouterHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+@ProviderFor(SplashCompleted)
+final splashCompletedProvider = SplashCompletedProvider._();
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef AppRouterRef = AutoDisposeProviderRef<GoRouter>;
+final class SplashCompletedProvider
+    extends $NotifierProvider<SplashCompleted, bool> {
+  SplashCompletedProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'splashCompletedProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$splashCompletedHash();
+
+  @$internal
+  @override
+  SplashCompleted create() => SplashCompleted();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(bool value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<bool>(value),
+    );
+  }
+}
+
 String _$splashCompletedHash() => r'e7593a4ebf31d2994b23da76b399932fbf19c1e7';
 
-/// See also [SplashCompleted].
-@ProviderFor(SplashCompleted)
-final splashCompletedProvider =
-    AutoDisposeNotifierProvider<SplashCompleted, bool>.internal(
-      SplashCompleted.new,
-      name: r'splashCompletedProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$splashCompletedHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+abstract class _$SplashCompleted extends $Notifier<bool> {
+  bool build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<bool, bool>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<bool, bool>,
+              bool,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
 
-typedef _$SplashCompleted = AutoDisposeNotifier<bool>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
+/// Provides the app's GoRouter instance with auth-based redirects.
+
+@ProviderFor(appRouter)
+final appRouterProvider = AppRouterProvider._();
+
+/// Provides the app's GoRouter instance with auth-based redirects.
+
+final class AppRouterProvider
+    extends $FunctionalProvider<GoRouter, GoRouter, GoRouter>
+    with $Provider<GoRouter> {
+  /// Provides the app's GoRouter instance with auth-based redirects.
+  AppRouterProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'appRouterProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$appRouterHash();
+
+  @$internal
+  @override
+  $ProviderElement<GoRouter> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  GoRouter create(Ref ref) {
+    return appRouter(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(GoRouter value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<GoRouter>(value),
+    );
+  }
+}
+
+String _$appRouterHash() => r'8c044da1290985de9cdcdfca3b3f13cafba46e39';

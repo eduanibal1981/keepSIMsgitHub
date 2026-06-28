@@ -39,7 +39,7 @@ class OfflineRefillController extends _$OfflineRefillController {
 
 @riverpod
 Future<List<CarrierUssdSuggestion>> carrierUssdSuggestions(
-  CarrierUssdSuggestionsRef ref,
+  Ref ref,
   String carrierId,
 ) async {
   final repo = ref.watch(offlineRefillRepositoryProvider);

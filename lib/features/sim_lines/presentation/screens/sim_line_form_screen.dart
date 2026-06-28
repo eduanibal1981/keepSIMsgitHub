@@ -11,6 +11,7 @@ import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/country_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/carrier_model.dart';
 //import 'package:keep_sims/features/sim_lines/domain/entities/sim_line.dart';
+import 'package:keep_sims/l10n/app_localizations.dart';
 import 'package:keep_sims/features/settings/presentation/screens/paypal_simulator_screen.dart';
 import 'package:keep_sims/features/sim_lines/data/repositories/sim_lines_repository_impl.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
@@ -88,9 +89,9 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final lines = ref.watch(simLinesControllerProvider).valueOrNull ?? [];
-    final countries = ref.watch(supportedCountriesProvider).valueOrNull ?? [];
-    final user = ref.watch(authControllerProvider).valueOrNull;
+    final lines = ref.watch(simLinesControllerProvider).value ?? [];
+    final countries = ref.watch(supportedCountriesProvider).value ?? [];
+    final user = ref.watch(authControllerProvider).value;
     final globalTier = user?.subscriptionTier ?? 'standard';
 
     final existingLinesCount = _isEdit
@@ -107,7 +108,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
         ? <Carrier>[]
         : ref
                   .watch(carriersForCountryProvider(_selectedCountry!.id))
-                  .valueOrNull ??
+                  .value ??
               [];
 
     // Pre-populate carrier in edit mode if needed
@@ -136,7 +137,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
       final ruleAsync = ref.watch(
         carrierRuleProvider(_selectedCarrier!.id),
       );
-      premiumRule = ruleAsync.valueOrNull;
+      premiumRule = ruleAsync.value;
       isPremiumLoading = ruleAsync.isLoading;
     }
 
@@ -144,7 +145,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
       backgroundColor: context.scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(
-          _isEdit ? 'Edit Protected Line' : 'Protect New Line',
+          _isEdit ? AppLocalizations.of(context)!.editProtectedLine : AppLocalizations.of(context)!.protectNewLine,
           style: AppTextStyles.headlineLarge.copyWith(
             color: context.onSurfaceColor,
           ),
@@ -312,8 +313,8 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                         ),
                         child: Text(
                           _isEdit
-                              ? 'Save Changes'
-                              : 'Activate Shield Protection',
+                              ? AppLocalizations.of(context)!.saveChanges
+                              : AppLocalizations.of(context)!.activateShieldProtection,
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 16,
@@ -486,15 +487,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
       child: DropdownButtonHideUnderline(
         child: DropdownButtonFormField<Carrier>(
           value: _selectedCarrier,
-          hint: Text(
-            'Select Carrier brand',
-            style: TextStyle(
-              color: isDark
-                  ? AppColors.textTertiaryDark
-                  : AppColors.textTertiaryLight,
-              fontSize: 16,
-            ),
-          ),
+          hint: Text(AppLocalizations.of(context)!.carrier, style: const TextStyle(color: Colors.white54)),
           dropdownColor: isDark ? AppColors.darkSurface : Colors.white,
           style: TextStyle(color: context.onSurfaceColor, fontSize: 16),
           icon: Icon(
@@ -707,7 +700,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
 
   Widget _buildTierGrid(CarrierRule? premiumRule, bool isPremiumLoading) {
     final isDark = context.isDarkMode;
-    final currentLines = ref.read(simLinesControllerProvider).valueOrNull ?? [];
+    final currentLines = ref.read(simLinesControllerProvider).value ?? [];
 
     // Check if free plan should be disabled
     final hasFreeLine = currentLines.any(
@@ -1085,7 +1078,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
     }
     final fullPhoneNumber = '${_selectedCountry!.dialingCode}$localNumber';
 
-    final currentLines = ref.read(simLinesControllerProvider).valueOrNull ?? [];
+    final currentLines = ref.read(simLinesControllerProvider).value ?? [];
     final isDuplicate = currentLines.any(
       (l) => l.phoneNumber == fullPhoneNumber && l.id != widget.id,
     );

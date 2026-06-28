@@ -45,13 +45,13 @@ class PaymentsController extends _$PaymentsController {
   FutureOr<PaymentsState> build() async {
     // 1. Watch auth state
     final authProfile = ref.watch(authControllerProvider);
-    final profile = authProfile.valueOrNull;
+    final profile = authProfile.value;
     if (profile == null) {
       throw Exception('User is not authenticated');
     }
 
     // 2. Watch wallet state reactively
-    final walletState = ref.watch(walletControllerProvider).valueOrNull;
+    final walletState = ref.watch(walletControllerProvider).value;
     final wallet = walletState?.wallet;
 
     final repo = ref.watch(paymentsRepositoryProvider);
@@ -74,7 +74,7 @@ class PaymentsController extends _$PaymentsController {
     required int expiryMonth,
     required int expiryYear,
   }) async {
-    final current = state.valueOrNull;
+    final current = state.value;
     if (current == null) return 'Session expired. Please sign in again.';
 
     state = AsyncData(current.copyWith(isSubmitting: true));
@@ -99,7 +99,7 @@ class PaymentsController extends _$PaymentsController {
 
   /// Deletes a payment method. Returns error string if it fails, null on success.
   Future<String?> deletePaymentMethod(String id) async {
-    final current = state.valueOrNull;
+    final current = state.value;
     if (current == null) return 'Session expired. Please sign in again.';
 
     state = AsyncData(current.copyWith(isSubmitting: true));
@@ -119,7 +119,7 @@ class PaymentsController extends _$PaymentsController {
 
   /// Sets a payment card as default. Returns error string if it fails, null on success.
   Future<String?> setDefaultPaymentMethod(String id) async {
-    final current = state.valueOrNull;
+    final current = state.value;
     if (current == null) return 'Session expired. Please sign in again.';
 
     state = AsyncData(current.copyWith(isSubmitting: true));
@@ -143,7 +143,7 @@ class PaymentsController extends _$PaymentsController {
     required double autoFundThreshold,
     required double autoFundAmount,
   }) async {
-    final current = state.valueOrNull;
+    final current = state.value;
     if (current == null) return 'Session expired. Please sign in again.';
 
     state = AsyncData(current.copyWith(isSubmitting: true));

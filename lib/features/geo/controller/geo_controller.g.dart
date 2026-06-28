@@ -6,21 +6,57 @@ part of 'geo_controller.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$geoControllerHash() => r'6334d45809045e2d8ede1715da21ff6e8a2e7b2f';
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
 
-/// See also [GeoController].
 @ProviderFor(GeoController)
-final geoControllerProvider =
-    AutoDisposeNotifierProvider<GeoController, GeoState>.internal(
-      GeoController.new,
-      name: r'geoControllerProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$geoControllerHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+final geoControllerProvider = GeoControllerProvider._();
 
-typedef _$GeoController = AutoDisposeNotifier<GeoState>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
+final class GeoControllerProvider
+    extends $NotifierProvider<GeoController, GeoState> {
+  GeoControllerProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'geoControllerProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$geoControllerHash();
+
+  @$internal
+  @override
+  GeoController create() => GeoController();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(GeoState value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<GeoState>(value),
+    );
+  }
+}
+
+String _$geoControllerHash() => r'5a37081d2f8d17ccf84c323117987d8901ec75d4';
+
+abstract class _$GeoController extends $Notifier<GeoState> {
+  GeoState build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<GeoState, GeoState>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<GeoState, GeoState>,
+              GeoState,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}

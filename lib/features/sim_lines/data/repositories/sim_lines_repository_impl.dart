@@ -66,6 +66,19 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
             .toList();
       }
       throw Exception('Failed to load SIM lines: ${e.message}');
+    } catch (e) {
+      final cached = _cache.readJson('cached_sim_lines');
+      if (cached is List) {
+        return cached
+            .map((json) => SimLine.fromJson(json as Map<String, dynamic>))
+            .toList();
+      }
+      final errStr = e.toString();
+      if (errStr.contains('SocketException') ||
+          errStr.contains('Failed host lookup')) {
+        throw Exception('No internet connection. Please check your network.');
+      }
+      throw Exception('Failed to load SIM lines: $errStr');
     }
   }
 
@@ -305,6 +318,19 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
             .toList();
       }
       throw Exception('Failed to load countries: ${e.message}');
+    } catch (e) {
+      final cached = _cache.readJson('cached_countries');
+      if (cached is List) {
+        return cached
+            .map((json) => Country.fromJson(json as Map<String, dynamic>))
+            .toList();
+      }
+      final errStr = e.toString();
+      if (errStr.contains('SocketException') ||
+          errStr.contains('Failed host lookup')) {
+        throw Exception('No internet connection. Please check your network.');
+      }
+      throw Exception('Failed to load countries: $errStr');
     }
   }
 
@@ -328,6 +354,16 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
 
   @override
   Future<CarrierRule?> getCarrierRule(String carrierId) async {
+    final cacheKey = 'cached_carrier_rule_$carrierId';
+
+    if (_connectivity.isOffline) {
+      final cached = _cache.readJson(cacheKey);
+      if (cached != null) {
+        return CarrierRule.fromJson(cached as Map<String, dynamic>);
+      }
+      return null;
+    }
+
     try {
       final response = await _supabase
           .from('carrier_rules')
@@ -336,6 +372,7 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
           .eq('rule_type', 'default')
           .maybeSingle();
 
+      dynamic ruleData;
       if (response == null) {
         // Fallback to prepaid if default rule_type doesn't exist
         final prepaidResponse = await _supabase
@@ -344,15 +381,34 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
             .eq('carrier_id', carrierId)
             .eq('rule_type', 'prepaid')
             .maybeSingle();
-            
+
         if (prepaidResponse == null) {
-            return null;
+          return null;
         }
-        return CarrierRule.fromJson(prepaidResponse);
+        ruleData = prepaidResponse;
+      } else {
+        ruleData = response;
       }
-      return CarrierRule.fromJson(response);
+
+      await _cache.writeJson(cacheKey, ruleData);
+      return CarrierRule.fromJson(ruleData);
     } on PostgrestException catch (e) {
+      final cached = _cache.readJson(cacheKey);
+      if (cached != null) {
+        return CarrierRule.fromJson(cached as Map<String, dynamic>);
+      }
       throw Exception('Failed to load carrier rule: ${e.message}');
+    } catch (e) {
+      final cached = _cache.readJson(cacheKey);
+      if (cached != null) {
+        return CarrierRule.fromJson(cached as Map<String, dynamic>);
+      }
+      final errStr = e.toString();
+      if (errStr.contains('SocketException') ||
+          errStr.contains('Failed host lookup')) {
+        throw Exception('No internet connection. Please check your network.');
+      }
+      throw Exception('Failed to load carrier rule: $errStr');
     }
   }
 
@@ -395,6 +451,21 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
             .toList();
       }
       throw Exception('Failed to load line activity logs: ${e.message}');
+    } catch (e) {
+      final cached = _cache.readJson(cacheKey);
+      if (cached is List) {
+        return cached
+            .map(
+              (json) => LineActivityLog.fromJson(json as Map<String, dynamic>),
+            )
+            .toList();
+      }
+      final errStr = e.toString();
+      if (errStr.contains('SocketException') ||
+          errStr.contains('Failed host lookup')) {
+        throw Exception('No internet connection. Please check your network.');
+      }
+      throw Exception('Failed to load line activity logs: $errStr');
     }
   }
 
@@ -544,7 +615,7 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
 }
 
 @riverpod
-SimLinesRepository simLinesRepository(SimLinesRepositoryRef ref) {
+SimLinesRepository simLinesRepository(Ref ref) {
   final cache = ref.watch(localCacheServiceProvider);
   final connectivity = ref.watch(connectivityServiceProvider.notifier);
   final syncQueue = ref.watch(syncQueueProvider.notifier);

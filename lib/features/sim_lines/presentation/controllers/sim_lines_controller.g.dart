@@ -6,428 +6,319 @@ part of 'sim_lines_controller.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$supportedCountriesHash() =>
-    r'70bfcd26d8c531ed5804bd12b519011c6f929ac1';
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
 
-/// See also [supportedCountries].
-@ProviderFor(supportedCountries)
-final supportedCountriesProvider =
-    AutoDisposeFutureProvider<List<Country>>.internal(
-      supportedCountries,
-      name: r'supportedCountriesProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$supportedCountriesHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+@ProviderFor(SimLinesController)
+final simLinesControllerProvider = SimLinesControllerProvider._();
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef SupportedCountriesRef = AutoDisposeFutureProviderRef<List<Country>>;
-String _$carriersForCountryHash() =>
-    r'b8dbcc9128fc84e8e1874a37162a1104399a8e92';
-
-/// Copied from Dart SDK
-class _SystemHash {
-  _SystemHash._();
-
-  static int combine(int hash, int value) {
-    // ignore: parameter_assignments
-    hash = 0x1fffffff & (hash + value);
-    // ignore: parameter_assignments
-    hash = 0x1fffffff & (hash + ((0x0007ffff & hash) << 10));
-    return hash ^ (hash >> 6);
-  }
-
-  static int finish(int hash) {
-    // ignore: parameter_assignments
-    hash = 0x1fffffff & (hash + ((0x03ffffff & hash) << 3));
-    // ignore: parameter_assignments
-    hash = hash ^ (hash >> 11);
-    return 0x1fffffff & (hash + ((0x00003fff & hash) << 15));
-  }
-}
-
-/// See also [carriersForCountry].
-@ProviderFor(carriersForCountry)
-const carriersForCountryProvider = CarriersForCountryFamily();
-
-/// See also [carriersForCountry].
-class CarriersForCountryFamily extends Family<AsyncValue<List<Carrier>>> {
-  /// See also [carriersForCountry].
-  const CarriersForCountryFamily();
-
-  /// See also [carriersForCountry].
-  CarriersForCountryProvider call(String countryId) {
-    return CarriersForCountryProvider(countryId);
-  }
-
-  @override
-  CarriersForCountryProvider getProviderOverride(
-    covariant CarriersForCountryProvider provider,
-  ) {
-    return call(provider.countryId);
-  }
-
-  static const Iterable<ProviderOrFamily>? _dependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
-
-  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
-      _allTransitiveDependencies;
-
-  @override
-  String? get name => r'carriersForCountryProvider';
-}
-
-/// See also [carriersForCountry].
-class CarriersForCountryProvider
-    extends AutoDisposeFutureProvider<List<Carrier>> {
-  /// See also [carriersForCountry].
-  CarriersForCountryProvider(String countryId)
-    : this._internal(
-        (ref) => carriersForCountry(ref as CarriersForCountryRef, countryId),
-        from: carriersForCountryProvider,
-        name: r'carriersForCountryProvider',
-        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-            ? null
-            : _$carriersForCountryHash,
-        dependencies: CarriersForCountryFamily._dependencies,
-        allTransitiveDependencies:
-            CarriersForCountryFamily._allTransitiveDependencies,
-        countryId: countryId,
+final class SimLinesControllerProvider
+    extends $AsyncNotifierProvider<SimLinesController, List<SimLine>> {
+  SimLinesControllerProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'simLinesControllerProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
       );
 
-  CarriersForCountryProvider._internal(
-    super._createNotifier, {
-    required super.name,
-    required super.dependencies,
-    required super.allTransitiveDependencies,
-    required super.debugGetCreateSourceHash,
-    required super.from,
-    required this.countryId,
-  }) : super.internal();
-
-  final String countryId;
-
   @override
-  Override overrideWith(
-    FutureOr<List<Carrier>> Function(CarriersForCountryRef provider) create,
-  ) {
-    return ProviderOverride(
-      origin: this,
-      override: CarriersForCountryProvider._internal(
-        (ref) => create(ref as CarriersForCountryRef),
-        from: from,
-        name: null,
-        dependencies: null,
-        allTransitiveDependencies: null,
-        debugGetCreateSourceHash: null,
-        countryId: countryId,
-      ),
-    );
-  }
+  String debugGetCreateSourceHash() => _$simLinesControllerHash();
 
+  @$internal
   @override
-  AutoDisposeFutureProviderElement<List<Carrier>> createElement() {
-    return _CarriersForCountryProviderElement(this);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is CarriersForCountryProvider && other.countryId == countryId;
-  }
-
-  @override
-  int get hashCode {
-    var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, countryId.hashCode);
-
-    return _SystemHash.finish(hash);
-  }
-}
-
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-mixin CarriersForCountryRef on AutoDisposeFutureProviderRef<List<Carrier>> {
-  /// The parameter `countryId` of this provider.
-  String get countryId;
-}
-
-class _CarriersForCountryProviderElement
-    extends AutoDisposeFutureProviderElement<List<Carrier>>
-    with CarriersForCountryRef {
-  _CarriersForCountryProviderElement(super.provider);
-
-  @override
-  String get countryId => (origin as CarriersForCountryProvider).countryId;
-}
-
-String _$carrierRuleHash() => r'8b8517ec4dfbfc986ddd909c4448e2d099593faf';
-
-/// See also [carrierRule].
-@ProviderFor(carrierRule)
-const carrierRuleProvider = CarrierRuleFamily();
-
-/// See also [carrierRule].
-class CarrierRuleFamily extends Family<AsyncValue<CarrierRule?>> {
-  /// See also [carrierRule].
-  const CarrierRuleFamily();
-
-  /// See also [carrierRule].
-  CarrierRuleProvider call(String carrierId) {
-    return CarrierRuleProvider(carrierId);
-  }
-
-  @override
-  CarrierRuleProvider getProviderOverride(
-    covariant CarrierRuleProvider provider,
-  ) {
-    return call(provider.carrierId);
-  }
-
-  static const Iterable<ProviderOrFamily>? _dependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
-
-  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
-      _allTransitiveDependencies;
-
-  @override
-  String? get name => r'carrierRuleProvider';
-}
-
-/// See also [carrierRule].
-class CarrierRuleProvider extends AutoDisposeFutureProvider<CarrierRule?> {
-  /// See also [carrierRule].
-  CarrierRuleProvider(String carrierId)
-    : this._internal(
-        (ref) => carrierRule(ref as CarrierRuleRef, carrierId),
-        from: carrierRuleProvider,
-        name: r'carrierRuleProvider',
-        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-            ? null
-            : _$carrierRuleHash,
-        dependencies: CarrierRuleFamily._dependencies,
-        allTransitiveDependencies: CarrierRuleFamily._allTransitiveDependencies,
-        carrierId: carrierId,
-      );
-
-  CarrierRuleProvider._internal(
-    super._createNotifier, {
-    required super.name,
-    required super.dependencies,
-    required super.allTransitiveDependencies,
-    required super.debugGetCreateSourceHash,
-    required super.from,
-    required this.carrierId,
-  }) : super.internal();
-
-  final String carrierId;
-
-  @override
-  Override overrideWith(
-    FutureOr<CarrierRule?> Function(CarrierRuleRef provider) create,
-  ) {
-    return ProviderOverride(
-      origin: this,
-      override: CarrierRuleProvider._internal(
-        (ref) => create(ref as CarrierRuleRef),
-        from: from,
-        name: null,
-        dependencies: null,
-        allTransitiveDependencies: null,
-        debugGetCreateSourceHash: null,
-        carrierId: carrierId,
-      ),
-    );
-  }
-
-  @override
-  AutoDisposeFutureProviderElement<CarrierRule?> createElement() {
-    return _CarrierRuleProviderElement(this);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is CarrierRuleProvider && other.carrierId == carrierId;
-  }
-
-  @override
-  int get hashCode {
-    var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, carrierId.hashCode);
-
-    return _SystemHash.finish(hash);
-  }
-}
-
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-mixin CarrierRuleRef on AutoDisposeFutureProviderRef<CarrierRule?> {
-  /// The parameter `carrierId` of this provider.
-  String get carrierId;
-}
-
-class _CarrierRuleProviderElement
-    extends AutoDisposeFutureProviderElement<CarrierRule?>
-    with CarrierRuleRef {
-  _CarrierRuleProviderElement(super.provider);
-
-  @override
-  String get carrierId => (origin as CarrierRuleProvider).carrierId;
-}
-
-String _$simLineActivityLogsHash() =>
-    r'e44c4e8afe24bf4c29f2bad20db784c72c129622';
-
-/// See also [simLineActivityLogs].
-@ProviderFor(simLineActivityLogs)
-const simLineActivityLogsProvider = SimLineActivityLogsFamily();
-
-/// See also [simLineActivityLogs].
-class SimLineActivityLogsFamily
-    extends Family<AsyncValue<List<LineActivityLog>>> {
-  /// See also [simLineActivityLogs].
-  const SimLineActivityLogsFamily();
-
-  /// See also [simLineActivityLogs].
-  SimLineActivityLogsProvider call(String simLineId) {
-    return SimLineActivityLogsProvider(simLineId);
-  }
-
-  @override
-  SimLineActivityLogsProvider getProviderOverride(
-    covariant SimLineActivityLogsProvider provider,
-  ) {
-    return call(provider.simLineId);
-  }
-
-  static const Iterable<ProviderOrFamily>? _dependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
-
-  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
-      _allTransitiveDependencies;
-
-  @override
-  String? get name => r'simLineActivityLogsProvider';
-}
-
-/// See also [simLineActivityLogs].
-class SimLineActivityLogsProvider
-    extends AutoDisposeFutureProvider<List<LineActivityLog>> {
-  /// See also [simLineActivityLogs].
-  SimLineActivityLogsProvider(String simLineId)
-    : this._internal(
-        (ref) => simLineActivityLogs(ref as SimLineActivityLogsRef, simLineId),
-        from: simLineActivityLogsProvider,
-        name: r'simLineActivityLogsProvider',
-        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-            ? null
-            : _$simLineActivityLogsHash,
-        dependencies: SimLineActivityLogsFamily._dependencies,
-        allTransitiveDependencies:
-            SimLineActivityLogsFamily._allTransitiveDependencies,
-        simLineId: simLineId,
-      );
-
-  SimLineActivityLogsProvider._internal(
-    super._createNotifier, {
-    required super.name,
-    required super.dependencies,
-    required super.allTransitiveDependencies,
-    required super.debugGetCreateSourceHash,
-    required super.from,
-    required this.simLineId,
-  }) : super.internal();
-
-  final String simLineId;
-
-  @override
-  Override overrideWith(
-    FutureOr<List<LineActivityLog>> Function(SimLineActivityLogsRef provider)
-    create,
-  ) {
-    return ProviderOverride(
-      origin: this,
-      override: SimLineActivityLogsProvider._internal(
-        (ref) => create(ref as SimLineActivityLogsRef),
-        from: from,
-        name: null,
-        dependencies: null,
-        allTransitiveDependencies: null,
-        debugGetCreateSourceHash: null,
-        simLineId: simLineId,
-      ),
-    );
-  }
-
-  @override
-  AutoDisposeFutureProviderElement<List<LineActivityLog>> createElement() {
-    return _SimLineActivityLogsProviderElement(this);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is SimLineActivityLogsProvider && other.simLineId == simLineId;
-  }
-
-  @override
-  int get hashCode {
-    var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, simLineId.hashCode);
-
-    return _SystemHash.finish(hash);
-  }
-}
-
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-mixin SimLineActivityLogsRef
-    on AutoDisposeFutureProviderRef<List<LineActivityLog>> {
-  /// The parameter `simLineId` of this provider.
-  String get simLineId;
-}
-
-class _SimLineActivityLogsProviderElement
-    extends AutoDisposeFutureProviderElement<List<LineActivityLog>>
-    with SimLineActivityLogsRef {
-  _SimLineActivityLogsProviderElement(super.provider);
-
-  @override
-  String get simLineId => (origin as SimLineActivityLogsProvider).simLineId;
+  SimLinesController create() => SimLinesController();
 }
 
 String _$simLinesControllerHash() =>
-    r'37fd9c452126464010342a0e94a976c738c2555e';
+    r'20071d5e30c513bbcf5a0c50f0bae440b8f6c623';
 
-/// See also [SimLinesController].
-@ProviderFor(SimLinesController)
-final simLinesControllerProvider =
-    AsyncNotifierProvider<SimLinesController, List<SimLine>>.internal(
-      SimLinesController.new,
-      name: r'simLinesControllerProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$simLinesControllerHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+abstract class _$SimLinesController extends $AsyncNotifier<List<SimLine>> {
+  FutureOr<List<SimLine>> build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<AsyncValue<List<SimLine>>, List<SimLine>>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<List<SimLine>>, List<SimLine>>,
+              AsyncValue<List<SimLine>>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
 
-typedef _$SimLinesController = AsyncNotifier<List<SimLine>>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
+@ProviderFor(supportedCountries)
+final supportedCountriesProvider = SupportedCountriesProvider._();
+
+final class SupportedCountriesProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<Country>>,
+          List<Country>,
+          FutureOr<List<Country>>
+        >
+    with $FutureModifier<List<Country>>, $FutureProvider<List<Country>> {
+  SupportedCountriesProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'supportedCountriesProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$supportedCountriesHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<Country>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<Country>> create(Ref ref) {
+    return supportedCountries(ref);
+  }
+}
+
+String _$supportedCountriesHash() =>
+    r'a25db646dc2dd8068078c7fd94561b4fb26ebfdf';
+
+@ProviderFor(carriersForCountry)
+final carriersForCountryProvider = CarriersForCountryFamily._();
+
+final class CarriersForCountryProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<Carrier>>,
+          List<Carrier>,
+          FutureOr<List<Carrier>>
+        >
+    with $FutureModifier<List<Carrier>>, $FutureProvider<List<Carrier>> {
+  CarriersForCountryProvider._({
+    required CarriersForCountryFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'carriersForCountryProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$carriersForCountryHash();
+
+  @override
+  String toString() {
+    return r'carriersForCountryProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<List<Carrier>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<Carrier>> create(Ref ref) {
+    final argument = this.argument as String;
+    return carriersForCountry(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is CarriersForCountryProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$carriersForCountryHash() =>
+    r'5bf84b68a0160d33be2656a6dca8d70ad839bf54';
+
+final class CarriersForCountryFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<List<Carrier>>, String> {
+  CarriersForCountryFamily._()
+    : super(
+        retry: null,
+        name: r'carriersForCountryProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  CarriersForCountryProvider call(String countryId) =>
+      CarriersForCountryProvider._(argument: countryId, from: this);
+
+  @override
+  String toString() => r'carriersForCountryProvider';
+}
+
+@ProviderFor(carrierRule)
+final carrierRuleProvider = CarrierRuleFamily._();
+
+final class CarrierRuleProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<CarrierRule?>,
+          CarrierRule?,
+          FutureOr<CarrierRule?>
+        >
+    with $FutureModifier<CarrierRule?>, $FutureProvider<CarrierRule?> {
+  CarrierRuleProvider._({
+    required CarrierRuleFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'carrierRuleProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$carrierRuleHash();
+
+  @override
+  String toString() {
+    return r'carrierRuleProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<CarrierRule?> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<CarrierRule?> create(Ref ref) {
+    final argument = this.argument as String;
+    return carrierRule(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is CarrierRuleProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$carrierRuleHash() => r'03a87a35965d28ec5ac15ffd35bc66b7f073acf7';
+
+final class CarrierRuleFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<CarrierRule?>, String> {
+  CarrierRuleFamily._()
+    : super(
+        retry: null,
+        name: r'carrierRuleProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  CarrierRuleProvider call(String carrierId) =>
+      CarrierRuleProvider._(argument: carrierId, from: this);
+
+  @override
+  String toString() => r'carrierRuleProvider';
+}
+
+@ProviderFor(simLineActivityLogs)
+final simLineActivityLogsProvider = SimLineActivityLogsFamily._();
+
+final class SimLineActivityLogsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<LineActivityLog>>,
+          List<LineActivityLog>,
+          FutureOr<List<LineActivityLog>>
+        >
+    with
+        $FutureModifier<List<LineActivityLog>>,
+        $FutureProvider<List<LineActivityLog>> {
+  SimLineActivityLogsProvider._({
+    required SimLineActivityLogsFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'simLineActivityLogsProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$simLineActivityLogsHash();
+
+  @override
+  String toString() {
+    return r'simLineActivityLogsProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<List<LineActivityLog>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<LineActivityLog>> create(Ref ref) {
+    final argument = this.argument as String;
+    return simLineActivityLogs(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is SimLineActivityLogsProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$simLineActivityLogsHash() =>
+    r'638c0cd7f9ed1b6c0785ff4e591784ba64c8e4a6';
+
+final class SimLineActivityLogsFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<List<LineActivityLog>>, String> {
+  SimLineActivityLogsFamily._()
+    : super(
+        retry: null,
+        name: r'simLineActivityLogsProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  SimLineActivityLogsProvider call(String simLineId) =>
+      SimLineActivityLogsProvider._(argument: simLineId, from: this);
+
+  @override
+  String toString() => r'simLineActivityLogsProvider';
+}

@@ -302,8 +302,7 @@ as DateTime?,
 /// @nodoc
 mixin _$WalletTransaction {
 
- String get id; String get walletId; String get userId; double get amount; double get balanceBefore; double get balanceAfter; String get type;// 'deposit', 'topup_debit', 'referral_credit'
- String? get description; String? get referenceId; DateTime? get createdAt;
+ String get id; String get walletId; String get userId; double get amount; double get balanceBefore; double get balanceAfter; String get type; String? get description; String? get referenceId; DateTime? get createdAt;
 /// Create a copy of WalletTransaction
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -516,7 +515,6 @@ class _WalletTransaction implements WalletTransaction {
 @override@JsonKey() final  double balanceBefore;
 @override@JsonKey() final  double balanceAfter;
 @override@JsonKey() final  String type;
-// 'deposit', 'topup_debit', 'referral_credit'
 @override final  String? description;
 @override final  String? referenceId;
 @override final  DateTime? createdAt;

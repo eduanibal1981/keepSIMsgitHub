@@ -85,7 +85,7 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
       final ruleAsync = ref.watch(
         carrierRuleProvider(widget.simLine.carrierId!),
       );
-      carrierRule = ruleAsync.valueOrNull;
+      carrierRule = ruleAsync.value;
       isRuleLoading = ruleAsync.isLoading;
     }
 

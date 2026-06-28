@@ -15,8 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Referral {
 
- String get id; String get referrerId; String get referredId; String get referralCode; double get rewardAmount; bool get referrerCredited; bool get referredCredited; DateTime? get createdAt;// Joined referred friend's profile details
- UserProfile? get referredProfile;
+ String get id; String get referrerId; String get referredId; String get referralCode; double get rewardAmount; bool get referrerCredited; bool get referredCredited; DateTime? get createdAt; UserProfile? get referredProfile;
 /// Create a copy of Referral
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -241,7 +240,6 @@ class _Referral implements Referral {
 @override final  bool referrerCredited;
 @override final  bool referredCredited;
 @override final  DateTime? createdAt;
-// Joined referred friend's profile details
 @override final  UserProfile? referredProfile;
 
 /// Create a copy of Referral

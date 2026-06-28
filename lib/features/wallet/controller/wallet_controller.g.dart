@@ -6,21 +6,49 @@ part of 'wallet_controller.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$walletControllerHash() => r'3cc77ceca7204616324415e52e05ca664e5a179d';
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
 
-/// See also [WalletController].
 @ProviderFor(WalletController)
-final walletControllerProvider =
-    AsyncNotifierProvider<WalletController, WalletState>.internal(
-      WalletController.new,
-      name: r'walletControllerProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$walletControllerHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+final walletControllerProvider = WalletControllerProvider._();
 
-typedef _$WalletController = AsyncNotifier<WalletState>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
+final class WalletControllerProvider
+    extends $AsyncNotifierProvider<WalletController, WalletState> {
+  WalletControllerProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'walletControllerProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$walletControllerHash();
+
+  @$internal
+  @override
+  WalletController create() => WalletController();
+}
+
+String _$walletControllerHash() => r'75310f5c34694479aa92304447826ef2d8af913f';
+
+abstract class _$WalletController extends $AsyncNotifier<WalletState> {
+  FutureOr<WalletState> build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<AsyncValue<WalletState>, WalletState>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<WalletState>, WalletState>,
+              AsyncValue<WalletState>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}

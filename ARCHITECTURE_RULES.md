@@ -1,5 +1,5 @@
 # Flutter Clean Architecture Rules
-# Stack: Flutter + Supabase + Riverpod + Freezed
+# Stack: Flutter + Supabase + Riverpod 3.x + Freezed
 
 ## Overview
 

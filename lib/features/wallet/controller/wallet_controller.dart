@@ -45,7 +45,7 @@ class WalletController extends _$WalletController {
     // 1. Reactively watch authentication changes to rebuild wallet data
     final authProfile = ref.watch(authControllerProvider);
 
-    final profile = authProfile.valueOrNull;
+    final profile = authProfile.value;
     if (profile == null) {
       throw Exception('User is not authenticated');
     }
@@ -69,7 +69,7 @@ class WalletController extends _$WalletController {
 
   /// Triggers a deposit credit and invalidates related screens.
   Future<bool> deposit(double amount, {String? description}) async {
-    final current = state.valueOrNull;
+    final current = state.value;
     if (current == null) return false;
 
     // Set submitting status
@@ -99,7 +99,7 @@ class WalletController extends _$WalletController {
     String? description,
     String? referenceId,
   }) async {
-    final current = state.valueOrNull;
+    final current = state.value;
     if (current == null) return false;
 
     // Set submitting status

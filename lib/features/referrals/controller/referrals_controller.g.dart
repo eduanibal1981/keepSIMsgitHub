@@ -6,25 +6,50 @@ part of 'referrals_controller.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$referralsControllerHash() =>
-    r'b36d8a330073a2631ebd20258570b7bb20566618';
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
 
-/// See also [ReferralsController].
 @ProviderFor(ReferralsController)
-final referralsControllerProvider =
-    AutoDisposeAsyncNotifierProvider<
-      ReferralsController,
-      ReferralsState
-    >.internal(
-      ReferralsController.new,
-      name: r'referralsControllerProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$referralsControllerHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+final referralsControllerProvider = ReferralsControllerProvider._();
 
-typedef _$ReferralsController = AutoDisposeAsyncNotifier<ReferralsState>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
+final class ReferralsControllerProvider
+    extends $AsyncNotifierProvider<ReferralsController, ReferralsState> {
+  ReferralsControllerProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'referralsControllerProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$referralsControllerHash();
+
+  @$internal
+  @override
+  ReferralsController create() => ReferralsController();
+}
+
+String _$referralsControllerHash() =>
+    r'6539c7488aee6e80a96e2439ddf4b7af5aea0fdb';
+
+abstract class _$ReferralsController extends $AsyncNotifier<ReferralsState> {
+  FutureOr<ReferralsState> build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<AsyncValue<ReferralsState>, ReferralsState>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<ReferralsState>, ReferralsState>,
+              AsyncValue<ReferralsState>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}

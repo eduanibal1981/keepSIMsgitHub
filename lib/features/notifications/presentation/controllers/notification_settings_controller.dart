@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import 'package:keep_sims/features/notifications/data/models/alert_setting_model.dart';
 import 'package:keep_sims/features/notifications/data/models/user_preferences_model.dart';
 import 'package:keep_sims/features/notifications/data/repositories/notifications_repository_impl.dart';
@@ -11,6 +12,10 @@ part 'notification_settings_controller.g.dart';
 class AlertSettingsController extends _$AlertSettingsController {
   @override
   FutureOr<List<AlertSetting>> build() async {
+    final authState = ref.watch(authControllerProvider);
+    if (authState.value == null) {
+      return const [];
+    }
     final repo = ref.watch(notificationsRepositoryProvider);
     return repo.getAlertSettings();
   }
@@ -44,6 +49,19 @@ class AlertSettingsController extends _$AlertSettingsController {
 class UserPreferencesController extends _$UserPreferencesController {
   @override
   FutureOr<UserPreferences> build() async {
+    final authState = ref.watch(authControllerProvider);
+    final profile = authState.value;
+    if (profile == null) {
+      return const UserPreferences(
+        id: '',
+        userId: '',
+        theme: 'system',
+        language: 'en',
+        weeklyDigestEnabled: true,
+        travelModeEnabled: false,
+        biometricEnabled: false,
+      );
+    }
     final repo = ref.watch(notificationsRepositoryProvider);
     return repo.getUserPreferences();
   }
@@ -124,6 +142,10 @@ class UserPreferencesController extends _$UserPreferencesController {
 class NotificationChannelsController extends _$NotificationChannelsController {
   @override
   FutureOr<List<Map<String, dynamic>>> build() async {
+    final authState = ref.watch(authControllerProvider);
+    if (authState.value == null) {
+      return const [];
+    }
     final repo = ref.watch(notificationsRepositoryProvider);
     return repo.getNotificationChannels();
   }

@@ -1,0 +1,171 @@
+version: "2"
+type: frontend
+tech_stack:
+  - flutter
+  - dart
+  - riverpod
+  - go_router
+  - supabase
+routes:
+  - path: /login
+    file: lib/features/auth/ui/login_screen.dart
+    auth_required: false
+    description: User login page with Email/Password
+  - path: /onboarding
+    file: lib/features/profile/presentation/ui/onboarding_screen.dart
+    auth_required: true
+    description: Onboarding screen for new users
+  - path: /home
+    file: lib/features/dashboard/presentation/ui/dashboard_screen.dart
+    auth_required: true
+    description: Main dashboard overview
+  - path: /sim-lines
+    file: lib/features/sim_lines/presentation/screens/sim_lines_list_screen.dart
+    auth_required: true
+    description: List of SIM lines
+  - path: /sim-lines/add
+    file: lib/features/sim_lines/presentation/screens/sim_line_form_screen.dart
+    auth_required: true
+    description: Add a new SIM line
+  - path: /wallet
+    file: lib/features/wallet/ui/wallet_screen.dart
+    auth_required: true
+    description: Wallet overview
+  - path: /notifications
+    file: lib/features/notifications/presentation/screens/notifications_screen.dart
+    auth_required: true
+    description: List of notifications
+  - path: /settings
+    file: lib/features/settings/presentation/screens/settings_screen.dart
+    auth_required: true
+    description: Settings menu
+  - path: /household
+    file: lib/features/household/presentation/screens/household_screen.dart
+    auth_required: true
+    description: Household management
+  - path: /settings/referrals
+    file: lib/features/referrals/ui/referrals_screen.dart
+    auth_required: true
+    description: Referrals screen
+  - path: /settings/geo
+    file: lib/features/geo/ui/geo_screen.dart
+    auth_required: true
+    description: Geo features screen
+  - path: /settings/preferences
+    file: lib/features/settings/presentation/screens/preferences_screen.dart
+    auth_required: true
+    description: App preferences
+  - path: /settings/offline-recharge
+    file: lib/features/offline_recharge/ui/offline_refill_screen.dart
+    auth_required: true
+    description: Offline recharge configuration
+  - path: /support
+    file: lib/features/support/presentation/ui/support_screen.dart
+    auth_required: true
+    description: Support ticket system
+features:
+  - name: User Login
+    description: Login with email and password credentials
+    files:
+      - lib/features/auth/ui/login_screen.dart
+    entry_route: /login
+    user_interactions:
+      - Fill email input field
+      - Fill password input field
+      - Click Sign In button to submit
+    api_calls: []
+    auth_required: false
+  - name: View Dashboard
+    description: View the main application dashboard
+    files:
+      - lib/features/dashboard/presentation/ui/dashboard_screen.dart
+    entry_route: /home
+    user_interactions:
+      - View overview statistics
+    api_calls: []
+    auth_required: true
+  - name: Manage SIM Lines
+    description: View and add SIM lines
+    files:
+      - lib/features/sim_lines/presentation/screens/sim_lines_list_screen.dart
+      - lib/features/sim_lines/presentation/screens/sim_line_form_screen.dart
+    entry_route: /sim-lines
+    user_interactions:
+      - View list of existing SIM lines
+      - Click add to create a new SIM line
+    api_calls: []
+    auth_required: true
+  - name: Wallet Overview
+    description: View wallet balance and history
+    files:
+      - lib/features/wallet/ui/wallet_screen.dart
+    entry_route: /wallet
+    user_interactions:
+      - View current balance
+      - View transaction history
+    api_calls: []
+    auth_required: true
+  - name: Notifications
+    description: View and manage alerts
+    files:
+      - lib/features/notifications/presentation/screens/notifications_screen.dart
+    entry_route: /notifications
+    user_interactions:
+      - View notifications list
+      - Mark notifications as read
+    api_calls: []
+    auth_required: true
+  - name: Settings
+    description: Configure app settings and preferences
+    files:
+      - lib/features/settings/presentation/screens/settings_screen.dart
+      - lib/features/settings/presentation/screens/preferences_screen.dart
+    entry_route: /settings
+    user_interactions:
+      - Navigate to different settings screens
+      - Toggle preferences
+    api_calls: []
+    auth_required: true
+  - name: Support System
+    description: Create and view support tickets
+    files:
+      - lib/features/support/presentation/ui/support_screen.dart
+    entry_route: /support
+    user_interactions:
+      - View active tickets
+      - Open create ticket form
+    api_calls: []
+    auth_required: true
+  - name: Offline Recharge
+    description: Configure offline USSD recharge
+    files:
+      - lib/features/offline_recharge/ui/offline_refill_screen.dart
+    entry_route: /settings/offline-recharge
+    user_interactions:
+      - View offline instructions
+      - Configure settings for offline recharge
+    api_calls: []
+    auth_required: true
+  - name: Referrals
+    description: Invite friends and view referral bonuses
+    files:
+      - lib/features/referrals/ui/referrals_screen.dart
+    entry_route: /settings/referrals
+    user_interactions:
+      - View referral code
+      - See referred friends list
+    api_calls: []
+    auth_required: true
+  - name: Household Management
+    description: Manage connected family accounts
+    files:
+      - lib/features/household/presentation/screens/household_screen.dart
+    entry_route: /household
+    user_interactions:
+      - View linked household members
+    api_calls: []
+    auth_required: true
+known_limitations:
+  - issue: Third-party auth and payments are excluded from automated testing to avoid CAPTCHA blocks
+    location: lib/features/payments/ui/payments_screen.dart and lib/features/auth/ui/login_screen.dart
+    impact: TestSuite should NOT attempt Google Sign In or PayPal Checkout flows

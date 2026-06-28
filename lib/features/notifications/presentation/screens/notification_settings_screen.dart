@@ -8,6 +8,7 @@ import 'package:keep_sims/core/widgets/haptic_helper.dart';
 import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import 'package:keep_sims/features/profile/presentation/widgets/subscription_upsell_sheet.dart';
 import 'package:keep_sims/core/utils/build_context_extension.dart';
+import 'package:keep_sims/l10n/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
 
@@ -109,7 +110,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
           },
         ),
         title: Text(
-          'Alert Settings',
+          AppLocalizations.of(context)!.alertSettingsTitle,
           style: AppTextStyles.headlineMedium.copyWith(
             color: context.onSurfaceColor,
           ),
@@ -122,7 +123,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Do Not Disturb / Quiet Hours Preferences Card
-            _buildSectionHeader(context, 'Quiet Hours & Schedule'),
+            _buildSectionHeader(context, AppLocalizations.of(context)!.quietHoursSchedule),
             userPrefsAsync.when(
               data: (prefs) => _buildQuietHoursCard(context, ref, prefs),
               loading: () => Center(
@@ -155,8 +156,8 @@ class NotificationSettingsScreen extends ConsumerWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          'ALERT DELIVERY CHANNELS',
+                         Text(
+                          AppLocalizations.of(context)!.alertChannels,
                           style: AppTextStyles.labelMedium.copyWith(
                             color: Colors.orange.shade700,
                             letterSpacing: 1.2,
@@ -186,7 +187,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
                               ),
                               const SizedBox(width: 4),
                               Text(
-                                'MOST IMPORTANT',
+                                AppLocalizations.of(context)!.mostImportant,
                                 style: AppTextStyles.caption.copyWith(
                                   color: Colors.orange.shade700,
                                   fontWeight: FontWeight.bold,
@@ -205,7 +206,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
                       context,
                       ref,
                       channels,
-                      userAsync.valueOrNull?.id,
+                      userAsync.value?.id,
                       isNested: true,
                     ),
                     loading: () => Center(
@@ -226,7 +227,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
             const SizedBox(height: 16),
 
             // Incident Channels (Alert settings per category)
-            _buildSectionHeader(context, 'Incident Channels'),
+            _buildSectionHeader(context, AppLocalizations.of(context)!.incidentChannelsTitle),
             alertSettingsAsync.when(
               data: (settings) =>
                   _buildIncidentChannels(context, ref, settings),
@@ -309,7 +310,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  'Do Not Disturb (Quiet Hours)',
+                  AppLocalizations.of(context)!.doNotDisturb,
                   style: AppTextStyles.titleMedium.copyWith(
                     color: context.onSurfaceColor,
                   ),
@@ -317,7 +318,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
               ],
             ),
             subtitle: Text(
-              'Mute push notifications during specified sleep hours.',
+              AppLocalizations.of(context)!.dndDesc,
               style: AppTextStyles.bodySmall.copyWith(
                 color: isDark
                     ? AppColors.textSecondaryDark
@@ -405,7 +406,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  'Weekly Summary Digest',
+                  AppLocalizations.of(context)!.weeklySummaryDigest,
                   style: AppTextStyles.titleMedium.copyWith(
                     color: context.onSurfaceColor,
                   ),
@@ -413,7 +414,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
               ],
             ),
             subtitle: Text(
-              'Compiled status report of all SIM cards every Sunday at 9:00 AM.',
+              AppLocalizations.of(context)!.weeklyDigestDesc,
               style: AppTextStyles.bodySmall.copyWith(
                 color: isDark
                     ? AppColors.textSecondaryDark
@@ -518,6 +519,84 @@ class NotificationSettingsScreen extends ConsumerWidget {
     );
   }
 
+  _CategoryMeta _getLocalizedMeta(BuildContext context, String categoryKey, _CategoryMeta defaultMeta) {
+    final local = AppLocalizations.of(context)!;
+    switch (categoryKey) {
+      case 'top_up_success':
+        return _CategoryMeta(
+          name: local.topUpSuccessTitle,
+          description: local.topUpSuccessDesc,
+          icon: defaultMeta.icon,
+          color: defaultMeta.color,
+        );
+      case 'top_up_failed':
+        return _CategoryMeta(
+          name: local.topUpFailedTitle,
+          description: local.topUpFailedDesc,
+          icon: defaultMeta.icon,
+          color: defaultMeta.color,
+        );
+      case 'wallet_low':
+        return _CategoryMeta(
+          name: local.walletLowTitle,
+          description: local.walletLowDesc,
+          icon: defaultMeta.icon,
+          color: defaultMeta.color,
+        );
+      case 'wallet_depleted':
+        return _CategoryMeta(
+          name: local.walletDepletedTitle,
+          description: local.walletDepletedDesc,
+          icon: defaultMeta.icon,
+          color: defaultMeta.color,
+        );
+      case 'line_critical':
+        return _CategoryMeta(
+          name: local.lineCriticalTitle,
+          description: local.lineCriticalDesc,
+          icon: defaultMeta.icon,
+          color: defaultMeta.color,
+        );
+      case 'line_entering_grace':
+        return _CategoryMeta(
+          name: local.lineEnteringGraceTitle,
+          description: local.lineEnteringGraceDesc,
+          icon: defaultMeta.icon,
+          color: defaultMeta.color,
+        );
+      case 'geo_fence_triggered':
+        return _CategoryMeta(
+          name: local.geoFenceTriggeredTitle,
+          description: local.geoFenceTriggeredDesc,
+          icon: defaultMeta.icon,
+          color: defaultMeta.color,
+        );
+      case 'welcome_home_ready':
+        return _CategoryMeta(
+          name: local.welcomeHomeReadyTitle,
+          description: local.welcomeHomeReadyDesc,
+          icon: defaultMeta.icon,
+          color: defaultMeta.color,
+        );
+      case 'referral_reward':
+        return _CategoryMeta(
+          name: local.referralRewardTitle,
+          description: local.referralRewardDesc,
+          icon: defaultMeta.icon,
+          color: defaultMeta.color,
+        );
+      case 'system':
+        return _CategoryMeta(
+          name: local.systemUpdatesTitle,
+          description: local.systemUpdatesDesc,
+          icon: defaultMeta.icon,
+          color: defaultMeta.color,
+        );
+      default:
+        return defaultMeta;
+    }
+  }
+
   Widget _buildIncidentChannels(
     BuildContext context,
     WidgetRef ref,
@@ -547,7 +626,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
       itemCount: settings.length,
       itemBuilder: (context, index) {
         final item = settings[index];
-        final metadata =
+        final rawMetadata =
             _meta[item.category] ??
             _CategoryMeta(
               name: item.category,
@@ -555,6 +634,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
               icon: Icons.notifications_rounded,
               color: AppColors.primary,
             );
+        final metadata = _getLocalizedMeta(context, item.category, rawMetadata);
 
         return Container(
           margin: const EdgeInsets.only(bottom: 12),
@@ -684,7 +764,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Text(
-            'No alert delivery channels configured.',
+            AppLocalizations.of(context)!.noAlertChannelsConfigured,
             style: TextStyle(
               color: isDark
                   ? AppColors.textTertiaryDark
@@ -807,10 +887,10 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
       }
       if (!val.startsWith('+') && val.isNotEmpty) {
         if (val.length <= 9) {
-          final profile = ref.read(authControllerProvider).valueOrNull;
+          final profile = ref.read(authControllerProvider).value;
           final homeCode = profile?.homeCountryCode;
           final countries =
-              ref.read(supportedCountriesProvider).valueOrNull ?? [];
+              ref.read(supportedCountriesProvider).value ?? [];
           String homeDial = '+20';
           if (countries.isNotEmpty) {
             try {
@@ -840,7 +920,7 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
       setState(() => _isSaving = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('${_getChannelName(type)} settings updated.'),
+          content: Text(AppLocalizations.of(context)!.channelSettingsUpdated(_getChannelName(context, type))),
           backgroundColor: context.colorScheme.secondary,
           duration: const Duration(seconds: 2),
         ),
@@ -848,16 +928,16 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
     }
   }
 
-  String _getChannelName(String type) {
+  String _getChannelName(BuildContext context, String type) {
     switch (type) {
       case 'push':
-        return 'Push Notifications';
+        return AppLocalizations.of(context)!.pushNotifications;
       case 'email':
-        return 'Email Alerts';
+        return AppLocalizations.of(context)!.emailAlerts;
       case 'whatsapp':
-        return 'WhatsApp Alerts';
+        return AppLocalizations.of(context)!.whatsappAlerts;
       case 'telegram':
-        return 'Telegram Bot';
+        return AppLocalizations.of(context)!.telegramBot;
       /* case 'webhook':
         return 'Emergency Webhooks'; */
       default:
@@ -903,13 +983,13 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
   Widget build(BuildContext context) {
     final type = widget.channel['channel_type'] as String;
     final config = widget.channel['config'] as Map<String, dynamic>? ?? {};
-    final name = _getChannelName(type);
+    final name = _getChannelName(context, type);
     final icon = _getChannelIcon(type);
     final color = _getChannelColor(type);
 
-    final user = ref.watch(authControllerProvider).valueOrNull;
+    final user = ref.watch(authControllerProvider).value;
     final globalTier = user?.subscriptionTier ?? 'standard';
-    final simLines = ref.watch(simLinesControllerProvider).valueOrNull ?? [];
+    final simLines = ref.watch(simLinesControllerProvider).value ?? [];
     final hasStandardOrPremiumLine = simLines.any((line) {
       final tier = line.protectionTier.trim().toLowerCase();
       final plan = line.planType.trim().toLowerCase();
@@ -940,14 +1020,13 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
                     await HapticHelper.mediumImpact();
                     SubscriptionUpsellSheet.show(
                       context: context,
-                      title: '$name Locked 🔒',
-                      description:
-                          '$name alerts are Starter and Premium plan features. Upgrade your plan to unlock WhatsApp, Telegram, and Email alerts!',
+                      title: AppLocalizations.of(context)!.channelLocked(name),
+                      description: AppLocalizations.of(context)!.lockedAlertSubtitle(name),
                       requiredPlan: 'Starter Plan',
                       highlights: [
-                        'Protect up to 5 SIM lines simultaneously',
-                        'Unlock WhatsApp, Telegram & Email notifications',
-                        'Enable Travel & Home automated validity modes',
+                        AppLocalizations.of(context)!.upsellProtect5Lines,
+                        AppLocalizations.of(context)!.upsellUnlockChannels,
+                        AppLocalizations.of(context)!.upsellEnableTravelModes,
                       ],
                     );
                   }
@@ -994,7 +1073,7 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
               subtitle: Padding(
                 padding: const EdgeInsets.only(top: 4.0),
                 child: Text(
-                  _getChannelDescription(type),
+                  _getChannelDescription(context, type),
                   style: AppTextStyles.bodySmall.copyWith(
                     color: isDark
                         ? AppColors.textSecondaryDark
@@ -1034,13 +1113,13 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
                   if (type == 'email') ...[
                     const SizedBox(height: 10),
                     _buildInfoBadge(
-                      "Resend Free Plan Guarded: Capped to deactivation triggers only. No promotional spam.",
+                      AppLocalizations.of(context)!.emailFreePlanGuarded,
                       const Color(0xFF38BDF8),
                     ),
                   ] else if (type == 'whatsapp') ...[
                     const SizedBox(height: 10),
                     _buildInfoBadge(
-                      "Direct Meta Cloud Capped: Maximum 1 message per top-up schedule, sent ONLY if auto-refill is not active or fails.",
+                      AppLocalizations.of(context)!.whatsappMetaCloudCapped,
                       const Color(0xFF4ADE80),
                     ),
                   ],
@@ -1053,16 +1132,16 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
     );
   }
 
-  String _getChannelDescription(String type) {
+  String _getChannelDescription(BuildContext context, String type) {
     switch (type) {
       case 'push':
-        return 'Aggressive native notifications on this device.';
+        return AppLocalizations.of(context)!.pushNotificationsDesc;
       case 'email':
-        return 'Critical deactivation alerts sent via Resend.';
+        return AppLocalizations.of(context)!.emailAlertsDesc;
       case 'whatsapp':
-        return 'Refill failure alerts pushed directly to WhatsApp.';
+        return AppLocalizations.of(context)!.whatsappAlertsDesc;
       case 'telegram':
-        return 'Bound interactive Telegram chat notifications.';
+        return AppLocalizations.of(context)!.telegramBotDesc;
       /* case 'webhook':
         return 'Post JSON alerts to custom REST API endpoints.'; */
       default:
@@ -1078,13 +1157,13 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
     TextInputType keyboardType = TextInputType.text;
 
     if (type == 'email') {
-      label = 'Notification Email Address';
-      hint = 'e.g. user@domain.com';
+      label = AppLocalizations.of(context)!.emailAddressLabel;
+      hint = AppLocalizations.of(context)!.emailAddressHint;
       prefixIcon = Icons.alternate_email_rounded;
       keyboardType = TextInputType.emailAddress;
     } else if (type == 'whatsapp') {
-      label = 'WhatsApp Number (Int\'l Format)';
-      hint = 'e.g. +96891234567';
+      label = AppLocalizations.of(context)!.whatsappNumberLabel;
+      hint = AppLocalizations.of(context)!.whatsappNumberHint;
       prefixIcon = Icons.phone_rounded;
       keyboardType = TextInputType.phone;
     } /* else if (type == 'webhook') {
@@ -1150,7 +1229,7 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
           Padding(
             padding: const EdgeInsets.only(left: 4.0),
             child: Text(
-              'Enter full international format starting with + (e.g. +96893990492)',
+              AppLocalizations.of(context)!.whatsappFormatInstruction,
               style: AppTextStyles.bodySmall.copyWith(
                 color: isDark
                     ? AppColors.textSecondaryDark
@@ -1186,9 +1265,9 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
                   strokeWidth: 2,
                 ),
               )
-            : const Text(
-                'Save Settings',
-                style: TextStyle(
+            : Text(
+                AppLocalizations.of(context)!.saveSettings,
+                style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
@@ -1229,8 +1308,8 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
               const SizedBox(width: 8),
               Text(
                 isBound
-                    ? 'Status: Bound (Chat ID: $chatId)'
-                    : 'Status: Unbound',
+                    ? AppLocalizations.of(context)!.telegramStatusBound(chatId.toString())
+                    : AppLocalizations.of(context)!.telegramStatusUnbound,
                 style: AppTextStyles.bodyMedium.copyWith(
                   color: isBound ? AppColors.success : AppColors.warning,
                   fontWeight: FontWeight.bold,
@@ -1240,7 +1319,7 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
           ),
           const SizedBox(height: 12),
           Text(
-            'To receive free, interactive Telegram alerts, link our Telegram Bot with your account.',
+            AppLocalizations.of(context)!.telegramLinkInstructions,
             style: AppTextStyles.bodySmall.copyWith(
               color: isDark
                   ? AppColors.textSecondaryDark
@@ -1262,9 +1341,9 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
                 }
               },
               icon: const Icon(Icons.telegram, color: Colors.white, size: 20),
-              label: const Text(
-                'Link Telegram Bot',
-                style: TextStyle(
+              label: Text(
+                AppLocalizations.of(context)!.linkTelegramBot,
+                style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),

@@ -98,11 +98,11 @@ class _SimLineExecutionsHistoryScreenState
     final detailAsync = ref.watch(
       simLineDetailControllerProvider(widget.simLineId),
     );
-    final detailState = detailAsync.valueOrNull;
-    final householdState = ref.watch(householdControllerProvider).valueOrNull;
+    final detailState = detailAsync.value;
+    final householdState = ref.watch(householdControllerProvider).value;
 
     if (detailState != null) {
-      final user = ref.watch(authControllerProvider).valueOrNull;
+      final user = ref.watch(authControllerProvider).value;
       final isShared = detailState.simLine.userId != user?.id;
       final membership = isShared
           ? householdState?.memberships

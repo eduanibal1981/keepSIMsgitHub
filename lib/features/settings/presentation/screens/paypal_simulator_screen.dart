@@ -587,8 +587,8 @@ class _PaypalSimulatorScreenState extends ConsumerState<PaypalSimulatorScreen>
           'application_context': {
             'brand_name': 'KeepSIMs Shield',
             'user_action': 'PAY_NOW',
-            'return_url': 'https://example.com/return',
-            'cancel_url': 'https://example.com/cancel',
+            'return_url': 'https://keepsims.com/success.html',
+            'cancel_url': 'https://KeepSIMs.com/',
           },
         }),
       );

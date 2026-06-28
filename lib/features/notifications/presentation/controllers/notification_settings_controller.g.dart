@@ -6,67 +6,158 @@ part of 'notification_settings_controller.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$alertSettingsControllerHash() =>
-    r'82f88d84a00560a5b3be880cf6848121b695e7de';
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
 
-/// See also [AlertSettingsController].
 @ProviderFor(AlertSettingsController)
-final alertSettingsControllerProvider =
-    AutoDisposeAsyncNotifierProvider<
-      AlertSettingsController,
-      List<AlertSetting>
-    >.internal(
-      AlertSettingsController.new,
-      name: r'alertSettingsControllerProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$alertSettingsControllerHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+final alertSettingsControllerProvider = AlertSettingsControllerProvider._();
 
-typedef _$AlertSettingsController =
-    AutoDisposeAsyncNotifier<List<AlertSetting>>;
-String _$userPreferencesControllerHash() =>
-    r'fdbadd06e0613654853d913b6d3f26e7afd6c359';
+final class AlertSettingsControllerProvider
+    extends
+        $AsyncNotifierProvider<AlertSettingsController, List<AlertSetting>> {
+  AlertSettingsControllerProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'alertSettingsControllerProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
-/// See also [UserPreferencesController].
+  @override
+  String debugGetCreateSourceHash() => _$alertSettingsControllerHash();
+
+  @$internal
+  @override
+  AlertSettingsController create() => AlertSettingsController();
+}
+
+String _$alertSettingsControllerHash() =>
+    r'730729cc55ccb39e11b4361fd0990b17310dc31b';
+
+abstract class _$AlertSettingsController
+    extends $AsyncNotifier<List<AlertSetting>> {
+  FutureOr<List<AlertSetting>> build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref =
+        this.ref as $Ref<AsyncValue<List<AlertSetting>>, List<AlertSetting>>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<List<AlertSetting>>, List<AlertSetting>>,
+              AsyncValue<List<AlertSetting>>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
 @ProviderFor(UserPreferencesController)
-final userPreferencesControllerProvider =
-    AutoDisposeAsyncNotifierProvider<
-      UserPreferencesController,
-      UserPreferences
-    >.internal(
-      UserPreferencesController.new,
-      name: r'userPreferencesControllerProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$userPreferencesControllerHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+final userPreferencesControllerProvider = UserPreferencesControllerProvider._();
 
-typedef _$UserPreferencesController = AutoDisposeAsyncNotifier<UserPreferences>;
-String _$notificationChannelsControllerHash() =>
-    r'ecdd6ca7b43e1df50bd1747580f9d0c9ae50a97e';
+final class UserPreferencesControllerProvider
+    extends $AsyncNotifierProvider<UserPreferencesController, UserPreferences> {
+  UserPreferencesControllerProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'userPreferencesControllerProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
-/// See also [NotificationChannelsController].
+  @override
+  String debugGetCreateSourceHash() => _$userPreferencesControllerHash();
+
+  @$internal
+  @override
+  UserPreferencesController create() => UserPreferencesController();
+}
+
+String _$userPreferencesControllerHash() =>
+    r'963230a94a077e2dc189abd4ffcb32d4d8f391a7';
+
+abstract class _$UserPreferencesController
+    extends $AsyncNotifier<UserPreferences> {
+  FutureOr<UserPreferences> build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<AsyncValue<UserPreferences>, UserPreferences>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<UserPreferences>, UserPreferences>,
+              AsyncValue<UserPreferences>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
 @ProviderFor(NotificationChannelsController)
 final notificationChannelsControllerProvider =
-    AutoDisposeAsyncNotifierProvider<
-      NotificationChannelsController,
-      List<Map<String, dynamic>>
-    >.internal(
-      NotificationChannelsController.new,
-      name: r'notificationChannelsControllerProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$notificationChannelsControllerHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+    NotificationChannelsControllerProvider._();
 
-typedef _$NotificationChannelsController =
-    AutoDisposeAsyncNotifier<List<Map<String, dynamic>>>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
+final class NotificationChannelsControllerProvider
+    extends
+        $AsyncNotifierProvider<
+          NotificationChannelsController,
+          List<Map<String, dynamic>>
+        > {
+  NotificationChannelsControllerProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'notificationChannelsControllerProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$notificationChannelsControllerHash();
+
+  @$internal
+  @override
+  NotificationChannelsController create() => NotificationChannelsController();
+}
+
+String _$notificationChannelsControllerHash() =>
+    r'd3ec17b1bd996ac5919d7877064f37033e085c6d';
+
+abstract class _$NotificationChannelsController
+    extends $AsyncNotifier<List<Map<String, dynamic>>> {
+  FutureOr<List<Map<String, dynamic>>> build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref =
+        this.ref
+            as $Ref<
+              AsyncValue<List<Map<String, dynamic>>>,
+              List<Map<String, dynamic>>
+            >;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<
+                AsyncValue<List<Map<String, dynamic>>>,
+                List<Map<String, dynamic>>
+              >,
+              AsyncValue<List<Map<String, dynamic>>>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}

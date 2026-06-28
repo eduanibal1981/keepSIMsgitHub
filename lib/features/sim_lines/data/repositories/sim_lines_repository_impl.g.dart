@@ -6,24 +6,53 @@ part of 'sim_lines_repository_impl.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$simLinesRepositoryHash() =>
-    r'6ac4e845bfbed88b5ca8a9ca5a4fc8281834b23a';
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
 
-/// See also [simLinesRepository].
 @ProviderFor(simLinesRepository)
-final simLinesRepositoryProvider =
-    AutoDisposeProvider<SimLinesRepository>.internal(
-      simLinesRepository,
-      name: r'simLinesRepositoryProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$simLinesRepositoryHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+final simLinesRepositoryProvider = SimLinesRepositoryProvider._();
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef SimLinesRepositoryRef = AutoDisposeProviderRef<SimLinesRepository>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
+final class SimLinesRepositoryProvider
+    extends
+        $FunctionalProvider<
+          SimLinesRepository,
+          SimLinesRepository,
+          SimLinesRepository
+        >
+    with $Provider<SimLinesRepository> {
+  SimLinesRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'simLinesRepositoryProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$simLinesRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<SimLinesRepository> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  SimLinesRepository create(Ref ref) {
+    return simLinesRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(SimLinesRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<SimLinesRepository>(value),
+    );
+  }
+}
+
+String _$simLinesRepositoryHash() =>
+    r'0966df307d7c347ae5df7b37f69a825091baccdd';

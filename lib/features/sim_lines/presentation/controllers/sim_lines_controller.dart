@@ -19,7 +19,7 @@ class SimLinesController extends _$SimLinesController {
   @override
   FutureOr<List<SimLine>> build() async {
     final authProfile = ref.watch(authControllerProvider);
-    final profileValue = authProfile.valueOrNull;
+    final profileValue = authProfile.value;
     if (profileValue == null) {
       return const [];
     }
@@ -49,11 +49,11 @@ class SimLinesController extends _$SimLinesController {
     DateTime? planExpiresAt,
     String? carrierRuleId,
   }) async {
-    final userId = ref.read(authControllerProvider).valueOrNull?.id;
+    final userId = ref.read(authControllerProvider).value?.id;
     if (userId == null)
       throw Exception('Cannot add SIM line: User is not authenticated.');
 
-    final previousList = state.valueOrNull ?? [];
+    final previousList = state.value ?? [];
     state = const AsyncLoading<List<SimLine>>().copyWithPrevious(state);
     state = await AsyncValue.guard(() async {
       final repo = ref.read(simLinesRepositoryProvider);
@@ -128,7 +128,7 @@ class SimLinesController extends _$SimLinesController {
   }
 
   Future<void> updateSimLine(SimLine line) async {
-    final previousList = state.valueOrNull ?? [];
+    final previousList = state.value ?? [];
     state = const AsyncLoading<List<SimLine>>().copyWithPrevious(state);
     state = await AsyncValue.guard(() async {
       final repo = ref.read(simLinesRepositoryProvider);
@@ -164,7 +164,7 @@ class SimLinesController extends _$SimLinesController {
           }
 
           // 1. Create Notify Schedule if it doesn't exist yet
-          final schedules = ref.read(scheduledTopupControllerProvider).valueOrNull ?? [];
+          final schedules = ref.read(scheduledTopupControllerProvider).value ?? [];
           final hasNotifySchedule = schedules.any((s) => s.simLineId == line.id && s.scheduleType == 'notify');
           if (!hasNotifySchedule) {
             final notifySchedule = ScheduledTopup(
@@ -208,7 +208,7 @@ class SimLinesController extends _$SimLinesController {
   }
 
   Future<void> deleteSimLine(String id) async {
-    final previousList = state.valueOrNull ?? [];
+    final previousList = state.value ?? [];
     state = const AsyncLoading<List<SimLine>>().copyWithPrevious(state);
     state = await AsyncValue.guard(() async {
       final repo = ref.read(simLinesRepositoryProvider);
@@ -224,7 +224,7 @@ class SimLinesController extends _$SimLinesController {
   Future<void> toggleHomeMode(String simLineId, bool isHome) async {
     try {
       final repo = ref.read(simLinesRepositoryProvider);
-      final previousList = state.valueOrNull ?? [];
+      final previousList = state.value ?? [];
       final line = previousList.firstWhere((l) => l.id == simLineId);
 
       SimLine updatedLine = line.copyWith(isHomeMode: isHome);
@@ -236,7 +236,7 @@ class SimLinesController extends _$SimLinesController {
       updatedLine = await repo.updateSimLine(updatedLine);
 
       final schedules =
-          ref.read(scheduledTopupControllerProvider).valueOrNull ?? [];
+          ref.read(scheduledTopupControllerProvider).value ?? [];
       final lineSchedules = schedules
           .where((s) => s.simLineId == simLineId)
           .toList();
@@ -279,7 +279,7 @@ class SimLinesController extends _$SimLinesController {
   }
 
   Future<void> deleteActivityLog(String id, String simLineId) async {
-    final previousList = state.valueOrNull ?? [];
+    final previousList = state.value ?? [];
     state = const AsyncLoading<List<SimLine>>().copyWithPrevious(state);
     state = await AsyncValue.guard(() async {
       final repo = ref.read(simLinesRepositoryProvider);
@@ -290,7 +290,7 @@ class SimLinesController extends _$SimLinesController {
   }
 
   Future<void> cleanMockLogs(String simLineId) async {
-    final previousList = state.valueOrNull ?? [];
+    final previousList = state.value ?? [];
     state = const AsyncLoading<List<SimLine>>().copyWithPrevious(state);
     state = await AsyncValue.guard(() async {
       final repo = ref.read(simLinesRepositoryProvider);
@@ -303,7 +303,7 @@ class SimLinesController extends _$SimLinesController {
   }
 
   Future<void> clearAllActivityLogs(String simLineId) async {
-    final previousList = state.valueOrNull ?? [];
+    final previousList = state.value ?? [];
     state = const AsyncLoading<List<SimLine>>().copyWithPrevious(state);
     state = await AsyncValue.guard(() async {
       final repo = ref.read(simLinesRepositoryProvider);
@@ -358,13 +358,13 @@ class SimLinesController extends _$SimLinesController {
 }
 
 @riverpod
-Future<List<Country>> supportedCountries(SupportedCountriesRef ref) {
+Future<List<Country>> supportedCountries(Ref ref) {
   return ref.watch(simLinesRepositoryProvider).getSupportedCountries();
 }
 
 @riverpod
 Future<List<Carrier>> carriersForCountry(
-  CarriersForCountryRef ref,
+  Ref ref,
   String countryId,
 ) {
   return ref.watch(simLinesRepositoryProvider).getCarriersForCountry(countryId);
@@ -372,7 +372,7 @@ Future<List<Carrier>> carriersForCountry(
 
 @riverpod
 Future<CarrierRule?> carrierRule(
-  CarrierRuleRef ref,
+  Ref ref,
   String carrierId,
 ) {
   return ref
@@ -382,7 +382,7 @@ Future<CarrierRule?> carrierRule(
 
 @riverpod
 FutureOr<List<LineActivityLog>> simLineActivityLogs(
-  SimLineActivityLogsRef ref,
+  Ref ref,
   String simLineId,
 ) {
   return ref.watch(simLinesRepositoryProvider).getLineActivityLogs(simLineId);

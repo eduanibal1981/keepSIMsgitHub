@@ -15,8 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$LineActivityLog {
 
- String get id; String get simLineId; String get userId; String get eventType;// 'topup_success', 'topup_failed', 'status_change', 'health_update', 'tier_change', 'paused', 'resumed', 'created', 'grace_period_entered', 'rescue_topup_triggered', 'validity_extended'
- String? get description; Map<String, dynamic> get metadata; DateTime get createdAt;
+ String get id; String get simLineId; String get userId; String get eventType; String? get description; Map<String, dynamic> get metadata; DateTime get createdAt;
 /// Create a copy of LineActivityLog
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -223,7 +222,6 @@ class _LineActivityLog implements LineActivityLog {
 @override final  String simLineId;
 @override final  String userId;
 @override final  String eventType;
-// 'topup_success', 'topup_failed', 'status_change', 'health_update', 'tier_change', 'paused', 'resumed', 'created', 'grace_period_entered', 'rescue_topup_triggered', 'validity_extended'
 @override final  String? description;
  final  Map<String, dynamic> _metadata;
 @override@JsonKey() Map<String, dynamic> get metadata {

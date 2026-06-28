@@ -6,25 +6,50 @@ part of 'household_controller.dart';
 // RiverpodGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
+
+@ProviderFor(HouseholdController)
+final householdControllerProvider = HouseholdControllerProvider._();
+
+final class HouseholdControllerProvider
+    extends $AsyncNotifierProvider<HouseholdController, HouseholdState> {
+  HouseholdControllerProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'householdControllerProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$householdControllerHash();
+
+  @$internal
+  @override
+  HouseholdController create() => HouseholdController();
+}
+
 String _$householdControllerHash() =>
     r'a7a15c2794aa8c2c929adb5bafee14c07f6d0f6e';
 
-/// See also [HouseholdController].
-@ProviderFor(HouseholdController)
-final householdControllerProvider =
-    AutoDisposeAsyncNotifierProvider<
-      HouseholdController,
-      HouseholdState
-    >.internal(
-      HouseholdController.new,
-      name: r'householdControllerProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$householdControllerHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
-
-typedef _$HouseholdController = AutoDisposeAsyncNotifier<HouseholdState>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
+abstract class _$HouseholdController extends $AsyncNotifier<HouseholdState> {
+  FutureOr<HouseholdState> build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<AsyncValue<HouseholdState>, HouseholdState>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<HouseholdState>, HouseholdState>,
+              AsyncValue<HouseholdState>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}

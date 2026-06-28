@@ -1,9 +1,10 @@
 import 'package:keep_sims/core/utils/build_context_extension.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:keep_sims/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' hide TextDirection;
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
@@ -52,14 +53,14 @@ class SimLineCard extends ConsumerWidget {
         country ??
         ref
             .watch(supportedCountriesProvider)
-            .valueOrNull
+            .value
             ?.firstWhereOrNull((c) => c.id == line.countryId);
 
     // ── Schedule state ───────────────────────────────────────────
     final notifySchedule = ref.watch(scheduledNotifyForLineProvider(line.id));
     final miniSchedule   = ref.watch(scheduledMiniRefillForLineProvider(line.id));
     final customSchedule = ref.watch(scheduledCustomRefillForLineProvider(line.id));
-    final user           = ref.watch(authControllerProvider).valueOrNull;
+    final user           = ref.watch(authControllerProvider).value;
 
     final bool isPremium =
         line.protectionTier.toLowerCase() == 'premium' ||
@@ -639,7 +640,7 @@ class SimLineCard extends ConsumerWidget {
     );
 
     final String lastRefillStr = line.lastTopupAt == null
-        ? 'No refill yet'
+        ? AppLocalizations.of(context)!.noRefillYet
         : dateFormat.format(line.lastTopupAt!);
 
     final gridBg = hasError
@@ -660,7 +661,7 @@ class SimLineCard extends ConsumerWidget {
       leftCell = Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Action Req.', style: labelStyle),
+          Text(AppLocalizations.of(context)!.actionRequiredLabel, style: labelStyle),
           const SizedBox(height: 4),
           Row(
             children: [
@@ -670,14 +671,14 @@ class SimLineCard extends ConsumerWidget {
                 color: AppColors.healthRed,
               ),
               const SizedBox(width: 4),
-              Text('Protection Off', style: valueStyle),
+              Text(AppLocalizations.of(context)!.protectionOffLabel, style: valueStyle),
             ],
           ),
         ],
       );
     } else {
       final String nextAlertStr = notifySchedule == null
-          ? 'Not set'
+          ? AppLocalizations.of(context)!.notSet
           : dateFormat.format(notifySchedule.nextExecutionAt);
       leftCell = Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -690,7 +691,7 @@ class SimLineCard extends ConsumerWidget {
                 color: context.onSurfaceColor.withValues(alpha: 0.4),
               ),
               const SizedBox(width: 4),
-              Text('Next Alert', style: labelStyle),
+              Text(AppLocalizations.of(context)!.nextAlertLabel, style: labelStyle),
             ],
           ),
           const SizedBox(height: 4),
@@ -710,7 +711,7 @@ class SimLineCard extends ConsumerWidget {
               color: context.onSurfaceColor.withValues(alpha: 0.4),
             ),
             const SizedBox(width: 4),
-            Text('Last Refill', style: labelStyle),
+            Text(AppLocalizations.of(context)!.lastRefillLabel, style: labelStyle),
           ],
         ),
         const SizedBox(height: 4),
@@ -805,7 +806,7 @@ class SimLineCard extends ConsumerWidget {
 
     return Row(
       children: [
-        Text('PROTECTION: ', style: labelStyle),
+        Text('${AppLocalizations.of(context)!.protectionLabel}: ', style: labelStyle),
         const SizedBox(width: 4),
         Expanded(
           child: SingleChildScrollView(
@@ -813,12 +814,12 @@ class SimLineCard extends ConsumerWidget {
             child: Row(
               children: [
                 if (line.isHomeMode)
-                  chip('Home Mode', true, Colors.lightBlue)
+                  chip(AppLocalizations.of(context)!.homeMode, true, Colors.lightBlue)
                 else ...[
-                  chip('Auto-Notify', isNotifyActive, AppColors.success),
+                  chip(AppLocalizations.of(context)!.autoNotify, isNotifyActive, AppColors.success),
                   const SizedBox(width: 6),
                   chip(
-                    'Auto-Refill',
+                    AppLocalizations.of(context)!.autoRefill,
                     isPremium && (isMiniActive || isCustomActive),
                     AppColors.primary,
                   ),

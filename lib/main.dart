@@ -5,7 +5,10 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:keep_sims/l10n/app_localizations.dart';
+import 'package:keep_sims/core/providers/locale_provider.dart';
 
 import 'package:keep_sims/core/supabase_client.dart';
 import 'package:keep_sims/core/theme/app_theme.dart';
@@ -14,8 +17,14 @@ import 'package:keep_sims/features/notifications/presentation/controllers/notifi
 import 'package:keep_sims/core/services/sync_queue_service.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:keep_sims/core/services/local_cache_service.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Force semantics for TestSprite AI
+  RendererBinding.instance.ensureSemantics();
 
   // Lock to portrait on mobile
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
@@ -31,12 +40,21 @@ void main() async {
   // Initialize Supabase
   await initSupabase();
 
-  runApp(const ProviderScope(child: SimShieldApp()));
+  final sharedPrefs = await SharedPreferences.getInstance();
+
+  runApp(
+    ProviderScope(
+      overrides: [
+        sharedPreferencesProvider.overrideWith((ref) => sharedPrefs),
+      ],
+      child: const KeepSIMsApp(),
+    ),
+  );
 }
 
 /// Root application widget.
-class SimShieldApp extends ConsumerWidget {
-  const SimShieldApp({super.key});
+class KeepSIMsApp extends ConsumerWidget {
+  const KeepSIMsApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -45,9 +63,10 @@ class SimShieldApp extends ConsumerWidget {
 
     final router = ref.watch(appRouterProvider);
     final prefsState = ref.watch(userPreferencesControllerProvider);
+    final currentLocale = ref.watch(localeControllerProvider);
 
     ThemeMode currentThemeMode = ThemeMode.dark;
-    final prefs = prefsState.valueOrNull;
+    final prefs = prefsState.value;
     if (prefs != null) {
       if (prefs.theme == 'light') {
         currentThemeMode = ThemeMode.light;
@@ -59,13 +78,19 @@ class SimShieldApp extends ConsumerWidget {
     }
 
     return MaterialApp.router(
-      title: 'SIM Shield',
+      onGenerateTitle: (context) => AppLocalizations.of(context)!.appName,
       debugShowCheckedModeBanner: false,
 
       // Theme
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
       themeMode: currentThemeMode, // Dynamic theme mode
+      
+      // Localizations
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: currentLocale,
+      
       // Router
       routerConfig: router,
     );

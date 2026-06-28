@@ -73,7 +73,7 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final simLines = ref.read(simLinesControllerProvider).valueOrNull ?? [];
+      final simLines = ref.read(simLinesControllerProvider).value ?? [];
       if (simLines.isNotEmpty) {
         setState(() {
           _sliderLinesCount = simLines.length;
@@ -216,7 +216,7 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
   }
 
   Future<void> _updatePlan(String tierId) async {
-    final user = ref.read(authControllerProvider).valueOrNull;
+    final user = ref.read(authControllerProvider).value;
     if (user == null) return;
 
     if ((user.isPowerUser ? 'premium' : 'standard') == tierId) {
@@ -275,7 +275,7 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authControllerProvider);
-    final user = authState.valueOrNull;
+    final user = authState.value;
     final String currentTier = user?.subscriptionTier ?? (user?.isPowerUser == true ? 'premium' : 'standard');
     final isDark = context.isDarkMode;
 

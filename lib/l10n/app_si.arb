@@ -1,0 +1,686 @@
+{
+    "@@locale":  "si",
+    "appName":  "KeepSIMs",
+    "@appName":  {
+                     "description":  "The name of the application"
+                 },
+    "preferencesAndSecurity":  "මනාපයන් සහ ආරක්ෂාව",
+    "appAppearance":  "යෙදුම් පෙනුම",
+    "systemTheme":  "පද්ධතිය",
+    "darkMode":  "අඳුරු මාදිලිය",
+    "lightMode":  "ආලෝක මාදිලිය",
+    "localizationAndRegional":  "දේශීයකරණය සහ කලාපීය",
+    "appLanguage":  "යෙදුම් භාෂාව",
+    "currentlyUsing":  "දැනට {langName} කලාපීය භාවිතා කරමින්",
+    "@currentlyUsing":  {
+                            "placeholders":  {
+                                                 "langName":  {
+                                                                  "type":  "String"
+                                                              }
+                                             }
+                        },
+    "selectAppLanguage":  "යෙදුම් භාෂාව තෝරන්න",
+    "securityAndAccessLock":  "ආරක්ෂාව සහ ප්‍රවේශ අගුල",
+    "biometricSecurity":  "ජෛවමිතික ආරක්ෂාව",
+    "biometricDesc":  "Face ID හෝ Touch ID භාවිතා කර පිවිසෙන්න",
+    "transactionPin":  "ගනුදෙනු PIN",
+    "transactionPinDesc":  "අලුත් කිරීම් සහ ඉල්ලුම් ආරක්ෂා කරන්න",
+    "setup":  "සකසන්න",
+    "pinSuccess":  "ගනුදෙනු PIN සාර්ථකව යාවත්කාලීන කෙරිණි!",
+    "pinMismatch":  "PIN ගැලපෙන්නේ නැත. නැවත උත්සාහ කරන්න!",
+    "pinActiveAndSecure":  "PIN සැකසුම ක්‍රියාකාරී සහ ආරක්ෂිතයි",
+    "automatedSummaryAndAlerts":  "ස්වයංක්‍රීය සාරාංශය සහ ඇඟවීම්",
+    "weeklyDigest":  "සතිපතා සාරාංශය",
+    "welcomeBack":  "නැවත සාදරයෙන් පිළිගනිමු",
+    "nextNotify":  "ඊළඟ දැනුම්දීම",
+    "days":  "දින",
+    "showingNearestLine":  "ළඟම රේඛාව පෙන්වමින්",
+    "addSim":  "SIM එකතු කරන්න",
+    "linesToProtect":  "ආරක්ෂා කළ යුතු රේඛා",
+    "active":  "ක්‍රියාකාරී",
+    "upgrade":  "උසස් කරන්න",
+    "standard":  "සම්මත",
+    "autoNotify":  "ස්වයං-දැනුම්දීම",
+    "configure":  "වින්‍යාස කරන්න",
+    "autoRefill":  "ස්වයං-පිරවීම",
+    "quickActions":  "ඉක්මන් ක්‍රියාවන්",
+    "navHome":  "මුල් පිටුව",
+    "navSims":  "SIMs",
+    "navMore":  "තවත්",
+    "protectedSims":  "ආරක්ෂිත SIMs",
+    "mySimCards":  "මගේ SIM කාඩ්",
+    "familySharedSims":  "පවුලේ හවුල් SIMs",
+    "protectAnotherSimLine":  "තවත් SIM රේඛාවක් ආරක්ෂා කරන්න",
+    "keepInfiniteNumbersAlive":  "අසීමිත ජාත්‍යන්තර අංක ජීවත් තබන්න",
+    "bulkActionsConsole":  "වරලොකු ක්‍රියා කොන්සෝලය",
+    "resume":  "නැවත ආරම්භ කරන්න",
+    "pause":  "විරාම කරන්න",
+    "simulate":  "අනුකරණය කරන්න",
+    "noProtectedLines":  "ආරක්ෂිත රේඛා නැත",
+    "noInternationalSimsAdded":  "ඔබ තවම ජාත්‍යන්තර SIM කාඩ් එකතු කර නැත. ඔබේ පළමු කාඩ්පත දැන් ආරක්ෂා කර සදහටම ක්‍රියාශීලීව තබා ගන්න.",
+    "protectNewLine":  "නව රේඛාව ආරක්ෂා කරන්න",
+    "noSharedSimsYet":  "තවම හවුල් SIMs නැත",
+    "inviteFamilyMembers":  "ඔබේ ගෘහ කණ්ඩායමට සම්බන්ධ වීමට පවුලේ සාමාජිකයන් ආරාධනා කරන්න. ඔවුන් පිළිගත් පසු, ඔවුන්ගේ ආරක්ෂිත SIM රේඛා සහජ නිරීක්ෂණය සඳහා මෙහි දිස් වේ.",
+    "manageHousehold":  "ගෘහය කළමනාකරණය කරන්න",
+    "manageProfileDesc":  "ඔබේ පැතිකඩ, SIM රේඛා, ඇඟවීම් සහ හවුල් මනාපයන් කළමනාකරණය කරන්න",
+    "keepSIMsUser":  "KeepSIMs පරිශීලකයා",
+    "pro":  "PRO",
+    "homeCountry":  "මව් රට: ",
+    "console":  "කොන්සෝලය",
+    "offlineRefill":  "නොබැඳි පිරවීම (SMS/WA)",
+    "refillSimOfflineDesc":  "SMS හෝ WhatsApp හරහා නොබැඳිව SIM ශේෂය පිරවන්න",
+    "wallet":  "මුදල් පසුම්බිය",
+    "manageBalancesDesc":  "ඔබේ ශේෂ කළමනාකරණය කර ගනුදෙනු ඉතිහාසය බලන්න",
+    "alertPreferences":  "ඇඟවීම් මනාපයන්",
+    "togglePushEmailDesc":  "අලුත් කිරීම්/ශේෂ සඳහා push සහ ඊමේල් සැකසුම් ක්‍රියාත්මක/අක්‍රිය කරන්න",
+    "referAndEarn":  "යොමු කරන්න සහ උපයන්න",
+    "shareKeepSIMsDesc":  "KeepSIMs බෙදාහදා ගෙන, ගතික ශේෂ ත්‍යාග අගුළු හරින්න",
+    "paymentMethods":  "ගෙවීම් ක්‍රම",
+    "addBankCardsDesc":  "බැංකු කාඩ් එකතු කරන්න හෝ ස්වයං-ආහරණ ගිණුම් සම්බන්ධ කරන්න",
+    "travelAndGeolocation":  "සංචාරය සහ භූ-ස්ථාන",
+    "manageHomeCountryDesc":  "මව් රට කැටිගත් නීති සහ සංචාර මාදිලිය කළමනාකරණය කරන්න",
+    "dataAndPrivacy":  "දත්ත සහ පෞද්ගලිකත්වය",
+    "manageTrackingConsentDesc":  "ඔබේ ලුහුබැඳීමේ කැමැත්ත කළමනාකරණය කරන්න, දත්ත අපනයනය කරන්න, හෝ ගිණුම මකන්න",
+    "powerUser":  "බලසම්පන්න පරිශීලකයා",
+    "accessSystemSimulatorsDesc":  "පද්ධති අනුකාරකයන් සහ නිදොස්කරණ මෙවලම් ලබා ගන්න",
+    "testChecklist":  "පරීක්ෂණ ලැයිස්තුව",
+    "manualUiTestingDesc":  "ගුණාත්මකභාවය සහතික කිරීම සඳහා අතින් UI පරීක්ෂා කිරීමේ ලැයිස්තුව",
+    "soon":  "ඉක්මනින්",
+    "featureComingSoon":  "{feature} විශේෂාංගය ඉක්මනින් ලැබේ!",
+    "@featureComingSoon":  {
+                               "placeholders":  {
+                                                    "feature":  {
+                                                                    "type":  "String"
+                                                                }
+                                                }
+                           },
+    "logOut":  "ඉවත් වන්න",
+    "confirmLogOut":  "ඔබට KeepSIMs වෙතින් ඉවත් වීමට අවශ්‍ය බව නිශ්චිතද?",
+    "walletLedger":  "මුදල් පසුම්බි ගිණුම් පොත",
+    "keepSIMsPrepaid":  "KeepSIMs ප්‍රිපේඩ්",
+    "offlineMode":  "නොබැඳි මාදිලිය",
+    "activeBalance":  "ක්‍රියාකාරී ශේෂය",
+    "criticalBalanceLevel":  "තීරණාත්මක ශේෂ මට්ටම",
+    "balanceBelow10":  "ඔබේ ශේෂය $10.00 ට අඩුයි. නියමිත SIM ඉහළ නැංවීම් ඉක්මනින් අසාර්ථක විය හැක.",
+    "depositFunds":  "මුදල් තැන්පත් කරන්න",
+    "walletDepositsRequireInternet":  "මුදල් පසුම්බි තැන්පතු සඳහා ක්‍රියාශීලී අන්තර්ජාල සම්බන්ධතාවයක් අවශ්‍යයි.",
+    "exportLedger":  "ගිණුම් පොත අපනයනය කරන්න",
+    "ledgerHistoryExported":  "ගිණුම් පොත ඉතිහාසය CSV ලෙස අපනයනය කෙරිණි.",
+    "spendAnalysis":  "වියදම් විශ්ලේෂණය",
+    "transactionHistory":  "ගනුදෙනු ඉතිහාසය",
+    "itemsCount":  "අයිතම {count}",
+    "@itemsCount":  {
+                        "placeholders":  {
+                                             "count":  {
+                                                           "type":  "int"
+                                                       }
+                                         }
+                    },
+    "noTransactionsRecorded":  "තවම ගනුදෙනු වාර්තා නොකෙරිණි.",
+    "prepaidMonthlyOutflow":  "ප්‍රිපේඩ් මාසික ගලා යාම",
+    "avgMonthlySpend":  "සාමා: ${amount}/මාස (12M)",
+    "@avgMonthlySpend":  {
+                             "placeholders":  {
+                                                  "amount":  {
+                                                                 "type":  "String"
+                                                             }
+                                              }
+                         },
+    "depositViaCard":  "{last4} ලකුණු ඇති කාඩ්පත හරහා තැන්පතු",
+    "@depositViaCard":  {
+                            "placeholders":  {
+                                                 "last4":  {
+                                                               "type":  "String"
+                                                           }
+                                             }
+                        },
+    "lineRenewal":  "රේඛා අලුත් කිරීම",
+    "justNow":  "දැන් පමණක්",
+    "loadCreditFunds":  "ණය මුදල් පූරණය කරන්න",
+    "depositAmountUsd":  "තැන්පතු මුදල (USD)",
+    "pleaseEnterAmount":  "කරුණාකර මුදලක් ඇතුළු කරන්න",
+    "enterPositiveNumber":  "ධනාත්මක සංඛ්‍යාවක් ඇතුළු කරන්න",
+    "cardDetails":  "කාඩ් විස්තර",
+    "savedCards":  "සුරකින ලද කාඩ්",
+    "visaCardNumber":  "Visa කාඩ් අංකය",
+    "pleaseEnterCardNumber":  "කරුණාකර කාඩ් අංකය ඇතුළු කරන්න",
+    "mustBe16Digits":  "අංක 16ක් විය යුතුයි",
+    "expiryMmYy":  "කල් ඉකුත් වීම (MM/YY)",
+    "expiryRequired":  "කල් ඉකුත් වීම අවශ්‍යයි",
+    "invalid":  "අවලංගු",
+    "cvv":  "CVV",
+    "cvvRequired":  "CVV අවශ්‍යයි",
+    "verifyingCardSecurity":  "කාඩ් ආරක්ෂාව සත්‍යාපනය කරමින්...",
+    "authorizeDepositFunds":  "තැන්පතු අනුමත කරන්න",
+    "successfullyDeposited":  "${amount} USD සාර්ථකව තැන්පත් කෙරිණි!",
+    "@successfullyDeposited":  {
+                                   "placeholders":  {
+                                                        "amount":  {
+                                                                       "type":  "String"
+                                                                   }
+                                                    }
+                               },
+    "failedToDepositFunds":  "මුදල් තැන්පත් කිරීම අසාර්ථකයි. කාඩ් සම්බන්ධතාවය පරීක්ෂා කරන්න.",
+    "noSavedPaymentMethods":  "සුරකින ලද ගෙවීම් ක්‍රම හමු නොවිණි.",
+    "addPaymentMethod":  "ගෙවීම් ක්‍රමයක් එකතු කරන්න",
+    "savedPaymentMethods":  "සුරකින ලද ගෙවීම් ක්‍රම",
+    "addAnotherPaymentMethod":  "තවත් ගෙවීම් ක්‍රමයක් එකතු කරන්න",
+    "expiresMmYy":  "{month}/{year} දින කල් ඉකුත් වේ",
+    "@expiresMmYy":  {
+                         "placeholders":  {
+                                              "month":  {
+                                                            "type":  "String"
+                                                        },
+                                              "year":  {
+                                                           "type":  "String"
+                                                       }
+                                          }
+                     },
+    "offlineRefillTitle":  "නොබැඳි පිරවීම (SMS/WA)",
+    "selectTargetSimLine":  "ඉලක්ක SIM රේඛාව තෝරන්න",
+    "noRegisteredSimLines":  "ලියාපදිංචි SIM රේඛා හමු නොවිණි.",
+    "targetSimLine":  "ඉලක්ක SIM රේඛාව",
+    "simLine":  "SIM රේඛාව",
+    "carrier":  "සේවා සපයන්නා",
+    "change":  "වෙනස් කරන්න",
+    "offlineRefillProtection":  "නොබැඳි පිරවීම් ආරක්ෂාව",
+    "premiumExclusive":  "ප්‍රිමියම් සුවිශේෂ",
+    "neverGetStrandedDesc":  "ජංගම දත්ත නොමැතිව කිසිදා ගොදුරු නොවන්න. KeepSIMs Premium ඔබට ශූන්‍ය අන්තර්ජාල සම්බන්ධතාවයකින් සිටින විට සම්මත දේශීය SMS හෝ WhatsApp පණිවිඩ හරහා නොබැඳිව ඔබේ SIM ශේෂය පිරවීමට ඉඩ සලසයි.",
+    "offlineCapability100":  "100% නොබැඳි හැකියාව",
+    "deductsFromKeepSIMsDesc":  "දේශීය SMS ද්වාර ව්‍යසන ආදේශ හරහා ඔබේ රේඛාවට ණය ලබා දීමට KeepSIMs මුදල් පසුම්බියෙන් අඩු කරයි.",
+    "dynamicUssdPlanActivation":  "ගතික USSD සැලැස්ම සක්‍රිය කිරීම",
+    "exactCopyPasteDialCodesDesc":  "නොබැඳිව Data+Call පැකේජ සක්‍රිය කිරීමට හරියටම පිටපත් කළ හැකි ඩයල් කේත (උදා: *900*1#) සපයයි.",
+    "dualChannelSupport":  "ද්වි-නාලිකා සහාය",
+    "textRefillDesc":  "ලබා ගත හැකි සෛලීය ආවරණය අනුව සම්මත SMS හෝ WhatsApp භාවිතයෙන් \"REFILL\" ලෙස අකුරු කරන්න.",
+    "close":  "වසන්න",
+    "howToTriggerOfflineRefill":  "නොබැඳි පිරවීම ක්‍රියාත්මක කරන්නේ කෙසේද",
+    "ifZeroMobileDataDesc1":  "ඔබ සතු ජංගම දත්ත ශූන්‍ය නම්, සම්මත SMS හෝ WhatsApp පණිවිඩයක් ",
+    "refill":  "REFILL",
+    "toOurSecureGatewayDesc2":  " පමණක් ඇතුළත් කර අපගේ ආරක්ෂිත ද්වාරයට යවන්න:",
+    "targetSimLineLabel":  "ඉලක්ක SIM රේඛාව",
+    "configureCashRefillAmount":  "මුදල් පිරවීමේ ප්‍රමාණය වින්‍යාස කරන්න",
+    "refillAmount":  "පිරවීමේ ප්‍රමාණය",
+    "walletBalanceUsd":  "මුදල් පසුම්බි ශේෂය: ${amount} USD",
+    "@walletBalanceUsd":  {
+                              "placeholders":  {
+                                                   "amount":  {
+                                                                  "type":  "String"
+                                                              }
+                                               }
+                          },
+    "lowBalanceWarning":  "⚠️ අඩු ශේෂය",
+    "localCarrierPlanSuggestions":  "දේශීය සේවා සපයන්නා සැලැස්ම යෝජනා",
+    "noStandardUssdDialCodes":  "මෙම සේවා සපයන්නා සඳහා සම්මත USSD ඩයල් කේත හමු නොවිණි. ඔබේ රේඛාවට මුදල් පිරවීම තවමත් සාර්ථකව ලැබේ.",
+    "dynamicDialCodesPreview":  "ගතික ඩයල් කේත පෙරදසුන",
+    "botSuggestDialingCodes":  "නොබැඳි පිරවීම සම්පූර්ණ වූ පසු, නොබැඳිව Data+Calls වහාම අගුළු හැරීමට ඔබේ දුරකථනයේ මෙම නිශ්චිත කේත ඩයල් කිරීමට බොට් යෝජනා කරනු ඇත:",
+    "costAmount":  "මිල: ${amount}",
+    "@costAmount":  {
+                        "placeholders":  {
+                                             "amount":  {
+                                                            "type":  "String"
+                                                        }
+                                         }
+                    },
+    "whatsappSmsSenderOverride":  "WHATSAPP/SMS යවන්නා ඉක්මවා යාම",
+    "verificationNumber":  "සත්‍යාපන අංකය",
+    "triggerRefillsDifferentNumber":  "ඔබ ඔබේ ප්‍රධාන පැතිකඩ දුරකථනයෙන් වෙනත් අංකයකින් පිරවීම් ක්‍රියාත්මක කරන්නේ නම්, රට කේතය සමඟ පහත ඇතුළු කරන්න (උදා: 96891234567).",
+    "enterPhoneNumberDigits":  "දුරකථන අංකය ඇතුළු කරන්න (ඉලක්කම් පමණි)",
+    "offlineRefillSettingsSaved":  "නොබැඳි පිරවීම් සැකසුම් සාර්ථකව සුරකිණි!",
+    "saveSettings":  "සැකසුම් සුරකින්න",
+    "errorLoadingSettings":  "සැකසුම් පූරණය කිරීමේ දෝෂය: {error}",
+    "@errorLoadingSettings":  {
+                                  "placeholders":  {
+                                                       "error":  {
+                                                                     "type":  "String"
+                                                                 }
+                                                   }
+                              },
+    "retry":  "නැවත උත්සාහ කරන්න",
+    "editProtectedLine":  "ආරක්ෂිත රේඛාව සංස්කරණය කරන්න",
+    "saveChanges":  "වෙනස්කම් සුරකින්න",
+    "activateShieldProtection":  "Shield ආරක්ෂාව සක්‍රිය කරන්න",
+    "phoneNumber":  "දුරකථන අංකය",
+    "nicknameOptional":  "අන්වර්ථ නාමය (විකල්ප)",
+    "whatsappAlerts":  "WhatsApp ඇඟවීම්",
+    "emailAlertsDesc":  "Resend හරහා යවන ලද තීරණාත්මක අක්‍රිය කිරීමේ ඇඟවීම්",
+    "refillWalletLow":  "මුදල් අඩු වූ විට මුදල් පසුම්බිය පිරවන්න",
+    "legalPoliciesDesc":  "KeepSIMs භාවිතා කිරීමෙන්, ඔබ අපගේ කොන්දේසිවලට එකඟ වේ. KeepSIMs ඔබේ SIM ජීවන චක්‍රය කළමනාකරණය කිරීමට උදවු කිරීමේ මෙවලම් සපයයි, නමුත් තෙවන පාර්ශ්ව විදුලි සංදේශ සේවා සපයන්නන් විසින් ඇති කරන ලද සෘජු හෝ වක්‍ර අලාභ, හානි, හෝ සේවා බාධාවන් සඳහා අපි වගකීම් නොදරමු.",
+    "globalTravelModeDesc":  "ස්වයංක්‍රීය භූ-වැට් නීතිවලට දේශ සීමා හරවා යාමේ චර්යා ක්‍රියාත්මක කිරීමට ඉඩ සලසයි",
+    "dataPreferences":  "දත්ත මනාපයන්",
+    "doNotDisturb":  "බාධා නොකරන්න",
+    "linkedCards":  "සම්බන්ධිත කාඩ්",
+    "analyticsTracking":  "විශ්ලේෂණ සහ ලුහුබැඳීම",
+    "dubai":  "දුබායි",
+    "flyHome":  "නිවසට යාම",
+    "managePreferencesAndSecurityDesc":  "තේමාව, භාෂාව සහ ජෛවමිතික අගුළු කළමනාකරණය කරන්න",
+    "autoFundingRulesDesc":  "ශේෂය ඉතා අඩු වූ විට ඔබේ පෙරනිමි ණය කාඩ්පතෙන් ස්වයංක්‍රීය ඉහළ නැංවීම් සක්‍රිය කිරීමෙන් SIM අලුත් කිරීම අඛණ්ඩව ක්‍රියාත්මක කරන්න",
+    "pushNotifications":  "Push දැනුම්දීම්",
+    "quietHoursSchedule":  "නිස්සාර කාලය සහ කාලසටහන",
+    "exportMyDataDesc":  "ඔබේ පැතිකඩ සහ මනාපයන්හි JSON පිටපතක් බාගන්න (GDPR ප්‍රවේශ අයිතිය)",
+    "borderSimulatorTitle":  "දේශ සීමා හරවා යාමේ අනුකාරකය",
+    "yourData":  "ඔබේ දත්ත",
+    "mostImportant":  "වැදගත්ම",
+    "emailAlerts":  "ඊමේල් ඇඟවීම්",
+    "pushNotificationsDesc":  "මෙම උපාංගයේ ආක්‍රමණශීලී මූලික දැනුම්දීම්",
+    "alertSettingsTitle":  "ඇඟවීම් සැකසුම්",
+    "atHome":  "නිවසේ",
+    "telegramBotDesc":  "බැඳී ඇති අන්තර්ක්‍රියාකාරී Telegram චැට් දැනුම්දීම්",
+    "alertChannels":  "ඇඟවීම් නාලිකා",
+    "london":  "ලන්ඩන්",
+    "shieldProtection":  "Shield ආරක්ෂාව",
+    "legalPolicies":  "නෛතික සහ ප්‍රතිපත්ති",
+    "supportVisaMastercard":  "ආරක්ෂිත Visa සහ MasterCard හර හෝ ණය සහාය දක්වයි",
+    "exportMyData":  "මගේ දත්ත අපනයනය කරන්න",
+    "dangerZone":  "අනතුරු කලාපය",
+    "analyticsTrackingDesc":  "නිර්නාමික භාවිත දත්ත බෙදාහදා ගැනීමෙන් යෙදුම වැඩිදියුණු කිරීමට අපට උදව් කරන්න. අක්‍රිය කළහොත් අත්‍යවශ්‍ය යෙදුම් කාර්යයන්ට බලපෑමක් නොවේ",
+    "autoFundingRules":  "ස්වයං-අරමුදල් නීති",
+    "singapore":  "සිංගප්පූරුව",
+    "weeklySummaryDigest":  "සතිපතා සාරාංශ ඒකාංකය",
+    "fullyShielded":  "සම්පූර්ණයෙන් ආරක්ෂිතයි",
+    "dndDesc":  "නිශ්චිත නිදන කාලවලදී push දැනුම්දීම් නිශ්ශබ්ද කරන්න",
+    "paymentsAutoFundTitle":  "ගෙවීම් සහ ස්වයං-අරමුදල්",
+    "travelGeolocationTitle":  "සංචාරය සහ භූ-ස්ථාන",
+    "telegramBot":  "Telegram බොට්",
+    "weeklyDigestDesc":  "සෑම ඉරිදා ඉදිරිපස 9:00 ට සියලු SIM කාඩ්වල සම්පාදිත තත්ව වාර්තාව",
+    "borderSimulatorDesc":  "ස්මාර්ට් කැටිගැස්සීම හෝ ක්‍රියාකාරී රට නැවත ආරම්භ කිරීමේ නීති ක්‍රියාත්මක කිරීමට නැව්ගත කිරීම් අනුකරණය කරන්න.",
+    "linkFirstCard":  "ඔබේ පළමු ගෙවීම් කාඩ්පත සම්බන්ධ කරන්න",
+    "globalTravelMode":  "ගෝලීය සංචාර මාදිලිය",
+    "readPrivacyPolicy":  "සම්පූර්ණ රහස්‍යතා ප්‍රතිපත්තිය සහ කොන්දේසි කියවන්න",
+    "whatsappAlertsDesc":  "WhatsApp වෙත සෘජුවම push කෙරෙන පිරවීම් අසාර්ථකත්ව ඇඟවීම්",
+    "abroadTraveling":  "විදේශ / සංචාරය",
+    "freezeAllLines":  "සියලු රේඛා කැටිගස්සන්න",
+    "resumeRenewals":  "අලුත් කිරීම් නැවත ආරම්භ කරන්න",
+    "freezeRecommendationDesc":  "ඔබ දැනට ඔබේ මව් රටේ සිටින බව අපි හඳුනා ගත්තෙමු. අනවශ්‍ය මුදල් පසුම්බි ශේෂ ක්ෂය වීම වැළැක්වීමට ඔබේ ජාත්‍යන්තර රේඛාවල අලුත් කිරීම් කැටිගස්සන්න.",
+    "travelDetected":  "සංචාරය හඳුනා ගන්නා ලදී! ✈️",
+    "resumeRecommendationDesc":  "ඔබ විදේශ සංචාරයේ සිටිනවා. නිරන්තර ජංගම ජාල ආවරණය සහතික කිරීමට ඔබේ විරාම කරන ලද ජාත්‍යන්තර SIM අලුත් කිරීම් නැවත ආරම්භ කරන්න.",
+    "dismiss":  "ඉවත් කරන්න",
+    "welcomeHome":  "නිවසට සාදරයෙන් පිළිගනිමු! 🏡",
+    "addCard":  "කාඩ්පත එකතු කරන්න",
+    "noAlertChannelsConfigured":  "ඇඟවීම් ලබාදීමේ නාලිකා සකසා නැත.",
+    "channelSettingsUpdated":  "{channelName} සැකසුම් යාවත්කාලීන කෙරිණි.",
+    "@channelSettingsUpdated":  {
+                                    "placeholders":  {
+                                                         "channelName":  {
+                                                                             "type":  "String"
+                                                                         }
+                                                     }
+                                },
+    "channelLocked":  "{channelName} අගුළු දමා ඇත 🔒",
+    "@channelLocked":  {
+                           "placeholders":  {
+                                                "channelName":  {
+                                                                    "type":  "String"
+                                                                }
+                                            }
+                       },
+    "lockedAlertSubtitle":  "{channelName} ඇඟවීම් Starter සහ Premium සැලැස්ම් විශේෂාංග වේ. WhatsApp, Telegram සහ ඊමේල් ඇඟවීම් අගුළු හැරීමට ඔබේ සැලැස්ම උසස් කරන්න!",
+    "@lockedAlertSubtitle":  {
+                                 "placeholders":  {
+                                                      "channelName":  {
+                                                                          "type":  "String"
+                                                                      }
+                                                  }
+                             },
+    "upsellProtect5Lines":  "එකවර SIM රේඛා 5ක් දක්වා ආරක්ෂා කරන්න",
+    "upsellUnlockChannels":  "WhatsApp, Telegram සහ ඊමේල් දැනුම්දීම් අගුළු හරින්න",
+    "upsellEnableTravelModes":  "සංචාර සහ නිවෙස් ස්වයංක්‍රීය වලංගු මාදිලි සක්‍රිය කරන්න",
+    "emailAddressLabel":  "දැනුම්දීම් ඊමේල් ලිපිනය",
+    "emailAddressHint":  "උදා: user@domain.com",
+    "whatsappNumberLabel":  "WhatsApp අංකය (ජාත්‍යන්තර ආකෘතිය)",
+    "whatsappNumberHint":  "උදා: +96891234567",
+    "whatsappFormatInstruction":  "+ සමඟ ආරම්භ වන සම්පූර්ණ ජාත්‍යන්තර ආකෘතිය ඇතුළු කරන්න (උදා: +96893990492)",
+    "telegramStatusBound":  "තත්ත්වය: සම්බන්ධිතයි (Chat ID: {chatId})",
+    "@telegramStatusBound":  {
+                                 "placeholders":  {
+                                                      "chatId":  {
+                                                                     "type":  "String"
+                                                                 }
+                                                  }
+                             },
+    "telegramStatusUnbound":  "තත්ත්වය: අසම්බන්ධිතයි",
+    "telegramLinkInstructions":  "නිදහස්, අන්තර්ක්‍රියාකාරී Telegram ඇඟවීම් ලැබීමට, අපගේ Telegram Bot ඔබේ ගිණුමට සම්බන්ධ කරන්න.",
+    "linkTelegramBot":  "Telegram Bot සම්බන්ධ කරන්න",
+    "emailFreePlanGuarded":  "Resend නිදහස් සැලැස්ම ආරක්ෂිතයි: අක්‍රිය කිරීමේ ප්‍රේරක පමණක් ලෙස සීමා කෙරේ. ප්‍රවර්ධන ස්පෑම් නොමැත.",
+    "whatsappMetaCloudCapped":  "Meta Cloud Direct සීමා කෙරේ: ඉහළ නැංවීම් කාලසටහනකට උපරිම පණිවිඩ 1ක්, ස්වයං-පිරවීම ක්‍රියාශීලී නොවේ නම් හෝ අසාර්ථක නම් පමණක් යවනු ලැබේ.",
+    "failedToLoadPaymentInfo":  "ගෙවීම් තොරතුරු පූරණය කිරීම අසාර්ථකයි",
+    "defaultCardIndicator":  "පෙරනිමි",
+    "cardholder":  "කාඩ් හිමිකරු",
+    "expires":  "කල් ඉකුත් වේ",
+    "lowBalanceTrigger":  "අඩු ශේෂ ප්‍රේරකය",
+    "triggerLowTopUp":  "අඩු ඉහළ නැංවීම ක්‍රියාත්මක කරන්න",
+    "reloadDepositAmount":  "නැවත පූරණ තැන්පතු ප්‍රමාණය",
+    "amountToLoad":  "පූරණය කළ යුතු ප්‍රමාණය",
+    "linkCreditDebitCard":  "ණය/හර කාඩ්පත සම්බන්ධ කරන්න",
+    "cardNumberLabel":  "කාඩ් අංකය",
+    "expiryDateLabel":  "කල් ඉකුත් වීමේ දිනය",
+    "cvvCodeLabel":  "CVV කේතය",
+    "securelyLinkCard":  "ආරක්ෂිතව කාඩ්පත සම්බන්ධ කරන්න",
+    "pleaseEnterValidCardNumber":  "කරුණාකර වලංගු ඉලක්කම් 16ක් ඇති කාඩ් අංකයක් ඇතුළු කරන්න.",
+    "pleaseEnterValidExpiryDate":  "කරුණාකර වලංගු කල් ඉකුත් වීමේ දිනයක් (MM/YY) ඇතුළු කරන්න.",
+    "invalidExpiryMonth":  "අවලංගු කල් ඉකුත් වීමේ මාසය.",
+    "cvvMustBe3Digits":  "CVV ඉලක්කම් 3ක් විය යුතුයි.",
+    "cardLinkedSuccessfully":  "ආරක්ෂිත බිල් කාඩ්පත සාර්ථකව සම්බන්ධ කෙරිණි!",
+    "defaultPaymentCardUpdated":  "පෙරනිමි ගෙවීම් කාඩ්පත යාවත්කාලීන කෙරිණි!",
+    "removePaymentCard":  "ගෙවීම් කාඩ්පත ඉවත් කරන්න",
+    "confirmRemoveCardDesc":  "ඔබට මෙම කාඩ්පත ඉවත් කිරීමට අවශ්‍ය බව නිශ්චිතද? පෙරනිමි ගෙවීම් කාඩ්පතක් ඉතිරි නොවේ නම් සම්බන්ධිත ස්වයං-අරමුදල් අසාර්ථක විය හැක.",
+    "cancel":  "අවලංගු කරන්න",
+    "remove":  "ඉවත් කරන්න",
+    "billingCardSuccessfullyRemoved":  "බිල් කාඩ්පත සාර්ථකව ඉවත් කෙරිණි.",
+    "pleaseAddDefaultCardFirst":  "ස්වයං-අරමුදල් සක්‍රිය කිරීමට කරුණාකර මුලින් පෙරනිමි ගෙවීම් කාඩ්පතක් එකතු කර තෝරන්න.",
+    "autoFundPrefsSavedSuccess":  "ස්වයං-අරමුදල් මනාපයන් සාර්ථකව සුරකිණි!",
+    "preparingDataExport":  "දත්ත අපනයනය සූදානම් කරමින්...",
+    "exportFailed":  "අපනයනය අසාර්ථකයි: {error}",
+    "@exportFailed":  {
+                          "placeholders":  {
+                                               "error":  {
+                                                             "type":  "String"
+                                                         }
+                                           }
+                      },
+    "deleteAccountWarning":  "ඔබ ඔබේ ගිණුම මකා දැමූ පසු, ආපසු හැරවිය නොහැක. කරුණාකර නිශ්චිත වන්න.",
+    "deleteAccount":  "ගිණුම මකන්න",
+    "deleteAccountIrreversible":  "මෙම ක්‍රියාව ආපසු හැරවිය නොහැකි වේ. ඔබේ සියලු දත්ත ස්ථිරවම ඉවත් කෙරේ.",
+    "typeDeleteToConfirm":  "තහවුරු කිරීමට \"DELETE\" ටයිප් කරන්න:",
+    "deleteWord":  "DELETE",
+    "systemDiagnosticsLogs":  "පද්ධති රෝග නිර්ණය ලොග්",
+    "online":  "සබැඳිව",
+    "errorLoadingPrefs":  "මනාපයන් පූරණය කිරීමේ දෝෂය: {error}",
+    "@errorLoadingPrefs":  {
+                               "placeholders":  {
+                                                    "error":  {
+                                                                  "type":  "String"
+                                                              }
+                                                }
+                           },
+    "privacyPolicyLoaded":  "රහස්‍යතා ප්‍රතිපත්ති විස්තර පූරණය කෙරිණි.",
+    "protectionConsole":  "ආරක්ෂණ කොන්සෝලය",
+    "deleteProtectionTooltip":  "ආරක්ෂාව මකන්න",
+    "refreshTooltip":  "නැවුම් කරන්න",
+    "failedToLoadDetails":  "විස්තර පූරණය කිරීම අසාර්ථකයි",
+    "retryConnection":  "සම්බන්ධතාවය නැවත උත්සාහ කරන්න",
+    "healthLabel":  "සෞඛ්‍යය",
+    "mySimCardDefault":  "මගේ SIM කාඩ්",
+    "upLabel":  "සක්‍රිය",
+    "sharedByFamily":  "හවුල් කළේ: {ownerName} ({role})",
+    "@sharedByFamily":  {
+                            "placeholders":  {
+                                                 "ownerName":  {
+                                                                   "type":  "String"
+                                                               },
+                                                 "role":  {
+                                                              "type":  "String"
+                                                          }
+                                             }
+                        },
+    "criticalRisk":  "තීරණාත්මක අවදානම",
+    "simDeactivationRisk":  "ක්‍රියාවක් නොමැතිව SIM අක්‍රිය විය හැක",
+    "missingAlertsDesc":  "ඇඟවීම් දැනුම්දීම් සකසා නැත — ලකුණු 100ක් අඩුයි",
+    "missingAutoRefillDesc":  "ස්වයං-පිරවීම සකසා නැත — ලකුණු 50ක් අඩුයි",
+    "missingVerificationDesc":  "දුරකථන අංකය සත්‍යාපනය කර නැත — ලකුණු 25ක් අඩුයි",
+    "missingRecentRefillDesc":  "අවසන් පිරවීම දින 80කට වඩා පෙර විය — ලකුණු 25ක් අඩුයි",
+    "quickActionsLabel":  "ඉක්මන් ක්‍රියාවන්",
+    "manualRefillLabel":  "අතින් පිරවීම",
+    "chargeFromWalletNow":  "දැන් මුදල් පසුම්බියෙන් අය කරන්න",
+    "rechargeFromFriend":  "මිතුරෙකුගෙන් නැවත ආරෝපණය කරන්න",
+    "requestViaTelegram":  "Telegram හරහා ඉල්ලන්න",
+    "shareViaWaTg":  "WhatsApp/Telegram හරහා බෙදාහරින්න",
+    "testSimActivity":  "SIM ක්‍රියාකාරකම් පරීක්ෂා කරන්න",
+    "verifyLineReachable":  "රේඛාව ළඟා කළ හැකිදැයි සත්‍යාපනය කරන්න",
+    "checkCompleted1x":  "1x පරීක්ෂාව සම්පූර්ණයි",
+    "starterPlan1xCompleted":  "Starter සැලැස්ම 1x පරීක්ෂාව සම්පූර්ණයි. අසීමිත පරීක්ෂා සඳහා Premium වෙත උසස් කරන්න.",
+    "leaveCountry":  "{countryName} හැර යන්න",
+    "@leaveCountry":  {
+                          "placeholders":  {
+                                               "countryName":  {
+                                                                   "type":  "String"
+                                                               }
+                                           }
+                      },
+    "resumeProtectionLayers":  "ආරක්ෂණ ස්ථර නැවත ආරම්භ කරන්න",
+    "backToCountryMode":  "{countryName} මාදිලියට ආපසු",
+    "@backToCountryMode":  {
+                               "placeholders":  {
+                                                    "countryName":  {
+                                                                        "type":  "String"
+                                                                    }
+                                                }
+                           },
+    "pauseWhileVisitingHome":  "නිවස බලා ගිය විට විරාම කරන්න",
+    "rechargeFromFriendTitle":  "මිතුරෙකුගෙන් නැවත ආරෝපණය කරන්න",
+    "selectPlatformShare":  "ඔබේ මිතුරා සමඟ නැවත ආරෝපණ ඉල්ලීම් පණිවිඩයක් බෙදාගැනීමට වේදිකාවක් තෝරන්න.",
+    "rechargeRequestTemplate":  "හෙලෝ! මගේ KeepSIMs කාඩ් ({phone}) ඉක්මනින් කල් ඉකුත් වේ. ඔබට එය මා වෙනුවෙන් නැවත ආරෝපණය කළ හැකිද? ස්තූතියි!",
+    "@rechargeRequestTemplate":  {
+                                     "placeholders":  {
+                                                          "phone":  {
+                                                                        "type":  "String"
+                                                                    }
+                                                      }
+                                 },
+    "requestViaWhatsApp":  "WhatsApp හරහා ඉල්ලන්න",
+    "couldNotLaunchLink":  "{platformName} සබැඳිය විවෘත කළ නොහැකි විය: {error}",
+    "@couldNotLaunchLink":  {
+                                "placeholders":  {
+                                                     "platformName":  {
+                                                                          "type":  "String"
+                                                                      },
+                                                     "error":  {
+                                                                   "type":  "String"
+                                                               }
+                                                 }
+                            },
+    "couldNotLaunchTelegram":  "Telegram සබැඳිය විවෘත කළ නොහැකි විය: {error}",
+    "@couldNotLaunchTelegram":  {
+                                    "placeholders":  {
+                                                         "error":  {
+                                                                       "type":  "String"
+                                                                   }
+                                                     }
+                                },
+    "protectionLayersLabel":  "ආරක්ෂණ ස්ථර",
+    "autoNotifyDisabled":  "ස්වයං-දැනුම්දීම: අක්‍රියයි",
+    "noActiveAlertSchedule":  "ඔබේ SIM කාඩ්පතේ ක්‍රියාකාරී ඇඟවීම් දැනුම්දීම් කාලසටහනක් නොමැත. ඔබට ස්වයංක්‍රීය මතක් කිරීම් හෝ අක්‍රිය කිරීමේ ඇඟවීම් ලැබෙන්නේ නැත.",
+    "askOwnerConfigureAlerts":  "කරුණාකර ගෘහ හිමිකාරයාගෙන් ඇඟවීම් සකස් කිරීමට ඉල්ලන්න.",
+    "configureAutoNotify":  "ස්වයං-දැනුම්දීම වින්‍යාස කරන්න",
+    "activeLabel":  "ක්‍රියාකාරී",
+    "pausedHomeMode":  "විරාම (නිවෙස් මාදිලිය)",
+    "pausedLabel":  "විරාම",
+    "everyHour":  "සෑම පැයකට",
+    "everyNDays":  "සෑම දින {days}කට",
+    "@everyNDays":  {
+                        "placeholders":  {
+                                             "days":  {
+                                                          "type":  "int"
+                                                      }
+                                         }
+                    },
+    "nextAlertCheck":  "ඊළඟ ඇඟවීම් පරීක්ෂාව",
+    "premiumKeepAliveRefill":  "Premium Keep-Alive පිරවීම",
+    "autoRefillIncludedText":  "ස්වයං-පිරවීම ඇතුළත් - දින 85කට ~3.5 USD (විදුලි සංදේශ, VAT ඇතුළත්),\\nඊළඟ පිරවීම {date} දින",
+    "@autoRefillIncludedText":  {
+                                    "placeholders":  {
+                                                         "date":  {
+                                                                      "type":  "String"
+                                                                  }
+                                                     }
+                                },
+    "premiumKeepAliveDisabled":  "Premium keep-alive පිරවීම දැනට අක්‍රියයි.",
+    "customAutoRefill":  "අභිරුචි ස්වයං-පිරවීම",
+    "addAdditionalScheduledRecharge":  "ඔබේ SIM හිදී අමතර ශේෂයක් තබා ගැනීමට අතිරේක නියමිත නැවත ආරෝපණ ප්‍රමාණයක් එකතු කරන්න.",
+    "askOwnerConfigureRefill":  "කරුණාකර ගෘහ හිමිකාරයාගෙන් ස්වයං-පිරවීම සකස් කිරීමට ඉල්ලන්න.",
+    "configureCustomAutoRefill":  "අභිරුචි ස්වයං-පිරවීම වින්‍යාස කරන්න",
+    "rechargeAmount":  "නැවත ආරෝපණ ප්‍රමාණය",
+    "refillInterval":  "පිරවීම් කාල පරාසය",
+    "nextRefillDue":  "ඊළඟ නිශ්චිත පිරවීම",
+    "failedRefillAttempts":  "අසාර්ථක පිරවීම් උත්සාහ",
+    "retriesCount":  "{count} / 4 නැවත උත්සාහ",
+    "@retriesCount":  {
+                          "placeholders":  {
+                                               "count":  {
+                                                             "type":  "int"
+                                                         }
+                                           }
+                      },
+    "editRefillAmount":  "පිරවීමේ ප්‍රමාණය සංස්කරණය කරන්න",
+    "refillExecutionsHistory":  "පිරවීම් ක්‍රියාත්මක කිරීම් ඉතිහාසය",
+    "renewalExecutionsHistory":  "අලුත් කිරීම් ක්‍රියාත්මක කිරීම් ඉතිහාසය",
+    "noHistoricalTopup":  "මෙම රේඛාව සඳහා තවම ඓතිහාසික ඉහළ නැංවීම් ක්‍රියාත්මක කිරීම් වාර්තා නොකෙරිණි.",
+    "noHistoricalRenewal":  "මෙම රේඛාව සඳහා තවම ඓතිහාසික අලුත් කිරීම් ක්‍රියාත්මක කිරීම් වාර්තා නොකෙරිණි.",
+    "viewAllHistory":  "සම්පූර්ණ ඉතිහාසය බලන්න",
+    "securityActivityLogs":  "ආරක්ෂණ ක්‍රියාකාරකම් ලොග්",
+    "clearLogs":  "ලොග් හිස් කරන්න",
+    "noActivityLogsRecorded":  "මෙම රේඛාව සඳහා තවම ක්‍රියාකාරකම් ලොග් වාර්තා නොකෙරිණි.",
+    "activityLogDeleted":  "ක්‍රියාකාරකම් ලොග් ඇතුළත්කිරීම මකා දමන ලදී.",
+    "activityLogsCleared":  "ක්‍රියාකාරකම් ලොග් සාර්ථකව හිස් කෙරිණි.",
+    "autoRenewalStatusUpdated":  "ස්වයං-අලුත් කිරීම සාර්ථකව {status}.",
+    "@autoRenewalStatusUpdated":  {
+                                      "placeholders":  {
+                                                           "status":  {
+                                                                          "type":  "String"
+                                                                      }
+                                                       }
+                                  },
+    "failedToUpdateSchedule":  "කාලසටහන යාවත්කාලීන කිරීම අසාර්ථකයි: {error}",
+    "@failedToUpdateSchedule":  {
+                                    "placeholders":  {
+                                                         "error":  {
+                                                                       "type":  "String"
+                                                                   }
+                                                     }
+                                },
+    "premiumRefillEnabled":  "Premium keep-alive පිරවීම සාර්ථකව සක්‍රිය කෙරිණි.",
+    "failedToEnableAutoRefill":  "ස්වයං-පිරවීම සක්‍රිය කිරීම අසාර්ථකයි: {error}",
+    "@failedToEnableAutoRefill":  {
+                                      "placeholders":  {
+                                                           "error":  {
+                                                                         "type":  "String"
+                                                                     }
+                                                       }
+                                  },
+    "removeScheduleTitle":  "කාලසටහන ඉවත් කරන්න",
+    "confirmDeleteAutoRefill":  "ඔබට මෙම ස්වයං-පිරවීම් කාලසටහන මකා දැමීමට අවශ්‍ය බව නිශ්චිතද? ඔබේ SIM සෞඛ්‍ය ලකුණු සැලකිය යුතු ලෙස අඩු වී, අක්‍රිය වීමේ අවදානමට ලක්වේ.",
+    "confirmDeleteAutoRenewal":  "ඔබට මෙම ස්වයං-අලුත් කිරීම් කාලසටහන මකා දැමීමට අවශ්‍ය බව නිශ්චිතද? ඔබේ SIM සෞඛ්‍ය ලකුණු සැලකිය යුතු ලෙස අඩු වී, අක්‍රිය වීමේ අවදානමට ලක්වේ.",
+    "autoRefillRemoved":  "ස්වයං-පිරවීම් කාලසටහන සාර්ථකව ඉවත් කෙරිණි.",
+    "autoRenewalRemoved":  "ස්වයං-අලුත් කිරීම් කාලසටහන සාර්ථකව ඉවත් කෙරිණි.",
+    "failedToDeleteSchedule":  "කාලසටහන මකා දැමීම අසාර්ථකයි: {error}",
+    "@failedToDeleteSchedule":  {
+                                    "placeholders":  {
+                                                         "error":  {
+                                                                       "type":  "String"
+                                                                   }
+                                                     }
+                                },
+    "refillRetrySuccess":  "පිරවීම් නැවත උත්සාහය සාර්ථකව සම්පූර්ණ කෙරිණි!",
+    "renewalRetrySuccess":  "අලුත් කිරීම් නැවත උත්සාහය සාර්ථකව සම්පූර්ණ කෙරිණි!",
+    "retryFailed":  "නැවත උත්සාහය අසාර්ථකයි: {error}",
+    "@retryFailed":  {
+                         "placeholders":  {
+                                              "error":  {
+                                                            "type":  "String"
+                                                        }
+                                          }
+                     },
+    "retryExecutionError":  "නැවත උත්සාහ ක්‍රියාත්මක කිරීමේ දෝෂය: {error}",
+    "@retryExecutionError":  {
+                                 "placeholders":  {
+                                                      "error":  {
+                                                                    "type":  "String"
+                                                                }
+                                                  }
+                             },
+    "failedToDeleteActivityLog":  "ක්‍රියාකාරකම් ලොගය මකා දැමීම අසාර්ථකයි: {error}",
+    "@failedToDeleteActivityLog":  {
+                                       "placeholders":  {
+                                                            "error":  {
+                                                                          "type":  "String"
+                                                                      }
+                                                        }
+                                   },
+    "failedToClearActivityLogs":  "ක්‍රියාකාරකම් ලොග් හිස් කිරීම අසාර්ථකයි: {error}",
+    "@failedToClearActivityLogs":  {
+                                       "placeholders":  {
+                                                            "error":  {
+                                                                          "type":  "String"
+                                                                      }
+                                                        }
+                                   },
+    "removeProtectionTitle":  "ආරක්ෂාව ඉවත් කරන්න",
+    "confirmRemoveProtectionDesc":  "ඔබට {name} ආරක්ෂිතව තබා ගැනීම නවත්වීමට අවශ්‍ය බව නිශ්චිතද? මෙම SIM රේඛාව සඳහා නියමිත ඉහළ නැංවීම් ස්ථිරවම අවලංගු කෙරේ.",
+    "@confirmRemoveProtectionDesc":  {
+                                         "placeholders":  {
+                                                              "name":  {
+                                                                           "type":  "String"
+                                                                       }
+                                                          }
+                                     },
+    "simLineProtectionRemoved":  "SIM රේඛා ආරක්ෂාව සාර්ථකව ඉවත් කෙරිණි.",
+    "failedToDeleteSimLine":  "මකා දැමීම අසාර්ථකයි: {error}",
+    "@failedToDeleteSimLine":  {
+                                   "placeholders":  {
+                                                        "error":  {
+                                                                      "type":  "String"
+                                                                  }
+                                                    }
+                               },
+    "editSimNameTitle":  "SIM නාමය සංස්කරණය කරන්න",
+    "enterNicknameInstruction":  "මෙම SIM කාඩ් රේඛාව සඳහා අන්වර්ථ නාමයක් ඇතුළු කරන්න:",
+    "nicknameExampleHint":  "උදා: මගේ Orange Egypt SIM",
+    "simNameUpdatedSuccess":  "SIM නාමය සාර්ථකව යාවත්කාලීන කෙරිණි.",
+    "failedToUpdateSimName":  "SIM නාමය යාවත්කාලීන කිරීම අසාර්ථකයි: {error}",
+    "@failedToUpdateSimName":  {
+                                   "placeholders":  {
+                                                        "error":  {
+                                                                      "type":  "String"
+                                                                  }
+                                                    }
+                               },
+    "saveButton":  "සුරකින්න",
+    "deleteButton":  "මකන්න",
+    "autoNotifySchedule":  "ස්වයං-දැනුම්දීම් කාලසටහන",
+    "renewalCheckInterval":  "අලුත් කිරීම් පරීක්ෂා කාල පරාසය",
+    "editNotificationConfig":  "දැනුම්දීම් වින්‍යාසය සංස්කරණය කරන්න",
+    "openTicket":  "ටිකට්පතක් විවෘත කරන්න",
+    "offlineRefillLabel":  "නොබැඳි පිරවීම",
+    "categoryLabel":  "කාණ්ඩය",
+    "techSupportCategory":  "තාක්ෂණික සහාය",
+    "billingWalletCategory":  "බිල් සහ මුදල් පසුම්බිය",
+    "simLinesCategory":  "SIM රේඛා කළමනාකරණය",
+    "feedbackOtherCategory":  "ප්‍රතිපෝෂණ සහ වෙනත්",
+    "subjectLabel":  "විෂය",
+    "subjectHint":  "ගැටලුවේ කෙටි සාරාංශය",
+    "descriptionLabel":  "විස්තරය",
+    "descriptionHint":  "ඔබේ ගැටලුව විස්තරාත්මකව විස්තර කරන්න...",
+    "attachmentLabel":  "අමුණා (විකල්ප)",
+    "uploadScreenshot":  "තිරපිටපත අップロード කරන්න",
+    "submitTicketButton":  "ටිකට්පත ඉදිරිපත් කරන්න",
+    "pleaseFillFields":  "කරුණාකර විෂය සහ විස්තරය දෙකම පුරවන්න",
+    "ticketSubmittedSuccess":  "ටිකට්පත සාර්ථකව ඉදිරිපත් කෙරිණි!",
+    "lastRefillLabel":  "අවසන් පිරවීම",
+    "noRefillYet":  "තවම පිරවීමක් නැත",
+    "nextAlertLabel":  "ඊළඟ ඇඟවීම",
+    "protectionLabel":  "ආරක්ෂාව",
+    "actionRequiredLabel":  "ක්‍රියාව අවශ්‍යයි",
+    "protectionOffLabel":  "ආරක්ෂාව අක්‍රියයි",
+    "notSet":  "සකස් කර නැත",
+    "homeMode":  "නිවෙස් මාදිලිය",
+    "incidentChannelsTitle":  "සිද්ධි නාලිකා",
+    "topUpSuccessTitle":  "ඉහළ නැංවීම සාර්ථකයි",
+    "topUpSuccessDesc":  "ස්වයංක්‍රීය SIM වලංගු දීර්ඝ කිරීමක් සාර්ථකව සම්පූර්ණ වූ විට දැනුම් දෙන්න.",
+    "topUpFailedTitle":  "ඉහළ නැංවීම අසාර්ථකයි (තීරණාත්මක)",
+    "topUpFailedDesc":  "සේවා සපයන්නා හෝ මුදල් පසුම්බි ගැටලු නිසා ස්වයංක්‍රීය ඉහළ නැංවීම් අසාර්ථක වූ විට තීරණාත්මක ඇඟවීම්.",
+    "walletLowTitle":  "මුදල් පසුම්බි ශේෂය අඩුයි",
+    "walletLowDesc":  "ප්‍රාථමික ශේෂය ආරක්ෂිත සීමාවට වඩා අඩු වූ විට අනතුරු ඇඟවීම.",
+    "walletDepletedTitle":  "මුදල් පසුම්බිය ක්ෂය වී ඇත",
+    "walletDepletedDesc":  "මුදල් පසුම්බි ශේෂය සම්පූර්ණයෙන් ක්ෂය වී අලුත් කිරීම් නතර වූ විට අත්හිටුවන ලද ඇඟවීම්.",
+    "lineCriticalTitle":  "වලංගු කල් ඉකුත් වීමේ අනතුරු ඇඟවීම",
+    "lineCriticalDesc":  "SIM වලංගු කාල සීමාව පැය 48 ක් ඇතුළත අවසන් වන විට අනතුරු ඇඟවීම.",
+    "lineEnteringGraceTitle":  "කිරුළු කාලයට ඇතුළු වීම",
+    "lineEnteringGraceDesc":  "සේවා සපයන්නා අක්‍රිය කිරීමේ කිරුළු කාල හඳුනාගත් විට දැනුම් දෙන්න.",
+    "geoFenceTriggeredTitle":  "ස්ථාන / රෝමිං ඇඟවීම්",
+    "geoFenceTriggeredDesc":  "සේවා සපයන්නා රෝමිං ගොනු හෝ ජාල නෝඩ් මාරු කළ විට ඇඟවීම්.",
+    "welcomeHomeReadyTitle":  "නිවස සිංක් සාදරයෙන් පිළිගනිමු",
+    "welcomeHomeReadyDesc":  "මව් රට ජාල නෝඩ් ස්වයංක්‍රීය සිංක් ක්‍රියාත්මක කළ විට ඇඟවීම්.",
+    "referralRewardTitle":  "යොමු සහ ත්‍යාග",
+    "referralRewardDesc":  "මිතුරු යොමු මගේ මුදල් පසුම්බියට ප්‍රවර්ධන ශේෂ තැන්පත් කළ විට දැනුම් දෙන්න.",
+    "systemUpdatesTitle":  "සාමාන්‍ය පද්ධති යාවත්කාලීන",
+    "systemUpdatesDesc":  "අත්‍යවශ්‍ය එන්ජින් යාවත්කාලීන, නඩත්තු සහ වේදිකා නිවේදන."
+}

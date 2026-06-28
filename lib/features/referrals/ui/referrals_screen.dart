@@ -12,7 +12,6 @@ import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/core/utils/build_context_extension.dart';
 import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import '../controller/referrals_controller.dart';
-import '../model/referral_model.dart';
 
 class ReferralsScreen extends ConsumerStatefulWidget {
   const ReferralsScreen({super.key});
@@ -150,7 +149,7 @@ class _ReferralsScreenState extends ConsumerState<ReferralsScreen> {
                       Navigator.pop(context);
                       Clipboard.setData(
                         ClipboardData(
-                          text: 'https://simshield.com/invite?code=$code',
+                          text: 'https://keepsims.com/invite?code=$code',
                         ),
                       );
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -253,7 +252,7 @@ class _ReferralsScreenState extends ConsumerState<ReferralsScreen> {
     final referralsAsync = ref.watch(referralsControllerProvider);
     final isDark = context.isDarkMode;
 
-    final profile = profileState.valueOrNull;
+    final profile = profileState.value;
     final userReferralCode = profile?.referralCode ?? 'SS######';
     final hasReferredBy =
         profile?.referredBy != null && profile!.referredBy!.isNotEmpty;
@@ -527,14 +526,21 @@ class _ReferralsScreenState extends ConsumerState<ReferralsScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              userReferralCode,
-                              style: AppTextStyles.displayLarge.copyWith(
-                                color: context.onSurfaceColor,
-                                fontWeight: FontWeight.w900,
-                                letterSpacing: 3,
+                            Expanded(
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  userReferralCode,
+                                  style: AppTextStyles.displayLarge.copyWith(
+                                    color: context.onSurfaceColor,
+                                    fontWeight: FontWeight.w900,
+                                    letterSpacing: 3,
+                                  ),
+                                ),
                               ),
                             ),
+                            const SizedBox(width: 8),
                             GestureDetector(
                               onTap: () {
                                 Clipboard.setData(
@@ -675,7 +681,7 @@ class _ReferralsScreenState extends ConsumerState<ReferralsScreen> {
                               ),
                               const SizedBox(height: 10),
                               Text(
-                                'You successfully claimed your \$2.00 welcome bonus using referral code: ${profile?.referredBy}. Enjoy expat shield protection!',
+                                'You successfully claimed your \$2.00 welcome bonus using referral code: ${profile.referredBy}. Enjoy expat shield protection!',
                                 style: AppTextStyles.bodyMedium.copyWith(
                                   color: isDark
                                       ? AppColors.textSecondaryDark

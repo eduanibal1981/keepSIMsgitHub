@@ -5,6 +5,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:keep_sims/l10n/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
@@ -41,7 +42,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text(
-          'Wallet Ledger',
+          AppLocalizations.of(context)!.walletLedger,
           style: AppTextStyles.headlineLarge.copyWith(
             color: context.isDarkMode
                 ? AppColors.textPrimaryDark
@@ -111,7 +112,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
 
               // ── Spending Analytics (Custom curves) ─────────────────
               Text(
-                'Spend Analysis',
+                AppLocalizations.of(context)!.spendAnalysis,
                 style: AppTextStyles.titleLarge.copyWith(
                   color: context.isDarkMode
                       ? AppColors.textPrimaryDark
@@ -128,7 +129,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Transaction History',
+                    AppLocalizations.of(context)!.transactionHistory,
                     style: AppTextStyles.titleLarge.copyWith(
                       color: context.isDarkMode
                           ? AppColors.textPrimaryDark
@@ -280,7 +281,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'SIM SHIELD PREPAID',
+                              AppLocalizations.of(context)!.keepSIMsPrepaid,
                               style: AppTextStyles.labelSmall.copyWith(
                                 color: Colors.white.withValues(alpha: 0.7),
                                 letterSpacing: 1.5,
@@ -296,25 +297,25 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                                   vertical: 3,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.12),
+                                  color: Colors.white.withValues(alpha: 0.12),
                                   borderRadius: BorderRadius.circular(6),
                                   border: Border.all(
-                                    color: Colors.amberAccent.withOpacity(0.5),
+                                    color: Colors.amberAccent.withValues(alpha: 0.5),
                                     width: 0.8,
                                   ),
                                 ),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
-                                  children: const [
-                                    Icon(
+                                  children: [
+                                    const Icon(
                                       Icons.wifi_off_rounded,
                                       color: Colors.amberAccent,
                                       size: 10,
                                     ),
-                                    SizedBox(width: 4),
+                                    const SizedBox(width: 4),
                                     Text(
-                                      'OFFLINE MODE',
-                                      style: TextStyle(
+                                      AppLocalizations.of(context)!.offlineMode,
+                                      style: const TextStyle(
                                         color: Colors.amberAccent,
                                         fontSize: 9,
                                         fontWeight: FontWeight.bold,
@@ -465,7 +466,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
             opacity: isOffline ? 0.5 : 1.0,
             child: _buildActionButton(
               icon: Icons.add_circle_rounded,
-              label: 'Deposit Funds',
+              label: AppLocalizations.of(context)!.depositFunds,
               color: context.isDarkMode
                   ? AppColors.primaryLight
                   : AppColors.lightPrimary,
@@ -756,7 +757,9 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
               children: [
                 Text(
                   tx.description ??
-                      (isDeposit ? 'Deposit Funds' : 'Line Renewal'),
+                      (isDeposit
+                          ? AppLocalizations.of(context)!.depositFunds
+                          : 'Line Renewal'),
                   style: AppTextStyles.titleMedium.copyWith(
                     color: isDark
                         ? AppColors.textPrimaryDark
@@ -907,8 +910,9 @@ class AnalyticsChartPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant AnalyticsChartPainter oldDelegate) {
-    if (oldDelegate.normalizedPoints.length != normalizedPoints.length)
+    if (oldDelegate.normalizedPoints.length != normalizedPoints.length) {
       return true;
+    }
     for (int i = 0; i < normalizedPoints.length; i++) {
       if (oldDelegate.normalizedPoints[i] != normalizedPoints[i]) return true;
     }
@@ -998,11 +1002,9 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
           _isSubmitting = false;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             backgroundColor: AppColors.healthRed,
-            content: Text(
-              'Failed to deposit funds. Please check card connection.',
-            ),
+            content: Text(AppLocalizations.of(context)!.failedToDepositFunds),
           ),
         );
       }
@@ -1021,7 +1023,7 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
       builder: (context) {
         return Consumer(
           builder: (context, ref, child) {
-            final state = ref.watch(paymentsControllerProvider).valueOrNull;
+            final state = ref.watch(paymentsControllerProvider).asData?.value;
             final methods = state?.paymentMethods ?? [];
 
             if (methods.isEmpty) {
@@ -1031,7 +1033,7 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'No saved payment methods found.',
+                      AppLocalizations.of(context)!.noSavedPaymentMethods,
                       style: AppTextStyles.bodyMedium.copyWith(
                         color: context.isDarkMode
                             ? AppColors.textSecondaryDark
@@ -1045,7 +1047,9 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
                         context.pushNamed('settingsPayments');
                       },
                       icon: const Icon(Icons.add_card, size: 20),
-                      label: const Text('Add Payment Method'),
+                      label: Text(
+                        AppLocalizations.of(context)!.addPaymentMethod,
+                      ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: context.isDarkMode
                             ? AppColors.primary
@@ -1071,7 +1075,7 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: Text(
-                      'Saved Payment Methods',
+                      AppLocalizations.of(context)!.savedPaymentMethods,
                       style: AppTextStyles.titleLarge.copyWith(
                         color: context.isDarkMode
                             ? AppColors.textPrimaryDark
@@ -1136,7 +1140,9 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
                         context.pushNamed('settingsPayments');
                       },
                       icon: const Icon(Icons.add),
-                      label: const Text('Add another payment method'),
+                      label: Text(
+                        AppLocalizations.of(context)!.addAnotherPaymentMethod,
+                      ),
                       style: TextButton.styleFrom(
                         foregroundColor: context.isDarkMode
                             ? AppColors.secondary
@@ -1210,7 +1216,7 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Load Credit Funds',
+                    AppLocalizations.of(context)!.loadCreditFunds,
                     style: AppTextStyles.headlineMedium.copyWith(
                       color: context.isDarkMode
                           ? AppColors.textPrimaryDark
@@ -1256,7 +1262,7 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
                       : AppColors.textPrimaryLight,
                 ),
                 decoration: InputDecoration(
-                  labelText: 'Deposit Amount (USD)',
+                  labelText: AppLocalizations.of(context)!.depositAmountUsd,
                   labelStyle: TextStyle(
                     color: context.isDarkMode
                         ? AppColors.textSecondaryDark
@@ -1291,11 +1297,13 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
                   ),
                 ),
                 validator: (val) {
-                  if (val == null || val.isEmpty)
-                    return 'Please enter an amount';
+                  if (val == null || val.isEmpty) {
+                    return AppLocalizations.of(context)!.pleaseEnterAmount;
+                  }
                   final parsed = double.tryParse(val);
-                  if (parsed == null || parsed <= 0.0)
-                    return 'Enter a positive number';
+                  if (parsed == null || parsed <= 0.0) {
+                    return AppLocalizations.of(context)!.enterPositiveNumber;
+                  }
                   return null;
                 },
               ),
@@ -1306,7 +1314,7 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Card Details',
+                    AppLocalizations.of(context)!.cardDetails,
                     style: AppTextStyles.labelLarge.copyWith(
                       color: context.isDarkMode
                           ? AppColors.textPrimaryDark
@@ -1316,7 +1324,7 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
                   TextButton.icon(
                     onPressed: _showSavedCards,
                     icon: const Icon(Icons.credit_card, size: 16),
-                    label: const Text('Saved Cards'),
+                    label: Text(AppLocalizations.of(context)!.savedCards),
                     style: TextButton.styleFrom(
                       foregroundColor: context.isDarkMode
                           ? AppColors.secondary
@@ -1343,7 +1351,7 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
                       : AppColors.textPrimaryLight,
                 ),
                 decoration: InputDecoration(
-                  labelText: 'Visa Card Number',
+                  labelText: AppLocalizations.of(context)!.visaCardNumber,
                   labelStyle: TextStyle(
                     color: context.isDarkMode
                         ? AppColors.textSecondaryDark
@@ -1379,10 +1387,13 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
                   ),
                 ),
                 validator: (val) {
-                  if (val == null || val.isEmpty)
-                    return 'Please enter card number';
+                  if (val == null || val.isEmpty) {
+                    return AppLocalizations.of(context)!.pleaseEnterCardNumber;
+                  }
                   final clean = val.replaceAll(' ', '');
-                  if (clean.length < 16) return 'Must be 16 digits';
+                  if (clean.length < 16) {
+                    return AppLocalizations.of(context)!.mustBe16Digits;
+                  }
                   return null;
                 },
               ),
@@ -1405,7 +1416,7 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
                             : AppColors.textPrimaryLight,
                       ),
                       decoration: InputDecoration(
-                        labelText: 'Expiry (MM/YY)',
+                        labelText: AppLocalizations.of(context)!.expiryMmYy,
                         labelStyle: TextStyle(
                           color: context.isDarkMode
                               ? AppColors.textSecondaryDark
@@ -1435,9 +1446,12 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
                         ),
                       ),
                       validator: (val) {
-                        if (val == null || val.isEmpty)
-                          return 'Expiry required';
-                        if (val.length < 5) return 'Invalid';
+                        if (val == null || val.isEmpty) {
+                          return AppLocalizations.of(context)!.expiryRequired;
+                        }
+                        if (val.length < 5) {
+                          return AppLocalizations.of(context)!.invalid;
+                        }
                         return null;
                       },
                     ),
@@ -1455,7 +1469,7 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
                             : AppColors.textPrimaryLight,
                       ),
                       decoration: InputDecoration(
-                        labelText: 'CVV',
+                        labelText: AppLocalizations.of(context)!.cvv,
                         labelStyle: TextStyle(
                           color: context.isDarkMode
                               ? AppColors.textSecondaryDark
@@ -1485,8 +1499,12 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
                         ),
                       ),
                       validator: (val) {
-                        if (val == null || val.isEmpty) return 'CVV required';
-                        if (val.length < 3) return 'Invalid';
+                        if (val == null || val.isEmpty) {
+                          return AppLocalizations.of(context)!.cvvRequired;
+                        }
+                        if (val.length < 3) {
+                          return AppLocalizations.of(context)!.invalid;
+                        }
                         return null;
                       },
                     ),
@@ -1512,8 +1530,8 @@ class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
                   ),
                   child: Text(
                     _isSubmitting
-                        ? 'Verifying Card Security...'
-                        : 'Authorize Deposit Funds',
+                        ? AppLocalizations.of(context)!.verifyingCardSecurity
+                        : AppLocalizations.of(context)!.authorizeDepositFunds,
                     style: AppTextStyles.titleMedium.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,

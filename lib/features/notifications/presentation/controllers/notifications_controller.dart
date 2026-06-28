@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import 'package:keep_sims/features/notifications/data/models/notification_model.dart';
 import 'package:keep_sims/features/notifications/data/repositories/notifications_repository_impl.dart';
 
@@ -9,6 +10,10 @@ part 'notifications_controller.g.dart';
 class NotificationsController extends _$NotificationsController {
   @override
   FutureOr<List<AppNotification>> build() async {
+    final authState = ref.watch(authControllerProvider);
+    if (authState.value == null) {
+      return const [];
+    }
     final repo = ref.watch(notificationsRepositoryProvider);
     return repo.getNotifications();
   }
@@ -115,7 +120,7 @@ class NotificationsController extends _$NotificationsController {
 
 /// Helper provider to get unread notification count.
 @riverpod
-int unreadNotificationsCount(UnreadNotificationsCountRef ref) {
+int unreadNotificationsCount(Ref ref) {
   final listAsync = ref.watch(notificationsControllerProvider);
   return listAsync.maybeWhen(
     data: (list) => list.where((item) => !item.isRead).length,

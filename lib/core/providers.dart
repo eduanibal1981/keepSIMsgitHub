@@ -95,10 +95,12 @@ PaymentsContract paymentsRepository(Ref ref) => PaymentsRepository(supabase);
 // Offline Recharge / Refill
 // ============================================================
 
-/// Provides the [OfflineRefillContract] implementation.
 @riverpod
-OfflineRefillContract offlineRefillRepository(Ref ref) =>
-    OfflineRefillRepository(supabase);
+OfflineRefillContract offlineRefillRepository(Ref ref) {
+  final cache = ref.watch(localCacheServiceProvider);
+  final connectivity = ref.watch(connectivityServiceProvider.notifier);
+  return OfflineRefillRepository(supabase, cache, connectivity);
+}
 
 // ============================================================
 // Support

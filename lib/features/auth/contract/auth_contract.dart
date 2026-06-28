@@ -12,6 +12,18 @@ abstract interface class AuthContract {
   /// Sign in with Google (native on mobile, OAuth on web).
   Future<Result<UserProfile>> signInWithGoogle();
 
+  /// Sign in with Email and Password.
+  Future<Result<UserProfile>> signInWithEmailAndPassword(String email, String password);
+
+  /// Sign up with Email and Password.
+  Future<Result<void>> signUpWithEmailAndPassword(String email, String password);
+
+  /// Resend confirmation email.
+  Future<Result<void>> resendConfirmationEmail(String email);
+
+  /// Verify OTP for email signup.
+  Future<Result<void>> verifyOTP(String email, String token);
+
   /// Sign out the current user.
   Future<Result<void>> signOut();
 

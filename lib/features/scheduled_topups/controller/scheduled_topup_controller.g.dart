@@ -6,899 +6,609 @@ part of 'scheduled_topup_controller.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$scheduledTopupForLineHash() =>
-    r'7238c0ca411904cdf22aa5ab0047106465d1bcf7';
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
 
-/// Copied from Dart SDK
-class _SystemHash {
-  _SystemHash._();
+@ProviderFor(ScheduledTopupController)
+final scheduledTopupControllerProvider = ScheduledTopupControllerProvider._();
 
-  static int combine(int hash, int value) {
-    // ignore: parameter_assignments
-    hash = 0x1fffffff & (hash + value);
-    // ignore: parameter_assignments
-    hash = 0x1fffffff & (hash + ((0x0007ffff & hash) << 10));
-    return hash ^ (hash >> 6);
-  }
-
-  static int finish(int hash) {
-    // ignore: parameter_assignments
-    hash = 0x1fffffff & (hash + ((0x03ffffff & hash) << 3));
-    // ignore: parameter_assignments
-    hash = hash ^ (hash >> 11);
-    return 0x1fffffff & (hash + ((0x00003fff & hash) << 15));
-  }
-}
-
-/// Helper provider to get schedule for a specific SIM line.
-///
-/// Copied from [scheduledTopupForLine].
-@ProviderFor(scheduledTopupForLine)
-const scheduledTopupForLineProvider = ScheduledTopupForLineFamily();
-
-/// Helper provider to get schedule for a specific SIM line.
-///
-/// Copied from [scheduledTopupForLine].
-class ScheduledTopupForLineFamily extends Family<ScheduledTopup?> {
-  /// Helper provider to get schedule for a specific SIM line.
-  ///
-  /// Copied from [scheduledTopupForLine].
-  const ScheduledTopupForLineFamily();
-
-  /// Helper provider to get schedule for a specific SIM line.
-  ///
-  /// Copied from [scheduledTopupForLine].
-  ScheduledTopupForLineProvider call(String simLineId) {
-    return ScheduledTopupForLineProvider(simLineId);
-  }
-
-  @override
-  ScheduledTopupForLineProvider getProviderOverride(
-    covariant ScheduledTopupForLineProvider provider,
-  ) {
-    return call(provider.simLineId);
-  }
-
-  static const Iterable<ProviderOrFamily>? _dependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
-
-  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
-      _allTransitiveDependencies;
-
-  @override
-  String? get name => r'scheduledTopupForLineProvider';
-}
-
-/// Helper provider to get schedule for a specific SIM line.
-///
-/// Copied from [scheduledTopupForLine].
-class ScheduledTopupForLineProvider
-    extends AutoDisposeProvider<ScheduledTopup?> {
-  /// Helper provider to get schedule for a specific SIM line.
-  ///
-  /// Copied from [scheduledTopupForLine].
-  ScheduledTopupForLineProvider(String simLineId)
-    : this._internal(
-        (ref) =>
-            scheduledTopupForLine(ref as ScheduledTopupForLineRef, simLineId),
-        from: scheduledTopupForLineProvider,
-        name: r'scheduledTopupForLineProvider',
-        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-            ? null
-            : _$scheduledTopupForLineHash,
-        dependencies: ScheduledTopupForLineFamily._dependencies,
-        allTransitiveDependencies:
-            ScheduledTopupForLineFamily._allTransitiveDependencies,
-        simLineId: simLineId,
+final class ScheduledTopupControllerProvider
+    extends
+        $AsyncNotifierProvider<ScheduledTopupController, List<ScheduledTopup>> {
+  ScheduledTopupControllerProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'scheduledTopupControllerProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
       );
 
-  ScheduledTopupForLineProvider._internal(
-    super._createNotifier, {
-    required super.name,
-    required super.dependencies,
-    required super.allTransitiveDependencies,
-    required super.debugGetCreateSourceHash,
-    required super.from,
-    required this.simLineId,
-  }) : super.internal();
-
-  final String simLineId;
-
   @override
-  Override overrideWith(
-    ScheduledTopup? Function(ScheduledTopupForLineRef provider) create,
-  ) {
-    return ProviderOverride(
-      origin: this,
-      override: ScheduledTopupForLineProvider._internal(
-        (ref) => create(ref as ScheduledTopupForLineRef),
-        from: from,
-        name: null,
-        dependencies: null,
-        allTransitiveDependencies: null,
-        debugGetCreateSourceHash: null,
-        simLineId: simLineId,
-      ),
-    );
-  }
+  String debugGetCreateSourceHash() => _$scheduledTopupControllerHash();
 
+  @$internal
   @override
-  AutoDisposeProviderElement<ScheduledTopup?> createElement() {
-    return _ScheduledTopupForLineProviderElement(this);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is ScheduledTopupForLineProvider &&
-        other.simLineId == simLineId;
-  }
-
-  @override
-  int get hashCode {
-    var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, simLineId.hashCode);
-
-    return _SystemHash.finish(hash);
-  }
-}
-
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-mixin ScheduledTopupForLineRef on AutoDisposeProviderRef<ScheduledTopup?> {
-  /// The parameter `simLineId` of this provider.
-  String get simLineId;
-}
-
-class _ScheduledTopupForLineProviderElement
-    extends AutoDisposeProviderElement<ScheduledTopup?>
-    with ScheduledTopupForLineRef {
-  _ScheduledTopupForLineProviderElement(super.provider);
-
-  @override
-  String get simLineId => (origin as ScheduledTopupForLineProvider).simLineId;
-}
-
-String _$scheduledNotifyForLineHash() =>
-    r'ad73ec7b2268ac403a3b5fae313aaa3143cd1e68';
-
-/// Helper provider to get Notify schedule for a specific SIM line.
-///
-/// Copied from [scheduledNotifyForLine].
-@ProviderFor(scheduledNotifyForLine)
-const scheduledNotifyForLineProvider = ScheduledNotifyForLineFamily();
-
-/// Helper provider to get Notify schedule for a specific SIM line.
-///
-/// Copied from [scheduledNotifyForLine].
-class ScheduledNotifyForLineFamily extends Family<ScheduledTopup?> {
-  /// Helper provider to get Notify schedule for a specific SIM line.
-  ///
-  /// Copied from [scheduledNotifyForLine].
-  const ScheduledNotifyForLineFamily();
-
-  /// Helper provider to get Notify schedule for a specific SIM line.
-  ///
-  /// Copied from [scheduledNotifyForLine].
-  ScheduledNotifyForLineProvider call(String simLineId) {
-    return ScheduledNotifyForLineProvider(simLineId);
-  }
-
-  @override
-  ScheduledNotifyForLineProvider getProviderOverride(
-    covariant ScheduledNotifyForLineProvider provider,
-  ) {
-    return call(provider.simLineId);
-  }
-
-  static const Iterable<ProviderOrFamily>? _dependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
-
-  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
-      _allTransitiveDependencies;
-
-  @override
-  String? get name => r'scheduledNotifyForLineProvider';
-}
-
-/// Helper provider to get Notify schedule for a specific SIM line.
-///
-/// Copied from [scheduledNotifyForLine].
-class ScheduledNotifyForLineProvider
-    extends AutoDisposeProvider<ScheduledTopup?> {
-  /// Helper provider to get Notify schedule for a specific SIM line.
-  ///
-  /// Copied from [scheduledNotifyForLine].
-  ScheduledNotifyForLineProvider(String simLineId)
-    : this._internal(
-        (ref) =>
-            scheduledNotifyForLine(ref as ScheduledNotifyForLineRef, simLineId),
-        from: scheduledNotifyForLineProvider,
-        name: r'scheduledNotifyForLineProvider',
-        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-            ? null
-            : _$scheduledNotifyForLineHash,
-        dependencies: ScheduledNotifyForLineFamily._dependencies,
-        allTransitiveDependencies:
-            ScheduledNotifyForLineFamily._allTransitiveDependencies,
-        simLineId: simLineId,
-      );
-
-  ScheduledNotifyForLineProvider._internal(
-    super._createNotifier, {
-    required super.name,
-    required super.dependencies,
-    required super.allTransitiveDependencies,
-    required super.debugGetCreateSourceHash,
-    required super.from,
-    required this.simLineId,
-  }) : super.internal();
-
-  final String simLineId;
-
-  @override
-  Override overrideWith(
-    ScheduledTopup? Function(ScheduledNotifyForLineRef provider) create,
-  ) {
-    return ProviderOverride(
-      origin: this,
-      override: ScheduledNotifyForLineProvider._internal(
-        (ref) => create(ref as ScheduledNotifyForLineRef),
-        from: from,
-        name: null,
-        dependencies: null,
-        allTransitiveDependencies: null,
-        debugGetCreateSourceHash: null,
-        simLineId: simLineId,
-      ),
-    );
-  }
-
-  @override
-  AutoDisposeProviderElement<ScheduledTopup?> createElement() {
-    return _ScheduledNotifyForLineProviderElement(this);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is ScheduledNotifyForLineProvider &&
-        other.simLineId == simLineId;
-  }
-
-  @override
-  int get hashCode {
-    var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, simLineId.hashCode);
-
-    return _SystemHash.finish(hash);
-  }
-}
-
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-mixin ScheduledNotifyForLineRef on AutoDisposeProviderRef<ScheduledTopup?> {
-  /// The parameter `simLineId` of this provider.
-  String get simLineId;
-}
-
-class _ScheduledNotifyForLineProviderElement
-    extends AutoDisposeProviderElement<ScheduledTopup?>
-    with ScheduledNotifyForLineRef {
-  _ScheduledNotifyForLineProviderElement(super.provider);
-
-  @override
-  String get simLineId => (origin as ScheduledNotifyForLineProvider).simLineId;
-}
-
-String _$scheduledCustomRefillForLineHash() =>
-    r'67d381791665ccbb14f5444e9757776d2f365ddd';
-
-/// Helper provider to get Custom Refill schedule for a specific SIM line.
-///
-/// Copied from [scheduledCustomRefillForLine].
-@ProviderFor(scheduledCustomRefillForLine)
-const scheduledCustomRefillForLineProvider =
-    ScheduledCustomRefillForLineFamily();
-
-/// Helper provider to get Custom Refill schedule for a specific SIM line.
-///
-/// Copied from [scheduledCustomRefillForLine].
-class ScheduledCustomRefillForLineFamily extends Family<ScheduledTopup?> {
-  /// Helper provider to get Custom Refill schedule for a specific SIM line.
-  ///
-  /// Copied from [scheduledCustomRefillForLine].
-  const ScheduledCustomRefillForLineFamily();
-
-  /// Helper provider to get Custom Refill schedule for a specific SIM line.
-  ///
-  /// Copied from [scheduledCustomRefillForLine].
-  ScheduledCustomRefillForLineProvider call(String simLineId) {
-    return ScheduledCustomRefillForLineProvider(simLineId);
-  }
-
-  @override
-  ScheduledCustomRefillForLineProvider getProviderOverride(
-    covariant ScheduledCustomRefillForLineProvider provider,
-  ) {
-    return call(provider.simLineId);
-  }
-
-  static const Iterable<ProviderOrFamily>? _dependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
-
-  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
-      _allTransitiveDependencies;
-
-  @override
-  String? get name => r'scheduledCustomRefillForLineProvider';
-}
-
-/// Helper provider to get Custom Refill schedule for a specific SIM line.
-///
-/// Copied from [scheduledCustomRefillForLine].
-class ScheduledCustomRefillForLineProvider
-    extends AutoDisposeProvider<ScheduledTopup?> {
-  /// Helper provider to get Custom Refill schedule for a specific SIM line.
-  ///
-  /// Copied from [scheduledCustomRefillForLine].
-  ScheduledCustomRefillForLineProvider(String simLineId)
-    : this._internal(
-        (ref) => scheduledCustomRefillForLine(
-          ref as ScheduledCustomRefillForLineRef,
-          simLineId,
-        ),
-        from: scheduledCustomRefillForLineProvider,
-        name: r'scheduledCustomRefillForLineProvider',
-        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-            ? null
-            : _$scheduledCustomRefillForLineHash,
-        dependencies: ScheduledCustomRefillForLineFamily._dependencies,
-        allTransitiveDependencies:
-            ScheduledCustomRefillForLineFamily._allTransitiveDependencies,
-        simLineId: simLineId,
-      );
-
-  ScheduledCustomRefillForLineProvider._internal(
-    super._createNotifier, {
-    required super.name,
-    required super.dependencies,
-    required super.allTransitiveDependencies,
-    required super.debugGetCreateSourceHash,
-    required super.from,
-    required this.simLineId,
-  }) : super.internal();
-
-  final String simLineId;
-
-  @override
-  Override overrideWith(
-    ScheduledTopup? Function(ScheduledCustomRefillForLineRef provider) create,
-  ) {
-    return ProviderOverride(
-      origin: this,
-      override: ScheduledCustomRefillForLineProvider._internal(
-        (ref) => create(ref as ScheduledCustomRefillForLineRef),
-        from: from,
-        name: null,
-        dependencies: null,
-        allTransitiveDependencies: null,
-        debugGetCreateSourceHash: null,
-        simLineId: simLineId,
-      ),
-    );
-  }
-
-  @override
-  AutoDisposeProviderElement<ScheduledTopup?> createElement() {
-    return _ScheduledCustomRefillForLineProviderElement(this);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is ScheduledCustomRefillForLineProvider &&
-        other.simLineId == simLineId;
-  }
-
-  @override
-  int get hashCode {
-    var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, simLineId.hashCode);
-
-    return _SystemHash.finish(hash);
-  }
-}
-
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-mixin ScheduledCustomRefillForLineRef
-    on AutoDisposeProviderRef<ScheduledTopup?> {
-  /// The parameter `simLineId` of this provider.
-  String get simLineId;
-}
-
-class _ScheduledCustomRefillForLineProviderElement
-    extends AutoDisposeProviderElement<ScheduledTopup?>
-    with ScheduledCustomRefillForLineRef {
-  _ScheduledCustomRefillForLineProviderElement(super.provider);
-
-  @override
-  String get simLineId =>
-      (origin as ScheduledCustomRefillForLineProvider).simLineId;
-}
-
-String _$scheduledMiniRefillForLineHash() =>
-    r'dbfda98772458ea32b6f79ab11f36586cdf44e28';
-
-/// Helper provider to get Mini Refill schedule for a specific SIM line.
-///
-/// Copied from [scheduledMiniRefillForLine].
-@ProviderFor(scheduledMiniRefillForLine)
-const scheduledMiniRefillForLineProvider = ScheduledMiniRefillForLineFamily();
-
-/// Helper provider to get Mini Refill schedule for a specific SIM line.
-///
-/// Copied from [scheduledMiniRefillForLine].
-class ScheduledMiniRefillForLineFamily extends Family<ScheduledTopup?> {
-  /// Helper provider to get Mini Refill schedule for a specific SIM line.
-  ///
-  /// Copied from [scheduledMiniRefillForLine].
-  const ScheduledMiniRefillForLineFamily();
-
-  /// Helper provider to get Mini Refill schedule for a specific SIM line.
-  ///
-  /// Copied from [scheduledMiniRefillForLine].
-  ScheduledMiniRefillForLineProvider call(String simLineId) {
-    return ScheduledMiniRefillForLineProvider(simLineId);
-  }
-
-  @override
-  ScheduledMiniRefillForLineProvider getProviderOverride(
-    covariant ScheduledMiniRefillForLineProvider provider,
-  ) {
-    return call(provider.simLineId);
-  }
-
-  static const Iterable<ProviderOrFamily>? _dependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
-
-  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
-      _allTransitiveDependencies;
-
-  @override
-  String? get name => r'scheduledMiniRefillForLineProvider';
-}
-
-/// Helper provider to get Mini Refill schedule for a specific SIM line.
-///
-/// Copied from [scheduledMiniRefillForLine].
-class ScheduledMiniRefillForLineProvider
-    extends AutoDisposeProvider<ScheduledTopup?> {
-  /// Helper provider to get Mini Refill schedule for a specific SIM line.
-  ///
-  /// Copied from [scheduledMiniRefillForLine].
-  ScheduledMiniRefillForLineProvider(String simLineId)
-    : this._internal(
-        (ref) => scheduledMiniRefillForLine(
-          ref as ScheduledMiniRefillForLineRef,
-          simLineId,
-        ),
-        from: scheduledMiniRefillForLineProvider,
-        name: r'scheduledMiniRefillForLineProvider',
-        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-            ? null
-            : _$scheduledMiniRefillForLineHash,
-        dependencies: ScheduledMiniRefillForLineFamily._dependencies,
-        allTransitiveDependencies:
-            ScheduledMiniRefillForLineFamily._allTransitiveDependencies,
-        simLineId: simLineId,
-      );
-
-  ScheduledMiniRefillForLineProvider._internal(
-    super._createNotifier, {
-    required super.name,
-    required super.dependencies,
-    required super.allTransitiveDependencies,
-    required super.debugGetCreateSourceHash,
-    required super.from,
-    required this.simLineId,
-  }) : super.internal();
-
-  final String simLineId;
-
-  @override
-  Override overrideWith(
-    ScheduledTopup? Function(ScheduledMiniRefillForLineRef provider) create,
-  ) {
-    return ProviderOverride(
-      origin: this,
-      override: ScheduledMiniRefillForLineProvider._internal(
-        (ref) => create(ref as ScheduledMiniRefillForLineRef),
-        from: from,
-        name: null,
-        dependencies: null,
-        allTransitiveDependencies: null,
-        debugGetCreateSourceHash: null,
-        simLineId: simLineId,
-      ),
-    );
-  }
-
-  @override
-  AutoDisposeProviderElement<ScheduledTopup?> createElement() {
-    return _ScheduledMiniRefillForLineProviderElement(this);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is ScheduledMiniRefillForLineProvider &&
-        other.simLineId == simLineId;
-  }
-
-  @override
-  int get hashCode {
-    var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, simLineId.hashCode);
-
-    return _SystemHash.finish(hash);
-  }
-}
-
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-mixin ScheduledMiniRefillForLineRef on AutoDisposeProviderRef<ScheduledTopup?> {
-  /// The parameter `simLineId` of this provider.
-  String get simLineId;
-}
-
-class _ScheduledMiniRefillForLineProviderElement
-    extends AutoDisposeProviderElement<ScheduledTopup?>
-    with ScheduledMiniRefillForLineRef {
-  _ScheduledMiniRefillForLineProviderElement(super.provider);
-
-  @override
-  String get simLineId =>
-      (origin as ScheduledMiniRefillForLineProvider).simLineId;
-}
-
-String _$topupExecutionsForLineHash() =>
-    r'3e983e1d3adb91ebb30bbe661f9c81e9264924a2';
-
-/// Family provider to watch execution history for a SIM Line.
-///
-/// Copied from [topupExecutionsForLine].
-@ProviderFor(topupExecutionsForLine)
-const topupExecutionsForLineProvider = TopupExecutionsForLineFamily();
-
-/// Family provider to watch execution history for a SIM Line.
-///
-/// Copied from [topupExecutionsForLine].
-class TopupExecutionsForLineFamily
-    extends Family<AsyncValue<List<TopupExecution>>> {
-  /// Family provider to watch execution history for a SIM Line.
-  ///
-  /// Copied from [topupExecutionsForLine].
-  const TopupExecutionsForLineFamily();
-
-  /// Family provider to watch execution history for a SIM Line.
-  ///
-  /// Copied from [topupExecutionsForLine].
-  TopupExecutionsForLineProvider call(String simLineId) {
-    return TopupExecutionsForLineProvider(simLineId);
-  }
-
-  @override
-  TopupExecutionsForLineProvider getProviderOverride(
-    covariant TopupExecutionsForLineProvider provider,
-  ) {
-    return call(provider.simLineId);
-  }
-
-  static const Iterable<ProviderOrFamily>? _dependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
-
-  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
-      _allTransitiveDependencies;
-
-  @override
-  String? get name => r'topupExecutionsForLineProvider';
-}
-
-/// Family provider to watch execution history for a SIM Line.
-///
-/// Copied from [topupExecutionsForLine].
-class TopupExecutionsForLineProvider
-    extends AutoDisposeFutureProvider<List<TopupExecution>> {
-  /// Family provider to watch execution history for a SIM Line.
-  ///
-  /// Copied from [topupExecutionsForLine].
-  TopupExecutionsForLineProvider(String simLineId)
-    : this._internal(
-        (ref) =>
-            topupExecutionsForLine(ref as TopupExecutionsForLineRef, simLineId),
-        from: topupExecutionsForLineProvider,
-        name: r'topupExecutionsForLineProvider',
-        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-            ? null
-            : _$topupExecutionsForLineHash,
-        dependencies: TopupExecutionsForLineFamily._dependencies,
-        allTransitiveDependencies:
-            TopupExecutionsForLineFamily._allTransitiveDependencies,
-        simLineId: simLineId,
-      );
-
-  TopupExecutionsForLineProvider._internal(
-    super._createNotifier, {
-    required super.name,
-    required super.dependencies,
-    required super.allTransitiveDependencies,
-    required super.debugGetCreateSourceHash,
-    required super.from,
-    required this.simLineId,
-  }) : super.internal();
-
-  final String simLineId;
-
-  @override
-  Override overrideWith(
-    FutureOr<List<TopupExecution>> Function(TopupExecutionsForLineRef provider)
-    create,
-  ) {
-    return ProviderOverride(
-      origin: this,
-      override: TopupExecutionsForLineProvider._internal(
-        (ref) => create(ref as TopupExecutionsForLineRef),
-        from: from,
-        name: null,
-        dependencies: null,
-        allTransitiveDependencies: null,
-        debugGetCreateSourceHash: null,
-        simLineId: simLineId,
-      ),
-    );
-  }
-
-  @override
-  AutoDisposeFutureProviderElement<List<TopupExecution>> createElement() {
-    return _TopupExecutionsForLineProviderElement(this);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is TopupExecutionsForLineProvider &&
-        other.simLineId == simLineId;
-  }
-
-  @override
-  int get hashCode {
-    var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, simLineId.hashCode);
-
-    return _SystemHash.finish(hash);
-  }
-}
-
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-mixin TopupExecutionsForLineRef
-    on AutoDisposeFutureProviderRef<List<TopupExecution>> {
-  /// The parameter `simLineId` of this provider.
-  String get simLineId;
-}
-
-class _TopupExecutionsForLineProviderElement
-    extends AutoDisposeFutureProviderElement<List<TopupExecution>>
-    with TopupExecutionsForLineRef {
-  _TopupExecutionsForLineProviderElement(super.provider);
-
-  @override
-  String get simLineId => (origin as TopupExecutionsForLineProvider).simLineId;
+  ScheduledTopupController create() => ScheduledTopupController();
 }
 
 String _$scheduledTopupControllerHash() =>
     r'2e52dc6d9962e60732b9ff8837b62cc8633e17fa';
 
-/// See also [ScheduledTopupController].
-@ProviderFor(ScheduledTopupController)
-final scheduledTopupControllerProvider =
-    AsyncNotifierProvider<
-      ScheduledTopupController,
-      List<ScheduledTopup>
-    >.internal(
-      ScheduledTopupController.new,
-      name: r'scheduledTopupControllerProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$scheduledTopupControllerHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
-
-typedef _$ScheduledTopupController = AsyncNotifier<List<ScheduledTopup>>;
-String _$simLineExecutionsHistoryHash() =>
-    r'12861408def54248878aac9b24efea8b462243dc';
-
-abstract class _$SimLineExecutionsHistory
-    extends BuildlessAutoDisposeAsyncNotifier<List<TopupExecution>> {
-  late final String simLineId;
-
-  FutureOr<List<TopupExecution>> build(String simLineId);
+abstract class _$ScheduledTopupController
+    extends $AsyncNotifier<List<ScheduledTopup>> {
+  FutureOr<List<ScheduledTopup>> build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref =
+        this.ref
+            as $Ref<AsyncValue<List<ScheduledTopup>>, List<ScheduledTopup>>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<
+                AsyncValue<List<ScheduledTopup>>,
+                List<ScheduledTopup>
+              >,
+              AsyncValue<List<ScheduledTopup>>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
 }
 
-/// Paginated execution history provider.
-///
-/// Copied from [SimLineExecutionsHistory].
-@ProviderFor(SimLineExecutionsHistory)
-const simLineExecutionsHistoryProvider = SimLineExecutionsHistoryFamily();
+/// Helper provider to get schedule for a specific SIM line.
 
-/// Paginated execution history provider.
-///
-/// Copied from [SimLineExecutionsHistory].
-class SimLineExecutionsHistoryFamily
-    extends Family<AsyncValue<List<TopupExecution>>> {
-  /// Paginated execution history provider.
-  ///
-  /// Copied from [SimLineExecutionsHistory].
-  const SimLineExecutionsHistoryFamily();
+@ProviderFor(scheduledTopupForLine)
+final scheduledTopupForLineProvider = ScheduledTopupForLineFamily._();
 
-  /// Paginated execution history provider.
-  ///
-  /// Copied from [SimLineExecutionsHistory].
-  SimLineExecutionsHistoryProvider call(String simLineId) {
-    return SimLineExecutionsHistoryProvider(simLineId);
-  }
+/// Helper provider to get schedule for a specific SIM line.
 
-  @override
-  SimLineExecutionsHistoryProvider getProviderOverride(
-    covariant SimLineExecutionsHistoryProvider provider,
-  ) {
-    return call(provider.simLineId);
-  }
-
-  static const Iterable<ProviderOrFamily>? _dependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
-
-  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
-      _allTransitiveDependencies;
-
-  @override
-  String? get name => r'simLineExecutionsHistoryProvider';
-}
-
-/// Paginated execution history provider.
-///
-/// Copied from [SimLineExecutionsHistory].
-class SimLineExecutionsHistoryProvider
+final class ScheduledTopupForLineProvider
     extends
-        AutoDisposeAsyncNotifierProviderImpl<
-          SimLineExecutionsHistory,
-          List<TopupExecution>
-        > {
-  /// Paginated execution history provider.
-  ///
-  /// Copied from [SimLineExecutionsHistory].
-  SimLineExecutionsHistoryProvider(String simLineId)
-    : this._internal(
-        () => SimLineExecutionsHistory()..simLineId = simLineId,
-        from: simLineExecutionsHistoryProvider,
-        name: r'simLineExecutionsHistoryProvider',
-        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-            ? null
-            : _$simLineExecutionsHistoryHash,
-        dependencies: SimLineExecutionsHistoryFamily._dependencies,
-        allTransitiveDependencies:
-            SimLineExecutionsHistoryFamily._allTransitiveDependencies,
-        simLineId: simLineId,
-      );
-
-  SimLineExecutionsHistoryProvider._internal(
-    super._createNotifier, {
-    required super.name,
-    required super.dependencies,
-    required super.allTransitiveDependencies,
-    required super.debugGetCreateSourceHash,
-    required super.from,
-    required this.simLineId,
-  }) : super.internal();
-
-  final String simLineId;
+        $FunctionalProvider<ScheduledTopup?, ScheduledTopup?, ScheduledTopup?>
+    with $Provider<ScheduledTopup?> {
+  /// Helper provider to get schedule for a specific SIM line.
+  ScheduledTopupForLineProvider._({
+    required ScheduledTopupForLineFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'scheduledTopupForLineProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
 
   @override
-  FutureOr<List<TopupExecution>> runNotifierBuild(
-    covariant SimLineExecutionsHistory notifier,
-  ) {
-    return notifier.build(simLineId);
+  String debugGetCreateSourceHash() => _$scheduledTopupForLineHash();
+
+  @override
+  String toString() {
+    return r'scheduledTopupForLineProvider'
+        ''
+        '($argument)';
   }
 
+  @$internal
   @override
-  Override overrideWith(SimLineExecutionsHistory Function() create) {
-    return ProviderOverride(
+  $ProviderElement<ScheduledTopup?> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  ScheduledTopup? create(Ref ref) {
+    final argument = this.argument as String;
+    return scheduledTopupForLine(ref, argument);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ScheduledTopup? value) {
+    return $ProviderOverride(
       origin: this,
-      override: SimLineExecutionsHistoryProvider._internal(
-        () => create()..simLineId = simLineId,
-        from: from,
-        name: null,
-        dependencies: null,
-        allTransitiveDependencies: null,
-        debugGetCreateSourceHash: null,
-        simLineId: simLineId,
-      ),
+      providerOverride: $SyncValueProvider<ScheduledTopup?>(value),
     );
-  }
-
-  @override
-  AutoDisposeAsyncNotifierProviderElement<
-    SimLineExecutionsHistory,
-    List<TopupExecution>
-  >
-  createElement() {
-    return _SimLineExecutionsHistoryProviderElement(this);
   }
 
   @override
   bool operator ==(Object other) {
-    return other is SimLineExecutionsHistoryProvider &&
-        other.simLineId == simLineId;
+    return other is ScheduledTopupForLineProvider && other.argument == argument;
   }
 
   @override
   int get hashCode {
-    var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, simLineId.hashCode);
-
-    return _SystemHash.finish(hash);
+    return argument.hashCode;
   }
 }
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-mixin SimLineExecutionsHistoryRef
-    on AutoDisposeAsyncNotifierProviderRef<List<TopupExecution>> {
-  /// The parameter `simLineId` of this provider.
-  String get simLineId;
-}
+String _$scheduledTopupForLineHash() =>
+    r'f599c7a508a02a012903973e5b6cc2399a07ebb8';
 
-class _SimLineExecutionsHistoryProviderElement
-    extends
-        AutoDisposeAsyncNotifierProviderElement<
-          SimLineExecutionsHistory,
-          List<TopupExecution>
-        >
-    with SimLineExecutionsHistoryRef {
-  _SimLineExecutionsHistoryProviderElement(super.provider);
+/// Helper provider to get schedule for a specific SIM line.
+
+final class ScheduledTopupForLineFamily extends $Family
+    with $FunctionalFamilyOverride<ScheduledTopup?, String> {
+  ScheduledTopupForLineFamily._()
+    : super(
+        retry: null,
+        name: r'scheduledTopupForLineProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// Helper provider to get schedule for a specific SIM line.
+
+  ScheduledTopupForLineProvider call(String simLineId) =>
+      ScheduledTopupForLineProvider._(argument: simLineId, from: this);
 
   @override
-  String get simLineId =>
-      (origin as SimLineExecutionsHistoryProvider).simLineId;
+  String toString() => r'scheduledTopupForLineProvider';
 }
 
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
+/// Helper provider to get Notify schedule for a specific SIM line.
+
+@ProviderFor(scheduledNotifyForLine)
+final scheduledNotifyForLineProvider = ScheduledNotifyForLineFamily._();
+
+/// Helper provider to get Notify schedule for a specific SIM line.
+
+final class ScheduledNotifyForLineProvider
+    extends
+        $FunctionalProvider<ScheduledTopup?, ScheduledTopup?, ScheduledTopup?>
+    with $Provider<ScheduledTopup?> {
+  /// Helper provider to get Notify schedule for a specific SIM line.
+  ScheduledNotifyForLineProvider._({
+    required ScheduledNotifyForLineFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'scheduledNotifyForLineProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$scheduledNotifyForLineHash();
+
+  @override
+  String toString() {
+    return r'scheduledNotifyForLineProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $ProviderElement<ScheduledTopup?> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  ScheduledTopup? create(Ref ref) {
+    final argument = this.argument as String;
+    return scheduledNotifyForLine(ref, argument);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ScheduledTopup? value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ScheduledTopup?>(value),
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is ScheduledNotifyForLineProvider &&
+        other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$scheduledNotifyForLineHash() =>
+    r'c73bd577ef9d37cb4dc0cc6a987eae4347c6b342';
+
+/// Helper provider to get Notify schedule for a specific SIM line.
+
+final class ScheduledNotifyForLineFamily extends $Family
+    with $FunctionalFamilyOverride<ScheduledTopup?, String> {
+  ScheduledNotifyForLineFamily._()
+    : super(
+        retry: null,
+        name: r'scheduledNotifyForLineProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// Helper provider to get Notify schedule for a specific SIM line.
+
+  ScheduledNotifyForLineProvider call(String simLineId) =>
+      ScheduledNotifyForLineProvider._(argument: simLineId, from: this);
+
+  @override
+  String toString() => r'scheduledNotifyForLineProvider';
+}
+
+/// Helper provider to get Custom Refill schedule for a specific SIM line.
+
+@ProviderFor(scheduledCustomRefillForLine)
+final scheduledCustomRefillForLineProvider =
+    ScheduledCustomRefillForLineFamily._();
+
+/// Helper provider to get Custom Refill schedule for a specific SIM line.
+
+final class ScheduledCustomRefillForLineProvider
+    extends
+        $FunctionalProvider<ScheduledTopup?, ScheduledTopup?, ScheduledTopup?>
+    with $Provider<ScheduledTopup?> {
+  /// Helper provider to get Custom Refill schedule for a specific SIM line.
+  ScheduledCustomRefillForLineProvider._({
+    required ScheduledCustomRefillForLineFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'scheduledCustomRefillForLineProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$scheduledCustomRefillForLineHash();
+
+  @override
+  String toString() {
+    return r'scheduledCustomRefillForLineProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $ProviderElement<ScheduledTopup?> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  ScheduledTopup? create(Ref ref) {
+    final argument = this.argument as String;
+    return scheduledCustomRefillForLine(ref, argument);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ScheduledTopup? value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ScheduledTopup?>(value),
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is ScheduledCustomRefillForLineProvider &&
+        other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$scheduledCustomRefillForLineHash() =>
+    r'2c865a104c896dc880b95a3267cdc3ba9e474e02';
+
+/// Helper provider to get Custom Refill schedule for a specific SIM line.
+
+final class ScheduledCustomRefillForLineFamily extends $Family
+    with $FunctionalFamilyOverride<ScheduledTopup?, String> {
+  ScheduledCustomRefillForLineFamily._()
+    : super(
+        retry: null,
+        name: r'scheduledCustomRefillForLineProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// Helper provider to get Custom Refill schedule for a specific SIM line.
+
+  ScheduledCustomRefillForLineProvider call(String simLineId) =>
+      ScheduledCustomRefillForLineProvider._(argument: simLineId, from: this);
+
+  @override
+  String toString() => r'scheduledCustomRefillForLineProvider';
+}
+
+/// Helper provider to get Mini Refill schedule for a specific SIM line.
+
+@ProviderFor(scheduledMiniRefillForLine)
+final scheduledMiniRefillForLineProvider = ScheduledMiniRefillForLineFamily._();
+
+/// Helper provider to get Mini Refill schedule for a specific SIM line.
+
+final class ScheduledMiniRefillForLineProvider
+    extends
+        $FunctionalProvider<ScheduledTopup?, ScheduledTopup?, ScheduledTopup?>
+    with $Provider<ScheduledTopup?> {
+  /// Helper provider to get Mini Refill schedule for a specific SIM line.
+  ScheduledMiniRefillForLineProvider._({
+    required ScheduledMiniRefillForLineFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'scheduledMiniRefillForLineProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$scheduledMiniRefillForLineHash();
+
+  @override
+  String toString() {
+    return r'scheduledMiniRefillForLineProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $ProviderElement<ScheduledTopup?> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  ScheduledTopup? create(Ref ref) {
+    final argument = this.argument as String;
+    return scheduledMiniRefillForLine(ref, argument);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ScheduledTopup? value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ScheduledTopup?>(value),
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is ScheduledMiniRefillForLineProvider &&
+        other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$scheduledMiniRefillForLineHash() =>
+    r'dd9384e02291f671b8e4d25ab3c61d4a94c32cef';
+
+/// Helper provider to get Mini Refill schedule for a specific SIM line.
+
+final class ScheduledMiniRefillForLineFamily extends $Family
+    with $FunctionalFamilyOverride<ScheduledTopup?, String> {
+  ScheduledMiniRefillForLineFamily._()
+    : super(
+        retry: null,
+        name: r'scheduledMiniRefillForLineProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// Helper provider to get Mini Refill schedule for a specific SIM line.
+
+  ScheduledMiniRefillForLineProvider call(String simLineId) =>
+      ScheduledMiniRefillForLineProvider._(argument: simLineId, from: this);
+
+  @override
+  String toString() => r'scheduledMiniRefillForLineProvider';
+}
+
+/// Family provider to watch execution history for a SIM Line.
+
+@ProviderFor(topupExecutionsForLine)
+final topupExecutionsForLineProvider = TopupExecutionsForLineFamily._();
+
+/// Family provider to watch execution history for a SIM Line.
+
+final class TopupExecutionsForLineProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<TopupExecution>>,
+          List<TopupExecution>,
+          FutureOr<List<TopupExecution>>
+        >
+    with
+        $FutureModifier<List<TopupExecution>>,
+        $FutureProvider<List<TopupExecution>> {
+  /// Family provider to watch execution history for a SIM Line.
+  TopupExecutionsForLineProvider._({
+    required TopupExecutionsForLineFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'topupExecutionsForLineProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$topupExecutionsForLineHash();
+
+  @override
+  String toString() {
+    return r'topupExecutionsForLineProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<List<TopupExecution>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<TopupExecution>> create(Ref ref) {
+    final argument = this.argument as String;
+    return topupExecutionsForLine(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is TopupExecutionsForLineProvider &&
+        other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$topupExecutionsForLineHash() =>
+    r'a3fc7ef02c79e6f526ca8449248422968ca5fa8a';
+
+/// Family provider to watch execution history for a SIM Line.
+
+final class TopupExecutionsForLineFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<List<TopupExecution>>, String> {
+  TopupExecutionsForLineFamily._()
+    : super(
+        retry: null,
+        name: r'topupExecutionsForLineProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// Family provider to watch execution history for a SIM Line.
+
+  TopupExecutionsForLineProvider call(String simLineId) =>
+      TopupExecutionsForLineProvider._(argument: simLineId, from: this);
+
+  @override
+  String toString() => r'topupExecutionsForLineProvider';
+}
+
+/// Paginated execution history provider.
+
+@ProviderFor(SimLineExecutionsHistory)
+final simLineExecutionsHistoryProvider = SimLineExecutionsHistoryFamily._();
+
+/// Paginated execution history provider.
+final class SimLineExecutionsHistoryProvider
+    extends
+        $AsyncNotifierProvider<SimLineExecutionsHistory, List<TopupExecution>> {
+  /// Paginated execution history provider.
+  SimLineExecutionsHistoryProvider._({
+    required SimLineExecutionsHistoryFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'simLineExecutionsHistoryProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$simLineExecutionsHistoryHash();
+
+  @override
+  String toString() {
+    return r'simLineExecutionsHistoryProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  SimLineExecutionsHistory create() => SimLineExecutionsHistory();
+
+  @override
+  bool operator ==(Object other) {
+    return other is SimLineExecutionsHistoryProvider &&
+        other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$simLineExecutionsHistoryHash() =>
+    r'f4f9f1bcfd413cfb28222862e95d19bdfffa75f7';
+
+/// Paginated execution history provider.
+
+final class SimLineExecutionsHistoryFamily extends $Family
+    with
+        $ClassFamilyOverride<
+          SimLineExecutionsHistory,
+          AsyncValue<List<TopupExecution>>,
+          List<TopupExecution>,
+          FutureOr<List<TopupExecution>>,
+          String
+        > {
+  SimLineExecutionsHistoryFamily._()
+    : super(
+        retry: null,
+        name: r'simLineExecutionsHistoryProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// Paginated execution history provider.
+
+  SimLineExecutionsHistoryProvider call(String simLineId) =>
+      SimLineExecutionsHistoryProvider._(argument: simLineId, from: this);
+
+  @override
+  String toString() => r'simLineExecutionsHistoryProvider';
+}
+
+/// Paginated execution history provider.
+
+abstract class _$SimLineExecutionsHistory
+    extends $AsyncNotifier<List<TopupExecution>> {
+  late final _$args = ref.$arg as String;
+  String get simLineId => _$args;
+
+  FutureOr<List<TopupExecution>> build(String simLineId);
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref =
+        this.ref
+            as $Ref<AsyncValue<List<TopupExecution>>, List<TopupExecution>>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<
+                AsyncValue<List<TopupExecution>>,
+                List<TopupExecution>
+              >,
+              AsyncValue<List<TopupExecution>>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, () => build(_$args));
+  }
+}

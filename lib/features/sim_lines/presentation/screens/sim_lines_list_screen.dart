@@ -21,6 +21,8 @@ import 'package:keep_sims/core/widgets/error_state.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
 import 'package:keep_sims/features/profile/presentation/widgets/subscription_upsell_sheet.dart';
 
+import 'package:keep_sims/l10n/app_localizations.dart';
+
 class SimLinesListScreen extends ConsumerStatefulWidget {
   const SimLinesListScreen({super.key});
 
@@ -179,7 +181,7 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
         .toList();
     final count = selectedLines.length;
     final schedules =
-        ref.read(scheduledTopupControllerProvider).valueOrNull ?? [];
+        ref.read(scheduledTopupControllerProvider).value ?? [];
 
     return Align(
       alignment: Alignment.bottomCenter,
@@ -243,7 +245,7 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
                       ),
                       const SizedBox(width: 12),
                       Text(
-                        'Bulk Actions Console',
+                        AppLocalizations.of(context)!.bulkActionsConsole,
                         style: AppTextStyles.bodyLarge.copyWith(
                           color: context.isDarkMode
                               ? Colors.white
@@ -275,7 +277,7 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
                 children: [
                   Expanded(
                     child: _buildConsoleButton(
-                      label: 'Resume',
+                      label: AppLocalizations.of(context)!.resume,
                       icon: Icons.play_arrow_rounded,
                       color: AppColors.secondary,
                       onPressed: _isBulkActionLoading || count == 0
@@ -290,7 +292,7 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
                   const SizedBox(width: 8),
                   Expanded(
                     child: _buildConsoleButton(
-                      label: 'Pause',
+                      label: AppLocalizations.of(context)!.pause,
                       icon: Icons.pause_rounded,
                       color: AppColors.warning,
                       onPressed: _isBulkActionLoading || count == 0
@@ -305,7 +307,7 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
                   const SizedBox(width: 8),
                   Expanded(
                     child: _buildConsoleButton(
-                      label: 'Simulate',
+                      label: AppLocalizations.of(context)!.simulate,
                       icon: Icons.flash_on_rounded,
                       color: AppColors.success,
                       onPressed: _isBulkActionLoading || count == 0
@@ -378,10 +380,10 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
   Widget build(BuildContext context) {
     final simLinesState = ref.watch(simLinesControllerProvider);
     final countriesState = ref.watch(supportedCountriesProvider);
-    final householdState = ref.watch(householdControllerProvider).valueOrNull;
+    final householdState = ref.watch(householdControllerProvider).value;
 
-    final simLines = simLinesState.valueOrNull ?? [];
-    final currentUserId = ref.watch(authControllerProvider).valueOrNull?.id;
+    final simLines = simLinesState.value ?? [];
+    final currentUserId = ref.watch(authControllerProvider).value?.id;
     final myLines = simLines
         .where((line) => line.userId == currentUserId)
         .toList();
@@ -412,7 +414,7 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
               )
             : null,
         title: Text(
-          _isSelectMode ? '${_selectedIds.length} Selected' : 'Protected SIMs',
+          _isSelectMode ? '${_selectedIds.length} Selected' : AppLocalizations.of(context)!.protectedSims,
           style: AppTextStyles.headlineLarge.copyWith(
             color: context.isDarkMode
                 ? AppColors.textPrimaryDark
@@ -471,8 +473,8 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
           unselectedLabelColor: context.isDarkMode
               ? AppColors.textSecondaryDark
               : AppColors.textSecondaryLight,
-          tabs: const [
-            Tab(icon: Icon(Icons.person, size: 20), text: 'My SIM Cards'),
+          tabs: [
+            Tab(icon: const Icon(Icons.person, size: 20), text: AppLocalizations.of(context)!.mySimCards),
             // Tab(icon: Icon(Icons.people, size: 20), text: 'Family Shared SIMs'),
           ],
         ),
@@ -481,7 +483,7 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
         data: (lines) {
           final currentUserId = ref
               .watch(authControllerProvider)
-              .valueOrNull
+              .value
               ?.id;
           final myLines = lines
               .where((line) => line.userId == currentUserId)
@@ -498,7 +500,7 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
                       : _buildLinesList(
                           context,
                           myLines,
-                          countriesState.valueOrNull ?? [],
+                          countriesState.value ?? [],
                           currentUserId,
                           householdState,
                           isShared: false,
@@ -510,7 +512,7 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
                   //     : _buildLinesList(
                   //         context,
                   //         sharedLines,
-                  //         countriesState.valueOrNull ?? [],
+                  //         countriesState.value ?? [],
                   //         currentUserId,
                   //         householdState,
                   //         isShared: true,
@@ -537,10 +539,9 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
   Widget _buildEmptyState(BuildContext context, int myLinesCount) {
     return EmptyStateView(
       icon: Icons.sim_card_outlined,
-      title: 'No Protected Lines',
-      description:
-          'You don\'t have any international SIM cards added yet. Protect your first card now to keep it active forever.',
-      buttonText: 'Protect New Line',
+      title: AppLocalizations.of(context)!.noProtectedLines,
+      description: AppLocalizations.of(context)!.noInternationalSimsAdded,
+      buttonText: AppLocalizations.of(context)!.protectNewLine,
       onButtonPressed: () async {
         await HapticHelper.lightTick();
         _checkLineLimitAndAdd(context, myLinesCount);
@@ -551,10 +552,9 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
   Widget _buildSharedEmptyState(BuildContext context) {
     return EmptyStateView(
       icon: Icons.people_outline,
-      title: 'No Shared SIMs yet',
-      description:
-          'Invite family members to join your Household. Once they accept, their protected SIM lines will appear here for collaborative monitoring.',
-      buttonText: 'Manage Household',
+      title: AppLocalizations.of(context)!.noSharedSimsYet,
+      description: AppLocalizations.of(context)!.inviteFamilyMembers,
+      buttonText: AppLocalizations.of(context)!.manageHousehold,
       onButtonPressed: () async {
         await HapticHelper.lightTick();
         context.push('/household');
@@ -590,7 +590,7 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
         final carriersAsync = line.countryId != null
             ? ref.watch(carriersForCountryProvider(line.countryId!))
             : null;
-        final allCarriers = carriersAsync?.valueOrNull ?? <Carrier>[];
+        final allCarriers = carriersAsync?.value ?? <Carrier>[];
         final carrier = allCarriers.firstWhereOrNull(
           (c) => c.id == line.carrierId,
         );
@@ -655,31 +655,31 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
             ),
           ],
         ),
-        child: const Row(
+        child: Row(
           children: [
-            Icon(Icons.add_circle_outline, color: Colors.white, size: 32),
-            SizedBox(width: 16),
+            const Icon(Icons.add_circle_outline, color: Colors.white, size: 32),
+            const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Protect Another SIM Line',
-                    style: TextStyle(
+                    AppLocalizations.of(context)!.protectAnotherSimLine,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
-                    'Keep infinite international numbers alive',
-                    style: TextStyle(color: Colors.white70, fontSize: 13),
+                    AppLocalizations.of(context)!.keepInfiniteNumbersAlive,
+                    style: const TextStyle(color: Colors.white70, fontSize: 13),
                   ),
                 ],
               ),
             ),
-            Icon(Icons.arrow_forward_ios, color: Colors.white70, size: 16),
+            const Icon(Icons.chevron_right, color: Colors.white70),
           ],
         ),
       ),
@@ -687,7 +687,7 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
   }
 
   void _checkLineLimitAndAdd(BuildContext context, int myLinesCount) {
-    final user = ref.read(authControllerProvider).valueOrNull;
+    final user = ref.read(authControllerProvider).value;
     final tier = user?.subscriptionTier ?? 'standard';
 
     if (tier == 'basic' && myLinesCount >= 1) {

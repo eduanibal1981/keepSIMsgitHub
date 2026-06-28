@@ -74,6 +74,7 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>com.googleusercontent.apps.420312855823-f68m5ditqrbom89huf4b9lv7ql11giqm</string>
+				<string>io.supabase.keepsims</string>
 			</array>
 		</dict>
 	</array>

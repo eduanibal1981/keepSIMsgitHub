@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
+import 'package:keep_sims/l10n/app_localizations.dart';
 import '../controllers/support_controller.dart';
 
 class CreateTicketScreen extends ConsumerStatefulWidget {
@@ -22,6 +23,22 @@ class _CreateTicketScreenState extends ConsumerState<CreateTicketScreen> {
   final _descriptionController = TextEditingController();
   File? _attachment;
   bool _isSubmitting = false;
+
+  String _getTranslatedCategory(BuildContext context, String cat) {
+    final local = AppLocalizations.of(context)!;
+    switch (cat) {
+      case 'Technical Support':
+        return local.techSupportCategory;
+      case 'Billing & Wallet':
+        return local.billingWalletCategory;
+      case 'SIM Lines Management':
+        return local.simLinesCategory;
+      case 'Feedback & Other':
+        return local.feedbackOtherCategory;
+      default:
+        return cat;
+    }
+  }
 
   final List<String> _categories = [
     'Technical Support',
@@ -64,8 +81,8 @@ class _CreateTicketScreenState extends ConsumerState<CreateTicketScreen> {
     if (_subjectController.text.trim().isEmpty ||
         _descriptionController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please fill in both subject and description'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.pleaseFillFields),
           backgroundColor: AppColors.error,
         ),
       );
@@ -88,8 +105,8 @@ class _CreateTicketScreenState extends ConsumerState<CreateTicketScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Ticket submitted successfully!'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.ticketSubmittedSuccess),
             backgroundColor: AppColors.success,
           ),
         );
@@ -115,14 +132,14 @@ class _CreateTicketScreenState extends ConsumerState<CreateTicketScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Open Ticket'), centerTitle: true),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.openTicket), centerTitle: true),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Category',
+              AppLocalizations.of(context)!.categoryLabel,
               style: AppTextStyles.labelSmall.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -142,7 +159,7 @@ class _CreateTicketScreenState extends ConsumerState<CreateTicketScreen> {
                 ),
               ),
               items: _categories
-                  .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                  .map((c) => DropdownMenuItem(value: c, child: Text(_getTranslatedCategory(context, c))))
                   .toList(),
               onChanged: (val) {
                 if (val != null) setState(() => _selectedCategory = val);
@@ -151,7 +168,7 @@ class _CreateTicketScreenState extends ConsumerState<CreateTicketScreen> {
             const SizedBox(height: 20),
 
             Text(
-              'Subject',
+              AppLocalizations.of(context)!.subjectLabel,
               style: AppTextStyles.labelSmall.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -160,7 +177,7 @@ class _CreateTicketScreenState extends ConsumerState<CreateTicketScreen> {
             TextField(
               controller: _subjectController,
               decoration: InputDecoration(
-                hintText: 'Brief summary of the issue',
+                hintText: AppLocalizations.of(context)!.subjectHint,
                 filled: true,
                 fillColor: isDark
                     ? Colors.black.withOpacity(0.15)
@@ -174,7 +191,7 @@ class _CreateTicketScreenState extends ConsumerState<CreateTicketScreen> {
             const SizedBox(height: 20),
 
             Text(
-              'Description',
+              AppLocalizations.of(context)!.descriptionLabel,
               style: AppTextStyles.labelSmall.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -184,7 +201,7 @@ class _CreateTicketScreenState extends ConsumerState<CreateTicketScreen> {
               controller: _descriptionController,
               maxLines: 5,
               decoration: InputDecoration(
-                hintText: 'Describe your issue in detail...',
+                hintText: AppLocalizations.of(context)!.descriptionHint,
                 filled: true,
                 fillColor: isDark
                     ? Colors.black.withOpacity(0.15)
@@ -198,7 +215,7 @@ class _CreateTicketScreenState extends ConsumerState<CreateTicketScreen> {
             const SizedBox(height: 20),
 
             Text(
-              'Attachment (Optional)',
+              AppLocalizations.of(context)!.attachmentLabel,
               style: AppTextStyles.labelSmall.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -245,9 +262,9 @@ class _CreateTicketScreenState extends ConsumerState<CreateTicketScreen> {
                             color: Colors.blueAccent,
                           ),
                           const SizedBox(width: 8),
-                          const Text(
-                            'Upload Screenshot',
-                            style: TextStyle(
+                          Text(
+                            AppLocalizations.of(context)!.uploadScreenshot,
+                            style: const TextStyle(
                               color: Colors.blueAccent,
                               fontWeight: FontWeight.bold,
                             ),
@@ -279,9 +296,9 @@ class _CreateTicketScreenState extends ConsumerState<CreateTicketScreen> {
                           strokeWidth: 2.5,
                         ),
                       )
-                    : const Text(
-                        'Submit Ticket',
-                        style: TextStyle(
+                    : Text(
+                        AppLocalizations.of(context)!.submitTicketButton,
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),

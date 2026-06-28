@@ -5,13 +5,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 part 'local_cache_service.g.dart';
 
 @Riverpod(keepAlive: true)
-Future<SharedPreferences> sharedPreferences(SharedPreferencesRef ref) async {
+Future<SharedPreferences> sharedPreferences(Ref ref) async {
   return SharedPreferences.getInstance();
 }
 
 @Riverpod(keepAlive: true)
-LocalCacheService localCacheService(LocalCacheServiceRef ref) {
-  final prefs = ref.watch(sharedPreferencesProvider).valueOrNull;
+LocalCacheService localCacheService(Ref ref) {
+  final prefs = ref.watch(sharedPreferencesProvider).value;
   return LocalCacheService(prefs);
 }
 

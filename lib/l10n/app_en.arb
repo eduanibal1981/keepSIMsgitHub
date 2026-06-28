@@ -1,0 +1,686 @@
+﻿{
+    "@@locale":  "en",
+    "appName":  "KeepSIMs",
+    "@appName":  {
+                     "description":  "The name of the application"
+                 },
+    "preferencesAndSecurity":  "Preferences \u0026 Security",
+    "appAppearance":  "App Appearance",
+    "systemTheme":  "System",
+    "darkMode":  "Dark Mode",
+    "lightMode":  "Light Mode",
+    "localizationAndRegional":  "Localization \u0026 Regional",
+    "appLanguage":  "App Language",
+    "currentlyUsing":  "Currently using regional {langName}",
+    "@currentlyUsing":  {
+                            "placeholders":  {
+                                                 "langName":  {
+                                                                  "type":  "String"
+                                                              }
+                                             }
+                        },
+    "selectAppLanguage":  "Select App Language",
+    "securityAndAccessLock":  "Security \u0026 Access Lock",
+    "biometricSecurity":  "Biometric Security",
+    "biometricDesc":  "Sign in using Face ID or Touch ID",
+    "transactionPin":  "Transaction PIN",
+    "transactionPinDesc":  "Secure renewals and withdrawals",
+    "setup":  "SETUP",
+    "pinSuccess":  "Transaction PIN successfully updated!",
+    "pinMismatch":  "PINs do not match. Try again!",
+    "pinActiveAndSecure":  "PIN setup is active and secure",
+    "automatedSummaryAndAlerts":  "Automated Summary \u0026 Alerts",
+    "weeklyDigest":  "Weekly Digest",
+    "welcomeBack":  "Welcome Back",
+    "nextNotify":  "NEXT NOTIFY",
+    "days":  "days",
+    "showingNearestLine":  "Showing nearest line",
+    "addSim":  "Add SIM",
+    "linesToProtect":  "Lines to Protect",
+    "active":  "Active",
+    "upgrade":  "UPGRADE",
+    "standard":  "STANDARD",
+    "autoNotify":  "Auto-Notify",
+    "configure":  "Configure",
+    "autoRefill":  "Auto-Refill",
+    "quickActions":  "Quick Actions",
+    "navHome":  "Home",
+    "navSims":  "SIMs",
+    "navMore":  "More",
+    "protectedSims":  "Protected SIMs",
+    "mySimCards":  "My SIM Cards",
+    "familySharedSims":  "Family Shared SIMs",
+    "protectAnotherSimLine":  "Protect Another SIM Line",
+    "keepInfiniteNumbersAlive":  "Keep infinite international numbers alive",
+    "bulkActionsConsole":  "Bulk Actions Console",
+    "resume":  "Resume",
+    "pause":  "Pause",
+    "simulate":  "Simulate",
+    "noProtectedLines":  "No Protected Lines",
+    "noInternationalSimsAdded":  "You don\u0027t have any international SIM cards added yet. Protect your first card now to keep it active forever.",
+    "protectNewLine":  "Protect New Line",
+    "noSharedSimsYet":  "No Shared SIMs yet",
+    "inviteFamilyMembers":  "Invite family members to join your Household. Once they accept, their protected SIM lines will appear here for collaborative monitoring.",
+    "manageHousehold":  "Manage Household",
+    "manageProfileDesc":  "Manage your profile, SIM lines, alerts, and shared preferences",
+    "keepSIMsUser":  "KeepSIMs User",
+    "pro":  "PRO",
+    "homeCountry":  "Home Country: ",
+    "console":  "Console",
+    "offlineRefill":  "Offline Refill (SMS/WA)",
+    "refillSimOfflineDesc":  "Refill SIM balance offline via SMS or WhatsApp",
+    "wallet":  "Wallet",
+    "manageBalancesDesc":  "Manage your balances and view transaction history",
+    "alertPreferences":  "Alert Preferences",
+    "togglePushEmailDesc":  "Toggle push \u0026 email settings for renewals/balances",
+    "referAndEarn":  "Refer \u0026 Earn",
+    "shareKeepSIMsDesc":  "Share KeepSIMs, unlock dynamic balance rewards",
+    "paymentMethods":  "Payment Methods",
+    "addBankCardsDesc":  "Add bank cards or link auto-withdrawal accounts",
+    "travelAndGeolocation":  "Travel \u0026 Geolocation",
+    "manageHomeCountryDesc":  "Manage home country freeze rules \u0026 travel mode",
+    "dataAndPrivacy":  "Data \u0026 Privacy",
+    "manageTrackingConsentDesc":  "Manage your tracking consent, export data, or delete account",
+    "powerUser":  "Power User",
+    "accessSystemSimulatorsDesc":  "Access system simulators and debugging tools",
+    "testChecklist":  "Test Checklist",
+    "manualUiTestingDesc":  "Manual UI testing checklist for quality assurance",
+    "soon":  "SOON",
+    "featureComingSoon":  "{feature} feature is coming soon!",
+    "@featureComingSoon":  {
+                               "placeholders":  {
+                                                    "feature":  {
+                                                                    "type":  "String"
+                                                                }
+                                                }
+                           },
+    "logOut":  "Log Out",
+    "confirmLogOut":  "Are you sure you want to log out of KeepSIMs?",
+    "walletLedger":  "Wallet Ledger",
+    "keepSIMsPrepaid":  "KeepSIMs PREPAID",
+    "offlineMode":  "OFFLINE MODE",
+    "activeBalance":  "Active Balance",
+    "criticalBalanceLevel":  "Critical Balance Level",
+    "balanceBelow10":  "Your balance is below $10.00. Scheduled SIM topups may fail soon.",
+    "depositFunds":  "Deposit Funds",
+    "walletDepositsRequireInternet":  "Wallet deposits require an active internet connection.",
+    "exportLedger":  "Export Ledger",
+    "ledgerHistoryExported":  "Ledger history exported as CSV.",
+    "spendAnalysis":  "Spend Analysis",
+    "transactionHistory":  "Transaction History",
+    "itemsCount":  "{count} items",
+    "@itemsCount":  {
+                        "placeholders":  {
+                                             "count":  {
+                                                           "type":  "int"
+                                                       }
+                                         }
+                    },
+    "noTransactionsRecorded":  "No transactions recorded yet.",
+    "prepaidMonthlyOutflow":  "Prepaid Monthly Outflow",
+    "avgMonthlySpend":  "Avg: ${amount}/mo (12M)",
+    "@avgMonthlySpend":  {
+                             "placeholders":  {
+                                                  "amount":  {
+                                                                 "type":  "String"
+                                                             }
+                                              }
+                         },
+    "depositViaCard":  "Deposit via Card ending in {last4}",
+    "@depositViaCard":  {
+                            "placeholders":  {
+                                                 "last4":  {
+                                                               "type":  "String"
+                                                           }
+                                             }
+                        },
+    "lineRenewal":  "Line Renewal",
+    "justNow":  "Just now",
+    "loadCreditFunds":  "Load Credit Funds",
+    "depositAmountUsd":  "Deposit Amount (USD)",
+    "pleaseEnterAmount":  "Please enter an amount",
+    "enterPositiveNumber":  "Enter a positive number",
+    "cardDetails":  "Card Details",
+    "savedCards":  "Saved Cards",
+    "visaCardNumber":  "Visa Card Number",
+    "pleaseEnterCardNumber":  "Please enter card number",
+    "mustBe16Digits":  "Must be 16 digits",
+    "expiryMmYy":  "Expiry (MM/YY)",
+    "expiryRequired":  "Expiry required",
+    "invalid":  "Invalid",
+    "cvv":  "CVV",
+    "cvvRequired":  "CVV required",
+    "verifyingCardSecurity":  "Verifying Card Security...",
+    "authorizeDepositFunds":  "Authorize Deposit Funds",
+    "successfullyDeposited":  "Successfully deposited ${amount} USD!",
+    "@successfullyDeposited":  {
+                                   "placeholders":  {
+                                                        "amount":  {
+                                                                       "type":  "String"
+                                                                   }
+                                                    }
+                               },
+    "failedToDepositFunds":  "Failed to deposit funds. Please check card connection.",
+    "noSavedPaymentMethods":  "No saved payment methods found.",
+    "addPaymentMethod":  "Add Payment Method",
+    "savedPaymentMethods":  "Saved Payment Methods",
+    "addAnotherPaymentMethod":  "Add another payment method",
+    "expiresMmYy":  "Expires {month}/{year}",
+    "@expiresMmYy":  {
+                         "placeholders":  {
+                                              "month":  {
+                                                            "type":  "String"
+                                                        },
+                                              "year":  {
+                                                           "type":  "String"
+                                                       }
+                                          }
+                     },
+    "offlineRefillTitle":  "Offline Refill (SMS/WA)",
+    "selectTargetSimLine":  "Select Target SIM Line",
+    "noRegisteredSimLines":  "No registered SIM lines found.",
+    "targetSimLine":  "Target SIM Line",
+    "simLine":  "SIM Line",
+    "carrier":  "CARRIER",
+    "change":  "Change",
+    "offlineRefillProtection":  "Offline Refill Protection",
+    "premiumExclusive":  "PREMIUM EXCLUSIVE",
+    "neverGetStrandedDesc":  "Never get stranded without mobile data again. KeepSIMs Premium allows you to refill your SIM card balance offline over standard local SMS or WhatsApp messages when you have zero internet connection.",
+    "offlineCapability100":  "100% Offline Capability",
+    "deductsFromKeepSIMsDesc":  "Deducts from your KeepSIMs wallet to credit your line via local SMS gateway failovers.",
+    "dynamicUssdPlanActivation":  "Dynamic USSD Plan Activation",
+    "exactCopyPasteDialCodesDesc":  "Provides exact copy-paste dial codes (e.g., *900*1#) to activate Data+Call packages offline.",
+    "dualChannelSupport":  "Dual-Channel Support",
+    "textRefillDesc":  "Text \"REFILL\" using standard SMS or WhatsApp depending on what cellular coverage is available.",
+    "close":  "Close",
+    "howToTriggerOfflineRefill":  "How to Trigger Offline Refill",
+    "ifZeroMobileDataDesc1":  "If you have zero mobile data, send a standard SMS or WhatsApp message containing only ",
+    "refill":  "REFILL",
+    "toOurSecureGatewayDesc2":  " to our secure system gateway:",
+    "targetSimLineLabel":  "TARGET SIM LINE",
+    "configureCashRefillAmount":  "CONFIGURE CASH REFILL AMOUNT",
+    "refillAmount":  "Refill Amount",
+    "walletBalanceUsd":  "Wallet Balance: ${amount} USD",
+    "@walletBalanceUsd":  {
+                              "placeholders":  {
+                                                   "amount":  {
+                                                                  "type":  "String"
+                                                              }
+                                               }
+                          },
+    "lowBalanceWarning":  "âš ï¸ Low Balance",
+    "localCarrierPlanSuggestions":  "LOCAL CARRIER PLAN SUGGESTIONS",
+    "noStandardUssdDialCodes":  "No standard USSD dial codes found for this carrier. You will still receive the cash refill successfully on your line.",
+    "dynamicDialCodesPreview":  "Dynamic Dial Codes Preview",
+    "botSuggestDialingCodes":  "After the offline refill completes, the bot will suggest dialing these exact codes on your phone to instantly unlock Data+Calls offline:",
+    "costAmount":  "Cost: ${amount}",
+    "@costAmount":  {
+                        "placeholders":  {
+                                             "amount":  {
+                                                            "type":  "String"
+                                                        }
+                                         }
+                    },
+    "whatsappSmsSenderOverride":  "WHATSAPP/SMS SENDER OVERRIDE",
+    "verificationNumber":  "Verification Number",
+    "triggerRefillsDifferentNumber":  "If you trigger refills from a different number than your main profile phone, enter it below with country code (e.g. 96891234567).",
+    "enterPhoneNumberDigits":  "Enter phone number (digits only)",
+    "offlineRefillSettingsSaved":  "Offline Refill settings saved successfully!",
+    "saveSettings":  "Save Settings",
+    "errorLoadingSettings":  "Error loading settings: {error}",
+    "@errorLoadingSettings":  {
+                                  "placeholders":  {
+                                                       "error":  {
+                                                                     "type":  "String"
+                                                                 }
+                                                   }
+                              },
+    "retry":  "Retry",
+    "editProtectedLine":  "Edit Protected Line",
+    "saveChanges":  "Save Changes",
+    "activateShieldProtection":  "Activate Shield Protection",
+    "phoneNumber":  "Phone Number",
+    "nicknameOptional":  "Nickname (Optional)",
+    "whatsappAlerts":  "WhatsApp Alerts",
+    "emailAlertsDesc":  "Critical deactivation alerts sent via Resend",
+    "refillWalletLow":  "Refill wallet when funds drop low",
+    "legalPoliciesDesc":  "By using KeepSIMs, you agree to our terms. KeepSIMs provides tools to help manage your SIM lifecycle, but we are not liable for direct or indirect losses, damages, or service interruptions caused by third-party telecommunication providers.",
+    "globalTravelModeDesc":  "Allows automated geofencing rules to activate border-crossing routines",
+    "dataPreferences":  "Data Preferences",
+    "doNotDisturb":  "Do Not Disturb",
+    "linkedCards":  "Linked Cards",
+    "analyticsTracking":  "Analytics \u0026 Tracking",
+    "dubai":  "Dubai",
+    "flyHome":  "Fly Home",
+    "managePreferencesAndSecurityDesc":  "Manage theme, language, and biometric lockouts",
+    "autoFundingRulesDesc":  "Keep SIM renewal running continuously by enabling automatic top-ups from your default credit card when the balance drops too low",
+    "pushNotifications":  "Push Notifications",
+    "quietHoursSchedule":  "Quiet Hours \u0026 Schedule",
+    "exportMyDataDesc":  "Download a JSON copy of your profile and preferences (GDPR Right to Access)",
+    "borderSimulatorTitle":  "Border Crossing Simulator",
+    "yourData":  "Your Data",
+    "mostImportant":  "Most Important",
+    "emailAlerts":  "Email Alerts",
+    "pushNotificationsDesc":  "Aggressive native notifications on this device",
+    "alertSettingsTitle":  "Alert Settings",
+    "atHome":  "AT HOME",
+    "telegramBotDesc":  "Bound interactive Telegram chat notifications",
+    "alertChannels":  "Alert Channels",
+    "london":  "London",
+    "shieldProtection":  "Shield Protection",
+    "legalPolicies":  "Legal \u0026 Policies",
+    "supportVisaMastercard":  "Supports secure Visa \u0026 MasterCard debit or credit",
+    "exportMyData":  "Export My Data",
+    "dangerZone":  "Danger Zone",
+    "analyticsTrackingDesc":  "Help us improve the app by sharing anonymous usage data. Essential app functionality will not be affected if disabled",
+    "autoFundingRules":  "Auto-Funding Rules",
+    "singapore":  "Singapore",
+    "weeklySummaryDigest":  "Weekly Summary Digest",
+    "fullyShielded":  "Fully Shielded",
+    "dndDesc":  "Mute push notifications during specified sleep hours",
+    "paymentsAutoFundTitle":  "Payments \u0026 Auto-Fund",
+    "travelGeolocationTitle":  "Travel \u0026 Geolocation",
+    "telegramBot":  "Telegram Bot",
+    "weeklyDigestDesc":  "Compiled status report of all SIM cards every Sunday at 9:00 AM",
+    "borderSimulatorDesc":  "Simulate boardings to trigger smart freeze or active country resumption rules.",
+    "linkFirstCard":  "Link your first payment card",
+    "globalTravelMode":  "Global Travel Mode",
+    "readPrivacyPolicy":  "Read Full Privacy Policy \u0026 Terms",
+    "whatsappAlertsDesc":  "Refill failure alerts pushed directly to WhatsApp",
+    "abroadTraveling":  "ABROAD / TRAVELING",
+    "freezeAllLines":  "Freeze All Lines",
+    "resumeRenewals":  "Resume Renewals",
+    "freezeRecommendationDesc":  "We detected you are currently in your Home Country. You can freeze renewals on your international lines to prevent unwanted wallet balance depletion.",
+    "travelDetected":  "Travel Detected! ✈️",
+    "resumeRecommendationDesc":  "You are traveling abroad. Please resume your paused international SIM renewals to ensure uninterrupted mobile network coverage.",
+    "dismiss":  "Dismiss",
+    "welcomeHome":  "Welcome Home! 🏡",
+    "addCard":  "Add Card",
+    "noAlertChannelsConfigured":  "No alert delivery channels configured.",
+    "channelSettingsUpdated":  "{channelName} settings updated.",
+    "@channelSettingsUpdated":  {
+                                    "placeholders":  {
+                                                         "channelName":  {
+                                                                             "type":  "String"
+                                                                         }
+                                                     }
+                                },
+    "channelLocked":  "{channelName} Locked 🔒",
+    "@channelLocked":  {
+                           "placeholders":  {
+                                                "channelName":  {
+                                                                    "type":  "String"
+                                                                }
+                                            }
+                       },
+    "lockedAlertSubtitle":  "{channelName} alerts are Starter and Premium plan features. Upgrade your plan to unlock WhatsApp, Telegram, and Email alerts!",
+    "@lockedAlertSubtitle":  {
+                                 "placeholders":  {
+                                                      "channelName":  {
+                                                                          "type":  "String"
+                                                                      }
+                                                  }
+                             },
+    "upsellProtect5Lines":  "Protect up to 5 SIM lines simultaneously",
+    "upsellUnlockChannels":  "Unlock WhatsApp, Telegram \u0026 Email notifications",
+    "upsellEnableTravelModes":  "Enable Travel \u0026 Home automated validity modes",
+    "emailAddressLabel":  "Notification Email Address",
+    "emailAddressHint":  "e.g. user@domain.com",
+    "whatsappNumberLabel":  "WhatsApp Number (Int\u0027l Format)",
+    "whatsappNumberHint":  "e.g. +96891234567",
+    "whatsappFormatInstruction":  "Enter full international format starting with + (e.g. +96893990492)",
+    "telegramStatusBound":  "Status: Bound (Chat ID: {chatId})",
+    "@telegramStatusBound":  {
+                                 "placeholders":  {
+                                                      "chatId":  {
+                                                                     "type":  "String"
+                                                                 }
+                                                  }
+                             },
+    "telegramStatusUnbound":  "Status: Unbound",
+    "telegramLinkInstructions":  "To receive free, interactive Telegram alerts, link our Telegram Bot with your account.",
+    "linkTelegramBot":  "Link Telegram Bot",
+    "emailFreePlanGuarded":  "Resend Free Plan Guarded: Capped to deactivation triggers only. No promotional spam.",
+    "whatsappMetaCloudCapped":  "Direct Meta Cloud Capped: Maximum 1 message per top-up schedule, sent ONLY if auto-refill is not active or fails.",
+    "failedToLoadPaymentInfo":  "Failed to load payment info",
+    "defaultCardIndicator":  "DEFAULT",
+    "cardholder":  "CARDHOLDER",
+    "expires":  "EXPIRES",
+    "lowBalanceTrigger":  "Low Balance Trigger",
+    "triggerLowTopUp":  "Trigger low top-up",
+    "reloadDepositAmount":  "Reload Deposit Amount",
+    "amountToLoad":  "Amount to load",
+    "linkCreditDebitCard":  "Link Credit/Debit Card",
+    "cardNumberLabel":  "CARD NUMBER",
+    "expiryDateLabel":  "EXPIRY DATE",
+    "cvvCodeLabel":  "CVV CODE",
+    "securelyLinkCard":  "Securely Link Card",
+    "pleaseEnterValidCardNumber":  "Please enter a valid 16-digit card number.",
+    "pleaseEnterValidExpiryDate":  "Please enter a valid expiry date (MM/YY).",
+    "invalidExpiryMonth":  "Invalid expiry month.",
+    "cvvMustBe3Digits":  "CVV must be 3 digits.",
+    "cardLinkedSuccessfully":  "Secure billing card linked successfully!",
+    "defaultPaymentCardUpdated":  "Default payment card updated!",
+    "removePaymentCard":  "Remove Payment Card",
+    "confirmRemoveCardDesc":  "Are you sure you want to remove this card? Linked auto-funding might fail if no default payment card remains.",
+    "cancel":  "Cancel",
+    "remove":  "Remove",
+    "billingCardSuccessfullyRemoved":  "Billing card successfully removed.",
+    "pleaseAddDefaultCardFirst":  "Please add and select a default payment card first to enable auto-funding.",
+    "autoFundPrefsSavedSuccess":  "Auto-Funding preferences saved successfully!",
+    "preparingDataExport":  "Preparing data export...",
+    "exportFailed":  "Export failed: {error}",
+    "@exportFailed":  {
+                          "placeholders":  {
+                                               "error":  {
+                                                             "type":  "String"
+                                                         }
+                                           }
+                      },
+    "deleteAccountWarning":  "Once you delete your account, there is no going back. Please be certain.",
+    "deleteAccount":  "Delete Account",
+    "deleteAccountIrreversible":  "This action is irreversible. All your data will be permanently purged.",
+    "typeDeleteToConfirm":  "Type \"DELETE\" to confirm:",
+    "deleteWord":  "DELETE",
+    "systemDiagnosticsLogs":  "SYSTEM DIAGNOSTICS LOGS",
+    "online":  "ONLINE",
+    "errorLoadingPrefs":  "Error loading preferences: {error}",
+    "@errorLoadingPrefs":  {
+                               "placeholders":  {
+                                                    "error":  {
+                                                                  "type":  "String"
+                                                              }
+                                                }
+                           },
+    "privacyPolicyLoaded":  "Privacy Policy details loaded.",
+    "protectionConsole":  "Protection Console",
+    "deleteProtectionTooltip":  "Delete Protection",
+    "refreshTooltip":  "Refresh",
+    "failedToLoadDetails":  "Failed to load details",
+    "retryConnection":  "Retry Connection",
+    "healthLabel":  "health",
+    "mySimCardDefault":  "My SIM Card",
+    "upLabel":  "UP",
+    "sharedByFamily":  "Shared by: {ownerName} ({role})",
+    "@sharedByFamily":  {
+                            "placeholders":  {
+                                                 "ownerName":  {
+                                                                   "type":  "String"
+                                                               },
+                                                 "role":  {
+                                                              "type":  "String"
+                                                          }
+                                             }
+                        },
+    "criticalRisk":  "Critical risk",
+    "simDeactivationRisk":  "SIM may deactivate without action",
+    "missingAlertsDesc":  "No alert notifications configured — missing 100 pts",
+    "missingAutoRefillDesc":  "No auto-refill configured — missing 50 pts",
+    "missingVerificationDesc":  "Phone number not verified — missing 25 pts",
+    "missingRecentRefillDesc":  "Last refill was over 80 days ago — missing 25 pts",
+    "quickActionsLabel":  "Quick Actions",
+    "manualRefillLabel":  "Manual Refill",
+    "chargeFromWalletNow":  "Charge from wallet now",
+    "rechargeFromFriend":  "Recharge from Friend",
+    "requestViaTelegram":  "Request via Telegram",
+    "shareViaWaTg":  "Share via WhatsApp/Telegram",
+    "testSimActivity":  "Test SIM Activity",
+    "verifyLineReachable":  "Verify line is reachable",
+    "checkCompleted1x":  "1x Check Completed",
+    "starterPlan1xCompleted":  "Starter plan 1x check completed. Upgrade to Premium for unlimited checks.",
+    "leaveCountry":  "Leave {countryName}",
+    "@leaveCountry":  {
+                          "placeholders":  {
+                                               "countryName":  {
+                                                                   "type":  "String"
+                                                               }
+                                           }
+                      },
+    "resumeProtectionLayers":  "Resume protection layers",
+    "backToCountryMode":  "Back to {countryName} mode",
+    "@backToCountryMode":  {
+                               "placeholders":  {
+                                                    "countryName":  {
+                                                                        "type":  "String"
+                                                                    }
+                                                }
+                           },
+    "pauseWhileVisitingHome":  "Pause while visiting home",
+    "rechargeFromFriendTitle":  "Recharge from a Friend",
+    "selectPlatformShare":  "Select a platform to share a recharge request message with your friend.",
+    "rechargeRequestTemplate":  "Hi! My KeepSIMs card ({phone}) is expiring soon. Could you please recharge it for me?. Thank you!",
+    "@rechargeRequestTemplate":  {
+                                     "placeholders":  {
+                                                          "phone":  {
+                                                                        "type":  "String"
+                                                                    }
+                                                      }
+                                 },
+    "requestViaWhatsApp":  "Request via WhatsApp",
+    "couldNotLaunchLink":  "Could not launch {platformName} link: {error}",
+    "@couldNotLaunchLink":  {
+                                "placeholders":  {
+                                                     "platformName":  {
+                                                                          "type":  "String"
+                                                                      },
+                                                     "error":  {
+                                                                   "type":  "String"
+                                                               }
+                                                 }
+                            },
+    "couldNotLaunchTelegram":  "Could not launch Telegram link: {error}",
+    "@couldNotLaunchTelegram":  {
+                                    "placeholders":  {
+                                                         "error":  {
+                                                                       "type":  "String"
+                                                                   }
+                                                     }
+                                },
+    "protectionLayersLabel":  "Protection Layers",
+    "autoNotifyDisabled":  "Auto-Notify: Disabled",
+    "noActiveAlertSchedule":  "Your SIM card has no active alert notification schedule. You will not receive automatic reminders or deactivation alerts.",
+    "askOwnerConfigureAlerts":  "Please ask the household owner to configure alerts.",
+    "configureAutoNotify":  "Configure Auto-Notify",
+    "activeLabel":  "ACTIVE",
+    "pausedHomeMode":  "PAUSED (HOME MODE)",
+    "pausedLabel":  "PAUSED",
+    "everyHour":  "Every 1 hour",
+    "everyNDays":  "Every {days} days",
+    "@everyNDays":  {
+                        "placeholders":  {
+                                             "days":  {
+                                                          "type":  "int"
+                                                      }
+                                         }
+                    },
+    "nextAlertCheck":  "Next Alert Check",
+    "premiumKeepAliveRefill":  "Premium Keep-Alive Refill",
+    "autoRefillIncludedText":  "Auto-refill included - ~3.5 USD (telecom, VAT included) every 85 days,\\nnext refill on {date}",
+    "@autoRefillIncludedText":  {
+                                    "placeholders":  {
+                                                         "date":  {
+                                                                      "type":  "String"
+                                                                  }
+                                                     }
+                                },
+    "premiumKeepAliveDisabled":  "Premium keep-alive refill is currently disabled.",
+    "customAutoRefill":  "Custom Auto-Refill",
+    "addAdditionalScheduledRecharge":  "Add an additional scheduled recharge amount to keep an extra balance on your SIM.",
+    "askOwnerConfigureRefill":  "Please ask the household owner to configure Auto-Refill.",
+    "configureCustomAutoRefill":  "Configure Custom Auto-Refill",
+    "rechargeAmount":  "Recharge Amount",
+    "refillInterval":  "Refill Interval",
+    "nextRefillDue":  "Next Refill Due",
+    "failedRefillAttempts":  "Failed Refill Attempts",
+    "retriesCount":  "{count} / 4 retries",
+    "@retriesCount":  {
+                          "placeholders":  {
+                                               "count":  {
+                                                             "type":  "int"
+                                                         }
+                                           }
+                      },
+    "editRefillAmount":  "Edit Refill Amount",
+    "refillExecutionsHistory":  "Refill Executions History",
+    "renewalExecutionsHistory":  "Renewal Executions History",
+    "noHistoricalTopup":  "No historical top-up executions recorded for this line yet.",
+    "noHistoricalRenewal":  "No historical renewal executions recorded for this line yet.",
+    "viewAllHistory":  "View All History",
+    "securityActivityLogs":  "Security Activity Logs",
+    "clearLogs":  "Clear Logs",
+    "noActivityLogsRecorded":  "No activity logs recorded for this line yet.",
+    "activityLogDeleted":  "Activity log entry deleted.",
+    "activityLogsCleared":  "Activity logs cleared successfully.",
+    "autoRenewalStatusUpdated":  "Auto-Renewal successfully {status}.",
+    "@autoRenewalStatusUpdated":  {
+                                      "placeholders":  {
+                                                           "status":  {
+                                                                          "type":  "String"
+                                                                      }
+                                                       }
+                                  },
+    "failedToUpdateSchedule":  "Failed to update schedule: {error}",
+    "@failedToUpdateSchedule":  {
+                                    "placeholders":  {
+                                                         "error":  {
+                                                                       "type":  "String"
+                                                                   }
+                                                     }
+                                },
+    "premiumRefillEnabled":  "Premium keep-alive refill enabled successfully.",
+    "failedToEnableAutoRefill":  "Failed to enable auto-refill: {error}",
+    "@failedToEnableAutoRefill":  {
+                                      "placeholders":  {
+                                                           "error":  {
+                                                                         "type":  "String"
+                                                                     }
+                                                       }
+                                  },
+    "removeScheduleTitle":  "Remove Schedule",
+    "confirmDeleteAutoRefill":  "Are you sure you want to delete this auto-refill schedule? Your SIM health score will drop significantly, risking deactivation.",
+    "confirmDeleteAutoRenewal":  "Are you sure you want to delete this auto-renewal schedule? Your SIM health score will drop significantly, risking deactivation.",
+    "autoRefillRemoved":  "Auto-refill schedule removed successfully.",
+    "autoRenewalRemoved":  "Auto-renewal schedule removed successfully.",
+    "failedToDeleteSchedule":  "Failed to delete schedule: {error}",
+    "@failedToDeleteSchedule":  {
+                                    "placeholders":  {
+                                                         "error":  {
+                                                                       "type":  "String"
+                                                                   }
+                                                     }
+                                },
+    "refillRetrySuccess":  "Refill retry completed successfully!",
+    "renewalRetrySuccess":  "Renewal retry completed successfully!",
+    "retryFailed":  "Retry failed: {error}",
+    "@retryFailed":  {
+                         "placeholders":  {
+                                              "error":  {
+                                                            "type":  "String"
+                                                        }
+                                          }
+                     },
+    "retryExecutionError":  "Retry execution error: {error}",
+    "@retryExecutionError":  {
+                                 "placeholders":  {
+                                                      "error":  {
+                                                                    "type":  "String"
+                                                                }
+                                                  }
+                             },
+    "failedToDeleteActivityLog":  "Failed to delete activity log: {error}",
+    "@failedToDeleteActivityLog":  {
+                                       "placeholders":  {
+                                                            "error":  {
+                                                                          "type":  "String"
+                                                                      }
+                                                        }
+                                   },
+    "failedToClearActivityLogs":  "Failed to clear activity logs: {error}",
+    "@failedToClearActivityLogs":  {
+                                       "placeholders":  {
+                                                            "error":  {
+                                                                          "type":  "String"
+                                                                      }
+                                                        }
+                                   },
+    "removeProtectionTitle":  "Remove Protection",
+    "confirmRemoveProtectionDesc":  "Are you sure you want to stop keeping {name} protected? Scheduled top-ups for this SIM line will be permanently cancelled.",
+    "@confirmRemoveProtectionDesc":  {
+                                         "placeholders":  {
+                                                              "name":  {
+                                                                           "type":  "String"
+                                                                       }
+                                                          }
+                                     },
+    "simLineProtectionRemoved":  "SIM line protection removed successfully.",
+    "failedToDeleteSimLine":  "Failed to delete: {error}",
+    "@failedToDeleteSimLine":  {
+                                   "placeholders":  {
+                                                        "error":  {
+                                                                      "type":  "String"
+                                                                  }
+                                                    }
+                               },
+    "editSimNameTitle":  "Edit SIM Name",
+    "enterNicknameInstruction":  "Enter a nickname for this SIM card line:",
+    "nicknameExampleHint":  "e.g. My Orange Egypt SIM",
+    "simNameUpdatedSuccess":  "SIM name updated successfully.",
+    "failedToUpdateSimName":  "Failed to update SIM name: {error}",
+    "@failedToUpdateSimName":  {
+                                   "placeholders":  {
+                                                        "error":  {
+                                                                      "type":  "String"
+                                                                  }
+                                                    }
+                               },
+    "saveButton":  "Save",
+    "deleteButton":  "Delete",
+    "autoNotifySchedule":  "Auto-Notify Schedule",
+    "renewalCheckInterval":  "Renewal Check Interval",
+    "editNotificationConfig":  "Edit Notification Config",
+    "openTicket":  "Open Ticket",
+    "offlineRefillLabel":  "Offline Refill",
+    "categoryLabel":  "Category",
+    "techSupportCategory":  "Technical Support",
+    "billingWalletCategory":  "Billing \u0026 Wallet",
+    "simLinesCategory":  "SIM Lines Management",
+    "feedbackOtherCategory":  "Feedback \u0026 Other",
+    "subjectLabel":  "Subject",
+    "subjectHint":  "Brief summary of the issue",
+    "descriptionLabel":  "Description",
+    "descriptionHint":  "Describe your issue in detail...",
+    "attachmentLabel":  "Attachment (Optional)",
+    "uploadScreenshot":  "Upload Screenshot",
+    "submitTicketButton":  "Submit Ticket",
+    "pleaseFillFields":  "Please fill in both subject and description",
+    "ticketSubmittedSuccess":  "Ticket submitted successfully!",
+    "lastRefillLabel":  "Last Refill",
+    "noRefillYet":  "No refill yet",
+    "nextAlertLabel":  "Next Alert",
+    "protectionLabel":  "PROTECTION",
+    "actionRequiredLabel":  "Action Req.",
+    "protectionOffLabel":  "Protection Off",
+    "notSet":  "Not set",
+    "homeMode":  "Home Mode",
+    "incidentChannelsTitle":  "Incident Channels",
+    "topUpSuccessTitle":  "Top-up Successful",
+    "topUpSuccessDesc":  "Notify me when an automatic SIM validity extension is completed successfully.",
+    "topUpFailedTitle":  "Top-up Failed (Critical)",
+    "topUpFailedDesc":  "Critical alerts when automatic top-ups fail due to carrier or wallet issues.",
+    "walletLowTitle":  "Low Wallet Balance",
+    "walletLowDesc":  "Warn me when primary balance drops below the safety threshold.",
+    "walletDepletedTitle":  "Wallet Depleted",
+    "walletDepletedDesc":  "Suspended alerts when wallet balance is fully exhausted and renewals halt.",
+    "lineCriticalTitle":  "Validity Expiry Warning",
+    "lineCriticalDesc":  "Warn me when a SIM validity window is ending within 48 hours.",
+    "lineEnteringGraceTitle":  "Entering Grace Period",
+    "lineEnteringGraceDesc":  "Notify me when carrier deactivation grace periods are detected.",
+    "geoFenceTriggeredTitle":  "Location / Roaming Alerts",
+    "geoFenceTriggeredDesc":  "Alerts when carrier switches roaming clusters or network nodes.",
+    "welcomeHomeReadyTitle":  "Welcome Home Sync",
+    "welcomeHomeReadyDesc":  "Alerts when home-country network node triggers automated syncs.",
+    "referralRewardTitle":  "Referral \u0026 Rewards",
+    "referralRewardDesc":  "Notify me when friend referrals deposit promotional balances into my wallet.",
+    "systemUpdatesTitle":  "General System Updates",
+    "systemUpdatesDesc":  "Vital engine updates, maintenance, and platform announcements."
+}

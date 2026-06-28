@@ -15,6 +15,8 @@ import 'package:keep_sims/core/providers.dart';
 
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 
+import 'package:keep_sims/core/failure.dart';
+
 part 'auth_controller.g.dart';
 
 /// Provides the current auth state as an [AsyncValue<UserProfile?>].
@@ -52,13 +54,41 @@ class AuthController extends _$AuthController {
     return profile;
   }
 
+  /// Resend confirmation email.
+  Future<void> resendConfirmationEmail(String email) async {
+    state = const AsyncValue.loading();
+    final repo = ref.read(authRepositoryProvider);
+    final result = await repo.resendConfirmationEmail(email);
+
+    switch (result) {
+      case Success(data: final _):
+        state = const AsyncValue.data(null);
+      case Failure(error: final f):
+        state = AsyncValue.error(f.message, StackTrace.current);
+    }
+  }
+
+  /// Verify OTP for email signup.
+  Future<void> verifyOTP(String email, String token) async {
+    state = const AsyncValue.loading();
+    final repo = ref.read(authRepositoryProvider);
+    final result = await repo.verifyOTP(email, token);
+
+    switch (result) {
+      case Success(data: final _):
+        ref.invalidateSelf(); // Re-fetch the profile and trigger router
+      case Failure(error: final f):
+        state = AsyncValue.error(f.message, StackTrace.current);
+    }
+  }
+
   /// Fetch the current user's profile from the repository.
   Future<UserProfile?> _fetchProfile(AuthContract repo) async {
     final result = await repo.getCurrentProfile();
 
     return switch (result) {
       Success(data: final profile) => profile,
-      Failure(error: final e) => throw Exception(e.message),
+      Failure(error: final e) => throw UserFriendlyException(e.message),
     };
   }
 
@@ -77,6 +107,36 @@ class AuthController extends _$AuthController {
         if (f.message == 'Redirecting to Google...') {
           return;
         }
+        state = AsyncValue.error(f.message, StackTrace.current);
+    }
+  }
+
+  /// Sign in with Email and Password.
+  Future<void> signInWithEmailAndPassword(String email, String password) async {
+    state = const AsyncValue.loading();
+
+    final repo = ref.read(authRepositoryProvider);
+    final result = await repo.signInWithEmailAndPassword(email, password);
+
+    switch (result) {
+      case Success(data: final _):
+        ref.invalidateSelf();
+      case Failure(error: final f):
+        state = AsyncValue.error(f.message, StackTrace.current);
+    }
+  }
+
+  /// Sign up with Email and Password.
+  Future<void> signUpWithEmailAndPassword(String email, String password) async {
+    state = const AsyncValue.loading();
+
+    final repo = ref.read(authRepositoryProvider);
+    final result = await repo.signUpWithEmailAndPassword(email, password);
+
+    switch (result) {
+      case Success(data: final _):
+        state = const AsyncValue.data(null);
+      case Failure(error: final f):
         state = AsyncValue.error(f.message, StackTrace.current);
     }
   }

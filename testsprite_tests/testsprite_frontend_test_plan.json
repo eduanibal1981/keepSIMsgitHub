@@ -1,0 +1,1180 @@
+[
+  {
+    "id": "TC001",
+    "title": "Log in and reach the main account dashboard",
+    "description": "A user can sign in with email and password and land on the home dashboard after authentication.",
+    "category": "Authentication",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the home dashboard is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC002",
+    "title": "Log in and reach the dashboard",
+    "description": "This verifies that a user can sign in with email and password and land on the main dashboard.",
+    "category": "Authentication and post-login access",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the main dashboard is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify core account summary information is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC003",
+    "title": "Stay signed in across core screens",
+    "description": "This verifies that a signed-in user can move between core account screens without being sent back to login.",
+    "category": "Authentication and post-login access",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /home"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open SIM lines"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open the wallet"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the wallet screen is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the user remains signed in"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC004",
+    "title": "Stay signed in when opening the dashboard after login",
+    "description": "This verifies that a signed-in user can open the dashboard directly and still see authenticated account content.",
+    "category": "View Dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /home"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the main dashboard is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify account summary content is visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC005",
+    "title": "Open the SIM lines list from the dashboard",
+    "description": "This verifies that a logged-in user can access the SIM lines list from the main account experience.",
+    "category": "Authentication and post-login access",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open SIM lines"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the SIM lines list is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify existing SIM lines are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC006",
+    "title": "Add a new SIM line and see it in the list",
+    "description": "A logged-in user can create a new SIM line and confirm it appears in the updated SIM list.",
+    "category": "SIM Lines",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the SIM lines navigation link"
+      },
+      {
+        "type": "action",
+        "description": "Open the add SIM line screen"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the SIM line details with valid values"
+      },
+      {
+        "type": "action",
+        "description": "Submit the SIM line form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new SIM line appears in the SIM list"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC007",
+    "title": "Open the wallet from the dashboard",
+    "description": "This verifies that a logged-in user can access wallet balance and transaction history from the main account experience.",
+    "category": "Authentication and post-login access",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open the wallet"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the wallet overview is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify wallet balance and transaction history are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC008",
+    "title": "Reject invalid login credentials",
+    "description": "This verifies that incorrect email or password values keep the user on the login screen and show a validation error.",
+    "category": "User Login",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with invalid@example.com"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with invalid-password"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a login error message is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the login screen remains visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC009",
+    "title": "Access SIM lines from the dashboard and review account status",
+    "description": "A signed-in user can move from the dashboard to the SIM lines area and review SIM account status.",
+    "category": "SIM Lines",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the SIM lines navigation link"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the SIM lines list is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify SIM account status information is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC010",
+    "title": "Review the dashboard overview after sign in",
+    "description": "This verifies that a logged-in user can view the dashboard summary and account status at a glance.",
+    "category": "View Dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify dashboard overview statistics are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify account status content is visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC011",
+    "title": "Add a new SIM line",
+    "description": "This verifies that a household admin can create a new SIM line and see it in the updated list.",
+    "category": "Authentication and post-login access",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open SIM lines"
+      },
+      {
+        "type": "action",
+        "description": "Click the action to add a new SIM line"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the new SIM line details"
+      },
+      {
+        "type": "action",
+        "description": "Submit the new SIM line form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated SIM lines list is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the newly added SIM line appears in the list"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC012",
+    "title": "View wallet balance and recent transactions",
+    "description": "A logged-in user can open the wallet and review the current balance and transaction history.",
+    "category": "Wallet Overview",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the wallet navigation link"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the wallet balance is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify transaction history is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC013",
+    "title": "Return to account overview from wallet and SIM lines",
+    "description": "A logged-in user can move between wallet and SIM lines screens to review account status across core screens.",
+    "category": "Wallet Overview",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the wallet navigation link"
+      },
+      {
+        "type": "action",
+        "description": "Click the SIM lines navigation link"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the SIM lines list is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify account status information is accessible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC014",
+    "title": "View notifications and mark one as read",
+    "description": "This verifies that a logged-in user can review notifications and update a notification to read state.",
+    "category": "Authentication and post-login access",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open notifications"
+      },
+      {
+        "type": "action",
+        "description": "Open an unread notification"
+      },
+      {
+        "type": "action",
+        "description": "Mark the notification as read"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the notifications list is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the notification is shown as read"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC015",
+    "title": "Open a notification and mark it read",
+    "description": "A logged-in user can open the notifications list, read a notification, and see its read state update.",
+    "category": "Notifications",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the notifications navigation link"
+      },
+      {
+        "type": "action",
+        "description": "Select a notification"
+      },
+      {
+        "type": "action",
+        "description": "Mark the notification as read"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the notifications list shows an updated read state"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC016",
+    "title": "Open wallet details from the authenticated app",
+    "description": "This verifies that a signed-in user can reach the wallet area and review balance information.",
+    "category": "View Wallet",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation entry for the wallet"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify wallet balance information is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify wallet transaction history is visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC017",
+    "title": "Open settings and preferences",
+    "description": "This verifies that a logged-in user can reach the settings and preferences screens from the account area.",
+    "category": "Authentication and post-login access",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open settings"
+      },
+      {
+        "type": "action",
+        "description": "Open preferences from settings"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the preferences screen is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify preference controls are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC018",
+    "title": "Require sign-in before opening household management",
+    "description": "An unauthenticated user who tries to access household management is redirected to sign in instead of seeing account data.",
+    "category": "Household Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /household"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the login screen is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify household data is not displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC019",
+    "title": "Move from settings to preferences and save a preference change",
+    "description": "A logged-in user can open preferences from settings, change a preference, and return to the settings menu with the change applied.",
+    "category": "Settings",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the settings navigation link"
+      },
+      {
+        "type": "action",
+        "description": "Open preferences"
+      },
+      {
+        "type": "action",
+        "description": "Toggle a preference"
+      },
+      {
+        "type": "action",
+        "description": "Save the preference change"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated preference is reflected in the settings experience"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC020",
+    "title": "Access support tickets and create a new ticket",
+    "description": "This verifies that a logged-in user can review support tickets and create a new support request that appears in the list.",
+    "category": "Authentication and post-login access",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open support"
+      },
+      {
+        "type": "action",
+        "description": "Open the create ticket form"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the support ticket details"
+      },
+      {
+        "type": "action",
+        "description": "Submit the support request"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the support ticket list is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new ticket appears in the list"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC021",
+    "title": "Review and create a support ticket",
+    "description": "This verifies that a signed-in user can view existing support tickets and add a new ticket that appears in the list.",
+    "category": "Support Tickets",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation entry for support"
+      },
+      {
+        "type": "action",
+        "description": "Open the new ticket flow"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the support ticket details"
+      },
+      {
+        "type": "action",
+        "description": "Submit the support ticket"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the support ticket list is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new support ticket appears in the list"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC022",
+    "title": "Configure offline recharge from settings",
+    "description": "This verifies that a logged-in user can open offline recharge settings and save a configuration.",
+    "category": "Authentication and post-login access",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open settings"
+      },
+      {
+        "type": "action",
+        "description": "Open offline recharge settings"
+      },
+      {
+        "type": "action",
+        "description": "Configure the offline recharge options"
+      },
+      {
+        "type": "action",
+        "description": "Save the offline recharge setup"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the offline recharge screen is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the saved offline recharge settings are shown"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC023",
+    "title": "Reach settings and offline recharge from the settings menu",
+    "description": "A logged-in user can navigate from settings to the offline recharge configuration screen for traveler setup.",
+    "category": "Settings",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the settings navigation link"
+      },
+      {
+        "type": "action",
+        "description": "Open the offline recharge settings screen"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the offline recharge configuration screen is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify recharge configuration options are visible"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC024",
+    "title": "View linked household members",
+    "description": "A signed-in user can open household management and review the linked household members and connections.",
+    "category": "Household Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open household management"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify linked household members are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify household connections are displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC025",
+    "title": "Access household management from the dashboard",
+    "description": "A signed-in user can reach household management from the main account overview and see the linked accounts area.",
+    "category": "Household Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the home dashboard link"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open household management"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify linked household members are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the household connections view is displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC026",
+    "title": "Retain household access after moving through core screens",
+    "description": "A signed-in user can leave household management and return to it later without losing access to the linked accounts view.",
+    "category": "Household Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open household management"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open the wallet screen"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open household management again"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify linked household members are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify household connections are displayed"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC027",
+    "title": "See an empty state when no SIM lines exist",
+    "description": "This verifies that the SIM lines page communicates an empty state when the account has no lines to show.",
+    "category": "Manage SIM Lines",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation entry for SIM lines"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an empty state message is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify no SIM line entries are displayed"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC028",
+    "title": "Handle a bad login attempt",
+    "description": "A user who enters invalid credentials sees a login error and stays on the sign-in screen.",
+    "category": "Authentication",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with an invalid email"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with an invalid password"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a login error is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the sign-in screen remains visible"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC029",
+    "title": "See an empty household state when no members are linked",
+    "description": "A signed-in user with no linked household members can open household management and see an empty state instead of account cards.",
+    "category": "Household Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open household management"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an empty state message is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify household member cards are not displayed"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC030",
+    "title": "See an empty support state when no tickets exist",
+    "description": "This verifies that the support area shows an empty state when there are no tickets to review.",
+    "category": "Support Tickets",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation entry for support"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an empty state message is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify no support tickets are displayed"
+      }
+    ],
+    "priority": "Low"
+  }
+]

@@ -20,8 +20,8 @@ class GeoController extends _$GeoController {
 
   @override
   GeoState build() {
-    final authProfile = ref.watch(authControllerProvider).valueOrNull;
-    final userPrefs = ref.watch(userPreferencesControllerProvider).valueOrNull;
+    final authProfile = ref.watch(authControllerProvider).value;
+    final userPrefs = ref.watch(userPreferencesControllerProvider).value;
 
     final homeCountryCode = authProfile?.homeCountryCode ?? 'US';
     final travelMode = userPrefs?.travelModeEnabled ?? false;
@@ -54,7 +54,7 @@ class GeoController extends _$GeoController {
 
   /// Board simulated flight to target country triggers instant geofence crossing.
   Future<void> simulateTravelTo(String isoCode, String countryName) async {
-    final authProfile = ref.read(authControllerProvider).valueOrNull;
+    final authProfile = ref.read(authControllerProvider).value;
     final homeCountryCode = authProfile?.homeCountryCode ?? 'US';
 
     _simulatedIso = isoCode;
@@ -114,10 +114,10 @@ class GeoController extends _$GeoController {
 
   /// Performs bulk updates to freeze all international SIM lines.
   Future<void> freezeAllInternationalLines() async {
-    final lines = ref.read(simLinesControllerProvider).valueOrNull ?? [];
-    final countries = ref.read(supportedCountriesProvider).valueOrNull ?? [];
+    final lines = ref.read(simLinesControllerProvider).value ?? [];
+    final countries = ref.read(supportedCountriesProvider).value ?? [];
     final homeCountryCode =
-        ref.read(authControllerProvider).valueOrNull?.homeCountryCode ?? 'US';
+        ref.read(authControllerProvider).value?.homeCountryCode ?? 'US';
 
     _logs.add('❄️ Freeze Request: Pausing all international lines...');
 
@@ -143,10 +143,10 @@ class GeoController extends _$GeoController {
 
   /// Performs bulk updates to resume all paused international SIM renewals.
   Future<void> resumeAllInternationalLines() async {
-    final lines = ref.read(simLinesControllerProvider).valueOrNull ?? [];
-    final countries = ref.read(supportedCountriesProvider).valueOrNull ?? [];
+    final lines = ref.read(simLinesControllerProvider).value ?? [];
+    final countries = ref.read(supportedCountriesProvider).value ?? [];
     final homeCountryCode =
-        ref.read(authControllerProvider).valueOrNull?.homeCountryCode ?? 'US';
+        ref.read(authControllerProvider).value?.homeCountryCode ?? 'US';
 
     _logs.add('🔥 Resume Request: Reactivating international renewals...');
 

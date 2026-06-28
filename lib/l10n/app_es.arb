@@ -1,0 +1,686 @@
+{
+    "@@locale":  "es",
+    "appName":  "KeepSIMs",
+    "@appName":  {
+                     "description":  "The name of the application"
+                 },
+    "preferencesAndSecurity":  "Preferencias y Seguridad",
+    "appAppearance":  "Apariencia de la App",
+    "systemTheme":  "Sistema",
+    "darkMode":  "Modo Oscuro",
+    "lightMode":  "Modo Claro",
+    "localizationAndRegional":  "Localización y Regional",
+    "appLanguage":  "Idioma de la App",
+    "currentlyUsing":  "Usando actualmente {langName} regional",
+    "@currentlyUsing":  {
+                            "placeholders":  {
+                                                 "langName":  {
+                                                                  "type":  "String"
+                                                              }
+                                             }
+                        },
+    "selectAppLanguage":  "Seleccionar Idioma de la App",
+    "securityAndAccessLock":  "Seguridad y Bloqueo de Acceso",
+    "biometricSecurity":  "Seguridad Biométrica",
+    "biometricDesc":  "Iniciar sesión con Face ID o Touch ID",
+    "transactionPin":  "PIN de Transacción",
+    "transactionPinDesc":  "Proteger renovaciones y retiros",
+    "setup":  "CONFIGURAR",
+    "pinSuccess":  "¡PIN de transacción actualizado correctamente!",
+    "pinMismatch":  "Los PINs no coinciden. ¡Inténtalo de nuevo!",
+    "pinActiveAndSecure":  "La configuración del PIN está activa y segura",
+    "automatedSummaryAndAlerts":  "Resumen Automatizado y Alertas",
+    "weeklyDigest":  "Resumen Semanal",
+    "welcomeBack":  "Bienvenido de nuevo",
+    "nextNotify":  "PRÓXIMA NOTIFICACIÓN",
+    "days":  "días",
+    "showingNearestLine":  "Mostrando la línea más cercana",
+    "addSim":  "Agregar SIM",
+    "linesToProtect":  "Líneas a Proteger",
+    "active":  "Activo",
+    "upgrade":  "ACTUALIZAR",
+    "standard":  "ESTÁNDAR",
+    "autoNotify":  "Notificación Automática",
+    "configure":  "Configurar",
+    "autoRefill":  "Recarga Automática",
+    "quickActions":  "Acciones Rápidas",
+    "navHome":  "Inicio",
+    "navSims":  "SIMs",
+    "navMore":  "Más",
+    "protectedSims":  "SIMs Protegidas",
+    "mySimCards":  "Mis Tarjetas SIM",
+    "familySharedSims":  "SIMs Compartidas Familiares",
+    "protectAnotherSimLine":  "Proteger Otra Línea SIM",
+    "keepInfiniteNumbersAlive":  "Mantén activos infinitos números internacionales",
+    "bulkActionsConsole":  "Consola de Acciones Masivas",
+    "resume":  "Reanudar",
+    "pause":  "Pausar",
+    "simulate":  "Simular",
+    "noProtectedLines":  "Sin Líneas Protegidas",
+    "noInternationalSimsAdded":  "Aún no tienes tarjetas SIM internacionales agregadas. Protege tu primera tarjeta ahora para mantenerla activa para siempre.",
+    "protectNewLine":  "Proteger Nueva Línea",
+    "noSharedSimsYet":  "Aún no hay SIMs compartidas",
+    "inviteFamilyMembers":  "Invita a miembros de tu familia a unirse a tu Hogar. Una vez que acepten, sus líneas SIM protegidas aparecerán aquí para monitoreo colaborativo.",
+    "manageHousehold":  "Gestionar Hogar",
+    "manageProfileDesc":  "Gestiona tu perfil, líneas SIM, alertas y preferencias compartidas",
+    "keepSIMsUser":  "Usuario de KeepSIMs",
+    "pro":  "PRO",
+    "homeCountry":  "País de Origen: ",
+    "console":  "Consola",
+    "offlineRefill":  "Recarga Sin Conexión (SMS/WA)",
+    "refillSimOfflineDesc":  "Recarga el saldo de la SIM sin conexión mediante SMS o WhatsApp",
+    "wallet":  "Billetera",
+    "manageBalancesDesc":  "Gestiona tus saldos y visualiza el historial de transacciones",
+    "alertPreferences":  "Preferencias de Alertas",
+    "togglePushEmailDesc":  "Activar/desactivar configuraciones de push y correo para renovaciones/saldos",
+    "referAndEarn":  "Referir y Ganar",
+    "shareKeepSIMsDesc":  "Comparte KeepSIMs, desbloquea recompensas de saldo dinámicas",
+    "paymentMethods":  "Métodos de Pago",
+    "addBankCardsDesc":  "Agrega tarjetas bancarias o vincula cuentas de retiro automático",
+    "travelAndGeolocation":  "Viajes y Geolocalización",
+    "manageHomeCountryDesc":  "Gestiona reglas de congelamiento del país de origen y modo viaje",
+    "dataAndPrivacy":  "Datos y Privacidad",
+    "manageTrackingConsentDesc":  "Gestiona tu consentimiento de seguimiento, exporta datos o elimina la cuenta",
+    "powerUser":  "Usuario Avanzado",
+    "accessSystemSimulatorsDesc":  "Accede a simuladores del sistema y herramientas de diagnóstico",
+    "testChecklist":  "Lista de Pruebas",
+    "manualUiTestingDesc":  "Lista de verificación de pruebas manuales de UI para aseguramiento de calidad",
+    "soon":  "PRÓXIMAMENTE",
+    "featureComingSoon":  "¡La función {feature} estará disponible pronto!",
+    "@featureComingSoon":  {
+                               "placeholders":  {
+                                                    "feature":  {
+                                                                    "type":  "String"
+                                                                }
+                                                }
+                           },
+    "logOut":  "Cerrar Sesión",
+    "confirmLogOut":  "¿Estás seguro de que quieres cerrar sesión en KeepSIMs?",
+    "walletLedger":  "Libro Mayor de Billetera",
+    "keepSIMsPrepaid":  "KeepSIMs PREPAGO",
+    "offlineMode":  "MODO SIN CONEXIÓN",
+    "activeBalance":  "Saldo Activo",
+    "criticalBalanceLevel":  "Nivel de Saldo Crítico",
+    "balanceBelow10":  "Tu saldo está por debajo de $10.00. Las recargas programadas de SIM podrían fallar pronto.",
+    "depositFunds":  "Depositar Fondos",
+    "walletDepositsRequireInternet":  "Los depósitos a la billetera requieren conexión a internet activa.",
+    "exportLedger":  "Exportar Libro Mayor",
+    "ledgerHistoryExported":  "Historial del libro mayor exportado como CSV.",
+    "spendAnalysis":  "Análisis de Gastos",
+    "transactionHistory":  "Historial de Transacciones",
+    "itemsCount":  "{count} elementos",
+    "@itemsCount":  {
+                        "placeholders":  {
+                                             "count":  {
+                                                           "type":  "int"
+                                                       }
+                                         }
+                    },
+    "noTransactionsRecorded":  "Aún no se han registrado transacciones.",
+    "prepaidMonthlyOutflow":  "Salida Mensual Prepago",
+    "avgMonthlySpend":  "Prom: ${amount}/mes (12M)",
+    "@avgMonthlySpend":  {
+                             "placeholders":  {
+                                                  "amount":  {
+                                                                 "type":  "String"
+                                                             }
+                                              }
+                         },
+    "depositViaCard":  "Depósito con tarjeta terminada en {last4}",
+    "@depositViaCard":  {
+                            "placeholders":  {
+                                                 "last4":  {
+                                                               "type":  "String"
+                                                           }
+                                             }
+                        },
+    "lineRenewal":  "Renovación de Línea",
+    "justNow":  "Ahora mismo",
+    "loadCreditFunds":  "Cargar Fondos de Crédito",
+    "depositAmountUsd":  "Monto de Depósito (USD)",
+    "pleaseEnterAmount":  "Por favor ingresa un monto",
+    "enterPositiveNumber":  "Ingresa un número positivo",
+    "cardDetails":  "Detalles de la Tarjeta",
+    "savedCards":  "Tarjetas Guardadas",
+    "visaCardNumber":  "Número de Tarjeta Visa",
+    "pleaseEnterCardNumber":  "Por favor ingresa el número de tarjeta",
+    "mustBe16Digits":  "Debe tener 16 dígitos",
+    "expiryMmYy":  "Vencimiento (MM/AA)",
+    "expiryRequired":  "Vencimiento requerido",
+    "invalid":  "Inválido",
+    "cvv":  "CVV",
+    "cvvRequired":  "CVV requerido",
+    "verifyingCardSecurity":  "Verificando Seguridad de la Tarjeta...",
+    "authorizeDepositFunds":  "Autorizar Depósito de Fondos",
+    "successfullyDeposited":  "¡Se depositaron ${amount} USD exitosamente!",
+    "@successfullyDeposited":  {
+                                   "placeholders":  {
+                                                        "amount":  {
+                                                                       "type":  "String"
+                                                                   }
+                                                    }
+                               },
+    "failedToDepositFunds":  "Error al depositar fondos. Por favor verifica la conexión de la tarjeta.",
+    "noSavedPaymentMethods":  "No se encontraron métodos de pago guardados.",
+    "addPaymentMethod":  "Agregar Método de Pago",
+    "savedPaymentMethods":  "Métodos de Pago Guardados",
+    "addAnotherPaymentMethod":  "Agregar otro método de pago",
+    "expiresMmYy":  "Vence {month}/{year}",
+    "@expiresMmYy":  {
+                         "placeholders":  {
+                                              "month":  {
+                                                            "type":  "String"
+                                                        },
+                                              "year":  {
+                                                           "type":  "String"
+                                                       }
+                                          }
+                     },
+    "offlineRefillTitle":  "Recarga Sin Conexión (SMS/WA)",
+    "selectTargetSimLine":  "Seleccionar Línea SIM Objetivo",
+    "noRegisteredSimLines":  "No se encontraron líneas SIM registradas.",
+    "targetSimLine":  "Línea SIM Objetivo",
+    "simLine":  "Línea SIM",
+    "carrier":  "OPERADORA",
+    "change":  "Cambiar",
+    "offlineRefillProtection":  "Protección de Recarga Sin Conexión",
+    "premiumExclusive":  "EXCLUSIVO PREMIUM",
+    "neverGetStrandedDesc":  "Nunca más te quedes sin datos móviles. KeepSIMs Premium te permite recargar el saldo de tu SIM sin conexión mediante SMS estándar o mensajes de WhatsApp cuando no tienes conexión a internet.",
+    "offlineCapability100":  "100% de Capacidad Sin Conexión",
+    "deductsFromKeepSIMsDesc":  "Descuenta de tu billetera KeepSIMs para acreditar tu línea mediante conmutaciones de pasarela SMS local.",
+    "dynamicUssdPlanActivation":  "Activación Dinámica de Plan USSD",
+    "exactCopyPasteDialCodesDesc":  "Proporciona códigos de marcación exactos para copiar y pegar (ej., *900*1#) para activar paquetes de Datos+Llamadas sin conexión.",
+    "dualChannelSupport":  "Soporte de Canal Dual",
+    "textRefillDesc":  "Envía \"RECARGA\" mediante SMS estándar o WhatsApp según la cobertura celular disponible.",
+    "close":  "Cerrar",
+    "howToTriggerOfflineRefill":  "Cómo Activar la Recarga Sin Conexión",
+    "ifZeroMobileDataDesc1":  "Si no tienes datos móviles, envía un SMS estándar o mensaje de WhatsApp que contenga solo ",
+    "refill":  "RECARGA",
+    "toOurSecureGatewayDesc2":  " a nuestra pasarela de sistema segura:",
+    "targetSimLineLabel":  "LÍNEA SIM OBJETIVO",
+    "configureCashRefillAmount":  "CONFIGURAR MONTO DE RECARGA EN EFECTIVO",
+    "refillAmount":  "Monto de Recarga",
+    "walletBalanceUsd":  "Saldo de Billetera: ${amount} USD",
+    "@walletBalanceUsd":  {
+                              "placeholders":  {
+                                                   "amount":  {
+                                                                  "type":  "String"
+                                                              }
+                                               }
+                          },
+    "lowBalanceWarning":  "⚠️ Saldo Bajo",
+    "localCarrierPlanSuggestions":  "SUGERENCIAS DE PLAN DE OPERADORA LOCAL",
+    "noStandardUssdDialCodes":  "No se encontraron códigos de marcación USSD estándar para esta operadora. Aún recibirás la recarga en efectivo exitosamente en tu línea.",
+    "dynamicDialCodesPreview":  "Vista Previa de Códigos de Marcación Dinámicos",
+    "botSuggestDialingCodes":  "Tras completarse la recarga sin conexión, el bot sugerirá marcar estos códigos exactos en tu teléfono para desbloquear Datos+Llamadas sin conexión de inmediato:",
+    "costAmount":  "Costo: ${amount}",
+    "@costAmount":  {
+                        "placeholders":  {
+                                             "amount":  {
+                                                            "type":  "String"
+                                                        }
+                                         }
+                    },
+    "whatsappSmsSenderOverride":  "ANULACIÓN DE REMITENTE WHATSAPP/SMS",
+    "verificationNumber":  "Número de Verificación",
+    "triggerRefillsDifferentNumber":  "Si activas recargas desde un número diferente al teléfono principal de tu perfil, ingrésalo a continuación con código de país (ej. 96891234567).",
+    "enterPhoneNumberDigits":  "Ingresa número de teléfono (solo dígitos)",
+    "offlineRefillSettingsSaved":  "¡Configuración de Recarga Sin Conexión guardada exitosamente!",
+    "saveSettings":  "Guardar Configuración",
+    "errorLoadingSettings":  "Error al cargar la configuración: {error}",
+    "@errorLoadingSettings":  {
+                                  "placeholders":  {
+                                                       "error":  {
+                                                                     "type":  "String"
+                                                                 }
+                                                   }
+                              },
+    "retry":  "Reintentar",
+    "editProtectedLine":  "Editar Línea Protegida",
+    "saveChanges":  "Guardar Cambios",
+    "activateShieldProtection":  "Activar Protección Shield",
+    "phoneNumber":  "Número de Teléfono",
+    "nicknameOptional":  "Apodo (Opcional)",
+    "whatsappAlerts":  "Alertas de WhatsApp",
+    "emailAlertsDesc":  "Alertas críticas de desactivación enviadas vía Resend",
+    "refillWalletLow":  "Recargar billetera cuando los fondos estén bajos",
+    "legalPoliciesDesc":  "Al usar KeepSIMs, aceptas nuestros términos. KeepSIMs proporciona herramientas para ayudar a gestionar el ciclo de vida de tu SIM, pero no somos responsables de pérdidas directas o indirectas, daños o interrupciones del servicio causados por proveedores de telecomunicaciones de terceros.",
+    "globalTravelModeDesc":  "Permite que las reglas de geovallado automatizadas activen rutinas de cruce de fronteras",
+    "dataPreferences":  "Preferencias de Datos",
+    "doNotDisturb":  "No Molestar",
+    "linkedCards":  "Tarjetas Vinculadas",
+    "analyticsTracking":  "Analíticas y Seguimiento",
+    "dubai":  "Dubái",
+    "flyHome":  "Volar a Casa",
+    "managePreferencesAndSecurityDesc":  "Gestiona tema, idioma y bloqueos biométricos",
+    "autoFundingRulesDesc":  "Mantén la renovación de SIM en funcionamiento continuo habilitando recargas automáticas desde tu tarjeta de crédito predeterminada cuando el saldo baje demasiado",
+    "pushNotifications":  "Notificaciones Push",
+    "quietHoursSchedule":  "Horario de Silencio y Programación",
+    "exportMyDataDesc":  "Descarga una copia JSON de tu perfil y preferencias (Derecho de Acceso RGPD)",
+    "borderSimulatorTitle":  "Simulador de Cruce de Fronteras",
+    "yourData":  "Tus Datos",
+    "mostImportant":  "Más Importante",
+    "emailAlerts":  "Alertas por Correo",
+    "pushNotificationsDesc":  "Notificaciones nativas agresivas en este dispositivo",
+    "alertSettingsTitle":  "Configuración de Alertas",
+    "atHome":  "EN CASA",
+    "telegramBotDesc":  "Notificaciones interactivas de chat de Telegram vinculadas",
+    "alertChannels":  "Canales de Alerta",
+    "london":  "Londres",
+    "shieldProtection":  "Protección Shield",
+    "legalPolicies":  "Legal y Políticas",
+    "supportVisaMastercard":  "Compatible con Visa y MasterCard de débito o crédito de forma segura",
+    "exportMyData":  "Exportar Mis Datos",
+    "dangerZone":  "Zona de Peligro",
+    "analyticsTrackingDesc":  "Ayúdanos a mejorar la app compartiendo datos de uso anónimos. La funcionalidad esencial de la app no se verá afectada si está deshabilitado",
+    "autoFundingRules":  "Reglas de Financiamiento Automático",
+    "singapore":  "Singapur",
+    "weeklySummaryDigest":  "Resumen Semanal Compilado",
+    "fullyShielded":  "Totalmente Protegido",
+    "dndDesc":  "Silenciar notificaciones push durante las horas de sueño especificadas",
+    "paymentsAutoFundTitle":  "Pagos y Financiamiento Automático",
+    "travelGeolocationTitle":  "Viajes y Geolocalización",
+    "telegramBot":  "Bot de Telegram",
+    "weeklyDigestDesc":  "Informe de estado compilado de todas las tarjetas SIM cada domingo a las 9:00 AM",
+    "borderSimulatorDesc":  "Simula embarques para activar reglas de congelamiento inteligente o reanudación del país activo.",
+    "linkFirstCard":  "Vincula tu primera tarjeta de pago",
+    "globalTravelMode":  "Modo de Viaje Global",
+    "readPrivacyPolicy":  "Leer Política de Privacidad Completa y Términos",
+    "whatsappAlertsDesc":  "Alertas de fallo de recarga enviadas directamente a WhatsApp",
+    "abroadTraveling":  "EN EL EXTRANJERO / VIAJANDO",
+    "freezeAllLines":  "Congelar Todas las Líneas",
+    "resumeRenewals":  "Reanudar Renovaciones",
+    "freezeRecommendationDesc":  "Detectamos que actualmente estás en tu País de Origen. Puedes congelar las renovaciones de tus líneas internacionales para evitar el agotamiento no deseado del saldo de la billetera.",
+    "travelDetected":  "¡Viaje Detectado! ✈️",
+    "resumeRecommendationDesc":  "Estás viajando al extranjero. Por favor reanuda las renovaciones de tus SIM internacionales pausadas para garantizar cobertura de red móvil ininterrumpida.",
+    "dismiss":  "Descartar",
+    "welcomeHome":  "¡Bienvenido a Casa! 🏡",
+    "addCard":  "Agregar Tarjeta",
+    "noAlertChannelsConfigured":  "No se han configurado canales de entrega de alertas.",
+    "channelSettingsUpdated":  "Configuración de {channelName} actualizada.",
+    "@channelSettingsUpdated":  {
+                                    "placeholders":  {
+                                                         "channelName":  {
+                                                                             "type":  "String"
+                                                                         }
+                                                     }
+                                },
+    "channelLocked":  "{channelName} Bloqueado 🔒",
+    "@channelLocked":  {
+                           "placeholders":  {
+                                                "channelName":  {
+                                                                    "type":  "String"
+                                                                }
+                                            }
+                       },
+    "lockedAlertSubtitle":  "Las alertas de {channelName} son funciones de los planes Starter y Premium. ¡Actualiza tu plan para desbloquear alertas de WhatsApp, Telegram y Correo!",
+    "@lockedAlertSubtitle":  {
+                                 "placeholders":  {
+                                                      "channelName":  {
+                                                                          "type":  "String"
+                                                                      }
+                                                  }
+                             },
+    "upsellProtect5Lines":  "Protege hasta 5 líneas SIM simultáneamente",
+    "upsellUnlockChannels":  "Desbloquea notificaciones de WhatsApp, Telegram y Correo",
+    "upsellEnableTravelModes":  "Habilita modos de validez automáticos para Viaje y Casa",
+    "emailAddressLabel":  "Correo de Notificaciones",
+    "emailAddressHint":  "ej. usuario@dominio.com",
+    "whatsappNumberLabel":  "Número de WhatsApp (Formato Internacional)",
+    "whatsappNumberHint":  "ej. +96891234567",
+    "whatsappFormatInstruction":  "Ingresa el formato internacional completo comenzando con + (ej. +96893990492)",
+    "telegramStatusBound":  "Estado: Vinculado (Chat ID: {chatId})",
+    "@telegramStatusBound":  {
+                                 "placeholders":  {
+                                                      "chatId":  {
+                                                                     "type":  "String"
+                                                                 }
+                                                  }
+                             },
+    "telegramStatusUnbound":  "Estado: No Vinculado",
+    "telegramLinkInstructions":  "Para recibir alertas interactivas de Telegram de forma gratuita, vincula nuestro Bot de Telegram con tu cuenta.",
+    "linkTelegramBot":  "Vincular Bot de Telegram",
+    "emailFreePlanGuarded":  "Plan Gratuito de Resend Protegido: Limitado solo a disparadores de desactivación. Sin spam promocional.",
+    "whatsappMetaCloudCapped":  "Meta Cloud Directo con Límite: Máximo 1 mensaje por programación de recarga, enviado SOLO si la recarga automática no está activa o falla.",
+    "failedToLoadPaymentInfo":  "Error al cargar información de pago",
+    "defaultCardIndicator":  "PREDETERMINADA",
+    "cardholder":  "TITULAR",
+    "expires":  "VENCE",
+    "lowBalanceTrigger":  "Disparador de Saldo Bajo",
+    "triggerLowTopUp":  "Activar recarga por saldo bajo",
+    "reloadDepositAmount":  "Monto de Depósito de Recarga",
+    "amountToLoad":  "Monto a cargar",
+    "linkCreditDebitCard":  "Vincular Tarjeta de Crédito/Débito",
+    "cardNumberLabel":  "NÚMERO DE TARJETA",
+    "expiryDateLabel":  "FECHA DE VENCIMIENTO",
+    "cvvCodeLabel":  "CÓDIGO CVV",
+    "securelyLinkCard":  "Vincular Tarjeta de Forma Segura",
+    "pleaseEnterValidCardNumber":  "Por favor ingresa un número de tarjeta válido de 16 dígitos.",
+    "pleaseEnterValidExpiryDate":  "Por favor ingresa una fecha de vencimiento válida (MM/AA).",
+    "invalidExpiryMonth":  "Mes de vencimiento inválido.",
+    "cvvMustBe3Digits":  "El CVV debe tener 3 dígitos.",
+    "cardLinkedSuccessfully":  "¡Tarjeta de facturación segura vinculada exitosamente!",
+    "defaultPaymentCardUpdated":  "¡Tarjeta de pago predeterminada actualizada!",
+    "removePaymentCard":  "Eliminar Tarjeta de Pago",
+    "confirmRemoveCardDesc":  "¿Estás seguro de que quieres eliminar esta tarjeta? El financiamiento automático vinculado podría fallar si no queda ninguna tarjeta de pago predeterminada.",
+    "cancel":  "Cancelar",
+    "remove":  "Eliminar",
+    "billingCardSuccessfullyRemoved":  "Tarjeta de facturación eliminada exitosamente.",
+    "pleaseAddDefaultCardFirst":  "Por favor agrega y selecciona primero una tarjeta de pago predeterminada para habilitar el financiamiento automático.",
+    "autoFundPrefsSavedSuccess":  "¡Preferencias de Financiamiento Automático guardadas exitosamente!",
+    "preparingDataExport":  "Preparando exportación de datos...",
+    "exportFailed":  "Error de exportación: {error}",
+    "@exportFailed":  {
+                          "placeholders":  {
+                                               "error":  {
+                                                             "type":  "String"
+                                                         }
+                                           }
+                      },
+    "deleteAccountWarning":  "Una vez que elimines tu cuenta, no hay vuelta atrás. Por favor asegúrate.",
+    "deleteAccount":  "Eliminar Cuenta",
+    "deleteAccountIrreversible":  "Esta acción es irreversible. Todos tus datos serán eliminados permanentemente.",
+    "typeDeleteToConfirm":  "Escribe \"ELIMINAR\" para confirmar:",
+    "deleteWord":  "ELIMINAR",
+    "systemDiagnosticsLogs":  "REGISTROS DE DIAGNÓSTICO DEL SISTEMA",
+    "online":  "EN LÍNEA",
+    "errorLoadingPrefs":  "Error al cargar preferencias: {error}",
+    "@errorLoadingPrefs":  {
+                               "placeholders":  {
+                                                    "error":  {
+                                                                  "type":  "String"
+                                                              }
+                                                }
+                           },
+    "privacyPolicyLoaded":  "Detalles de la Política de Privacidad cargados.",
+    "protectionConsole":  "Consola de Protección",
+    "deleteProtectionTooltip":  "Eliminar Protección",
+    "refreshTooltip":  "Actualizar",
+    "failedToLoadDetails":  "Error al cargar detalles",
+    "retryConnection":  "Reintentar Conexión",
+    "healthLabel":  "salud",
+    "mySimCardDefault":  "Mi Tarjeta SIM",
+    "upLabel":  "ACTIVO",
+    "sharedByFamily":  "Compartido por: {ownerName} ({role})",
+    "@sharedByFamily":  {
+                            "placeholders":  {
+                                                 "ownerName":  {
+                                                                   "type":  "String"
+                                                               },
+                                                 "role":  {
+                                                              "type":  "String"
+                                                          }
+                                             }
+                        },
+    "criticalRisk":  "Riesgo crítico",
+    "simDeactivationRisk":  "La SIM puede desactivarse sin acción",
+    "missingAlertsDesc":  "Sin notificaciones de alerta configuradas — faltan 100 pts",
+    "missingAutoRefillDesc":  "Sin recarga automática configurada — faltan 50 pts",
+    "missingVerificationDesc":  "Número de teléfono no verificado — faltan 25 pts",
+    "missingRecentRefillDesc":  "La última recarga fue hace más de 80 días — faltan 25 pts",
+    "quickActionsLabel":  "Acciones Rápidas",
+    "manualRefillLabel":  "Recarga Manual",
+    "chargeFromWalletNow":  "Cargar desde billetera ahora",
+    "rechargeFromFriend":  "Recargar desde un Amigo",
+    "requestViaTelegram":  "Solicitar vía Telegram",
+    "shareViaWaTg":  "Compartir vía WhatsApp/Telegram",
+    "testSimActivity":  "Probar Actividad de SIM",
+    "verifyLineReachable":  "Verificar que la línea es accesible",
+    "checkCompleted1x":  "1 Verificación Completada",
+    "starterPlan1xCompleted":  "Verificación 1x del plan Starter completada. Actualiza a Premium para verificaciones ilimitadas.",
+    "leaveCountry":  "Salir de {countryName}",
+    "@leaveCountry":  {
+                          "placeholders":  {
+                                               "countryName":  {
+                                                                   "type":  "String"
+                                                               }
+                                           }
+                      },
+    "resumeProtectionLayers":  "Reanudar capas de protección",
+    "backToCountryMode":  "Volver al modo {countryName}",
+    "@backToCountryMode":  {
+                               "placeholders":  {
+                                                    "countryName":  {
+                                                                        "type":  "String"
+                                                                    }
+                                                }
+                           },
+    "pauseWhileVisitingHome":  "Pausar mientras se visita el hogar",
+    "rechargeFromFriendTitle":  "Recargar desde un Amigo",
+    "selectPlatformShare":  "Selecciona una plataforma para compartir un mensaje de solicitud de recarga con tu amigo.",
+    "rechargeRequestTemplate":  "¡Hola! Mi tarjeta KeepSIMs ({phone}) está por vencer. ¿Podrías recargarla por mí? ¡Gracias!",
+    "@rechargeRequestTemplate":  {
+                                     "placeholders":  {
+                                                          "phone":  {
+                                                                        "type":  "String"
+                                                                    }
+                                                      }
+                                 },
+    "requestViaWhatsApp":  "Solicitar vía WhatsApp",
+    "couldNotLaunchLink":  "No se pudo abrir el enlace de {platformName}: {error}",
+    "@couldNotLaunchLink":  {
+                                "placeholders":  {
+                                                     "platformName":  {
+                                                                          "type":  "String"
+                                                                      },
+                                                     "error":  {
+                                                                   "type":  "String"
+                                                               }
+                                                 }
+                            },
+    "couldNotLaunchTelegram":  "No se pudo abrir el enlace de Telegram: {error}",
+    "@couldNotLaunchTelegram":  {
+                                    "placeholders":  {
+                                                         "error":  {
+                                                                       "type":  "String"
+                                                                   }
+                                                     }
+                                },
+    "protectionLayersLabel":  "Capas de Protección",
+    "autoNotifyDisabled":  "Notificación Automática: Deshabilitada",
+    "noActiveAlertSchedule":  "Tu tarjeta SIM no tiene una programación de notificaciones de alerta activa. No recibirás recordatorios automáticos ni alertas de desactivación.",
+    "askOwnerConfigureAlerts":  "Por favor solicita al propietario del hogar que configure las alertas.",
+    "configureAutoNotify":  "Configurar Notificación Automática",
+    "activeLabel":  "ACTIVO",
+    "pausedHomeMode":  "PAUSADO (MODO HOGAR)",
+    "pausedLabel":  "PAUSADO",
+    "everyHour":  "Cada 1 hora",
+    "everyNDays":  "Cada {days} días",
+    "@everyNDays":  {
+                        "placeholders":  {
+                                             "days":  {
+                                                          "type":  "int"
+                                                      }
+                                         }
+                    },
+    "nextAlertCheck":  "Próxima Verificación de Alerta",
+    "premiumKeepAliveRefill":  "Recarga Premium Keep-Alive",
+    "autoRefillIncludedText":  "Recarga automática incluida - ~3.5 USD (telecom, IVA incluido) cada 85 días,\\nnext refill on {date}",
+    "@autoRefillIncludedText":  {
+                                    "placeholders":  {
+                                                         "date":  {
+                                                                      "type":  "String"
+                                                                  }
+                                                     }
+                                },
+    "premiumKeepAliveDisabled":  "La recarga premium keep-alive está actualmente deshabilitada.",
+    "customAutoRefill":  "Recarga Automática Personalizada",
+    "addAdditionalScheduledRecharge":  "Agrega un monto de recarga programada adicional para mantener un saldo extra en tu SIM.",
+    "askOwnerConfigureRefill":  "Por favor solicita al propietario del hogar que configure la Recarga Automática.",
+    "configureCustomAutoRefill":  "Configurar Recarga Automática Personalizada",
+    "rechargeAmount":  "Monto de Recarga",
+    "refillInterval":  "Intervalo de Recarga",
+    "nextRefillDue":  "Próxima Recarga Programada",
+    "failedRefillAttempts":  "Intentos de Recarga Fallidos",
+    "retriesCount":  "{count} / 4 intentos",
+    "@retriesCount":  {
+                          "placeholders":  {
+                                               "count":  {
+                                                             "type":  "int"
+                                                         }
+                                           }
+                      },
+    "editRefillAmount":  "Editar Monto de Recarga",
+    "refillExecutionsHistory":  "Historial de Ejecuciones de Recarga",
+    "renewalExecutionsHistory":  "Historial de Ejecuciones de Renovación",
+    "noHistoricalTopup":  "Aún no se han registrado ejecuciones históricas de recarga para esta línea.",
+    "noHistoricalRenewal":  "Aún no se han registrado ejecuciones históricas de renovación para esta línea.",
+    "viewAllHistory":  "Ver Todo el Historial",
+    "securityActivityLogs":  "Registros de Actividad de Seguridad",
+    "clearLogs":  "Limpiar Registros",
+    "noActivityLogsRecorded":  "Aún no se han registrado actividades para esta línea.",
+    "activityLogDeleted":  "Entrada de registro de actividad eliminada.",
+    "activityLogsCleared":  "Registros de actividad limpiados exitosamente.",
+    "autoRenewalStatusUpdated":  "Renovación Automática {status} exitosamente.",
+    "@autoRenewalStatusUpdated":  {
+                                      "placeholders":  {
+                                                           "status":  {
+                                                                          "type":  "String"
+                                                                      }
+                                                       }
+                                  },
+    "failedToUpdateSchedule":  "Error al actualizar la programación: {error}",
+    "@failedToUpdateSchedule":  {
+                                    "placeholders":  {
+                                                         "error":  {
+                                                                       "type":  "String"
+                                                                   }
+                                                     }
+                                },
+    "premiumRefillEnabled":  "Recarga premium keep-alive habilitada exitosamente.",
+    "failedToEnableAutoRefill":  "Error al habilitar la recarga automática: {error}",
+    "@failedToEnableAutoRefill":  {
+                                      "placeholders":  {
+                                                           "error":  {
+                                                                         "type":  "String"
+                                                                     }
+                                                       }
+                                  },
+    "removeScheduleTitle":  "Eliminar Programación",
+    "confirmDeleteAutoRefill":  "¿Estás seguro de que quieres eliminar esta programación de recarga automática? Tu puntuación de salud de SIM descenderá significativamente, arriesgando la desactivación.",
+    "confirmDeleteAutoRenewal":  "¿Estás seguro de que quieres eliminar esta programación de renovación automática? Tu puntuación de salud de SIM descenderá significativamente, arriesgando la desactivación.",
+    "autoRefillRemoved":  "Programación de recarga automática eliminada exitosamente.",
+    "autoRenewalRemoved":  "Programación de renovación automática eliminada exitosamente.",
+    "failedToDeleteSchedule":  "Error al eliminar la programación: {error}",
+    "@failedToDeleteSchedule":  {
+                                    "placeholders":  {
+                                                         "error":  {
+                                                                       "type":  "String"
+                                                                   }
+                                                     }
+                                },
+    "refillRetrySuccess":  "¡Reintento de recarga completado exitosamente!",
+    "renewalRetrySuccess":  "¡Reintento de renovación completado exitosamente!",
+    "retryFailed":  "Error en el reintento: {error}",
+    "@retryFailed":  {
+                         "placeholders":  {
+                                              "error":  {
+                                                            "type":  "String"
+                                                        }
+                                          }
+                     },
+    "retryExecutionError":  "Error de ejecución del reintento: {error}",
+    "@retryExecutionError":  {
+                                 "placeholders":  {
+                                                      "error":  {
+                                                                    "type":  "String"
+                                                                }
+                                                  }
+                             },
+    "failedToDeleteActivityLog":  "Error al eliminar el registro de actividad: {error}",
+    "@failedToDeleteActivityLog":  {
+                                       "placeholders":  {
+                                                            "error":  {
+                                                                          "type":  "String"
+                                                                      }
+                                                        }
+                                   },
+    "failedToClearActivityLogs":  "Error al limpiar los registros de actividad: {error}",
+    "@failedToClearActivityLogs":  {
+                                       "placeholders":  {
+                                                            "error":  {
+                                                                          "type":  "String"
+                                                                      }
+                                                        }
+                                   },
+    "removeProtectionTitle":  "Eliminar Protección",
+    "confirmRemoveProtectionDesc":  "¿Estás seguro de que quieres dejar de proteger {name}? Las recargas programadas para esta línea SIM serán canceladas permanentemente.",
+    "@confirmRemoveProtectionDesc":  {
+                                         "placeholders":  {
+                                                              "name":  {
+                                                                           "type":  "String"
+                                                                       }
+                                                          }
+                                     },
+    "simLineProtectionRemoved":  "Protección de línea SIM eliminada exitosamente.",
+    "failedToDeleteSimLine":  "Error al eliminar: {error}",
+    "@failedToDeleteSimLine":  {
+                                   "placeholders":  {
+                                                        "error":  {
+                                                                      "type":  "String"
+                                                                  }
+                                                    }
+                               },
+    "editSimNameTitle":  "Editar Nombre de SIM",
+    "enterNicknameInstruction":  "Ingresa un apodo para esta línea de tarjeta SIM:",
+    "nicknameExampleHint":  "ej. Mi SIM Orange Egipto",
+    "simNameUpdatedSuccess":  "Nombre de SIM actualizado exitosamente.",
+    "failedToUpdateSimName":  "Error al actualizar el nombre de SIM: {error}",
+    "@failedToUpdateSimName":  {
+                                   "placeholders":  {
+                                                        "error":  {
+                                                                      "type":  "String"
+                                                                  }
+                                                    }
+                               },
+    "saveButton":  "Guardar",
+    "deleteButton":  "Eliminar",
+    "autoNotifySchedule":  "Programación de Notificación Automática",
+    "renewalCheckInterval":  "Intervalo de Verificación de Renovación",
+    "editNotificationConfig":  "Editar Configuración de Notificaciones",
+    "openTicket":  "Abrir Ticket",
+    "offlineRefillLabel":  "Recarga Sin Conexión",
+    "categoryLabel":  "Categoría",
+    "techSupportCategory":  "Soporte Técnico",
+    "billingWalletCategory":  "Facturación y Billetera",
+    "simLinesCategory":  "Gestión de Líneas SIM",
+    "feedbackOtherCategory":  "Comentarios y Otros",
+    "subjectLabel":  "Asunto",
+    "subjectHint":  "Breve resumen del problema",
+    "descriptionLabel":  "Descripción",
+    "descriptionHint":  "Describe tu problema en detalle...",
+    "attachmentLabel":  "Adjunto (Opcional)",
+    "uploadScreenshot":  "Subir Captura de Pantalla",
+    "submitTicketButton":  "Enviar Ticket",
+    "pleaseFillFields":  "Por favor completa tanto el asunto como la descripción",
+    "ticketSubmittedSuccess":  "¡Ticket enviado exitosamente!",
+    "lastRefillLabel":  "Última Recarga",
+    "noRefillYet":  "Sin recargas aún",
+    "nextAlertLabel":  "Próxima Alerta",
+    "protectionLabel":  "PROTECCIÓN",
+    "actionRequiredLabel":  "Acción Req.",
+    "protectionOffLabel":  "Protección Desactivada",
+    "notSet":  "No configurado",
+    "homeMode":  "Modo Hogar",
+    "incidentChannelsTitle":  "Canales de Incidentes",
+    "topUpSuccessTitle":  "Recarga Exitosa",
+    "topUpSuccessDesc":  "Notificarme cuando se complete exitosamente una extensión automática de validez de SIM.",
+    "topUpFailedTitle":  "Recarga Fallida (Crítica)",
+    "topUpFailedDesc":  "Alertas críticas cuando las recargas automáticas fallan por problemas de operadora o billetera.",
+    "walletLowTitle":  "Saldo de Billetera Bajo",
+    "walletLowDesc":  "Avisarme cuando el saldo principal caiga por debajo del umbral de seguridad.",
+    "walletDepletedTitle":  "Billetera Agotada",
+    "walletDepletedDesc":  "Alertas de suspensión cuando el saldo de la billetera está completamente agotado y las renovaciones se detienen.",
+    "lineCriticalTitle":  "Advertencia de Expiración de Validez",
+    "lineCriticalDesc":  "Avisarme cuando una ventana de validez de SIM esté terminando dentro de 48 horas.",
+    "lineEnteringGraceTitle":  "Entrando en Período de Gracia",
+    "lineEnteringGraceDesc":  "Notificarme cuando se detecten períodos de gracia de desactivación de la operadora.",
+    "geoFenceTriggeredTitle":  "Alertas de Ubicación / Roaming",
+    "geoFenceTriggeredDesc":  "Alertas cuando la operadora cambia clústeres de roaming o nodos de red.",
+    "welcomeHomeReadyTitle":  "Sincronización de Bienvenida en Casa",
+    "welcomeHomeReadyDesc":  "Alertas cuando el nodo de red del país de origen activa sincronizaciones automatizadas.",
+    "referralRewardTitle":  "Referidos y Recompensas",
+    "referralRewardDesc":  "Notificarme cuando los referidos de amigos depositen saldos promocionales en mi billetera.",
+    "systemUpdatesTitle":  "Actualizaciones Generales del Sistema",
+    "systemUpdatesDesc":  "Actualizaciones vitales del motor, mantenimiento y anuncios de la plataforma."
+}

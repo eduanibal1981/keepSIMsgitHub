@@ -15,8 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$TopupExecution {
 
- String get id; String? get scheduledTopupId; String get simLineId; String get userId; double get amount; String get currency; String? get reloadlyTransactionId; String get status;// 'pending', 'processing', 'success', 'failed', 'refunded'
- String? get failureReason; String? get retryOf; int? get validityDaysAdded; DateTime get executedAt; DateTime? get completedAt; DateTime? get createdAt;
+ String get id; String? get scheduledTopupId; String get simLineId; String get userId; double get amount; String get currency; String? get reloadlyTransactionId; String get status; String? get failureReason; String? get retryOf; int? get validityDaysAdded; DateTime get executedAt; DateTime? get completedAt; DateTime? get createdAt;
 /// Create a copy of TopupExecution
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -234,7 +233,6 @@ class _TopupExecution implements TopupExecution {
 @override@JsonKey() final  String currency;
 @override final  String? reloadlyTransactionId;
 @override@JsonKey() final  String status;
-// 'pending', 'processing', 'success', 'failed', 'refunded'
 @override final  String? failureReason;
 @override final  String? retryOf;
 @override final  int? validityDaysAdded;

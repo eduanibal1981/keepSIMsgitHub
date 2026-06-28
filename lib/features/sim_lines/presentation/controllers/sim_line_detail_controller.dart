@@ -71,7 +71,7 @@ class SimLineDetailController extends _$SimLineDetailController {
 
   /// Triggers a mock refill execution
   Future<Result<void>> triggerRefill() async {
-    final detailState = state.valueOrNull;
+    final detailState = state.value;
     final refillSchedule = detailState?.customRefillSchedule ?? detailState?.miniRefillSchedule;
     if (detailState == null || refillSchedule == null) {
       return Failure(

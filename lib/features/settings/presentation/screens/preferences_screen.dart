@@ -7,6 +7,8 @@ import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/features/notifications/presentation/controllers/notification_settings_controller.dart';
 import 'package:keep_sims/features/notifications/data/models/user_preferences_model.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
+import 'package:keep_sims/core/providers/locale_provider.dart';
+import 'package:keep_sims/l10n/app_localizations.dart';
 
 class PreferencesScreen extends ConsumerStatefulWidget {
   const PreferencesScreen({super.key});
@@ -403,96 +405,114 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
   void _showLanguageSelector(BuildContext context, String currentLang) {
     final languages = [
       {'code': 'en', 'name': 'English (US)', 'flag': '🇺🇸'},
-      {'code': 'es', 'name': 'Español (ES)', 'flag': '🇪🇸'},
-      {'code': 'fr', 'name': 'Français (FR)', 'flag': '🇫🇷'},
-      {'code': 'ar', 'name': 'العربية (AR)', 'flag': '🇦🇪'},
+      {'code': 'es', 'name': 'Español (Spanish)', 'flag': '🇪🇸'},
+      {'code': 'hi', 'name': 'हिन्दी (Hindi)', 'flag': '🇮🇳'},
+      {'code': 'ur', 'name': 'اردو (Urdu)', 'flag': '🇵🇰'},
+      {'code': 'tr', 'name': 'Türkçe (Turkish)', 'flag': '🇹🇷'},
+      {'code': 'si', 'name': 'සිංහල (Sinhala)', 'flag': '🇱🇰'},
+      {'code': 'ne', 'name': 'नेपाली (Nepali)', 'flag': '🇳🇵'},
+      {'code': 'bn', 'name': 'বাংলা (Bengali)', 'flag': '🇧🇩'},
+      {'code': 'ar', 'name': 'العربية (Arabic)', 'flag': '🇦🇪'},
     ];
 
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) {
         return Container(
           padding: const EdgeInsets.all(24.0),
           decoration: BoxDecoration(
-            color: const Color(0xFF0F172A),
+            color: context.scaffoldBackgroundColor,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
             border: Border.all(
               color: context.onSurfaceColor.withValues(alpha: 0.08),
               width: 1.5,
             ),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Select App Language',
-                style: AppTextStyles.titleLarge.copyWith(
-                  color: context.onSurfaceColor,
-                  fontWeight: FontWeight.bold,
+          child: SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  AppLocalizations.of(context)!.selectAppLanguage,
+                  style: AppTextStyles.titleLarge.copyWith(
+                    color: context.onSurfaceColor,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 20),
-              ...languages.map((lang) {
-                final isSelected = lang['code'] == currentLang;
-                return InkWell(
-                  onTap: () async {
-                    await HapticHelper.mediumImpact();
-                    ref
-                        .read(userPreferencesControllerProvider.notifier)
-                        .updateLanguage(lang['code']!);
-                    Navigator.pop(context);
-                    await HapticHelper.successFeedback();
-                  },
-                  borderRadius: BorderRadius.circular(16),
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(vertical: 4),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 14,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? context.onSurfaceColor.withValues(alpha: 0.05)
-                          : Colors.transparent,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: isSelected
-                            ? const Color(0xFF6366F1).withValues(alpha: 0.3)
-                            : Colors.transparent,
-                        width: 1,
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        Text(
-                          lang['flag']!,
-                          style: const TextStyle(fontSize: 24),
-                        ),
-                        const SizedBox(width: 16),
-                        Text(
-                          lang['name']!,
-                          style: AppTextStyles.bodyMedium.copyWith(
-                            color: context.onSurfaceColor,
-                            fontWeight: isSelected
-                                ? FontWeight.bold
-                                : FontWeight.normal,
+                const SizedBox(height: 20),
+                Flexible(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: languages.map((lang) {
+                        final isSelected = lang['code'] == currentLang;
+                        return InkWell(
+                          onTap: () async {
+                            await HapticHelper.mediumImpact();
+                            ref
+                                .read(userPreferencesControllerProvider.notifier)
+                                .updateLanguage(lang['code']!);
+                            ref
+                                .read(localeControllerProvider.notifier)
+                                .setLocale(Locale(lang['code']!));
+                            Navigator.pop(context);
+                            await HapticHelper.successFeedback();
+                          },
+                          borderRadius: BorderRadius.circular(16),
+                          child: Container(
+                            margin: const EdgeInsets.symmetric(vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 14,
+                            ),
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? context.onSurfaceColor.withValues(alpha: 0.05)
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: isSelected
+                                    ? const Color(0xFF6366F1).withValues(alpha: 0.3)
+                                    : Colors.transparent,
+                                width: 1,
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Text(
+                                  lang['flag']!,
+                                  style: const TextStyle(fontSize: 24),
+                                ),
+                                const SizedBox(width: 16),
+                                Text(
+                                  lang['name']!,
+                                  style: AppTextStyles.bodyMedium.copyWith(
+                                    color: context.onSurfaceColor,
+                                    fontWeight: isSelected
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                  ),
+                                ),
+                                const Spacer(),
+                                if (isSelected)
+                                  const Icon(
+                                    Icons.check_circle_rounded,
+                                    color: Color(0xFF6366F1),
+                                  ),
+                              ],
+                            ),
                           ),
-                        ),
-                        const Spacer(),
-                        if (isSelected)
-                          const Icon(
-                            Icons.check_circle_rounded,
-                            color: Color(0xFF6366F1),
-                          ),
-                      ],
+                        );
+                      }).toList(),
                     ),
                   ),
-                );
-              }).toList(),
-              const SizedBox(height: 12),
-            ],
+                ),
+                const SizedBox(height: 12),
+              ],
+            ),
           ),
         );
       },
@@ -538,7 +558,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
           '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}:00';
       final currentPrefs = ref
           .read(userPreferencesControllerProvider)
-          .valueOrNull;
+          .value;
       if (currentPrefs != null) {
         if (isStart) {
           ref
@@ -574,7 +594,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
           },
         ),
         title: Text(
-          'Preferences & Security',
+          AppLocalizations.of(context)!.preferencesAndSecurity,
           style: AppTextStyles.titleMedium.copyWith(
             color: context.onSurfaceColor,
             fontWeight: FontWeight.bold,
@@ -601,7 +621,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'App Appearance',
+                      AppLocalizations.of(context)!.appAppearance,
                       style: AppTextStyles.bodyMedium.copyWith(
                         color: context.onSurfaceColor.withValues(alpha: 0.6),
                         fontWeight: FontWeight.bold,
@@ -611,11 +631,11 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
                     const SizedBox(height: 12),
 
                     // Segmented Theme Slider Card
-                    _buildThemeSelector(prefs.theme),
+                    _buildThemeSelector(context, prefs.theme),
                     const SizedBox(height: 28),
 
                     Text(
-                      'Localization & Regional',
+                      AppLocalizations.of(context)!.localizationAndRegional,
                       style: AppTextStyles.bodyMedium.copyWith(
                         color: context.onSurfaceColor.withValues(alpha: 0.6),
                         fontWeight: FontWeight.bold,
@@ -625,11 +645,11 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
                     const SizedBox(height: 12),
 
                     // Interactive Dropdown Card for Languages
-                    _buildLanguageCard(prefs.language),
+                    _buildLanguageCard(context, prefs.language),
                     const SizedBox(height: 28),
 
                     Text(
-                      'Security & Access Lock',
+                      AppLocalizations.of(context)!.securityAndAccessLock,
                       style: AppTextStyles.bodyMedium.copyWith(
                         color: context.onSurfaceColor.withValues(alpha: 0.6),
                         fontWeight: FontWeight.bold,
@@ -639,11 +659,11 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
                     const SizedBox(height: 12),
 
                     // Security card
-                    _buildSecurityCard(prefs),
+                    _buildSecurityCard(context, prefs),
                     const SizedBox(height: 28),
 
                     Text(
-                      'Automated Summary & Alerts',
+                      AppLocalizations.of(context)!.automatedSummaryAndAlerts,
                       style: AppTextStyles.bodyMedium.copyWith(
                         color: context.onSurfaceColor.withValues(alpha: 0.6),
                         fontWeight: FontWeight.bold,
@@ -653,7 +673,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
                     const SizedBox(height: 12),
 
                     // Digest and Quiet Hours card
-                    _buildAlertsConfigCard(prefs),
+                    _buildAlertsConfigCard(context, prefs),
                     const SizedBox(height: 40),
                   ],
                 ),
@@ -669,17 +689,17 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
   }
 
   // ── Theme Customizer ────────────────────────────────────────────────
-  Widget _buildThemeSelector(String selectedTheme) {
+  Widget _buildThemeSelector(BuildContext context, String selectedTheme) {
     final modes = [
       {
         'code': 'system',
-        'label': 'System',
+        'label': AppLocalizations.of(context)!.systemTheme,
         'icon': Icons.settings_brightness_rounded,
       },
-      {'code': 'dark', 'label': 'Dark Mode', 'icon': Icons.dark_mode_rounded},
+      {'code': 'dark', 'label': AppLocalizations.of(context)!.darkMode, 'icon': Icons.dark_mode_rounded},
       {
         'code': 'light',
-        'label': 'Light Mode',
+        'label': AppLocalizations.of(context)!.lightMode,
         'icon': Icons.light_mode_rounded,
       },
     ];
@@ -762,15 +782,30 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
   }
 
   // ── Language Selector Card ─────────────────────────────────────────
-  Widget _buildLanguageCard(String currentLang) {
+  Widget _buildLanguageCard(BuildContext context, String currentLang) {
     String langName = 'English (US)';
     String flag = '🇺🇸';
     if (currentLang == 'es') {
-      langName = 'Español (ES)';
+      langName = 'Español (Spanish)';
       flag = '🇪🇸';
-    } else if (currentLang == 'fr') {
-      langName = 'Français (FR)';
-      flag = '🇫🇷';
+    } else if (currentLang == 'hi') {
+      langName = 'हिन्दी (Hindi)';
+      flag = '🇮🇳';
+    } else if (currentLang == 'ur') {
+      langName = 'اردو (Urdu)';
+      flag = '🇵🇰';
+    } else if (currentLang == 'tr') {
+      langName = 'Türkçe (Turkish)';
+      flag = '🇹🇷';
+    } else if (currentLang == 'si') {
+      langName = 'සිංහල (Sinhala)';
+      flag = '🇱🇰';
+    } else if (currentLang == 'ne') {
+      langName = 'नेपाली (Nepali)';
+      flag = '🇳🇵';
+    } else if (currentLang == 'bn') {
+      langName = 'বাংলা (BD)';
+      flag = '🇧🇩';
     } else if (currentLang == 'ar') {
       langName = 'العربية (AR)';
       flag = '🇦🇪';
@@ -803,14 +838,14 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
           ),
         ),
         title: Text(
-          'App Language',
+          AppLocalizations.of(context)!.appLanguage,
           style: AppTextStyles.bodyMedium.copyWith(
             color: context.onSurfaceColor,
             fontWeight: FontWeight.w600,
           ),
         ),
         subtitle: Text(
-          'Currently using regional $langName',
+          AppLocalizations.of(context)!.currentlyUsing(langName),
           style: AppTextStyles.bodySmall.copyWith(
             color: context.onSurfaceColor.withValues(alpha: 0.6),
           ),
@@ -848,7 +883,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
   }
 
   // ── Security Panel ──────────────────────────────────────────────────
-  Widget _buildSecurityCard(UserPreferences prefs) {
+  Widget _buildSecurityCard(BuildContext context, UserPreferences prefs) {
     final hasPin = prefs.transactionPinHash != null;
 
     return Container(
@@ -882,14 +917,14 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
               ),
             ),
             title: Text(
-              'Biometric Security',
+              AppLocalizations.of(context)!.biometricSecurity,
               style: AppTextStyles.bodyMedium.copyWith(
                 color: context.onSurfaceColor,
                 fontWeight: FontWeight.w600,
               ),
             ),
             subtitle: Text(
-              'Sign in using Face ID or Touch ID',
+              AppLocalizations.of(context)!.biometricDesc,
               style: AppTextStyles.bodySmall.copyWith(
                 color: context.onSurfaceColor.withValues(alpha: 0.6),
               ),
@@ -933,7 +968,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
               ),
             ),
             title: Text(
-              'Transaction PIN',
+              AppLocalizations.of(context)!.transactionPin,
               style: AppTextStyles.bodyMedium.copyWith(
                 color: context.onSurfaceColor,
                 fontWeight: FontWeight.w600,
@@ -941,8 +976,8 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
             ),
             subtitle: Text(
               hasPin
-                  ? 'PIN setup is active and secure'
-                  : 'Secure renewals and withdrawals',
+                  ? AppLocalizations.of(context)!.pinActiveAndSecure
+                  : AppLocalizations.of(context)!.transactionPinDesc,
               style: AppTextStyles.bodySmall.copyWith(
                 color: context.onSurfaceColor.withValues(alpha: 0.6),
               ),
@@ -961,7 +996,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
                 ),
               ),
               child: Text(
-                hasPin ? 'ACTIVE' : 'SETUP',
+                hasPin ? 'ACTIVE' : AppLocalizations.of(context)!.setup,
                 style: TextStyle(
                   color: hasPin
                       ? const Color(0xFFD946EF)
@@ -979,7 +1014,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
   }
 
   // ── Alert Config card ──────────────────────────────────────────────
-  Widget _buildAlertsConfigCard(UserPreferences prefs) {
+  Widget _buildAlertsConfigCard(BuildContext context, UserPreferences prefs) {
     return Container(
       decoration: BoxDecoration(
         color: context.cardColor.withValues(alpha: 0.5),
@@ -1011,14 +1046,14 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
               ),
             ),
             title: Text(
-              'Weekly Digest',
+              AppLocalizations.of(context)!.weeklyDigest,
               style: AppTextStyles.bodyMedium.copyWith(
                 color: context.onSurfaceColor,
                 fontWeight: FontWeight.w600,
               ),
             ),
             subtitle: Text(
-              'Receive active wallet & lines report',
+              AppLocalizations.of(context)!.weeklyDigestDesc,
               style: AppTextStyles.bodySmall.copyWith(
                 color: context.onSurfaceColor.withValues(alpha: 0.6),
               ),

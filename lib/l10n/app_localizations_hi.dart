@@ -1,0 +1,1429 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
+import 'app_localizations.dart';
+
+// ignore_for_file: type=lint
+
+/// The translations for Hindi (`hi`).
+class AppLocalizationsHi extends AppLocalizations {
+  AppLocalizationsHi([String locale = 'hi']) : super(locale);
+
+  @override
+  String get appName => 'KeepSIMs';
+
+  @override
+  String get preferencesAndSecurity => 'प्राथमिकताएँ और सुरक्षा';
+
+  @override
+  String get appAppearance => 'ऐप दिखावट';
+
+  @override
+  String get systemTheme => 'सिस्टम';
+
+  @override
+  String get darkMode => 'डार्क मोड';
+
+  @override
+  String get lightMode => 'लाइट मोड';
+
+  @override
+  String get localizationAndRegional => 'स्थानीयकरण और क्षेत्रीय सेटिंग्स';
+
+  @override
+  String get appLanguage => 'ऐप भाषा';
+
+  @override
+  String currentlyUsing(String langName) {
+    return 'वर्तमान में क्षेत्रीय $langName का उपयोग किया जा रहा है';
+  }
+
+  @override
+  String get selectAppLanguage => 'ऐप भाषा चुनें';
+
+  @override
+  String get securityAndAccessLock => 'सुरक्षा और एक्सेस लॉक';
+
+  @override
+  String get biometricSecurity => 'बायोमेट्रिक सुरक्षा';
+
+  @override
+  String get biometricDesc => 'Face ID या Touch ID का उपयोग करके साइन इन करें';
+
+  @override
+  String get transactionPin => 'ट्रांज़ैक्शन PIN';
+
+  @override
+  String get transactionPinDesc => 'रिन्यूअल और निकासी को सुरक्षित करें';
+
+  @override
+  String get setup => 'सेटअप';
+
+  @override
+  String get pinSuccess => 'ट्रांज़ैक्शन PIN सफलतापूर्वक अपडेट किया गया!';
+
+  @override
+  String get pinMismatch => 'PIN मेल नहीं खाते। फिर से कोशिश करें!';
+
+  @override
+  String get pinActiveAndSecure => 'PIN सेटअप सक्रिय और सुरक्षित है';
+
+  @override
+  String get automatedSummaryAndAlerts => 'स्वचालित सारांश और अलर्ट';
+
+  @override
+  String get weeklyDigest => 'साप्ताहिक डाइजेस्ट';
+
+  @override
+  String get welcomeBack => 'वापसी पर स्वागत है';
+
+  @override
+  String get nextNotify => 'अगली सूचना';
+
+  @override
+  String get days => 'दिन';
+
+  @override
+  String get showingNearestLine => 'निकटतम लाइन दिखाई जा रही है';
+
+  @override
+  String get addSim => 'SIM जोड़ें';
+
+  @override
+  String get linesToProtect => 'सुरक्षित करने योग्य लाइनें';
+
+  @override
+  String get active => 'सक्रिय';
+
+  @override
+  String get upgrade => 'अपग्रेड करें';
+
+  @override
+  String get standard => 'स्टैंडर्ड';
+
+  @override
+  String get autoNotify => 'ऑटो-नोटिफाई';
+
+  @override
+  String get configure => 'कॉन्फ़िगर करें';
+
+  @override
+  String get autoRefill => 'ऑटो-रिफिल';
+
+  @override
+  String get quickActions => 'त्वरित कार्य';
+
+  @override
+  String get navHome => 'होम';
+
+  @override
+  String get navSims => 'SIM';
+
+  @override
+  String get navMore => 'अधिक';
+
+  @override
+  String get protectedSims => 'सुरक्षित SIM';
+
+  @override
+  String get mySimCards => 'मेरे SIM कार्ड';
+
+  @override
+  String get familySharedSims => 'परिवार द्वारा शेयर किए गए SIM';
+
+  @override
+  String get protectAnotherSimLine => 'एक और SIM लाइन सुरक्षित करें';
+
+  @override
+  String get keepInfiniteNumbersAlive =>
+      'असीमित अंतरराष्ट्रीय नंबरों को सक्रिय रखें';
+
+  @override
+  String get bulkActionsConsole => 'बल्क एक्शन कंसोल';
+
+  @override
+  String get resume => 'फिर से शुरू करें';
+
+  @override
+  String get pause => 'रोकें';
+
+  @override
+  String get simulate => 'सिम्युलेट करें';
+
+  @override
+  String get noProtectedLines => 'कोई सुरक्षित लाइन नहीं';
+
+  @override
+  String get noInternationalSimsAdded =>
+      'आपने अभी तक कोई अंतरराष्ट्रीय SIM कार्ड नहीं जोड़ा है। इसे हमेशा सक्रिय रखने के लिए अभी अपना पहला कार्ड सुरक्षित करें।';
+
+  @override
+  String get protectNewLine => 'नई लाइन सुरक्षित करें';
+
+  @override
+  String get noSharedSimsYet => 'अभी तक कोई शेयर किया गया SIM नहीं';
+
+  @override
+  String get inviteFamilyMembers =>
+      'अपने परिवार में शामिल होने के लिए सदस्यों को आमंत्रित करें। स्वीकार करने पर, उनकी सुरक्षित SIM लाइनें यहाँ सहयोगी मॉनिटरिंग के लिए दिखाई देंगी।';
+
+  @override
+  String get manageHousehold => 'परिवार प्रबंधित करें';
+
+  @override
+  String get manageProfileDesc =>
+      'अपनी प्रोफ़ाइल, SIM लाइनें, अलर्ट और शेयर की गई प्राथमिकताएँ प्रबंधित करें';
+
+  @override
+  String get keepSIMsUser => 'KeepSIMs उपयोगकर्ता';
+
+  @override
+  String get pro => 'प्रो';
+
+  @override
+  String get homeCountry => 'होम देश: ';
+
+  @override
+  String get console => 'कंसोल';
+
+  @override
+  String get offlineRefill => 'ऑफ़लाइन रिफिल (SMS/WA)';
+
+  @override
+  String get refillSimOfflineDesc =>
+      'SMS या WhatsApp के ज़रिए ऑफ़लाइन SIM बैलेंस रिफिल करें';
+
+  @override
+  String get wallet => 'वॉलेट';
+
+  @override
+  String get manageBalancesDesc =>
+      'अपने बैलेंस प्रबंधित करें और ट्रांज़ैक्शन इतिहास देखें';
+
+  @override
+  String get alertPreferences => 'अलर्ट प्राथमिकताएँ';
+
+  @override
+  String get togglePushEmailDesc =>
+      'रिन्यूअल/बैलेंस के लिए पुश और ईमेल सेटिंग्स टॉगल करें';
+
+  @override
+  String get referAndEarn => 'रेफर करें और कमाएँ';
+
+  @override
+  String get shareKeepSIMsDesc =>
+      'KeepSIMs शेयर करें, डायनामिक बैलेंस रिवॉर्ड अनलॉक करें';
+
+  @override
+  String get paymentMethods => 'पेमेंट के तरीके';
+
+  @override
+  String get addBankCardsDesc =>
+      'बैंक कार्ड जोड़ें या ऑटो-विदड्रॉल खाते लिंक करें';
+
+  @override
+  String get travelAndGeolocation => 'यात्रा और जियोलोकेशन';
+
+  @override
+  String get manageHomeCountryDesc =>
+      'होम देश फ्रीज़ नियम और ट्रैवल मोड प्रबंधित करें';
+
+  @override
+  String get dataAndPrivacy => 'डेटा और प्राइवेसी';
+
+  @override
+  String get manageTrackingConsentDesc =>
+      'अपनी ट्रैकिंग सहमति प्रबंधित करें, डेटा एक्सपोर्ट करें, या खाता डिलीट करें';
+
+  @override
+  String get powerUser => 'पावर यूज़र';
+
+  @override
+  String get accessSystemSimulatorsDesc =>
+      'सिस्टम सिम्युलेटर और डीबगिंग टूल्स एक्सेस करें';
+
+  @override
+  String get testChecklist => 'टेस्ट चेकलिस्ट';
+
+  @override
+  String get manualUiTestingDesc =>
+      'क्वालिटी एश्योरेंस के लिए मैनुअल UI टेस्टिंग चेकलिस्ट';
+
+  @override
+  String get soon => 'जल्द ही';
+
+  @override
+  String featureComingSoon(String feature) {
+    return '$feature फ़ीचर जल्द ही आ रहा है!';
+  }
+
+  @override
+  String get logOut => 'लॉग आउट';
+
+  @override
+  String get confirmLogOut =>
+      'क्या आप वाकई KeepSIMs से लॉग आउट करना चाहते हैं?';
+
+  @override
+  String get walletLedger => 'वॉलेट लेजर';
+
+  @override
+  String get keepSIMsPrepaid => 'KeepSIMs प्रीपेड';
+
+  @override
+  String get offlineMode => 'ऑफ़लाइन मोड';
+
+  @override
+  String get activeBalance => 'सक्रिय बैलेंस';
+
+  @override
+  String get criticalBalanceLevel => 'गंभीर बैलेंस स्तर';
+
+  @override
+  String get balanceBelow10 =>
+      'आपका बैलेंस \$10.00 से कम है। शेड्यूल किए गए SIM टॉपअप जल्द ही फेल हो सकते हैं।';
+
+  @override
+  String get depositFunds => 'फंड जमा करें';
+
+  @override
+  String get walletDepositsRequireInternet =>
+      'वॉलेट में जमा करने के लिए सक्रिय इंटरनेट कनेक्शन आवश्यक है।';
+
+  @override
+  String get exportLedger => 'लेजर एक्सपोर्ट करें';
+
+  @override
+  String get ledgerHistoryExported =>
+      'लेजर इतिहास CSV के रूप में एक्सपोर्ट किया गया।';
+
+  @override
+  String get spendAnalysis => 'खर्च विश्लेषण';
+
+  @override
+  String get transactionHistory => 'ट्रांज़ैक्शन इतिहास';
+
+  @override
+  String itemsCount(int count) {
+    return '$count आइटम';
+  }
+
+  @override
+  String get noTransactionsRecorded =>
+      'अभी तक कोई ट्रांज़ैक्शन रिकॉर्ड नहीं हुआ।';
+
+  @override
+  String get prepaidMonthlyOutflow => 'प्रीपेड मासिक खर्च';
+
+  @override
+  String avgMonthlySpend(String amount) {
+    return 'औसत: \$$amount/माह (12M)';
+  }
+
+  @override
+  String depositViaCard(String last4) {
+    return '$last4 पर समाप्त होने वाले कार्ड से जमा करें';
+  }
+
+  @override
+  String get lineRenewal => 'लाइन रिन्यूअल';
+
+  @override
+  String get justNow => 'अभी';
+
+  @override
+  String get loadCreditFunds => 'क्रेडिट फंड लोड करें';
+
+  @override
+  String get depositAmountUsd => 'जमा राशि (USD)';
+
+  @override
+  String get pleaseEnterAmount => 'कृपया एक राशि दर्ज करें';
+
+  @override
+  String get enterPositiveNumber => 'एक सकारात्मक संख्या दर्ज करें';
+
+  @override
+  String get cardDetails => 'कार्ड विवरण';
+
+  @override
+  String get savedCards => 'सेव किए गए कार्ड';
+
+  @override
+  String get visaCardNumber => 'Visa कार्ड नंबर';
+
+  @override
+  String get pleaseEnterCardNumber => 'कृपया कार्ड नंबर दर्ज करें';
+
+  @override
+  String get mustBe16Digits => '16 अंकों का होना चाहिए';
+
+  @override
+  String get expiryMmYy => 'समाप्ति (MM/YY)';
+
+  @override
+  String get expiryRequired => 'समाप्ति तिथि आवश्यक है';
+
+  @override
+  String get invalid => 'अमान्य';
+
+  @override
+  String get cvv => 'CVV';
+
+  @override
+  String get cvvRequired => 'CVV आवश्यक है';
+
+  @override
+  String get verifyingCardSecurity => 'कार्ड सुरक्षा सत्यापित की जा रही है...';
+
+  @override
+  String get authorizeDepositFunds => 'फंड जमा को अधिकृत करें';
+
+  @override
+  String successfullyDeposited(String amount) {
+    return '\$$amount USD सफलतापूर्वक जमा किया गया!';
+  }
+
+  @override
+  String get failedToDepositFunds =>
+      'फंड जमा करने में विफल। कृपया कार्ड कनेक्शन जांचें।';
+
+  @override
+  String get noSavedPaymentMethods =>
+      'कोई सेव किया गया पेमेंट तरीका नहीं मिला।';
+
+  @override
+  String get addPaymentMethod => 'पेमेंट तरीका जोड़ें';
+
+  @override
+  String get savedPaymentMethods => 'सेव किए गए पेमेंट तरीके';
+
+  @override
+  String get addAnotherPaymentMethod => 'एक और पेमेंट तरीका जोड़ें';
+
+  @override
+  String expiresMmYy(String month, String year) {
+    return '$month/$year में समाप्त होता है';
+  }
+
+  @override
+  String get offlineRefillTitle => 'ऑफ़लाइन रिफिल (SMS/WA)';
+
+  @override
+  String get selectTargetSimLine => 'टारगेट SIM लाइन चुनें';
+
+  @override
+  String get noRegisteredSimLines => 'कोई रजिस्टर्ड SIM लाइन नहीं मिली।';
+
+  @override
+  String get targetSimLine => 'टारगेट SIM लाइन';
+
+  @override
+  String get simLine => 'SIM लाइन';
+
+  @override
+  String get carrier => 'कैरियर';
+
+  @override
+  String get change => 'बदलें';
+
+  @override
+  String get offlineRefillProtection => 'ऑफ़लाइन रिफिल सुरक्षा';
+
+  @override
+  String get premiumExclusive => 'प्रीमियम विशेष';
+
+  @override
+  String get neverGetStrandedDesc =>
+      'मोबाइल डेटा के बिना फिर कभी न फंसें। KeepSIMs Premium आपको ज़ीरो इंटरनेट कनेक्शन होने पर भी स्टैंडर्ड लोकल SMS या WhatsApp मैसेज के ज़रिए अपने SIM कार्ड का बैलेंस ऑफ़लाइन रिफिल करने देता है।';
+
+  @override
+  String get offlineCapability100 => '100% ऑफ़लाइन क्षमता';
+
+  @override
+  String get deductsFromKeepSIMsDesc =>
+      'लोकल SMS गेटवे फेलओवर के ज़रिए आपकी लाइन में क्रेडिट करने के लिए आपके KeepSIMs वॉलेट से राशि काटी जाती है।';
+
+  @override
+  String get dynamicUssdPlanActivation => 'डायनामिक USSD प्लान एक्टिवेशन';
+
+  @override
+  String get exactCopyPasteDialCodesDesc =>
+      'ऑफ़लाइन डेटा+कॉल पैकेज एक्टिवेट करने के लिए सटीक कॉपी-पेस्ट डायल कोड (जैसे, *900*1#) प्रदान करता है।';
+
+  @override
+  String get dualChannelSupport => 'ड्यूअल-चैनल सपोर्ट';
+
+  @override
+  String get textRefillDesc =>
+      'उपलब्ध सेलुलर कवरेज के अनुसार स्टैंडर्ड SMS या WhatsApp का उपयोग करके \"REFILL\" टेक्स्ट करें।';
+
+  @override
+  String get close => 'बंद करें';
+
+  @override
+  String get howToTriggerOfflineRefill => 'ऑफ़लाइन रिफिल कैसे ट्रिगर करें';
+
+  @override
+  String get ifZeroMobileDataDesc1 =>
+      'यदि आपके पास ज़ीरो मोबाइल डेटा है, तो हमारे सुरक्षित सिस्टम गेटवे को केवल ';
+
+  @override
+  String get refill => 'REFILL';
+
+  @override
+  String get toOurSecureGatewayDesc2 =>
+      ' शब्द वाला एक स्टैंडर्ड SMS या WhatsApp मैसेज भेजें:';
+
+  @override
+  String get targetSimLineLabel => 'टारगेट SIM लाइन';
+
+  @override
+  String get configureCashRefillAmount => 'कैश रिफिल राशि कॉन्फ़िगर करें';
+
+  @override
+  String get refillAmount => 'रिफिल राशि';
+
+  @override
+  String walletBalanceUsd(String amount) {
+    return 'वॉलेट बैलेंस: \$$amount USD';
+  }
+
+  @override
+  String get lowBalanceWarning => '⚠️ कम बैलेंस';
+
+  @override
+  String get localCarrierPlanSuggestions => 'लोकल कैरियर प्लान सुझाव';
+
+  @override
+  String get noStandardUssdDialCodes =>
+      'इस कैरियर के लिए कोई स्टैंडर्ड USSD डायल कोड नहीं मिला। फिर भी आपकी लाइन पर कैश रिफिल सफलतापूर्वक प्राप्त होगा।';
+
+  @override
+  String get dynamicDialCodesPreview => 'डायनामिक डायल कोड पूर्वावलोकन';
+
+  @override
+  String get botSuggestDialingCodes =>
+      'ऑफ़लाइन रिफिल पूरा होने के बाद, बॉट तुरंत डेटा+कॉल ऑफ़लाइन अनलॉक करने के लिए आपके फ़ोन पर ये सटीक कोड डायल करने का सुझाव देगा:';
+
+  @override
+  String costAmount(String amount) {
+    return 'लागत: \$$amount';
+  }
+
+  @override
+  String get whatsappSmsSenderOverride => 'WHATSAPP/SMS सेंडर ओवरराइड';
+
+  @override
+  String get verificationNumber => 'सत्यापन नंबर';
+
+  @override
+  String get triggerRefillsDifferentNumber =>
+      'यदि आप अपने मुख्य प्रोफ़ाइल फ़ोन के अलावा किसी अन्य नंबर से रिफिल ट्रिगर करते हैं, तो उसे देश कोड के साथ नीचे दर्ज करें (जैसे 96891234567)।';
+
+  @override
+  String get enterPhoneNumberDigits => 'फ़ोन नंबर दर्ज करें (केवल अंक)';
+
+  @override
+  String get offlineRefillSettingsSaved =>
+      'ऑफ़लाइन रिफिल सेटिंग्स सफलतापूर्वक सेव हुई!';
+
+  @override
+  String get saveSettings => 'सेटिंग्स सेव करें';
+
+  @override
+  String errorLoadingSettings(String error) {
+    return 'सेटिंग्स लोड करने में त्रुटि: $error';
+  }
+
+  @override
+  String get retry => 'फिर से कोशिश करें';
+
+  @override
+  String get editProtectedLine => 'सुरक्षित लाइन संपादित करें';
+
+  @override
+  String get saveChanges => 'बदलाव सेव करें';
+
+  @override
+  String get activateShieldProtection => 'शील्ड सुरक्षा सक्रिय करें';
+
+  @override
+  String get phoneNumber => 'फ़ोन नंबर';
+
+  @override
+  String get nicknameOptional => 'उपनाम (वैकल्पिक)';
+
+  @override
+  String get whatsappAlerts => 'WhatsApp अलर्ट';
+
+  @override
+  String get emailAlertsDesc =>
+      'Resend के ज़रिए भेजे गए गंभीर डीएक्टिवेशन अलर्ट';
+
+  @override
+  String get refillWalletLow => 'जब फंड कम हो जाएँ तो वॉलेट रिफिल करें';
+
+  @override
+  String get legalPoliciesDesc =>
+      'KeepSIMs का उपयोग करके, आप हमारी शर्तों से सहमत होते हैं। KeepSIMs आपके SIM जीवनचक्र को प्रबंधित करने में मदद करने के लिए टूल प्रदान करता है, लेकिन हम थर्ड-पार्टी टेलीकॉम प्रदाताओं के कारण होने वाले प्रत्यक्ष या अप्रत्यक्ष नुकसान, क्षति, या सेवा में रुकावट के लिए उत्तरदायी नहीं हैं।';
+
+  @override
+  String get globalTravelModeDesc =>
+      'बॉर्डर-क्रॉसिंग रूटीन सक्रिय करने के लिए स्वचालित जियोफेंसिंग नियमों की अनुमति देता है';
+
+  @override
+  String get dataPreferences => 'डेटा प्राथमिकताएँ';
+
+  @override
+  String get doNotDisturb => 'डिस्टर्ब न करें';
+
+  @override
+  String get linkedCards => 'लिंक किए गए कार्ड';
+
+  @override
+  String get analyticsTracking => 'एनालिटिक्स और ट्रैकिंग';
+
+  @override
+  String get dubai => 'दुबई';
+
+  @override
+  String get flyHome => 'घर वापस जाएँ';
+
+  @override
+  String get managePreferencesAndSecurityDesc =>
+      'थीम, भाषा और बायोमेट्रिक लॉकआउट प्रबंधित करें';
+
+  @override
+  String get autoFundingRulesDesc =>
+      'जब बैलेंस बहुत कम हो जाए तो अपने डिफ़ॉल्ट क्रेडिट कार्ड से ऑटोमैटिक टॉप-अप सक्षम करके SIM रिन्यूअल को लगातार चालू रखें';
+
+  @override
+  String get pushNotifications => 'पुश नोटिफिकेशन';
+
+  @override
+  String get quietHoursSchedule => 'क्वाइट ऑवर्स और शेड्यूल';
+
+  @override
+  String get exportMyDataDesc =>
+      'अपनी प्रोफ़ाइल और प्राथमिकताओं की एक JSON कॉपी डाउनलोड करें (GDPR एक्सेस का अधिकार)';
+
+  @override
+  String get borderSimulatorTitle => 'बॉर्डर क्रॉसिंग सिम्युलेटर';
+
+  @override
+  String get yourData => 'आपका डेटा';
+
+  @override
+  String get mostImportant => 'सबसे ज़रूरी';
+
+  @override
+  String get emailAlerts => 'ईमेल अलर्ट';
+
+  @override
+  String get pushNotificationsDesc => 'इस डिवाइस पर तीव्र नेटिव नोटिफिकेशन';
+
+  @override
+  String get alertSettingsTitle => 'अलर्ट सेटिंग्स';
+
+  @override
+  String get atHome => 'घर पर';
+
+  @override
+  String get telegramBotDesc => 'बाउंड इंटरैक्टिव Telegram चैट नोटिफिकेशन';
+
+  @override
+  String get alertChannels => 'अलर्ट चैनल';
+
+  @override
+  String get london => 'लंदन';
+
+  @override
+  String get shieldProtection => 'शील्ड सुरक्षा';
+
+  @override
+  String get legalPolicies => 'कानूनी और नीतियाँ';
+
+  @override
+  String get supportVisaMastercard =>
+      'सुरक्षित Visa और MasterCard डेबिट या क्रेडिट को सपोर्ट करता है';
+
+  @override
+  String get exportMyData => 'मेरा डेटा एक्सपोर्ट करें';
+
+  @override
+  String get dangerZone => 'डेंजर ज़ोन';
+
+  @override
+  String get analyticsTrackingDesc =>
+      'अनाम उपयोग डेटा शेयर करके ऐप को बेहतर बनाने में हमारी मदद करें। बंद करने पर ऐप की ज़रूरी कार्यक्षमता प्रभावित नहीं होगी';
+
+  @override
+  String get autoFundingRules => 'ऑटो-फंडिंग नियम';
+
+  @override
+  String get singapore => 'सिंगापुर';
+
+  @override
+  String get weeklySummaryDigest => 'साप्ताहिक सारांश डाइजेस्ट';
+
+  @override
+  String get fullyShielded => 'पूरी तरह सुरक्षित';
+
+  @override
+  String get dndDesc => 'निर्धारित सोने के समय में पुश नोटिफिकेशन म्यूट करें';
+
+  @override
+  String get paymentsAutoFundTitle => 'पेमेंट्स और ऑटो-फंड';
+
+  @override
+  String get travelGeolocationTitle => 'यात्रा और जियोलोकेशन';
+
+  @override
+  String get telegramBot => 'Telegram बॉट';
+
+  @override
+  String get weeklyDigestDesc =>
+      'हर रविवार सुबह 9:00 बजे सभी SIM कार्ड की संकलित स्टेटस रिपोर्ट';
+
+  @override
+  String get borderSimulatorDesc =>
+      'स्मार्ट फ्रीज़ या एक्टिव कंट्री रिज़्यूमेशन नियमों को ट्रिगर करने के लिए बोर्डिंग सिम्युलेट करें।';
+
+  @override
+  String get linkFirstCard => 'अपना पहला पेमेंट कार्ड लिंक करें';
+
+  @override
+  String get globalTravelMode => 'ग्लोबल ट्रैवल मोड';
+
+  @override
+  String get readPrivacyPolicy => 'पूरी प्राइवेसी पॉलिसी और नियम पढ़ें';
+
+  @override
+  String get whatsappAlertsDesc =>
+      'रिफिल फेलियर अलर्ट सीधे WhatsApp पर भेजे जाते हैं';
+
+  @override
+  String get abroadTraveling => 'विदेश / यात्रा पर';
+
+  @override
+  String get freezeAllLines => 'सभी लाइनें फ्रीज़ करें';
+
+  @override
+  String get resumeRenewals => 'रिन्यूअल फिर से शुरू करें';
+
+  @override
+  String get freezeRecommendationDesc =>
+      'हमें पता चला है कि आप अभी अपने होम देश में हैं। अनचाहे वॉलेट बैलेंस की कमी को रोकने के लिए आप अपनी अंतरराष्ट्रीय लाइनों पर रिन्यूअल फ्रीज़ कर सकते हैं।';
+
+  @override
+  String get travelDetected => 'यात्रा का पता चला! ✈️';
+
+  @override
+  String get resumeRecommendationDesc =>
+      'आप विदेश यात्रा पर हैं। निर्बाध मोबाइल नेटवर्क कवरेज सुनिश्चित करने के लिए कृपया अपनी रुकी हुई अंतरराष्ट्रीय SIM रिन्यूअल फिर से शुरू करें।';
+
+  @override
+  String get dismiss => 'खारिज करें';
+
+  @override
+  String get welcomeHome => 'घर में आपका स्वागत है! 🏡';
+
+  @override
+  String get addCard => 'कार्ड जोड़ें';
+
+  @override
+  String get noAlertChannelsConfigured =>
+      'कोई अलर्ट डिलीवरी चैनल कॉन्फ़िगर नहीं किया गया।';
+
+  @override
+  String channelSettingsUpdated(String channelName) {
+    return '$channelName सेटिंग्स अपडेट की गईं।';
+  }
+
+  @override
+  String channelLocked(String channelName) {
+    return '$channelName लॉक है 🔒';
+  }
+
+  @override
+  String lockedAlertSubtitle(String channelName) {
+    return '$channelName अलर्ट स्टार्टर और प्रीमियम प्लान की सुविधाएँ हैं। WhatsApp, Telegram और ईमेल अलर्ट अनलॉक करने के लिए अपना प्लान अपग्रेड करें!';
+  }
+
+  @override
+  String get upsellProtect5Lines => 'एक साथ 5 SIM लाइनों तक सुरक्षित करें';
+
+  @override
+  String get upsellUnlockChannels =>
+      'WhatsApp, Telegram और ईमेल नोटिफिकेशन अनलॉक करें';
+
+  @override
+  String get upsellEnableTravelModes =>
+      'ट्रैवल और होम ऑटोमेटेड वैलिडिटी मोड सक्षम करें';
+
+  @override
+  String get emailAddressLabel => 'नोटिफिकेशन ईमेल पता';
+
+  @override
+  String get emailAddressHint => 'जैसे user@domain.com';
+
+  @override
+  String get whatsappNumberLabel => 'WhatsApp नंबर (अंतरराष्ट्रीय फ़ॉर्मेट)';
+
+  @override
+  String get whatsappNumberHint => 'जैसे +96891234567';
+
+  @override
+  String get whatsappFormatInstruction =>
+      '+ से शुरू होने वाला पूरा अंतरराष्ट्रीय फ़ॉर्मेट दर्ज करें (जैसे +96893990492)';
+
+  @override
+  String telegramStatusBound(String chatId) {
+    return 'स्टेटस: बाउंड (चैट ID: $chatId)';
+  }
+
+  @override
+  String get telegramStatusUnbound => 'स्टेटस: अनबाउंड';
+
+  @override
+  String get telegramLinkInstructions =>
+      'मुफ़्त, इंटरैक्टिव Telegram अलर्ट पाने के लिए, हमारे Telegram बॉट को अपने खाते से लिंक करें।';
+
+  @override
+  String get linkTelegramBot => 'Telegram बॉट लिंक करें';
+
+  @override
+  String get emailFreePlanGuarded =>
+      'Resend फ्री प्लान सुरक्षित: केवल डीएक्टिवेशन ट्रिगर तक सीमित। कोई प्रोमोशनल स्पैम नहीं।';
+
+  @override
+  String get whatsappMetaCloudCapped =>
+      'डायरेक्ट Meta Cloud सीमित: प्रति टॉप-अप शेड्यूल अधिकतम 1 मैसेज, केवल तब भेजा जाता है जब ऑटो-रिफिल सक्रिय न हो या फेल हो जाए।';
+
+  @override
+  String get failedToLoadPaymentInfo => 'पेमेंट जानकारी लोड करने में विफल';
+
+  @override
+  String get defaultCardIndicator => 'डिफ़ॉल्ट';
+
+  @override
+  String get cardholder => 'कार्डधारक';
+
+  @override
+  String get expires => 'समाप्ति';
+
+  @override
+  String get lowBalanceTrigger => 'कम बैलेंस ट्रिगर';
+
+  @override
+  String get triggerLowTopUp => 'कम बैलेंस पर टॉप-अप ट्रिगर करें';
+
+  @override
+  String get reloadDepositAmount => 'रीलोड जमा राशि';
+
+  @override
+  String get amountToLoad => 'लोड करने की राशि';
+
+  @override
+  String get linkCreditDebitCard => 'क्रेडिट/डेबिट कार्ड लिंक करें';
+
+  @override
+  String get cardNumberLabel => 'कार्ड नंबर';
+
+  @override
+  String get expiryDateLabel => 'समाप्ति तिथि';
+
+  @override
+  String get cvvCodeLabel => 'CVV कोड';
+
+  @override
+  String get securelyLinkCard => 'सुरक्षित रूप से कार्ड लिंक करें';
+
+  @override
+  String get pleaseEnterValidCardNumber =>
+      'कृपया मान्य 16-अंकीय कार्ड नंबर दर्ज करें।';
+
+  @override
+  String get pleaseEnterValidExpiryDate =>
+      'कृपया मान्य समाप्ति तिथि दर्ज करें (MM/YY)।';
+
+  @override
+  String get invalidExpiryMonth => 'अमान्य समाप्ति माह।';
+
+  @override
+  String get cvvMustBe3Digits => 'CVV 3 अंकों का होना चाहिए।';
+
+  @override
+  String get cardLinkedSuccessfully =>
+      'सुरक्षित बिलिंग कार्ड सफलतापूर्वक लिंक हुआ!';
+
+  @override
+  String get defaultPaymentCardUpdated => 'डिफ़ॉल्ट पेमेंट कार्ड अपडेट हुआ!';
+
+  @override
+  String get removePaymentCard => 'पेमेंट कार्ड हटाएँ';
+
+  @override
+  String get confirmRemoveCardDesc =>
+      'क्या आप वाकई इस कार्ड को हटाना चाहते हैं? यदि कोई डिफ़ॉल्ट पेमेंट कार्ड नहीं बचा, तो लिंक्ड ऑटो-फंडिंग फेल हो सकती है।';
+
+  @override
+  String get cancel => 'रद्द करें';
+
+  @override
+  String get remove => 'हटाएँ';
+
+  @override
+  String get billingCardSuccessfullyRemoved =>
+      'बिलिंग कार्ड सफलतापूर्वक हटाया गया।';
+
+  @override
+  String get pleaseAddDefaultCardFirst =>
+      'ऑटो-फंडिंग सक्षम करने के लिए कृपया पहले एक डिफ़ॉल्ट पेमेंट कार्ड जोड़ें और चुनें।';
+
+  @override
+  String get autoFundPrefsSavedSuccess =>
+      'ऑटो-फंडिंग प्राथमिकताएँ सफलतापूर्वक सेव हुई!';
+
+  @override
+  String get preparingDataExport => 'डेटा एक्सपोर्ट तैयार किया जा रहा है...';
+
+  @override
+  String exportFailed(String error) {
+    return 'एक्सपोर्ट विफल: $error';
+  }
+
+  @override
+  String get deleteAccountWarning =>
+      'एक बार खाता डिलीट करने के बाद, इसे वापस नहीं लाया जा सकता। कृपया सुनिश्चित हो जाएँ।';
+
+  @override
+  String get deleteAccount => 'खाता डिलीट करें';
+
+  @override
+  String get deleteAccountIrreversible =>
+      'यह कार्रवाई अपरिवर्तनीय है। आपका सारा डेटा स्थायी रूप से मिटा दिया जाएगा।';
+
+  @override
+  String get typeDeleteToConfirm => 'पुष्टि करने के लिए \"DELETE\" टाइप करें:';
+
+  @override
+  String get deleteWord => 'DELETE';
+
+  @override
+  String get systemDiagnosticsLogs => 'सिस्टम डायग्नोस्टिक्स लॉग';
+
+  @override
+  String get online => 'ऑनलाइन';
+
+  @override
+  String errorLoadingPrefs(String error) {
+    return 'प्राथमिकताएँ लोड करने में त्रुटि: $error';
+  }
+
+  @override
+  String get privacyPolicyLoaded => 'प्राइवेसी पॉलिसी विवरण लोड हुआ।';
+
+  @override
+  String get protectionConsole => 'सुरक्षा कंसोल';
+
+  @override
+  String get deleteProtectionTooltip => 'सुरक्षा हटाएँ';
+
+  @override
+  String get refreshTooltip => 'रीफ्रेश करें';
+
+  @override
+  String get failedToLoadDetails => 'विवरण लोड करने में विफल';
+
+  @override
+  String get retryConnection => 'कनेक्शन फिर से कोशिश करें';
+
+  @override
+  String get healthLabel => 'हेल्थ';
+
+  @override
+  String get mySimCardDefault => 'मेरा SIM कार्ड';
+
+  @override
+  String get upLabel => 'अप';
+
+  @override
+  String sharedByFamily(String ownerName, String role) {
+    return 'शेयर किया गया: $ownerName ($role)';
+  }
+
+  @override
+  String get criticalRisk => 'गंभीर जोखिम';
+
+  @override
+  String get simDeactivationRisk =>
+      'कार्रवाई न करने पर SIM निष्क्रिय हो सकता है';
+
+  @override
+  String get missingAlertsDesc =>
+      'कोई अलर्ट नोटिफिकेशन कॉन्फ़िगर नहीं — 100 पॉइंट्स कम';
+
+  @override
+  String get missingAutoRefillDesc =>
+      'कोई ऑटो-रिफिल कॉन्फ़िगर नहीं — 50 पॉइंट्स कम';
+
+  @override
+  String get missingVerificationDesc =>
+      'फ़ोन नंबर सत्यापित नहीं — 25 पॉइंट्स कम';
+
+  @override
+  String get missingRecentRefillDesc =>
+      'आख़िरी रिफिल 80 दिन से अधिक पहले हुआ था — 25 पॉइंट्स कम';
+
+  @override
+  String get quickActionsLabel => 'त्वरित कार्य';
+
+  @override
+  String get manualRefillLabel => 'मैनुअल रिफिल';
+
+  @override
+  String get chargeFromWalletNow => 'अभी वॉलेट से चार्ज करें';
+
+  @override
+  String get rechargeFromFriend => 'दोस्त से रिचार्ज करवाएँ';
+
+  @override
+  String get requestViaTelegram => 'Telegram के ज़रिए रिक्वेस्ट करें';
+
+  @override
+  String get shareViaWaTg => 'WhatsApp/Telegram के ज़रिए शेयर करें';
+
+  @override
+  String get testSimActivity => 'SIM एक्टिविटी टेस्ट करें';
+
+  @override
+  String get verifyLineReachable => 'जांचें कि लाइन रीचेबल है';
+
+  @override
+  String get checkCompleted1x => '1x जांच पूरी हुई';
+
+  @override
+  String get starterPlan1xCompleted =>
+      'स्टार्टर प्लान की 1x जांच पूरी हुई। असीमित जांच के लिए प्रीमियम में अपग्रेड करें।';
+
+  @override
+  String leaveCountry(String countryName) {
+    return '$countryName छोड़ें';
+  }
+
+  @override
+  String get resumeProtectionLayers => 'सुरक्षा परतें फिर से शुरू करें';
+
+  @override
+  String backToCountryMode(String countryName) {
+    return '$countryName मोड पर वापस जाएँ';
+  }
+
+  @override
+  String get pauseWhileVisitingHome => 'होम विज़िट के दौरान रोकें';
+
+  @override
+  String get rechargeFromFriendTitle => 'किसी दोस्त से रिचार्ज करवाएँ';
+
+  @override
+  String get selectPlatformShare =>
+      'अपने दोस्त के साथ रिचार्ज रिक्वेस्ट मैसेज शेयर करने के लिए एक प्लेटफ़ॉर्म चुनें।';
+
+  @override
+  String rechargeRequestTemplate(String phone) {
+    return 'नमस्ते! मेरा KeepSIMs कार्ड ($phone) जल्द समाप्त हो रहा है। क्या आप कृपया मेरे लिए इसे रिचार्ज कर सकते हैं? धन्यवाद!';
+  }
+
+  @override
+  String get requestViaWhatsApp => 'WhatsApp के ज़रिए रिक्वेस्ट करें';
+
+  @override
+  String couldNotLaunchLink(String platformName, String error) {
+    return '$platformName लिंक लॉन्च नहीं हो सका: $error';
+  }
+
+  @override
+  String couldNotLaunchTelegram(String error) {
+    return 'Telegram लिंक लॉन्च नहीं हो सका: $error';
+  }
+
+  @override
+  String get protectionLayersLabel => 'सुरक्षा परतें';
+
+  @override
+  String get autoNotifyDisabled => 'ऑटो-नोटिफाई: बंद';
+
+  @override
+  String get noActiveAlertSchedule =>
+      'आपके SIM कार्ड का कोई सक्रिय अलर्ट नोटिफिकेशन शेड्यूल नहीं है। आपको ऑटोमेटिक रिमाइंडर या डीएक्टिवेशन अलर्ट नहीं मिलेंगे।';
+
+  @override
+  String get askOwnerConfigureAlerts =>
+      'कृपया अलर्ट कॉन्फ़िगर करने के लिए परिवार के मालिक से कहें।';
+
+  @override
+  String get configureAutoNotify => 'ऑटो-नोटिफाई कॉन्फ़िगर करें';
+
+  @override
+  String get activeLabel => 'सक्रिय';
+
+  @override
+  String get pausedHomeMode => 'रुका हुआ (होम मोड)';
+
+  @override
+  String get pausedLabel => 'रुका हुआ';
+
+  @override
+  String get everyHour => 'हर 1 घंटे में';
+
+  @override
+  String everyNDays(int days) {
+    return 'हर $days दिन में';
+  }
+
+  @override
+  String get nextAlertCheck => 'अगली अलर्ट जांच';
+
+  @override
+  String get premiumKeepAliveRefill => 'प्रीमियम कीप-अलाइव रिफिल';
+
+  @override
+  String autoRefillIncludedText(String date) {
+    return 'ऑटो-रिफिल शामिल - ~3.5 USD (टेलीकॉम, VAT शामिल) हर 85 दिन में,\\nअगला रिफिल $date पर';
+  }
+
+  @override
+  String get premiumKeepAliveDisabled => 'प्रीमियम कीप-अलाइव रिफिल अभी बंद है।';
+
+  @override
+  String get customAutoRefill => 'कस्टम ऑटो-रिफिल';
+
+  @override
+  String get addAdditionalScheduledRecharge =>
+      'अपने SIM पर अतिरिक्त बैलेंस बनाए रखने के लिए एक अतिरिक्त शेड्यूल्ड रिचार्ज राशि जोड़ें।';
+
+  @override
+  String get askOwnerConfigureRefill =>
+      'कृपया ऑटो-रिफिल कॉन्फ़िगर करने के लिए परिवार के मालिक से कहें।';
+
+  @override
+  String get configureCustomAutoRefill => 'कस्टम ऑटो-रिफिल कॉन्फ़िगर करें';
+
+  @override
+  String get rechargeAmount => 'रिचार्ज राशि';
+
+  @override
+  String get refillInterval => 'रिफिल अंतराल';
+
+  @override
+  String get nextRefillDue => 'अगला रिफिल कब है';
+
+  @override
+  String get failedRefillAttempts => 'असफल रिफिल प्रयास';
+
+  @override
+  String retriesCount(int count) {
+    return '$count / 4 पुनः प्रयास';
+  }
+
+  @override
+  String get editRefillAmount => 'रिफिल राशि संपादित करें';
+
+  @override
+  String get refillExecutionsHistory => 'रिफिल निष्पादन इतिहास';
+
+  @override
+  String get renewalExecutionsHistory => 'रिन्यूअल निष्पादन इतिहास';
+
+  @override
+  String get noHistoricalTopup =>
+      'इस लाइन के लिए अभी तक कोई ऐतिहासिक टॉप-अप निष्पादन रिकॉर्ड नहीं हुआ।';
+
+  @override
+  String get noHistoricalRenewal =>
+      'इस लाइन के लिए अभी तक कोई ऐतिहासिक रिन्यूअल निष्पादन रिकॉर्ड नहीं हुआ।';
+
+  @override
+  String get viewAllHistory => 'पूरा इतिहास देखें';
+
+  @override
+  String get securityActivityLogs => 'सुरक्षा एक्टिविटी लॉग';
+
+  @override
+  String get clearLogs => 'लॉग साफ़ करें';
+
+  @override
+  String get noActivityLogsRecorded =>
+      'इस लाइन के लिए अभी तक कोई एक्टिविटी लॉग रिकॉर्ड नहीं हुआ।';
+
+  @override
+  String get activityLogDeleted => 'एक्टिविटी लॉग एंट्री डिलीट हुई।';
+
+  @override
+  String get activityLogsCleared => 'एक्टिविटी लॉग सफलतापूर्वक साफ़ हुए।';
+
+  @override
+  String autoRenewalStatusUpdated(String status) {
+    return 'ऑटो-रिन्यूअल सफलतापूर्वक $status हुआ।';
+  }
+
+  @override
+  String failedToUpdateSchedule(String error) {
+    return 'शेड्यूल अपडेट करने में विफल: $error';
+  }
+
+  @override
+  String get premiumRefillEnabled =>
+      'प्रीमियम कीप-अलाइव रिफिल सफलतापूर्वक सक्षम हुआ।';
+
+  @override
+  String failedToEnableAutoRefill(String error) {
+    return 'ऑटो-रिफिल सक्षम करने में विफल: $error';
+  }
+
+  @override
+  String get removeScheduleTitle => 'शेड्यूल हटाएँ';
+
+  @override
+  String get confirmDeleteAutoRefill =>
+      'क्या आप वाकई इस ऑटो-रिफिल शेड्यूल को डिलीट करना चाहते हैं? आपका SIM हेल्थ स्कोर काफी गिर जाएगा, जिससे डीएक्टिवेशन का जोखिम बढ़ जाएगा।';
+
+  @override
+  String get confirmDeleteAutoRenewal =>
+      'क्या आप वाकई इस ऑटो-रिन्यूअल शेड्यूल को डिलीट करना चाहते हैं? आपका SIM हेल्थ स्कोर काफी गिर जाएगा, जिससे डीएक्टिवेशन का जोखिम बढ़ जाएगा।';
+
+  @override
+  String get autoRefillRemoved => 'ऑटो-रिफिल शेड्यूल सफलतापूर्वक हटाया गया।';
+
+  @override
+  String get autoRenewalRemoved =>
+      'ऑटो-रिन्यूअल शेड्यूल सफलतापूर्वक हटाया गया।';
+
+  @override
+  String failedToDeleteSchedule(String error) {
+    return 'शेड्यूल डिलीट करने में विफल: $error';
+  }
+
+  @override
+  String get refillRetrySuccess => 'रिफिल पुनः प्रयास सफलतापूर्वक पूरा हुआ!';
+
+  @override
+  String get renewalRetrySuccess =>
+      'रिन्यूअल पुनः प्रयास सफलतापूर्वक पूरा हुआ!';
+
+  @override
+  String retryFailed(String error) {
+    return 'पुनः प्रयास विफल: $error';
+  }
+
+  @override
+  String retryExecutionError(String error) {
+    return 'पुनः प्रयास निष्पादन त्रुटि: $error';
+  }
+
+  @override
+  String failedToDeleteActivityLog(String error) {
+    return 'एक्टिविटी लॉग डिलीट करने में विफल: $error';
+  }
+
+  @override
+  String failedToClearActivityLogs(String error) {
+    return 'एक्टिविटी लॉग साफ़ करने में विफल: $error';
+  }
+
+  @override
+  String get removeProtectionTitle => 'सुरक्षा हटाएँ';
+
+  @override
+  String confirmRemoveProtectionDesc(String name) {
+    return 'क्या आप वाकई $name को सुरक्षित रखना बंद करना चाहते हैं? इस SIM लाइन के लिए शेड्यूल्ड टॉप-अप स्थायी रूप से रद्द हो जाएँगे।';
+  }
+
+  @override
+  String get simLineProtectionRemoved =>
+      'SIM लाइन सुरक्षा सफलतापूर्वक हटाई गई।';
+
+  @override
+  String failedToDeleteSimLine(String error) {
+    return 'डिलीट करने में विफल: $error';
+  }
+
+  @override
+  String get editSimNameTitle => 'SIM नाम संपादित करें';
+
+  @override
+  String get enterNicknameInstruction =>
+      'इस SIM कार्ड लाइन के लिए एक उपनाम दर्ज करें:';
+
+  @override
+  String get nicknameExampleHint => 'जैसे मेरा Orange Egypt SIM';
+
+  @override
+  String get simNameUpdatedSuccess => 'SIM नाम सफलतापूर्वक अपडेट हुआ।';
+
+  @override
+  String failedToUpdateSimName(String error) {
+    return 'SIM नाम अपडेट करने में विफल: $error';
+  }
+
+  @override
+  String get saveButton => 'सेव करें';
+
+  @override
+  String get deleteButton => 'डिलीट करें';
+
+  @override
+  String get autoNotifySchedule => 'ऑटो-नोटिफाई शेड्यूल';
+
+  @override
+  String get renewalCheckInterval => 'रिन्यूअल जांच अंतराल';
+
+  @override
+  String get editNotificationConfig => 'नोटिफिकेशन कॉन्फ़िग संपादित करें';
+
+  @override
+  String get openTicket => 'टिकट खोलें';
+
+  @override
+  String get offlineRefillLabel => 'ऑफ़लाइन रिफिल';
+
+  @override
+  String get categoryLabel => 'श्रेणी';
+
+  @override
+  String get techSupportCategory => 'तकनीकी सहायता';
+
+  @override
+  String get billingWalletCategory => 'बिलिंग और वॉलेट';
+
+  @override
+  String get simLinesCategory => 'SIM लाइन प्रबंधन';
+
+  @override
+  String get feedbackOtherCategory => 'फ़ीडबैक और अन्य';
+
+  @override
+  String get subjectLabel => 'विषय';
+
+  @override
+  String get subjectHint => 'समस्या का संक्षिप्त सारांश';
+
+  @override
+  String get descriptionLabel => 'विवरण';
+
+  @override
+  String get descriptionHint => 'अपनी समस्या को विस्तार से बताएं...';
+
+  @override
+  String get attachmentLabel => 'अटैचमेंट (वैकल्पिक)';
+
+  @override
+  String get uploadScreenshot => 'स्क्रीनशॉट अपलोड करें';
+
+  @override
+  String get submitTicketButton => 'टिकट सबमिट करें';
+
+  @override
+  String get pleaseFillFields => 'कृपया विषय और विवरण दोनों भरें';
+
+  @override
+  String get ticketSubmittedSuccess => 'टिकट सफलतापूर्वक सबमिट हुआ!';
+
+  @override
+  String get lastRefillLabel => 'आख़िरी रिफिल';
+
+  @override
+  String get noRefillYet => 'अभी तक कोई रिफिल नहीं';
+
+  @override
+  String get nextAlertLabel => 'अगला अलर्ट';
+
+  @override
+  String get protectionLabel => 'सुरक्षा';
+
+  @override
+  String get actionRequiredLabel => 'कार्रवाई ज़रूरी';
+
+  @override
+  String get protectionOffLabel => 'सुरक्षा बंद';
+
+  @override
+  String get notSet => 'सेट नहीं है';
+
+  @override
+  String get homeMode => 'होम मोड';
+
+  @override
+  String get incidentChannelsTitle => 'इंसिडेंट चैनल';
+
+  @override
+  String get topUpSuccessTitle => 'टॉप-अप सफल';
+
+  @override
+  String get topUpSuccessDesc =>
+      'जब ऑटोमेटिक SIM वैलिडिटी एक्सटेंशन सफलतापूर्वक पूरा हो जाए तो मुझे सूचित करें।';
+
+  @override
+  String get topUpFailedTitle => 'टॉप-अप विफल (गंभीर)';
+
+  @override
+  String get topUpFailedDesc =>
+      'जब कैरियर या वॉलेट समस्याओं के कारण ऑटोमेटिक टॉप-अप विफल हो जाएँ तो गंभीर अलर्ट।';
+
+  @override
+  String get walletLowTitle => 'कम वॉलेट बैलेंस';
+
+  @override
+  String get walletLowDesc =>
+      'जब प्राइमरी बैलेंस सेफ्टी थ्रेशोल्ड से नीचे चला जाए तो मुझे चेतावनी दें।';
+
+  @override
+  String get walletDepletedTitle => 'वॉलेट खत्म';
+
+  @override
+  String get walletDepletedDesc =>
+      'जब वॉलेट बैलेंस पूरी तरह खत्म हो जाए और रिन्यूअल रुक जाएँ तो सस्पेंडेड अलर्ट।';
+
+  @override
+  String get lineCriticalTitle => 'वैलिडिटी समाप्ति चेतावनी';
+
+  @override
+  String get lineCriticalDesc =>
+      'जब SIM वैलिडिटी विंडो 48 घंटों में समाप्त होने वाली हो तो मुझे चेतावनी दें।';
+
+  @override
+  String get lineEnteringGraceTitle => 'ग्रेस पीरियड शुरू हो रहा है';
+
+  @override
+  String get lineEnteringGraceDesc =>
+      'जब कैरियर डीएक्टिवेशन ग्रेस पीरियड का पता चले तो मुझे सूचित करें।';
+
+  @override
+  String get geoFenceTriggeredTitle => 'लोकेशन / रोमिंग अलर्ट';
+
+  @override
+  String get geoFenceTriggeredDesc =>
+      'जब कैरियर रोमिंग क्लस्टर या नेटवर्क नोड बदले तो अलर्ट।';
+
+  @override
+  String get welcomeHomeReadyTitle => 'वेलकम होम सिंक';
+
+  @override
+  String get welcomeHomeReadyDesc =>
+      'जब होम-देश का नेटवर्क नोड ऑटोमेटेड सिंक ट्रिगर करे तो अलर्ट।';
+
+  @override
+  String get referralRewardTitle => 'रेफरल और रिवॉर्ड्स';
+
+  @override
+  String get referralRewardDesc =>
+      'जब दोस्तों के रेफरल से मेरे वॉलेट में प्रोमोशनल बैलेंस जमा हो तो मुझे सूचित करें।';
+
+  @override
+  String get systemUpdatesTitle => 'सामान्य सिस्टम अपडेट';
+
+  @override
+  String get systemUpdatesDesc =>
+      'महत्वपूर्ण इंजन अपडेट, मेंटेनेंस और प्लेटफ़ॉर्म घोषणाएं।';
+}

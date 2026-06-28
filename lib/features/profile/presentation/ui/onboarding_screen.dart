@@ -82,7 +82,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     super.initState();
     // Pre-fill user name from auth profile if available
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final profile = ref.read(authControllerProvider).valueOrNull;
+      final profile = ref.read(authControllerProvider).value;
       if (profile?.fullName != null && profile!.fullName!.isNotEmpty) {
         _nameController.text = profile.fullName!;
       }
@@ -300,12 +300,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     final profileState = ref.watch(profileControllerProvider);
-    final countries = ref.watch(supportedCountriesProvider).valueOrNull ?? [];
+    final countries = ref.watch(supportedCountriesProvider).value ?? [];
     final carriers = _selectedSimCountry == null
         ? <Carrier>[]
         : ref
                   .watch(carriersForCountryProvider(_selectedSimCountry!.id))
-                  .valueOrNull ??
+                  .value ??
               [];
 
     // Pre-select SIM country based on selected home country code if not already selected
@@ -325,7 +325,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       final ruleAsync = ref.watch(
         carrierRuleProvider(_selectedSimCarrier!.id),
       );
-      premiumRule = ruleAsync.valueOrNull;
+      premiumRule = ruleAsync.value;
       isPremiumLoading = ruleAsync.isLoading;
     }
 
@@ -1736,7 +1736,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   Widget _buildTierGrid(CarrierRule? premiumRule, bool isPremiumLoading) {
     final isDark = context.isDarkMode;
-    final currentLines = ref.read(simLinesControllerProvider).valueOrNull ?? [];
+    final currentLines = ref.read(simLinesControllerProvider).value ?? [];
 
     // Check if free plan should be disabled
     final hasFreeLine = currentLines.any((l) => l.planType == 'free');
@@ -2314,10 +2314,10 @@ class _InlineOnboardingChannelConfigState
       }
       if (!val.startsWith('+') && val.isNotEmpty) {
         if (val.length <= 9) {
-          final profile = widget.ref.read(authControllerProvider).valueOrNull;
+          final profile = widget.ref.read(authControllerProvider).value;
           final homeCode = profile?.homeCountryCode;
           final countries =
-              widget.ref.read(supportedCountriesProvider).valueOrNull ?? [];
+              widget.ref.read(supportedCountriesProvider).value ?? [];
           String homeDial = '+20';
           if (countries.isNotEmpty) {
             try {
@@ -2414,7 +2414,7 @@ class _InlineOnboardingChannelConfigState
                   await HapticHelper.lightTick();
                   final user = widget.ref
                       .read(authControllerProvider)
-                      .valueOrNull;
+                      .value;
                   final userId = user?.id;
                   if (userId == null) return;
                   final botUrl = 'https://t.me/KeepSIMsBot?start=bind_$userId';

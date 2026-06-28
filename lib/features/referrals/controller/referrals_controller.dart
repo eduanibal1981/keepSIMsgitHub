@@ -35,7 +35,7 @@ class ReferralsController extends _$ReferralsController {
   FutureOr<ReferralsState> build() async {
     // 1. Reactively watch auth changes to rebuild referrals data
     final authProfile = ref.watch(authControllerProvider);
-    final profile = authProfile.valueOrNull;
+    final profile = authProfile.value;
     if (profile == null) {
       throw Exception('User is not authenticated');
     }
@@ -55,7 +55,7 @@ class ReferralsController extends _$ReferralsController {
 
   /// Redeems a referral code. Returns error message if fails, null on success.
   Future<String?> applyReferral(String code) async {
-    final current = state.valueOrNull;
+    final current = state.value;
     if (current == null) return 'Session expired. Please sign in again.';
 
     // 1. Set loading state

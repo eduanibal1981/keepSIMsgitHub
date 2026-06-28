@@ -581,6 +581,22 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
   Future<Result<List<TopupExecution>>> getExecutionsForLine(
     String simLineId,
   ) async {
+    final cacheKey = 'cached_executions_$simLineId';
+
+    if (_connectivity.isOffline) {
+      final cached = _cache.readJson(cacheKey);
+      if (cached is List) {
+        return Success(
+          cached
+              .map(
+                (json) => TopupExecution.fromJson(json as Map<String, dynamic>),
+              )
+              .toList(),
+        );
+      }
+      return const Success([]);
+    }
+
     try {
       final userId = _client.auth.currentUser?.id;
       if (userId == null) {
@@ -600,11 +616,37 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
           .map((json) => TopupExecution.fromJson(json as Map<String, dynamic>))
           .toList();
 
+      await _cache.writeJson(cacheKey, response);
       return Success(list);
     } on PostgrestException catch (e) {
+      final cached = _cache.readJson(cacheKey);
+      if (cached is List) {
+        return Success(
+          cached
+              .map(
+                (json) => TopupExecution.fromJson(json as Map<String, dynamic>),
+              )
+              .toList(),
+        );
+      }
       return Failure(AppFailure.server(message: e.message));
     } catch (e) {
-      return Failure(AppFailure.unknown(message: e.toString()));
+      final cached = _cache.readJson(cacheKey);
+      if (cached is List) {
+        return Success(
+          cached
+              .map(
+                (json) => TopupExecution.fromJson(json as Map<String, dynamic>),
+              )
+              .toList(),
+        );
+      }
+      final errStr = e.toString();
+      if (errStr.contains('SocketException') ||
+          errStr.contains('Failed host lookup')) {
+        return const Failure(AppFailure.network());
+      }
+      return Failure(AppFailure.unknown(message: errStr));
     }
   }
 

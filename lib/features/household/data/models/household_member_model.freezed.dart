@@ -15,8 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$HouseholdMember {
 
- String get id;@JsonKey(name: 'owner_id') String get ownerId;@JsonKey(name: 'member_email') String get memberEmail;@JsonKey(name: 'member_id') String? get memberId; String get role;@JsonKey(name: 'invite_status') String get inviteStatus;@JsonKey(name: 'invited_at') DateTime get invitedAt;@JsonKey(name: 'accepted_at') DateTime? get acceptedAt;@JsonKey(name: 'created_at') DateTime get createdAt;// UI Helpers populated via joins
-@JsonKey(name: 'owner_name') String? get ownerName;@JsonKey(name: 'member_name') String? get memberName;@JsonKey(name: 'member_avatar') String? get memberAvatar;
+ String get id;@JsonKey(name: 'owner_id') String get ownerId;@JsonKey(name: 'member_email') String get memberEmail;@JsonKey(name: 'member_id') String? get memberId; String get role;@JsonKey(name: 'invite_status') String get inviteStatus;@JsonKey(name: 'invited_at') DateTime get invitedAt;@JsonKey(name: 'accepted_at') DateTime? get acceptedAt;@JsonKey(name: 'created_at') DateTime get createdAt;@JsonKey(name: 'owner_name') String? get ownerName;@JsonKey(name: 'member_name') String? get memberName;@JsonKey(name: 'member_avatar') String? get memberAvatar;
 /// Create a copy of HouseholdMember
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -233,7 +232,6 @@ class _HouseholdMember implements HouseholdMember {
 @override@JsonKey(name: 'invited_at') final  DateTime invitedAt;
 @override@JsonKey(name: 'accepted_at') final  DateTime? acceptedAt;
 @override@JsonKey(name: 'created_at') final  DateTime createdAt;
-// UI Helpers populated via joins
 @override@JsonKey(name: 'owner_name') final  String? ownerName;
 @override@JsonKey(name: 'member_name') final  String? memberName;
 @override@JsonKey(name: 'member_avatar') final  String? memberAvatar;

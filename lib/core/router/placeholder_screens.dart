@@ -7,13 +7,13 @@ library;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:keep_sims/l10n/app_localizations.dart';
 import 'package:video_player/video_player.dart';
 import 'package:keep_sims/core/router/app_router.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/core/utils/build_context_extension.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
-
 // ── Splash Screen ─────────────────────────────────────────────
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -303,21 +303,21 @@ class AppShell extends StatelessWidget {
               context.go(AppRoutes.settings);
           }
         },
-        items: const [
+        items: [
           CurvedNavigationBarItem(
             icon: Icons.dashboard_outlined,
             selectedIcon: Icons.dashboard_rounded,
-            label: 'Home',
+            label: AppLocalizations.of(context)!.navHome,
           ),
           CurvedNavigationBarItem(
             icon: Icons.sim_card_outlined,
             selectedIcon: Icons.sim_card_rounded,
-            label: 'SIMs',
+            label: AppLocalizations.of(context)!.navSims,
           ),
           CurvedNavigationBarItem(
             icon: Icons.menu_rounded,
             selectedIcon: Icons.menu_rounded,
-            label: 'More',
+            label: AppLocalizations.of(context)!.navMore,
           ),
         ],
       ),
@@ -344,12 +344,14 @@ class CurvedNavigationBarPainter extends CustomPainter {
   final int itemCount;
   final Color backgroundColor;
   final Color borderColor;
+  final TextDirection textDirection;
 
   CurvedNavigationBarPainter({
     required this.activeIndex,
     required this.itemCount,
     required this.backgroundColor,
     required this.borderColor,
+    required this.textDirection,
   });
 
   @override
@@ -369,7 +371,9 @@ class CurvedNavigationBarPainter extends CustomPainter {
     final singleWidth = width / itemCount;
 
     // Calculate animated center X position of active tab
-    final x = (activeIndex + 0.5) * singleWidth;
+    final isRtl = textDirection == TextDirection.rtl;
+    final effectiveIndex = isRtl ? (itemCount - 1 - activeIndex) : activeIndex;
+    final x = (effectiveIndex + 0.5) * singleWidth;
 
     const R = 38.0; // Radius of cutout
     const D = 25.0; // Depth of cutout
@@ -423,7 +427,8 @@ class CurvedNavigationBarPainter extends CustomPainter {
   bool shouldRepaint(covariant CurvedNavigationBarPainter oldDelegate) {
     return oldDelegate.activeIndex != activeIndex ||
         oldDelegate.backgroundColor != backgroundColor ||
-        oldDelegate.borderColor != borderColor;
+        oldDelegate.borderColor != borderColor ||
+        oldDelegate.textDirection != textDirection;
   }
 }
 
@@ -486,6 +491,7 @@ class _CurvedBottomNavigationBarState extends State<CurvedBottomNavigationBar>
 
   @override
   Widget build(BuildContext context) {
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
     final width = MediaQuery.of(context).size.width;
     final singleWidth = width / widget.items.length;
     final bottomPadding = MediaQuery.paddingOf(context).bottom;
@@ -493,7 +499,9 @@ class _CurvedBottomNavigationBarState extends State<CurvedBottomNavigationBar>
     return AnimatedBuilder(
       animation: _animation,
       builder: (context, child) {
-        final activeX = (_animation.value + 0.5) * singleWidth;
+        final effectiveIndex = isRtl
+            ? (widget.items.length - 1 - _animation.value)
+            : _animation.value;
 
         return Container(
           height: 85.0 + bottomPadding,
@@ -512,6 +520,7 @@ class _CurvedBottomNavigationBarState extends State<CurvedBottomNavigationBar>
                       borderColor: context.onSurfaceColor.withValues(
                         alpha: 0.08,
                       ),
+                      textDirection: Directionality.of(context),
                     ),
                   ),
                 ),
@@ -519,7 +528,7 @@ class _CurvedBottomNavigationBarState extends State<CurvedBottomNavigationBar>
 
               // Floating Active Icon Circle with glow shadow
               Positioned(
-                left: activeX - 30, // center 60px wide circle
+                left: (effectiveIndex + 0.5) * singleWidth - 30, // center 60px wide circle
                 top: -15, // float elevated
                 child: Container(
                   width: 60,

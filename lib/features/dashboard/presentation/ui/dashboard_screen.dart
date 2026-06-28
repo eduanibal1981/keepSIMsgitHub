@@ -23,6 +23,9 @@ import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_
 import 'package:keep_sims/features/dashboard/presentation/widgets/dashboard_sim_line_card.dart';
 import 'package:keep_sims/features/notifications/presentation/controllers/notifications_controller.dart';
 import 'package:keep_sims/features/household/presentation/controllers/household_controller.dart';
+import 'package:keep_sims/l10n/app_localizations.dart';
+import 'package:keep_sims/core/providers/locale_provider.dart';
+import 'package:keep_sims/features/notifications/presentation/controllers/notification_settings_controller.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -253,7 +256,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Welcome Back',
+                AppLocalizations.of(context)!.welcomeBack,
                 style: AppTextStyles.bodySmall.copyWith(
                   color: context.onSurfaceColor.withValues(alpha: 0.6),
                 ),
@@ -268,6 +271,19 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           ),
         ),
         
+        // Language Selector Icon Button
+        IconButton(
+          icon: const Icon(Icons.translate_rounded, size: 22),
+          color: context.onSurfaceColor.withValues(alpha: 0.8),
+          tooltip: 'App Language',
+          onPressed: () async {
+            await HapticHelper.lightTick();
+            if (context.mounted) {
+              _showLanguageSelector(context);
+            }
+          },
+        ),
+
         // Help Icon Button
         IconButton(
           icon: const Icon(Icons.help_outline_rounded, size: 22),
@@ -306,6 +322,127 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           },
         ),
       ],
+    );
+  }
+
+  // ── Help Modal Sheet ───────────────────────────────────────────
+  void _showLanguageSelector(BuildContext context) {
+    final currentLang = ref.read(localeControllerProvider).languageCode;
+    final languages = [
+      {'code': 'en', 'name': 'English (US)', 'flag': '🇺🇸'},
+      {'code': 'es', 'name': 'Español (Spanish)', 'flag': '🇪🇸'},
+      {'code': 'hi', 'name': 'हिन्दी (Hindi)', 'flag': '🇮🇳'},
+      {'code': 'ur', 'name': 'اردو (Urdu)', 'flag': '🇵🇰'},
+      {'code': 'tr', 'name': 'Türkçe (Turkish)', 'flag': '🇹🇷'},
+      {'code': 'si', 'name': 'සිංහල (Sinhala)', 'flag': '🇱🇰'},
+      {'code': 'ne', 'name': 'नेपाली (Nepali)', 'flag': '🇳🇵'},
+      {'code': 'bn', 'name': 'বাংলা (Bengali)', 'flag': '🇧🇩'},
+      {'code': 'ar', 'name': 'العربية (Arabic)', 'flag': '🇦🇪'},
+    ];
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.all(24.0),
+          decoration: BoxDecoration(
+            color: context.scaffoldBackgroundColor,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+            border: Border.all(
+              color: context.onSurfaceColor.withValues(alpha: 0.08),
+              width: 1.5,
+            ),
+          ),
+          child: SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  AppLocalizations.of(context)!.selectAppLanguage,
+                  style: AppTextStyles.titleLarge.copyWith(
+                    color: context.onSurfaceColor,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Flexible(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: languages.map((lang) {
+                        final isSelected = lang['code'] == currentLang;
+                        return InkWell(
+                          onTap: () async {
+                            await HapticHelper.mediumImpact();
+                            ref
+                                .read(userPreferencesControllerProvider.notifier)
+                                .updateLanguage(lang['code']!);
+                            ref
+                                .read(localeControllerProvider.notifier)
+                                .setLocale(Locale(lang['code']!));
+                            if (context.mounted) {
+                              Navigator.pop(context);
+                            }
+                            await HapticHelper.successFeedback();
+                          },
+                          borderRadius: BorderRadius.circular(16),
+                          child: Container(
+                            margin: const EdgeInsets.symmetric(vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 14,
+                            ),
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? context.onSurfaceColor.withValues(alpha: 0.05)
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: isSelected
+                                    ? const Color(0xFF6366F1).withValues(alpha: 0.3)
+                                    : Colors.transparent,
+                                width: 1,
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Text(
+                                  lang['flag']!,
+                                  style: const TextStyle(fontSize: 24),
+                                ),
+                                const SizedBox(width: 16),
+                                Text(
+                                  lang['name']!,
+                                  style: AppTextStyles.bodyMedium.copyWith(
+                                    color: context.onSurfaceColor,
+                                    fontWeight: isSelected
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                  ),
+                                ),
+                                const Spacer(),
+                                if (isSelected)
+                                  const Icon(
+                                    Icons.check_circle_rounded,
+                                    color: Color(0xFF6366F1),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -675,7 +812,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                   ),
                                 ),
                                 Text(
-                                  isHourlyMode ? 'mins' : 'days',
+                                  isHourlyMode ? 'mins' : AppLocalizations.of(context)!.days,
                                   style: AppTextStyles.caption.copyWith(
                                     color: isDark
                                         ? AppColors.textSecondaryDark
@@ -699,16 +836,21 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(
-                                    isPremium ? 'NEXT TOP-UP' : 'NEXT NOTIFY',
-                                    style: AppTextStyles.labelSmall.copyWith(
-                                      color: isDark
-                                          ? AppColors.textSecondaryDark
-                                          : AppColors.textSecondaryLight,
-                                      fontWeight: FontWeight.bold,
-                                      letterSpacing: 1.2,
+                                  Expanded(
+                                    child: Text(
+                                      isPremium ? 'NEXT TOP-UP' : AppLocalizations.of(context)!.nextNotify,
+                                      style: AppTextStyles.labelSmall.copyWith(
+                                        color: isDark
+                                            ? AppColors.textSecondaryDark
+                                            : AppColors.textSecondaryLight,
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: 1.2,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
+                                  const SizedBox(width: 8),
                                   if (data.nextTopUpDate != null)
                                     Container(
                                       padding: const EdgeInsets.symmetric(
@@ -722,7 +864,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                         borderRadius: BorderRadius.circular(6),
                                       ),
                                       child: Text(
-                                        'Active',
+                                        AppLocalizations.of(context)!.active,
                                         style: AppTextStyles.labelSmall
                                             .copyWith(
                                               color: AppColors.success,
@@ -775,7 +917,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Showing nearest line',
+                          AppLocalizations.of(context)!.showingNearestLine,
                           style: AppTextStyles.caption.copyWith(
                             color:
                                 (isDark
@@ -811,7 +953,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     String currentUserId,
   ) {
     final simLinesState = ref.watch(simLinesControllerProvider);
-    final householdState = ref.watch(householdControllerProvider).valueOrNull;
+    final householdState = ref.watch(householdControllerProvider).value;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -820,7 +962,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Lines to Protect',
+              AppLocalizations.of(context)!.linesToProtect,
               style: AppTextStyles.headlineSmall.copyWith(
                 color: context.onSurfaceColor,
               ),
@@ -831,7 +973,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 color: AppColors.primary,
               ),
               label: Text(
-                'Add SIM',
+                AppLocalizations.of(context)!.addSim,
                 style: AppTextStyles.labelLarge.copyWith(
                   color: AppColors.primary,
                   fontWeight: FontWeight.bold,
@@ -1010,7 +1152,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Quick Actions',
+          AppLocalizations.of(context)!.quickActions,
           style: AppTextStyles.headlineSmall.copyWith(
             color: context.onSurfaceColor,
           ),
@@ -1021,7 +1163,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             _buildQuickActionCard(
               context,
               icon: Icons.wifi_off_rounded,
-              label: 'Offline Refill',
+              label: AppLocalizations.of(context)!.offlineRefillLabel,
               color: Colors.deepOrangeAccent,
               onTap: () async {
                 await HapticHelper.lightTick();
@@ -1032,7 +1174,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             _buildQuickActionCard(
               context,
               icon: Icons.account_balance_wallet_rounded,
-              label: 'Wallet',
+              label: AppLocalizations.of(context)!.wallet,
               color: const Color(0xFF14B8A6),
               onTap: () async {
                 await HapticHelper.lightTick();
@@ -1043,7 +1185,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             _buildQuickActionCard(
               context,
               icon: Icons.support_agent_rounded,
-              label: 'Open Ticket',
+              label: AppLocalizations.of(context)!.openTicket,
               color: Colors.blueAccent,
               onTap: () async {
                 await HapticHelper.lightTick();

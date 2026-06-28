@@ -149,11 +149,11 @@ class ScheduledTopupController extends _$ScheduledTopupController {
 /// Helper provider to get schedule for a specific SIM line.
 @riverpod
 ScheduledTopup? scheduledTopupForLine(
-  ScheduledTopupForLineRef ref,
+  Ref ref,
   String simLineId,
 ) {
   final schedulesAsync = ref.watch(scheduledTopupControllerProvider);
-  final list = schedulesAsync.valueOrNull;
+  final list = schedulesAsync.value;
   if (list == null) return null;
   for (final s in list) {
     if (s.simLineId == simLineId) return s;
@@ -164,11 +164,11 @@ ScheduledTopup? scheduledTopupForLine(
 /// Helper provider to get Notify schedule for a specific SIM line.
 @riverpod
 ScheduledTopup? scheduledNotifyForLine(
-  ScheduledNotifyForLineRef ref,
+  Ref ref,
   String simLineId,
 ) {
   final schedulesAsync = ref.watch(scheduledTopupControllerProvider);
-  final list = schedulesAsync.valueOrNull;
+  final list = schedulesAsync.value;
   if (list == null) return null;
   for (final s in list) {
     if (s.simLineId == simLineId && s.scheduleType == 'notify') return s;
@@ -179,11 +179,11 @@ ScheduledTopup? scheduledNotifyForLine(
 /// Helper provider to get Custom Refill schedule for a specific SIM line.
 @riverpod
 ScheduledTopup? scheduledCustomRefillForLine(
-  ScheduledCustomRefillForLineRef ref,
+  Ref ref,
   String simLineId,
 ) {
   final schedulesAsync = ref.watch(scheduledTopupControllerProvider);
-  final list = schedulesAsync.valueOrNull;
+  final list = schedulesAsync.value;
   if (list == null) return null;
   for (final s in list) {
     if (s.simLineId == simLineId && s.scheduleType == 'refill custom') return s;
@@ -194,11 +194,11 @@ ScheduledTopup? scheduledCustomRefillForLine(
 /// Helper provider to get Mini Refill schedule for a specific SIM line.
 @riverpod
 ScheduledTopup? scheduledMiniRefillForLine(
-  ScheduledMiniRefillForLineRef ref,
+  Ref ref,
   String simLineId,
 ) {
   final schedulesAsync = ref.watch(scheduledTopupControllerProvider);
-  final list = schedulesAsync.valueOrNull;
+  final list = schedulesAsync.value;
   if (list == null) return null;
   for (final s in list) {
     if (s.simLineId == simLineId && s.scheduleType == 'refill mini') return s;
@@ -209,7 +209,7 @@ ScheduledTopup? scheduledMiniRefillForLine(
 /// Family provider to watch execution history for a SIM Line.
 @riverpod
 FutureOr<List<TopupExecution>> topupExecutionsForLine(
-  TopupExecutionsForLineRef ref,
+  Ref ref,
   String simLineId,
 ) async {
   final repo = ref.watch(scheduledTopupRepositoryProvider);
@@ -255,7 +255,7 @@ class SimLineExecutionsHistory extends _$SimLineExecutionsHistory {
     if (_isLoadingMore || !_hasMore) return;
 
     _isLoadingMore = true;
-    final currentList = state.valueOrNull ?? [];
+    final currentList = state.value ?? [];
 
     try {
       final nextPage = _currentPage + 1;

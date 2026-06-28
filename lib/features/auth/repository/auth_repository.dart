@@ -99,7 +99,100 @@ class AuthRepository implements AuthContract {
     } on PostgrestException catch (e) {
       return Failure(AppFailure.server(message: e.message));
     } catch (e) {
-      return Failure(AppFailure.unknown(message: e.toString()));
+      return _handleException(e);
+    }
+  }
+
+  // ── Email/Password Sign-In ───────────────────────────────────
+
+  @override
+  Future<Result<UserProfile>> signInWithEmailAndPassword(
+      String email, String password) async {
+    try {
+      final response = await _client.auth.signInWithPassword(
+        email: email,
+        password: password,
+      );
+
+      if (response.user == null) {
+        return const Failure(
+          AppFailure.auth(message: 'Sign-in failed. No user returned.'),
+        );
+      }
+
+      // Fetch the profile created by the DB trigger
+      return getCurrentProfile();
+    } on AuthException catch (e) {
+      if (e.message.toLowerCase().contains('email not confirmed')) {
+        return const Failure(AppFailure.auth(
+            message: 'Email not confirmed. Please check your inbox and verify your email.'));
+      }
+      return Failure(AppFailure.auth(message: e.message));
+    } on PostgrestException catch (e) {
+      return Failure(AppFailure.server(message: e.message));
+    } catch (e) {
+      return _handleException(e);
+    }
+  }
+
+  @override
+  Future<Result<void>> signUpWithEmailAndPassword(
+      String email, String password) async {
+    try {
+      final response = await _client.auth.signUp(
+        email: email,
+        password: password,
+        emailRedirectTo: 'io.supabase.keepsims://login-callback/',
+      );
+
+      if (response.user == null) {
+        return const Failure(
+          AppFailure.auth(message: 'Sign-up failed. No user returned.'),
+        );
+      }
+
+      return const Success(null);
+    } on AuthException catch (e) {
+      return Failure(AppFailure.auth(message: e.message));
+    } on PostgrestException catch (e) {
+      return Failure(AppFailure.server(message: e.message));
+    } catch (e) {
+      return _handleException(e);
+    }
+  }
+
+  @override
+  Future<Result<void>> resendConfirmationEmail(String email) async {
+    try {
+      await _client.auth.resend(
+        type: OtpType.signup,
+        email: email,
+        emailRedirectTo: 'io.supabase.keepsims://login-callback/',
+      );
+      return const Success(null);
+    } on AuthException catch (e) {
+      return Failure(AppFailure.auth(message: e.message));
+    } catch (e) {
+      return _handleException(e);
+    }
+  }
+
+  @override
+  Future<Result<void>> verifyOTP(String email, String token) async {
+    try {
+      final response = await _client.auth.verifyOTP(
+        type: OtpType.signup,
+        email: email,
+        token: token,
+      );
+      if (response.session == null && response.user == null) {
+        return const Failure(AppFailure.auth(message: 'Verification failed. No user returned.'));
+      }
+      return const Success(null);
+    } on AuthException catch (e) {
+      return Failure(AppFailure.auth(message: e.message));
+    } catch (e) {
+      return _handleException(e);
     }
   }
 
@@ -121,7 +214,7 @@ class AuthRepository implements AuthContract {
       return Failure(AppFailure.auth(message: e.message));
     } catch (e) {
       await _cache.remove('cached_user_profile');
-      return Failure(AppFailure.unknown(message: e.toString()));
+      return _handleException(e);
     }
   }
 
@@ -174,7 +267,7 @@ class AuthRepository implements AuthContract {
       if (cached != null) {
         return Success(UserProfile.fromJson(cached as Map<String, dynamic>));
       }
-      return Failure(AppFailure.unknown(message: e.toString()));
+      return _handleException(e);
     }
   }
 
@@ -186,4 +279,20 @@ class AuthRepository implements AuthContract {
   @override
   Stream<String?> get authStateChanges =>
       _client.auth.onAuthStateChange.map((data) => data.session?.user.id);
+
+  Failure<T> _handleException<T>(Object e) {
+    final errStr = e.toString();
+    if (errStr.contains('SocketException') ||
+        errStr.contains('Failed host lookup') ||
+        errStr.contains('ClientException') ||
+        errStr.contains('Network_error') ||
+        errStr.contains('connection closed') ||
+        errStr.contains('connection failed') ||
+        errStr.contains('handshake') ||
+        errStr.contains('connection timed out') ||
+        errStr.contains('network is unreachable')) {
+      return const Failure(AppFailure.network());
+    }
+    return Failure(AppFailure.unknown(message: errStr));
+  }
 }

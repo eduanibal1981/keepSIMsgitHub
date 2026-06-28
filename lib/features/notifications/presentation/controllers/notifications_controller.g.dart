@@ -6,46 +6,104 @@ part of 'notifications_controller.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$unreadNotificationsCountHash() =>
-    r'524a452b828741d0f78eaf13165e4aa82352b245';
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
+
+@ProviderFor(NotificationsController)
+final notificationsControllerProvider = NotificationsControllerProvider._();
+
+final class NotificationsControllerProvider
+    extends
+        $AsyncNotifierProvider<NotificationsController, List<AppNotification>> {
+  NotificationsControllerProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'notificationsControllerProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$notificationsControllerHash();
+
+  @$internal
+  @override
+  NotificationsController create() => NotificationsController();
+}
+
+String _$notificationsControllerHash() =>
+    r'8ab5082230ce0e75940de11e95330fc85eb1d29f';
+
+abstract class _$NotificationsController
+    extends $AsyncNotifier<List<AppNotification>> {
+  FutureOr<List<AppNotification>> build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref =
+        this.ref
+            as $Ref<AsyncValue<List<AppNotification>>, List<AppNotification>>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<
+                AsyncValue<List<AppNotification>>,
+                List<AppNotification>
+              >,
+              AsyncValue<List<AppNotification>>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
 
 /// Helper provider to get unread notification count.
-///
-/// Copied from [unreadNotificationsCount].
+
 @ProviderFor(unreadNotificationsCount)
-final unreadNotificationsCountProvider = AutoDisposeProvider<int>.internal(
-  unreadNotificationsCount,
-  name: r'unreadNotificationsCountProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$unreadNotificationsCountHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+final unreadNotificationsCountProvider = UnreadNotificationsCountProvider._();
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef UnreadNotificationsCountRef = AutoDisposeProviderRef<int>;
-String _$notificationsControllerHash() =>
-    r'02328d361d3a978e8ceab52c1efe84a63d267a6a';
+/// Helper provider to get unread notification count.
 
-/// See also [NotificationsController].
-@ProviderFor(NotificationsController)
-final notificationsControllerProvider =
-    AutoDisposeAsyncNotifierProvider<
-      NotificationsController,
-      List<AppNotification>
-    >.internal(
-      NotificationsController.new,
-      name: r'notificationsControllerProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$notificationsControllerHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
+final class UnreadNotificationsCountProvider
+    extends $FunctionalProvider<int, int, int>
+    with $Provider<int> {
+  /// Helper provider to get unread notification count.
+  UnreadNotificationsCountProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'unreadNotificationsCountProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$unreadNotificationsCountHash();
+
+  @$internal
+  @override
+  $ProviderElement<int> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  int create(Ref ref) {
+    return unreadNotificationsCount(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(int value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<int>(value),
     );
+  }
+}
 
-typedef _$NotificationsController =
-    AutoDisposeAsyncNotifier<List<AppNotification>>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
+String _$unreadNotificationsCountHash() =>
+    r'830ae0bd04db6fe9b8ac6cc424595e0cbf016b9d';

@@ -9,6 +9,7 @@ import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_
 import 'package:keep_sims/features/wallet/controller/wallet_controller.dart';
 import '../controller/offline_refill_controller.dart';
 import '../model/offline_refill_model.dart';
+import 'package:keep_sims/l10n/app_localizations.dart';
 
 class OfflineRefillScreen extends ConsumerStatefulWidget {
   final String? simLineId;
@@ -44,14 +45,14 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
     _isInit = true;
   }
 
-  String _getCarrierLabel(String? carrierId) {
-    if (carrierId == null) return 'CARRIER';
+  String _getCarrierLabel(BuildContext context, String? carrierId) {
+    if (carrierId == null) return AppLocalizations.of(context)!.carrier;
     final cid = carrierId.toLowerCase();
     if (cid.contains('ooredoo')) return 'OOREDOO';
     if (cid.contains('omantel')) return 'OMANTEL';
     if (cid.contains('vodafone')) return 'VODAFONE';
     if (cid.contains('orange')) return 'ORANGE';
-    return 'CARRIER';
+    return AppLocalizations.of(context)!.carrier;
   }
 
   void _showSimLinePickerSheet(BuildContext context, List<dynamic> simLines) {
@@ -109,7 +110,7 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
                   ),
                   const SizedBox(width: 14),
                   Text(
-                    'Select Target SIM Line',
+                    AppLocalizations.of(context)!.selectTargetSimLine,
                     style: AppTextStyles.headlineMedium.copyWith(
                       color: context.onSurfaceColor,
                       fontWeight: FontWeight.bold,
@@ -124,7 +125,7 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
                   padding: const EdgeInsets.symmetric(vertical: 24.0),
                   child: Center(
                     child: Text(
-                      'No registered SIM lines found.',
+                      AppLocalizations.of(context)!.noRegisteredSimLines,
                       style: TextStyle(
                         color: isDark
                             ? AppColors.textSecondaryDark
@@ -184,7 +185,7 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
                             ),
                           ),
                           title: Text(
-                            line.nickname ?? 'SIM Line',
+                            line.nickname ?? AppLocalizations.of(context)!.simLine,
                             style: TextStyle(
                               color: context.onSurfaceColor,
                               fontWeight: FontWeight.bold,
@@ -220,7 +221,7 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authControllerProvider);
-    final user = authState.valueOrNull;
+    final user = authState.value;
 
     // Check Premium subscription restriction
     final bool isPremium = true;
@@ -240,7 +241,7 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
           onPressed: () => context.pop(),
         ),
         title: Text(
-          'Offline Refill (SMS/WA)',
+          AppLocalizations.of(context)!.offlineRefillTitle,
           style: AppTextStyles.titleLarge.copyWith(
             color: context.onSurfaceColor,
             fontWeight: FontWeight.bold,
@@ -293,7 +294,7 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
           ),
           const SizedBox(height: 36),
           Text(
-            'Offline Refill Protection',
+            AppLocalizations.of(context)!.offlineRefillProtection,
             style: AppTextStyles.headlineMedium.copyWith(
               color: context.onSurfaceColor,
               fontWeight: FontWeight.bold,
@@ -310,9 +311,9 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
               ),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Text(
-              'PREMIUM EXCLUSIVE',
-              style: TextStyle(
+            child: Text(
+              AppLocalizations.of(context)!.premiumExclusive,
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 10,
                 fontWeight: FontWeight.bold,
@@ -322,7 +323,7 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
           ),
           const SizedBox(height: 24),
           Text(
-            'Never get stranded without mobile data again. SIM Shield Premium allows you to refill your SIM card balance offline over standard local SMS or WhatsApp messages when you have zero internet connection.',
+            AppLocalizations.of(context)!.neverGetStrandedDesc,
             style: AppTextStyles.bodyMedium.copyWith(
               color: isDark
                   ? AppColors.textSecondaryDark
@@ -335,23 +336,23 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
           // Feature highlights List
           _buildFeatureHighlightRow(
             icon: Icons.wifi_off_rounded,
-            title: '100% Offline Capability',
+            title: AppLocalizations.of(context)!.offlineCapability100,
             subtitle:
-                'Deducts from your SIM Shield wallet to credit your line via local SMS gateway failovers.',
+                AppLocalizations.of(context)!.deductsFromKeepSIMsDesc,
           ),
           const SizedBox(height: 20),
           _buildFeatureHighlightRow(
             icon: Icons.dialpad_rounded,
-            title: 'Dynamic USSD Plan Activation',
+            title: AppLocalizations.of(context)!.dynamicUssdPlanActivation,
             subtitle:
-                'Provides exact copy-paste dial codes (e.g., *900*1#) to activate Data+Call packages offline.',
+                AppLocalizations.of(context)!.exactCopyPasteDialCodesDesc,
           ),
           const SizedBox(height: 20),
           _buildFeatureHighlightRow(
             icon: Icons.sms_outlined,
-            title: 'Dual-Channel Support',
+            title: AppLocalizations.of(context)!.dualChannelSupport,
             subtitle:
-                'Text "REFILL" using standard SMS or WhatsApp depending on what cellular coverage is available.',
+                AppLocalizations.of(context)!.textRefillDesc,
           ),
           const SizedBox(height: 48),
           // Upgrade Button
@@ -382,7 +383,7 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
                   ),
                 ),
                 child: Text(
-                  'Close',
+                  AppLocalizations.of(context)!.close,
                   style: AppTextStyles.titleMedium.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -467,8 +468,8 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
       data: (settings) {
         _loadSettings(settings);
 
-        final simLines = simLinesState.valueOrNull ?? [];
-        final walletBalance = walletState.valueOrNull?.wallet.balance ?? 0.00;
+        final simLines = simLinesState.value ?? [];
+        final walletBalance = walletState.value?.wallet.balance ?? 0.00;
 
         // Find currently selected SIM line model to fetch carrier USSDSuggestions
         final activeSim = simLines.isEmpty
@@ -514,7 +515,7 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            'How to Trigger Offline Refill',
+                            AppLocalizations.of(context)!.howToTriggerOfflineRefill,
                             style: AppTextStyles.titleMedium.copyWith(
                               color: context.onSurfaceColor,
                               fontWeight: FontWeight.bold,
@@ -532,19 +533,19 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
                                 : AppColors.textSecondaryLight,
                             height: 1.5,
                           ),
-                          children: const [
+                          children: [
                             TextSpan(
                               text:
-                                  'If you have zero mobile data, send a standard SMS or WhatsApp message containing only ',
+                                  AppLocalizations.of(context)!.ifZeroMobileDataDesc1,
                             ),
                             TextSpan(
-                              text: 'REFILL',
-                              style: TextStyle(
+                              text: AppLocalizations.of(context)!.refill,
+                              style: const TextStyle(
                                 color: Colors.deepOrangeAccent,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            TextSpan(text: ' to our secure system gateway:'),
+                            TextSpan(text: AppLocalizations.of(context)!.toOurSecureGatewayDesc2),
                           ],
                         ),
                       ),
@@ -593,7 +594,7 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
               // ── Target SIM Line Card (Interactive Selector) ─────────
               if (activeSim != null) ...[
                 Text(
-                  'TARGET SIM LINE',
+                  AppLocalizations.of(context)!.targetSimLineLabel,
                   style: AppTextStyles.bodySmall.copyWith(
                     color: isDark
                         ? AppColors.textSecondaryDark
@@ -632,13 +633,13 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
                             size: 24,
                           ),
                         ),
-                        const SizedBox(width: 14),
+                const SizedBox(width: 14),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                activeSim.nickname ?? 'Target SIM Line',
+                                activeSim.nickname ?? AppLocalizations.of(context)!.targetSimLine,
                                 style: TextStyle(
                                   color: context.onSurfaceColor,
                                   fontWeight: FontWeight.bold,
@@ -677,7 +678,7 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
                                   ),
                                 ),
                                 child: Text(
-                                  _getCarrierLabel(activeSim.carrierId),
+                                  _getCarrierLabel(context, activeSim.carrierId),
                                   style: const TextStyle(
                                     color: Colors.blueAccent,
                                     fontSize: 11,
@@ -692,7 +693,7 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Text(
-                                  'Change',
+                                  AppLocalizations.of(context)!.change,
                                   style: AppTextStyles.labelSmall.copyWith(
                                     color: Colors.purpleAccent,
                                     fontWeight: FontWeight.bold,
@@ -717,7 +718,7 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
 
               // ── Default Refill Amount Config ────────────────────────
               Text(
-                'CONFIGURE CASH REFILL AMOUNT',
+                AppLocalizations.of(context)!.configureCashRefillAmount,
                 style: AppTextStyles.bodySmall.copyWith(
                   color: isDark
                       ? AppColors.textSecondaryDark
@@ -746,7 +747,7 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Refill Amount',
+                          AppLocalizations.of(context)!.refillAmount,
                           style: AppTextStyles.bodyMedium.copyWith(
                             color: context.onSurfaceColor,
                             fontWeight: FontWeight.bold,
@@ -820,7 +821,7 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            'Wallet Balance: \$${walletBalance.toStringAsFixed(2)} USD',
+                            AppLocalizations.of(context)!.walletBalanceUsd(walletBalance.toStringAsFixed(2)),
                             style: TextStyle(
                               color: walletBalance < _refillAmount
                                   ? AppColors.error
@@ -833,8 +834,8 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
                         ),
                         if (walletBalance < _refillAmount)
                           Text(
-                            '⚠️ Low Balance',
-                            style: TextStyle(
+                            AppLocalizations.of(context)!.lowBalanceWarning,
+                            style: const TextStyle(
                               color: AppColors.error,
                               fontSize: 13,
                               fontWeight: FontWeight.bold,
@@ -850,7 +851,7 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
               // ── USSD Plan Suggestions Guide Card ───────────────────
               if (activeSim != null && activeSim.carrierId != null) ...[
                 Text(
-                  'LOCAL CARRIER PLAN SUGGESTIONS',
+                  AppLocalizations.of(context)!.localCarrierPlanSuggestions,
                   style: AppTextStyles.bodySmall.copyWith(
                     color: isDark
                         ? AppColors.textSecondaryDark
@@ -874,7 +875,7 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
                               borderRadius: BorderRadius.circular(16),
                             ),
                             child: Text(
-                              'No standard USSD dial codes found for this carrier. You will still receive the cash refill successfully on your line.',
+                              AppLocalizations.of(context)!.noStandardUssdDialCodes,
                               style: AppTextStyles.bodySmall.copyWith(
                                 color: isDark
                                     ? AppColors.textSecondaryDark
@@ -901,7 +902,7 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Dynamic Dial Codes Preview',
+                                AppLocalizations.of(context)!.dynamicDialCodesPreview,
                                 style: AppTextStyles.titleMedium.copyWith(
                                   color: context.onSurfaceColor,
                                   fontWeight: FontWeight.bold,
@@ -910,7 +911,7 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
                               ),
                               const SizedBox(height: 6),
                               Text(
-                                'After the offline refill completes, the bot will suggest dialing these exact codes on your phone to instantly unlock Data+Calls offline:',
+                                AppLocalizations.of(context)!.botSuggestDialingCodes,
                                 style: AppTextStyles.bodySmall.copyWith(
                                   color: isDark
                                       ? AppColors.textSecondaryDark
@@ -963,7 +964,7 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
                                               overflow: TextOverflow.ellipsis,
                                             ),
                                             Text(
-                                              'Cost: \$${s.cost.toStringAsFixed(2)}',
+                                              AppLocalizations.of(context)!.costAmount('\$${s.cost.toStringAsFixed(2)}'),
                                               style: TextStyle(
                                                 color: isDark
                                                     ? AppColors
@@ -1002,7 +1003,7 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
 
               // ── Custom Sender Phone Number Card ────────────────────
               Text(
-                'WHATSAPP/SMS SENDER OVERRIDE',
+                AppLocalizations.of(context)!.whatsappSmsSenderOverride,
                 style: AppTextStyles.bodySmall.copyWith(
                   color: isDark
                       ? AppColors.textSecondaryDark
@@ -1029,7 +1030,7 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Verification Number',
+                      AppLocalizations.of(context)!.verificationNumber,
                       style: AppTextStyles.bodyMedium.copyWith(
                         color: context.onSurfaceColor,
                         fontWeight: FontWeight.bold,
@@ -1037,7 +1038,7 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'If you trigger refills from a different number than your main profile phone, enter it below with country code (e.g. 96891234567).',
+                      AppLocalizations.of(context)!.triggerRefillsDifferentNumber,
                       style: AppTextStyles.bodySmall.copyWith(
                         color: isDark
                             ? AppColors.textSecondaryDark
@@ -1051,7 +1052,7 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
                       style: TextStyle(color: context.onSurfaceColor),
                       keyboardType: TextInputType.phone,
                       decoration: InputDecoration(
-                        hintText: 'Enter phone number (digits only)',
+                        hintText: AppLocalizations.of(context)!.enterPhoneNumberDigits,
                         hintStyle: TextStyle(
                           color: isDark
                               ? Colors.white.withOpacity(0.3)
@@ -1101,9 +1102,9 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
 
                     if (mounted && success) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
+                        SnackBar(
                           content: Text(
-                            'Offline Refill settings saved successfully!',
+                            AppLocalizations.of(context)!.offlineRefillSettingsSaved,
                           ),
                           backgroundColor: Colors.green,
                         ),
@@ -1112,7 +1113,7 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
                   },
                   icon: const Icon(Icons.save_rounded, color: Colors.white),
                   label: Text(
-                    'Save Settings',
+                    AppLocalizations.of(context)!.saveSettings,
                     style: AppTextStyles.titleMedium.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -1142,7 +1143,7 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                'Error loading settings: $err',
+                AppLocalizations.of(context)!.errorLoadingSettings(err.toString()),
                 style: const TextStyle(color: Colors.red, fontSize: 16),
                 textAlign: TextAlign.center,
               ),
@@ -1150,7 +1151,7 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen> {
               ElevatedButton(
                 onPressed: () =>
                     ref.invalidate(offlineRefillControllerProvider),
-                child: const Text('Retry'),
+                child: Text(AppLocalizations.of(context)!.retry),
               ),
             ],
           ),

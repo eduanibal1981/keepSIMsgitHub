@@ -1,0 +1,686 @@
+{
+    "@@locale": "bn",
+    "appName":  "KeepSIMs",
+    "@appName": {
+        "description": "The name of the application"
+    },
+    "preferencesAndSecurity": "পছন্দ & নিরাপত্তা",
+    "appAppearance": "অ্যাপের চেহারা",
+    "systemTheme": "সিস্টেম",
+    "darkMode": "ডার্ক মোড",
+    "lightMode": "লাইট মোড",
+    "localizationAndRegional": "স্থানীয়করণ & আঞ্চলিক",
+    "appLanguage": "অ্যাপের ভাষা",
+    "currentlyUsing": "বর্তমানে আঞ্চলিক {langName} ব্যবহার হচ্ছে",
+    "@currentlyUsing": {
+        "placeholders": {
+            "langName": {
+                "type": "String"
+            }
+        }
+    },
+    "selectAppLanguage": "অ্যাপের ভাষা নির্বাচন করুন",
+    "securityAndAccessLock": "নিরাপত্তা & অ্যাক্সেস লক",
+    "biometricSecurity": "বায়োমেট্রিক নিরাপত্তা",
+    "biometricDesc": "ফেস আইডি বা টাচ আইডি দিয়ে সাইন ইন করুন",
+    "transactionPin": "লেনদেন PIN",
+    "transactionPinDesc": "নবায়ন ও উত্তোলন সুরক্ষিত করুন",
+    "setup": "সেটআপ",
+    "pinSuccess": "লেনদেন PIN সফলভাবে আপডেট হয়েছে!",
+    "pinMismatch": "PIN মেলেনি। আবার চেষ্টা করুন!",
+    "pinActiveAndSecure": "PIN সেটআপ সক্রিয় ও সুরক্ষিত",
+    "automatedSummaryAndAlerts": "স্বয়ংক্রিয় সারসংক্ষেপ & সতর্কতা",
+    "weeklyDigest": "সাপ্তাহিক ডাইজেস্ট",
+    "welcomeBack": "স্বাগতম ফিরে",
+    "nextNotify": "পরবর্তী বিজ্ঞপ্তি",
+    "days": "দিন",
+    "showingNearestLine": "নিকটতম লাইন দেখানো হচ্ছে",
+    "addSim": "SIM যোগ করুন",
+    "linesToProtect": "সুরক্ষিত করার লাইন",
+    "active": "সক্রিয়",
+    "upgrade": "আপগ্রেড",
+    "standard": "স্ট্যান্ডার্ড",
+    "autoNotify": "স্বয়ং-বিজ্ঞপ্তি",
+    "configure": "কনফিগার করুন",
+    "autoRefill": "স্বয়ং-রিফিল",
+    "quickActions": "দ্রুত ক্রিয়া",
+    "navHome": "হোম",
+    "navSims": "SIM সমূহ",
+    "navMore": "আরও",
+    "protectedSims": "সুরক্ষিত SIM",
+    "mySimCards": "আমার SIM কার্ড",
+    "familySharedSims": "পরিবার ভাগ করা SIM",
+    "protectAnotherSimLine": "আরেকটি SIM লাইন সুরক্ষিত করুন",
+    "keepInfiniteNumbersAlive": "অসীম আন্তর্জাতিক নম্বর সক্রিয় রাখুন",
+    "bulkActionsConsole": "বাল্ক অ্যাকশন কনসোল",
+    "resume": "পুনরায় শুরু করুন",
+    "pause": "বিরতি দিন",
+    "simulate": "সিমুলেট করুন",
+    "noProtectedLines": "কোনো সুরক্ষিত লাইন নেই",
+    "noInternationalSimsAdded": "আপনি এখনও কোনো আন্তর্জাতিক SIM কার্ড যোগ করেননি। এটি চিরতরে সক্রিয় রাখতে এখনই আপনার প্রথম কার্ড সুরক্ষিত করুন।",
+    "protectNewLine": "নতুন লাইন সুরক্ষিত করুন",
+    "noSharedSimsYet": "এখনও কোনো শেয়ারড SIM নেই",
+    "inviteFamilyMembers": "আপনার পরিবারের সদস্যদের হাউজহোল্ডে যোগ দিতে আমন্ত্রণ জানান। তারা গ্রহণ করলে তাদের সুরক্ষিত SIM লাইনগুলি এখানে সহযোগিতামূলক পর্যবেক্ষণের জন্য দেখা যাবে।",
+    "manageHousehold": "পরিবার পরিচালনা করুন",
+    "manageProfileDesc": "আপনার প্রোফাইল, SIM লাইন, সতর্কতা ও ভাগ করা পছন্দ পরিচালনা করুন",
+    "keepSIMsUser": "KeepSIMs ব্যবহারকারী",
+    "pro": "PRO",
+    "homeCountry": "হোম দেশ: ",
+    "console": "কনসোল",
+    "offlineRefill": "অফলাইন রিফিল (SMS/WA)",
+    "refillSimOfflineDesc": "SMS বা WhatsApp এর মাধ্যমে অফলাইনে SIM ব্যালেন্স রিফিল করুন",
+    "wallet": "ওয়ালেট",
+    "manageBalancesDesc": "আপনার ব্যালেন্স পরিচালনা করুন এবং লেনদেনের ইতিহাস দেখুন",
+    "alertPreferences": "সতর্কতা পছন্দ",
+    "togglePushEmailDesc": "নবায়ন/ব্যালেন্সের জন্য পুশ & ইমেইল সেটিংস টগল করুন",
+    "referAndEarn": "রেফার করুন & উপার্জন করুন",
+    "shareKeepSIMsDesc": "KeepSIMs শেয়ার করুন, গতিশীল ব্যালেন্স পুরস্কার আনলক করুন",
+    "paymentMethods": "পেমেন্ট পদ্ধতি",
+    "addBankCardsDesc": "ব্যাংক কার্ড যোগ করুন বা স্বয়ং-উত্তোলন অ্যাকাউন্ট লিঙ্ক করুন",
+    "travelAndGeolocation": "ভ্রমণ & জিওলোকেশন",
+    "manageHomeCountryDesc": "হোম দেশ ফ্রিজ নিয়ম & ট্রাভেল মোড পরিচালনা করুন",
+    "dataAndPrivacy": "ডেটা & গোপনীয়তা",
+    "manageTrackingConsentDesc": "আপনার ট্র্যাকিং সম্মতি পরিচালনা করুন, ডেটা রপ্তানি করুন বা অ্যাকাউন্ট মুছুন",
+    "powerUser": "পাওয়ার ইউজার",
+    "accessSystemSimulatorsDesc": "সিস্টেম সিমুলেটর ও ডিবাগিং টুল অ্যাক্সেস করুন",
+    "testChecklist": "টেস্ট চেকলিস্ট",
+    "manualUiTestingDesc": "মান নিশ্চিতকরণের জন্য ম্যানুয়াল UI পরীক্ষার চেকলিস্ট",
+    "soon": "শীঘ্রই",
+    "featureComingSoon": "{feature} ফিচার শীঘ্রই আসছে!",
+    "@featureComingSoon": {
+        "placeholders": {
+            "feature": {
+                "type": "String"
+            }
+        }
+    },
+    "logOut": "লগ আউট",
+    "confirmLogOut": "আপনি কি KeepSIMs থেকে লগ আউট করতে চান?",
+    "walletLedger": "ওয়ালেট লেজার",
+    "keepSIMsPrepaid": "KeepSIMs প্রিপেইড",
+    "offlineMode": "অফলাইন মোড",
+    "activeBalance": "সক্রিয় ব্যালেন্স",
+    "criticalBalanceLevel": "জটিল ব্যালেন্স স্তর",
+    "balanceBelow10": "আপনার ব্যালেন্স $10.00-এর নিচে। নির্ধারিত SIM টপআপ শীঘ্রই ব্যর্থ হতে পারে।",
+    "depositFunds": "ফান্ড জমা করুন",
+    "walletDepositsRequireInternet": "ওয়ালেট ডিপোজিটের জন্য সক্রিয় ইন্টারনেট সংযোগ প্রয়োজন।",
+    "exportLedger": "লেজার রপ্তানি করুন",
+    "ledgerHistoryExported": "লেজার ইতিহাস CSV হিসাবে রপ্তানি হয়েছে।",
+    "spendAnalysis": "ব্যয় বিশ্লেষণ",
+    "transactionHistory": "লেনদেনের ইতিহাস",
+    "itemsCount": "{count}টি আইটেম",
+    "@itemsCount": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "noTransactionsRecorded": "এখনও কোনো লেনদেন রেকর্ড হয়নি।",
+    "prepaidMonthlyOutflow": "প্রিপেইড মাসিক ব্যয়",
+    "avgMonthlySpend": "গড়: ${amount}/মাস (১২ মাস)",
+    "@avgMonthlySpend": {
+        "placeholders": {
+            "amount": {
+                "type": "String"
+            }
+        }
+    },
+    "depositViaCard": "{last4} নম্বরে শেষ হওয়া কার্ডের মাধ্যমে ডিপোজিট",
+    "@depositViaCard": {
+        "placeholders": {
+            "last4": {
+                "type": "String"
+            }
+        }
+    },
+    "lineRenewal": "লাইন নবায়ন",
+    "justNow": "এইমাত্র",
+    "loadCreditFunds": "ক্রেডিট ফান্ড লোড করুন",
+    "depositAmountUsd": "ডিপোজিটের পরিমাণ (USD)",
+    "pleaseEnterAmount": "একটি পরিমাণ লিখুন",
+    "enterPositiveNumber": "একটি ধনাত্মক সংখ্যা লিখুন",
+    "cardDetails": "কার্ডের বিবরণ",
+    "savedCards": "সংরক্ষিত কার্ড",
+    "visaCardNumber": "Visa কার্ড নম্বর",
+    "pleaseEnterCardNumber": "কার্ড নম্বর লিখুন",
+    "mustBe16Digits": "অবশ্যই ১৬ সংখ্যা হতে হবে",
+    "expiryMmYy": "মেয়াদ (MM/YY)",
+    "expiryRequired": "মেয়াদ প্রয়োজন",
+    "invalid": "অবৈধ",
+    "cvv": "CVV",
+    "cvvRequired": "CVV প্রয়োজন",
+    "verifyingCardSecurity": "কার্ডের নিরাপত্তা যাচাই করা হচ্ছে...",
+    "authorizeDepositFunds": "ডিপোজিট ফান্ড অনুমোদন করুন",
+    "successfullyDeposited": "সফলভাবে ${amount} USD জমা হয়েছে!",
+    "@successfullyDeposited": {
+        "placeholders": {
+            "amount": {
+                "type": "String"
+            }
+        }
+    },
+    "failedToDepositFunds": "ফান্ড জমা ব্যর্থ হয়েছে। কার্ড সংযোগ পরীক্ষা করুন।",
+    "noSavedPaymentMethods": "কোনো সংরক্ষিত পেমেন্ট পদ্ধতি পাওয়া যায়নি।",
+    "addPaymentMethod": "পেমেন্ট পদ্ধতি যোগ করুন",
+    "savedPaymentMethods": "সংরক্ষিত পেমেন্ট পদ্ধতি",
+    "addAnotherPaymentMethod": "আরেকটি পেমেন্ট পদ্ধতি যোগ করুন",
+    "expiresMmYy": "মেয়াদ উত্তীর্ণ {month}/{year}",
+    "@expiresMmYy": {
+        "placeholders": {
+            "month": {
+                "type": "String"
+            },
+            "year": {
+                "type": "String"
+            }
+        }
+    },
+    "offlineRefillTitle": "অফলাইন রিফিল (SMS/WA)",
+    "selectTargetSimLine": "লক্ষ্য SIM লাইন নির্বাচন করুন",
+    "noRegisteredSimLines": "কোনো নিবন্ধিত SIM লাইন পাওয়া যায়নি।",
+    "targetSimLine": "লক্ষ্য SIM লাইন",
+    "simLine": "SIM লাইন",
+    "carrier": "ক্যারিয়ার",
+    "change": "পরিবর্তন করুন",
+    "offlineRefillProtection": "অফলাইন রিফিল সুরক্ষা",
+    "premiumExclusive": "প্রিমিয়াম এক্সক্লুসিভ",
+    "neverGetStrandedDesc": "আর কখনও মোবাইল ডেটা ছাড়া আটকে থাকবেন না। KeepSIMs Premium আপনাকে ইন্টারনেট সংযোগ শূন্য হলে স্থানীয় SMS বা WhatsApp বার্তার মাধ্যমে অফলাইনে SIM কার্ড ব্যালেন্স রিফিল করতে দেয়।",
+    "offlineCapability100": "১০০% অফলাইন ক্ষমতা",
+    "deductsFromKeepSIMsDesc": "স্থানীয় SMS গেটওয়ে ফেইলওভারের মাধ্যমে আপনার SIM লাইনে ক্রেডিট করতে KeepSIMs ওয়ালেট থেকে কেটে নেয়।",
+    "dynamicUssdPlanActivation": "ডায়নামিক USSD প্ল্যান অ্যাক্টিভেশন",
+    "exactCopyPasteDialCodesDesc": "অফলাইনে ডেটা+কল প্যাকেজ সক্রিয় করতে সঠিক কপি-পেস্ট ডায়াল কোড (যেমন *900*1#) সরবরাহ করে।",
+    "dualChannelSupport": "দ্বৈত-চ্যানেল সমর্থন",
+    "textRefillDesc": "উপলব্ধ সেলুলার কভারেজ অনুযায়ী স্ট্যান্ডার্ড SMS বা WhatsApp ব্যবহার করে \\\"REFILL\\\" টেক্সট করুন।",
+    "close": "বন্ধ করুন",
+    "howToTriggerOfflineRefill": "অফলাইন রিফিল কীভাবে ট্রিগার করবেন",
+    "ifZeroMobileDataDesc1": "যদি আপনার মোবাইল ডেটা শূন্য হয়, তাহলে শুধুমাত্র ",
+    "refill": "রিফিল",
+    "toOurSecureGatewayDesc2": " আমাদের নিরাপদ সিস্টেম গেটওয়েতে পাঠান:",
+    "targetSimLineLabel": "লক্ষ্য SIM লাইন",
+    "configureCashRefillAmount": "নগদ রিফিলের পরিমাণ কনফিগার করুন",
+    "refillAmount": "রিফিলের পরিমাণ",
+    "walletBalanceUsd": "ওয়ালেট ব্যালেন্স: ${amount} USD",
+    "@walletBalanceUsd": {
+        "placeholders": {
+            "amount": {
+                "type": "String"
+            }
+        }
+    },
+    "lowBalanceWarning": "⚠️ কম ব্যালেন্স",
+    "localCarrierPlanSuggestions": "স্থানীয় ক্যারিয়ার প্ল্যান পরামর্শ",
+    "noStandardUssdDialCodes": "এই ক্যারিয়ারের জন্য কোনো স্ট্যান্ডার্ড USSD ডায়াল কোড পাওয়া যায়নি। আপনার লাইনে নগদ রিফিল সফলভাবে পাবেন।",
+    "dynamicDialCodesPreview": "ডায়নামিক ডায়াল কোড প্রিভিউ",
+    "botSuggestDialingCodes": "অফলাইন রিফিল সম্পন্ন হওয়ার পরে, বট আপনার ফোনে তাৎক্ষণিকভাবে ডেটা+কল আনলক করতে এই সঠিক কোডগুলি ডায়াল করার পরামর্শ দেবে:",
+    "costAmount": "খরচ: ${amount}",
+    "@costAmount": {
+        "placeholders": {
+            "amount": {
+                "type": "String"
+            }
+        }
+    },
+    "whatsappSmsSenderOverride": "WHATSAPP/SMS প্রেরক ওভাররাইড",
+    "verificationNumber": "যাচাইকরণ নম্বর",
+    "triggerRefillsDifferentNumber": "যদি আপনি আপনার প্রধান প্রোফাইল ফোন ছাড়া ভিন্ন নম্বর থেকে রিফিল ট্রিগার করেন, তাহলে দেশের কোড সহ নিচে লিখুন (যেমন 96891234567)।",
+    "enterPhoneNumberDigits": "ফোন নম্বর লিখুন (শুধুমাত্র সংখ্যা)",
+    "offlineRefillSettingsSaved": "অফলাইন রিফিল সেটিংস সফলভাবে সংরক্ষিত হয়েছে!",
+    "saveSettings": "সেটিংস সংরক্ষণ করুন",
+    "errorLoadingSettings": "সেটিংস লোড করার সময় ত্রুটি: {error}",
+    "@errorLoadingSettings": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "retry": "আবার চেষ্টা করুন",
+    "editProtectedLine": "সুরক্ষিত লাইন সম্পাদনা করুন",
+    "saveChanges": "পরিবর্তন সংরক্ষণ করুন",
+    "activateShieldProtection": "শিল্ড সুরক্ষা সক্রিয় করুন",
+    "phoneNumber": "ফোন নম্বর",
+    "nicknameOptional": "ডাকনাম (ঐচ্ছিক)",
+    "whatsappAlerts": "WhatsApp সতর্কতা",
+    "emailAlertsDesc": "Resend-এর মাধ্যমে পাঠানো জটিল নিষ্ক্রিয়করণ সতর্কতা",
+    "refillWalletLow": "ফান্ড কমে গেলে ওয়ালেট রিফিল করুন",
+    "legalPoliciesDesc": "KeepSIMs ব্যবহার করে আপনি আমাদের শর্তাবলীতে সম্মত হন। KeepSIMs আপনার SIM জীবনচক্র পরিচালনায় সাহায্য করার টুল সরবরাহ করে, তবে তৃতীয় পক্ষের টেলিযোগাযোগ প্রদানকারীদের কারণে সরাসরি বা পরোক্ষ ক্ষতি, ক্ষয়ক্ষতি বা পরিষেবা বাধার জন্য আমরা দায়ী নই।",
+    "globalTravelModeDesc": "স্বয়ংক্রিয় জিওফেন্সিং নিয়মগুলি সীমান্ত-অতিক্রম রুটিন সক্রিয় করতে অনুমতি দেয়",
+    "dataPreferences": "ডেটা পছন্দ",
+    "doNotDisturb": "বিরক্ত করবেন না",
+    "linkedCards": "লিঙ্কড কার্ড",
+    "analyticsTracking": "বিশ্লেষণ & ট্র্যাকিং",
+    "dubai": "দুবাই",
+    "flyHome": "বাড়ি উড়ে যান",
+    "managePreferencesAndSecurityDesc": "থিম, ভাষা ও বায়োমেট্রিক লকআউট পরিচালনা করুন",
+    "autoFundingRulesDesc": "ব্যালেন্স অনেক কম হলে ডিফল্ট ক্রেডিট কার্ড থেকে স্বয়ংক্রিয় টপআপ সক্ষম করে SIM নবায়ন ক্রমাগত চালু রাখুন",
+    "pushNotifications": "পুশ বিজ্ঞপ্তি",
+    "quietHoursSchedule": "শান্ত সময় & সময়সূচি",
+    "exportMyDataDesc": "আপনার প্রোফাইল ও পছন্দের একটি JSON কপি ডাউনলোড করুন (GDPR অ্যাক্সেসের অধিকার)",
+    "borderSimulatorTitle": "সীমান্ত অতিক্রম সিমুলেটর",
+    "yourData": "আপনার ডেটা",
+    "mostImportant": "সবচেয়ে গুরুত্বপূর্ণ",
+    "emailAlerts": "ইমেইল সতর্কতা",
+    "pushNotificationsDesc": "এই ডিভাইসে আক্রমণাত্মক নেটিভ বিজ্ঞপ্তি",
+    "alertSettingsTitle": "সতর্কতা সেটিংস",
+    "atHome": "বাড়িতে",
+    "telegramBotDesc": "আবদ্ধ ইন্টারেক্টিভ Telegram চ্যাট বিজ্ঞপ্তি",
+    "alertChannels": "সতর্কতা চ্যানেল",
+    "london": "লন্ডন",
+    "shieldProtection": "শিল্ড সুরক্ষা",
+    "legalPolicies": "আইনি & নীতিমালা",
+    "supportVisaMastercard": "নিরাপদ Visa & MasterCard ডেবিট বা ক্রেডিট সমর্থন করে",
+    "exportMyData": "আমার ডেটা রপ্তানি করুন",
+    "dangerZone": "বিপদ জোন",
+    "analyticsTrackingDesc": "বেনামে ব্যবহারের ডেটা শেয়ার করে অ্যাপ উন্নত করতে সাহায্য করুন। অক্ষম করলে প্রয়োজনীয় অ্যাপ কার্যকারিতা প্রভাবিত হবে না",
+    "autoFundingRules": "স্বয়ং-ফান্ডিং নিয়ম",
+    "singapore": "সিঙ্গাপুর",
+    "weeklySummaryDigest": "সাপ্তাহিক সারসংক্ষেপ ডাইজেস্ট",
+    "fullyShielded": "সম্পূর্ণ সুরক্ষিত",
+    "dndDesc": "নির্দিষ্ট ঘুমের সময়ে পুশ বিজ্ঞপ্তি মিউট করুন",
+    "paymentsAutoFundTitle": "পেমেন্ট & স্বয়ং-ফান্ড",
+    "travelGeolocationTitle": "ভ্রমণ & জিওলোকেশন",
+    "telegramBot": "Telegram বট",
+    "weeklyDigestDesc": "প্রতি রবিবার সকাল ৯:০০ টায় সমস্ত SIM কার্ডের সংকলিত স্ট্যাটাস রিপোর্ট",
+    "borderSimulatorDesc": "স্মার্ট ফ্রিজ বা সক্রিয় দেশ পুনরায় শুরুর নিয়ম ট্রিগার করতে বোর্ডিং সিমুলেট করুন।",
+    "linkFirstCard": "আপনার প্রথম পেমেন্ট কার্ড লিঙ্ক করুন",
+    "globalTravelMode": "গ্লোবাল ট্রাভেল মোড",
+    "readPrivacyPolicy": "সম্পূর্ণ গোপনীয়তা নীতি & শর্তাবলী পড়ুন",
+    "whatsappAlertsDesc": "সরাসরি WhatsApp-এ ঠেলে দেওয়া রিফিল ব্যর্থতা সতর্কতা",
+    "abroadTraveling": "বিদেশ / ভ্রমণ",
+    "freezeAllLines": "সমস্ত লাইন ফ্রিজ করুন",
+    "resumeRenewals": "নবায়ন পুনরায় শুরু করুন",
+    "freezeRecommendationDesc": "আমরা শনাক্ত করেছি আপনি বর্তমানে আপনার হোম দেশে আছেন। অবাঞ্ছিত ওয়ালেট ব্যালেন্স হ্রাস রোধ করতে আপনি আপনার আন্তর্জাতিক লাইনে নবায়ন ফ্রিজ করতে পারেন।",
+    "travelDetected": "ভ্রমণ শনাক্ত হয়েছে! ✈️",
+    "resumeRecommendationDesc": "আপনি বিদেশে ভ্রমণ করছেন। নিরবচ্ছিন্ন মোবাইল নেটওয়ার্ক কভারেজ নিশ্চিত করতে আপনার থামানো আন্তর্জাতিক SIM নবায়ন পুনরায় শুরু করুন।",
+    "dismiss": "খারিজ করুন",
+    "welcomeHome": "বাড়িতে স্বাগতম! 🏡",
+    "addCard": "কার্ড যোগ করুন",
+    "noAlertChannelsConfigured": "কোনো সতর্কতা ডেলিভারি চ্যানেল কনফিগার করা হয়নি।",
+    "channelSettingsUpdated": "{channelName} সেটিংস আপডেট হয়েছে।",
+    "@channelSettingsUpdated": {
+        "placeholders": {
+            "channelName": {
+                "type": "String"
+            }
+        }
+    },
+    "channelLocked": "{channelName} লক করা 🔒",
+    "@channelLocked": {
+        "placeholders": {
+            "channelName": {
+                "type": "String"
+            }
+        }
+    },
+    "lockedAlertSubtitle": "{channelName} সতর্কতা স্টার্টার ও প্রিমিয়াম প্ল্যানের বৈশিষ্ট্য। WhatsApp, Telegram ও ইমেইল সতর্কতা আনলক করতে আপনার প্ল্যান আপগ্রেড করুন!",
+    "@lockedAlertSubtitle": {
+        "placeholders": {
+            "channelName": {
+                "type": "String"
+            }
+        }
+    },
+    "upsellProtect5Lines": "একই সময়ে ৫টি পর্যন্ত SIM লাইন সুরক্ষিত করুন",
+    "upsellUnlockChannels": "WhatsApp, Telegram & ইমেইল বিজ্ঞপ্তি আনলক করুন",
+    "upsellEnableTravelModes": "ট্রাভেল & হোম স্বয়ংক্রিয় বৈধতা মোড সক্ষম করুন",
+    "emailAddressLabel": "বিজ্ঞপ্তি ইমেইল ঠিকানা",
+    "emailAddressHint": "যেমন user@domain.com",
+    "whatsappNumberLabel": "WhatsApp নম্বর (আন্তর্জাতিক ফরম্যাট)",
+    "whatsappNumberHint": "যেমন +96891234567",
+    "whatsappFormatInstruction": "+ দিয়ে শুরু সম্পূর্ণ আন্তর্জাতিক ফরম্যাটে লিখুন (যেমন +96893990492)",
+    "telegramStatusBound": "স্ট্যাটাস: আবদ্ধ (চ্যাট আইডি: {chatId})",
+    "@telegramStatusBound": {
+        "placeholders": {
+            "chatId": {
+                "type": "String"
+            }
+        }
+    },
+    "telegramStatusUnbound": "স্ট্যাটাস: অনাবদ্ধ",
+    "telegramLinkInstructions": "বিনামূল্যে ইন্টারেক্টিভ Telegram সতর্কতা পেতে আমাদের Telegram বট আপনার অ্যাকাউন্টের সাথে লিঙ্ক করুন।",
+    "linkTelegramBot": "Telegram বট লিঙ্ক করুন",
+    "emailFreePlanGuarded": "Resend ফ্রি প্ল্যান সুরক্ষিত: শুধুমাত্র নিষ্ক্রিয়করণ ট্রিগারে সীমাবদ্ধ। কোনো প্রচারমূলক স্প্যাম নেই।",
+    "whatsappMetaCloudCapped": "সরাসরি Meta ক্লাউড সীমাবদ্ধ: প্রতিটি টপআপ শিডিউলে সর্বোচ্চ ১টি বার্তা, শুধুমাত্র যদি স্বয়ং-রিফিল সক্রিয় না থাকে বা ব্যর্থ হয়।",
+    "failedToLoadPaymentInfo": "পেমেন্ট তথ্য লোড ব্যর্থ হয়েছে",
+    "defaultCardIndicator": "ডিফল্ট",
+    "cardholder": "কার্ডধারক",
+    "expires": "মেয়াদ উত্তীর্ণ",
+    "lowBalanceTrigger": "কম ব্যালেন্স ট্রিগার",
+    "triggerLowTopUp": "কম টপআপ ট্রিগার করুন",
+    "reloadDepositAmount": "রিলোড ডিপোজিটের পরিমাণ",
+    "amountToLoad": "লোড করার পরিমাণ",
+    "linkCreditDebitCard": "ক্রেডিট/ডেবিট কার্ড লিঙ্ক করুন",
+    "cardNumberLabel": "কার্ড নম্বর",
+    "expiryDateLabel": "মেয়াদ উত্তীর্ণের তারিখ",
+    "cvvCodeLabel": "CVV কোড",
+    "securelyLinkCard": "নিরাপদে কার্ড লিঙ্ক করুন",
+    "pleaseEnterValidCardNumber": "দয়া করে একটি বৈধ ১৬-সংখ্যার কার্ড নম্বর লিখুন।",
+    "pleaseEnterValidExpiryDate": "দয়া করে একটি বৈধ মেয়াদ উত্তীর্ণের তারিখ (MM/YY) লিখুন।",
+    "invalidExpiryMonth": "অবৈধ মেয়াদ উত্তীর্ণের মাস।",
+    "cvvMustBe3Digits": "CVV অবশ্যই ৩ সংখ্যার হতে হবে।",
+    "cardLinkedSuccessfully": "নিরাপদ বিলিং কার্ড সফলভাবে লিঙ্ক হয়েছে!",
+    "defaultPaymentCardUpdated": "ডিফল্ট পেমেন্ট কার্ড আপডেট হয়েছে!",
+    "removePaymentCard": "পেমেন্ট কার্ড সরান",
+    "confirmRemoveCardDesc": "আপনি কি এই কার্ডটি সরাতে চান? কোনো ডিফল্ট পেমেন্ট কার্ড না থাকলে লিঙ্কড স্বয়ং-ফান্ডিং ব্যর্থ হতে পারে।",
+    "cancel": "বাতিল করুন",
+    "remove": "সরান",
+    "billingCardSuccessfullyRemoved": "বিলিং কার্ড সফলভাবে সরানো হয়েছে।",
+    "pleaseAddDefaultCardFirst": "স্বয়ং-ফান্ডিং সক্ষম করতে প্রথমে একটি ডিফল্ট পেমেন্ট কার্ড যোগ ও নির্বাচন করুন।",
+    "autoFundPrefsSavedSuccess": "স্বয়ং-ফান্ডিং পছন্দ সফলভাবে সংরক্ষিত হয়েছে!",
+    "preparingDataExport": "ডেটা রপ্তানি প্রস্তুত করা হচ্ছে...",
+    "exportFailed": "রপ্তানি ব্যর্থ হয়েছে: {error}",
+    "@exportFailed": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "deleteAccountWarning": "একবার আপনার অ্যাকাউন্ট মুছলে আর ফিরে আসার সুযোগ নেই। নিশ্চিত হন।",
+    "deleteAccount": "অ্যাকাউন্ট মুছুন",
+    "deleteAccountIrreversible": "এই ক্রিয়াটি অপরিবর্তনীয়। আপনার সমস্ত ডেটা স্থায়ীভাবে মুছে যাবে।",
+    "typeDeleteToConfirm": "নিশ্চিত করতে \\\"DELETE\\\" টাইপ করুন:",
+    "deleteWord": "DELETE",
+    "systemDiagnosticsLogs": "সিস্টেম ডায়াগনস্টিক্স লগ",
+    "online": "অনলাইন",
+    "errorLoadingPrefs": "পছন্দ লোড করার সময় ত্রুটি: {error}",
+    "@errorLoadingPrefs": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "privacyPolicyLoaded": "গোপনীয়তা নীতির বিবরণ লোড হয়েছে।",
+    "protectionConsole": "সুরক্ষা কনসোল",
+    "deleteProtectionTooltip": "সুরক্ষা মুছুন",
+    "refreshTooltip": "রিফ্রেশ করুন",
+    "failedToLoadDetails": "বিবরণ লোড ব্যর্থ হয়েছে",
+    "retryConnection": "সংযোগ পুনরায় চেষ্টা করুন",
+    "healthLabel": "স্বাস্থ্য",
+    "mySimCardDefault": "আমার SIM কার্ড",
+    "upLabel": "আপ",
+    "sharedByFamily": "শেয়ার করেছেন: {ownerName} ({role})",
+    "@sharedByFamily": {
+        "placeholders": {
+            "ownerName": {
+                "type": "String"
+            },
+            "role": {
+                "type": "String"
+            }
+        }
+    },
+    "criticalRisk": "জটিল ঝুঁকি",
+    "simDeactivationRisk": "পদক্ষেপ ছাড়া SIM নিষ্ক্রিয় হতে পারে",
+    "missingAlertsDesc": "কোনো সতর্কতা বিজ্ঞপ্তি কনফিগার করা হয়নি — ১০০ পয়েন্ট মিস",
+    "missingAutoRefillDesc": "কোনো স্বয়ং-রিফিল কনফিগার করা হয়নি — ৫০ পয়েন্ট মিস",
+    "missingVerificationDesc": "ফোন নম্বর যাচাই করা হয়নি — ২৫ পয়েন্ট মিস",
+    "missingRecentRefillDesc": "শেষ রিফিল ৮০ দিনেরও বেশি আগে — ২৫ পয়েন্ট মিস",
+    "quickActionsLabel": "দ্রুত ক্রিয়া",
+    "manualRefillLabel": "ম্যানুয়াল রিফিল",
+    "chargeFromWalletNow": "এখনই ওয়ালেট থেকে চার্জ করুন",
+    "rechargeFromFriend": "বন্ধুর কাছ থেকে রিচার্জ করুন",
+    "requestViaTelegram": "Telegram-এর মাধ্যমে অনুরোধ করুন",
+    "shareViaWaTg": "WhatsApp/Telegram-এর মাধ্যমে শেয়ার করুন",
+    "testSimActivity": "SIM কার্যকলাপ পরীক্ষা করুন",
+    "verifyLineReachable": "লাইন পৌঁছানো যাচ্ছে কিনা যাচাই করুন",
+    "checkCompleted1x": "১x চেক সম্পন্ন",
+    "starterPlan1xCompleted": "স্টার্টার প্ল্যান ১x চেক সম্পন্ন। সীমাহীন চেকের জন্য প্রিমিয়ামে আপগ্রেড করুন।",
+    "leaveCountry": "{countryName} ছেড়ে যান",
+    "@leaveCountry": {
+        "placeholders": {
+            "countryName": {
+                "type": "String"
+            }
+        }
+    },
+    "resumeProtectionLayers": "সুরক্ষা স্তর পুনরায় শুরু করুন",
+    "backToCountryMode": "{countryName} মোডে ফিরুন",
+    "@backToCountryMode": {
+        "placeholders": {
+            "countryName": {
+                "type": "String"
+            }
+        }
+    },
+    "pauseWhileVisitingHome": "বাড়ি পরিদর্শনকালে থামুন",
+    "rechargeFromFriendTitle": "বন্ধুর কাছ থেকে রিচার্জ করুন",
+    "selectPlatformShare": "আপনার বন্ধুর সাথে রিচার্জ অনুরোধ বার্তা শেয়ার করতে একটি প্ল্যাটফর্ম নির্বাচন করুন।",
+    "rechargeRequestTemplate": "হ্যালো! আমার KeepSIMs কার্ড ({phone}) শীঘ্রই মেয়াদ উত্তীর্ণ হচ্ছে। আপনি কি দয়া করে এটি রিচার্জ করতে পারবেন? ধন্যবাদ!",
+    "@rechargeRequestTemplate": {
+        "placeholders": {
+            "phone": {
+                "type": "String"
+            }
+        }
+    },
+    "requestViaWhatsApp": "WhatsApp-এর মাধ্যমে অনুরোধ করুন",
+    "couldNotLaunchLink": "{platformName} লিঙ্ক চালু করা যায়নি: {error}",
+    "@couldNotLaunchLink": {
+        "placeholders": {
+            "platformName": {
+                "type": "String"
+            },
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "couldNotLaunchTelegram": "Telegram লিঙ্ক চালু করা যায়নি: {error}",
+    "@couldNotLaunchTelegram": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "protectionLayersLabel": "সুরক্ষা স্তর",
+    "autoNotifyDisabled": "স্বয়ং-বিজ্ঞপ্তি: অক্ষম",
+    "noActiveAlertSchedule": "আপনার SIM কার্ডে কোনো সক্রিয় সতর্কতা বিজ্ঞপ্তি সময়সূচি নেই। আপনি স্বয়ংক্রিয় অনুস্মারক বা নিষ্ক্রিয়করণ সতর্কতা পাবেন না।",
+    "askOwnerConfigureAlerts": "সতর্কতা কনফিগার করতে পরিবারের মালিককে অনুরোধ করুন।",
+    "configureAutoNotify": "স্বয়ং-বিজ্ঞপ্তি কনফিগার করুন",
+    "activeLabel": "সক্রিয়",
+    "pausedHomeMode": "থামানো (হোম মোড)",
+    "pausedLabel": "থামানো",
+    "everyHour": "প্রতি ১ ঘণ্টায়",
+    "everyNDays": "প্রতি {days} দিনে",
+    "@everyNDays": {
+        "placeholders": {
+            "days": {
+                "type": "int"
+            }
+        }
+    },
+    "nextAlertCheck": "পরবর্তী সতর্কতা চেক",
+    "premiumKeepAliveRefill": "প্রিমিয়াম কিপ-অ্যালাইভ রিফিল",
+    "autoRefillIncludedText": "স্বয়ং-রিফিল অন্তর্ভুক্ত - প্রতি ৮৫ দিনে ~৩.৫ USD (টেলিকম, ভ্যাট অন্তর্ভুক্ত),\\\\nপরবর্তী রিফিল {date}-এ",
+    "@autoRefillIncludedText": {
+        "placeholders": {
+            "date": {
+                "type": "String"
+            }
+        }
+    },
+    "premiumKeepAliveDisabled": "প্রিমিয়াম কিপ-অ্যালাইভ রিফিল বর্তমানে অক্ষম।",
+    "customAutoRefill": "কাস্টম স্বয়ং-রিফিল",
+    "addAdditionalScheduledRecharge": "আপনার SIM-এ অতিরিক্ত ব্যালেন্স রাখতে একটি অতিরিক্ত নির্ধারিত রিচার্জের পরিমাণ যোগ করুন।",
+    "askOwnerConfigureRefill": "স্বয়ং-রিফিল কনফিগার করতে পরিবারের মালিককে অনুরোধ করুন।",
+    "configureCustomAutoRefill": "কাস্টম স্বয়ং-রিফিল কনফিগার করুন",
+    "rechargeAmount": "রিচার্জের পরিমাণ",
+    "refillInterval": "রিফিলের ব্যবধান",
+    "nextRefillDue": "পরবর্তী রিফিলের সময়",
+    "failedRefillAttempts": "ব্যর্থ রিফিল প্রচেষ্টা",
+    "retriesCount": "{count} / ৪ পুনরায় চেষ্টা",
+    "@retriesCount": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "editRefillAmount": "রিফিলের পরিমাণ সম্পাদনা করুন",
+    "refillExecutionsHistory": "রিফিল সম্পাদনের ইতিহাস",
+    "renewalExecutionsHistory": "নবায়ন সম্পাদনের ইতিহাস",
+    "noHistoricalTopup": "এই লাইনের জন্য এখনও কোনো ঐতিহাসিক টপআপ সম্পাদন রেকর্ড হয়নি।",
+    "noHistoricalRenewal": "এই লাইনের জন্য এখনও কোনো ঐতিহাসিক নবায়ন সম্পাদন রেকর্ড হয়নি।",
+    "viewAllHistory": "সমস্ত ইতিহাস দেখুন",
+    "securityActivityLogs": "নিরাপত্তা কার্যকলাপ লগ",
+    "clearLogs": "লগ সাফ করুন",
+    "noActivityLogsRecorded": "এই লাইনের জন্য এখনও কোনো কার্যকলাপ লগ রেকর্ড হয়নি।",
+    "activityLogDeleted": "কার্যকলাপ লগ এন্ট্রি মুছে হয়েছে।",
+    "activityLogsCleared": "কার্যকলাপ লগ সফলভাবে সাফ হয়েছে।",
+    "autoRenewalStatusUpdated": "স্বয়ং-নবায়ন সফলভাবে {status} হয়েছে।",
+    "@autoRenewalStatusUpdated": {
+        "placeholders": {
+            "status": {
+                "type": "String"
+            }
+        }
+    },
+    "failedToUpdateSchedule": "সময়সূচি আপডেট ব্যর্থ হয়েছে: {error}",
+    "@failedToUpdateSchedule": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "premiumRefillEnabled": "প্রিমিয়াম কিপ-অ্যালাইভ রিফিল সফলভাবে সক্ষম হয়েছে।",
+    "failedToEnableAutoRefill": "স্বয়ং-রিফিল সক্ষম করতে ব্যর্থ হয়েছে: {error}",
+    "@failedToEnableAutoRefill": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "removeScheduleTitle": "সময়সূচি সরান",
+    "confirmDeleteAutoRefill": "আপনি কি এই স্বয়ং-রিফিল সময়সূচি মুছতে চান? আপনার SIM স্বাস্থ্য স্কোর উল্লেখযোগ্যভাবে কমবে, নিষ্ক্রিয়করণের ঝুঁকি রয়েছে।",
+    "confirmDeleteAutoRenewal": "আপনি কি এই স্বয়ং-নবায়ন সময়সূচি মুছতে চান? আপনার SIM স্বাস্থ্য স্কোর উল্লেখযোগ্যভাবে কমবে, নিষ্ক্রিয়করণের ঝুঁকি রয়েছে।",
+    "autoRefillRemoved": "স্বয়ং-রিফিল সময়সূচি সফলভাবে সরানো হয়েছে।",
+    "autoRenewalRemoved": "স্বয়ং-নবায়ন সময়সূচি সফলভাবে সরানো হয়েছে।",
+    "failedToDeleteSchedule": "সময়সূচি মুছতে ব্যর্থ হয়েছে: {error}",
+    "@failedToDeleteSchedule": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "refillRetrySuccess": "রিফিল পুনরায় চেষ্টা সফলভাবে সম্পন্ন হয়েছে!",
+    "renewalRetrySuccess": "নবায়ন পুনরায় চেষ্টা সফলভাবে সম্পন্ন হয়েছে!",
+    "retryFailed": "পুনরায় চেষ্টা ব্যর্থ হয়েছে: {error}",
+    "@retryFailed": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "retryExecutionError": "পুনরায় চেষ্টার সম্পাদন ত্রুটি: {error}",
+    "@retryExecutionError": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "failedToDeleteActivityLog": "কার্যকলাপ লগ মুছতে ব্যর্থ হয়েছে: {error}",
+    "@failedToDeleteActivityLog": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "failedToClearActivityLogs": "কার্যকলাপ লগ সাফ করতে ব্যর্থ হয়েছে: {error}",
+    "@failedToClearActivityLogs": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "removeProtectionTitle": "সুরক্ষা সরান",
+    "confirmRemoveProtectionDesc": "আপনি কি {name}-কে সুরক্ষিত রাখা বন্ধ করতে চান? এই SIM লাইনের জন্য নির্ধারিত টপআপগুলি স্থায়ীভাবে বাতিল হয়ে যাবে।",
+    "@confirmRemoveProtectionDesc": {
+        "placeholders": {
+            "name": {
+                "type": "String"
+            }
+        }
+    },
+    "simLineProtectionRemoved": "SIM লাইন সুরক্ষা সফলভাবে সরানো হয়েছে।",
+    "failedToDeleteSimLine": "মুছতে ব্যর্থ হয়েছে: {error}",
+    "@failedToDeleteSimLine": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "editSimNameTitle": "SIM নাম সম্পাদনা করুন",
+    "enterNicknameInstruction": "এই SIM কার্ড লাইনের জন্য একটি ডাকনাম লিখুন:",
+    "nicknameExampleHint": "যেমন আমার অরেঞ্জ ইজিপ্ট SIM",
+    "simNameUpdatedSuccess": "SIM নাম সফলভাবে আপডেট হয়েছে।",
+    "failedToUpdateSimName": "SIM নাম আপডেট করতে ব্যর্থ হয়েছে: {error}",
+    "@failedToUpdateSimName": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "saveButton": "সংরক্ষণ করুন",
+    "deleteButton": "মুছুন",
+    "autoNotifySchedule": "স্বয়ং-বিজ্ঞপ্তি সময়সূচি",
+    "renewalCheckInterval": "নবায়ন চেকের ব্যবধান",
+    "editNotificationConfig": "বিজ্ঞপ্তি কনফিগ সম্পাদনা করুন",
+    "openTicket": "টিকেট খুলুন",
+    "offlineRefillLabel": "অফলাইন রিফিল",
+    "categoryLabel": "বিভাগ",
+    "techSupportCategory": "প্রযুক্তিগত সহায়তা",
+    "billingWalletCategory": "বিলিং & ওয়ালেট",
+    "simLinesCategory": "SIM লাইন ব্যবস্থাপনা",
+    "feedbackOtherCategory": "মতামত & অন্যান্য",
+    "subjectLabel": "বিষয়",
+    "subjectHint": "সমস্যার সংক্ষিপ্ত সারসংক্ষেপ",
+    "descriptionLabel": "বিবরণ",
+    "descriptionHint": "আপনার সমস্যা বিস্তারিতভাবে বর্ণনা করুন...",
+    "attachmentLabel": "সংযুক্তি (ঐচ্ছিক)",
+    "uploadScreenshot": "স্ক্রিনশট আপলোড করুন",
+    "submitTicketButton": "টিকেট জমা দিন",
+    "pleaseFillFields": "বিষয় ও বিবরণ উভয়ই পূরণ করুন",
+    "ticketSubmittedSuccess": "টিকেট সফলভাবে জমা হয়েছে!",
+    "lastRefillLabel": "শেষ রিফিল",
+    "noRefillYet": "এখনও রিফিল হয়নি",
+    "nextAlertLabel": "পরবর্তী সতর্কতা",
+    "protectionLabel": "সুরক্ষা",
+    "actionRequiredLabel": "পদক্ষেপ প্রয়োজন",
+    "protectionOffLabel": "সুরক্ষা বন্ধ",
+    "notSet": "সেট করা হয়নি",
+    "homeMode": "হোম মোড",
+    "incidentChannelsTitle": "ঘটনা চ্যানেল",
+    "topUpSuccessTitle": "টপআপ সফল",
+    "topUpSuccessDesc": "স্বয়ংক্রিয় SIM বৈধতা বৃদ্ধি সফলভাবে সম্পন্ন হলে আমাকে জানান।",
+    "topUpFailedTitle": "টপআপ ব্যর্থ (জটিল)",
+    "topUpFailedDesc": "ক্যারিয়ার বা ওয়ালেট সমস্যার কারণে স্বয়ংক্রিয় টপআপ ব্যর্থ হলে জটিল সতর্কতা।",
+    "walletLowTitle": "ওয়ালেট ব্যালেন্স কম",
+    "walletLowDesc": "প্রাথমিক ব্যালেন্স নিরাপত্তা সীমার নিচে নামলে আমাকে সতর্ক করুন।",
+    "walletDepletedTitle": "ওয়ালেট শেষ",
+    "walletDepletedDesc": "ওয়ালেট ব্যালেন্স সম্পূর্ণ শেষ হলে ও নবায়ন বন্ধ হলে সাসপেন্ড সতর্কতা।",
+    "lineCriticalTitle": "বৈধতা মেয়াদ শেষ সতর্কতা",
+    "lineCriticalDesc": "৪৮ ঘণ্টার মধ্যে SIM বৈধতা উইন্ডো শেষ হলে আমাকে সতর্ক করুন।",
+    "lineEnteringGraceTitle": "গ্রেস পিরিয়ডে প্রবেশ",
+    "lineEnteringGraceDesc": "ক্যারিয়ার নিষ্ক্রিয়করণ গ্রেস পিরিয়ড শনাক্ত হলে আমাকে জানান।",
+    "geoFenceTriggeredTitle": "অবস্থান / রোমিং সতর্কতা",
+    "geoFenceTriggeredDesc": "ক্যারিয়ার রোমিং ক্লাস্টার বা নেটওয়ার্ক নোড পরিবর্তন হলে সতর্কতা।",
+    "welcomeHomeReadyTitle": "হোমে স্বাগতম সিঙ্ক",
+    "welcomeHomeReadyDesc": "হোম-দেশের নেটওয়ার্ক নোড স্বয়ংক্রিয় সিঙ্ক ট্রিগার করলে সতর্কতা।",
+    "referralRewardTitle": "রেফারেল & পুরস্কার",
+    "referralRewardDesc": "বন্ধুর রেফারেল আমার ওয়ালেটে প্রচারমূলক ব্যালেন্স জমা করলে আমাকে জানান।",
+    "systemUpdatesTitle": "সাধারণ সিস্টেম আপডেট",
+    "systemUpdatesDesc": "গুরুত্বপূর্ণ ইঞ্জিন আপডেট, রক্ষণাবেক্ষণ ও প্ল্যাটফর্ম ঘোষণা।"
+}

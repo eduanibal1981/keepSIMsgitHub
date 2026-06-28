@@ -9,6 +9,7 @@ import '../controller/geo_controller.dart';
 import '../model/geo_state.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
 import 'package:keep_sims/features/profile/presentation/widgets/subscription_upsell_sheet.dart';
+import 'package:keep_sims/l10n/app_localizations.dart';
 
 class GeoScreen extends ConsumerStatefulWidget {
   const GeoScreen({super.key});
@@ -39,7 +40,7 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
   @override
   Widget build(BuildContext context) {
     final geoState = ref.watch(geoControllerProvider);
-    final authProfile = ref.watch(authControllerProvider).valueOrNull;
+    final authProfile = ref.watch(authControllerProvider).value;
     final homeCountry = authProfile?.homeCountryCode ?? 'US';
     final isDark = context.isDarkMode;
 
@@ -60,7 +61,7 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
           },
         ),
         title: Text(
-          'Travel & Geolocation',
+          AppLocalizations.of(context)!.travelGeolocationTitle,
           style: AppTextStyles.titleLarge.copyWith(
             color: context.onSurfaceColor,
             fontWeight: FontWeight.bold,
@@ -283,7 +284,9 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      isHome ? 'AT HOME' : 'ABROAD / TRAVELING',
+                      isHome
+                          ? AppLocalizations.of(context)!.atHome
+                          : AppLocalizations.of(context)!.abroadTraveling,
                       style: AppTextStyles.labelSmall.copyWith(
                         color: isHome
                             ? (isDark
@@ -315,7 +318,7 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Shield Protection',
+                AppLocalizations.of(context)!.shieldProtection,
                 style: AppTextStyles.bodyMedium.copyWith(
                   color: isDark
                       ? AppColors.textSecondaryDark
@@ -334,7 +337,7 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    'Fully Shielded',
+                    AppLocalizations.of(context)!.fullyShielded,
                     style: AppTextStyles.labelLarge.copyWith(
                       color: context.onSurfaceColor,
                       fontWeight: FontWeight.bold,
@@ -565,7 +568,7 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Global Travel Mode',
+                  AppLocalizations.of(context)!.globalTravelMode,
                   style: AppTextStyles.titleMedium.copyWith(
                     color: context.onSurfaceColor,
                     fontWeight: FontWeight.bold,
@@ -573,7 +576,7 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Allows automated geofencing rules to activate border-crossing routines.',
+                  AppLocalizations.of(context)!.globalTravelModeDesc,
                   style: AppTextStyles.bodySmall.copyWith(
                     color: isDark
                         ? AppColors.textSecondaryDark
@@ -594,7 +597,7 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
                 ? AppColors.darkBorder
                 : AppColors.lightBorder,
             onChanged: (val) async {
-              final user = ref.read(authControllerProvider).valueOrNull;
+              final user = ref.read(authControllerProvider).value;
               // Feature unlocked for all users or handled by line-specific logic
               await HapticHelper.mediumImpact();
               ref.read(geoControllerProvider.notifier).toggleTravelMode(val);
@@ -631,7 +634,7 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
               ),
               const SizedBox(width: 10),
               Text(
-                'Border Crossing Simulator',
+                AppLocalizations.of(context)!.borderSimulatorTitle,
                 style: AppTextStyles.titleMedium.copyWith(
                   color: context.onSurfaceColor,
                   fontWeight: FontWeight.bold,
@@ -641,7 +644,7 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
           ),
           const SizedBox(height: 6),
           Text(
-            'Simulate boardings to trigger smart freeze or active country resumption rules.',
+            AppLocalizations.of(context)!.borderSimulatorDesc,
             style: AppTextStyles.bodySmall.copyWith(
               color: isDark
                   ? AppColors.textSecondaryDark
@@ -656,7 +659,7 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
               Expanded(
                 child: _buildFlightTicket(
                   flag: '🏡',
-                  label: 'Fly Home',
+                  label: AppLocalizations.of(context)!.flyHome,
                   countryName: 'Home Country',
                   isoCode: homeCountry,
                   geoState: geoState,
@@ -667,7 +670,7 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
               Expanded(
                 child: _buildFlightTicket(
                   flag: '🇬🇧',
-                  label: 'London',
+                  label: AppLocalizations.of(context)!.london,
                   countryName: 'United Kingdom',
                   isoCode: 'GB',
                   geoState: geoState,
@@ -682,7 +685,7 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
               Expanded(
                 child: _buildFlightTicket(
                   flag: '🇦🇪',
-                  label: 'Dubai',
+                  label: AppLocalizations.of(context)!.dubai,
                   countryName: 'United Arab Emirates',
                   isoCode: 'AE',
                   geoState: geoState,
@@ -693,7 +696,7 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
               Expanded(
                 child: _buildFlightTicket(
                   flag: '🇸🇬',
-                  label: 'Singapore',
+                  label: AppLocalizations.of(context)!.singapore,
                   countryName: 'Singapore',
                   isoCode: 'SG',
                   geoState: geoState,
@@ -734,9 +737,10 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
+          padding: const EdgeInsets.symmetric(horizontal: 8),
         ),
         onPressed: () async {
-          final user = ref.read(authControllerProvider).valueOrNull;
+          final user = ref.read(authControllerProvider).value;
           // Feature unlocked
           await HapticHelper.mediumImpact();
           ref
@@ -747,14 +751,17 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(flag, style: const TextStyle(fontSize: 18)),
-            const SizedBox(width: 8),
-            Text(
-              label,
-              style: AppTextStyles.labelLarge.copyWith(
-                color: isCurrent
-                    ? context.colorScheme.secondary
-                    : context.onSurfaceColor,
-                fontWeight: isCurrent ? FontWeight.bold : FontWeight.normal,
+            const SizedBox(width: 6),
+            Flexible(
+              child: Text(
+                label,
+                style: AppTextStyles.labelLarge.copyWith(
+                  color: isCurrent
+                      ? context.colorScheme.secondary
+                      : context.onSurfaceColor,
+                  fontWeight: isCurrent ? FontWeight.bold : FontWeight.normal,
+                ),
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
@@ -784,7 +791,7 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'SYSTEM DIAGNOSTICS LOGS',
+                AppLocalizations.of(context)!.systemDiagnosticsLogs,
                 style: AppTextStyles.labelSmall.copyWith(
                   color: isDark
                       ? AppColors.secondary
@@ -802,7 +809,7 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  'ONLINE',
+                  AppLocalizations.of(context)!.online,
                   style: AppTextStyles.labelSmall.copyWith(
                     color: isDark
                         ? AppColors.secondary

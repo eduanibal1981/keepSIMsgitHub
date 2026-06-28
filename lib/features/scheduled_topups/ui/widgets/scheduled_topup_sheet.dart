@@ -51,7 +51,7 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
   @override
   void initState() {
     super.initState();
-    final user = ref.read(authControllerProvider).valueOrNull;
+    final user = ref.read(authControllerProvider).value;
     // Use default logic or feature-specific logic
     final globalTier = user?.subscriptionTier ?? 'standard';
     final bool isPremium = globalTier == 'premium';
@@ -71,8 +71,8 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
   @override
   Widget build(BuildContext context) {
     final bool isEditMode = widget.existingSchedule != null;
-    final user = ref.watch(authControllerProvider).valueOrNull;
-    final simLines = ref.watch(simLinesControllerProvider).valueOrNull ?? [];
+    final user = ref.watch(authControllerProvider).value;
+    final simLines = ref.watch(simLinesControllerProvider).value ?? [];
     final currentLine = simLines.cast<SimLine?>().firstWhere(
       (l) => l?.id == widget.simLineId,
       orElse: () => null,
@@ -716,7 +716,7 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
   Future<void> _handleSave() async {
     setState(() => _isSaving = true);
     try {
-      final user = ref.read(authControllerProvider).valueOrNull;
+      final user = ref.read(authControllerProvider).value;
       final bool isNotifyMode = widget.configMode == 'notify';
 
       DateTime calculatedNextExecution;

@@ -38,3 +38,13 @@ sealed class AppFailure with _$AppFailure {
     @Default('An unexpected error occurred.') String message,
   }) = UnknownFailure;
 }
+
+/// An exception that presents a clean, user-friendly message without the "Exception:" prefix.
+class UserFriendlyException implements Exception {
+  final String message;
+
+  const UserFriendlyException(this.message);
+
+  @override
+  String toString() => message;
+}

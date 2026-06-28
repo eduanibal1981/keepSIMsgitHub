@@ -7,7 +7,7 @@ import '../../domain/repositories/household_repository.dart';
 part 'household_repository_impl.g.dart';
 
 @riverpod
-HouseholdRepository householdRepository(HouseholdRepositoryRef ref) {
+HouseholdRepository householdRepository(Ref ref) {
   return HouseholdRepositoryImpl(supabase: Supabase.instance.client);
 }
 

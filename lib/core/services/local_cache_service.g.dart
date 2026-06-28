@@ -6,39 +6,93 @@ part of 'local_cache_service.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$sharedPreferencesHash() => r'514bed3f78956d49e60dbc3200425abefc0de0e3';
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
 
-/// See also [sharedPreferences].
 @ProviderFor(sharedPreferences)
-final sharedPreferencesProvider = FutureProvider<SharedPreferences>.internal(
-  sharedPreferences,
-  name: r'sharedPreferencesProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$sharedPreferencesHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+final sharedPreferencesProvider = SharedPreferencesProvider._();
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef SharedPreferencesRef = FutureProviderRef<SharedPreferences>;
-String _$localCacheServiceHash() => r'2d0094d78323cc7b0f25131cd1fa596ffd2a7c9d';
+final class SharedPreferencesProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<SharedPreferences>,
+          SharedPreferences,
+          FutureOr<SharedPreferences>
+        >
+    with
+        $FutureModifier<SharedPreferences>,
+        $FutureProvider<SharedPreferences> {
+  SharedPreferencesProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'sharedPreferencesProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
-/// See also [localCacheService].
+  @override
+  String debugGetCreateSourceHash() => _$sharedPreferencesHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<SharedPreferences> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<SharedPreferences> create(Ref ref) {
+    return sharedPreferences(ref);
+  }
+}
+
+String _$sharedPreferencesHash() => r'50d46e3f8d9f32715d0f3efabdce724e4b2593b4';
+
 @ProviderFor(localCacheService)
-final localCacheServiceProvider = Provider<LocalCacheService>.internal(
-  localCacheService,
-  name: r'localCacheServiceProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$localCacheServiceHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+final localCacheServiceProvider = LocalCacheServiceProvider._();
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef LocalCacheServiceRef = ProviderRef<LocalCacheService>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
+final class LocalCacheServiceProvider
+    extends
+        $FunctionalProvider<
+          LocalCacheService,
+          LocalCacheService,
+          LocalCacheService
+        >
+    with $Provider<LocalCacheService> {
+  LocalCacheServiceProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'localCacheServiceProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$localCacheServiceHash();
+
+  @$internal
+  @override
+  $ProviderElement<LocalCacheService> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  LocalCacheService create(Ref ref) {
+    return localCacheService(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(LocalCacheService value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<LocalCacheService>(value),
+    );
+  }
+}
+
+String _$localCacheServiceHash() => r'92509e483dec92f4b4a3fe1f1d98feaf5e08fa02';

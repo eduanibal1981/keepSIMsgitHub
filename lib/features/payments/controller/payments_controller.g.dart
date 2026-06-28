@@ -6,25 +6,50 @@ part of 'payments_controller.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$paymentsControllerHash() =>
-    r'83c6a533544c3610e316f821474707ccdf3cb471';
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
 
-/// See also [PaymentsController].
 @ProviderFor(PaymentsController)
-final paymentsControllerProvider =
-    AutoDisposeAsyncNotifierProvider<
-      PaymentsController,
-      PaymentsState
-    >.internal(
-      PaymentsController.new,
-      name: r'paymentsControllerProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$paymentsControllerHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+final paymentsControllerProvider = PaymentsControllerProvider._();
 
-typedef _$PaymentsController = AutoDisposeAsyncNotifier<PaymentsState>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
+final class PaymentsControllerProvider
+    extends $AsyncNotifierProvider<PaymentsController, PaymentsState> {
+  PaymentsControllerProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'paymentsControllerProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$paymentsControllerHash();
+
+  @$internal
+  @override
+  PaymentsController create() => PaymentsController();
+}
+
+String _$paymentsControllerHash() =>
+    r'025cd3e7d5ed4d40b976fa84064a0a7724a89b72';
+
+abstract class _$PaymentsController extends $AsyncNotifier<PaymentsState> {
+  FutureOr<PaymentsState> build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<AsyncValue<PaymentsState>, PaymentsState>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<PaymentsState>, PaymentsState>,
+              AsyncValue<PaymentsState>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}

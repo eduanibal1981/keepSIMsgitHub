@@ -6,24 +6,53 @@ part of 'household_repository_impl.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$householdRepositoryHash() =>
-    r'f7adbcb19a77d91e8ee4041b33b489b899512223';
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
 
-/// See also [householdRepository].
 @ProviderFor(householdRepository)
-final householdRepositoryProvider =
-    AutoDisposeProvider<HouseholdRepository>.internal(
-      householdRepository,
-      name: r'householdRepositoryProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$householdRepositoryHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+final householdRepositoryProvider = HouseholdRepositoryProvider._();
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef HouseholdRepositoryRef = AutoDisposeProviderRef<HouseholdRepository>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
+final class HouseholdRepositoryProvider
+    extends
+        $FunctionalProvider<
+          HouseholdRepository,
+          HouseholdRepository,
+          HouseholdRepository
+        >
+    with $Provider<HouseholdRepository> {
+  HouseholdRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'householdRepositoryProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$householdRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<HouseholdRepository> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  HouseholdRepository create(Ref ref) {
+    return householdRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(HouseholdRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<HouseholdRepository>(value),
+    );
+  }
+}
+
+String _$householdRepositoryHash() =>
+    r'14000348cd0e885aac59d715a9e7732b14a0495f';

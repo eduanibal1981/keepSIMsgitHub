@@ -35,7 +35,7 @@ class ProfileController extends _$ProfileController {
     state = const AsyncValue.loading();
 
     final profileState = ref.read(authControllerProvider);
-    final profile = profileState.valueOrNull;
+    final profile = profileState.value;
 
     if (profile == null) {
       state = AsyncValue.error('User session not found.', StackTrace.current);

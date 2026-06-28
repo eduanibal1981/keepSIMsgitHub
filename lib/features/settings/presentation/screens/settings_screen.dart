@@ -5,6 +5,7 @@ import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import 'package:keep_sims/core/utils/build_context_extension.dart';
+import 'package:keep_sims/l10n/app_localizations.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -12,7 +13,7 @@ class SettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authControllerProvider);
-    final user = authState.valueOrNull;
+    final user = authState.value;
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -26,7 +27,7 @@ class SettingsScreen extends ConsumerWidget {
             children: [
               // ── Header ─────────────────────────────────────────────
               Text(
-                'More',
+                AppLocalizations.of(context)!.navMore,
                 style: AppTextStyles.headlineLarge.copyWith(
                   color: context.onSurfaceColor,
                   fontWeight: FontWeight.bold,
@@ -35,7 +36,7 @@ class SettingsScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 6),
               Text(
-                'Manage your profile, SIM lines, alerts, and shared preferences',
+                AppLocalizations.of(context)!.manageProfileDesc,
                 style: AppTextStyles.bodyMedium.copyWith(
                   color: isDark
                       ? AppColors.textSecondaryDark
@@ -111,7 +112,7 @@ class SettingsScreen extends ConsumerWidget {
                               children: [
                                 Flexible(
                                   child: Text(
-                                    user.fullName ?? 'SIM Shield User',
+                                    user.fullName ?? AppLocalizations.of(context)!.keepSIMsUser,
                                     style: AppTextStyles.titleMedium.copyWith(
                                       color: context.onSurfaceColor,
                                       fontWeight: FontWeight.bold,
@@ -135,9 +136,9 @@ class SettingsScreen extends ConsumerWidget {
                                       ),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
-                                    child: const Text(
-                                      'PRO',
-                                      style: TextStyle(
+                                    child: Text(
+                                      AppLocalizations.of(context)!.pro,
+                                      style: const TextStyle(
                                         color: Colors.black,
                                         fontSize: 10,
                                         fontWeight: FontWeight.bold,
@@ -172,7 +173,7 @@ class SettingsScreen extends ConsumerWidget {
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Text(
-                                  '🌍 Home Country: ${user.homeCountryCode!.toUpperCase()}',
+                                  '🌍 ${AppLocalizations.of(context)!.homeCountry}${user.homeCountryCode!.toUpperCase()}',
                                   style: AppTextStyles.bodySmall.copyWith(
                                     color: isDark
                                         ? Colors.white.withOpacity(0.8)
@@ -196,7 +197,7 @@ class SettingsScreen extends ConsumerWidget {
 
               // ── Navigation Console Section ─────────────────────────
               Text(
-                'Console',
+                AppLocalizations.of(context)!.console,
                 style: AppTextStyles.bodyMedium.copyWith(
                   color: isDark
                       ? AppColors.textSecondaryDark
@@ -213,8 +214,8 @@ class SettingsScreen extends ConsumerWidget {
                 context: context,
                 icon: Icons.wifi_off_rounded,
                 iconColor: Colors.deepOrangeAccent,
-                title: 'Offline Refill (SMS/WA)',
-                subtitle: 'Refill SIM balance offline via SMS or WhatsApp',
+                title: AppLocalizations.of(context)!.offlineRefill,
+                subtitle: AppLocalizations.of(context)!.refillSimOfflineDesc,
                 routePath: '/settings/offline-recharge',
               ),
               const SizedBox(height: 16),
@@ -223,8 +224,8 @@ class SettingsScreen extends ConsumerWidget {
                 context: context,
                 icon: Icons.account_balance_wallet_outlined,
                 iconColor: const Color(0xFF14B8A6), // Teal color for Wallet
-                title: 'Wallet',
-                subtitle: 'Manage your balances and view transaction history',
+                title: AppLocalizations.of(context)!.wallet,
+                subtitle: AppLocalizations.of(context)!.manageBalancesDesc,
                 routePath: '/wallet',
               ),
               const SizedBox(height: 16),
@@ -243,8 +244,8 @@ class SettingsScreen extends ConsumerWidget {
                 context: context,
                 icon: Icons.notifications_none_rounded,
                 iconColor: const Color(0xFF10B981),
-                title: 'Alert Preferences',
-                subtitle: 'Toggle push & email settings for renewals/balances',
+                title: AppLocalizations.of(context)!.alertPreferences,
+                subtitle: AppLocalizations.of(context)!.togglePushEmailDesc,
                 routePath: '/notifications/settings',
               ),
               const SizedBox(height: 16),
@@ -253,8 +254,8 @@ class SettingsScreen extends ConsumerWidget {
                 context: context,
                 icon: Icons.card_giftcard_rounded,
                 iconColor: const Color(0xFFF59E0B),
-                title: 'Refer & Earn',
-                subtitle: 'Share SIM Shield, unlock dynamic balance rewards',
+                title: AppLocalizations.of(context)!.referAndEarn,
+                subtitle: AppLocalizations.of(context)!.shareKeepSIMsDesc,
                 routePath: '/settings/referrals',
                 isComingSoon: false,
               ),
@@ -264,8 +265,8 @@ class SettingsScreen extends ConsumerWidget {
                 context: context,
                 icon: Icons.credit_card_rounded,
                 iconColor: const Color(0xFFEC4899),
-                title: 'Payment Methods',
-                subtitle: 'Add bank cards or link auto-withdrawal accounts',
+                title: AppLocalizations.of(context)!.paymentMethods,
+                subtitle: AppLocalizations.of(context)!.addBankCardsDesc,
                 routePath: '/settings/payments',
                 isComingSoon: false,
               ),
@@ -275,8 +276,8 @@ class SettingsScreen extends ConsumerWidget {
                 context: context,
                 icon: Icons.map_rounded,
                 iconColor: const Color(0xFF8B5CF6),
-                title: 'Travel & Geolocation',
-                subtitle: 'Manage home country freeze rules & travel mode',
+                title: AppLocalizations.of(context)!.travelAndGeolocation,
+                subtitle: AppLocalizations.of(context)!.manageHomeCountryDesc,
                 routePath: '/settings/geo',
                 isComingSoon: false,
               ),
@@ -286,9 +287,20 @@ class SettingsScreen extends ConsumerWidget {
                 context: context,
                 icon: Icons.tune_rounded,
                 iconColor: const Color(0xFFA855F7),
-                title: 'Preferences & Security',
-                subtitle: 'Manage theme, language, and biometric lockouts',
+                title: AppLocalizations.of(context)!.preferencesAndSecurity,
+                subtitle: AppLocalizations.of(context)!.managePreferencesAndSecurityDesc,
                 routePath: '/settings/preferences',
+                isComingSoon: false,
+              ),
+              const SizedBox(height: 16),
+
+              _buildMenuCard(
+                context: context,
+                icon: Icons.privacy_tip_rounded,
+                iconColor: const Color(0xFFEF4444),
+                title: AppLocalizations.of(context)!.dataAndPrivacy,
+                subtitle: AppLocalizations.of(context)!.manageTrackingConsentDesc,
+                routePath: '/settings/privacy',
                 isComingSoon: false,
               ),
 
@@ -298,9 +310,19 @@ class SettingsScreen extends ConsumerWidget {
                   context: context,
                   icon: Icons.developer_board_rounded,
                   iconColor: Colors.amber,
-                  title: 'Power User',
-                  subtitle: 'Access system simulators and debugging tools',
+                  title: AppLocalizations.of(context)!.powerUser,
+                  subtitle: AppLocalizations.of(context)!.accessSystemSimulatorsDesc,
                   routePath: '/settings/simulators',
+                  isComingSoon: false,
+                ),
+                const SizedBox(height: 16),
+                _buildMenuCard(
+                  context: context,
+                  icon: Icons.checklist_rtl_rounded,
+                  iconColor: const Color(0xFF6366F1),
+                  title: AppLocalizations.of(context)!.testChecklist,
+                  subtitle: AppLocalizations.of(context)!.manualUiTestingDesc,
+                  routePath: '/settings/tests',
                   isComingSoon: false,
                 ),
               ],
@@ -316,7 +338,7 @@ class SettingsScreen extends ConsumerWidget {
                     onPressed: () => _confirmSignOut(context, ref),
                     icon: const Icon(Icons.logout_rounded, color: Colors.white),
                     label: Text(
-                      'Log Out',
+                      AppLocalizations.of(context)!.logOut,
                       style: AppTextStyles.titleMedium.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
@@ -385,7 +407,7 @@ class SettingsScreen extends ConsumerWidget {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(
-                    '$title feature is coming soon!',
+                    AppLocalizations.of(context)!.featureComingSoon(title),
                     style: TextStyle(
                       color: isDark ? Colors.white : AppColors.textPrimaryLight,
                     ),
@@ -425,12 +447,15 @@ class SettingsScreen extends ConsumerWidget {
                     children: [
                       Row(
                         children: [
-                          Text(
-                            title,
-                            style: AppTextStyles.titleMedium.copyWith(
-                              color: context.onSurfaceColor,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 16,
+                          Flexible(
+                            child: Text(
+                              title,
+                              style: AppTextStyles.titleMedium.copyWith(
+                                color: context.onSurfaceColor,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16,
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                           if (isComingSoon) ...[
@@ -447,7 +472,7 @@ class SettingsScreen extends ConsumerWidget {
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
-                                'SOON',
+                                AppLocalizations.of(context)!.soon,
                                 style: AppTextStyles.bodySmall.copyWith(
                                   color: isDark
                                       ? AppColors.textSecondaryDark
@@ -500,9 +525,9 @@ class SettingsScreen extends ConsumerWidget {
               ? BorderSide.none
               : const BorderSide(color: AppColors.lightBorder),
         ),
-        title: Text('Log Out', style: TextStyle(color: context.onSurfaceColor)),
+        title: Text(AppLocalizations.of(context)!.logOut, style: TextStyle(color: context.onSurfaceColor)),
         content: Text(
-          'Are you sure you want to log out of SIM Shield?',
+          AppLocalizations.of(context)!.confirmLogOut,
           style: TextStyle(
             color: isDark
                 ? AppColors.textSecondaryDark
@@ -513,7 +538,7 @@ class SettingsScreen extends ConsumerWidget {
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(
-              'Cancel',
+              AppLocalizations.of(context)!.cancel,
               style: TextStyle(
                 color: isDark ? Colors.white70 : AppColors.textSecondaryLight,
               ),
@@ -530,7 +555,7 @@ class SettingsScreen extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            child: const Text('Log Out', style: TextStyle(color: Colors.white)),
+            child: Text(AppLocalizations.of(context)!.logOut, style: const TextStyle(color: Colors.white)),
           ),
         ],
       ),

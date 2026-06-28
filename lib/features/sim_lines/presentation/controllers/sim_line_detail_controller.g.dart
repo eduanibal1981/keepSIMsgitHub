@@ -6,174 +6,99 @@ part of 'sim_line_detail_controller.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$simLineDetailControllerHash() =>
-    r'8c37ac327129067eafdad79cd01ed1791148cb5c';
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
 
-/// Copied from Dart SDK
-class _SystemHash {
-  _SystemHash._();
-
-  static int combine(int hash, int value) {
-    // ignore: parameter_assignments
-    hash = 0x1fffffff & (hash + value);
-    // ignore: parameter_assignments
-    hash = 0x1fffffff & (hash + ((0x0007ffff & hash) << 10));
-    return hash ^ (hash >> 6);
-  }
-
-  static int finish(int hash) {
-    // ignore: parameter_assignments
-    hash = 0x1fffffff & (hash + ((0x03ffffff & hash) << 3));
-    // ignore: parameter_assignments
-    hash = hash ^ (hash >> 11);
-    return 0x1fffffff & (hash + ((0x00003fff & hash) << 15));
-  }
-}
-
-abstract class _$SimLineDetailController
-    extends BuildlessAutoDisposeAsyncNotifier<SimLineDetailState> {
-  late final String id;
-
-  FutureOr<SimLineDetailState> build(String id);
-}
-
-/// See also [SimLineDetailController].
 @ProviderFor(SimLineDetailController)
-const simLineDetailControllerProvider = SimLineDetailControllerFamily();
+final simLineDetailControllerProvider = SimLineDetailControllerFamily._();
 
-/// See also [SimLineDetailController].
-class SimLineDetailControllerFamily
-    extends Family<AsyncValue<SimLineDetailState>> {
-  /// See also [SimLineDetailController].
-  const SimLineDetailControllerFamily();
-
-  /// See also [SimLineDetailController].
-  SimLineDetailControllerProvider call(String id) {
-    return SimLineDetailControllerProvider(id);
-  }
-
-  @override
-  SimLineDetailControllerProvider getProviderOverride(
-    covariant SimLineDetailControllerProvider provider,
-  ) {
-    return call(provider.id);
-  }
-
-  static const Iterable<ProviderOrFamily>? _dependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
-
-  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
-      _allTransitiveDependencies;
-
-  @override
-  String? get name => r'simLineDetailControllerProvider';
-}
-
-/// See also [SimLineDetailController].
-class SimLineDetailControllerProvider
+final class SimLineDetailControllerProvider
     extends
-        AutoDisposeAsyncNotifierProviderImpl<
-          SimLineDetailController,
-          SimLineDetailState
-        > {
-  /// See also [SimLineDetailController].
-  SimLineDetailControllerProvider(String id)
-    : this._internal(
-        () => SimLineDetailController()..id = id,
-        from: simLineDetailControllerProvider,
-        name: r'simLineDetailControllerProvider',
-        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-            ? null
-            : _$simLineDetailControllerHash,
-        dependencies: SimLineDetailControllerFamily._dependencies,
-        allTransitiveDependencies:
-            SimLineDetailControllerFamily._allTransitiveDependencies,
-        id: id,
-      );
-
-  SimLineDetailControllerProvider._internal(
-    super._createNotifier, {
-    required super.name,
-    required super.dependencies,
-    required super.allTransitiveDependencies,
-    required super.debugGetCreateSourceHash,
-    required super.from,
-    required this.id,
-  }) : super.internal();
-
-  final String id;
+        $AsyncNotifierProvider<SimLineDetailController, SimLineDetailState> {
+  SimLineDetailControllerProvider._({
+    required SimLineDetailControllerFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'simLineDetailControllerProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
 
   @override
-  FutureOr<SimLineDetailState> runNotifierBuild(
-    covariant SimLineDetailController notifier,
-  ) {
-    return notifier.build(id);
-  }
+  String debugGetCreateSourceHash() => _$simLineDetailControllerHash();
 
   @override
-  Override overrideWith(SimLineDetailController Function() create) {
-    return ProviderOverride(
-      origin: this,
-      override: SimLineDetailControllerProvider._internal(
-        () => create()..id = id,
-        from: from,
-        name: null,
-        dependencies: null,
-        allTransitiveDependencies: null,
-        debugGetCreateSourceHash: null,
-        id: id,
-      ),
-    );
+  String toString() {
+    return r'simLineDetailControllerProvider'
+        ''
+        '($argument)';
   }
 
+  @$internal
   @override
-  AutoDisposeAsyncNotifierProviderElement<
-    SimLineDetailController,
-    SimLineDetailState
-  >
-  createElement() {
-    return _SimLineDetailControllerProviderElement(this);
-  }
+  SimLineDetailController create() => SimLineDetailController();
 
   @override
   bool operator ==(Object other) {
-    return other is SimLineDetailControllerProvider && other.id == id;
+    return other is SimLineDetailControllerProvider &&
+        other.argument == argument;
   }
 
   @override
   int get hashCode {
-    var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, id.hashCode);
-
-    return _SystemHash.finish(hash);
+    return argument.hashCode;
   }
 }
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-mixin SimLineDetailControllerRef
-    on AutoDisposeAsyncNotifierProviderRef<SimLineDetailState> {
-  /// The parameter `id` of this provider.
-  String get id;
-}
+String _$simLineDetailControllerHash() =>
+    r'36a0a166646c6d0ced79cf5f3f8c50cf51ba86b6';
 
-class _SimLineDetailControllerProviderElement
-    extends
-        AutoDisposeAsyncNotifierProviderElement<
+final class SimLineDetailControllerFamily extends $Family
+    with
+        $ClassFamilyOverride<
           SimLineDetailController,
-          SimLineDetailState
-        >
-    with SimLineDetailControllerRef {
-  _SimLineDetailControllerProviderElement(super.provider);
+          AsyncValue<SimLineDetailState>,
+          SimLineDetailState,
+          FutureOr<SimLineDetailState>,
+          String
+        > {
+  SimLineDetailControllerFamily._()
+    : super(
+        retry: null,
+        name: r'simLineDetailControllerProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  SimLineDetailControllerProvider call(String id) =>
+      SimLineDetailControllerProvider._(argument: id, from: this);
 
   @override
-  String get id => (origin as SimLineDetailControllerProvider).id;
+  String toString() => r'simLineDetailControllerProvider';
 }
 
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
+abstract class _$SimLineDetailController
+    extends $AsyncNotifier<SimLineDetailState> {
+  late final _$args = ref.$arg as String;
+  String get id => _$args;
+
+  FutureOr<SimLineDetailState> build(String id);
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref =
+        this.ref as $Ref<AsyncValue<SimLineDetailState>, SimLineDetailState>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<SimLineDetailState>, SimLineDetailState>,
+              AsyncValue<SimLineDetailState>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, () => build(_$args));
+  }
+}

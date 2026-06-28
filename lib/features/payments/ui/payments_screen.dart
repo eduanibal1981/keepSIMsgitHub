@@ -13,6 +13,7 @@ import 'package:keep_sims/core/utils/build_context_extension.dart';
 import 'package:keep_sims/features/payments/controller/payments_controller.dart';
 import 'package:keep_sims/features/payments/model/payment_method_model.dart';
 import 'package:keep_sims/features/auth/controller/auth_controller.dart';
+import 'package:keep_sims/l10n/app_localizations.dart';
 
 class PaymentsScreen extends ConsumerStatefulWidget {
   const PaymentsScreen({super.key});
@@ -31,7 +32,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
   @override
   Widget build(BuildContext context) {
     final stateAsync = ref.watch(paymentsControllerProvider);
-    final authProfile = ref.watch(authControllerProvider).valueOrNull;
+    final authProfile = ref.watch(authControllerProvider).value;
     final userName = authProfile?.fullName ?? 'Valued Expat';
 
     // Set initial auto-fund values from database once loaded
@@ -74,7 +75,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
           onPressed: () => context.pop(),
         ),
         title: Text(
-          'Payments & Auto-Fund',
+          AppLocalizations.of(context)!.paymentsAutoFundTitle,
           style: AppTextStyles.headlineMedium.copyWith(
             color: context.onSurfaceColor,
             fontWeight: FontWeight.bold,
@@ -96,7 +97,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Linked Cards',
+                        AppLocalizations.of(context)!.linkedCards,
                         style: AppTextStyles.titleLarge.copyWith(
                           color: context.onSurfaceColor,
                         ),
@@ -113,7 +114,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                               : context.primaryColor,
                         ),
                         label: Text(
-                          'Add Card',
+                          AppLocalizations.of(context)!.addCard,
                           style: AppTextStyles.labelLarge.copyWith(
                             color: isDark
                                 ? AppColors.secondary
@@ -167,7 +168,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
               ),
               const SizedBox(height: 16),
               Text(
-                'Failed to load payment info',
+                AppLocalizations.of(context)!.failedToLoadPaymentInfo,
                 style: AppTextStyles.headlineSmall.copyWith(
                   color: context.onSurfaceColor,
                 ),
@@ -316,7 +317,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                                   ),
                                   const SizedBox(width: 4),
                                   Text(
-                                    'DEFAULT',
+                                    AppLocalizations.of(context)!.defaultCardIndicator,
                                     style: AppTextStyles.labelSmall.copyWith(
                                       color: isDark
                                           ? AppColors.secondary
@@ -378,7 +379,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'CARDHOLDER',
+                            AppLocalizations.of(context)!.cardholder,
                             style: AppTextStyles.caption.copyWith(
                               color: isDefault || isDark
                                   ? Colors.white.withOpacity(0.5)
@@ -407,7 +408,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text(
-                            'EXPIRES',
+                            AppLocalizations.of(context)!.expires,
                             style: AppTextStyles.caption.copyWith(
                               color: isDefault || isDark
                                   ? Colors.white.withOpacity(0.5)
@@ -473,14 +474,14 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
             ),
             const SizedBox(height: 12),
             Text(
-              'Link your first payment card',
+              AppLocalizations.of(context)!.linkFirstCard,
               style: AppTextStyles.titleMedium.copyWith(
                 color: context.onSurfaceColor,
               ),
             ),
             const SizedBox(height: 4),
             Text(
-              'Supports secure Visa & MasterCard debit or credit',
+              AppLocalizations.of(context)!.supportVisaMastercard,
               style: AppTextStyles.bodySmall.copyWith(
                 color: isDark
                     ? AppColors.textSecondaryDark
@@ -534,14 +535,14 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Auto-Funding Rules',
+                      AppLocalizations.of(context)!.autoFundingRules,
                       style: AppTextStyles.titleMedium.copyWith(
                         color: context.onSurfaceColor,
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Refill wallet when funds drop low',
+                      AppLocalizations.of(context)!.refillWalletLow,
                       style: AppTextStyles.bodySmall.copyWith(
                         color: isDark
                             ? AppColors.textSecondaryDark
@@ -587,7 +588,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Low Balance Trigger',
+                  AppLocalizations.of(context)!.lowBalanceTrigger,
                   style: AppTextStyles.bodyMedium.copyWith(
                     color: context.onSurfaceColor,
                     fontWeight: FontWeight.bold,
@@ -634,7 +635,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                     ),
                   ),
                   Text(
-                    'Trigger low top-up',
+                    AppLocalizations.of(context)!.triggerLowTopUp,
                     style: AppTextStyles.bodySmall.copyWith(
                       color: isDark
                           ? AppColors.textTertiaryDark
@@ -660,7 +661,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Reload Deposit Amount',
+                  AppLocalizations.of(context)!.reloadDepositAmount,
                   style: AppTextStyles.bodyMedium.copyWith(
                     color: context.onSurfaceColor,
                     fontWeight: FontWeight.bold,
@@ -707,7 +708,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                     ),
                   ),
                   Text(
-                    'Amount to load',
+                    AppLocalizations.of(context)!.amountToLoad,
                     style: AppTextStyles.bodySmall.copyWith(
                       color: isDark
                           ? AppColors.textTertiaryDark
@@ -772,7 +773,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                           ),
                         )
                       : Text(
-                          'Save Auto-Fund Settings',
+                          AppLocalizations.of(context)!.saveSettings,
                           style: AppTextStyles.titleMedium.copyWith(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
@@ -784,7 +785,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
           ] else ...[
             const SizedBox(height: 16),
             Text(
-              'Keep SIM renewal running continuously by enabling automatic top-ups from your default credit card when the balance drops too low.',
+              AppLocalizations.of(context)!.autoFundingRulesDesc,
               style: AppTextStyles.bodyMedium.copyWith(
                 color: isDark
                     ? AppColors.textSecondaryDark
@@ -832,7 +833,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Link Credit/Debit Card',
+                        AppLocalizations.of(context)!.linkCreditDebitCard,
                         style: AppTextStyles.headlineSmall.copyWith(
                           color: context.onSurfaceColor,
                           fontWeight: FontWeight.bold,
@@ -853,7 +854,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
 
                   // Card Number Field
                   Text(
-                    'CARD NUMBER',
+                    AppLocalizations.of(context)!.cardNumberLabel,
                     style: AppTextStyles.caption.copyWith(
                       color: isDark
                           ? Colors.white70
@@ -940,7 +941,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'EXPIRY DATE',
+                              AppLocalizations.of(context)!.expiryDateLabel,
                               style: AppTextStyles.caption.copyWith(
                                 color: isDark
                                     ? Colors.white70
@@ -997,7 +998,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'CVV CODE',
+                              AppLocalizations.of(context)!.cvvCodeLabel,
                               style: AppTextStyles.caption.copyWith(
                                 color: isDark
                                     ? Colors.white70
@@ -1083,7 +1084,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                           detectedProvider,
                         ),
                         child: Text(
-                          'Securely Link Card',
+                          AppLocalizations.of(context)!.securelyLinkCard,
                           style: AppTextStyles.titleMedium.copyWith(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
@@ -1112,12 +1113,12 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
   ) async {
     final cleanNum = rawNumber.replaceAll(' ', '');
     if (cleanNum.length < 16) {
-      _showBanner('Please enter a valid 16-digit card number.', isError: true);
+      _showBanner(AppLocalizations.of(sheetContext)!.pleaseEnterValidCardNumber, isError: true);
       return;
     }
 
     if (expiry.length < 5 || !expiry.contains('/')) {
-      _showBanner('Please enter a valid expiry date (MM/YY).', isError: true);
+      _showBanner(AppLocalizations.of(sheetContext)!.pleaseEnterValidExpiryDate, isError: true);
       return;
     }
 
@@ -1126,12 +1127,12 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
     final year = 2000 + (int.tryParse(yearStr) ?? 0);
 
     if (month < 1 || month > 12) {
-      _showBanner('Invalid expiry month.', isError: true);
+      _showBanner(AppLocalizations.of(sheetContext)!.invalidExpiryMonth, isError: true);
       return;
     }
 
     if (cvv.length < 3) {
-      _showBanner('CVV must be 3 digits.', isError: true);
+      _showBanner(AppLocalizations.of(sheetContext)!.cvvMustBe3Digits, isError: true);
       return;
     }
 
@@ -1152,7 +1153,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
     if (errorMsg != null) {
       _showBanner(errorMsg, isError: true);
     } else {
-      _showBanner('Secure billing card linked successfully!');
+      _showBanner(AppLocalizations.of(sheetContext)!.cardLinkedSuccessfully);
     }
   }
 
@@ -1164,7 +1165,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
     if (err != null) {
       _showBanner(err, isError: true);
     } else {
-      _showBanner('Default payment card updated!');
+      _showBanner(AppLocalizations.of(context)!.defaultPaymentCardUpdated);
     }
   }
 
@@ -1180,14 +1181,14 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
             borderRadius: BorderRadius.circular(20),
           ),
           title: Text(
-            'Remove Payment Card',
+            AppLocalizations.of(context)!.removePaymentCard,
             style: AppTextStyles.headlineSmall.copyWith(
               color: context.onSurfaceColor,
               fontWeight: FontWeight.bold,
             ),
           ),
           content: Text(
-            'Are you sure you want to remove this card? Linked auto-funding might fail if no default payment card remains.',
+            AppLocalizations.of(context)!.confirmRemoveCardDesc,
             style: AppTextStyles.bodyMedium.copyWith(
               color: isDark
                   ? AppColors.textSecondaryDark
@@ -1198,7 +1199,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
             TextButton(
               onPressed: () => Navigator.pop(dialogCtx),
               child: Text(
-                'Cancel',
+                AppLocalizations.of(context)!.cancel,
                 style: TextStyle(
                   color: isDark
                       ? Colors.white.withOpacity(0.5)
@@ -1221,10 +1222,10 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                 if (err != null) {
                   _showBanner(err, isError: true);
                 } else {
-                  _showBanner('Billing card successfully removed.');
+                  _showBanner(AppLocalizations.of(context)!.billingCardSuccessfullyRemoved);
                 }
               },
-              child: const Text('Remove'),
+              child: Text(AppLocalizations.of(context)!.remove),
             ),
           ],
         );
@@ -1235,10 +1236,10 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
   // ─── SAVE AUTO-FUND RULES ─────────────────────────────────────────
   Future<void> _saveAutoFundPreferences() async {
     // Basic verification: user must have at least one card linked to enable auto fund
-    final controller = ref.read(paymentsControllerProvider).valueOrNull;
+    final controller = ref.read(paymentsControllerProvider).value;
     if (_autoFundEnabled && (controller?.paymentMethods.isEmpty ?? true)) {
       _showBanner(
-        'Please add and select a default payment card first to enable auto-funding.',
+        AppLocalizations.of(context)!.pleaseAddDefaultCardFirst,
         isError: true,
       );
       return;
@@ -1255,7 +1256,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
     if (err != null) {
       _showBanner(err, isError: true);
     } else {
-      _showBanner('Auto-Funding preferences saved successfully!');
+      _showBanner(AppLocalizations.of(context)!.autoFundPrefsSavedSuccess);
     }
   }
 

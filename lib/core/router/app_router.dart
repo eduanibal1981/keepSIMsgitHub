@@ -3,12 +3,14 @@
 /// Centralized routing with auth-based redirects.
 library;
 
+import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import 'package:keep_sims/features/auth/ui/login_screen.dart';
+import 'package:keep_sims/features/auth/ui/email_auth_screen.dart';
 import 'package:keep_sims/features/profile/presentation/ui/onboarding_screen.dart';
 import 'package:keep_sims/core/router/placeholder_screens.dart';
 import 'package:keep_sims/features/dashboard/presentation/ui/dashboard_screen.dart';
@@ -21,6 +23,7 @@ import 'package:keep_sims/features/notifications/presentation/screens/notificati
 import 'package:keep_sims/features/notifications/presentation/screens/notification_settings_screen.dart';
 import 'package:keep_sims/features/settings/presentation/screens/settings_screen.dart';
 import 'package:keep_sims/features/settings/presentation/screens/preferences_screen.dart';
+import 'package:keep_sims/features/settings/presentation/screens/privacy_screen.dart';
 import 'package:keep_sims/features/household/presentation/screens/household_screen.dart';
 import 'package:keep_sims/features/referrals/ui/referrals_screen.dart';
 import 'package:keep_sims/features/payments/ui/payments_screen.dart';
@@ -34,6 +37,7 @@ import 'package:keep_sims/features/support/presentation/ui/create_ticket_screen.
 import 'package:keep_sims/features/support/presentation/ui/faq_screen.dart';
 import 'package:keep_sims/features/support/presentation/ui/ticket_details_screen.dart';
 import 'package:keep_sims/features/support/data/models/support_ticket.dart';
+import 'package:keep_sims/features/testing_console/presentation/screens/test_list_screen.dart';
 
 part 'app_router.g.dart';
 
@@ -41,6 +45,7 @@ part 'app_router.g.dart';
 abstract final class AppRoutes {
   static const String splash = '/';
   static const String login = '/login';
+  static const String emailAuth = '/email-auth';
   static const String onboarding = '/onboarding';
   static const String home = '/home';
   static const String simLines = '/sim-lines';
@@ -54,8 +59,10 @@ abstract final class AppRoutes {
   static const String referrals = '/settings/referrals';
   static const String geo = '/settings/geo';
   static const String preferences = '/settings/preferences';
+  static const String privacy = '/settings/privacy';
   static const String offlineRefill = '/settings/offline-recharge';
   static const String simulators = '/settings/simulators';
+  static const String tests = '/settings/tests';
   static const String support = '/support';
 }
 
@@ -69,19 +76,31 @@ class SplashCompleted extends _$SplashCompleted {
   void reset() => state = false;
 }
 
+/// A notifier that triggers router re-evaluation when auth or splash states change.
+class RouterNotifier extends ChangeNotifier {
+  RouterNotifier(this._ref) {
+    _ref.listen(authControllerProvider, (_, __) => notifyListeners());
+    _ref.listen(splashCompletedProvider, (_, __) => notifyListeners());
+  }
+  final Ref _ref;
+}
+
 /// Provides the app's GoRouter instance with auth-based redirects.
 @riverpod
 GoRouter appRouter(Ref ref) {
-  // Watch auth state and splash completed state to trigger redirect re-evaluation
-  final authState = ref.watch(authControllerProvider);
-  final isSplashCompleted = ref.watch(splashCompletedProvider);
+  final notifier = RouterNotifier(ref);
+  ref.onDispose(notifier.dispose);
 
   return GoRouter(
     initialLocation: AppRoutes.splash,
     debugLogDiagnostics: true,
+    refreshListenable: notifier,
 
     // ── Auth Redirect Logic ──────────────────────────────────
     redirect: (context, state) {
+      final authState = ref.read(authControllerProvider);
+      final isSplashCompleted = ref.read(splashCompletedProvider);
+      
       final currentPath = state.uri.path;
 
       // 1. Force the splash screen to play fully first
@@ -89,12 +108,15 @@ GoRouter appRouter(Ref ref) {
         return currentPath == AppRoutes.splash ? null : AppRoutes.splash;
       }
 
-      final profile = authState.valueOrNull;
+      final profile = authState.value;
       final isLoggedIn = profile != null;
 
-      // Not logged in → go to login (unless already there)
+      // Not logged in → go to login (unless already on a public route)
       if (!isLoggedIn) {
-        return currentPath == AppRoutes.login ? null : AppRoutes.login;
+        if (currentPath == AppRoutes.login || currentPath == AppRoutes.emailAuth) {
+          return null; // allow access
+        }
+        return AppRoutes.login;
       }
 
       // Logged in check onboarding
@@ -106,9 +128,10 @@ GoRouter appRouter(Ref ref) {
             : AppRoutes.onboarding;
       }
 
-      // Logged in & onboarding complete but on splash, login, or onboarding → go to home
+      // Logged in & onboarding complete but on splash, login, email auth, or onboarding → go to home
       if (currentPath == AppRoutes.splash ||
           currentPath == AppRoutes.login ||
+          currentPath == AppRoutes.emailAuth ||
           currentPath == AppRoutes.onboarding) {
         return AppRoutes.home;
       }
@@ -130,6 +153,13 @@ GoRouter appRouter(Ref ref) {
         path: AppRoutes.login,
         name: 'login',
         builder: (context, state) => const LoginScreen(),
+      ),
+
+      // ── Email Auth ──────────────────────────────────────────
+      GoRoute(
+        path: AppRoutes.emailAuth,
+        name: 'emailAuth',
+        builder: (context, state) => const EmailAuthScreen(),
       ),
 
       // ── Onboarding ─────────────────────────────────────────
@@ -223,6 +253,11 @@ GoRouter appRouter(Ref ref) {
                 name: 'settingsPreferences',
                 builder: (context, state) => const PreferencesScreen(),
               ),
+              GoRoute(
+                path: 'privacy',
+                name: 'settingsPrivacy',
+                builder: (context, state) => const PrivacyScreen(),
+              ),
 
               GoRoute(
                 path: 'offline-recharge',
@@ -236,6 +271,11 @@ GoRouter appRouter(Ref ref) {
                 path: 'simulators',
                 name: 'settingsSimulators',
                 builder: (context, state) => const AlertSimulatorScreen(),
+              ),
+              GoRoute(
+                path: 'tests',
+                name: 'settingsTests',
+                builder: (context, state) => const TestListScreen(),
               ),
             ],
           ),
