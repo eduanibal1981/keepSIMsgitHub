@@ -13,10 +13,16 @@ abstract interface class AuthContract {
   Future<Result<UserProfile>> signInWithGoogle();
 
   /// Sign in with Email and Password.
-  Future<Result<UserProfile>> signInWithEmailAndPassword(String email, String password);
+  Future<Result<UserProfile>> signInWithEmailAndPassword(
+    String email,
+    String password,
+  );
 
   /// Sign up with Email and Password.
-  Future<Result<void>> signUpWithEmailAndPassword(String email, String password);
+  Future<Result<void>> signUpWithEmailAndPassword(
+    String email,
+    String password,
+  );
 
   /// Resend confirmation email.
   Future<Result<void>> resendConfirmationEmail(String email);

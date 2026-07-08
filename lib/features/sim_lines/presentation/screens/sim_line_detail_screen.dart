@@ -128,9 +128,11 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
           }
 
           final isPremium =
-              detailState.simLine.protectionTier.toLowerCase() == 'premium' ;
+              detailState.simLine.protectionTier.toLowerCase() == 'premium';
           final line = detailState.simLine;
-          final fallbackRefillSchedule = detailState.customRefillSchedule ?? detailState.miniRefillSchedule;
+          final fallbackRefillSchedule =
+              detailState.customRefillSchedule ??
+              detailState.miniRefillSchedule;
           final hasProtectionActive = isPremium
               ? (fallbackRefillSchedule != null &&
                     fallbackRefillSchedule.status == 'active')
@@ -149,8 +151,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                           (isVerified ? 25 : 0) +
                           (recentRefill ? 25 : 0)));
 
-          final String tier =
-              (user != null && user.isPowerUser)
+          final String tier = (user != null && user.isPowerUser)
               ? 'premium'
               : line.protectionTier.toLowerCase();
 
@@ -200,16 +201,20 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                           width: 40,
                           height: 40,
                           decoration: BoxDecoration(
-                            color: isDark ? AppColors.darkSurface : Colors.white,
+                            color: isDark
+                                ? AppColors.darkSurface
+                                : Colors.white,
                             shape: BoxShape.circle,
                             border: Border.all(
-                              color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                              color: isDark
+                                  ? AppColors.darkBorder
+                                  : AppColors.lightBorder,
                             ),
                             boxShadow: isDark
                                 ? null
                                 : [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.04),
+                                      color: Colors.black.withValues(alpha: 0.04),
                                       blurRadius: 8,
                                       offset: const Offset(0, 3),
                                     ),
@@ -313,8 +318,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
     int score,
   ) {
     final line = detail.simLine;
-    final bool isPremium =
-        line.protectionTier.toLowerCase() == 'premium' ;
+    final bool isPremium = line.protectionTier.toLowerCase() == 'premium';
     final isDark = context.isDarkMode;
 
     String flag = '🌐';
@@ -404,7 +408,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
         boxShadow: [
           BoxShadow(
             color: (isDark ? AppColors.primary : AppColors.lightPrimary)
-                .withOpacity(0.05),
+                .withValues(alpha: 0.05),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -463,7 +467,8 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
                     Text(
-                      (line.nickname != null && line.nickname!.trim().isNotEmpty)
+                      (line.nickname != null &&
+                              line.nickname!.trim().isNotEmpty)
                           ? line.nickname!.trim()
                           : AppLocalizations.of(context)!.mySimCardDefault,
                       style: AppTextStyles.headlineSmall.copyWith(
@@ -507,10 +512,10 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                             vertical: 3,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.amberAccent.withOpacity(0.15),
+                            color: Colors.amberAccent.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
-                              color: Colors.amberAccent.withOpacity(0.3),
+                              color: Colors.amberAccent.withValues(alpha: 0.3),
                             ),
                           ),
                           child: Row(
@@ -518,14 +523,18 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                             children: [
                               Icon(
                                 Icons.rocket_launch_rounded,
-                                color: isDark ? Colors.amberAccent : Colors.orange.shade700,
+                                color: isDark
+                                    ? Colors.amberAccent
+                                    : Colors.orange.shade700,
                                 size: 10,
                               ),
                               const SizedBox(width: 4),
                               Text(
                                 AppLocalizations.of(context)!.upLabel,
                                 style: TextStyle(
-                                  color: isDark ? Colors.amberAccent : Colors.orange.shade700,
+                                  color: isDark
+                                      ? Colors.amberAccent
+                                      : Colors.orange.shade700,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 9,
                                   letterSpacing: 0.5,
@@ -603,7 +612,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
       child: Text(
         label.toUpperCase(),
         style: AppTextStyles.caption.copyWith(
-          color: context.onSurfaceColor.withOpacity(0.5),
+          color: context.onSurfaceColor.withValues(alpha: 0.5),
           letterSpacing: 1.5,
           fontWeight: FontWeight.w700,
           fontSize: 11,
@@ -627,10 +636,13 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
     final isDark = context.isDarkMode;
     final line = detail.simLine;
 
-    final fallbackRefillSchedule = detail.customRefillSchedule ?? detail.miniRefillSchedule;
+    final fallbackRefillSchedule =
+        detail.customRefillSchedule ?? detail.miniRefillSchedule;
     final hasProtectionActive = isPremium
-        ? (fallbackRefillSchedule != null && fallbackRefillSchedule.status == 'active')
-        : (detail.notifySchedule != null && detail.notifySchedule!.status == 'active');
+        ? (fallbackRefillSchedule != null &&
+              fallbackRefillSchedule.status == 'active')
+        : (detail.notifySchedule != null &&
+              detail.notifySchedule!.status == 'active');
 
     final recentRefill =
         line.lastTopupAt != null &&
@@ -646,10 +658,14 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
         missingReasons.add(AppLocalizations.of(context)!.missingAutoRefillDesc);
       }
       if (!isVerified) {
-        missingReasons.add(AppLocalizations.of(context)!.missingVerificationDesc);
+        missingReasons.add(
+          AppLocalizations.of(context)!.missingVerificationDesc,
+        );
       }
       if (!recentRefill) {
-        missingReasons.add(AppLocalizations.of(context)!.missingRecentRefillDesc);
+        missingReasons.add(
+          AppLocalizations.of(context)!.missingRecentRefillDesc,
+        );
       }
     }
 
@@ -660,12 +676,9 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.error.withOpacity(0.05),
+        color: AppColors.error.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: AppColors.error.withOpacity(0.2),
-          width: 1,
-        ),
+        border: Border.all(color: AppColors.error.withValues(alpha: 0.2), width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -777,7 +790,9 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
       _buildQuickActionTile(
         context: context,
         title: AppLocalizations.of(context)!.rechargeFromFriend,
-        subtitle: isBasic ? AppLocalizations.of(context)!.requestViaTelegram : AppLocalizations.of(context)!.shareViaWaTg,
+        subtitle: isBasic
+            ? AppLocalizations.of(context)!.requestViaTelegram
+            : AppLocalizations.of(context)!.shareViaWaTg,
         icon: Icons.people_rounded,
         iconColor: isDark ? AppColors.primaryLight : AppColors.lightPrimary,
         onTap: () => _showP2PRequestDialog(context, line, isBasic),
@@ -800,15 +815,19 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
             if (tier == 'basic') {
               LineUpgradeSheet.show(context: context, simLine: line);
             } else if (tier == 'standard' && isVerified) {
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(
                     AppLocalizations.of(context)!.starterPlan1xCompleted,
                   ),
+                  showCloseIcon: true,
+                  duration: const Duration(seconds: 6),
                   action: SnackBarAction(
                     label: AppLocalizations.of(context)!.upgrade,
                     textColor: Colors.amber,
-                    onPressed: () => LineUpgradeSheet.show(context: context, simLine: line),
+                    onPressed: () =>
+                        LineUpgradeSheet.show(context: context, simLine: line),
                   ),
                 ),
               );
@@ -822,19 +841,29 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
 
     bool isHomeCountry = false;
     if (userProfile?.homeCountryCode != null && country != null) {
-      isHomeCountry = userProfile!.homeCountryCode!.toUpperCase() == country.isoCode.toUpperCase();
+      isHomeCountry =
+          userProfile!.homeCountryCode!.toUpperCase() ==
+          country.isoCode.toUpperCase();
     }
 
     if (isHomeCountry && !_isViewer) {
       activeTiles.add(
         _buildQuickActionTile(
           context: context,
-          title: line.isHomeMode ? AppLocalizations.of(context)!.leaveCountry(homeCountryName) : AppLocalizations.of(context)!.backToCountryMode(homeCountryName),
-          subtitle: line.isHomeMode ? AppLocalizations.of(context)!.resumeProtectionLayers : AppLocalizations.of(context)!.pauseWhileVisitingHome,
+          title: line.isHomeMode
+              ? AppLocalizations.of(context)!.leaveCountry(homeCountryName)
+              : AppLocalizations.of(
+                  context,
+                )!.backToCountryMode(homeCountryName),
+          subtitle: line.isHomeMode
+              ? AppLocalizations.of(context)!.resumeProtectionLayers
+              : AppLocalizations.of(context)!.pauseWhileVisitingHome,
           icon: Icons.home_rounded,
           iconColor: isDark ? AppColors.primaryLight : AppColors.lightPrimary,
           onTap: () {
-            ref.read(simLinesControllerProvider.notifier).toggleHomeMode(line.id, !line.isHomeMode);
+            ref
+                .read(simLinesControllerProvider.notifier)
+                .toggleHomeMode(line.id, !line.isHomeMode);
           },
         ),
       );
@@ -863,10 +892,9 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
       children: [
         _buildSectionLabel(AppLocalizations.of(context)!.quickActionsLabel),
         const SizedBox(height: 8),
-        ...rows.map((r) => Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: r,
-            )),
+        ...rows.map(
+          (r) => Padding(padding: const EdgeInsets.only(bottom: 12), child: r),
+        ),
       ],
     );
   }
@@ -891,7 +919,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
             ? null
             : [
                 BoxShadow(
-                  color: AppColors.lightPrimary.withOpacity(0.04),
+                  color: AppColors.lightPrimary.withValues(alpha: 0.04),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -910,14 +938,10 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: iconColor.withOpacity(0.12),
+                    color: iconColor.withValues(alpha: 0.12),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(
-                    icon,
-                    color: iconColor,
-                    size: 20,
-                  ),
+                  child: Icon(icon, color: iconColor, size: 20),
                 ),
                 const SizedBox(height: 12),
                 Text(
@@ -991,8 +1015,9 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                     await HapticHelper.lightTick();
                     if (!context.mounted) return;
                     final phone = line.phoneNumber;
-                    final templateText =
-                        AppLocalizations.of(context)!.rechargeRequestTemplate(phone);
+                    final templateText = AppLocalizations.of(
+                      context,
+                    )!.rechargeRequestTemplate(phone);
                     final waUrl =
                         'https://wa.me/?text=${Uri.encodeComponent(templateText)}';
                     final uri = Uri.parse(waUrl);
@@ -1011,14 +1036,14 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                     ),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF25D366).withOpacity(0.12),
+                    backgroundColor: const Color(0xFF25D366).withValues(alpha: 0.12),
                     elevation: 0,
                     shadowColor: Colors.transparent,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                       side: BorderSide(
-                        color: const Color(0xFF25D366).withOpacity(0.2),
+                        color: const Color(0xFF25D366).withValues(alpha: 0.2),
                       ),
                     ),
                   ),
@@ -1058,7 +1083,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                   ),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    side: BorderSide(color: Colors.grey.withOpacity(0.2)),
+                    side: BorderSide(color: Colors.grey.withValues(alpha: 0.2)),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
@@ -1075,8 +1100,9 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                   await HapticHelper.lightTick();
                   if (!context.mounted) return;
                   final phone = line.phoneNumber;
-                  final templateText =
-                      AppLocalizations.of(context)!.rechargeRequestTemplate(phone);
+                  final templateText = AppLocalizations.of(
+                    context,
+                  )!.rechargeRequestTemplate(phone);
                   final tgAppUri = Uri.parse(
                     'tg://msg?text=${Uri.encodeComponent(templateText)}',
                   );
@@ -1098,14 +1124,14 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0088CC).withOpacity(0.12),
+                  backgroundColor: const Color(0xFF0088CC).withValues(alpha: 0.12),
                   elevation: 0,
                   shadowColor: Colors.transparent,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                     side: BorderSide(
-                      color: const Color(0xFF0088CC).withOpacity(0.2),
+                      color: const Color(0xFF0088CC).withValues(alpha: 0.2),
                     ),
                   ),
                 ),
@@ -1117,7 +1143,11 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
     );
   }
 
-  void _launchUrlHelper(BuildContext context, Uri uri, String platformName) async {
+  void _launchUrlHelper(
+    BuildContext context,
+    Uri uri,
+    String platformName,
+  ) async {
     try {
       final launched = await launchUrl(
         uri,
@@ -1133,7 +1163,11 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(AppLocalizations.of(context)!.couldNotLaunchLink(platformName, e.toString())),
+              content: Text(
+                AppLocalizations.of(
+                  context,
+                )!.couldNotLaunchLink(platformName, e.toString()),
+              ),
               backgroundColor: AppColors.error,
             ),
           );
@@ -1142,7 +1176,11 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
     }
   }
 
-  void _launchTelegramHelper(BuildContext context, Uri tgAppUri, Uri tgWebUri) async {
+  void _launchTelegramHelper(
+    BuildContext context,
+    Uri tgAppUri,
+    Uri tgWebUri,
+  ) async {
     try {
       final launched = await launchUrl(
         tgAppUri,
@@ -1158,7 +1196,11 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(AppLocalizations.of(context)!.couldNotLaunchTelegram(e.toString())),
+              content: Text(
+                AppLocalizations.of(
+                  context,
+                )!.couldNotLaunchTelegram(e.toString()),
+              ),
               backgroundColor: AppColors.error,
             ),
           );
@@ -1172,8 +1214,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
     SimLineDetailState detail,
   ) {
     final line = detail.simLine;
-    final isPremium =
-        line.protectionTier.toLowerCase() == 'premium' ;
+    final isPremium = line.protectionTier.toLowerCase() == 'premium';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1208,9 +1249,9 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: getTierColor().withOpacity(0.12),
+        color: getTierColor().withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: getTierColor().withOpacity(0.3), width: 1),
+        border: Border.all(color: getTierColor().withValues(alpha: 0.3), width: 1),
       ),
       child: Text(
         tier.toUpperCase(),
@@ -1223,10 +1264,6 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
       ),
     );
   }
-
-
-
-
 
   Widget _buildAutoNotifyDetailPanel(
     BuildContext context,
@@ -1349,20 +1386,22 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                           (displayActive
                                   ? AppColors.secondary
                                   : AppColors.warning)
-                              .withOpacity(0.12),
+                              .withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
                         color:
                             (displayActive
                                     ? AppColors.secondary
                                     : AppColors.warning)
-                                .withOpacity(0.3),
+                                .withValues(alpha: 0.3),
                       ),
                     ),
                     child: Text(
                       displayActive
                           ? AppLocalizations.of(context)!.activeLabel
-                          : (isPausedByHome ? AppLocalizations.of(context)!.pausedHomeMode : AppLocalizations.of(context)!.pausedLabel),
+                          : (isPausedByHome
+                                ? AppLocalizations.of(context)!.pausedHomeMode
+                                : AppLocalizations.of(context)!.pausedLabel),
                       style: TextStyle(
                         color: displayActive
                             ? AppColors.secondary
@@ -1391,7 +1430,9 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
             AppLocalizations.of(context)!.renewalCheckInterval,
             schedule.frequencyDays == 0
                 ? AppLocalizations.of(context)!.everyHour
-                : AppLocalizations.of(context)!.everyNDays(schedule.frequencyDays),
+                : AppLocalizations.of(
+                    context,
+                  )!.everyNDays(schedule.frequencyDays),
             Icons.repeat,
           ),
           const SizedBox(height: 12),
@@ -1455,11 +1496,11 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                     false,
                   ),
                   style: IconButton.styleFrom(
-                    backgroundColor: AppColors.error.withOpacity(0.08),
+                    backgroundColor: AppColors.error.withValues(alpha: 0.08),
                     padding: const EdgeInsets.all(12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
-                      side: BorderSide(color: AppColors.error.withOpacity(0.2)),
+                      side: BorderSide(color: AppColors.error.withValues(alpha: 0.2)),
                     ),
                   ),
                 ),
@@ -1480,10 +1521,10 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
   ) {
     final dateFormat = DateFormat('MMM dd, yyyy');
     final isDark = context.isDarkMode;
-    
+
     // Premium Mini Refill Toggle Card
     final isMiniActive = miniSchedule?.isActive ?? false;
-    final includedNextRefillDate = miniSchedule != null 
+    final includedNextRefillDate = miniSchedule != null
         ? dateFormat.format(miniSchedule.nextExecutionAt)
         : 'Unknown';
 
@@ -1509,7 +1550,9 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
       customBorder: includedCardBorder,
       padding: const EdgeInsets.all(20),
       isActive: false,
-      activeColor: isMiniActive ? AppColors.success : AppColors.textTertiaryDark,
+      activeColor: isMiniActive
+          ? AppColors.success
+          : AppColors.textTertiaryDark,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1551,8 +1594,10 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
           ),
           const SizedBox(height: 12),
           Text(
-            isMiniActive 
-                ? AppLocalizations.of(context)!.autoRefillIncludedText(includedNextRefillDate)
+            isMiniActive
+                ? AppLocalizations.of(
+                    context,
+                  )!.autoRefillIncludedText(includedNextRefillDate)
                 : AppLocalizations.of(context)!.premiumKeepAliveDisabled,
             style: AppTextStyles.bodySmall.copyWith(
               color: isDark
@@ -1567,7 +1612,8 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
     // Custom Auto-Refill Card
     final isConfigured = customSchedule != null;
     final isPausedByHome = line.isHomeMode;
-    final displayActive = customSchedule != null && customSchedule.isActive && !isPausedByHome;
+    final displayActive =
+        customSchedule != null && customSchedule.isActive && !isPausedByHome;
 
     if (!isConfigured) {
       final unconfiguredCard = GlassCard(
@@ -1621,10 +1667,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                 onPressed: () {
                   if (!isPremium) {
                     HapticHelper.mediumImpact();
-                    LineUpgradeSheet.show(
-                      context: context,
-                      simLine: line,
-                    );
+                    LineUpgradeSheet.show(context: context, simLine: line);
                     return;
                   }
                   _openScheduleSheet(context, line, null, 'refill');
@@ -1652,11 +1695,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
         ),
       );
       return Column(
-        children: [
-          includedCard,
-          const SizedBox(height: 20),
-          unconfiguredCard,
-        ],
+        children: [includedCard, const SizedBox(height: 20), unconfiguredCard],
       );
     }
 
@@ -1692,20 +1731,22 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                           (displayActive
                                   ? AppColors.secondary
                                   : AppColors.warning)
-                              .withOpacity(0.12),
+                              .withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
                         color:
                             (displayActive
                                     ? AppColors.secondary
                                     : AppColors.warning)
-                                .withOpacity(0.3),
+                                .withValues(alpha: 0.3),
                       ),
                     ),
                     child: Text(
                       displayActive
                           ? AppLocalizations.of(context)!.activeLabel
-                          : (isPausedByHome ? AppLocalizations.of(context)!.pausedHomeMode : AppLocalizations.of(context)!.pausedLabel),
+                          : (isPausedByHome
+                                ? AppLocalizations.of(context)!.pausedHomeMode
+                                : AppLocalizations.of(context)!.pausedLabel),
                       style: TextStyle(
                         color: displayActive
                             ? AppColors.secondary
@@ -1730,7 +1771,11 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                               );
                               return;
                             }
-                            _handleToggleSchedule(context, customSchedule.id, val);
+                            _handleToggleSchedule(
+                              context,
+                              customSchedule.id,
+                              val,
+                            );
                           },
                   ),
                 ],
@@ -1750,7 +1795,9 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
             AppLocalizations.of(context)!.refillInterval,
             customSchedule.frequencyDays == 0
                 ? AppLocalizations.of(context)!.everyHour
-                : AppLocalizations.of(context)!.everyNDays(customSchedule.frequencyDays),
+                : AppLocalizations.of(
+                    context,
+                  )!.everyNDays(customSchedule.frequencyDays),
             Icons.repeat,
           ),
           const SizedBox(height: 12),
@@ -1768,7 +1815,9 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
             _buildScheduleRowItem(
               context,
               AppLocalizations.of(context)!.failedRefillAttempts,
-              AppLocalizations.of(context)!.retriesCount(customSchedule.retryCount),
+              AppLocalizations.of(
+                context,
+              )!.retriesCount(customSchedule.retryCount),
               Icons.warning_amber_rounded,
               valueColor: AppColors.healthRed,
             ),
@@ -1788,13 +1837,15 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                     onPressed: () {
                       if (!isPremium) {
                         HapticHelper.mediumImpact();
-                        LineUpgradeSheet.show(
-                          context: context,
-                          simLine: line,
-                        );
+                        LineUpgradeSheet.show(context: context, simLine: line);
                         return;
                       }
-                      _openScheduleSheet(context, line, customSchedule, 'refill');
+                      _openScheduleSheet(
+                        context,
+                        line,
+                        customSchedule,
+                        'refill',
+                      );
                     },
                     icon: Icon(
                       Icons.edit_outlined,
@@ -1833,11 +1884,11 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                     true,
                   ),
                   style: IconButton.styleFrom(
-                    backgroundColor: AppColors.error.withOpacity(0.08),
+                    backgroundColor: AppColors.error.withValues(alpha: 0.08),
                     padding: const EdgeInsets.all(12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
-                      side: BorderSide(color: AppColors.error.withOpacity(0.2)),
+                      side: BorderSide(color: AppColors.error.withValues(alpha: 0.2)),
                     ),
                   ),
                 ),
@@ -1900,8 +1951,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
     BuildContext context,
     SimLineDetailState detail,
   ) {
-    final isPremium =
-        detail.simLine.protectionTier.toLowerCase() == 'premium' ;
+    final isPremium = detail.simLine.protectionTier.toLowerCase() == 'premium';
     final isDark = context.isDarkMode;
 
     if (!isPremium) {
@@ -1931,7 +1981,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
             ? null
             : [
                 BoxShadow(
-                  color: AppColors.lightPrimary.withOpacity(0.04),
+                  color: AppColors.lightPrimary.withValues(alpha: 0.04),
                   blurRadius: 15,
                   offset: const Offset(0, 4),
                 ),
@@ -1976,9 +2026,10 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
               itemBuilder: (context, index) {
                 final ex = list[index];
                 final isSuccess = ex.status == 'success';
+                final targetDate = ex.executedAt ?? ex.executionTime ?? ex.createdAt ?? DateTime.now();
                 final dateStr = DateFormat(
                   'MMM dd, yyyy HH:mm',
-                ).format(ex.executedAt);
+                ).format(targetDate);
 
                 return Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1988,7 +2039,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         color: (isSuccess ? AppColors.success : AppColors.error)
-                            .withOpacity(0.08),
+                            .withValues(alpha: 0.08),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
@@ -2025,7 +2076,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                                       (isSuccess
                                               ? AppColors.success
                                               : AppColors.error)
-                                          .withOpacity(0.12),
+                                          .withValues(alpha: 0.12),
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: Text(
@@ -2068,10 +2119,10 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                               width: double.infinity,
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
-                                color: AppColors.error.withOpacity(0.05),
+                                color: AppColors.error.withValues(alpha: 0.05),
                                 borderRadius: BorderRadius.circular(8),
                                 border: Border.all(
-                                  color: AppColors.error.withOpacity(0.15),
+                                  color: AppColors.error.withValues(alpha: 0.15),
                                 ),
                               ),
                               child: Column(
@@ -2106,7 +2157,9 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                                           ),
                                         ),
                                         child: Text(
-                                          AppLocalizations.of(context)!.retryConnection,
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.retryConnection,
                                           style: const TextStyle(
                                             fontSize: 10,
                                             fontWeight: FontWeight.bold,
@@ -2204,7 +2257,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
             ? null
             : [
                 BoxShadow(
-                  color: AppColors.lightPrimary.withOpacity(0.04),
+                  color: AppColors.lightPrimary.withValues(alpha: 0.04),
                   blurRadius: 15,
                   offset: const Offset(0, 4),
                 ),
@@ -2306,10 +2359,10 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                           Container(
                             padding: const EdgeInsets.all(6),
                             decoration: BoxDecoration(
-                              color: iconColor.withOpacity(0.08),
+                              color: iconColor.withValues(alpha: 0.08),
                               shape: BoxShape.circle,
                               border: Border.all(
-                                color: iconColor.withOpacity(0.2),
+                                color: iconColor.withValues(alpha: 0.2),
                               ),
                             ),
                             child: Icon(iconData, color: iconColor, size: 16),
@@ -2419,7 +2472,9 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                AppLocalizations.of(context)!.autoRenewalStatusUpdated(isActive ? 'enabled' : 'paused'),
+                AppLocalizations.of(
+                  context,
+                )!.autoRenewalStatusUpdated(isActive ? 'enabled' : 'paused'),
               ),
               backgroundColor: AppColors.success,
             ),
@@ -2432,7 +2487,11 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppLocalizations.of(context)!.failedToUpdateSchedule(e.toString())),
+            content: Text(
+              AppLocalizations.of(
+                context,
+              )!.failedToUpdateSchedule(e.toString()),
+            ),
             backgroundColor: AppColors.error,
           ),
         );
@@ -2446,7 +2505,10 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
     }
   }
 
-  Future<void> _handleCreateMiniRefill(BuildContext context, SimLine line) async {
+  Future<void> _handleCreateMiniRefill(
+    BuildContext context,
+    SimLine line,
+  ) async {
     setState(() {
       _isToggling = true;
     });
@@ -2454,7 +2516,9 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
     try {
       int frequencyDays = 90;
       if (line.carrierId != null) {
-        final ruleAsync = await ref.read(carrierRuleProvider(line.carrierId!).future);
+        final ruleAsync = await ref.read(
+          carrierRuleProvider(line.carrierId!).future,
+        );
         if (ruleAsync != null) {
           frequencyDays = ruleAsync.topupValidityDays;
         }
@@ -2476,10 +2540,12 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
         amount: 0.0,
         currency: 'USD',
         frequencyDays: frequencyDays,
-        nextExecutionAt: DateTime.now().toUtc().add(Duration(days: notifyDelay)),
+        nextExecutionAt: DateTime.now().toUtc().add(
+          Duration(days: notifyDelay),
+        ),
         isActive: true,
         status: 'active',
-        scheduleType: 'refill mini',
+        scheduleType: 'refill_mini',
       );
 
       final result = await ref
@@ -2504,7 +2570,11 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppLocalizations.of(context)!.failedToEnableAutoRefill(e.toString())),
+            content: Text(
+              AppLocalizations.of(
+                context,
+              )!.failedToEnableAutoRefill(e.toString()),
+            ),
             backgroundColor: AppColors.error,
           ),
         );
@@ -2590,7 +2660,9 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                         content: Text(
                           isPremium
                               ? AppLocalizations.of(context)!.autoRefillRemoved
-                              : AppLocalizations.of(context)!.autoRenewalRemoved,
+                              : AppLocalizations.of(
+                                  context,
+                                )!.autoRenewalRemoved,
                         ),
                         backgroundColor: AppColors.success,
                       ),
@@ -2603,7 +2675,11 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text(AppLocalizations.of(context)!.failedToDeleteSchedule(e.toString())),
+                      content: Text(
+                        AppLocalizations.of(
+                          context,
+                        )!.failedToDeleteSchedule(e.toString()),
+                      ),
                       backgroundColor: AppColors.error,
                     ),
                   );
@@ -2611,7 +2687,10 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
-            child: Text(AppLocalizations.of(context)!.deleteButton, style: const TextStyle(color: Colors.white)),
+            child: Text(
+              AppLocalizations.of(context)!.deleteButton,
+              style: const TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
@@ -2632,7 +2711,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
               .read(simLineDetailControllerProvider(widget.id))
               .value;
           final isPremium =
-              detailState?.simLine.protectionTier.toLowerCase() == 'premium' ;
+              detailState?.simLine.protectionTier.toLowerCase() == 'premium';
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
@@ -2646,7 +2725,9 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
         } else if (result is Failure<void>) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(AppLocalizations.of(context)!.retryFailed(result.error.message)),
+              content: Text(
+                AppLocalizations.of(context)!.retryFailed(result.error.message),
+              ),
               backgroundColor: AppColors.error,
             ),
           );
@@ -2656,7 +2737,9 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppLocalizations.of(context)!.retryExecutionError(e.toString())),
+            content: Text(
+              AppLocalizations.of(context)!.retryExecutionError(e.toString()),
+            ),
             backgroundColor: AppColors.error,
           ),
         );
@@ -2684,7 +2767,11 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppLocalizations.of(context)!.failedToDeleteActivityLog(e.toString())),
+            content: Text(
+              AppLocalizations.of(
+                context,
+              )!.failedToDeleteActivityLog(e.toString()),
+            ),
             backgroundColor: AppColors.error,
           ),
         );
@@ -2709,7 +2796,11 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppLocalizations.of(context)!.failedToClearActivityLogs(e.toString())),
+            content: Text(
+              AppLocalizations.of(
+                context,
+              )!.failedToClearActivityLogs(e.toString()),
+            ),
             backgroundColor: AppColors.error,
           ),
         );
@@ -2758,7 +2849,9 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
           ],
         ),
         content: Text(
-          AppLocalizations.of(context)!.confirmRemoveProtectionDesc(line.nickname ?? line.phoneNumber),
+          AppLocalizations.of(
+            context,
+          )!.confirmRemoveProtectionDesc(line.nickname ?? line.phoneNumber),
           style: AppTextStyles.bodyMedium.copyWith(
             color: isDark
                 ? AppColors.textSecondaryDark
@@ -2795,21 +2888,30 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
 
                 scaffoldMessenger.showSnackBar(
                   SnackBar(
-                    content: Text(AppLocalizations.of(context)!.simLineProtectionRemoved),
+                    content: Text(
+                      AppLocalizations.of(context)!.simLineProtectionRemoved,
+                    ),
                     backgroundColor: AppColors.success,
                   ),
                 );
               } catch (e) {
                 scaffoldMessenger.showSnackBar(
                   SnackBar(
-                    content: Text(AppLocalizations.of(context)!.failedToDeleteSimLine(e.toString())),
+                    content: Text(
+                      AppLocalizations.of(
+                        context,
+                      )!.failedToDeleteSimLine(e.toString()),
+                    ),
                     backgroundColor: AppColors.error,
                   ),
                 );
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
-            child: Text(AppLocalizations.of(context)!.deleteButton, style: const TextStyle(color: Colors.white)),
+            child: Text(
+              AppLocalizations.of(context)!.deleteButton,
+              style: const TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
@@ -2837,7 +2939,9 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
               children: [
                 Icon(
                   Icons.edit_outlined,
-                  color: isDark ? AppColors.primaryLight : AppColors.lightPrimary,
+                  color: isDark
+                      ? AppColors.primaryLight
+                      : AppColors.lightPrimary,
                   size: 24,
                 ),
                 const SizedBox(width: 12),
@@ -2865,10 +2969,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                 TextField(
                   controller: controller,
                   autofocus: true,
-                  style: TextStyle(
-                    color: context.onSurfaceColor,
-                    fontSize: 16,
-                  ),
+                  style: TextStyle(color: context.onSurfaceColor, fontSize: 16),
                   decoration: InputDecoration(
                     hintText: AppLocalizations.of(context)!.nicknameExampleHint,
                     hintStyle: TextStyle(
@@ -2877,18 +2978,27 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                           : AppColors.textTertiaryLight,
                     ),
                     filled: true,
-                    fillColor: isDark ? AppColors.darkSurface : const Color(0xFFEAEEF1),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                    fillColor: isDark
+                        ? AppColors.darkSurface
+                        : const Color(0xFFEAEEF1),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 16,
+                    ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
                       borderSide: BorderSide(
-                        color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                        color: isDark
+                            ? AppColors.darkBorder
+                            : AppColors.lightBorder,
                       ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
                       borderSide: BorderSide(
-                        color: isDark ? AppColors.primary : AppColors.lightPrimary,
+                        color: isDark
+                            ? AppColors.primary
+                            : AppColors.lightPrimary,
                       ),
                     ),
                   ),
@@ -2929,7 +3039,11 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                             Navigator.pop(context);
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text(AppLocalizations.of(context)!.simNameUpdatedSuccess),
+                                content: Text(
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.simNameUpdatedSuccess,
+                                ),
                                 backgroundColor: AppColors.success,
                               ),
                             );
@@ -2941,7 +3055,11 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                             });
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text(AppLocalizations.of(context)!.failedToUpdateSimName(e.toString())),
+                                content: Text(
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.failedToUpdateSimName(e.toString()),
+                                ),
                                 backgroundColor: AppColors.error,
                               ),
                             );
@@ -2974,5 +3092,4 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
       ),
     );
   }
-
 }

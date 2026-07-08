@@ -8,6 +8,9 @@ android {
     namespace = "com.keep_sims"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
+    
+    // FORCE GRADLE TO USE MODERN BUILD TOOLS
+    buildToolsVersion = "35.0.0" 
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17

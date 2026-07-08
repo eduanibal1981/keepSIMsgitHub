@@ -54,7 +54,7 @@ class SubscriptionUpsellSheet extends StatelessWidget {
           topRight: Radius.circular(28),
         ),
         border: Border(
-          top: BorderSide(color: accentColor.withOpacity(0.2), width: 1.5),
+          top: BorderSide(color: accentColor.withValues(alpha: 0.2), width: 1.5),
         ),
       ),
       child: Column(
@@ -76,11 +76,11 @@ class SubscriptionUpsellSheet extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: accentColor.withOpacity(0.12),
+              color: accentColor.withValues(alpha: 0.12),
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: accentColor.withOpacity(0.08),
+                  color: accentColor.withValues(alpha: 0.08),
                   blurRadius: 20,
                   spreadRadius: 2,
                 ),
@@ -121,9 +121,9 @@ class SubscriptionUpsellSheet extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
-              color: AppColors.darkCard.withOpacity(0.4),
+              color: AppColors.darkCard.withValues(alpha: 0.4),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.white.withOpacity(0.06)),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -154,7 +154,7 @@ class SubscriptionUpsellSheet extends StatelessWidget {
                           child: Text(
                             feat,
                             style: AppTextStyles.bodyMedium.copyWith(
-                              color: Colors.white.withOpacity(0.9),
+                              color: Colors.white.withValues(alpha: 0.9),
                             ),
                           ),
                         ),
@@ -183,7 +183,7 @@ class SubscriptionUpsellSheet extends StatelessWidget {
                   borderRadius: BorderRadius.circular(16),
                 ),
                 elevation: 4,
-                shadowColor: accentColor.withOpacity(0.3),
+                shadowColor: accentColor.withValues(alpha: 0.3),
               ),
               child: Text(
                 'Upgrade to $requiredPlan',

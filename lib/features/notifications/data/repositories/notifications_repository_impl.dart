@@ -317,8 +317,6 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
 }
 
 @riverpod
-NotificationsRepository notificationsRepository(
-  Ref ref,
-) {
+NotificationsRepository notificationsRepository(Ref ref) {
   return NotificationsRepositoryImpl(supabase: Supabase.instance.client);
 }

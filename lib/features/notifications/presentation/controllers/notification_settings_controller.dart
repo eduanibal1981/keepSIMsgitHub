@@ -129,7 +129,7 @@ class UserPreferencesController extends _$UserPreferencesController {
   }
 
   String _hashPin(String pin) {
-    final bytes = utf8.encode(pin + "SIM_SHIELD_SALT_2026");
+    final bytes = utf8.encode("${pin}SIM_SHIELD_SALT_2026");
     var hash = 0;
     for (var byte in bytes) {
       hash = (hash * 31 + byte) & 0xFFFFFFFF;

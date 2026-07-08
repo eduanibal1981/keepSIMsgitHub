@@ -34,7 +34,7 @@ final class SimLinesControllerProvider
 }
 
 String _$simLinesControllerHash() =>
-    r'20071d5e30c513bbcf5a0c50f0bae440b8f6c623';
+    r'd1231fe7357c0860d9672ec8f81013f717542320';
 
 abstract class _$SimLinesController extends $AsyncNotifier<List<SimLine>> {
   FutureOr<List<SimLine>> build();
@@ -53,46 +53,6 @@ abstract class _$SimLinesController extends $AsyncNotifier<List<SimLine>> {
     return element.handleCreate(ref, build);
   }
 }
-
-@ProviderFor(supportedCountries)
-final supportedCountriesProvider = SupportedCountriesProvider._();
-
-final class SupportedCountriesProvider
-    extends
-        $FunctionalProvider<
-          AsyncValue<List<Country>>,
-          List<Country>,
-          FutureOr<List<Country>>
-        >
-    with $FutureModifier<List<Country>>, $FutureProvider<List<Country>> {
-  SupportedCountriesProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'supportedCountriesProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$supportedCountriesHash();
-
-  @$internal
-  @override
-  $FutureProviderElement<List<Country>> $createElement(
-    $ProviderPointer pointer,
-  ) => $FutureProviderElement(pointer);
-
-  @override
-  FutureOr<List<Country>> create(Ref ref) {
-    return supportedCountries(ref);
-  }
-}
-
-String _$supportedCountriesHash() =>
-    r'a25db646dc2dd8068078c7fd94561b4fb26ebfdf';
 
 @ProviderFor(carriersForCountry)
 final carriersForCountryProvider = CarriersForCountryFamily._();
@@ -150,7 +110,7 @@ final class CarriersForCountryProvider
 }
 
 String _$carriersForCountryHash() =>
-    r'5bf84b68a0160d33be2656a6dca8d70ad839bf54';
+    r'b8dbcc9128fc84e8e1874a37162a1104399a8e92';
 
 final class CarriersForCountryFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<List<Carrier>>, String> {
@@ -225,7 +185,7 @@ final class CarrierRuleProvider
   }
 }
 
-String _$carrierRuleHash() => r'03a87a35965d28ec5ac15ffd35bc66b7f073acf7';
+String _$carrierRuleHash() => r'8b8517ec4dfbfc986ddd909c4448e2d099593faf';
 
 final class CarrierRuleFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<CarrierRule?>, String> {
@@ -303,7 +263,7 @@ final class SimLineActivityLogsProvider
 }
 
 String _$simLineActivityLogsHash() =>
-    r'638c0cd7f9ed1b6c0785ff4e591784ba64c8e4a6';
+    r'e44c4e8afe24bf4c29f2bad20db784c72c129622';
 
 final class SimLineActivityLogsFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<List<LineActivityLog>>, String> {
@@ -322,3 +282,165 @@ final class SimLineActivityLogsFamily extends $Family
   @override
   String toString() => r'simLineActivityLogsProvider';
 }
+
+@ProviderFor(zenditOffers)
+final zenditOffersProvider = ZenditOffersFamily._();
+
+final class ZenditOffersProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<Map<String, dynamic>>>,
+          List<Map<String, dynamic>>,
+          FutureOr<List<Map<String, dynamic>>>
+        >
+    with
+        $FutureModifier<List<Map<String, dynamic>>>,
+        $FutureProvider<List<Map<String, dynamic>>> {
+  ZenditOffersProvider._({
+    required ZenditOffersFamily super.from,
+    required (String, String) super.argument,
+  }) : super(
+         retry: null,
+         name: r'zenditOffersProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$zenditOffersHash();
+
+  @override
+  String toString() {
+    return r'zenditOffersProvider'
+        ''
+        '$argument';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<List<Map<String, dynamic>>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<Map<String, dynamic>>> create(Ref ref) {
+    final argument = this.argument as (String, String);
+    return zenditOffers(ref, argument.$1, argument.$2);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is ZenditOffersProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$zenditOffersHash() => r'69ccebcb6a1dabb1db1257172741a6988f752010';
+
+final class ZenditOffersFamily extends $Family
+    with
+        $FunctionalFamilyOverride<
+          FutureOr<List<Map<String, dynamic>>>,
+          (String, String)
+        > {
+  ZenditOffersFamily._()
+    : super(
+        retry: null,
+        name: r'zenditOffersProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  ZenditOffersProvider call(String countryId, String carrierId) =>
+      ZenditOffersProvider._(argument: (countryId, carrierId), from: this);
+
+  @override
+  String toString() => r'zenditOffersProvider';
+}
+
+@ProviderFor(paymentMethods)
+final paymentMethodsProvider = PaymentMethodsProvider._();
+
+final class PaymentMethodsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<PaymentMethod>>,
+          List<PaymentMethod>,
+          FutureOr<List<PaymentMethod>>
+        >
+    with
+        $FutureModifier<List<PaymentMethod>>,
+        $FutureProvider<List<PaymentMethod>> {
+  PaymentMethodsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'paymentMethodsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$paymentMethodsHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<PaymentMethod>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<PaymentMethod>> create(Ref ref) {
+    return paymentMethods(ref);
+  }
+}
+
+String _$paymentMethodsHash() => r'8dc28356d26923b6e782134af74857f0091a979a';
+
+@ProviderFor(supportedCountries)
+final supportedCountriesProvider = SupportedCountriesProvider._();
+
+final class SupportedCountriesProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<Country>>,
+          List<Country>,
+          FutureOr<List<Country>>
+        >
+    with $FutureModifier<List<Country>>, $FutureProvider<List<Country>> {
+  SupportedCountriesProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'supportedCountriesProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$supportedCountriesHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<Country>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<Country>> create(Ref ref) {
+    return supportedCountries(ref);
+  }
+}
+
+String _$supportedCountriesHash() =>
+    r'70bfcd26d8c531ed5804bd12b519011c6f929ac1';

@@ -212,9 +212,10 @@ class _SimLineExecutionsHistoryScreenState
 
                 final ex = executions[index];
                 final isSuccess = ex.status == 'success';
+                final targetDate = ex.executedAt ?? ex.executionTime ?? ex.createdAt ?? DateTime.now();
                 final dateStr = DateFormat(
                   'MMM dd, yyyy HH:mm',
-                ).format(ex.executedAt);
+                ).format(targetDate);
 
                 return GlassCard(
                   padding: const EdgeInsets.all(16),
@@ -228,7 +229,7 @@ class _SimLineExecutionsHistoryScreenState
                         decoration: BoxDecoration(
                           color:
                               (isSuccess ? AppColors.success : AppColors.error)
-                                  .withOpacity(0.08),
+                                  .withValues(alpha: 0.08),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
@@ -267,7 +268,7 @@ class _SimLineExecutionsHistoryScreenState
                                         (isSuccess
                                                 ? AppColors.success
                                                 : AppColors.error)
-                                            .withOpacity(0.12),
+                                            .withValues(alpha: 0.12),
                                     borderRadius: BorderRadius.circular(4),
                                   ),
                                   child: Text(
@@ -310,10 +311,10 @@ class _SimLineExecutionsHistoryScreenState
                                 width: double.infinity,
                                 padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
-                                  color: AppColors.error.withOpacity(0.05),
+                                  color: AppColors.error.withValues(alpha: 0.05),
                                   borderRadius: BorderRadius.circular(8),
                                   border: Border.all(
-                                    color: AppColors.error.withOpacity(0.15),
+                                    color: AppColors.error.withValues(alpha: 0.15),
                                   ),
                                 ),
                                 child: Column(

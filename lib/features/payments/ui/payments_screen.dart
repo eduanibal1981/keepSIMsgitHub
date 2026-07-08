@@ -2,6 +2,7 @@
 ///
 /// Breathtaking glassmorphic billing dashboard allowing expats to manage credit cards
 /// and configure automated wallet top-up triggers.
+library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -213,16 +214,16 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
         boxShadow: [
           BoxShadow(
             color: (isDefault ? context.primaryColor : Colors.black)
-                .withOpacity(isDark ? 0.25 : 0.08),
+                .withValues(alpha: isDark ? 0.25 : 0.08),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
         ],
         border: Border.all(
           color: isDefault
-              ? Colors.white.withOpacity(0.3)
+              ? Colors.white.withValues(alpha: 0.3)
               : (isDark
-                    ? AppColors.darkBorder.withOpacity(0.5)
+                    ? AppColors.darkBorder.withValues(alpha: 0.5)
                     : AppColors.lightBorder),
           width: 1.5,
         ),
@@ -239,7 +240,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                 width: 150,
                 height: 150,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.04),
+                  color: Colors.white.withValues(alpha: 0.04),
                   shape: BoxShape.circle,
                 ),
               ),
@@ -295,14 +296,14 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                                     (isDark
                                             ? AppColors.secondary
                                             : AppColors.lightSecondary)
-                                        .withOpacity(0.15),
+                                        .withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(20),
                                 border: Border.all(
                                   color:
                                       (isDark
                                               ? AppColors.secondary
                                               : AppColors.lightSecondary)
-                                          .withOpacity(0.4),
+                                          .withValues(alpha: 0.4),
                                 ),
                               ),
                               child: Row(
@@ -317,7 +318,9 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                                   ),
                                   const SizedBox(width: 4),
                                   Text(
-                                    AppLocalizations.of(context)!.defaultCardIndicator,
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.defaultCardIndicator,
                                     style: AppTextStyles.labelSmall.copyWith(
                                       color: isDark
                                           ? AppColors.secondary
@@ -382,7 +385,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                             AppLocalizations.of(context)!.cardholder,
                             style: AppTextStyles.caption.copyWith(
                               color: isDefault || isDark
-                                  ? Colors.white.withOpacity(0.5)
+                                  ? Colors.white.withValues(alpha: 0.5)
                                   : AppColors.textTertiaryLight,
                               fontWeight: FontWeight.bold,
                             ),
@@ -411,7 +414,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                             AppLocalizations.of(context)!.expires,
                             style: AppTextStyles.caption.copyWith(
                               color: isDefault || isDark
-                                  ? Colors.white.withOpacity(0.5)
+                                  ? Colors.white.withValues(alpha: 0.5)
                                   : AppColors.textTertiaryLight,
                               fontWeight: FontWeight.bold,
                             ),
@@ -463,7 +466,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: (isDark ? AppColors.primary : AppColors.lightPrimary)
-                    .withOpacity(0.1),
+                    .withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -518,7 +521,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                 decoration: BoxDecoration(
                   color:
                       (isDark ? AppColors.secondary : AppColors.lightSecondary)
-                          .withOpacity(0.1),
+                          .withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -559,7 +562,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                     : AppColors.lightSecondary,
                 activeTrackColor:
                     (isDark ? AppColors.secondary : AppColors.lightSecondary)
-                        .withOpacity(0.3),
+                        .withValues(alpha: 0.3),
                 inactiveThumbColor: isDark
                     ? AppColors.textSecondaryDark
                     : AppColors.textSecondaryLight,
@@ -746,8 +749,8 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                         ),
                   boxShadow: [
                     BoxShadow(
-                      color: context.primaryColor.withOpacity(
-                        isDark ? 0.3 : 0.15,
+                      color: context.primaryColor.withValues(
+                        alpha: isDark ? 0.3 : 0.15,
                       ),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
@@ -888,7 +891,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                       hintText: '4242 4242 4242 4242',
                       hintStyle: TextStyle(
                         color: isDark
-                            ? Colors.white.withOpacity(0.3)
+                            ? Colors.white.withValues(alpha: 0.3)
                             : AppColors.textTertiaryLight,
                       ),
                       counterText: '',
@@ -963,7 +966,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                                 hintText: 'MM/YY',
                                 hintStyle: TextStyle(
                                   color: isDark
-                                      ? Colors.white.withOpacity(0.3)
+                                      ? Colors.white.withValues(alpha: 0.3)
                                       : AppColors.textTertiaryLight,
                                 ),
                                 counterText: '',
@@ -1020,7 +1023,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                                 hintText: '•••',
                                 hintStyle: TextStyle(
                                   color: isDark
-                                      ? Colors.white.withOpacity(0.3)
+                                      ? Colors.white.withValues(alpha: 0.3)
                                       : AppColors.textTertiaryLight,
                                 ),
                                 counterText: '',
@@ -1113,12 +1116,18 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
   ) async {
     final cleanNum = rawNumber.replaceAll(' ', '');
     if (cleanNum.length < 16) {
-      _showBanner(AppLocalizations.of(sheetContext)!.pleaseEnterValidCardNumber, isError: true);
+      _showBanner(
+        AppLocalizations.of(sheetContext)!.pleaseEnterValidCardNumber,
+        isError: true,
+      );
       return;
     }
 
     if (expiry.length < 5 || !expiry.contains('/')) {
-      _showBanner(AppLocalizations.of(sheetContext)!.pleaseEnterValidExpiryDate, isError: true);
+      _showBanner(
+        AppLocalizations.of(sheetContext)!.pleaseEnterValidExpiryDate,
+        isError: true,
+      );
       return;
     }
 
@@ -1127,12 +1136,18 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
     final year = 2000 + (int.tryParse(yearStr) ?? 0);
 
     if (month < 1 || month > 12) {
-      _showBanner(AppLocalizations.of(sheetContext)!.invalidExpiryMonth, isError: true);
+      _showBanner(
+        AppLocalizations.of(sheetContext)!.invalidExpiryMonth,
+        isError: true,
+      );
       return;
     }
 
     if (cvv.length < 3) {
-      _showBanner(AppLocalizations.of(sheetContext)!.cvvMustBe3Digits, isError: true);
+      _showBanner(
+        AppLocalizations.of(sheetContext)!.cvvMustBe3Digits,
+        isError: true,
+      );
       return;
     }
 
@@ -1202,7 +1217,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                 AppLocalizations.of(context)!.cancel,
                 style: TextStyle(
                   color: isDark
-                      ? Colors.white.withOpacity(0.5)
+                      ? Colors.white.withValues(alpha: 0.5)
                       : AppColors.textTertiaryLight,
                 ),
               ),
@@ -1222,7 +1237,11 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                 if (err != null) {
                   _showBanner(err, isError: true);
                 } else {
-                  _showBanner(AppLocalizations.of(context)!.billingCardSuccessfullyRemoved);
+                  _showBanner(
+                    AppLocalizations.of(
+                      context,
+                    )!.billingCardSuccessfullyRemoved,
+                  );
                 }
               },
               child: Text(AppLocalizations.of(context)!.remove),

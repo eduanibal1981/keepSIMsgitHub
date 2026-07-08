@@ -37,7 +37,7 @@ import 'package:keep_sims/features/support/presentation/ui/create_ticket_screen.
 import 'package:keep_sims/features/support/presentation/ui/faq_screen.dart';
 import 'package:keep_sims/features/support/presentation/ui/ticket_details_screen.dart';
 import 'package:keep_sims/features/support/data/models/support_ticket.dart';
-import 'package:keep_sims/features/testing_console/presentation/screens/test_list_screen.dart';
+import 'package:keep_sims/features/support/data/models/support_ticket.dart';
 
 part 'app_router.g.dart';
 
@@ -79,8 +79,8 @@ class SplashCompleted extends _$SplashCompleted {
 /// A notifier that triggers router re-evaluation when auth or splash states change.
 class RouterNotifier extends ChangeNotifier {
   RouterNotifier(this._ref) {
-    _ref.listen(authControllerProvider, (_, __) => notifyListeners());
-    _ref.listen(splashCompletedProvider, (_, __) => notifyListeners());
+    _ref.listen(authControllerProvider, (_, _) => notifyListeners());
+    _ref.listen(splashCompletedProvider, (_, _) => notifyListeners());
   }
   final Ref _ref;
 }
@@ -100,7 +100,7 @@ GoRouter appRouter(Ref ref) {
     redirect: (context, state) {
       final authState = ref.read(authControllerProvider);
       final isSplashCompleted = ref.read(splashCompletedProvider);
-      
+
       final currentPath = state.uri.path;
 
       // 1. Force the splash screen to play fully first
@@ -113,7 +113,8 @@ GoRouter appRouter(Ref ref) {
 
       // Not logged in → go to login (unless already on a public route)
       if (!isLoggedIn) {
-        if (currentPath == AppRoutes.login || currentPath == AppRoutes.emailAuth) {
+        if (currentPath == AppRoutes.login ||
+            currentPath == AppRoutes.emailAuth) {
           return null; // allow access
         }
         return AppRoutes.login;
@@ -135,6 +136,8 @@ GoRouter appRouter(Ref ref) {
           currentPath == AppRoutes.onboarding) {
         return AppRoutes.home;
       }
+
+
 
       // Otherwise, stay on current page
       return null;
@@ -271,13 +274,13 @@ GoRouter appRouter(Ref ref) {
                 path: 'simulators',
                 name: 'settingsSimulators',
                 builder: (context, state) => const AlertSimulatorScreen(),
-              ),
-              GoRoute(
-                path: 'tests',
-                name: 'settingsTests',
-                builder: (context, state) => const TestListScreen(),
-              ),
-            ],
+              // ),
+              // GoRoute(
+              //   path: 'tests',
+              //   name: 'settingsTests',
+              //   builder: (context, state) => const TestListScreen(),
+              // ),
+          )],
           ),
           GoRoute(
             path: AppRoutes.household,

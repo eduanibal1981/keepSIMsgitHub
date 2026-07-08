@@ -395,7 +395,7 @@ class _ReferralsScreenState extends ConsumerState<ReferralsScreen> {
                             )
                           : LinearGradient(
                               colors: [
-                                context.primaryColor.withOpacity(0.08),
+                                context.primaryColor.withValues(alpha: 0.08),
                                 Colors.white,
                               ],
                               begin: Alignment.topLeft,
@@ -407,7 +407,7 @@ class _ReferralsScreenState extends ConsumerState<ReferralsScreen> {
                             (isDark
                                     ? AppColors.primary
                                     : AppColors.lightPrimary)
-                                .withOpacity(0.4),
+                                .withValues(alpha: 0.4),
                         width: 1.5,
                       ),
                       boxShadow: [
@@ -416,7 +416,7 @@ class _ReferralsScreenState extends ConsumerState<ReferralsScreen> {
                               (isDark
                                       ? AppColors.primary
                                       : AppColors.lightPrimary)
-                                  .withOpacity(0.1),
+                                  .withValues(alpha: 0.1),
                           blurRadius: 20,
                           offset: const Offset(0, 8),
                         ),
@@ -437,7 +437,7 @@ class _ReferralsScreenState extends ConsumerState<ReferralsScreen> {
                                         (isDark
                                                 ? AppColors.primary
                                                 : AppColors.lightPrimary)
-                                            .withOpacity(0.2),
+                                            .withValues(alpha: 0.2),
                                     shape: BoxShape.circle,
                                   ),
                                   child: Icon(
@@ -482,14 +482,14 @@ class _ReferralsScreenState extends ConsumerState<ReferralsScreen> {
                                     (isDark
                                             ? AppColors.secondary
                                             : AppColors.lightSecondary)
-                                        .withOpacity(0.15),
+                                        .withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
                                   color:
                                       (isDark
                                               ? AppColors.secondary
                                               : AppColors.lightSecondary)
-                                          .withOpacity(0.5),
+                                          .withValues(alpha: 0.5),
                                 ),
                               ),
                               child: Text(
@@ -810,7 +810,7 @@ class _ReferralsScreenState extends ConsumerState<ReferralsScreen> {
                                           (isDark
                                                   ? AppColors.secondary
                                                   : AppColors.lightPrimary)
-                                              .withOpacity(0.4),
+                                              .withValues(alpha: 0.4),
                                     ),
                                     child: state.isSubmitting
                                         ? SizedBox(
@@ -873,7 +873,7 @@ class _ReferralsScreenState extends ConsumerState<ReferralsScreen> {
                                 (isDark
                                         ? AppColors.textTertiaryDark
                                         : AppColors.textTertiaryLight)
-                                    .withOpacity(0.4),
+                                    .withValues(alpha: 0.4),
                             size: 64,
                           ),
                           const SizedBox(height: 12),
@@ -933,7 +933,7 @@ class _ReferralsScreenState extends ConsumerState<ReferralsScreen> {
                                     (isDark
                                             ? AppColors.primary
                                             : AppColors.lightPrimary)
-                                        .withOpacity(0.2),
+                                        .withValues(alpha: 0.2),
                                 child: Text(
                                   _getInitials(name),
                                   style: AppTextStyles.titleMedium.copyWith(
@@ -978,7 +978,7 @@ class _ReferralsScreenState extends ConsumerState<ReferralsScreen> {
                                       (isDark
                                               ? AppColors.success
                                               : AppColors.lightSuccess)
-                                          .withOpacity(0.15),
+                                          .withValues(alpha: 0.15),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Text(
@@ -1065,7 +1065,7 @@ class _MetricCard extends StatelessWidget {
               color: context.onSurfaceColor,
               fontWeight: FontWeight.bold,
               shadows: isDark
-                  ? [Shadow(color: glowColor.withOpacity(0.3), blurRadius: 10)]
+                  ? [Shadow(color: glowColor.withValues(alpha: 0.3), blurRadius: 10)]
                   : null,
             ),
           ),
@@ -1111,9 +1111,9 @@ class _ShareTargetButton extends StatelessWidget {
               height: 50,
               width: 50,
               decoration: BoxDecoration(
-                color: color.withOpacity(0.15),
+                color: color.withValues(alpha: 0.15),
                 shape: BoxShape.circle,
-                border: Border.all(color: color.withOpacity(0.3)),
+                border: Border.all(color: color.withValues(alpha: 0.3)),
               ),
               child: Icon(icon, color: color, size: 24),
             ),

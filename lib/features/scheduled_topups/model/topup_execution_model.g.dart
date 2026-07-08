@@ -19,7 +19,15 @@ _TopupExecution _$TopupExecutionFromJson(Map<String, dynamic> json) =>
       failureReason: json['failure_reason'] as String?,
       retryOf: json['retry_of'] as String?,
       validityDaysAdded: (json['validity_days_added'] as num?)?.toInt(),
-      executedAt: DateTime.parse(json['executed_at'] as String),
+      fulfillmentGateway: json['fulfillment_gateway'] as String?,
+      apiProvider: json['api_provider'] as String?,
+      executionType: json['execution_type'] as String?,
+      executionTime: json['execution_time'] == null
+          ? null
+          : DateTime.parse(json['execution_time'] as String),
+      executedAt: json['executed_at'] == null
+          ? null
+          : DateTime.parse(json['executed_at'] as String),
       completedAt: json['completed_at'] == null
           ? null
           : DateTime.parse(json['completed_at'] as String),
@@ -41,7 +49,11 @@ Map<String, dynamic> _$TopupExecutionToJson(_TopupExecution instance) =>
       'failure_reason': instance.failureReason,
       'retry_of': instance.retryOf,
       'validity_days_added': instance.validityDaysAdded,
-      'executed_at': instance.executedAt.toIso8601String(),
+      'fulfillment_gateway': instance.fulfillmentGateway,
+      'api_provider': instance.apiProvider,
+      'execution_type': instance.executionType,
+      'execution_time': instance.executionTime?.toIso8601String(),
+      'executed_at': instance.executedAt?.toIso8601String(),
       'completed_at': instance.completedAt?.toIso8601String(),
       'created_at': instance.createdAt?.toIso8601String(),
     };

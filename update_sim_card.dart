@@ -1,21 +1,23 @@
 import 'dart:io';
 
 void main() {
-  final file = File('lib/features/sim_lines/presentation/widgets/sim_line_card.dart');
+  final file = File(
+    'lib/features/sim_lines/presentation/widgets/sim_line_card.dart',
+  );
   final content = file.readAsStringSync();
-  
-  final startStr = 'Widget _buildAutoRefillSection(';
+
+  const startStr = 'Widget _buildAutoRefillSection(';
   final startIndex = content.indexOf(startStr);
-  
+
   if (startIndex == -1) {
-    print("Could not find start string");
+    print('Could not find start string');
     return;
   }
-  
+
   // Find the end of the method. The method ends right before the closing brace of the class.
   // We can just find `  }\n}` at the end of the file, or use a custom parser.
   // Actually, we can just replace the whole file from `Widget _buildAutoRefillSection` to the end of the file.
-  final newMethod = '''
+  const newMethod = '''
   Widget _buildAutoRefillSection(
     BuildContext context,
     WidgetRef ref,
@@ -253,8 +255,8 @@ void main() {
   }
 }
 ''';
-  
+
   final newContent = content.substring(0, startIndex) + newMethod;
   file.writeAsStringSync(newContent);
-  print("Updated _buildAutoRefillSection in sim_line_card.dart");
+  print('Updated _buildAutoRefillSection in sim_line_card.dart');
 }

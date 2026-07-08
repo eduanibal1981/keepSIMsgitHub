@@ -131,9 +131,7 @@ class _ZenditSimulatorScreenState extends ConsumerState<ZenditSimulatorScreen> {
     FocusScope.of(context).unfocus();
     final amount = double.tryParse(_amountController.text) ?? 0.0;
     final country = _countryController.text.trim();
-    if (amount <= 0 ||
-        _phoneController.text.isEmpty ||
-        country.isEmpty) {
+    if (amount <= 0 || _phoneController.text.isEmpty || country.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please enter valid details')),
       );
@@ -142,7 +140,11 @@ class _ZenditSimulatorScreenState extends ConsumerState<ZenditSimulatorScreen> {
 
     if (country.length != 2) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Country Code must be a 2-letter ISO code (e.g., EG, OM)')),
+        const SnackBar(
+          content: Text(
+            'Country Code must be a 2-letter ISO code (e.g., EG, OM)',
+          ),
+        ),
       );
       return;
     }
@@ -233,7 +235,7 @@ class _ZenditSimulatorScreenState extends ConsumerState<ZenditSimulatorScreen> {
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: context.dividerColor.withOpacity(0.2)),
+        side: BorderSide(color: context.dividerColor.withValues(alpha: 0.2)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -297,10 +299,10 @@ class _ZenditSimulatorScreenState extends ConsumerState<ZenditSimulatorScreen> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: context.primaryColor.withOpacity(0.05),
+                  color: context.primaryColor.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: context.primaryColor.withOpacity(0.15),
+                    color: context.primaryColor.withValues(alpha: 0.15),
                   ),
                 ),
                 child: Column(
@@ -331,7 +333,9 @@ class _ZenditSimulatorScreenState extends ConsumerState<ZenditSimulatorScreen> {
                   ],
                 ),
               ),
-            ] else if (_countryController.text.trim().length == 2 && _availableOffers.isEmpty && !_isFetchingOffers) ...[
+            ] else if (_countryController.text.trim().length == 2 &&
+                _availableOffers.isEmpty &&
+                !_isFetchingOffers) ...[
               const SizedBox(height: 16),
               Text(
                 'No offers available for this country code.',
@@ -377,12 +381,12 @@ class _ZenditSimulatorScreenState extends ConsumerState<ZenditSimulatorScreen> {
     return Card(
       elevation: 0,
       color: _isLoading
-          ? Colors.grey.withOpacity(0.1)
+          ? Colors.grey.withValues(alpha: 0.1)
           : (_result?.success == true
-                ? Colors.green.withOpacity(0.1)
+                ? Colors.green.withValues(alpha: 0.1)
                 : (_result?.success == false
-                      ? Colors.red.withOpacity(0.1)
-                      : Colors.grey.withOpacity(0.1))),
+                      ? Colors.red.withValues(alpha: 0.1)
+                      : Colors.grey.withValues(alpha: 0.1))),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -419,10 +423,7 @@ class _ZenditSimulatorScreenState extends ConsumerState<ZenditSimulatorScreen> {
                 ),
                 if (_result!.localBenefit != null) ...[
                   const SizedBox(height: 8),
-                  _buildResultRow(
-                    'Local Benefit Sent',
-                    _result!.localBenefit!,
-                  ),
+                  _buildResultRow('Local Benefit Sent', _result!.localBenefit!),
                 ],
               ] else ...[
                 _buildResultRow(
@@ -447,9 +448,7 @@ class _ZenditSimulatorScreenState extends ConsumerState<ZenditSimulatorScreen> {
         ),
         Text(
           value,
-          style: AppTextStyles.bodySmall.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: AppTextStyles.bodySmall.copyWith(fontWeight: FontWeight.bold),
         ),
       ],
     );

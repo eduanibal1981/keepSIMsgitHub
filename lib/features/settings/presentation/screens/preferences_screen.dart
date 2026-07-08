@@ -149,10 +149,10 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
                   const SizedBox(height: 24),
 
                   // Header
-                  Icon(
+                  const Icon(
                     Icons.lock_rounded,
                     size: 40,
-                    color: const Color(0xFFD946EF),
+                    color: Color(0xFFD946EF),
                   ),
                   const SizedBox(height: 16),
                   Text(
@@ -453,7 +453,9 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
                           onTap: () async {
                             await HapticHelper.mediumImpact();
                             ref
-                                .read(userPreferencesControllerProvider.notifier)
+                                .read(
+                                  userPreferencesControllerProvider.notifier,
+                                )
                                 .updateLanguage(lang['code']!);
                             ref
                                 .read(localeControllerProvider.notifier)
@@ -470,12 +472,16 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
                             ),
                             decoration: BoxDecoration(
                               color: isSelected
-                                  ? context.onSurfaceColor.withValues(alpha: 0.05)
+                                  ? context.onSurfaceColor.withValues(
+                                      alpha: 0.05,
+                                    )
                                   : Colors.transparent,
                               borderRadius: BorderRadius.circular(16),
                               border: Border.all(
                                 color: isSelected
-                                    ? const Color(0xFF6366F1).withValues(alpha: 0.3)
+                                    ? const Color(
+                                        0xFF6366F1,
+                                      ).withValues(alpha: 0.3)
                                     : Colors.transparent,
                                 width: 1,
                               ),
@@ -556,9 +562,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
     if (picked != null) {
       final formattedTime =
           '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}:00';
-      final currentPrefs = ref
-          .read(userPreferencesControllerProvider)
-          .value;
+      final currentPrefs = ref.read(userPreferencesControllerProvider).value;
       if (currentPrefs != null) {
         if (isStart) {
           ref
@@ -696,7 +700,11 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
         'label': AppLocalizations.of(context)!.systemTheme,
         'icon': Icons.settings_brightness_rounded,
       },
-      {'code': 'dark', 'label': AppLocalizations.of(context)!.darkMode, 'icon': Icons.dark_mode_rounded},
+      {
+        'code': 'dark',
+        'label': AppLocalizations.of(context)!.darkMode,
+        'icon': Icons.dark_mode_rounded,
+      },
       {
         'code': 'light',
         'label': AppLocalizations.of(context)!.lightMode,

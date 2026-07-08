@@ -43,13 +43,22 @@ class _PrivacyScreenState extends ConsumerState<PrivacyScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildSectionHeader(context, AppLocalizations.of(context)!.legalPolicies),
+                _buildSectionHeader(
+                  context,
+                  AppLocalizations.of(context)!.legalPolicies,
+                ),
                 _buildPolicyCard(context, isDark),
                 const SizedBox(height: 24),
-                _buildSectionHeader(context, AppLocalizations.of(context)!.dataPreferences),
+                _buildSectionHeader(
+                  context,
+                  AppLocalizations.of(context)!.dataPreferences,
+                ),
                 _buildConsentCard(context, trackingConsent, isDark),
                 const SizedBox(height: 24),
-                _buildSectionHeader(context, AppLocalizations.of(context)!.yourData),
+                _buildSectionHeader(
+                  context,
+                  AppLocalizations.of(context)!.yourData,
+                ),
                 _buildExportCard(context, isDark),
                 const SizedBox(height: 36),
                 _buildDangerZone(context, isDark),
@@ -59,7 +68,9 @@ class _PrivacyScreenState extends ConsumerState<PrivacyScreen> {
         },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stack) => Center(
-          child: Text(AppLocalizations.of(context)!.errorLoadingPrefs(error.toString())),
+          child: Text(
+            AppLocalizations.of(context)!.errorLoadingPrefs(error.toString()),
+          ),
         ),
       ),
     );
@@ -85,7 +96,9 @@ class _PrivacyScreenState extends ConsumerState<PrivacyScreen> {
         color: isDark ? AppColors.darkCard : AppColors.lightCard,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isDark ? Colors.white.withOpacity(0.06) : AppColors.lightBorder,
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.06)
+              : AppColors.lightBorder,
         ),
       ),
       child: Column(
@@ -94,7 +107,9 @@ class _PrivacyScreenState extends ConsumerState<PrivacyScreen> {
           Text(
             AppLocalizations.of(context)!.legalPoliciesDesc,
             style: AppTextStyles.bodySmall.copyWith(
-              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+              color: isDark
+                  ? AppColors.textSecondaryDark
+                  : AppColors.textSecondaryLight,
               height: 1.5,
             ),
           ),
@@ -103,7 +118,11 @@ class _PrivacyScreenState extends ConsumerState<PrivacyScreen> {
             onPressed: () {
               // Usually opens a web view or external link
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(AppLocalizations.of(context)!.privacyPolicyLoaded)),
+                SnackBar(
+                  content: Text(
+                    AppLocalizations.of(context)!.privacyPolicyLoaded,
+                  ),
+                ),
               );
             },
             style: TextButton.styleFrom(
@@ -130,7 +149,9 @@ class _PrivacyScreenState extends ConsumerState<PrivacyScreen> {
         color: isDark ? AppColors.darkCard : AppColors.lightCard,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isDark ? Colors.white.withOpacity(0.06) : AppColors.lightBorder,
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.06)
+              : AppColors.lightBorder,
         ),
       ),
       child: SwitchListTile(
@@ -144,14 +165,18 @@ class _PrivacyScreenState extends ConsumerState<PrivacyScreen> {
         subtitle: Text(
           AppLocalizations.of(context)!.analyticsTrackingDesc,
           style: AppTextStyles.bodySmall.copyWith(
-            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+            color: isDark
+                ? AppColors.textSecondaryDark
+                : AppColors.textSecondaryLight,
             height: 1.4,
           ),
         ),
         value: consent,
-        activeColor: const Color(0xFF10B981),
+        activeThumbColor: const Color(0xFF10B981),
         onChanged: (value) {
-          ref.read(privacyControllerProvider.notifier).toggleTrackingConsent(value);
+          ref
+              .read(privacyControllerProvider.notifier)
+              .toggleTrackingConsent(value);
         },
       ),
     );
@@ -163,7 +188,9 @@ class _PrivacyScreenState extends ConsumerState<PrivacyScreen> {
         color: isDark ? AppColors.darkCard : AppColors.lightCard,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isDark ? Colors.white.withOpacity(0.06) : AppColors.lightBorder,
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.06)
+              : AppColors.lightBorder,
         ),
       ),
       child: ListTile(
@@ -177,19 +204,27 @@ class _PrivacyScreenState extends ConsumerState<PrivacyScreen> {
         subtitle: Text(
           AppLocalizations.of(context)!.exportMyDataDesc,
           style: AppTextStyles.bodySmall.copyWith(
-            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+            color: isDark
+                ? AppColors.textSecondaryDark
+                : AppColors.textSecondaryLight,
           ),
         ),
         trailing: const Icon(Icons.download_rounded, color: Color(0xFF3B82F6)),
         onTap: () async {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(AppLocalizations.of(context)!.preparingDataExport)),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.preparingDataExport),
+            ),
           );
           try {
             await ref.read(privacyControllerProvider.notifier).exportData();
           } catch (e) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(AppLocalizations.of(context)!.exportFailed(e.toString()))),
+              SnackBar(
+                content: Text(
+                  AppLocalizations.of(context)!.exportFailed(e.toString()),
+                ),
+              ),
             );
           }
         },
@@ -201,11 +236,9 @@ class _PrivacyScreenState extends ConsumerState<PrivacyScreen> {
     return Container(
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: Colors.redAccent.withOpacity(0.05),
+        color: Colors.redAccent.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Colors.redAccent.withOpacity(0.3),
-        ),
+        border: Border.all(color: Colors.redAccent.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -227,7 +260,9 @@ class _PrivacyScreenState extends ConsumerState<PrivacyScreen> {
           Text(
             AppLocalizations.of(context)!.deleteAccountWarning,
             style: AppTextStyles.bodySmall.copyWith(
-              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+              color: isDark
+                  ? AppColors.textSecondaryDark
+                  : AppColors.textSecondaryLight,
             ),
           ),
           const SizedBox(height: 16),
@@ -256,7 +291,10 @@ class _PrivacyScreenState extends ConsumerState<PrivacyScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: isDark ? AppColors.darkCard : AppColors.lightCard,
-        title: Text(AppLocalizations.of(context)!.deleteAccount, style: const TextStyle(color: Colors.redAccent)),
+        title: Text(
+          AppLocalizations.of(context)!.deleteAccount,
+          style: const TextStyle(color: Colors.redAccent),
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -264,7 +302,9 @@ class _PrivacyScreenState extends ConsumerState<PrivacyScreen> {
             Text(
               AppLocalizations.of(context)!.deleteAccountIrreversible,
               style: TextStyle(
-                color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                color: isDark
+                    ? AppColors.textSecondaryDark
+                    : AppColors.textSecondaryLight,
               ),
             ),
             const SizedBox(height: 16),
@@ -296,7 +336,8 @@ class _PrivacyScreenState extends ConsumerState<PrivacyScreen> {
           ValueListenableBuilder<TextEditingValue>(
             valueListenable: _deleteConfirmController,
             builder: (context, value, child) {
-              final canDelete = value.text == AppLocalizations.of(context)!.deleteWord;
+              final canDelete =
+                  value.text == AppLocalizations.of(context)!.deleteWord;
               return ElevatedButton(
                 onPressed: canDelete
                     ? () async {
@@ -304,8 +345,13 @@ class _PrivacyScreenState extends ConsumerState<PrivacyScreen> {
                         _performDeletion();
                       }
                     : null,
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
-                child: const Text('Confirm Delete', style: TextStyle(color: Colors.white)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.redAccent,
+                ),
+                child: const Text(
+                  'Confirm Delete',
+                  style: TextStyle(color: Colors.white),
+                ),
               );
             },
           ),
@@ -330,7 +376,10 @@ class _PrivacyScreenState extends ConsumerState<PrivacyScreen> {
       if (mounted) {
         Navigator.pop(context); // pop loading
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString()), backgroundColor: Colors.redAccent),
+          SnackBar(
+            content: Text(e.toString()),
+            backgroundColor: Colors.redAccent,
+          ),
         );
       }
     }

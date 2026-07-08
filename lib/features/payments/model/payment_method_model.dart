@@ -2,6 +2,7 @@
 ///
 /// Maps to `payment_methods` table in Supabase.
 /// Uses Freezed for immutability and snake_case serialization.
+library;
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 

@@ -187,7 +187,8 @@ class DashboardController extends _$DashboardController {
     SimLine? nextDueLine;
     DateTime? nextDueLineDate;
 
-    bool isPremiumUser = profile?.subscriptionTier == 'premium' || profile?.isPowerUser == true;
+    bool isPremiumUser =
+        profile?.subscriptionTier == 'premium' || profile?.isPowerUser == true;
 
     for (final line in ownedLines) {
       final lineSchedules = schedules

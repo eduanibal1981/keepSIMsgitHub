@@ -181,11 +181,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     }
 
     final phone = _simPhoneController.text.trim();
-    final hasSimDetails = phone.isNotEmpty &&
+    final hasSimDetails =
+        phone.isNotEmpty &&
         _selectedSimCountry != null &&
         _selectedSimCarrier != null;
 
-    final commitSubmit = () async {
+    Future<Null> commitSubmit() async {
       if (hasSimDetails) {
         try {
           String localNumber = phone;
@@ -226,7 +227,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 countryId: _selectedSimCountry!.id,
                 carrierId: _selectedSimCarrier!.id,
                 planType: _selectedTier,
-                protectionTier: _selectedTier == 'free' ? 'basic' : _selectedTier,
+                protectionTier: _selectedTier == 'free'
+                    ? 'basic'
+                    : _selectedTier,
                 planExpiresAt: planExpiresAt,
                 carrierRuleId: carrierRuleId,
               );
@@ -261,11 +264,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           ),
         );
       }
-    };
+    }
 
     final isPaid = _selectedTier != 'free';
     if (isPaid) {
-      double amountToCharge = _selectedTier == 'standard' ? 2.50 : 2.50; // Base service fee
+      double amountToCharge = _selectedTier == 'standard'
+          ? 2.50
+          : 2.50; // Base service fee
       if (_selectedTier == 'premium' && hasSimDetails) {
         final rule = await ref
             .read(simLinesRepositoryProvider)
@@ -275,7 +280,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           amountToCharge += refillsPerYear * rule.inappPricing;
         }
       }
-      
+
       amountToCharge = double.parse(amountToCharge.toStringAsFixed(2));
       if (mounted) {
         Navigator.of(context).push(
@@ -322,9 +327,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     CarrierRule? premiumRule;
     bool isPremiumLoading = false;
     if (_selectedSimCountry != null && _selectedSimCarrier != null) {
-      final ruleAsync = ref.watch(
-        carrierRuleProvider(_selectedSimCarrier!.id),
-      );
+      final ruleAsync = ref.watch(carrierRuleProvider(_selectedSimCarrier!.id));
       premiumRule = ruleAsync.value;
       isPremiumLoading = ruleAsync.isLoading;
     }
@@ -1417,11 +1420,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                                     vertical: 2,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: Colors.amberAccent.withOpacity(0.1),
+                                    color: Colors.amberAccent.withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(6),
                                     border: Border.all(
-                                      color: Colors.amberAccent.withOpacity(
-                                        0.3,
+                                      color: Colors.amberAccent.withValues(
+                                        alpha: 0.3,
                                       ),
                                     ),
                                   ),
@@ -1639,7 +1642,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       planName = 'Premium Plan';
       planColor = isDark ? Colors.purpleAccent : Colors.purple;
       if (isPremiumLoading) {
-        billingDesc = "Loading premium pricing rules for this carrier...";
+        billingDesc = 'Loading premium pricing rules for this carrier...';
         billingRate = '\$2.50/yr + ...';
       } else if (premiumRule != null) {
         billingDesc =
@@ -1647,7 +1650,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         billingRate = '\$2.50/yr + Refill';
       } else {
         billingDesc =
-            "Premium auto-refill is not yet supported for this carrier. Please choose the Standard Plan.";
+            'Premium auto-refill is not yet supported for this carrier. Please choose the Standard Plan.';
         planColor = isDark ? AppColors.error : Colors.redAccent;
         billingRate = 'Not Supported';
       }
@@ -1655,7 +1658,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       planName = 'Standard Plan';
       planColor = isDark ? AppColors.primary : AppColors.lightPrimary;
       billingDesc =
-          "Automated tracking & notifications. You will be billed \$2.50/yr for this line.";
+          'Automated tracking & notifications. You will be billed \$2.50/yr for this line.';
       billingRate = '\$2.50/yr';
     }
 
@@ -1664,10 +1667,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCard : Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: planColor.withOpacity(0.3), width: 1.5),
+        border: Border.all(color: planColor.withValues(alpha: 0.3), width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: planColor.withOpacity(isDark ? 0.05 : 0.08),
+            color: planColor.withValues(alpha: isDark ? 0.05 : 0.08),
             blurRadius: 15,
             spreadRadius: 1,
           ),
@@ -1681,7 +1684,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: planColor.withOpacity(0.12),
+                  color: planColor.withValues(alpha: 0.12),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -1706,7 +1709,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: planColor.withOpacity(0.15),
+                  color: planColor.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -1794,7 +1797,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 decoration: BoxDecoration(
                   color: isSelected
                       ? (isDark ? AppColors.primary : AppColors.lightPrimary)
-                            .withOpacity(0.1)
+                            .withValues(alpha: 0.1)
                       : (isDark ? AppColors.darkCard : Colors.white),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
@@ -1809,7 +1812,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       ? null
                       : [
                           BoxShadow(
-                            color: AppColors.lightPrimary.withOpacity(0.04),
+                            color: AppColors.lightPrimary.withValues(alpha: 0.04),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
@@ -1867,7 +1870,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                         premiumRule,
                         isPremiumLoading,
                       ),
-                      icon: Icon(Icons.help_outline_rounded, color: context.primaryColor, size: 22),
+                      icon: Icon(
+                        Icons.help_outline_rounded,
+                        color: context.primaryColor,
+                        size: 22,
+                      ),
                       padding: const EdgeInsets.all(8),
                       constraints: const BoxConstraints(),
                     ),
@@ -1940,9 +1947,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     }
 
     final cardBgColor = isDark
-        ? accentColor.withOpacity(0.12)
-        : accentColor.withOpacity(0.05);
-    final cardBorderColor = accentColor.withOpacity(0.3);
+        ? accentColor.withValues(alpha: 0.12)
+        : accentColor.withValues(alpha: 0.05);
+    final cardBorderColor = accentColor.withValues(alpha: 0.3);
 
     showModalBottomSheet(
       context: context,
@@ -1983,7 +1990,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   IconButton(
                     onPressed: () => Navigator.pop(context),
                     icon: const Icon(Icons.close),
-                    color: context.onSurfaceColor.withOpacity(0.6),
+                    color: context.onSurfaceColor.withValues(alpha: 0.6),
                     iconSize: 20,
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
@@ -1998,13 +2005,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 decoration: BoxDecoration(
                   color: cardBgColor,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: cardBorderColor,
-                    width: 2,
-                  ),
+                  border: Border.all(color: cardBorderColor, width: 2),
                   boxShadow: [
                     BoxShadow(
-                      color: accentColor.withOpacity(isDark ? 0.05 : 0.08),
+                      color: accentColor.withValues(alpha: isDark ? 0.05 : 0.08),
                       blurRadius: 15,
                       spreadRadius: 1,
                     ),
@@ -2020,7 +2024,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                         Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: accentColor.withOpacity(0.15),
+                            color: accentColor.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Icon(icon, color: accentColor, size: 22),
@@ -2051,7 +2055,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                             Text(
                               billingPeriod,
                               style: AppTextStyles.caption.copyWith(
-                                color: context.onSurfaceColor.withOpacity(0.5),
+                                color: context.onSurfaceColor.withValues(alpha: 0.5),
                                 fontSize: 10,
                               ),
                               textAlign: TextAlign.end,
@@ -2062,7 +2066,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                                 style: TextStyle(
                                   fontSize: 9,
                                   fontWeight: FontWeight.w600,
-                                  color: accentColor.withOpacity(0.7),
+                                  color: accentColor.withValues(alpha: 0.7),
                                 ),
                               ),
                           ],
@@ -2071,35 +2075,39 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     ),
                     const SizedBox(height: 16),
                     Divider(
-                      color: accentColor.withOpacity(0.2),
+                      color: accentColor.withValues(alpha: 0.2),
                       height: 1,
                       thickness: 1,
                     ),
                     const SizedBox(height: 16),
                     // Features list
-                    ...features.map((feat) => Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Icon(
-                            Icons.check_circle_rounded,
-                            size: 16,
-                            color: accentColor,
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              feat,
-                              style: AppTextStyles.bodyMedium.copyWith(
-                                color: context.onSurfaceColor.withOpacity(0.8),
-                                fontWeight: FontWeight.w500,
+                    ...features.map(
+                      (feat) => Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(
+                              Icons.check_circle_rounded,
+                              size: 16,
+                              color: accentColor,
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                feat,
+                                style: AppTextStyles.bodyMedium.copyWith(
+                                  color: context.onSurfaceColor.withValues(
+                                    alpha: 0.8,
+                                  ),
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    )),
+                    ),
                     // Auto refill rule (Premium only)
                     if (isPremium) ...[
                       const SizedBox(height: 16),
@@ -2115,7 +2123,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                             Text(
                               'Loading auto-refill pricing...',
                               style: AppTextStyles.caption.copyWith(
-                                color: context.onSurfaceColor.withOpacity(0.5),
+                                color: context.onSurfaceColor.withValues(alpha: 0.5),
                                 fontStyle: FontStyle.italic,
                               ),
                             ),
@@ -2125,10 +2133,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: accentColor.withOpacity(0.08),
+                            color: accentColor.withValues(alpha: 0.08),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: accentColor.withOpacity(0.15),
+                              color: accentColor.withValues(alpha: 0.15),
                             ),
                           ),
                           child: Row(
@@ -2143,7 +2151,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                                 child: Text(
                                   'Auto-refill: ${premiumRule.inappPricing} ${premiumRule.inappPricingCurrency.toUpperCase()} every ${premiumRule.topupValidityDays} days (telecom, VAT included)',
                                   style: AppTextStyles.caption.copyWith(
-                                    color: context.onSurfaceColor.withOpacity(0.7),
+                                    color: context.onSurfaceColor.withValues(
+                                      alpha: 0.7,
+                                    ),
                                     fontWeight: FontWeight.w600,
                                     fontSize: 11,
                                   ),
@@ -2156,10 +2166,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: Colors.orange.withOpacity(0.08),
+                            color: Colors.orange.withValues(alpha: 0.08),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: Colors.orange.withOpacity(0.15),
+                              color: Colors.orange.withValues(alpha: 0.15),
                             ),
                           ),
                           child: Row(
@@ -2188,7 +2198,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     if (isPremium) ...[
                       const SizedBox(height: 16),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: const Color(0xFFC8E6C9), // Light green badge
                           borderRadius: BorderRadius.circular(8),
@@ -2211,7 +2224,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     ] else if (isStandard) ...[
                       const SizedBox(height: 16),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: const Color(0xFFBBDEFB), // Light blue badge
                           borderRadius: BorderRadius.circular(8),
@@ -2230,7 +2246,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                           ],
                         ),
                       ),
-                    ]
+                    ],
                   ],
                 ),
               ),
@@ -2243,7 +2259,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: context.primaryColor,
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                   child: const Text('Got it'),
                 ),
@@ -2412,9 +2430,7 @@ class _InlineOnboardingChannelConfigState
               child: ElevatedButton.icon(
                 onPressed: () async {
                   await HapticHelper.lightTick();
-                  final user = widget.ref
-                      .read(authControllerProvider)
-                      .value;
+                  final user = widget.ref.read(authControllerProvider).value;
                   final userId = user?.id;
                   if (userId == null) return;
                   final botUrl = 'https://t.me/KeepSIMsBot?start=bind_$userId';

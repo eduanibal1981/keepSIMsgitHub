@@ -5,6 +5,7 @@ import 'package:keep_sims/features/sim_lines/data/models/carrier_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/carrier_rule_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/line_activity_log_model.dart';
+import 'package:keep_sims/features/sim_lines/data/models/payment_method_model.dart';
 import 'package:keep_sims/features/sim_lines/domain/repositories/sim_lines_repository.dart';
 import 'package:keep_sims/features/sim_lines/data/datasources/twilio_verification_service.dart';
 import 'package:keep_sims/core/services/connectivity_service.dart';
@@ -43,8 +44,9 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
 
     try {
       final userId = _supabase.auth.currentUser?.id;
-      if (userId == null)
+      if (userId == null) {
         throw Exception('No authenticated user session found.');
+      }
 
       final response = await _supabase
           .from('sim_lines')
@@ -413,6 +415,51 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
   }
 
   @override
+  Future<CarrierRule?> getCarrierRuleById(String ruleId) async {
+    final cacheKey = 'cached_carrier_rule_id_$ruleId';
+
+    if (_connectivity.isOffline) {
+      final cached = _cache.readJson(cacheKey);
+      if (cached != null) {
+        return CarrierRule.fromJson(cached as Map<String, dynamic>);
+      }
+      return null;
+    }
+
+    try {
+      final response = await _supabase
+          .from('carrier_rules')
+          .select()
+          .eq('id', ruleId)
+          .maybeSingle();
+
+      if (response == null) {
+        return null;
+      }
+
+      await _cache.writeJson(cacheKey, response);
+      return CarrierRule.fromJson(response);
+    } on PostgrestException catch (e) {
+      final cached = _cache.readJson(cacheKey);
+      if (cached != null) {
+        return CarrierRule.fromJson(cached as Map<String, dynamic>);
+      }
+      throw Exception('Failed to load carrier rule by id: ${e.message}');
+    } catch (e) {
+      final cached = _cache.readJson(cacheKey);
+      if (cached != null) {
+        return CarrierRule.fromJson(cached as Map<String, dynamic>);
+      }
+      final errStr = e.toString();
+      if (errStr.contains('SocketException') ||
+          errStr.contains('Failed host lookup')) {
+        throw Exception('No internet connection. Please check your network.');
+      }
+      throw Exception('Failed to load carrier rule by id: $errStr');
+    }
+  }
+
+  @override
   Future<List<LineActivityLog>> getLineActivityLogs(String simLineId) async {
     final cacheKey = 'cached_logs_$simLineId';
 
@@ -516,46 +563,81 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
   @override
   Future<void> recordManualTopupExecution({
     required String simLineId,
-    required double amount,
+    required double baseCostUsd,
+    required String paymentGatewayCode,
     required String status,
     String? failureReason,
+    String? offerId,
+    int? offerValue,
   }) async {
     try {
       final userId = _supabase.auth.currentUser?.id;
-      if (userId == null)
+      if (userId == null) {
         throw Exception('No authenticated user session found.');
+      }
 
+      // Insert pending topup execution into the central queue
       await _supabase.from('topup_executions').insert({
         'sim_line_id': simLineId,
         'user_id': userId,
-        'amount': amount,
+        'base_cost_usd': baseCostUsd,
+        'payment_gateway_code': paymentGatewayCode,
         'currency': 'USD',
+        // status is passed from the controller ('routing', 'pending_payment', or 'failed')
         'status': status,
-        'failure_reason': failureReason,
-        'executed_at': DateTime.now().toIso8601String(),
-        'completed_at': DateTime.now().toIso8601String(),
-        if (status == 'success')
-          'reloadly_transaction_id':
-              'TX_MANUAL_${DateTime.now().millisecondsSinceEpoch}',
+        'failure_reason': ?failureReason,
+        'offer_id': ?offerId,
+        'offer_value': ?offerValue,
+        'execution_type': 'refill_instant',
+        'execution_time': DateTime.now().toIso8601String(),
+        'executed_at': null,
       });
 
       // Also log the activity
       await _supabase.from('line_activity_log').insert({
         'sim_line_id': simLineId,
         'user_id': userId,
-        'event_type': status == 'success' ? 'topup_success' : 'topup_failed',
-        'description': status == 'success'
-            ? 'Manual Refill of \$${amount.toStringAsFixed(2)} successful.'
-            : 'Manual Refill of \$${amount.toStringAsFixed(2)} failed: $failureReason',
+        'event_type': status != 'failed' ? 'topup_success' : 'topup_failed',
+        'description': status != 'failed'
+            ? 'Manual Refill of \$${baseCostUsd.toStringAsFixed(2)} successful.'
+            : 'Manual Refill of \$${baseCostUsd.toStringAsFixed(2)} failed: $failureReason',
         'metadata': {
-          'amount': amount,
+          'amount': baseCostUsd,
           'type': 'manual_refill',
-          if (status != 'success') 'failure_reason': failureReason,
+          if (status == 'failed') 'failure_reason': failureReason,
         },
         'created_at': DateTime.now().toIso8601String(),
       });
     } on PostgrestException catch (e) {
       throw Exception('Failed to record manual topup execution: ${e.message}');
+    }
+  }
+
+  @override
+  Future<void> scheduleTopupExecution({
+    required String simLineId,
+    required double amount,
+    required DateTime executionTime,
+    required String executionType,
+  }) async {
+    try {
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) {
+        throw Exception('No authenticated user session found.');
+      }
+
+      await _supabase.from('topup_executions').insert({
+        'sim_line_id': simLineId,
+        'user_id': userId,
+        'amount': amount,
+        'currency': 'USD',
+        'status': 'pending',
+        'execution_type': executionType,
+        'execution_time': executionTime.toIso8601String(),
+        'executed_at': null,
+      });
+    } on PostgrestException catch (e) {
+      throw Exception('Failed to schedule topup execution: ${e.message}');
     }
   }
 
@@ -578,8 +660,9 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
   Future<void> confirmLineVerification(String simLineId) async {
     try {
       final userId = _supabase.auth.currentUser?.id;
-      if (userId == null)
+      if (userId == null) {
         throw Exception('No authenticated user session found.');
+      }
 
       // Update SIM Line verification_status and health score
       await _supabase
@@ -611,6 +694,78 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
   @override
   Future<void> cancelCall(String callSid) async {
     await TwilioVerificationService.cancelCall(callSid);
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> fetchZenditOffers(String countryId, String carrierId) async {
+    try {
+      print('DEBUG: fetchZenditOffers called with countryId: $countryId, carrierId: $carrierId');
+      // 1. Get Country ISO code
+      print('DEBUG: Fetching country...');
+      final countryRes = await _supabase
+          .from('countries')
+          .select('iso_code') // Using iso_code as per the Country model
+          .eq('id', countryId)
+          .single();
+      final countryCode = countryRes['iso_code'] as String;
+      print('DEBUG: Found countryCode: $countryCode');
+
+      // 2. Get Carrier mapping
+      print('DEBUG: Fetching carrier...');
+      final carrierRes = await _supabase
+          .from('carriers')
+          .select('zen_carrier')
+          .eq('id', carrierId)
+          .single();
+      final zenCarrier = carrierRes['zen_carrier'] as String?;
+      print('DEBUG: Found zenCarrier: $zenCarrier');
+
+      // 3. Invoke Edge Function
+      print('DEBUG: Invoking fetch_zendit_offers edge function...');
+      final response = await _supabase.functions.invoke(
+        'fetch_zendit_offers',
+        body: {
+          'countryCode': countryCode,
+          'zenCarrier': zenCarrier,
+        },
+      );
+      print('DEBUG: Edge function response status: ${response.status}');
+
+      if (response.status != 200) {
+        throw Exception('Failed to fetch offers: ${response.status}');
+      }
+
+      final data = response.data as Map<String, dynamic>;
+      final offers = data['offers'] as List<dynamic>;
+      print('DEBUG: Successfully parsed ${offers.length} offers.');
+      return offers.cast<Map<String, dynamic>>();
+    } on PostgrestException catch (e) {
+      print('DEBUG: PostgrestException: ${e.message}');
+      throw Exception('Database error fetching mappings: ${e.message}');
+    } catch (e, stackTrace) {
+      print('DEBUG: General Exception: $e');
+      print('DEBUG: StackTrace: $stackTrace');
+      throw Exception('Error fetching Zendit offers: $e');
+    }
+  }
+
+  @override
+  Future<List<PaymentMethod>> getPaymentMethods() async {
+    try {
+      final response = await _supabase
+          .from('payment_gateways')
+          .select()
+          .eq('is_active', true)
+          .order('code', ascending: false);
+
+      return (response as List)
+          .map((json) => PaymentMethod.fromJson(json as Map<String, dynamic>))
+          .toList();
+    } on PostgrestException catch (e) {
+      throw Exception('Failed to load payment methods: ${e.message}');
+    } catch (e) {
+      throw Exception('Failed to load payment methods: $e');
+    }
   }
 }
 

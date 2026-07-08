@@ -25,7 +25,11 @@ abstract class TopupExecution with _$TopupExecution {
     String? failureReason,
     String? retryOf,
     int? validityDaysAdded,
-    required DateTime executedAt,
+    String? fulfillmentGateway,
+    String? apiProvider,
+    String? executionType,
+    DateTime? executionTime,
+    DateTime? executedAt,
     DateTime? completedAt,
     DateTime? createdAt,
   }) = _TopupExecution;

@@ -51,18 +51,18 @@ class SettingsScreen extends ConsumerWidget {
                   padding: const EdgeInsets.all(20.0),
                   decoration: BoxDecoration(
                     color: isDark
-                        ? AppColors.darkCard.withOpacity(0.6)
+                        ? AppColors.darkCard.withValues(alpha: 0.6)
                         : AppColors.lightCard,
                     borderRadius: BorderRadius.circular(24),
                     border: Border.all(
                       color: isDark
-                          ? Colors.white.withOpacity(0.08)
+                          ? Colors.white.withValues(alpha: 0.08)
                           : AppColors.lightBorder,
                       width: 1.0,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(isDark ? 0.2 : 0.04),
+                        color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
                         blurRadius: 15,
                         offset: const Offset(0, 8),
                       ),
@@ -83,7 +83,7 @@ class SettingsScreen extends ConsumerWidget {
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF6366F1).withOpacity(0.4),
+                              color: const Color(0xFF6366F1).withValues(alpha: 0.4),
                               blurRadius: 12,
                               offset: const Offset(0, 4),
                             ),
@@ -112,7 +112,10 @@ class SettingsScreen extends ConsumerWidget {
                               children: [
                                 Flexible(
                                   child: Text(
-                                    user.fullName ?? AppLocalizations.of(context)!.keepSIMsUser,
+                                    user.fullName ??
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.keepSIMsUser,
                                     style: AppTextStyles.titleMedium.copyWith(
                                       color: context.onSurfaceColor,
                                       fontWeight: FontWeight.bold,
@@ -168,17 +171,17 @@ class SettingsScreen extends ConsumerWidget {
                                 ),
                                 decoration: BoxDecoration(
                                   color: isDark
-                                      ? Colors.white.withOpacity(0.06)
-                                      : Colors.black.withOpacity(0.04),
+                                      ? Colors.white.withValues(alpha: 0.06)
+                                      : Colors.black.withValues(alpha: 0.04),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Text(
                                   '🌍 ${AppLocalizations.of(context)!.homeCountry}${user.homeCountryCode!.toUpperCase()}',
                                   style: AppTextStyles.bodySmall.copyWith(
                                     color: isDark
-                                        ? Colors.white.withOpacity(0.8)
-                                        : context.onSurfaceColor.withOpacity(
-                                            0.8,
+                                        ? Colors.white.withValues(alpha: 0.8)
+                                        : context.onSurfaceColor.withValues(
+                                            alpha: 0.8,
                                           ),
                                     fontWeight: FontWeight.w500,
                                   ),
@@ -207,8 +210,6 @@ class SettingsScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 12),
-
-
 
               _buildMenuCard(
                 context: context,
@@ -288,7 +289,9 @@ class SettingsScreen extends ConsumerWidget {
                 icon: Icons.tune_rounded,
                 iconColor: const Color(0xFFA855F7),
                 title: AppLocalizations.of(context)!.preferencesAndSecurity,
-                subtitle: AppLocalizations.of(context)!.managePreferencesAndSecurityDesc,
+                subtitle: AppLocalizations.of(
+                  context,
+                )!.managePreferencesAndSecurityDesc,
                 routePath: '/settings/preferences',
                 isComingSoon: false,
               ),
@@ -299,7 +302,9 @@ class SettingsScreen extends ConsumerWidget {
                 icon: Icons.privacy_tip_rounded,
                 iconColor: const Color(0xFFEF4444),
                 title: AppLocalizations.of(context)!.dataAndPrivacy,
-                subtitle: AppLocalizations.of(context)!.manageTrackingConsentDesc,
+                subtitle: AppLocalizations.of(
+                  context,
+                )!.manageTrackingConsentDesc,
                 routePath: '/settings/privacy',
                 isComingSoon: false,
               ),
@@ -311,20 +316,13 @@ class SettingsScreen extends ConsumerWidget {
                   icon: Icons.developer_board_rounded,
                   iconColor: Colors.amber,
                   title: AppLocalizations.of(context)!.powerUser,
-                  subtitle: AppLocalizations.of(context)!.accessSystemSimulatorsDesc,
+                  subtitle: AppLocalizations.of(
+                    context,
+                  )!.accessSystemSimulatorsDesc,
                   routePath: '/settings/simulators',
                   isComingSoon: false,
                 ),
-                const SizedBox(height: 16),
-                _buildMenuCard(
-                  context: context,
-                  icon: Icons.checklist_rtl_rounded,
-                  iconColor: const Color(0xFF6366F1),
-                  title: AppLocalizations.of(context)!.testChecklist,
-                  subtitle: AppLocalizations.of(context)!.manualUiTestingDesc,
-                  routePath: '/settings/tests',
-                  isComingSoon: false,
-                ),
+
               ],
 
               const SizedBox(height: 36),
@@ -345,13 +343,13 @@ class SettingsScreen extends ConsumerWidget {
                       ),
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.redAccent.withOpacity(0.1),
+                      backgroundColor: Colors.redAccent.withValues(alpha: 0.1),
                       surfaceTintColor: Colors.transparent,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                         side: BorderSide(
-                          color: Colors.redAccent.withOpacity(0.2),
+                          color: Colors.redAccent.withValues(alpha: 0.2),
                           width: 1.0,
                         ),
                       ),
@@ -379,12 +377,12 @@ class SettingsScreen extends ConsumerWidget {
     return Container(
       decoration: BoxDecoration(
         color: isDark
-            ? AppColors.darkCard.withOpacity(0.4)
+            ? AppColors.darkCard.withValues(alpha: 0.4)
             : AppColors.lightCard,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
           color: isDark
-              ? Colors.white.withOpacity(0.06)
+              ? Colors.white.withValues(alpha: 0.06)
               : AppColors.lightBorder,
           width: 1.0,
         ),
@@ -392,7 +390,7 @@ class SettingsScreen extends ConsumerWidget {
             ? null
             : [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.02),
+                  color: Colors.black.withValues(alpha: 0.02),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -434,7 +432,7 @@ class SettingsScreen extends ConsumerWidget {
                   width: 46,
                   height: 46,
                   decoration: BoxDecoration(
-                    color: iconColor.withOpacity(0.1),
+                    color: iconColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(icon, color: iconColor, size: 24),
@@ -467,8 +465,8 @@ class SettingsScreen extends ConsumerWidget {
                               ),
                               decoration: BoxDecoration(
                                 color: isDark
-                                    ? Colors.white.withOpacity(0.08)
-                                    : Colors.black.withOpacity(0.04),
+                                    ? Colors.white.withValues(alpha: 0.08)
+                                    : Colors.black.withValues(alpha: 0.04),
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
@@ -500,7 +498,7 @@ class SettingsScreen extends ConsumerWidget {
                 Icon(
                   Icons.chevron_right_rounded,
                   color: isDark
-                      ? Colors.white.withOpacity(0.3)
+                      ? Colors.white.withValues(alpha: 0.3)
                       : AppColors.textTertiaryLight,
                   size: 24,
                 ),
@@ -525,7 +523,10 @@ class SettingsScreen extends ConsumerWidget {
               ? BorderSide.none
               : const BorderSide(color: AppColors.lightBorder),
         ),
-        title: Text(AppLocalizations.of(context)!.logOut, style: TextStyle(color: context.onSurfaceColor)),
+        title: Text(
+          AppLocalizations.of(context)!.logOut,
+          style: TextStyle(color: context.onSurfaceColor),
+        ),
         content: Text(
           AppLocalizations.of(context)!.confirmLogOut,
           style: TextStyle(
@@ -555,11 +556,13 @@ class SettingsScreen extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            child: Text(AppLocalizations.of(context)!.logOut, style: const TextStyle(color: Colors.white)),
+            child: Text(
+              AppLocalizations.of(context)!.logOut,
+              style: const TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
     );
   }
-
 }

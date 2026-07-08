@@ -32,8 +32,8 @@ class TicketDetailsScreen extends ConsumerWidget {
                   ),
                   decoration: BoxDecoration(
                     color: isClosed
-                        ? Colors.grey.withOpacity(0.15)
-                        : AppColors.success.withOpacity(0.15),
+                        ? Colors.grey.withValues(alpha: 0.15)
+                        : AppColors.success.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(

@@ -300,7 +300,9 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                                   color: Colors.white.withValues(alpha: 0.12),
                                   borderRadius: BorderRadius.circular(6),
                                   border: Border.all(
-                                    color: Colors.amberAccent.withValues(alpha: 0.5),
+                                    color: Colors.amberAccent.withValues(
+                                      alpha: 0.5,
+                                    ),
                                     width: 0.8,
                                   ),
                                 ),

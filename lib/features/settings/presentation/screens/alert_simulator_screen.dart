@@ -71,7 +71,7 @@ class _AlertSimulatorScreenState extends ConsumerState<AlertSimulatorScreen> {
             padding: const EdgeInsets.only(right: 8.0),
             child: TextButton.icon(
               style: TextButton.styleFrom(
-                backgroundColor: Colors.deepPurple.withOpacity(0.08),
+                backgroundColor: Colors.deepPurple.withValues(alpha: 0.08),
                 foregroundColor: Colors.deepPurple,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
@@ -100,7 +100,7 @@ class _AlertSimulatorScreenState extends ConsumerState<AlertSimulatorScreen> {
             padding: const EdgeInsets.only(right: 16.0),
             child: TextButton.icon(
               style: TextButton.styleFrom(
-                backgroundColor: const Color(0xFF003087).withOpacity(0.08),
+                backgroundColor: const Color(0xFF003087).withValues(alpha: 0.08),
                 foregroundColor: const Color(0xFF0070BA),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
@@ -658,20 +658,20 @@ class _AlertSimulatorScreenState extends ConsumerState<AlertSimulatorScreen> {
                 isOffline ? Icons.lock_outline_rounded : Icons.flash_on_rounded,
                 size: 16,
                 color: isOffline
-                    ? context.onSurfaceColor.withOpacity(0.4)
+                    ? context.onSurfaceColor.withValues(alpha: 0.4)
                     : Colors.white,
               ),
         label: Text(
           isOffline ? 'Simulation Locked 🔒' : label,
           style: TextStyle(
             color: isOffline
-                ? context.onSurfaceColor.withOpacity(0.4)
+                ? context.onSurfaceColor.withValues(alpha: 0.4)
                 : Colors.white,
           ),
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: isOffline
-              ? Colors.grey.withOpacity(0.12)
+              ? Colors.grey.withValues(alpha: 0.12)
               : (isRefill ? AppColors.secondaryDark : AppColors.primary),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
@@ -698,7 +698,7 @@ class _AlertSimulatorScreenState extends ConsumerState<AlertSimulatorScreen> {
                       Icons.check_circle_rounded,
                       color: context.onSurfaceColor,
                     ),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         isRefill
@@ -709,7 +709,7 @@ class _AlertSimulatorScreenState extends ConsumerState<AlertSimulatorScreen> {
                   ],
                 ),
                 backgroundColor: AppColors.success,
-                duration: Duration(seconds: 4),
+                duration: const Duration(seconds: 4),
               ),
             );
           case Failure(error: final err):

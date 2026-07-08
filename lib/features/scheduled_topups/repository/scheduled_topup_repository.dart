@@ -214,6 +214,20 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
 
       final created = ScheduledTopup.fromJson(response);
 
+      // If the created schedule is for custom refill, immediately queue its first execution
+      if (created.scheduleType == 'refill_custom' && created.isActive) {
+        await _client.from('topup_executions').insert({
+          'sim_line_id': created.simLineId,
+          'user_id': created.userId,
+          'amount': created.amount,
+          'currency': created.currency,
+          'status': 'pending',
+          'execution_type': 'refill_custom',
+          'execution_time': created.nextExecutionAt.toIso8601String(),
+          'scheduled_topup_id': created.id,
+        });
+      }
+
       // Update local cache
       final cached = _cache.readJson('cached_schedules') as List? ?? [];
       final updatedCache = cached
@@ -288,6 +302,28 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
           .single();
 
       final updated = ScheduledTopup.fromJson(response);
+
+      // Requeue custom refill execution to reflect any changes in amount/date
+      if (updated.scheduleType == 'refill_custom') {
+        await _client
+            .from('topup_executions')
+            .delete()
+            .eq('scheduled_topup_id', updated.id)
+            .eq('status', 'pending');
+
+        if (updated.isActive) {
+          await _client.from('topup_executions').insert({
+            'sim_line_id': updated.simLineId,
+            'user_id': updated.userId,
+            'amount': updated.amount,
+            'currency': updated.currency,
+            'status': 'pending',
+            'execution_type': 'refill_custom',
+            'execution_time': updated.nextExecutionAt.toIso8601String(),
+            'scheduled_topup_id': updated.id,
+          });
+        }
+      }
 
       // Update cache
       final cached = _cache.readJson('cached_schedules') as List? ?? [];
@@ -507,9 +543,9 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
 
       // 7. Update Schedule Dates
       int delayDays = schedule.frequencyDays;
-      if (delayDays == 90)
+      if (delayDays == 90) {
         delayDays = 85;
-      else if (delayDays == 30)
+      } else if (delayDays == 30)
         delayDays = 28;
       else if (delayDays == 14)
         delayDays = 13;
@@ -838,9 +874,9 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
 
       // 8. Update Schedule Dates and reset retry count
       int delayDays = schedule.frequencyDays;
-      if (delayDays == 90)
+      if (delayDays == 90) {
         delayDays = 85;
-      else if (delayDays == 30)
+      } else if (delayDays == 30)
         delayDays = 28;
       else if (delayDays == 14)
         delayDays = 13;

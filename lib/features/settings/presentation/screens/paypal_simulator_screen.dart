@@ -426,7 +426,9 @@ class _PaypalSimulatorScreenState extends ConsumerState<PaypalSimulatorScreen>
               .read(walletControllerProvider.notifier)
               .deposit(
                 _amount,
-                description: widget.paymentReason ?? 'Deposit via PayPal (Mock Order: $_orderId)',
+                description:
+                    widget.paymentReason ??
+                    'Deposit via PayPal (Mock Order: $_orderId)',
               );
 
           if (success) {
@@ -434,7 +436,9 @@ class _PaypalSimulatorScreenState extends ConsumerState<PaypalSimulatorScreen>
             await HapticHelper.successFeedback();
             if (widget.onSuccess != null) widget.onSuccess!();
           } else {
-            throw Exception('Failed to update wallet database after mock capture');
+            throw Exception(
+              'Failed to update wallet database after mock capture',
+            );
           }
         } else {
           setState(() => _status = 'Success');
@@ -509,7 +513,9 @@ class _PaypalSimulatorScreenState extends ConsumerState<PaypalSimulatorScreen>
           .read(walletControllerProvider.notifier)
           .deposit(
             _amount,
-            description: widget.paymentReason ?? 'Deposit via CardFields (Order: $orderId)',
+            description:
+                widget.paymentReason ??
+                'Deposit via CardFields (Order: $orderId)',
           );
 
       if (success) {
@@ -693,7 +699,9 @@ class _PaypalSimulatorScreenState extends ConsumerState<PaypalSimulatorScreen>
             .read(walletControllerProvider.notifier)
             .deposit(
               _amount,
-              description: widget.paymentReason ?? 'Deposit via PayPal (Order: $_orderId)',
+              description:
+                  widget.paymentReason ??
+                  'Deposit via PayPal (Order: $_orderId)',
             );
 
         if (success) {
@@ -1190,13 +1198,13 @@ class _PaypalSimulatorScreenState extends ConsumerState<PaypalSimulatorScreen>
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
-                  icon: const Icon(Icons.check_circle_outline_rounded, size: 22),
+                  icon: const Icon(
+                    Icons.check_circle_outline_rounded,
+                    size: 22,
+                  ),
                   label: const Text(
                     'Done / Return to App',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                 ),
               ),
@@ -1708,7 +1716,9 @@ class _PaypalSimulatorScreenState extends ConsumerState<PaypalSimulatorScreen>
               child: Row(
                 children: [
                   Icon(
-                    widget.depositToWallet ? Icons.wallet_rounded : Icons.check_circle_rounded,
+                    widget.depositToWallet
+                        ? Icons.wallet_rounded
+                        : Icons.check_circle_rounded,
                     color: Colors.green,
                     size: 16,
                   ),

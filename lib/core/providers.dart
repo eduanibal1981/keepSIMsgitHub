@@ -4,7 +4,6 @@
 /// Uses Riverpod code generation with @riverpod annotations.
 library;
 
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:keep_sims/core/supabase_client.dart';

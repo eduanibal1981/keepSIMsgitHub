@@ -148,10 +148,7 @@ class ScheduledTopupController extends _$ScheduledTopupController {
 
 /// Helper provider to get schedule for a specific SIM line.
 @riverpod
-ScheduledTopup? scheduledTopupForLine(
-  Ref ref,
-  String simLineId,
-) {
+ScheduledTopup? scheduledTopupForLine(Ref ref, String simLineId) {
   final schedulesAsync = ref.watch(scheduledTopupControllerProvider);
   final list = schedulesAsync.value;
   if (list == null) return null;
@@ -163,10 +160,7 @@ ScheduledTopup? scheduledTopupForLine(
 
 /// Helper provider to get Notify schedule for a specific SIM line.
 @riverpod
-ScheduledTopup? scheduledNotifyForLine(
-  Ref ref,
-  String simLineId,
-) {
+ScheduledTopup? scheduledNotifyForLine(Ref ref, String simLineId) {
   final schedulesAsync = ref.watch(scheduledTopupControllerProvider);
   final list = schedulesAsync.value;
   if (list == null) return null;
@@ -178,30 +172,24 @@ ScheduledTopup? scheduledNotifyForLine(
 
 /// Helper provider to get Custom Refill schedule for a specific SIM line.
 @riverpod
-ScheduledTopup? scheduledCustomRefillForLine(
-  Ref ref,
-  String simLineId,
-) {
+ScheduledTopup? scheduledCustomRefillForLine(Ref ref, String simLineId) {
   final schedulesAsync = ref.watch(scheduledTopupControllerProvider);
   final list = schedulesAsync.value;
   if (list == null) return null;
   for (final s in list) {
-    if (s.simLineId == simLineId && s.scheduleType == 'refill custom') return s;
+    if (s.simLineId == simLineId && s.scheduleType == 'refill_custom') return s;
   }
   return null;
 }
 
 /// Helper provider to get Mini Refill schedule for a specific SIM line.
 @riverpod
-ScheduledTopup? scheduledMiniRefillForLine(
-  Ref ref,
-  String simLineId,
-) {
+ScheduledTopup? scheduledMiniRefillForLine(Ref ref, String simLineId) {
   final schedulesAsync = ref.watch(scheduledTopupControllerProvider);
   final list = schedulesAsync.value;
   if (list == null) return null;
   for (final s in list) {
-    if (s.simLineId == simLineId && s.scheduleType == 'refill mini') return s;
+    if (s.simLineId == simLineId && s.scheduleType == 'refill_mini') return s;
   }
   return null;
 }
@@ -267,7 +255,7 @@ class SimLineExecutionsHistory extends _$SimLineExecutionsHistory {
 
       _currentPage = nextPage;
       state = AsyncValue.data([...currentList, ...result]);
-    } catch (e, st) {
+    } catch (e) {
       // Keep previous list
     } finally {
       _isLoadingMore = false;

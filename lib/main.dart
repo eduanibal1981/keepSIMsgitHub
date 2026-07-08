@@ -22,7 +22,7 @@ import 'package:keep_sims/core/services/local_cache_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Force semantics for TestSprite AI
   RendererBinding.instance.ensureSemantics();
 
@@ -44,9 +44,7 @@ void main() async {
 
   runApp(
     ProviderScope(
-      overrides: [
-        sharedPreferencesProvider.overrideWith((ref) => sharedPrefs),
-      ],
+      overrides: [sharedPreferencesProvider.overrideWith((ref) => sharedPrefs)],
       child: const KeepSIMsApp(),
     ),
   );
@@ -85,12 +83,11 @@ class KeepSIMsApp extends ConsumerWidget {
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
       themeMode: currentThemeMode, // Dynamic theme mode
-      
       // Localizations
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       locale: currentLocale,
-      
+
       // Router
       routerConfig: router,
     );

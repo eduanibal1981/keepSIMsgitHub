@@ -58,9 +58,11 @@ class SimLineCard extends ConsumerWidget {
 
     // ── Schedule state ───────────────────────────────────────────
     final notifySchedule = ref.watch(scheduledNotifyForLineProvider(line.id));
-    final miniSchedule   = ref.watch(scheduledMiniRefillForLineProvider(line.id));
-    final customSchedule = ref.watch(scheduledCustomRefillForLineProvider(line.id));
-    final user           = ref.watch(authControllerProvider).value;
+    final miniSchedule = ref.watch(scheduledMiniRefillForLineProvider(line.id));
+    final customSchedule = ref.watch(
+      scheduledCustomRefillForLineProvider(line.id),
+    );
+    final user = ref.watch(authControllerProvider).value;
 
     final bool isPremium =
         line.protectionTier.toLowerCase() == 'premium' ||
@@ -69,10 +71,11 @@ class SimLineCard extends ConsumerWidget {
     final bool isNotifyActive =
         notifySchedule != null && notifySchedule.isActive;
     final bool isMiniActive = miniSchedule != null && miniSchedule.isActive;
-    final bool isCustomActive = customSchedule != null && customSchedule.isActive;
+    final bool isCustomActive =
+        customSchedule != null && customSchedule.isActive;
 
     // ── Health / glow ────────────────────────────────────────────
-    final bool isVerified  = line.status == 'active';
+    final bool isVerified = line.status == 'active';
     final bool recentRefill =
         line.lastTopupAt != null &&
         DateTime.now().difference(line.lastTopupAt!).inDays <= 80;
@@ -108,10 +111,10 @@ class SimLineCard extends ConsumerWidget {
     final cardBorderColor = isSelected
         ? glowColor.withValues(alpha: 0.6)
         : hasError
-            ? AppColors.healthRed.withValues(alpha: isDark ? 0.4 : 0.35)
-            : (isDark
-                  ? AppColors.darkBorder
-                  : AppColors.lightBorder.withValues(alpha: 0.5));
+        ? AppColors.healthRed.withValues(alpha: isDark ? 0.4 : 0.35)
+        : (isDark
+              ? AppColors.darkBorder
+              : AppColors.lightBorder.withValues(alpha: 0.5));
 
     return GestureDetector(
       onLongPress: isShared
@@ -513,9 +516,7 @@ class SimLineCard extends ConsumerWidget {
           width: 48,
           height: 48,
           decoration: BoxDecoration(
-            color: isDark
-                ? const Color(0xFF232A34)
-                : AppColors.lightBg,
+            color: isDark ? const Color(0xFF232A34) : AppColors.lightBg,
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
               color: isDark
@@ -645,9 +646,7 @@ class SimLineCard extends ConsumerWidget {
 
     final gridBg = hasError
         ? AppColors.healthRed.withValues(alpha: isDark ? 0.08 : 0.06)
-        : (isDark
-              ? const Color(0x0CFFFFFF)
-              : const Color(0x06000000));
+        : (isDark ? const Color(0x0CFFFFFF) : const Color(0x06000000));
 
     final gridBorder = hasError
         ? AppColors.healthRed.withValues(alpha: 0.2)
@@ -661,7 +660,10 @@ class SimLineCard extends ConsumerWidget {
       leftCell = Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(AppLocalizations.of(context)!.actionRequiredLabel, style: labelStyle),
+          Text(
+            AppLocalizations.of(context)!.actionRequiredLabel,
+            style: labelStyle,
+          ),
           const SizedBox(height: 4),
           Row(
             children: [
@@ -671,7 +673,10 @@ class SimLineCard extends ConsumerWidget {
                 color: AppColors.healthRed,
               ),
               const SizedBox(width: 4),
-              Text(AppLocalizations.of(context)!.protectionOffLabel, style: valueStyle),
+              Text(
+                AppLocalizations.of(context)!.protectionOffLabel,
+                style: valueStyle,
+              ),
             ],
           ),
         ],
@@ -691,7 +696,10 @@ class SimLineCard extends ConsumerWidget {
                 color: context.onSurfaceColor.withValues(alpha: 0.4),
               ),
               const SizedBox(width: 4),
-              Text(AppLocalizations.of(context)!.nextAlertLabel, style: labelStyle),
+              Text(
+                AppLocalizations.of(context)!.nextAlertLabel,
+                style: labelStyle,
+              ),
             ],
           ),
           const SizedBox(height: 4),
@@ -711,7 +719,10 @@ class SimLineCard extends ConsumerWidget {
               color: context.onSurfaceColor.withValues(alpha: 0.4),
             ),
             const SizedBox(width: 4),
-            Text(AppLocalizations.of(context)!.lastRefillLabel, style: labelStyle),
+            Text(
+              AppLocalizations.of(context)!.lastRefillLabel,
+              style: labelStyle,
+            ),
           ],
         ),
         const SizedBox(height: 4),
@@ -760,9 +771,7 @@ class SimLineCard extends ConsumerWidget {
     Widget chip(String label, bool active, Color activeColor) {
       final chipBg = active
           ? activeColor.withValues(alpha: isDark ? 0.18 : 0.12)
-          : (isDark
-                ? const Color(0x0CFFFFFF)
-                : const Color(0x08000000));
+          : (isDark ? const Color(0x0CFFFFFF) : const Color(0x08000000));
       final chipBorder = active
           ? activeColor.withValues(alpha: isDark ? 0.4 : 0.3)
           : (isDark
@@ -771,8 +780,9 @@ class SimLineCard extends ConsumerWidget {
       final chipText = active
           ? activeColor
           : context.onSurfaceColor.withValues(alpha: 0.35);
-      final dotColor =
-          active ? activeColor : context.onSurfaceColor.withValues(alpha: 0.3);
+      final dotColor = active
+          ? activeColor
+          : context.onSurfaceColor.withValues(alpha: 0.3);
 
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -787,8 +797,10 @@ class SimLineCard extends ConsumerWidget {
             Container(
               width: 5,
               height: 5,
-              decoration:
-                  BoxDecoration(color: dotColor, shape: BoxShape.circle),
+              decoration: BoxDecoration(
+                color: dotColor,
+                shape: BoxShape.circle,
+              ),
             ),
             const SizedBox(width: 4),
             Text(
@@ -806,7 +818,10 @@ class SimLineCard extends ConsumerWidget {
 
     return Row(
       children: [
-        Text('${AppLocalizations.of(context)!.protectionLabel}: ', style: labelStyle),
+        Text(
+          '${AppLocalizations.of(context)!.protectionLabel}: ',
+          style: labelStyle,
+        ),
         const SizedBox(width: 4),
         Expanded(
           child: SingleChildScrollView(
@@ -814,9 +829,17 @@ class SimLineCard extends ConsumerWidget {
             child: Row(
               children: [
                 if (line.isHomeMode)
-                  chip(AppLocalizations.of(context)!.homeMode, true, Colors.lightBlue)
+                  chip(
+                    AppLocalizations.of(context)!.homeMode,
+                    true,
+                    Colors.lightBlue,
+                  )
                 else ...[
-                  chip(AppLocalizations.of(context)!.autoNotify, isNotifyActive, AppColors.success),
+                  chip(
+                    AppLocalizations.of(context)!.autoNotify,
+                    isNotifyActive,
+                    AppColors.success,
+                  ),
                   const SizedBox(width: 6),
                   chip(
                     AppLocalizations.of(context)!.autoRefill,
@@ -838,7 +861,8 @@ class SimLineCard extends ConsumerWidget {
 
   // ── SHARED-BY LABEL ──────────────────────────────────────────────────────────
   Widget _buildSharedByLabel(BuildContext context) {
-    final ownerName = householdState?.memberships
+    final ownerName =
+        householdState?.memberships
             .firstWhereOrNull((m) => m.ownerId == line.userId)
             ?.ownerName ??
         'Family Member';

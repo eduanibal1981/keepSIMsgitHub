@@ -276,7 +276,9 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
   Widget build(BuildContext context) {
     final authState = ref.watch(authControllerProvider);
     final user = authState.value;
-    final String currentTier = user?.subscriptionTier ?? (user?.isPowerUser == true ? 'premium' : 'standard');
+    final String currentTier =
+        user?.subscriptionTier ??
+        (user?.isPowerUser == true ? 'premium' : 'standard');
     final isDark = context.isDarkMode;
 
     return Scaffold(
@@ -327,7 +329,7 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                               (isDark
                                       ? AppColors.primary
                                       : AppColors.lightPrimary)
-                                  .withOpacity(0.12),
+                                  .withValues(alpha: 0.12),
                           blurRadius: 100,
                           spreadRadius: 30,
                         ),
@@ -490,7 +492,7 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                       vertical: 2,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.success.withOpacity(0.15),
+                      color: AppColors.success.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: const Text(
@@ -520,16 +522,16 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkCard.withOpacity(0.8) : Colors.white,
+        color: isDark ? AppColors.darkCard.withValues(alpha: 0.8) : Colors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: isDark
-              ? Colors.white.withOpacity(0.06)
+              ? Colors.white.withValues(alpha: 0.06)
               : AppColors.lightBorder,
         ),
         boxShadow: [
           BoxShadow(
-            color: isDark ? Colors.black26 : Colors.black.withOpacity(0.04),
+            color: isDark ? Colors.black26 : Colors.black.withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -570,9 +572,9 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                   vertical: 8,
                 ),
                 decoration: BoxDecoration(
-                  color: primaryThemeColor.withOpacity(0.15),
+                  color: primaryThemeColor.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: primaryThemeColor.withOpacity(0.3)),
+                  border: Border.all(color: primaryThemeColor.withValues(alpha: 0.3)),
                 ),
                 child: Text(
                   '$_sliderLinesCount ${_sliderLinesCount == 1 ? 'Line' : 'Lines'}',
@@ -590,7 +592,7 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
               activeTrackColor: primaryThemeColor,
               inactiveTrackColor: isDark ? Colors.white12 : Colors.black12,
               thumbColor: isDark ? Colors.white : primaryThemeColor,
-              overlayColor: primaryThemeColor.withOpacity(0.15),
+              overlayColor: primaryThemeColor.withValues(alpha: 0.15),
               valueIndicatorColor: primaryThemeColor,
               valueIndicatorTextStyle: const TextStyle(color: Colors.white),
             ),
@@ -672,20 +674,20 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
 
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkCard.withOpacity(0.6) : Colors.white,
+        color: isDark ? AppColors.darkCard.withValues(alpha: 0.6) : Colors.white,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
           color: isCurrent
               ? planColor
               : (isDark
-                    ? Colors.white.withOpacity(0.08)
+                    ? Colors.white.withValues(alpha: 0.08)
                     : AppColors.lightBorder),
           width: isCurrent ? 2.0 : 1.0,
         ),
         boxShadow: isCurrent
             ? [
                 BoxShadow(
-                  color: planColor.withOpacity(isDark ? 0.12 : 0.08),
+                  color: planColor.withValues(alpha: isDark ? 0.12 : 0.08),
                   blurRadius: 20,
                   offset: const Offset(0, 10),
                 ),
@@ -693,8 +695,8 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
             : [
                 BoxShadow(
                   color: isDark
-                      ? Colors.black.withOpacity(0.2)
-                      : Colors.black.withOpacity(0.03),
+                      ? Colors.black.withValues(alpha: 0.2)
+                      : Colors.black.withValues(alpha: 0.03),
                   blurRadius: 15,
                   offset: const Offset(0, 6),
                 ),
@@ -714,7 +716,7 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                     vertical: 16,
                   ),
                   decoration: BoxDecoration(
-                    color: planColor.withOpacity(0.15),
+                    color: planColor.withValues(alpha: 0.15),
                     borderRadius: const BorderRadius.only(
                       bottomLeft: Radius.circular(20),
                     ),
@@ -759,7 +761,7 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                                       (isDark
                                               ? AppColors.textSecondaryDark
                                               : AppColors.textSecondaryLight)
-                                          .withOpacity(0.6),
+                                          .withValues(alpha: 0.6),
                                   fontWeight: FontWeight.normal,
                                   fontSize: 18,
                                   decoration: TextDecoration.lineThrough,
@@ -802,10 +804,10 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                             vertical: 6,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.error.withOpacity(0.1),
+                            color: AppColors.error.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
-                              color: AppColors.error.withOpacity(0.2),
+                              color: AppColors.error.withValues(alpha: 0.2),
                             ),
                           ),
                           child: Text(
@@ -866,7 +868,7 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                             child: Text(
                               feature,
                               style: AppTextStyles.bodyMedium.copyWith(
-                                color: context.onSurfaceColor.withOpacity(0.9),
+                                color: context.onSurfaceColor.withValues(alpha: 0.9),
                               ),
                             ),
                           ),
@@ -887,25 +889,25 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: isCurrent
                             ? (isDark
-                                  ? Colors.white.withOpacity(0.04)
-                                  : Colors.black.withOpacity(0.04))
+                                  ? Colors.white.withValues(alpha: 0.04)
+                                  : Colors.black.withValues(alpha: 0.04))
                             : planColor,
                         foregroundColor: Colors.white,
                         disabledBackgroundColor: isDark
-                            ? Colors.white.withOpacity(0.04)
-                            : Colors.black.withOpacity(0.04),
+                            ? Colors.white.withValues(alpha: 0.04)
+                            : Colors.black.withValues(alpha: 0.04),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                           side: isCurrent
                               ? BorderSide(
                                   color: isDark
-                                      ? Colors.white.withOpacity(0.1)
-                                      : Colors.black.withOpacity(0.1),
+                                      ? Colors.white.withValues(alpha: 0.1)
+                                      : Colors.black.withValues(alpha: 0.1),
                                 )
                               : BorderSide.none,
                         ),
                         elevation: isCurrent ? 0 : 5,
-                        shadowColor: planColor.withOpacity(0.3),
+                        shadowColor: planColor.withValues(alpha: 0.3),
                       ),
                       child: Text(
                         isCurrent

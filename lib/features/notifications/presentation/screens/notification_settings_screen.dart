@@ -123,7 +123,10 @@ class NotificationSettingsScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Do Not Disturb / Quiet Hours Preferences Card
-            _buildSectionHeader(context, AppLocalizations.of(context)!.quietHoursSchedule),
+            _buildSectionHeader(
+              context,
+              AppLocalizations.of(context)!.quietHoursSchedule,
+            ),
             userPrefsAsync.when(
               data: (prefs) => _buildQuietHoursCard(context, ref, prefs),
               loading: () => Center(
@@ -156,7 +159,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                         Text(
+                        Text(
                           AppLocalizations.of(context)!.alertChannels,
                           style: AppTextStyles.labelMedium.copyWith(
                             color: Colors.orange.shade700,
@@ -227,7 +230,10 @@ class NotificationSettingsScreen extends ConsumerWidget {
             const SizedBox(height: 16),
 
             // Incident Channels (Alert settings per category)
-            _buildSectionHeader(context, AppLocalizations.of(context)!.incidentChannelsTitle),
+            _buildSectionHeader(
+              context,
+              AppLocalizations.of(context)!.incidentChannelsTitle,
+            ),
             alertSettingsAsync.when(
               data: (settings) =>
                   _buildIncidentChannels(context, ref, settings),
@@ -293,8 +299,8 @@ class NotificationSettingsScreen extends ConsumerWidget {
           // Quiet Hours Toggle Row
           SwitchListTile(
             value: isQuietHoursActive,
-            activeColor: context.colorScheme.secondary,
-            activeTrackColor: context.colorScheme.secondary.withOpacity(0.2),
+            activeThumbColor: context.colorScheme.secondary,
+            activeTrackColor: context.colorScheme.secondary.withValues(alpha: 0.2),
             inactiveThumbColor: isDark
                 ? AppColors.textTertiaryDark
                 : AppColors.textTertiaryLight,
@@ -389,8 +395,8 @@ class NotificationSettingsScreen extends ConsumerWidget {
           // Weekly Digest Preference Row
           SwitchListTile(
             value: prefs.weeklyDigestEnabled,
-            activeColor: context.primaryColor,
-            activeTrackColor: context.primaryColor.withOpacity(0.2),
+            activeThumbColor: context.primaryColor,
+            activeTrackColor: context.primaryColor.withValues(alpha: 0.2),
             inactiveThumbColor: isDark
                 ? AppColors.textTertiaryDark
                 : AppColors.textTertiaryLight,
@@ -519,7 +525,11 @@ class NotificationSettingsScreen extends ConsumerWidget {
     );
   }
 
-  _CategoryMeta _getLocalizedMeta(BuildContext context, String categoryKey, _CategoryMeta defaultMeta) {
+  _CategoryMeta _getLocalizedMeta(
+    BuildContext context,
+    String categoryKey,
+    _CategoryMeta defaultMeta,
+  ) {
     final local = AppLocalizations.of(context)!;
     switch (categoryKey) {
       case 'top_up_success':
@@ -651,7 +661,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
           ),
           child: SwitchListTile(
             value: item.isEnabled,
-            activeColor: metadata.color,
+            activeThumbColor: metadata.color,
             activeTrackColor: metadata.color.withValues(alpha: 0.2),
             inactiveThumbColor: isDark
                 ? AppColors.textTertiaryDark
@@ -669,7 +679,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
                         ? metadata.color.withValues(alpha: 0.1)
                         : (isDark
                               ? AppColors.darkBorder
-                              : Colors.black.withOpacity(0.04)),
+                              : Colors.black.withValues(alpha: 0.04)),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
@@ -724,8 +734,9 @@ class NotificationSettingsScreen extends ConsumerWidget {
 
   // --- TimeOfDay Parsers ---
   TimeOfDay _parseTimeOfDay(String? timeStr) {
-    if (timeStr == null || timeStr.isEmpty)
+    if (timeStr == null || timeStr.isEmpty) {
       return const TimeOfDay(hour: 22, minute: 0);
+    }
     try {
       final parts = timeStr.split(':');
       final hour = int.parse(parts[0]);
@@ -889,8 +900,7 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
         if (val.length <= 9) {
           final profile = ref.read(authControllerProvider).value;
           final homeCode = profile?.homeCountryCode;
-          final countries =
-              ref.read(supportedCountriesProvider).value ?? [];
+          final countries = ref.read(supportedCountriesProvider).value ?? [];
           String homeDial = '+20';
           if (countries.isNotEmpty) {
             try {
@@ -920,7 +930,11 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
       setState(() => _isSaving = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(AppLocalizations.of(context)!.channelSettingsUpdated(_getChannelName(context, type))),
+          content: Text(
+            AppLocalizations.of(
+              context,
+            )!.channelSettingsUpdated(_getChannelName(context, type)),
+          ),
           backgroundColor: context.colorScheme.secondary,
           duration: const Duration(seconds: 2),
         ),
@@ -993,9 +1007,13 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
     final hasStandardOrPremiumLine = simLines.any((line) {
       final tier = line.protectionTier.trim().toLowerCase();
       final plan = line.planType.trim().toLowerCase();
-      return tier == 'standard' || tier == 'premium' || plan == 'standard' || plan == 'premium';
+      return tier == 'standard' ||
+          tier == 'premium' ||
+          plan == 'standard' ||
+          plan == 'premium';
     });
-    final bool isLocked = type != 'push' && globalTier == 'basic' && !hasStandardOrPremiumLine;
+    final bool isLocked =
+        type != 'push' && globalTier == 'basic' && !hasStandardOrPremiumLine;
     final isDark = context.isDarkMode;
 
     return Container(
@@ -1021,7 +1039,9 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
                     SubscriptionUpsellSheet.show(
                       context: context,
                       title: AppLocalizations.of(context)!.channelLocked(name),
-                      description: AppLocalizations.of(context)!.lockedAlertSubtitle(name),
+                      description: AppLocalizations.of(
+                        context,
+                      )!.lockedAlertSubtitle(name),
                       requiredPlan: 'Starter Plan',
                       highlights: [
                         AppLocalizations.of(context)!.upsellProtect5Lines,
@@ -1033,8 +1053,8 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
                 : null,
             child: SwitchListTile(
               value: isLocked ? false : _isEnabled,
-              activeColor: color,
-              activeTrackColor: color.withOpacity(0.2),
+              activeThumbColor: color,
+              activeTrackColor: color.withValues(alpha: 0.2),
               inactiveThumbColor: isDark
                   ? AppColors.textTertiaryDark
                   : AppColors.textTertiaryLight,
@@ -1308,7 +1328,9 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
               const SizedBox(width: 8),
               Text(
                 isBound
-                    ? AppLocalizations.of(context)!.telegramStatusBound(chatId.toString())
+                    ? AppLocalizations.of(
+                        context,
+                      )!.telegramStatusBound(chatId.toString())
                     : AppLocalizations.of(context)!.telegramStatusUnbound,
                 style: AppTextStyles.bodyMedium.copyWith(
                   color: isBound ? AppColors.success : AppColors.warning,
@@ -1366,9 +1388,9 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
+        color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: color.withOpacity(0.2)),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,

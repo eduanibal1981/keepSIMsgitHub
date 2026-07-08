@@ -132,7 +132,10 @@ class _CreateTicketScreenState extends ConsumerState<CreateTicketScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      appBar: AppBar(title: Text(AppLocalizations.of(context)!.openTicket), centerTitle: true),
+      appBar: AppBar(
+        title: Text(AppLocalizations.of(context)!.openTicket),
+        centerTitle: true,
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -146,12 +149,12 @@ class _CreateTicketScreenState extends ConsumerState<CreateTicketScreen> {
             ),
             const SizedBox(height: 8),
             DropdownButtonFormField<String>(
-              value: _selectedCategory,
+              initialValue: _selectedCategory,
               dropdownColor: isDark ? AppColors.darkCard : AppColors.lightCard,
               decoration: InputDecoration(
                 filled: true,
                 fillColor: isDark
-                    ? Colors.black.withOpacity(0.15)
+                    ? Colors.black.withValues(alpha: 0.15)
                     : const Color(0xFFEAEEF1),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -159,7 +162,12 @@ class _CreateTicketScreenState extends ConsumerState<CreateTicketScreen> {
                 ),
               ),
               items: _categories
-                  .map((c) => DropdownMenuItem(value: c, child: Text(_getTranslatedCategory(context, c))))
+                  .map(
+                    (c) => DropdownMenuItem(
+                      value: c,
+                      child: Text(_getTranslatedCategory(context, c)),
+                    ),
+                  )
                   .toList(),
               onChanged: (val) {
                 if (val != null) setState(() => _selectedCategory = val);
@@ -180,7 +188,7 @@ class _CreateTicketScreenState extends ConsumerState<CreateTicketScreen> {
                 hintText: AppLocalizations.of(context)!.subjectHint,
                 filled: true,
                 fillColor: isDark
-                    ? Colors.black.withOpacity(0.15)
+                    ? Colors.black.withValues(alpha: 0.15)
                     : const Color(0xFFEAEEF1),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -204,7 +212,7 @@ class _CreateTicketScreenState extends ConsumerState<CreateTicketScreen> {
                 hintText: AppLocalizations.of(context)!.descriptionHint,
                 filled: true,
                 fillColor: isDark
-                    ? Colors.black.withOpacity(0.15)
+                    ? Colors.black.withValues(alpha: 0.15)
                     : const Color(0xFFEAEEF1),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),

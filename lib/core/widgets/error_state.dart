@@ -37,7 +37,7 @@ class ErrorStateView extends StatelessWidget {
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.error.withOpacity(0.15),
+                        color: AppColors.error.withValues(alpha: 0.15),
                         blurRadius: 40,
                         spreadRadius: 10,
                       ),
@@ -51,7 +51,7 @@ class ErrorStateView extends StatelessWidget {
                     shape: BoxShape.circle,
                     color: AppColors.darkSurface,
                     border: Border.all(
-                      color: AppColors.error.withOpacity(0.3),
+                      color: AppColors.error.withValues(alpha: 0.3),
                       width: 1.5,
                     ),
                   ),
@@ -115,7 +115,7 @@ class ErrorStateView extends StatelessWidget {
                           fontFamily: 'monospace',
                           fontSize: 11,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.error.withOpacity(0.9),
+                          color: AppColors.error.withValues(alpha: 0.9),
                           letterSpacing: 0.5,
                         ),
                       ),
@@ -129,7 +129,7 @@ class ErrorStateView extends StatelessWidget {
                     style: TextStyle(
                       fontFamily: 'monospace',
                       fontSize: 10,
-                      color: AppColors.error.withOpacity(0.7),
+                      color: AppColors.error.withValues(alpha: 0.7),
                       height: 1.6,
                     ),
                   ),
@@ -150,7 +150,7 @@ class ErrorStateView extends StatelessWidget {
                   borderRadius: BorderRadius.circular(14),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.error.withOpacity(0.2),
+                      color: AppColors.error.withValues(alpha: 0.2),
                       blurRadius: 15,
                       offset: const Offset(0, 4),
                     ),

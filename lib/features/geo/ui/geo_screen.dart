@@ -82,7 +82,7 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: context.primaryColor.withOpacity(0.15),
+                    color: context.primaryColor.withValues(alpha: 0.15),
                     blurRadius: 100,
                     spreadRadius: 50,
                   ),
@@ -100,7 +100,7 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: context.colorScheme.secondary.withOpacity(0.1),
+                    color: context.colorScheme.secondary.withValues(alpha: 0.1),
                     blurRadius: 100,
                     spreadRadius: 50,
                   ),
@@ -154,7 +154,7 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
           // Loader Overlay
           if (geoState.isProcessing)
             Container(
-              color: Colors.black.withOpacity(0.6),
+              color: Colors.black.withValues(alpha: 0.6),
               child: Center(
                 child: CircularProgressIndicator(
                   color: context.colorScheme.secondary,
@@ -199,7 +199,7 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
                               (travelMode
                                       ? context.colorScheme.secondary
                                       : context.primaryColor)
-                                  .withOpacity(opacity.clamp(0.0, 1.0)),
+                                  .withValues(alpha: opacity.clamp(0.0, 1.0)),
                           width: 1.5,
                         ),
                       ),
@@ -225,7 +225,7 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
                       (travelMode
                               ? context.colorScheme.secondary
                               : context.primaryColor)
-                          .withOpacity(0.4),
+                          .withValues(alpha: 0.4),
                   blurRadius: 25,
                   spreadRadius: 2,
                 ),
@@ -268,7 +268,7 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
                       (isHome
                               ? context.primaryColor
                               : context.colorScheme.secondary)
-                          .withOpacity(0.15),
+                          .withValues(alpha: 0.15),
                 ),
                 child: Icon(
                   isHome ? Icons.home_rounded : Icons.public_rounded,
@@ -358,9 +358,9 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: context.primaryColor.withOpacity(0.1),
+        color: context.primaryColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: context.primaryColor.withOpacity(0.3)),
+        border: Border.all(color: context.primaryColor.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -455,10 +455,10 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: context.colorScheme.secondary.withOpacity(0.08),
+        color: context.colorScheme.secondary.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: context.colorScheme.secondary.withOpacity(0.25),
+          color: context.colorScheme.secondary.withValues(alpha: 0.25),
         ),
       ),
       child: Column(
@@ -588,8 +588,8 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
           ),
           Switch(
             value: geoState.travelModeEnabled,
-            activeColor: context.colorScheme.secondary,
-            activeTrackColor: context.colorScheme.secondary.withOpacity(0.3),
+            activeThumbColor: context.colorScheme.secondary,
+            activeTrackColor: context.colorScheme.secondary.withValues(alpha: 0.3),
             inactiveThumbColor: isDark
                 ? AppColors.textSecondaryDark
                 : AppColors.textSecondaryLight,
@@ -609,7 +609,7 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
   }
 
   Widget _buildSimulatorConsole(GeoState geoState, String homeCountry) {
-    final double buttonHeight = 46.0;
+    const double buttonHeight = 46.0;
     final isDark = context.isDarkMode;
 
     return Container(
@@ -721,12 +721,12 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
     final bool isCurrent = geoState.currentIsoCode == isoCode;
     final isDark = context.isDarkMode;
 
-    return Container(
+    return SizedBox(
       height: height,
       child: OutlinedButton(
         style: OutlinedButton.styleFrom(
           backgroundColor: isCurrent
-              ? context.colorScheme.secondary.withOpacity(0.08)
+              ? context.colorScheme.secondary.withValues(alpha: 0.08)
               : Colors.transparent,
           side: BorderSide(
             color: isCurrent
@@ -776,11 +776,11 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isDark ? Colors.black.withOpacity(0.4) : const Color(0xFFEAEEF1),
+        color: isDark ? Colors.black.withValues(alpha: 0.4) : const Color(0xFFEAEEF1),
         borderRadius: BorderRadius.circular(15),
         border: Border.all(
           color: isDark
-              ? Colors.white.withOpacity(0.05)
+              ? Colors.white.withValues(alpha: 0.05)
               : AppColors.lightBorder,
         ),
       ),
@@ -805,7 +805,7 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
                 decoration: BoxDecoration(
                   color:
                       (isDark ? AppColors.secondary : AppColors.lightSecondary)
-                          .withOpacity(0.1),
+                          .withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -822,7 +822,7 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
             ],
           ),
           const SizedBox(height: 15),
-          Container(
+          SizedBox(
             height: 120,
             child: ListView.builder(
               physics: const BouncingScrollPhysics(),

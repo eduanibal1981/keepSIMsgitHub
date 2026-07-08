@@ -91,7 +91,10 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
 
     // Determine which plans to show (only upgrades)
     final availablePlans = <String>[];
-    if (currentTier == 'free' || currentTier == 'basic' || currentPlan == 'free' || currentPlan == 'basic') {
+    if (currentTier == 'free' ||
+        currentTier == 'basic' ||
+        currentPlan == 'free' ||
+        currentPlan == 'basic') {
       availablePlans.addAll(['standard', 'premium']);
     } else if (currentTier == 'standard' || currentPlan == 'standard') {
       availablePlans.add('premium');
@@ -148,7 +151,9 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
                 ),
                 child: Icon(
                   Icons.rocket_launch_rounded,
-                  color: isDark ? const Color(0xFFFFD700) : const Color(0xFF2E7D32),
+                  color: isDark
+                      ? const Color(0xFFFFD700)
+                      : const Color(0xFF2E7D32),
                   size: 32,
                 ),
               ),
@@ -166,7 +171,10 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
 
               // Line identifier
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: isDark
                       ? Colors.white.withValues(alpha: 0.06)
@@ -239,17 +247,23 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
                             if (!context.mounted) return;
                             final plan = _plans[_selectedPlan]!;
                             final planName = plan.name;
-                            final lineNickname = widget.simLine.nickname ?? 'SIM';
+                            final lineNickname =
+                                widget.simLine.nickname ?? 'SIM';
 
                             // Calculate total: plan price + refill cost for premium
                             double totalAmount = plan.monthlyPrice;
-                            String reason = '$planName Plan upgrade for $lineNickname (${widget.simLine.phoneNumber})';
-                            if (_selectedPlan == 'premium' && carrierRule != null) {
+                            String reason =
+                                '$planName Plan upgrade for $lineNickname (${widget.simLine.phoneNumber})';
+                            if (_selectedPlan == 'premium' &&
+                                carrierRule != null) {
                               totalAmount += carrierRule.inappPricing;
-                              reason = '$planName Plan (\$${plan.monthlyPrice}/mo + ${carrierRule.inappPricing} ${carrierRule.inappPricingCurrency.toUpperCase()} refill every ${carrierRule.topupValidityDays} days) for $lineNickname';
+                              reason =
+                                  '$planName Plan (\$${plan.monthlyPrice}/mo + ${carrierRule.inappPricing} ${carrierRule.inappPricingCurrency.toUpperCase()} refill every ${carrierRule.topupValidityDays} days) for $lineNickname';
                             }
 
-                            final container = ProviderScope.containerOf(context);
+                            final container = ProviderScope.containerOf(
+                              context,
+                            );
                             final updatedLine = widget.simLine.copyWith(
                               protectionTier: _selectedPlan!,
                               planType: _selectedPlan!,
@@ -266,16 +280,24 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
                                   onSuccess: () async {
                                     try {
                                       await container
-                                          .read(simLinesControllerProvider.notifier)
+                                          .read(
+                                            simLinesControllerProvider.notifier,
+                                          )
                                           .updateSimLine(updatedLine);
                                       container.invalidate(
-                                        simLineDetailControllerProvider(widget.simLine.id),
+                                        simLineDetailControllerProvider(
+                                          widget.simLine.id,
+                                        ),
                                       );
                                     } catch (e) {
                                       if (context.mounted) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
                                           SnackBar(
-                                            content: Text('Failed to save upgrade: $e'),
+                                            content: Text(
+                                              'Failed to save upgrade: $e',
+                                            ),
                                             backgroundColor: Colors.red,
                                           ),
                                         );
@@ -289,8 +311,12 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
                         : null,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: _selectedPlan == 'premium'
-                          ? (isDark ? const Color(0xFFFFD700) : const Color(0xFF2E7D32))
-                          : (isDark ? const Color(0xFF64B5F6) : const Color(0xFF1565C0)),
+                          ? (isDark
+                                ? const Color(0xFFFFD700)
+                                : const Color(0xFF2E7D32))
+                          : (isDark
+                                ? const Color(0xFF64B5F6)
+                                : const Color(0xFF1565C0)),
                       foregroundColor: _selectedPlan == 'premium' && isDark
                           ? Colors.black
                           : Colors.white,
@@ -321,8 +347,10 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
                             color: _selectedPlan == 'premium' && isDark
                                 ? Colors.black
                                 : (_selectedPlan != null
-                                    ? Colors.white
-                                    : context.onSurfaceColor.withValues(alpha: 0.3)),
+                                      ? Colors.white
+                                      : context.onSurfaceColor.withValues(
+                                          alpha: 0.3,
+                                        )),
                           ),
                         ),
                       ],
@@ -372,15 +400,15 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
           color: isSelected
               ? accentColor.withValues(alpha: isDark ? 0.12 : 0.06)
               : (isDark
-                  ? Colors.white.withValues(alpha: 0.04)
-                  : Colors.black.withValues(alpha: 0.02)),
+                    ? Colors.white.withValues(alpha: 0.04)
+                    : Colors.black.withValues(alpha: 0.02)),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected
                 ? accentColor
                 : (isDark
-                    ? Colors.white.withValues(alpha: 0.08)
-                    : Colors.black.withValues(alpha: 0.08)),
+                      ? Colors.white.withValues(alpha: 0.08)
+                      : Colors.black.withValues(alpha: 0.08)),
             width: isSelected ? 2 : 1,
           ),
           boxShadow: isSelected
@@ -503,7 +531,9 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
                               child: Text(
                                 feat,
                                 style: AppTextStyles.bodySmall.copyWith(
-                                  color: context.onSurfaceColor.withValues(alpha: 0.75),
+                                  color: context.onSurfaceColor.withValues(
+                                    alpha: 0.75,
+                                  ),
                                 ),
                               ),
                             ),
@@ -530,7 +560,9 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
                             Text(
                               'Loading auto-refill pricing...',
                               style: AppTextStyles.caption.copyWith(
-                                color: context.onSurfaceColor.withValues(alpha: 0.5),
+                                color: context.onSurfaceColor.withValues(
+                                  alpha: 0.5,
+                                ),
                                 fontStyle: FontStyle.italic,
                               ),
                             ),
@@ -558,7 +590,9 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
                                 child: Text(
                                   'Auto-refill: ${carrierRule.inappPricing} ${carrierRule.inappPricingCurrency.toUpperCase()} every ${carrierRule.topupValidityDays} days (telecom, VAT included)',
                                   style: AppTextStyles.caption.copyWith(
-                                    color: context.onSurfaceColor.withValues(alpha: 0.7),
+                                    color: context.onSurfaceColor.withValues(
+                                      alpha: 0.7,
+                                    ),
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),

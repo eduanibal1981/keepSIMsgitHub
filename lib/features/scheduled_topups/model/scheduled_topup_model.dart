@@ -26,7 +26,8 @@ abstract class ScheduledTopup with _$ScheduledTopup {
     @Default(4) int maxRetries,
     @Default('active')
     String status, // 'active', 'paused', 'failed_permanently', 'completed'
-    @Default('notify') String scheduleType, // 'notify', 'refill mini', 'refill custom'
+    @Default('notify')
+    String scheduleType, // 'notify', 'refill_mini', 'refill_custom'
     DateTime? createdAt,
     DateTime? updatedAt,
   }) = _ScheduledTopup;

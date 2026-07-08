@@ -69,7 +69,8 @@ class ZenditRepository implements ITopUpRepository {
         return TopUpResult(
           success: false,
           transactionId: '',
-          errorMessage: 'No matching offer found for amount: \$${amount.toStringAsFixed(2)}',
+          errorMessage:
+              'No matching offer found for amount: \$${amount.toStringAsFixed(2)}',
         );
       }
 
@@ -110,14 +111,14 @@ class ZenditRepository implements ITopUpRepository {
           purchaseResponse.statusCode == 201) {
         var purchaseData = jsonDecode(purchaseResponse.body);
         String currentStatus = purchaseData['status'] ?? 'PENDING';
-        
+
         // Poll status up to 5 times (1 second intervals) to get the final status (FAILED / SUCCESSFUL)
         int pollCount = 0;
-        while ((currentStatus == 'ACCEPTED' || 
-                currentStatus == 'PENDING' || 
-                currentStatus == 'AUTHORIZED' || 
-                currentStatus == 'IN_PROGRESS') && 
-               pollCount < 5) {
+        while ((currentStatus == 'ACCEPTED' ||
+                currentStatus == 'PENDING' ||
+                currentStatus == 'AUTHORIZED' ||
+                currentStatus == 'IN_PROGRESS') &&
+            pollCount < 5) {
           await Future.delayed(const Duration(seconds: 1));
           try {
             final checkResponse = await http.get(
@@ -139,7 +140,8 @@ class ZenditRepository implements ITopUpRepository {
         }
 
         if (currentStatus == 'FAILED' || currentStatus == 'DECLINED') {
-          final errorMsg = purchaseData['error']?['message'] ?? 
+          final errorMsg =
+              purchaseData['error']?['message'] ??
               'Transaction failed with status: $currentStatus';
           return TopUpResult(
             success: false,

@@ -8,7 +8,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:keep_sims/core/providers.dart';
 import 'package:keep_sims/core/result.dart';
 import 'package:keep_sims/features/auth/controller/auth_controller.dart';
-import 'package:keep_sims/features/dashboard/presentation/controller/dashboard_controller.dart';
 import '../model/wallet_model.dart';
 
 part 'wallet_controller.g.dart';

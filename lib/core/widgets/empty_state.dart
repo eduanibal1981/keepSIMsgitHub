@@ -80,7 +80,7 @@ class _EmptyStateViewState extends State<EmptyStateView>
                                 (isLight
                                         ? AppColors.lightPrimary
                                         : AppColors.primary)
-                                    .withOpacity(isLight ? 0.08 : 0.12),
+                                    .withValues(alpha: isLight ? 0.08 : 0.12),
                             blurRadius: 40,
                             spreadRadius: 10,
                           ),
@@ -95,19 +95,19 @@ class _EmptyStateViewState extends State<EmptyStateView>
                         shape: BoxShape.circle,
                         color: isLight
                             ? Colors.white
-                            : AppColors.darkSurface.withOpacity(0.6),
+                            : AppColors.darkSurface.withValues(alpha: 0.6),
                         border: Border.all(
                           color:
                               (isLight
                                       ? AppColors.lightPrimary
                                       : AppColors.primary)
-                                  .withOpacity(0.2),
+                                  .withValues(alpha: 0.2),
                           width: 1.5,
                         ),
                         boxShadow: isLight
                             ? [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.04),
+                                  color: Colors.black.withValues(alpha: 0.04),
                                   blurRadius: 8,
                                   offset: const Offset(0, 4),
                                 ),
@@ -171,7 +171,7 @@ class _EmptyStateViewState extends State<EmptyStateView>
                                 (isLight
                                         ? AppColors.lightPrimary
                                         : AppColors.primary)
-                                    .withOpacity(0.4),
+                                    .withValues(alpha: 0.4),
                             blurRadius: 20,
                             offset: const Offset(0, 6),
                           ),

@@ -44,9 +44,14 @@ class SimLineDetailController extends _$SimLineDetailController {
 
     // 2. Fetch ScheduledTopups if any
     final notifySchedule = ref.watch(scheduledNotifyForLineProvider(id));
-    final miniRefillSchedule = ref.watch(scheduledMiniRefillForLineProvider(id));
-    final customRefillSchedule = ref.watch(scheduledCustomRefillForLineProvider(id));
-    final scheduledTopup = customRefillSchedule ?? miniRefillSchedule ?? notifySchedule;
+    final miniRefillSchedule = ref.watch(
+      scheduledMiniRefillForLineProvider(id),
+    );
+    final customRefillSchedule = ref.watch(
+      scheduledCustomRefillForLineProvider(id),
+    );
+    final scheduledTopup =
+        customRefillSchedule ?? miniRefillSchedule ?? notifySchedule;
 
     // 3. Fetch Executions
     final executions = await ref.watch(
@@ -72,9 +77,10 @@ class SimLineDetailController extends _$SimLineDetailController {
   /// Triggers a mock refill execution
   Future<Result<void>> triggerRefill() async {
     final detailState = state.value;
-    final refillSchedule = detailState?.customRefillSchedule ?? detailState?.miniRefillSchedule;
+    final refillSchedule =
+        detailState?.customRefillSchedule ?? detailState?.miniRefillSchedule;
     if (detailState == null || refillSchedule == null) {
-      return Failure(
+      return const Failure(
         AppFailure.validation(
           message: 'No active Auto-Refill configuration found for this line.',
         ),

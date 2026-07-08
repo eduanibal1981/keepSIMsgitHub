@@ -304,7 +304,7 @@ final class ScheduledCustomRefillForLineProvider
 }
 
 String _$scheduledCustomRefillForLineHash() =>
-    r'2c865a104c896dc880b95a3267cdc3ba9e474e02';
+    r'1b8202c419edd03eaf95c4e39807dad546b92b62';
 
 /// Helper provider to get Custom Refill schedule for a specific SIM line.
 
@@ -393,7 +393,7 @@ final class ScheduledMiniRefillForLineProvider
 }
 
 String _$scheduledMiniRefillForLineHash() =>
-    r'dd9384e02291f671b8e4d25ab3c61d4a94c32cef';
+    r'561e99894ac2169d57b7c3c534ca65a389517aec';
 
 /// Helper provider to get Mini Refill schedule for a specific SIM line.
 

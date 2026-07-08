@@ -132,10 +132,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     vertical: 12,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.amberAccent.withOpacity(0.12),
+                    color: Colors.amberAccent.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: Colors.amberAccent.withOpacity(0.4),
+                      color: Colors.amberAccent.withValues(alpha: 0.4),
                       width: 1.0,
                     ),
                   ),
@@ -180,12 +180,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               ],
 
               // ── Header Row ──────────────────────────────────────────
-              _buildHeader(
-                context,
-                ref,
-                welcomeName,
-                isPowerUser,
-              ),
+              _buildHeader(context, ref, welcomeName, isPowerUser),
               const SizedBox(height: 24),
 
               // ── "At a Glance" Glassmorphic Hero Card ──────────────────
@@ -270,7 +265,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             ],
           ),
         ),
-        
+
         // Language Selector Icon Button
         IconButton(
           icon: const Icon(Icons.translate_rounded, size: 22),
@@ -378,7 +373,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           onTap: () async {
                             await HapticHelper.mediumImpact();
                             ref
-                                .read(userPreferencesControllerProvider.notifier)
+                                .read(
+                                  userPreferencesControllerProvider.notifier,
+                                )
                                 .updateLanguage(lang['code']!);
                             ref
                                 .read(localeControllerProvider.notifier)
@@ -397,12 +394,16 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                             ),
                             decoration: BoxDecoration(
                               color: isSelected
-                                  ? context.onSurfaceColor.withValues(alpha: 0.05)
+                                  ? context.onSurfaceColor.withValues(
+                                      alpha: 0.05,
+                                    )
                                   : Colors.transparent,
                               borderRadius: BorderRadius.circular(16),
                               border: Border.all(
                                 color: isSelected
-                                    ? const Color(0xFF6366F1).withValues(alpha: 0.3)
+                                    ? const Color(
+                                        0xFF6366F1,
+                                      ).withValues(alpha: 0.3)
                                     : Colors.transparent,
                                 width: 1,
                               ),
@@ -726,7 +727,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         ),
         boxShadow: [
           BoxShadow(
-            color: context.primaryColor.withOpacity(isDark ? 0.08 : 0.04),
+            color: context.primaryColor.withValues(alpha: isDark ? 0.08 : 0.04),
             blurRadius: 24,
             offset: const Offset(0, 8),
           ),
@@ -745,7 +746,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 height: 150,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AppColors.success.withOpacity(isDark ? 0.02 : 0.01),
+                  color: AppColors.success.withValues(alpha: isDark ? 0.02 : 0.01),
                 ),
               ),
             ),
@@ -764,8 +765,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       context.push('${AppRoutes.simLines}/add');
                     }
                   },
-                  splashColor: context.onSurfaceColor.withOpacity(0.05),
-                  highlightColor: context.onSurfaceColor.withOpacity(0.02),
+                  splashColor: context.onSurfaceColor.withValues(alpha: 0.05),
+                  highlightColor: context.onSurfaceColor.withValues(alpha: 0.02),
                 ),
               ),
             ),
@@ -790,7 +791,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                 value: progress,
                                 strokeWidth: 7,
                                 backgroundColor: context.onSurfaceColor
-                                    .withOpacity(0.08),
+                                    .withValues(alpha: 0.08),
                                 valueColor: const AlwaysStoppedAnimation<Color>(
                                   AppColors.success,
                                 ),
@@ -812,7 +813,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                   ),
                                 ),
                                 Text(
-                                  isHourlyMode ? 'mins' : AppLocalizations.of(context)!.days,
+                                  isHourlyMode
+                                      ? 'mins'
+                                      : AppLocalizations.of(context)!.days,
                                   style: AppTextStyles.caption.copyWith(
                                     color: isDark
                                         ? AppColors.textSecondaryDark
@@ -838,7 +841,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                 children: [
                                   Expanded(
                                     child: Text(
-                                      isPremium ? 'NEXT TOP-UP' : AppLocalizations.of(context)!.nextNotify,
+                                      isPremium
+                                          ? 'NEXT TOP-UP'
+                                          : AppLocalizations.of(
+                                              context,
+                                            )!.nextNotify,
                                       style: AppTextStyles.labelSmall.copyWith(
                                         color: isDark
                                             ? AppColors.textSecondaryDark
@@ -858,8 +865,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                         vertical: 4,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: AppColors.success.withOpacity(
-                                          0.15,
+                                        color: AppColors.success.withValues(
+                                          alpha: 0.15,
                                         ),
                                         borderRadius: BorderRadius.circular(6),
                                       ),
@@ -1258,7 +1265,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: Colors.blueAccent.withOpacity(0.15),
+                          color: Colors.blueAccent.withValues(alpha: 0.15),
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(
@@ -1292,7 +1299,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   ),
                   const SizedBox(height: 8),
                   DropdownButtonFormField<String>(
-                    value: selectedCategory,
+                    initialValue: selectedCategory,
                     dropdownColor: isLight
                         ? AppColors.lightCard
                         : AppColors.darkCard,
@@ -1305,13 +1312,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       filled: true,
                       fillColor: isLight
                           ? const Color(0xFFEAEEF1)
-                          : Colors.black.withOpacity(0.15),
+                          : Colors.black.withValues(alpha: 0.15),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
                           color: isLight
                               ? AppColors.lightBorder
-                              : Colors.white.withOpacity(0.1),
+                              : Colors.white.withValues(alpha: 0.1),
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
@@ -1364,18 +1371,18 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       hintStyle: TextStyle(
                         color: isLight
                             ? AppColors.textTertiaryLight
-                            : Colors.white.withOpacity(0.3),
+                            : Colors.white.withValues(alpha: 0.3),
                       ),
                       filled: true,
                       fillColor: isLight
                           ? const Color(0xFFEAEEF1)
-                          : Colors.black.withOpacity(0.15),
+                          : Colors.black.withValues(alpha: 0.15),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
                           color: isLight
                               ? AppColors.lightBorder
-                              : Colors.white.withOpacity(0.1),
+                              : Colors.white.withValues(alpha: 0.1),
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
@@ -1408,18 +1415,18 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       hintStyle: TextStyle(
                         color: isLight
                             ? AppColors.textTertiaryLight
-                            : Colors.white.withOpacity(0.3),
+                            : Colors.white.withValues(alpha: 0.3),
                       ),
                       filled: true,
                       fillColor: isLight
                           ? const Color(0xFFEAEEF1)
-                          : Colors.black.withOpacity(0.15),
+                          : Colors.black.withValues(alpha: 0.15),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
                           color: isLight
                               ? AppColors.lightBorder
-                              : Colors.white.withOpacity(0.1),
+                              : Colors.white.withValues(alpha: 0.1),
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(

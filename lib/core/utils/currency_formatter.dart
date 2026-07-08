@@ -1,6 +1,5 @@
 import 'package:intl/intl.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:keep_sims/core/services/local_cache_service.dart';
 
 part 'currency_formatter.g.dart';
@@ -28,7 +27,11 @@ class CurrencyFormatter {
   /// Formats the given [amount] based on the provided [currencyCode] (e.g. 'USD', 'EUR', 'AED').
   /// The [locale] argument specifies formatting rules (e.g. comma vs period for decimals),
   /// but we typically let it default to the system locale or the app locale.
-  static String format(double amount, {required String currencyCode, String? locale}) {
+  static String format(
+    double amount, {
+    required String currencyCode,
+    String? locale,
+  }) {
     final format = NumberFormat.simpleCurrency(
       locale: locale,
       name: currencyCode,

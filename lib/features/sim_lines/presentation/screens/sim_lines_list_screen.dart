@@ -180,8 +180,7 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
         .where((l) => _selectedIds.contains(l.id))
         .toList();
     final count = selectedLines.length;
-    final schedules =
-        ref.read(scheduledTopupControllerProvider).value ?? [];
+    final schedules = ref.read(scheduledTopupControllerProvider).value ?? [];
 
     return Align(
       alignment: Alignment.bottomCenter,
@@ -196,7 +195,7 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
                   (context.isDarkMode
                           ? AppColors.primary
                           : AppColors.lightPrimary)
-                      .withOpacity(0.3),
+                      .withValues(alpha: 0.3),
               width: 1.5,
             ),
             boxShadow: [
@@ -205,7 +204,7 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
                     (context.isDarkMode
                             ? AppColors.primary
                             : AppColors.lightPrimary)
-                        .withOpacity(0.15),
+                        .withValues(alpha: 0.15),
                 blurRadius: 24,
                 offset: const Offset(0, -4),
               ),
@@ -230,7 +229,7 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
                               (context.isDarkMode
                                       ? AppColors.primary
                                       : AppColors.lightPrimary)
-                                  .withOpacity(0.2),
+                                  .withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -363,14 +362,14 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
         ),
       ),
       style: ElevatedButton.styleFrom(
-        backgroundColor: buttonColor.withOpacity(0.15),
+        backgroundColor: buttonColor.withValues(alpha: 0.15),
         foregroundColor: buttonColor,
         surfaceTintColor: Colors.transparent,
         shadowColor: Colors.transparent,
         padding: const EdgeInsets.symmetric(vertical: 12),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          side: BorderSide(color: buttonColor.withOpacity(0.3), width: 1),
+          side: BorderSide(color: buttonColor.withValues(alpha: 0.3), width: 1),
         ),
       ),
     );
@@ -414,7 +413,9 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
               )
             : null,
         title: Text(
-          _isSelectMode ? '${_selectedIds.length} Selected' : AppLocalizations.of(context)!.protectedSims,
+          _isSelectMode
+              ? '${_selectedIds.length} Selected'
+              : AppLocalizations.of(context)!.protectedSims,
           style: AppTextStyles.headlineLarge.copyWith(
             color: context.isDarkMode
                 ? AppColors.textPrimaryDark
@@ -474,17 +475,17 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
               ? AppColors.textSecondaryDark
               : AppColors.textSecondaryLight,
           tabs: [
-            Tab(icon: const Icon(Icons.person, size: 20), text: AppLocalizations.of(context)!.mySimCards),
+            Tab(
+              icon: const Icon(Icons.person, size: 20),
+              text: AppLocalizations.of(context)!.mySimCards,
+            ),
             // Tab(icon: Icon(Icons.people, size: 20), text: 'Family Shared SIMs'),
           ],
         ),
       ),
       body: simLinesState.when(
         data: (lines) {
-          final currentUserId = ref
-              .watch(authControllerProvider)
-              .value
-              ?.id;
+          final currentUserId = ref.watch(authControllerProvider).value?.id;
           final myLines = lines
               .where((line) => line.userId == currentUserId)
               .toList();
@@ -649,7 +650,7 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: AppColors.primary.withOpacity(0.4),
+              color: AppColors.primary.withValues(alpha: 0.4),
               blurRadius: 15,
               offset: const Offset(0, 5),
             ),

@@ -106,9 +106,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
     // Carriers are dynamically retrieved based on selected country ID
     final carriers = _selectedCountry == null
         ? <Carrier>[]
-        : ref
-                  .watch(carriersForCountryProvider(_selectedCountry!.id))
-                  .value ??
+        : ref.watch(carriersForCountryProvider(_selectedCountry!.id)).value ??
               [];
 
     // Pre-populate carrier in edit mode if needed
@@ -134,9 +132,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
     CarrierRule? premiumRule;
     bool isPremiumLoading = false;
     if (_selectedCountry != null && _selectedCarrier != null) {
-      final ruleAsync = ref.watch(
-        carrierRuleProvider(_selectedCarrier!.id),
-      );
+      final ruleAsync = ref.watch(carrierRuleProvider(_selectedCarrier!.id));
       premiumRule = ruleAsync.value;
       isPremiumLoading = ruleAsync.isLoading;
     }
@@ -145,7 +141,9 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
       backgroundColor: context.scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(
-          _isEdit ? AppLocalizations.of(context)!.editProtectedLine : AppLocalizations.of(context)!.protectNewLine,
+          _isEdit
+              ? AppLocalizations.of(context)!.editProtectedLine
+              : AppLocalizations.of(context)!.protectNewLine,
           style: AppTextStyles.headlineLarge.copyWith(
             color: context.onSurfaceColor,
           ),
@@ -197,8 +195,8 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                                 ? null
                                 : [
                                     BoxShadow(
-                                      color: AppColors.lightPrimary.withOpacity(
-                                        0.04,
+                                      color: AppColors.lightPrimary.withValues(
+                                        alpha: 0.04,
                                       ),
                                       blurRadius: 10,
                                       offset: const Offset(0, 4),
@@ -305,7 +303,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                         onPressed: _saveLine,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primary,
-                          shadowColor: AppColors.primary.withOpacity(0.5),
+                          shadowColor: AppColors.primary.withValues(alpha: 0.5),
                           elevation: 10,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
@@ -314,7 +312,9 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                         child: Text(
                           _isEdit
                               ? AppLocalizations.of(context)!.saveChanges
-                              : AppLocalizations.of(context)!.activateShieldProtection,
+                              : AppLocalizations.of(
+                                  context,
+                                )!.activateShieldProtection,
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 16,
@@ -330,7 +330,11 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
     );
   }
 
-  Widget _buildSectionHeader(BuildContext context, String title, {VoidCallback? onHelpTap}) {
+  Widget _buildSectionHeader(
+    BuildContext context,
+    String title, {
+    VoidCallback? onHelpTap,
+  }) {
     final isDark = context.isDarkMode;
     final textWidget = Text(
       title,
@@ -349,7 +353,11 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
         textWidget,
         IconButton(
           onPressed: onHelpTap,
-          icon: Icon(Icons.help_outline_rounded, color: context.primaryColor, size: 20),
+          icon: Icon(
+            Icons.help_outline_rounded,
+            color: context.primaryColor,
+            size: 20,
+          ),
           padding: EdgeInsets.zero,
           constraints: const BoxConstraints(),
         ),
@@ -422,7 +430,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
               ? null
               : [
                   BoxShadow(
-                    color: AppColors.lightPrimary.withOpacity(0.04),
+                    color: AppColors.lightPrimary.withValues(alpha: 0.04),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -478,7 +486,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
             ? null
             : [
                 BoxShadow(
-                  color: AppColors.lightPrimary.withOpacity(0.04),
+                  color: AppColors.lightPrimary.withValues(alpha: 0.04),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -486,8 +494,11 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButtonFormField<Carrier>(
-          value: _selectedCarrier,
-          hint: Text(AppLocalizations.of(context)!.carrier, style: const TextStyle(color: Colors.white54)),
+          initialValue: _selectedCarrier,
+          hint: Text(
+            AppLocalizations.of(context)!.carrier,
+            style: const TextStyle(color: Colors.white54),
+          ),
           dropdownColor: isDark ? AppColors.darkSurface : Colors.white,
           style: TextStyle(color: context.onSurfaceColor, fontSize: 16),
           icon: Icon(
@@ -549,7 +560,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
             decoration: BoxDecoration(
               color: isSelected
                   ? (isDark ? AppColors.primary : AppColors.lightPrimary)
-                        .withOpacity(0.15)
+                        .withValues(alpha: 0.15)
                   : (isDark ? AppColors.darkCard : Colors.white),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
@@ -562,7 +573,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                   ? null
                   : [
                       BoxShadow(
-                        color: AppColors.lightPrimary.withOpacity(0.04),
+                        color: AppColors.lightPrimary.withValues(alpha: 0.04),
                         blurRadius: 10,
                         offset: const Offset(0, 4),
                       ),
@@ -603,7 +614,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
       planName = 'Premium Plan';
       planColor = isDark ? Colors.purpleAccent : Colors.purple;
       if (isPremiumLoading) {
-        billingDesc = "Loading premium pricing rules for this carrier...";
+        billingDesc = 'Loading premium pricing rules for this carrier...';
         billingRate = '\$2.50/yr + ...';
       } else if (premiumRule != null) {
         billingDesc =
@@ -611,7 +622,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
         billingRate = '\$2.50/yr + Refill';
       } else {
         billingDesc =
-            "Premium auto-refill is not yet supported for this carrier. Please choose the Standard Plan.";
+            'Premium auto-refill is not yet supported for this carrier. Please choose the Standard Plan.';
         planColor = isDark ? AppColors.error : Colors.redAccent;
         billingRate = 'Not Supported';
       }
@@ -619,7 +630,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
       planName = 'Standard Plan';
       planColor = isDark ? AppColors.primary : AppColors.lightPrimary;
       billingDesc =
-          "Automated tracking & notifications. You will be billed \$2.50/yr for this line.";
+          'Automated tracking & notifications. You will be billed \$2.50/yr for this line.';
       billingRate = '\$2.50/yr';
     }
 
@@ -628,10 +639,10 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCard : Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: planColor.withOpacity(0.3), width: 1.5),
+        border: Border.all(color: planColor.withValues(alpha: 0.3), width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: planColor.withOpacity(isDark ? 0.05 : 0.08),
+            color: planColor.withValues(alpha: isDark ? 0.05 : 0.08),
             blurRadius: 15,
             spreadRadius: 1,
           ),
@@ -645,7 +656,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: planColor.withOpacity(0.12),
+                  color: planColor.withValues(alpha: 0.12),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -670,7 +681,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                   vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: planColor.withOpacity(0.15),
+                  color: planColor.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -711,10 +722,11 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
     // if free is disabled and currently selected, auto-select standard
     if (_isFreePlanDisabled && _selectedTier == 'free') {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted)
+        if (mounted) {
           setState(() {
             _selectedTier = 'standard';
           });
+        }
       });
     }
 
@@ -759,7 +771,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                 decoration: BoxDecoration(
                   color: isSelected
                       ? (isDark ? AppColors.primary : AppColors.lightPrimary)
-                            .withOpacity(0.1)
+                            .withValues(alpha: 0.1)
                       : (isDark ? AppColors.darkCard : Colors.white),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
@@ -774,7 +786,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                       ? null
                       : [
                           BoxShadow(
-                            color: AppColors.lightPrimary.withOpacity(0.04),
+                            color: AppColors.lightPrimary.withValues(alpha: 0.04),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
@@ -832,7 +844,11 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                         premiumRule,
                         isPremiumLoading,
                       ),
-                      icon: Icon(Icons.help_outline_rounded, color: context.primaryColor, size: 22),
+                      icon: Icon(
+                        Icons.help_outline_rounded,
+                        color: context.primaryColor,
+                        size: 22,
+                      ),
                       padding: const EdgeInsets.all(8),
                       constraints: const BoxConstraints(),
                     ),
@@ -990,11 +1006,11 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                                     decoration: BoxDecoration(
                                       color: isSelected
                                           ? (context.isDarkMode
-                                                ? AppColors.primary.withOpacity(
-                                                    0.15,
+                                                ? AppColors.primary.withValues(
+                                                    alpha: 0.15,
                                                   )
                                                 : AppColors.lightPrimary
-                                                      .withOpacity(0.15))
+                                                      .withValues(alpha: 0.15))
                                           : Colors.transparent,
                                       borderRadius: BorderRadius.circular(12),
                                     ),
@@ -1123,13 +1139,16 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
         planExpiresAt = DateTime.now().add(const Duration(days: 365));
       }
 
-      final commitSave = () async {
+      Future<void> commitSave() async {
         try {
           if (_isEdit) {
             // Fetch current line copy to update
-            final line = currentLines.firstWhereOrNull((l) => l.id == widget.id);
-            if (line == null)
+            final line = currentLines.firstWhereOrNull(
+              (l) => l.id == widget.id,
+            );
+            if (line == null) {
               throw StateError('SIM line not found for ID: ${widget.id}');
+            }
 
             final updatedLine = line.copyWith(
               phoneNumber: fullPhoneNumber,
@@ -1140,8 +1159,9 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
               countryId: _selectedCountry?.id,
               carrierId: _selectedCarrier?.id,
               planType: selectedPlanType,
-              protectionTier:
-                  selectedPlanType == 'free' ? 'basic' : selectedPlanType,
+              protectionTier: selectedPlanType == 'free'
+                  ? 'basic'
+                  : selectedPlanType,
               planExpiresAt: planExpiresAt,
               carrierRuleId: carrierRuleId,
             );
@@ -1161,7 +1181,9 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                   countryId: _selectedCountry?.id,
                   carrierId: _selectedCarrier?.id,
                   planType: selectedPlanType,
-                  protectionTier: selectedPlanType == 'free' ? 'basic' : selectedPlanType,
+                  protectionTier: selectedPlanType == 'free'
+                      ? 'basic'
+                      : selectedPlanType,
                   planExpiresAt: planExpiresAt,
                   carrierRuleId: carrierRuleId,
                 );
@@ -1189,32 +1211,37 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
             });
           }
         }
-      };
+      }
 
       if (selectedPlanType != 'free') {
         // We have to calculate the amount.
-        double amountToCharge = selectedPlanType == 'standard' ? 2.50 : 2.50; // Base service fee
+        double amountToCharge = selectedPlanType == 'standard'
+            ? 2.50
+            : 2.50; // Base service fee
         if (selectedPlanType == 'premium' && carrierRuleId != null) {
-            final rule = await ref.read(simLinesRepositoryProvider).getCarrierRule(_selectedCarrier!.id);
-            if (rule != null) {
-                int refillsPerYear = 365 ~/ rule.topupValidityDays;
-                amountToCharge += refillsPerYear * rule.inappPricing;
-            }
+          final rule = await ref
+              .read(simLinesRepositoryProvider)
+              .getCarrierRule(_selectedCarrier!.id);
+          if (rule != null) {
+            int refillsPerYear = 365 ~/ rule.topupValidityDays;
+            amountToCharge += refillsPerYear * rule.inappPricing;
+          }
         }
-        
+
         amountToCharge = double.parse(amountToCharge.toStringAsFixed(2));
-        
+
         setState(() {
           _isSaving = false;
         });
-        
+
         if (mounted) {
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) => PaypalSimulatorScreen(
                 initialAmount: amountToCharge,
                 paymentReason: 'Payment for $selectedPlanType protection plan',
-                depositToWallet: false, // direct payment, don't deposit to wallet
+                depositToWallet:
+                    false, // direct payment, don't deposit to wallet
                 onSuccess: () {
                   Navigator.of(context).pop(); // pop Paypal screen
                   setState(() => _isSaving = true);
@@ -1227,7 +1254,6 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
       } else {
         await commitSave();
       }
-
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -1305,9 +1331,9 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
     }
 
     final cardBgColor = isDark
-        ? accentColor.withOpacity(0.12)
-        : accentColor.withOpacity(0.05);
-    final cardBorderColor = accentColor.withOpacity(0.3);
+        ? accentColor.withValues(alpha: 0.12)
+        : accentColor.withValues(alpha: 0.05);
+    final cardBorderColor = accentColor.withValues(alpha: 0.3);
 
     showModalBottomSheet(
       context: context,
@@ -1348,7 +1374,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                   IconButton(
                     onPressed: () => Navigator.pop(context),
                     icon: const Icon(Icons.close),
-                    color: context.onSurfaceColor.withOpacity(0.6),
+                    color: context.onSurfaceColor.withValues(alpha: 0.6),
                     iconSize: 20,
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
@@ -1363,13 +1389,10 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                 decoration: BoxDecoration(
                   color: cardBgColor,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: cardBorderColor,
-                    width: 2,
-                  ),
+                  border: Border.all(color: cardBorderColor, width: 2),
                   boxShadow: [
                     BoxShadow(
-                      color: accentColor.withOpacity(isDark ? 0.05 : 0.08),
+                      color: accentColor.withValues(alpha: isDark ? 0.05 : 0.08),
                       blurRadius: 15,
                       spreadRadius: 1,
                     ),
@@ -1385,7 +1408,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                         Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: accentColor.withOpacity(0.15),
+                            color: accentColor.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Icon(icon, color: accentColor, size: 22),
@@ -1416,7 +1439,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                             Text(
                               billingPeriod,
                               style: AppTextStyles.caption.copyWith(
-                                color: context.onSurfaceColor.withOpacity(0.5),
+                                color: context.onSurfaceColor.withValues(alpha: 0.5),
                                 fontSize: 10,
                               ),
                               textAlign: TextAlign.end,
@@ -1427,7 +1450,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                                 style: TextStyle(
                                   fontSize: 9,
                                   fontWeight: FontWeight.w600,
-                                  color: accentColor.withOpacity(0.7),
+                                  color: accentColor.withValues(alpha: 0.7),
                                 ),
                               ),
                           ],
@@ -1436,35 +1459,39 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                     ),
                     const SizedBox(height: 16),
                     Divider(
-                      color: accentColor.withOpacity(0.2),
+                      color: accentColor.withValues(alpha: 0.2),
                       height: 1,
                       thickness: 1,
                     ),
                     const SizedBox(height: 16),
                     // Features list
-                    ...features.map((feat) => Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Icon(
-                            Icons.check_circle_rounded,
-                            size: 16,
-                            color: accentColor,
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              feat,
-                              style: AppTextStyles.bodyMedium.copyWith(
-                                color: context.onSurfaceColor.withOpacity(0.8),
-                                fontWeight: FontWeight.w500,
+                    ...features.map(
+                      (feat) => Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(
+                              Icons.check_circle_rounded,
+                              size: 16,
+                              color: accentColor,
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                feat,
+                                style: AppTextStyles.bodyMedium.copyWith(
+                                  color: context.onSurfaceColor.withValues(
+                                    alpha: 0.8,
+                                  ),
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    )),
+                    ),
                     // Auto refill rule (Premium only)
                     if (isPremium) ...[
                       const SizedBox(height: 16),
@@ -1480,7 +1507,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                             Text(
                               'Loading auto-refill pricing...',
                               style: AppTextStyles.caption.copyWith(
-                                color: context.onSurfaceColor.withOpacity(0.5),
+                                color: context.onSurfaceColor.withValues(alpha: 0.5),
                                 fontStyle: FontStyle.italic,
                               ),
                             ),
@@ -1490,10 +1517,10 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: accentColor.withOpacity(0.08),
+                            color: accentColor.withValues(alpha: 0.08),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: accentColor.withOpacity(0.15),
+                              color: accentColor.withValues(alpha: 0.15),
                             ),
                           ),
                           child: Row(
@@ -1508,7 +1535,9 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                                 child: Text(
                                   'Auto-refill: ${premiumRule.inappPricing} ${premiumRule.inappPricingCurrency.toUpperCase()} every ${premiumRule.topupValidityDays} days (telecom, VAT included)',
                                   style: AppTextStyles.caption.copyWith(
-                                    color: context.onSurfaceColor.withOpacity(0.7),
+                                    color: context.onSurfaceColor.withValues(
+                                      alpha: 0.7,
+                                    ),
                                     fontWeight: FontWeight.w600,
                                     fontSize: 11,
                                   ),
@@ -1521,10 +1550,10 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: Colors.orange.withOpacity(0.08),
+                            color: Colors.orange.withValues(alpha: 0.08),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: Colors.orange.withOpacity(0.15),
+                              color: Colors.orange.withValues(alpha: 0.15),
                             ),
                           ),
                           child: Row(
@@ -1553,7 +1582,10 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                     if (isPremium) ...[
                       const SizedBox(height: 16),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: const Color(0xFFC8E6C9), // Light green badge
                           borderRadius: BorderRadius.circular(8),
@@ -1576,7 +1608,10 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                     ] else if (isStandard) ...[
                       const SizedBox(height: 16),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: const Color(0xFFBBDEFB), // Light blue badge
                           borderRadius: BorderRadius.circular(8),
@@ -1595,7 +1630,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                           ],
                         ),
                       ),
-                    ]
+                    ],
                   ],
                 ),
               ),
@@ -1608,7 +1643,9 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: context.primaryColor,
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                   child: const Text('Got it'),
                 ),

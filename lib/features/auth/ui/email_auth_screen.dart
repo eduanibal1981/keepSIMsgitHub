@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
@@ -36,10 +35,13 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
   void _submit() {
     if (_formKey.currentState?.validate() ?? false) {
       if (_isSignUp) {
-        ref.read(authControllerProvider.notifier).signUpWithEmailAndPassword(
+        ref
+            .read(authControllerProvider.notifier)
+            .signUpWithEmailAndPassword(
               _emailController.text.trim(),
               _passwordController.text,
-            ).then((_) {
+            )
+            .then((_) {
               final authState = ref.read(authControllerProvider);
               if (!authState.hasError) {
                 setState(() {
@@ -48,7 +50,9 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
               }
             });
       } else {
-        ref.read(authControllerProvider.notifier).signInWithEmailAndPassword(
+        ref
+            .read(authControllerProvider.notifier)
+            .signInWithEmailAndPassword(
               _emailController.text.trim(),
               _passwordController.text,
             );
@@ -130,16 +134,23 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                             decoration: BoxDecoration(
                               color: AppColors.success.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: AppColors.success.withValues(alpha: 0.5)),
+                              border: Border.all(
+                                color: AppColors.success.withValues(alpha: 0.5),
+                              ),
                             ),
                             child: Row(
                               children: [
-                                const Icon(Icons.check_circle_outline, color: AppColors.success),
+                                const Icon(
+                                  Icons.check_circle_outline,
+                                  color: AppColors.success,
+                                ),
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: Text(
                                     'Verification email sent! Please enter the code below.',
-                                    style: AppTextStyles.bodyMedium.copyWith(color: AppColors.success),
+                                    style: AppTextStyles.bodyMedium.copyWith(
+                                      color: AppColors.success,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -151,7 +162,11 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                             keyboardType: TextInputType.number,
                             maxLength: 8,
                             textAlign: TextAlign.center,
-                            style: const TextStyle(fontSize: 24, letterSpacing: 8, fontWeight: FontWeight.bold),
+                            style: const TextStyle(
+                              fontSize: 24,
+                              letterSpacing: 8,
+                              fontWeight: FontWeight.bold,
+                            ),
                             decoration: InputDecoration(
                               labelText: 'Verification Code',
                               counterText: '',
@@ -159,7 +174,8 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                             ),
-                            validator: (val) => val != null && val.trim().length >= 6
+                            validator: (val) =>
+                                val != null && val.trim().length >= 6
                                 ? null
                                 : 'Enter valid code',
                           ),
@@ -167,14 +183,21 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                           SizedBox(
                             height: 56,
                             child: ElevatedButton(
-                              onPressed: authState.isLoading ? null : () {
-                                if (_formKey.currentState?.validate() ?? false) {
-                                  ref.read(authControllerProvider.notifier).verifyOTP(
-                                        _emailController.text.trim(),
-                                        _otpController.text.trim(),
-                                      );
-                                }
-                              },
+                              onPressed: authState.isLoading
+                                  ? null
+                                  : () {
+                                      if (_formKey.currentState?.validate() ??
+                                          false) {
+                                        ref
+                                            .read(
+                                              authControllerProvider.notifier,
+                                            )
+                                            .verifyOTP(
+                                              _emailController.text.trim(),
+                                              _otpController.text.trim(),
+                                            );
+                                      }
+                                    },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppColors.primary,
                                 foregroundColor: Colors.white,
@@ -202,23 +225,35 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                           ),
                           const SizedBox(height: 16),
                           TextButton(
-                            onPressed: authState.isLoading ? null : () {
-                              ref.read(authControllerProvider.notifier)
-                                  .resendConfirmationEmail(_emailController.text.trim())
-                                  .then((_) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Verification email resent!'),
-                                    backgroundColor: AppColors.success,
-                                  ),
-                                );
-                              });
-                            },
+                            onPressed: authState.isLoading
+                                ? null
+                                : () {
+                                    ref
+                                        .read(authControllerProvider.notifier)
+                                        .resendConfirmationEmail(
+                                          _emailController.text.trim(),
+                                        )
+                                        .then((_) {
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            const SnackBar(
+                                              content: Text(
+                                                'Verification email resent!',
+                                              ),
+                                              backgroundColor:
+                                                  AppColors.success,
+                                            ),
+                                          );
+                                        });
+                                  },
                             child: authState.isLoading
                                 ? const SizedBox(
                                     height: 20,
                                     width: 20,
-                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
                                   )
                                 : Text(
                                     'Resend Email',

@@ -26,7 +26,7 @@ class TwilioVerificationService {
     );
 
     final basicAuth =
-        'Basic ' + base64Encode(utf8.encode('$_accountSid:$_authToken'));
+        'Basic ${base64Encode(utf8.encode('$_accountSid:$_authToken'))}';
 
     try {
       final response = await http.post(
@@ -59,7 +59,7 @@ class TwilioVerificationService {
     );
 
     final basicAuth =
-        'Basic ' + base64Encode(utf8.encode('$_accountSid:$_authToken'));
+        'Basic ${base64Encode(utf8.encode('$_accountSid:$_authToken'))}';
 
     try {
       final response = await http.get(
@@ -105,7 +105,7 @@ class TwilioVerificationService {
     );
 
     final basicAuth =
-        'Basic ' + base64Encode(utf8.encode('$_accountSid:$_authToken'));
+        'Basic ${base64Encode(utf8.encode('$_accountSid:$_authToken'))}';
 
     try {
       final response = await http.post(

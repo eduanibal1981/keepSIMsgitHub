@@ -52,17 +52,17 @@ class DashboardShimmer extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardBg = isDark
-        ? AppColors.darkCard.withOpacity(0.5)
+        ? AppColors.darkCard.withValues(alpha: 0.5)
         : const Color(0xFFFFFFFF);
     final borderCol = isDark
-        ? AppColors.darkBorder.withOpacity(0.5)
+        ? AppColors.darkBorder.withValues(alpha: 0.5)
         : const Color(0xFFBDC8CE);
     final cardBgAlt = isDark
-        ? AppColors.darkCard.withOpacity(0.4)
+        ? AppColors.darkCard.withValues(alpha: 0.4)
         : const Color(0xFFFFFFFF);
     final borderColAlt = isDark
         ? Colors.transparent
-        : const Color(0xFFBDC8CE).withOpacity(0.4);
+        : const Color(0xFFBDC8CE).withValues(alpha: 0.4);
 
     return SingleChildScrollView(
       physics: const NeverScrollableScrollPhysics(),
@@ -73,18 +73,18 @@ class DashboardShimmer extends StatelessWidget {
           children: [
             const SizedBox(height: 10),
             // Header: Greeting and avatar
-            Row(
+            const Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
+                  children: [
                     SkeletonLoader(width: 140, height: 16),
                     SizedBox(height: 8),
                     SkeletonLoader(width: 220, height: 28),
                   ],
                 ),
-                const SkeletonLoader(
+                SkeletonLoader(
                   width: 50,
                   height: 50,
                   borderRadius: 25,
@@ -102,28 +102,28 @@ class DashboardShimmer extends StatelessWidget {
                 borderRadius: BorderRadius.circular(24),
                 border: Border.all(color: borderCol),
               ),
-              child: Column(
+              child: const Column(
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
+                    children: [
                       SkeletonLoader(width: 120, height: 16),
                       SkeletonLoader(width: 80, height: 16),
                     ],
                   ),
-                  const SizedBox(height: 20),
+                  SizedBox(height: 20),
                   Row(
                     children: [
-                      const SkeletonLoader(
+                      SkeletonLoader(
                         width: 70,
                         height: 70,
                         shape: BoxShape.circle,
                       ),
-                      const SizedBox(width: 20),
+                      SizedBox(width: 20),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
+                          children: [
                             SkeletonLoader(width: 160, height: 20),
                             SizedBox(height: 8),
                             SkeletonLoader(width: 110, height: 14),
@@ -160,10 +160,10 @@ class DashboardShimmer extends StatelessWidget {
                     border: Border.all(color: borderCol),
                   ),
                   padding: const EdgeInsets.all(16),
-                  child: Column(
+                  child: const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
+                    children: [
                       SkeletonLoader(width: 36, height: 36, borderRadius: 12),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -198,25 +198,25 @@ class DashboardShimmer extends StatelessWidget {
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(color: borderColAlt),
                   ),
-                  child: Row(
+                  child: const Row(
                     children: [
-                      const SkeletonLoader(
+                      SkeletonLoader(
                         width: 44,
                         height: 44,
                         borderRadius: 12,
                       ),
-                      const SizedBox(width: 16),
+                      SizedBox(width: 16),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
+                          children: [
                             SkeletonLoader(width: 120, height: 16),
                             SizedBox(height: 6),
                             SkeletonLoader(width: 180, height: 12),
                           ],
                         ),
                       ),
-                      const SkeletonLoader(
+                      SkeletonLoader(
                         width: 60,
                         height: 26,
                         borderRadius: 13,
@@ -241,10 +241,10 @@ class SIMLinesShimmer extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardBg = isDark
-        ? AppColors.darkCard.withOpacity(0.5)
+        ? AppColors.darkCard.withValues(alpha: 0.5)
         : const Color(0xFFFFFFFF);
     final borderCol = isDark
-        ? AppColors.darkBorder.withOpacity(0.5)
+        ? AppColors.darkBorder.withValues(alpha: 0.5)
         : const Color(0xFFBDC8CE);
 
     return Padding(
@@ -253,8 +253,8 @@ class SIMLinesShimmer extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Filter tabs shimmer
-          Row(
-            children: const [
+          const Row(
+            children: [
               SkeletonLoader(width: 80, height: 36, borderRadius: 18),
               SizedBox(width: 10),
               SkeletonLoader(width: 90, height: 36, borderRadius: 18),
@@ -278,55 +278,55 @@ class SIMLinesShimmer extends StatelessWidget {
                     borderRadius: BorderRadius.circular(24),
                     border: Border.all(color: borderCol),
                   ),
-                  child: Column(
+                  child: const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          const SkeletonLoader(
+                          SkeletonLoader(
                             width: 42,
                             height: 42,
                             borderRadius: 12,
                           ),
-                          const SizedBox(width: 16),
+                          SizedBox(width: 16),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              children: const [
+                              children: [
                                 SkeletonLoader(width: 140, height: 18),
                                 SizedBox(height: 6),
                                 SkeletonLoader(width: 90, height: 12),
                               ],
                             ),
                           ),
-                          const SkeletonLoader(
+                          SkeletonLoader(
                             width: 65,
                             height: 26,
                             borderRadius: 13,
                           ),
                         ],
                       ),
-                      const SizedBox(height: 20),
+                      SizedBox(height: 20),
                       // Progress Bar Shimmer
-                      const SkeletonLoader(
+                      SkeletonLoader(
                         width: double.infinity,
                         height: 8,
                         borderRadius: 4,
                       ),
-                      const SizedBox(height: 12),
+                      SizedBox(height: 12),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: const [
+                        children: [
                           SkeletonLoader(width: 100, height: 12),
                           SkeletonLoader(width: 60, height: 12),
                         ],
                       ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: 16),
                       // Action buttons row shimmer
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
-                        children: const [
+                        children: [
                           SkeletonLoader(
                             width: 90,
                             height: 32,
@@ -360,19 +360,19 @@ class WalletShimmer extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardBg = isDark
-        ? AppColors.darkCard.withOpacity(0.5)
+        ? AppColors.darkCard.withValues(alpha: 0.5)
         : const Color(0xFFFFFFFF);
     final borderCol = isDark
-        ? AppColors.darkBorder.withOpacity(0.5)
+        ? AppColors.darkBorder.withValues(alpha: 0.5)
         : const Color(0xFFBDC8CE);
     final rowBg = isDark
-        ? AppColors.darkCard.withOpacity(0.2)
+        ? AppColors.darkCard.withValues(alpha: 0.2)
         : const Color(0xFFFFFFFF);
     final borderColAlt = isDark
         ? Colors.transparent
-        : const Color(0xFFBDC8CE).withOpacity(0.4);
+        : const Color(0xFFBDC8CE).withValues(alpha: 0.4);
     final topupBg = isDark
-        ? AppColors.darkCard.withOpacity(0.3)
+        ? AppColors.darkCard.withValues(alpha: 0.3)
         : const Color(0xFFEAEEF1);
 
     return SingleChildScrollView(
@@ -392,21 +392,21 @@ class WalletShimmer extends StatelessWidget {
                 border: Border.all(color: borderCol),
               ),
               padding: const EdgeInsets.all(24),
-              child: Column(
+              child: const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
+                    children: [
                       SkeletonLoader(width: 100, height: 14),
                       SkeletonLoader(width: 45, height: 25, borderRadius: 6),
                     ],
                   ),
-                  const SkeletonLoader(width: 180, height: 36),
+                  SkeletonLoader(width: 180, height: 36),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
+                    children: [
                       SkeletonLoader(width: 140, height: 16),
                       SkeletonLoader(width: 50, height: 16),
                     ],
@@ -426,9 +426,9 @@ class WalletShimmer extends StatelessWidget {
                   color: isDark ? Colors.transparent : const Color(0xFFBDC8CE),
                 ),
               ),
-              child: Row(
+              child: const Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
+                children: [
                   SkeletonLoader(width: 110, height: 16),
                   SkeletonLoader(width: 70, height: 32, borderRadius: 16),
                 ],
@@ -456,25 +456,25 @@ class WalletShimmer extends StatelessWidget {
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(color: borderColAlt),
                   ),
-                  child: Row(
+                  child: const Row(
                     children: [
-                      const SkeletonLoader(
+                      SkeletonLoader(
                         width: 40,
                         height: 40,
                         shape: BoxShape.circle,
                       ),
-                      const SizedBox(width: 16),
+                      SizedBox(width: 16),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
+                          children: [
                             SkeletonLoader(width: 150, height: 15),
                             SizedBox(height: 6),
                             SkeletonLoader(width: 90, height: 11),
                           ],
                         ),
                       ),
-                      const SkeletonLoader(width: 60, height: 18),
+                      SkeletonLoader(width: 60, height: 18),
                     ],
                   ),
                 );
@@ -495,10 +495,10 @@ class NotificationsShimmer extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardBg = isDark
-        ? AppColors.darkCard.withOpacity(0.4)
+        ? AppColors.darkCard.withValues(alpha: 0.4)
         : const Color(0xFFFFFFFF);
     final borderCol = isDark
-        ? AppColors.darkBorder.withOpacity(0.3)
+        ? AppColors.darkBorder.withValues(alpha: 0.3)
         : const Color(0xFFBDC8CE);
 
     return Padding(
@@ -506,9 +506,9 @@ class NotificationsShimmer extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          const Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
+            children: [
               SkeletonLoader(width: 120, height: 22),
               SkeletonLoader(width: 80, height: 16),
             ],
@@ -527,19 +527,19 @@ class NotificationsShimmer extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(color: borderCol),
                   ),
-                  child: Row(
+                  child: const Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SkeletonLoader(
+                      SkeletonLoader(
                         width: 36,
                         height: 36,
                         shape: BoxShape.circle,
                       ),
-                      const SizedBox(width: 16),
+                      SizedBox(width: 16),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
+                          children: [
                             SkeletonLoader(width: 150, height: 16),
                             SizedBox(height: 8),
                             SkeletonLoader(width: double.infinity, height: 12),

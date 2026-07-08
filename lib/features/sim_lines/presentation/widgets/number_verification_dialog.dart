@@ -82,15 +82,15 @@ class _NumberVerificationDialogState
         elevation: 0,
         child: Container(
           decoration: BoxDecoration(
-            color: AppColors.darkSurface.withOpacity(0.85),
+            color: AppColors.darkSurface.withValues(alpha: 0.85),
             borderRadius: BorderRadius.circular(28),
             border: Border.all(
-              color: AppColors.primary.withOpacity(0.2),
+              color: AppColors.primary.withValues(alpha: 0.2),
               width: 1.5,
             ),
             boxShadow: [
               BoxShadow(
-                color: AppColors.primary.withOpacity(0.15),
+                color: AppColors.primary.withValues(alpha: 0.15),
                 blurRadius: 30,
                 spreadRadius: -5,
               ),
@@ -156,10 +156,10 @@ class _NumberVerificationDialogState
           width: 90,
           height: 90,
           decoration: BoxDecoration(
-            color: AppColors.primary.withOpacity(0.1),
+            color: AppColors.primary.withValues(alpha: 0.1),
             shape: BoxShape.circle,
             border: Border.all(
-              color: AppColors.primary.withOpacity(0.3),
+              color: AppColors.primary.withValues(alpha: 0.3),
               width: 2,
             ),
           ),
@@ -192,7 +192,7 @@ class _NumberVerificationDialogState
             backgroundColor: AppColors.primary,
             foregroundColor: Colors.white,
             elevation: 8,
-            shadowColor: AppColors.primary.withOpacity(0.4),
+            shadowColor: AppColors.primary.withValues(alpha: 0.4),
             padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
@@ -206,9 +206,9 @@ class _NumberVerificationDialogState
                 )
                 .startVerification(widget.phoneNumber);
           },
-          child: Row(
+          child: const Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
+            children: [
               Icon(Icons.radar_rounded, size: 20),
               SizedBox(width: 8),
               Text(
@@ -282,7 +282,7 @@ class _NumberVerificationDialogState
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             border: Border.all(
-                              color: AppColors.secondary.withOpacity(0.8),
+                              color: AppColors.secondary.withValues(alpha: 0.8),
                               width: 1.5,
                             ),
                           ),
@@ -294,7 +294,7 @@ class _NumberVerificationDialogState
                     width: 76,
                     height: 76,
                     decoration: BoxDecoration(
-                      color: AppColors.secondary.withOpacity(0.15),
+                      color: AppColors.secondary.withValues(alpha: 0.15),
                       shape: BoxShape.circle,
                       border: Border.all(
                         color: AppColors.secondary,
@@ -302,7 +302,7 @@ class _NumberVerificationDialogState
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.secondary.withOpacity(0.3),
+                          color: AppColors.secondary.withValues(alpha: 0.3),
                           blurRadius: 15,
                           spreadRadius: 2,
                         ),
@@ -339,13 +339,13 @@ class _NumberVerificationDialogState
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.04),
+            color: Colors.white.withValues(alpha: 0.04),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.white.withOpacity(0.06)),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
           ),
-          child: Row(
+          child: const Row(
             mainAxisSize: MainAxisSize.min,
-            children: const [
+            children: [
               SizedBox(
                 width: 12,
                 height: 12,
@@ -388,12 +388,12 @@ class _NumberVerificationDialogState
           width: 80,
           height: 80,
           decoration: BoxDecoration(
-            color: AppColors.success.withOpacity(0.15),
+            color: AppColors.success.withValues(alpha: 0.15),
             shape: BoxShape.circle,
             border: Border.all(color: AppColors.success, width: 2.5),
             boxShadow: [
               BoxShadow(
-                color: AppColors.success.withOpacity(0.3),
+                color: AppColors.success.withValues(alpha: 0.3),
                 blurRadius: 15,
               ),
             ],
@@ -451,12 +451,12 @@ class _NumberVerificationDialogState
           width: 80,
           height: 80,
           decoration: BoxDecoration(
-            color: AppColors.error.withOpacity(0.15),
+            color: AppColors.error.withValues(alpha: 0.15),
             shape: BoxShape.circle,
             border: Border.all(color: AppColors.error, width: 2.5),
             boxShadow: [
               BoxShadow(
-                color: AppColors.error.withOpacity(0.3),
+                color: AppColors.error.withValues(alpha: 0.3),
                 blurRadius: 15,
               ),
             ],

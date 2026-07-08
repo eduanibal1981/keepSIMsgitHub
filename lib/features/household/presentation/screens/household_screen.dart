@@ -74,8 +74,8 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
           ),
           unselectedLabelStyle: AppTextStyles.bodyMedium,
           dividerColor: isDark
-              ? Colors.white.withOpacity(0.05)
-              : AppColors.lightBorder.withOpacity(0.3),
+              ? Colors.white.withValues(alpha: 0.05)
+              : AppColors.lightBorder.withValues(alpha: 0.3),
           tabs: const [
             Tab(text: 'My Family'),
             Tab(text: 'Received'),
@@ -140,12 +140,12 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
           padding: const EdgeInsets.all(16.0),
           decoration: BoxDecoration(
             color: isDark
-                ? AppColors.darkCard.withOpacity(0.4)
+                ? AppColors.darkCard.withValues(alpha: 0.4)
                 : AppColors.lightCard,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: isDark
-                  ? Colors.white.withOpacity(0.06)
+                  ? Colors.white.withValues(alpha: 0.06)
                   : AppColors.lightBorder,
               width: 1.0,
             ),
@@ -157,9 +157,9 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                 radius: 24,
                 backgroundColor: isPending
                     ? (isDark
-                          ? Colors.white.withOpacity(0.06)
-                          : Colors.black.withOpacity(0.04))
-                    : const Color(0xFF6366F1).withOpacity(0.1),
+                          ? Colors.white.withValues(alpha: 0.06)
+                          : Colors.black.withValues(alpha: 0.04))
+                    : const Color(0xFF6366F1).withValues(alpha: 0.1),
                 child: Text(
                   (member.memberName ?? member.memberEmail)
                       .substring(0, 1)
@@ -213,8 +213,8 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                           ),
                           decoration: BoxDecoration(
                             color: isPending
-                                ? const Color(0xFFF59E0B).withOpacity(0.1)
-                                : const Color(0xFF10B981).withOpacity(0.1),
+                                ? const Color(0xFFF59E0B).withValues(alpha: 0.1)
+                                : const Color(0xFF10B981).withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
@@ -237,8 +237,8 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                           ),
                           decoration: BoxDecoration(
                             color: member.role == 'manager'
-                                ? const Color(0xFFA855F7).withOpacity(0.1)
-                                : const Color(0xFF3B82F6).withOpacity(0.1),
+                                ? const Color(0xFFA855F7).withValues(alpha: 0.1)
+                                : const Color(0xFF3B82F6).withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
@@ -298,12 +298,12 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
           padding: const EdgeInsets.all(18.0),
           decoration: BoxDecoration(
             color: isDark
-                ? AppColors.darkCard.withOpacity(0.4)
+                ? AppColors.darkCard.withValues(alpha: 0.4)
                 : AppColors.lightCard,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: isDark
-                  ? Colors.white.withOpacity(0.06)
+                  ? Colors.white.withValues(alpha: 0.06)
                   : AppColors.lightBorder,
               width: 1.0,
             ),
@@ -315,7 +315,7 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                 children: [
                   CircleAvatar(
                     radius: 22,
-                    backgroundColor: const Color(0xFF3B82F6).withOpacity(0.1),
+                    backgroundColor: const Color(0xFF3B82F6).withValues(alpha: 0.1),
                     child: const Icon(
                       Icons.house_rounded,
                       color: Color(0xFF3B82F6),
@@ -359,8 +359,8 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                       },
                       style: TextButton.styleFrom(
                         backgroundColor: isDark
-                            ? Colors.white.withOpacity(0.06)
-                            : Colors.black.withOpacity(0.04),
+                            ? Colors.white.withValues(alpha: 0.06)
+                            : Colors.black.withValues(alpha: 0.04),
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -427,12 +427,12 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
           padding: const EdgeInsets.all(16.0),
           decoration: BoxDecoration(
             color: isDark
-                ? AppColors.darkCard.withOpacity(0.4)
+                ? AppColors.darkCard.withValues(alpha: 0.4)
                 : AppColors.lightCard,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: isDark
-                  ? Colors.white.withOpacity(0.06)
+                  ? Colors.white.withValues(alpha: 0.06)
                   : AppColors.lightBorder,
               width: 1.0,
             ),
@@ -441,7 +441,7 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
             children: [
               CircleAvatar(
                 radius: 22,
-                backgroundColor: const Color(0xFF10B981).withOpacity(0.1),
+                backgroundColor: const Color(0xFF10B981).withValues(alpha: 0.1),
                 child: const Icon(
                   Icons.lock_open_rounded,
                   color: Color(0xFF10B981),
@@ -468,8 +468,8 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                       ),
                       decoration: BoxDecoration(
                         color: membership.role == 'manager'
-                            ? const Color(0xFFA855F7).withOpacity(0.1)
-                            : const Color(0xFF3B82F6).withOpacity(0.1),
+                            ? const Color(0xFFA855F7).withValues(alpha: 0.1)
+                            : const Color(0xFF3B82F6).withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -558,13 +558,13 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                   ),
                   filled: true,
                   fillColor: isDark
-                      ? Colors.white.withOpacity(0.04)
-                      : Colors.black.withOpacity(0.03),
+                      ? Colors.white.withValues(alpha: 0.04)
+                      : Colors.black.withValues(alpha: 0.03),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
                     borderSide: BorderSide(
                       color: isDark
-                          ? Colors.white.withOpacity(0.08)
+                          ? Colors.white.withValues(alpha: 0.08)
                           : AppColors.lightBorder,
                     ),
                   ),
@@ -572,7 +572,7 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                     borderRadius: BorderRadius.circular(14),
                     borderSide: BorderSide(
                       color: isDark
-                          ? Colors.white.withOpacity(0.08)
+                          ? Colors.white.withValues(alpha: 0.08)
                           : AppColors.lightBorder,
                     ),
                   ),
@@ -605,16 +605,16 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         decoration: BoxDecoration(
                           color: selectedRole == 'viewer'
-                              ? const Color(0xFF3B82F6).withOpacity(0.12)
+                              ? const Color(0xFF3B82F6).withValues(alpha: 0.12)
                               : (isDark
-                                    ? Colors.white.withOpacity(0.03)
-                                    : Colors.black.withOpacity(0.02)),
+                                    ? Colors.white.withValues(alpha: 0.03)
+                                    : Colors.black.withValues(alpha: 0.02)),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color: selectedRole == 'viewer'
                                 ? const Color(0xFF3B82F6)
                                 : (isDark
-                                      ? Colors.white.withOpacity(0.06)
+                                      ? Colors.white.withValues(alpha: 0.06)
                                       : AppColors.lightBorder),
                           ),
                         ),
@@ -662,16 +662,16 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         decoration: BoxDecoration(
                           color: selectedRole == 'manager'
-                              ? const Color(0xFFA855F7).withOpacity(0.12)
+                              ? const Color(0xFFA855F7).withValues(alpha: 0.12)
                               : (isDark
-                                    ? Colors.white.withOpacity(0.03)
-                                    : Colors.black.withOpacity(0.02)),
+                                    ? Colors.white.withValues(alpha: 0.03)
+                                    : Colors.black.withValues(alpha: 0.02)),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color: selectedRole == 'manager'
                                 ? const Color(0xFFA855F7)
                                 : (isDark
-                                      ? Colors.white.withOpacity(0.06)
+                                      ? Colors.white.withValues(alpha: 0.06)
                                       : AppColors.lightBorder),
                           ),
                         ),

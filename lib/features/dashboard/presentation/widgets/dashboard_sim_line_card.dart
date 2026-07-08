@@ -24,7 +24,9 @@ class DashboardSimLineCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final notifySchedule = ref.watch(scheduledNotifyForLineProvider(line.id));
     final miniSchedule = ref.watch(scheduledMiniRefillForLineProvider(line.id));
-    final customSchedule = ref.watch(scheduledCustomRefillForLineProvider(line.id));
+    final customSchedule = ref.watch(
+      scheduledCustomRefillForLineProvider(line.id),
+    );
     final refillSchedule = customSchedule ?? miniSchedule;
     final user = ref.watch(authControllerProvider).value;
     final isLight = Theme.of(context).brightness == Brightness.light;
@@ -96,7 +98,7 @@ class DashboardSimLineCard extends ConsumerWidget {
                                 (hasProtectionActive
                                         ? AppColors.success
                                         : AppColors.healthRed)
-                                    .withOpacity(0.5),
+                                    .withValues(alpha: 0.5),
                             blurRadius: 4,
                             spreadRadius: 1,
                           ),
@@ -105,7 +107,9 @@ class DashboardSimLineCard extends ConsumerWidget {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      hasProtectionActive ? AppLocalizations.of(context)!.active : 'Inactive',
+                      hasProtectionActive
+                          ? AppLocalizations.of(context)!.active
+                          : 'Inactive',
                       style: AppTextStyles.labelSmall.copyWith(
                         color: hasProtectionActive
                             ? AppColors.success
@@ -274,7 +278,9 @@ class DashboardSimLineCard extends ConsumerWidget {
                     line.nickname ?? 'SIM Line',
                     style: AppTextStyles.headlineMedium.copyWith(
                       // color: glowColor,
-                      color: isLight ? AppColors.textPrimaryLight : Colors.white,
+                      color: isLight
+                          ? AppColors.textPrimaryLight
+                          : Colors.white,
                       fontWeight: FontWeight.w800,
                       shadows: isLight
                           ? null
@@ -292,30 +298,34 @@ class DashboardSimLineCard extends ConsumerWidget {
                 const SizedBox(width: 8),
                 Container(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 8, vertical: 2),
+                    horizontal: 8,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: line.planType == 'premium'
                         ? const Color(0xFFFFF3E0) // Light orange background
                         : line.planType == 'standard'
-                            ? const Color(0xFFE1F5FE) // Light blue background
-                            : const Color(0xFFF5F5F5), // Light grey background
+                        ? const Color(0xFFE1F5FE) // Light blue background
+                        : const Color(0xFFF5F5F5), // Light grey background
                     borderRadius: BorderRadius.circular(6),
                     border: Border.all(
                       color: line.planType == 'premium'
                           ? const Color(0xFFFFB74D) // Orange border
                           : line.planType == 'standard'
-                              ? const Color(0xFF4FC3F7) // Blue border
-                              : Colors.grey.shade400, // Grey border
+                          ? const Color(0xFF4FC3F7) // Blue border
+                          : Colors.grey.shade400, // Grey border
                     ),
                   ),
                   child: Text(
-                    line.planType.toLowerCase() == 'standard' ? AppLocalizations.of(context)!.standard : line.planType.toUpperCase(),
+                    line.planType.toLowerCase() == 'standard'
+                        ? AppLocalizations.of(context)!.standard
+                        : line.planType.toUpperCase(),
                     style: AppTextStyles.caption.copyWith(
                       color: line.planType == 'premium'
                           ? const Color(0xFFE65100) // Dark orange text
                           : line.planType == 'standard'
-                              ? const Color(0xFF0277BD) // Dark blue text
-                              : Colors.grey.shade700, // Dark grey text
+                          ? const Color(0xFF0277BD) // Dark blue text
+                          : Colors.grey.shade700, // Dark grey text
                       fontSize: 10,
                       fontWeight: FontWeight.w800,
                       letterSpacing: 0.5,
@@ -328,10 +338,7 @@ class DashboardSimLineCard extends ConsumerWidget {
                     onTap: () async {
                       await HapticHelper.mediumImpact();
                       if (context.mounted) {
-                        LineUpgradeSheet.show(
-                          context: context,
-                          simLine: line,
-                        );
+                        LineUpgradeSheet.show(context: context, simLine: line);
                       }
                     },
                     child: Container(
@@ -340,10 +347,10 @@ class DashboardSimLineCard extends ConsumerWidget {
                         vertical: 3,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.amberAccent.withOpacity(0.15),
+                        color: Colors.amberAccent.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: Colors.amberAccent.withOpacity(0.3),
+                          color: Colors.amberAccent.withValues(alpha: 0.3),
                         ),
                       ),
                       child: Row(
@@ -357,7 +364,7 @@ class DashboardSimLineCard extends ConsumerWidget {
                           const SizedBox(width: 4),
                           Text(
                             AppLocalizations.of(context)!.upgrade,
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: Colors.orangeAccent,
                               fontSize: 9,
                               fontWeight: FontWeight.bold,
@@ -378,7 +385,7 @@ class DashboardSimLineCard extends ConsumerWidget {
               style: AppTextStyles.titleMedium.copyWith(
                 color: isLight
                     ? AppColors.lightPrimary
-                    : glowColor.withOpacity(0.9),
+                    : glowColor.withValues(alpha: 0.9),
                 fontWeight: FontWeight.w700,
                 letterSpacing: 1.1,
               ),
@@ -401,7 +408,9 @@ class DashboardSimLineCard extends ConsumerWidget {
                   child: Text(
                     AppLocalizations.of(context)!.autoNotify,
                     style: AppTextStyles.bodyMedium.copyWith(
-                      color: isLight ? AppColors.textPrimaryLight : Colors.white,
+                      color: isLight
+                          ? AppColors.textPrimaryLight
+                          : Colors.white,
                       fontWeight: FontWeight.w500,
                     ),
                     maxLines: 1,
@@ -447,14 +456,14 @@ class DashboardSimLineCard extends ConsumerWidget {
                                 (isLight
                                         ? AppColors.lightPrimary
                                         : AppColors.primary)
-                                    .withOpacity(0.15),
+                                    .withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(
                               color:
                                   (isLight
                                           ? AppColors.lightPrimary
                                           : AppColors.primary)
-                                      .withOpacity(0.3),
+                                      .withValues(alpha: 0.3),
                               width: 1,
                             ),
                           ),
@@ -521,10 +530,7 @@ class DashboardSimLineCard extends ConsumerWidget {
                               return;
                             }
                             await ref
-                                .read(
-                                  scheduledTopupControllerProvider
-                                      .notifier,
-                                )
+                                .read(scheduledTopupControllerProvider.notifier)
                                 .toggleActive(refillSchedule.id, val);
                           },
                         )
@@ -563,14 +569,14 @@ class DashboardSimLineCard extends ConsumerWidget {
                                   (isLight
                                           ? AppColors.lightPrimary
                                           : AppColors.primary)
-                                      .withOpacity(0.15),
+                                      .withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(16),
                               border: Border.all(
                                 color:
                                     (isLight
                                             ? AppColors.lightPrimary
                                             : AppColors.primary)
-                                        .withOpacity(0.3),
+                                        .withValues(alpha: 0.3),
                                 width: 1,
                               ),
                             ),

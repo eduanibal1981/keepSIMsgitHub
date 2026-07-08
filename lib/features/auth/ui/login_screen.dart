@@ -49,13 +49,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       vsync: this,
       duration: const Duration(milliseconds: 900),
     );
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.15),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _slideController,
-      curve: Curves.easeOutCubic,
-    ));
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.15), end: Offset.zero).animate(
+          CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic),
+        );
 
     // Pulse animation for the encrypted badge
     _pulseController = AnimationController(
@@ -414,10 +411,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                     child: Icon(
                       Icons.shield_rounded,
                       size: 80,
-                      color: (isDark
-                              ? AppColors.primary
-                              : AppColors.lightPrimary)
-                          .withValues(alpha: 0.3),
+                      color:
+                          (isDark ? AppColors.primary : AppColors.lightPrimary)
+                              .withValues(alpha: 0.3),
                     ),
                   ),
                 );
@@ -432,8 +428,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                 gradient: LinearGradient(
                   colors: [
                     Colors.transparent,
-                    (isDark ? AppColors.darkBg : AppColors.lightBg)
-                        .withValues(alpha: 0.4),
+                    (isDark ? AppColors.darkBg : AppColors.lightBg).withValues(
+                      alpha: 0.4,
+                    ),
                   ],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
@@ -515,9 +512,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: isDark
-              ? AppColors.darkCard
-              : AppColors.lightBg,
+          color: isDark ? AppColors.darkCard : AppColors.lightBg,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
             color: isDark
@@ -560,14 +555,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
   Widget _buildFooterLinks(bool isDark) {
     final linkStyle = AppTextStyles.caption.copyWith(
-      color: isDark
-          ? AppColors.textTertiaryDark
-          : AppColors.textTertiaryLight,
+      color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
       fontSize: 11,
       decoration: TextDecoration.underline,
-      decorationColor: isDark
-          ? AppColors.darkBorder
-          : AppColors.lightBorder,
+      decorationColor: isDark ? AppColors.darkBorder : AppColors.lightBorder,
     );
 
     return Column(

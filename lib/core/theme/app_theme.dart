@@ -278,7 +278,7 @@ abstract final class AppTheme {
     // Chips
     chipTheme: ChipThemeData(
       backgroundColor: const Color(0xFFEAEEF1),
-      selectedColor: AppColors.lightPrimary.withOpacity(0.15),
+      selectedColor: AppColors.lightPrimary.withValues(alpha: 0.15),
       labelStyle: AppTextStyles.labelMedium.copyWith(
         color: AppColors.textPrimaryLight,
       ),

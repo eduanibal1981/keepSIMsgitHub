@@ -1,6 +1,7 @@
 /// SIM Shield — Payments Contract Interface
 ///
 /// Interface defining standard billing card management operations and wallet auto-fund updates.
+library;
 
 import 'package:keep_sims/core/result.dart';
 import 'package:keep_sims/features/payments/model/payment_method_model.dart';

@@ -6,7 +6,6 @@ library;
 import 'dart:async';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:keep_sims/core/failure.dart';
 import 'package:keep_sims/core/result.dart';
@@ -49,7 +48,8 @@ class ProfileController extends _$ProfileController {
       homeCountryCode: homeCountryCode,
       preferredCurrency: preferredCurrency,
       isPowerUser: isPowerUser,
-      subscriptionTier: subscriptionTier ?? (isPowerUser ? 'premium' : 'standard'),
+      subscriptionTier:
+          subscriptionTier ?? (isPowerUser ? 'premium' : 'standard'),
       onboardingCompleted: true,
       updatedAt: DateTime.now(),
     );

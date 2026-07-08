@@ -65,7 +65,7 @@ class SupportRepository implements SupportContract {
             'subject': subject,
             'description': description,
             'category': category,
-            if (attachmentUrl != null) 'attachment_url': attachmentUrl,
+            'attachment_url': ?attachmentUrl,
           })
           .select()
           .single();

@@ -177,7 +177,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
   }
 
   Widget _buildEmptyState() {
-    return EmptyStateView(
+    return const EmptyStateView(
       icon: Icons.notifications_none_rounded,
       title: 'No notifications yet',
       description:
@@ -191,7 +191,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
   ) {
     final isDark = context.isDarkMode;
     if (list.isEmpty) {
-      return EmptyStateView(
+      return const EmptyStateView(
         icon: Icons.done_all_rounded,
         title: 'All caught up!',
         description: 'You have no unread notifications.',

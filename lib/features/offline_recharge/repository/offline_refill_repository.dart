@@ -15,7 +15,7 @@ class OfflineRefillRepository implements OfflineRefillContract {
 
   @override
   Future<Result<OfflineRefillSettings>> getSettings() async {
-    final cacheKey = 'cached_offline_refill_settings';
+    const cacheKey = 'cached_offline_refill_settings';
 
     if (_connectivity.isOffline) {
       final cached = _cache.readJson(cacheKey);
@@ -100,7 +100,7 @@ class OfflineRefillRepository implements OfflineRefillContract {
   Future<Result<OfflineRefillSettings>> saveSettings(
     OfflineRefillSettings settings,
   ) async {
-    final cacheKey = 'cached_offline_refill_settings';
+    const cacheKey = 'cached_offline_refill_settings';
     try {
       final userId = _client.auth.currentUser?.id;
       if (userId == null) {

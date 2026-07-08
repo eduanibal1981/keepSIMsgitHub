@@ -42,7 +42,7 @@ class GlassCard extends StatelessWidget {
         boxShadow: isActive
             ? [
                 BoxShadow(
-                  color: glowColor.withOpacity(isLight ? 0.08 : 0.3),
+                  color: glowColor.withValues(alpha: isLight ? 0.08 : 0.3),
                   blurRadius: 20,
                   spreadRadius: 2,
                 ),
@@ -56,22 +56,26 @@ class GlassCard extends StatelessWidget {
           child: Container(
             padding: padding,
             decoration: BoxDecoration(
-              gradient: customGradient ?? (isLight
-                  ? const LinearGradient(
-                      colors: [Color(0xCCFFFFFF), Color(0xB3FFFFFF)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    )
-                  : AppColors.darkCardGradient),
+              gradient:
+                  customGradient ??
+                  (isLight
+                      ? const LinearGradient(
+                          colors: [Color(0xCCFFFFFF), Color(0xB3FFFFFF)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        )
+                      : AppColors.darkCardGradient),
               borderRadius: BorderRadius.circular(borderRadius),
-              border: customBorder ?? Border.all(
-                color: isActive
-                    ? glowColor.withValues(alpha: isLight ? 0.3 : 0.5)
-                    : (isLight
-                          ? AppColors.lightBorderSoft
-                          : AppColors.darkBorder),
-                width: 1,
-              ),
+              border:
+                  customBorder ??
+                  Border.all(
+                    color: isActive
+                        ? glowColor.withValues(alpha: isLight ? 0.3 : 0.5)
+                        : (isLight
+                              ? AppColors.lightBorderSoft
+                              : AppColors.darkBorder),
+                    width: 1,
+                  ),
             ),
             child: child,
           ),

@@ -15,12 +15,14 @@ part 'privacy_controller.g.dart';
 
 @riverpod
 class PrivacyController extends _$PrivacyController {
-  static const String _kTrackingConsentKey = 'analytics_tracking_consent_enabled';
+  static const String _kTrackingConsentKey =
+      'analytics_tracking_consent_enabled';
 
   @override
   FutureOr<bool> build() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(_kTrackingConsentKey) ?? true; // Default true or false based on policy
+    return prefs.getBool(_kTrackingConsentKey) ??
+        true; // Default true or false based on policy
   }
 
   Future<void> toggleTrackingConsent(bool value) async {
@@ -37,7 +39,7 @@ class PrivacyController extends _$PrivacyController {
   Future<void> exportData() async {
     try {
       final user = ref.read(authControllerProvider).value;
-      if (user == null) throw UserFriendlyException('User not authenticated.');
+      if (user == null) throw const UserFriendlyException('User not authenticated.');
 
       // In a comprehensive export, we would fetch all related tables.
       // Here we export the current user profile as JSON.
@@ -55,9 +57,7 @@ class PrivacyController extends _$PrivacyController {
       await file.writeAsString(jsonString);
 
       // Share the file
-      await Share.shareXFiles(
-        [XFile(file.path, mimeType: 'application/json')],
-      );
+      await Share.shareXFiles([XFile(file.path, mimeType: 'application/json')]);
     } catch (e) {
       throw UserFriendlyException('Failed to export data: $e');
     }
@@ -68,7 +68,7 @@ class PrivacyController extends _$PrivacyController {
     final user = supabase.auth.currentUser;
 
     if (user == null) {
-      throw UserFriendlyException('User not authenticated.');
+      throw const UserFriendlyException('User not authenticated.');
     }
 
     try {
@@ -78,11 +78,15 @@ class PrivacyController extends _$PrivacyController {
         method: HttpMethod.post,
       );
 
-      if (response.status == 200 || response.status == 201 || response.status == 204) {
+      if (response.status == 200 ||
+          response.status == 201 ||
+          response.status == 204) {
         // Function succeeded. Sign out locally.
         await ref.read(authControllerProvider.notifier).signOut();
       } else {
-        throw UserFriendlyException('Failed to delete account. Please contact support.');
+        throw const UserFriendlyException(
+          'Failed to delete account. Please contact support.',
+        );
       }
     } catch (e) {
       throw UserFriendlyException('Error deleting account: $e');

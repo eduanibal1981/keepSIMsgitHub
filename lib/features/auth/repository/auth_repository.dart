@@ -107,7 +107,9 @@ class AuthRepository implements AuthContract {
 
   @override
   Future<Result<UserProfile>> signInWithEmailAndPassword(
-      String email, String password) async {
+    String email,
+    String password,
+  ) async {
     try {
       final response = await _client.auth.signInWithPassword(
         email: email,
@@ -124,8 +126,12 @@ class AuthRepository implements AuthContract {
       return getCurrentProfile();
     } on AuthException catch (e) {
       if (e.message.toLowerCase().contains('email not confirmed')) {
-        return const Failure(AppFailure.auth(
-            message: 'Email not confirmed. Please check your inbox and verify your email.'));
+        return const Failure(
+          AppFailure.auth(
+            message:
+                'Email not confirmed. Please check your inbox and verify your email.',
+          ),
+        );
       }
       return Failure(AppFailure.auth(message: e.message));
     } on PostgrestException catch (e) {
@@ -137,7 +143,9 @@ class AuthRepository implements AuthContract {
 
   @override
   Future<Result<void>> signUpWithEmailAndPassword(
-      String email, String password) async {
+    String email,
+    String password,
+  ) async {
     try {
       final response = await _client.auth.signUp(
         email: email,
@@ -186,7 +194,9 @@ class AuthRepository implements AuthContract {
         token: token,
       );
       if (response.session == null && response.user == null) {
-        return const Failure(AppFailure.auth(message: 'Verification failed. No user returned.'));
+        return const Failure(
+          AppFailure.auth(message: 'Verification failed. No user returned.'),
+        );
       }
       return const Success(null);
     } on AuthException catch (e) {

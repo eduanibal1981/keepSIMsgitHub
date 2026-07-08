@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>KeepSIMs Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: { primary: "#4cd7f6", secondary: "#4edea3", tertiary: "#ffb95f", surface: "#0d141d", error: "#ffb4ab" },
+                    fontFamily: { body: ["Outfit"] }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #080b12;
+            color: #dce3f0;
+            font-family: 'Outfit', sans-serif;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(76, 215, 246, 0.03), transparent 30%),
+                radial-gradient(circle at 85% 20%, rgba(78, 222, 163, 0.02), transparent 30%);
+            min-height: 100vh;
+        }
+        .glass-panel {
+            background: rgba(21, 28, 37, 0.4);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.05), 0 8px 32px -8px rgba(0, 0, 0, 0.5);
+        }
+        .text-glow-primary { text-shadow: 0 0 15px rgba(76, 215, 246, 0.5); }
+        .hidden { display: none !important; }
+        
+        .radio-segment input:checked + label {
+            background-color: #4cd7f6;
+            color: #003640;
+            box-shadow: 0 0 10px rgba(76, 215, 246, 0.4);
+        }
+        
+        /* Queue row animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .row-animate { animation: fadeIn 0.3s ease-out; }
+    </style>
+</head>
+<body class="p-6">
+    <div id="auth-guard" class="flex items-center justify-center h-screen">
+        <div class="glass-panel p-8 rounded-xl text-center">
+            <span class="material-symbols-outlined text-4xl text-primary animate-spin mb-4">progress_activity</span>
+            <h2 class="text-xl font-semibold">Verifying Access...</h2>
+        </div>
+    </div>
+
+    <div id="access-denied" class="hidden flex items-center justify-center h-screen">
+        <div class="glass-panel p-8 rounded-xl text-center border-error/30 border">
+            <span class="material-symbols-outlined text-5xl text-error mb-4">gpp_bad</span>
+            <h2 class="text-2xl font-bold text-error">Access Denied</h2>
+            <p class="text-white/60 mt-2">You do not have power user privileges.</p>
+        </div>
+    </div>
+
+    <div id="dashboard-content" class="hidden max-w-7xl mx-auto space-y-6">
+        <header class="flex justify-between items-center pb-6 border-b border-white/10">
+            <div>
+                <h1 class="text-3xl font-bold text-primary text-glow-primary tracking-tight">KeepSIMs Admin</h1>
+                <p class="text-white/50 text-sm mt-1">Unified Fulfillment Queue &amp; Routing</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <span class="text-sm px-3 py-1 bg-secondary/10 text-secondary rounded-full border border-secondary/30 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-secondary shadow-[0_0_10px_rgba(78,222,163,1)]"></span>
+                    Power User
+                </span>
+                <button onclick="logout()" class="text-white/50 hover:text-white transition-colors"><span class="material-symbols-outlined">logout</span></button>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <!-- Settings Panel -->
+            <div class="md:col-span-1 space-y-6">
+                <div class="glass-panel rounded-xl p-6">
+                    <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">router</span> Active Router
+                    </h2>
+                    <p class="text-xs text-white/50 mb-4">Select the global fulfillment gateway for new requests.</p>
+                    
+                    <div class="flex flex-col space-y-3 radio-segment">
+                        <div class="relative">
+                            <input type="radio" id="MANUAL" name="gateway" value="MANUAL" class="sr-only" onchange="updateGateway('MANUAL')">
+                            <label for="MANUAL" class="block cursor-pointer px-4 py-3 rounded-lg border border-white/10 bg-white/5 text-sm font-medium transition-all text-white/70 hover:bg-white/10">
+                                ✋ Manual
+                            </label>
+                        </div>
+                        <div class="relative">
+                            <input type="radio" id="TASKER_SCRIPT" name="gateway" value="TASKER_SCRIPT" class="sr-only" onchange="updateGateway('TASKER_SCRIPT')">
+                            <label for="TASKER_SCRIPT" class="block cursor-pointer px-4 py-3 rounded-lg border border-white/10 bg-white/5 text-sm font-medium transition-all text-white/70 hover:bg-white/10">
+                                🤖 Tasker Script
+                            </label>
+                        </div>
+                        <div class="relative">
+                            <input type="radio" id="API" name="gateway" value="API" class="sr-only" onchange="updateGateway('API')">
+                            <label for="API" class="block cursor-pointer px-4 py-3 rounded-lg border border-white/10 bg-white/5 text-sm font-medium transition-all text-white/70 hover:bg-white/10">
+                                ⚡ Telecom API
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Unified Queue -->
+            <div class="md:col-span-3">
+                <div class="glass-panel rounded-xl overflow-hidden flex flex-col h-[70vh]">
+                    <div class="p-6 border-b border-white/10 flex justify-between items-center">
+                        <h2 class="text-xl font-semibold flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">list_alt</span> Refill Queue
+                        </h2>
+                        <span id="queue-count" class="text-sm bg-white/10 px-2 py-1 rounded text-white/70">0 Requests</span>
+                    </div>
+                    
+                    <div class="flex-1 overflow-y-auto p-0">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="bg-white/5 sticky top-0 backdrop-blur-md z-10 border-b border-white/10">
+                                <tr>
+                                    <th class="p-4 text-xs font-semibold text-white/50 uppercase tracking-wider">Timestamp</th>
+                                    <th class="p-4 text-xs font-semibold text-white/50 uppercase tracking-wider">Target Line ID</th>
+                                    <th class="p-4 text-xs font-semibold text-white/50 uppercase tracking-wider">Source</th>
+                                    <th class="p-4 text-xs font-semibold text-white/50 uppercase tracking-wider">Amount</th>
+                                    <th class="p-4 text-xs font-semibold text-white/50 uppercase tracking-wider">Status</th>
+                                    <th class="p-4 text-xs font-semibold text-white/50 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="queue-body" class="divide-y divide-white/5">
+                                <!-- Dynamic rows -->
+                            </tbody>
+                        </table>
+                        <div id="empty-state" class="hidden flex flex-col items-center justify-center h-full text-white/30 py-12">
+                            <span class="material-symbols-outlined text-5xl mb-2">done_all</span>
+                            <p>Queue is empty.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Supabase configuration - Inject your values here or use environment variables in a real build
+        const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+        
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let currentUserId = null;
+
+        async function init() {
+            const { data: { session }, error } = await supabase.auth.getSession();
+            if (error || !session) {
+                // If not logged in, you could redirect to a login page. For now, show denied.
+                showDenied();
+                return;
+            }
+            currentUserId = session.user.id;
+            
+            // Check power user
+            const { data: profile } = await supabase.from('profiles').select('is_power_user').eq('id', currentUserId).single();
+            
+            if (profile && profile.is_power_user) {
+                document.getElementById('auth-guard').classList.add('hidden');
+                document.getElementById('dashboard-content').classList.remove('hidden');
+                loadConfig();
+                loadQueue();
+                setupRealtime();
+            } else {
+                showDenied();
+            }
+        }
+
+        function showDenied() {
+            document.getElementById('auth-guard').classList.add('hidden');
+            document.getElementById('access-denied').classList.remove('hidden');
+        }
+
+        async function logout() {
+            await supabase.auth.signOut();
+            location.reload();
+        }
+
+        // Configuration Logic
+        async function loadConfig() {
+            const { data } = await supabase.from('system_configs').select('config_value').eq('config_key', 'ACTIVE_FULFILLMENT_METHOD').single();
+            if (data) {
+                document.getElementById(data.config_value).checked = true;
+            }
+        }
+
+        async function updateGateway(value) {
+            await supabase.from('system_configs').update({ config_value: value, updated_at: new Date().toISOString() }).eq('config_key', 'ACTIVE_FULFILLMENT_METHOD');
+            // Show toast or UI feedback here
+        }
+
+        // Queue Logic
+        let queueData = [];
+
+        async function loadQueue() {
+            const { data } = await supabase.from('refill_requests').select('*').order('created_at', { ascending: false }).limit(50);
+            if (data) {
+                queueData = data;
+                renderQueue();
+            }
+        }
+
+        function renderQueue() {
+            const tbody = document.getElementById('queue-body');
+            const emptyState = document.getElementById('empty-state');
+            document.getElementById('queue-count').innerText = `${queueData.length} Requests`;
+
+            if (queueData.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            emptyState.classList.add('hidden');
+
+            tbody.innerHTML = queueData.map(req => {
+                const date = new Date(req.created_at).toLocaleString();
+                const sourceIcon = req.source === 'whatsapp_offline' ? 'chat' : (req.source === 'app_auto' ? 'autorenew' : 'phone_iphone');
+                
+                let statusBadge = '';
+                switch(req.status) {
+                    case 'pending_manual_action': statusBadge = '<span class="px-2 py-1 bg-tertiary/20 text-tertiary rounded text-xs border border-tertiary/30 animate-pulse">Needs Manual Action</span>'; break;
+                    case 'completed': statusBadge = '<span class="px-2 py-1 bg-secondary/20 text-secondary rounded text-xs border border-secondary/30">Completed</span>'; break;
+                    case 'failed': statusBadge = '<span class="px-2 py-1 bg-error/20 text-error rounded text-xs border border-error/30">Failed</span>'; break;
+                    case 'processing': statusBadge = '<span class="px-2 py-1 bg-primary/20 text-primary rounded text-xs border border-primary/30">Processing...</span>'; break;
+                    default: statusBadge = `<span class="px-2 py-1 bg-white/10 text-white/70 rounded text-xs">${req.status}</span>`;
+                }
+
+                const actions = req.status === 'pending_manual_action' 
+                    ? `<button onclick="completeManual('${req.id}')" class="text-xs bg-secondary/20 hover:bg-secondary/40 text-secondary px-3 py-1 rounded border border-secondary/30 transition-colors">Complete</button>
+                       <button onclick="copyDetails('${req.corporate_line_id}', ${req.amount})" class="text-xs text-white/50 hover:text-white px-2 py-1" title="Copy Details"><span class="material-symbols-outlined text-[16px] align-middle">content_copy</span></button>`
+                    : '';
+
+                return `
+                    <tr class="hover:bg-white/5 transition-colors row-animate">
+                        <td class="p-4 text-sm text-white/60">${date}</td>
+                        <td class="p-4 text-sm font-mono text-white/80">${req.corporate_line_id.substring(0,8)}...</td>
+                        <td class="p-4 text-sm flex items-center gap-2 text-white/70"><span class="material-symbols-outlined text-[18px]">${sourceIcon}</span> ${req.source}</td>
+                        <td class="p-4 text-sm font-semibold">$${req.amount}</td>
+                        <td class="p-4">${statusBadge}</td>
+                        <td class="p-4 flex items-center gap-2">${actions}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function completeManual(id) {
+            await supabase.from('refill_requests').update({ status: 'completed', updated_at: new Date().toISOString() }).eq('id', id);
+        }
+
+        function copyDetails(lineId, amount) {
+            navigator.clipboard.writeText(`Line ID: ${lineId}\nAmount: $${amount}`);
+            alert('Copied to clipboard!');
+        }
+
+        function setupRealtime() {
+            // Subscribe to queue changes
+            supabase.channel('public:refill_requests')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'refill_requests' }, payload => {
+                    if (payload.eventType === 'INSERT') {
+                        queueData.unshift(payload.new);
+                    } else if (payload.eventType === 'UPDATE') {
+                        const idx = queueData.findIndex(r => r.id === payload.new.id);
+                        if (idx !== -1) queueData[idx] = payload.new;
+                    } else if (payload.eventType === 'DELETE') {
+                        queueData = queueData.filter(r => r.id !== payload.old.id);
+                    }
+                    renderQueue();
+                }).subscribe();
+
+            // Subscribe to config changes
+            supabase.channel('public:system_configs')
+                .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'system_configs', filter: "config_key=eq.ACTIVE_FULFILLMENT_METHOD" }, payload => {
+                    if(payload.new.config_value) {
+                        document.getElementById(payload.new.config_value).checked = true;
+                    }
+                }).subscribe();
+        }
+
+        // Start
+        init();
+    </script>
+</body>
+</html>

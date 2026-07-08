@@ -32,18 +32,18 @@ class GlassToggleSwitch extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           color: value
-              ? color.withOpacity(isLight ? 0.15 : 0.2)
+              ? color.withValues(alpha: isLight ? 0.15 : 0.2)
               : (isLight ? const Color(0xFFEAEEF1) : AppColors.darkCard),
           border: Border.all(
             color: value
-                ? color.withOpacity(isLight ? 0.3 : 0.5)
+                ? color.withValues(alpha: isLight ? 0.3 : 0.5)
                 : (isLight ? AppColors.lightBorder : AppColors.darkBorder),
             width: 1,
           ),
           boxShadow: value
               ? [
                   BoxShadow(
-                    color: color.withOpacity(isLight ? 0.12 : 0.3),
+                    color: color.withValues(alpha: isLight ? 0.12 : 0.3),
                     blurRadius: 10,
                     spreadRadius: 1,
                   ),
@@ -67,7 +67,7 @@ class GlassToggleSwitch extends StatelessWidget {
               boxShadow: value
                   ? [
                       BoxShadow(
-                        color: color.withOpacity(0.5),
+                        color: color.withValues(alpha: 0.5),
                         blurRadius: 6,
                         spreadRadius: 1,
                       ),

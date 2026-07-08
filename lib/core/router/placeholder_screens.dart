@@ -14,6 +14,7 @@ import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/core/utils/build_context_extension.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
+
 // ── Splash Screen ─────────────────────────────────────────────
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -45,7 +46,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
           }
         })
         .catchError((error) {
-          debugPrint("Splash video initialization failed: $error");
+          debugPrint('Splash video initialization failed: $error');
           _navigateToNext(); // Navigate immediately if load/init fails
         });
 
@@ -54,7 +55,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
         final val = _videoController.value;
         // Fallback immediately if an error occurs during playback
         if (val.hasError) {
-          debugPrint("Splash video playback error: ${val.errorDescription}");
+          debugPrint('Splash video playback error: ${val.errorDescription}');
           _navigateToNext();
           return;
         }
@@ -191,7 +192,7 @@ class OnboardingPlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _PlaceholderPage(
+    return const _PlaceholderPage(
       icon: Icons.rocket_launch_rounded,
       title: 'Onboarding',
       subtitle: 'Step 4 will build this',
@@ -205,7 +206,7 @@ class HomePlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _PlaceholderPage(
+    return const _PlaceholderPage(
       icon: Icons.dashboard_rounded,
       title: 'Dashboard',
       subtitle: 'Step 5 will build this',
@@ -219,7 +220,7 @@ class SimLinesPlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _PlaceholderPage(
+    return const _PlaceholderPage(
       icon: Icons.sim_card_rounded,
       title: 'My SIM Lines',
       subtitle: 'Step 6 will build this',
@@ -233,7 +234,7 @@ class WalletPlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _PlaceholderPage(
+    return const _PlaceholderPage(
       icon: Icons.account_balance_wallet_rounded,
       title: 'Wallet',
       subtitle: 'Step 7 will build this',
@@ -247,7 +248,7 @@ class NotificationsPlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _PlaceholderPage(
+    return const _PlaceholderPage(
       icon: Icons.notifications_rounded,
       title: 'Notifications',
       subtitle: 'Step 10 will build this',
@@ -261,7 +262,7 @@ class SettingsPlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _PlaceholderPage(
+    return const _PlaceholderPage(
       icon: Icons.settings_rounded,
       title: 'Settings',
       subtitle: 'Step 15 will build this',
@@ -278,8 +279,9 @@ class AppShell extends StatelessWidget {
   int _currentIndex(BuildContext context) {
     final location = GoRouterState.of(context).uri.path;
     if (location.startsWith('/home')) return 0;
-    if (location.startsWith('/notifications'))
+    if (location.startsWith('/notifications')) {
       return 0; // Alerts is in Home header
+    }
     if (location.startsWith('/sim-lines')) return 1;
     if (location.startsWith('/wallet')) return 2; // Under More menu
     if (location.startsWith('/settings')) return 2;
@@ -528,7 +530,9 @@ class _CurvedBottomNavigationBarState extends State<CurvedBottomNavigationBar>
 
               // Floating Active Icon Circle with glow shadow
               Positioned(
-                left: (effectiveIndex + 0.5) * singleWidth - 30, // center 60px wide circle
+                left:
+                    (effectiveIndex + 0.5) * singleWidth -
+                    30, // center 60px wide circle
                 top: -15, // float elevated
                 child: Container(
                   width: 60,
