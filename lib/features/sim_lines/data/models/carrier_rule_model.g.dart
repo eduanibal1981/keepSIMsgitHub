@@ -16,6 +16,8 @@ _CarrierRule _$CarrierRuleFromJson(Map<String, dynamic> json) => _CarrierRule(
   topupValidityDays: (json['topup_validity_days'] as num).toInt(),
   inappPricing: _parseDouble(json['inapp_pricing']),
   inappPricingCurrency: json['inapp_pricing_currency'] as String,
+  offerId: json['offer_id'] as String?,
+  offerValue: (json['offer_value'] as num?)?.toInt(),
 );
 
 Map<String, dynamic> _$CarrierRuleToJson(_CarrierRule instance) =>
@@ -29,4 +31,6 @@ Map<String, dynamic> _$CarrierRuleToJson(_CarrierRule instance) =>
       'topup_validity_days': instance.topupValidityDays,
       'inapp_pricing': instance.inappPricing,
       'inapp_pricing_currency': instance.inappPricingCurrency,
+      'offer_id': instance.offerId,
+      'offer_value': instance.offerValue,
     };

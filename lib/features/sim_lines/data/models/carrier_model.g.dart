@@ -13,6 +13,8 @@ _Carrier _$CarrierFromJson(Map<String, dynamic> json) => _Carrier(
   logoUrl: json['logo_url'] as String?,
   reloadlyOperatorId: (json['reloadly_operator_id'] as num?)?.toInt(),
   isSupported: json['is_supported'] as bool,
+  fulfillmentGateway: json['fulfillment_gateway'] as String?,
+  apiProvider: json['api_provider'] as String?,
 );
 
 Map<String, dynamic> _$CarrierToJson(_Carrier instance) => <String, dynamic>{
@@ -22,4 +24,6 @@ Map<String, dynamic> _$CarrierToJson(_Carrier instance) => <String, dynamic>{
   'logo_url': instance.logoUrl,
   'reloadly_operator_id': instance.reloadlyOperatorId,
   'is_supported': instance.isSupported,
+  'fulfillment_gateway': instance.fulfillmentGateway,
+  'api_provider': instance.apiProvider,
 };

@@ -69,8 +69,13 @@ final appRouterProvider = AppRouterProvider._();
 /// Provides the app's GoRouter instance with auth-based redirects.
 
 final class AppRouterProvider
-    extends $FunctionalProvider<GoRouter, GoRouter, GoRouter>
-    with $Provider<GoRouter> {
+    extends
+        $FunctionalProvider<
+          RouterConfig<Object>,
+          RouterConfig<Object>,
+          RouterConfig<Object>
+        >
+    with $Provider<RouterConfig<Object>> {
   /// Provides the app's GoRouter instance with auth-based redirects.
   AppRouterProvider._()
     : super(
@@ -88,21 +93,22 @@ final class AppRouterProvider
 
   @$internal
   @override
-  $ProviderElement<GoRouter> $createElement($ProviderPointer pointer) =>
-      $ProviderElement(pointer);
+  $ProviderElement<RouterConfig<Object>> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
 
   @override
-  GoRouter create(Ref ref) {
+  RouterConfig<Object> create(Ref ref) {
     return appRouter(ref);
   }
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(GoRouter value) {
+  Override overrideWithValue(RouterConfig<Object> value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<GoRouter>(value),
+      providerOverride: $SyncValueProvider<RouterConfig<Object>>(value),
     );
   }
 }
 
-String _$appRouterHash() => r'fb9a3ea87cf18d0d283cf559b48f1ff763e7553d';
+String _$appRouterHash() => r'2fb655a7a4bc47783f5879e7a2b555f74437661e';

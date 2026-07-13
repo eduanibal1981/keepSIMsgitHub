@@ -18,7 +18,7 @@ import 'package:keep_sims/features/notifications/presentation/controllers/notifi
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
-import 'package:keep_sims/features/settings/presentation/screens/paypal_simulator_screen.dart';
+import 'package:keep_sims/features/settings/presentation/screens/paypal_refill_simulator_screen.dart';
 import 'package:keep_sims/features/sim_lines/data/repositories/sim_lines_repository_impl.dart';
 import 'package:keep_sims/features/sim_lines/data/models/country_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/carrier_model.dart';
@@ -276,7 +276,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             .read(simLinesRepositoryProvider)
             .getCarrierRule(_selectedSimCarrier!.id);
         if (rule != null) {
-          int refillsPerYear = 365 ~/ rule.topupValidityDays;
+          int refillsPerYear = (365 / rule.topupValidityDays).ceil();
           amountToCharge += refillsPerYear * rule.inappPricing;
         }
       }
@@ -285,7 +285,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       if (mounted) {
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) => PaypalSimulatorScreen(
+            builder: (context) => PaypalRefillSimulatorScreen(
               initialAmount: amountToCharge,
               paymentReason: 'Payment for $_selectedTier plan',
               depositToWallet: false,

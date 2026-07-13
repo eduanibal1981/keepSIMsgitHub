@@ -18,6 +18,8 @@ abstract class CarrierRule with _$CarrierRule {
     required double inappPricing,
     @JsonKey(name: 'inapp_pricing_currency')
     required String inappPricingCurrency,
+    @JsonKey(name: 'offer_id') String? offerId,
+    @JsonKey(name: 'offer_value') int? offerValue,
   }) = _CarrierRule;
 
   factory CarrierRule.fromJson(Map<String, dynamic> json) =>

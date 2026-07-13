@@ -3,9 +3,8 @@
 /// Centralized routing with auth-based redirects.
 library;
 
-import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:keep_sims/features/auth/controller/auth_controller.dart';
@@ -27,9 +26,7 @@ import 'package:keep_sims/features/settings/presentation/screens/privacy_screen.
 import 'package:keep_sims/features/household/presentation/screens/household_screen.dart';
 import 'package:keep_sims/features/referrals/ui/referrals_screen.dart';
 import 'package:keep_sims/features/payments/ui/payments_screen.dart';
-import 'package:keep_sims/features/settings/presentation/screens/subscription_screen.dart';
 import 'package:keep_sims/features/geo/ui/geo_screen.dart';
-import 'package:keep_sims/features/offline_recharge/ui/offline_refill_screen.dart';
 import 'package:keep_sims/features/offline_recharge/ui/offline_refill_screen.dart';
 import 'package:keep_sims/features/settings/presentation/screens/alert_simulator_screen.dart';
 import 'package:keep_sims/features/support/presentation/ui/support_screen.dart';
@@ -37,7 +34,7 @@ import 'package:keep_sims/features/support/presentation/ui/create_ticket_screen.
 import 'package:keep_sims/features/support/presentation/ui/faq_screen.dart';
 import 'package:keep_sims/features/support/presentation/ui/ticket_details_screen.dart';
 import 'package:keep_sims/features/support/data/models/support_ticket.dart';
-import 'package:keep_sims/features/support/data/models/support_ticket.dart';
+
 
 part 'app_router.g.dart';
 
@@ -87,11 +84,11 @@ class RouterNotifier extends ChangeNotifier {
 
 /// Provides the app's GoRouter instance with auth-based redirects.
 @riverpod
-GoRouter appRouter(Ref ref) {
+RouterConfig<Object> appRouter(Ref ref) {
   final notifier = RouterNotifier(ref);
   ref.onDispose(notifier.dispose);
 
-  return GoRouter(
+  final router = GoRouter(
     initialLocation: AppRoutes.splash,
     debugLogDiagnostics: true,
     refreshListenable: notifier,
@@ -319,4 +316,65 @@ GoRouter appRouter(Ref ref) {
       ),
     ],
   );
+
+  final filteringProvider = FilteringRouteInformationProvider(router.routeInformationProvider);
+  return FilteringRouterConfig(router, filteringProvider);
+}
+
+/// A custom RouteInformationProvider that ignores deep links to payment-success page,
+/// so GoRouter does not rebuild the Navigator stack and dismiss the active payment screen.
+class FilteringRouteInformationProvider extends RouteInformationProvider with ChangeNotifier {
+  final GoRouteInformationProvider _delegate;
+  late RouteInformation _currentValue;
+
+  FilteringRouteInformationProvider(this._delegate) {
+    final initial = _delegate.value;
+    final uriString = initial.uri.toString();
+    if (uriString.contains('payment-success') || uriString.contains('success.html')) {
+      _currentValue = RouteInformation(uri: Uri.parse(AppRoutes.home));
+    } else {
+      _currentValue = initial;
+    }
+    _delegate.addListener(_onDelegateChanged);
+  }
+
+  void _onDelegateChanged() {
+    final routeInfo = _delegate.value;
+    final uriString = routeInfo.uri.toString();
+    if (uriString.contains('payment-success') || uriString.contains('success.html')) {
+      debugPrint('[Router] Intercepted and ignored payment-success deep link: ${routeInfo.uri}');
+      return;
+    }
+    _currentValue = routeInfo;
+    notifyListeners();
+  }
+
+  @override
+  RouteInformation get value => _currentValue;
+
+  @override
+  void dispose() {
+    _delegate.removeListener(_onDelegateChanged);
+    super.dispose();
+  }
+}
+
+/// A custom RouterConfig that uses a filtering RouteInformationProvider.
+class FilteringRouterConfig implements RouterConfig<RouteMatchList> {
+  final GoRouter _router;
+
+  @override
+  final RouteInformationProvider routeInformationProvider;
+
+  FilteringRouterConfig(this._router, this.routeInformationProvider);
+
+  @override
+  RouteInformationParser<RouteMatchList> get routeInformationParser =>
+      _router.routeInformationParser;
+
+  @override
+  RouterDelegate<RouteMatchList> get routerDelegate => _router.routerDelegate;
+
+  @override
+  BackButtonDispatcher get backButtonDispatcher => _router.backButtonDispatcher;
 }

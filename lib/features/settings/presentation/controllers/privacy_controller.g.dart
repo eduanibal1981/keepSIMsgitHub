@@ -33,7 +33,7 @@ final class PrivacyControllerProvider
   PrivacyController create() => PrivacyController();
 }
 
-String _$privacyControllerHash() => r'9d0f7add8466dc05356753ba991c3de96aabafc3';
+String _$privacyControllerHash() => r'c99e0e8209f9b9bf2c7a50a562bdd32eb1646032';
 
 abstract class _$PrivacyController extends $AsyncNotifier<bool> {
   FutureOr<bool> build();

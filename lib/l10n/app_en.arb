@@ -1,4 +1,4 @@
-﻿{
+{
     "@@locale":  "en",
     "appName":  "KeepSIMs",
     "@appName":  {
@@ -679,8 +679,33 @@
     "geoFenceTriggeredDesc":  "Alerts when carrier switches roaming clusters or network nodes.",
     "welcomeHomeReadyTitle":  "Welcome Home Sync",
     "welcomeHomeReadyDesc":  "Alerts when home-country network node triggers automated syncs.",
-    "referralRewardTitle":  "Referral \u0026 Rewards",
+    "referralRewardTitle":  "Referral & Rewards",
     "referralRewardDesc":  "Notify me when friend referrals deposit promotional balances into my wallet.",
     "systemUpdatesTitle":  "General System Updates",
-    "systemUpdatesDesc":  "Vital engine updates, maintenance, and platform announcements."
+    "systemUpdatesDesc":  "Vital engine updates, maintenance, and platform announcements.",
+    "rescheduleRefill": "Reschedule Refill",
+    "resetToDefault": "Reset to Default",
+    "confirmResetRefill": "Are you sure you want to reset the scheduled refill date to default?",
+    "refillDateUpdated": "Scheduled refill date updated successfully",
+    "failedToUpdateRefillDate": "Failed to update scheduled refill date: {error}",
+    "@failedToUpdateRefillDate": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "changeDate": "Change Date",
+    "reset": "Reset",
+    "active": "Active",
+    "refillScheduleConfig": "Refill Schedule Config",
+    "refillExecutionNum": "Refill {number}",
+    "@refillExecutionNum": {
+        "placeholders": {
+            "number": {
+                "type": "int"
+            }
+        }
+    },
+    "ok": "OK"
 }

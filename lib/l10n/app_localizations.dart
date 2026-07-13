@@ -2625,6 +2625,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Vital engine updates, maintenance, and platform announcements.'**
   String get systemUpdatesDesc;
+
+  /// No description provided for @rescheduleRefill.
+  ///
+  /// In en, this message translates to:
+  /// **'Reschedule Refill'**
+  String get rescheduleRefill;
+
+  /// No description provided for @resetToDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset to Default'**
+  String get resetToDefault;
+
+  /// No description provided for @confirmResetRefill.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to reset the scheduled refill date to default?'**
+  String get confirmResetRefill;
+
+  /// No description provided for @refillDateUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled refill date updated successfully'**
+  String get refillDateUpdated;
+
+  /// No description provided for @failedToUpdateRefillDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to update scheduled refill date: {error}'**
+  String failedToUpdateRefillDate(String error);
+
+  /// No description provided for @changeDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Date'**
+  String get changeDate;
+
+  /// No description provided for @reset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get reset;
+
+  /// No description provided for @refillScheduleConfig.
+  ///
+  /// In en, this message translates to:
+  /// **'Refill Schedule Config'**
+  String get refillScheduleConfig;
+
+  /// No description provided for @refillExecutionNum.
+  ///
+  /// In en, this message translates to:
+  /// **'Refill {number}'**
+  String refillExecutionNum(int number);
+
+  /// No description provided for @ok.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get ok;
 }
 
 class _AppLocalizationsDelegate

@@ -99,6 +99,10 @@ class AuthRepository implements AuthContract {
     } on PostgrestException catch (e) {
       return Failure(AppFailure.server(message: e.message));
     } catch (e) {
+      final errStr = e.toString();
+      if (errStr.contains('canceled') || errStr.contains('sign_in_canceled')) {
+        return const Failure(AppFailure.auth(message: 'Sign-in canceled.'));
+      }
       return _handleException(e);
     }
   }

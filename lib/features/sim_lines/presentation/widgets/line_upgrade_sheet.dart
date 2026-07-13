@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:keep_sims/features/settings/presentation/screens/paypal_simulator_screen.dart';
+import 'package:keep_sims/features/settings/presentation/screens/paypal_refill_simulator_screen.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
@@ -256,7 +256,8 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
                                 '$planName Plan upgrade for $lineNickname (${widget.simLine.phoneNumber})';
                             if (_selectedPlan == 'premium' &&
                                 carrierRule != null) {
-                              totalAmount += carrierRule.inappPricing;
+                              int refillsPerYear = (365 / carrierRule.topupValidityDays).ceil();
+                              totalAmount += refillsPerYear * carrierRule.inappPricing;
                               reason =
                                   '$planName Plan (\$${plan.monthlyPrice}/mo + ${carrierRule.inappPricing} ${carrierRule.inappPricingCurrency.toUpperCase()} refill every ${carrierRule.topupValidityDays} days) for $lineNickname';
                             }
@@ -273,7 +274,7 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
                             // Navigate directly to PayPal payment
                             Navigator.of(context).push(
                               MaterialPageRoute(
-                                builder: (context) => PaypalSimulatorScreen(
+                                builder: (context) => PaypalRefillSimulatorScreen(
                                   initialAmount: totalAmount,
                                   paymentReason: reason,
                                   depositToWallet: false,

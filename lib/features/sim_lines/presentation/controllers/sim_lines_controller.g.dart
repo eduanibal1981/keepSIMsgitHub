@@ -34,7 +34,7 @@ final class SimLinesControllerProvider
 }
 
 String _$simLinesControllerHash() =>
-    r'd1231fe7357c0860d9672ec8f81013f717542320';
+    r'e6020f502d32a9ebb0a43b743947c7b1fb396f08';
 
 abstract class _$SimLinesController extends $AsyncNotifier<List<SimLine>> {
   FutureOr<List<SimLine>> build();
@@ -110,7 +110,7 @@ final class CarriersForCountryProvider
 }
 
 String _$carriersForCountryHash() =>
-    r'b8dbcc9128fc84e8e1874a37162a1104399a8e92';
+    r'5bf84b68a0160d33be2656a6dca8d70ad839bf54';
 
 final class CarriersForCountryFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<List<Carrier>>, String> {
@@ -185,7 +185,7 @@ final class CarrierRuleProvider
   }
 }
 
-String _$carrierRuleHash() => r'8b8517ec4dfbfc986ddd909c4448e2d099593faf';
+String _$carrierRuleHash() => r'03a87a35965d28ec5ac15ffd35bc66b7f073acf7';
 
 final class CarrierRuleFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<CarrierRule?>, String> {
@@ -263,7 +263,7 @@ final class SimLineActivityLogsProvider
 }
 
 String _$simLineActivityLogsHash() =>
-    r'e44c4e8afe24bf4c29f2bad20db784c72c129622';
+    r'638c0cd7f9ed1b6c0785ff4e591784ba64c8e4a6';
 
 final class SimLineActivityLogsFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<List<LineActivityLog>>, String> {
@@ -340,7 +340,7 @@ final class ZenditOffersProvider
   }
 }
 
-String _$zenditOffersHash() => r'69ccebcb6a1dabb1db1257172741a6988f752010';
+String _$zenditOffersHash() => r'd67ba175ba9b50c21bc18a9778d3f94c365704a1';
 
 final class ZenditOffersFamily extends $Family
     with
@@ -403,7 +403,7 @@ final class PaymentMethodsProvider
   }
 }
 
-String _$paymentMethodsHash() => r'8dc28356d26923b6e782134af74857f0091a979a';
+String _$paymentMethodsHash() => r'55c6258299ed1e93db7fd9dd90d5577beca57d0d';
 
 @ProviderFor(supportedCountries)
 final supportedCountriesProvider = SupportedCountriesProvider._();
@@ -443,4 +443,4 @@ final class SupportedCountriesProvider
 }
 
 String _$supportedCountriesHash() =>
-    r'70bfcd26d8c531ed5804bd12b519011c6f929ac1';
+    r'a25db646dc2dd8068078c7fd94561b4fb26ebfdf';

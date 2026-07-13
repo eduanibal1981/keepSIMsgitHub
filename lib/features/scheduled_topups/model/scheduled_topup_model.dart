@@ -30,6 +30,8 @@ abstract class ScheduledTopup with _$ScheduledTopup {
     String scheduleType, // 'notify', 'refill_mini', 'refill_custom'
     DateTime? createdAt,
     DateTime? updatedAt,
+    String? offerId,
+    int? offerValue,
   }) = _ScheduledTopup;
 
   factory ScheduledTopup.fromJson(Map<String, dynamic> json) =>

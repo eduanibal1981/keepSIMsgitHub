@@ -23,6 +23,7 @@ import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import 'package:keep_sims/core/router/app_router.dart';
 import 'package:keep_sims/features/household/presentation/controllers/household_controller.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/line_upgrade_sheet.dart';
+import 'package:keep_sims/features/sim_lines/presentation/widgets/premium_refill_config_sheet.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SimLineDetailScreen extends ConsumerStatefulWidget {
@@ -1545,67 +1546,82 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
       width: 1.5,
     );
 
-    final includedCard = GlassCard(
-      customGradient: includedCardGradient,
-      customBorder: includedCardBorder,
-      padding: const EdgeInsets.all(20),
-      isActive: false,
-      activeColor: isMiniActive
-          ? AppColors.success
-          : AppColors.textTertiaryDark,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  AppLocalizations.of(context)!.premiumKeepAliveRefill,
-                  style: AppTextStyles.titleLarge.copyWith(
-                    color: context.onSurfaceColor,
-                    fontWeight: FontWeight.bold,
+    final includedCard = GestureDetector(
+      onTap: _isViewer || !isPremium || miniSchedule == null
+          ? null
+          : () {
+              HapticHelper.mediumImpact();
+              PremiumRefillConfigSheet.show(
+                context: context,
+                simLineId: line.id,
+                simNickname: line.nickname ?? line.phoneNumber,
+              );
+            },
+      child: GlassCard(
+        customGradient: includedCardGradient,
+        customBorder: includedCardBorder,
+        padding: const EdgeInsets.all(20),
+        isActive: false,
+        activeColor: isMiniActive
+            ? AppColors.success
+            : AppColors.textTertiaryDark,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    AppLocalizations.of(context)!.premiumKeepAliveRefill,
+                    style: AppTextStyles.titleLarge.copyWith(
+                      color: context.onSurfaceColor,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 8),
-              GlassToggleSwitch(
-                value: isMiniActive && isPremium,
-                activeColor: AppColors.success,
-                onChanged: _isViewer || _isToggling
-                    ? null
-                    : (val) {
-                        if (!isPremium) {
-                          HapticHelper.mediumImpact();
-                          LineUpgradeSheet.show(
-                            context: context,
-                            simLine: line,
-                          );
-                          return;
-                        }
-                        if (miniSchedule != null) {
-                          _handleToggleSchedule(context, miniSchedule.id, val);
-                        } else if (val == true) {
-                          _handleCreateMiniRefill(context, line);
-                        }
-                      },
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            isMiniActive
-                ? AppLocalizations.of(
-                    context,
-                  )!.autoRefillIncludedText(includedNextRefillDate)
-                : AppLocalizations.of(context)!.premiumKeepAliveDisabled,
-            style: AppTextStyles.bodySmall.copyWith(
-              color: isDark
-                  ? AppColors.textSecondaryDark
-                  : AppColors.textSecondaryLight,
+                const SizedBox(width: 8),
+                if (isPremium) ...[
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppColors.success.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.success.withValues(alpha: 0.3), width: 1),
+                    ),
+                    child: Text(
+                      AppLocalizations.of(context)!.active,
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: AppColors.success,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  if (miniSchedule != null) ...[
+                    const SizedBox(width: 8),
+                    Icon(
+                      Icons.chevron_right_rounded,
+                      color: context.onSurfaceColor.withValues(alpha: 0.5),
+                    ),
+                  ],
+                ],
+              ],
             ),
-          ),
-        ],
+            const SizedBox(height: 12),
+            Text(
+              isMiniActive
+                  ? AppLocalizations.of(
+                      context,
+                    )!.autoRefillIncludedText(includedNextRefillDate)
+                  : AppLocalizations.of(context)!.premiumKeepAliveDisabled,
+              style: AppTextStyles.bodySmall.copyWith(
+                color: isDark
+                    ? AppColors.textSecondaryDark
+                    : AppColors.textSecondaryLight,
+              ),
+            ),
+          ],
+        ),
       ),
     );
 
@@ -2505,88 +2521,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
     }
   }
 
-  Future<void> _handleCreateMiniRefill(
-    BuildContext context,
-    SimLine line,
-  ) async {
-    setState(() {
-      _isToggling = true;
-    });
 
-    try {
-      int frequencyDays = 90;
-      if (line.carrierId != null) {
-        final ruleAsync = await ref.read(
-          carrierRuleProvider(line.carrierId!).future,
-        );
-        if (ruleAsync != null) {
-          frequencyDays = ruleAsync.topupValidityDays;
-        }
-      }
-
-      int notifyDelay = frequencyDays;
-      if (frequencyDays == 90 || frequencyDays == 85) {
-        notifyDelay = 85;
-      } else if (frequencyDays == 30) {
-        notifyDelay = 28;
-      } else if (frequencyDays == 14) {
-        notifyDelay = 13;
-      }
-
-      final refillSchedule = ScheduledTopup(
-        id: '',
-        simLineId: line.id,
-        userId: line.userId,
-        amount: 0.0,
-        currency: 'USD',
-        frequencyDays: frequencyDays,
-        nextExecutionAt: DateTime.now().toUtc().add(
-          Duration(days: notifyDelay),
-        ),
-        isActive: true,
-        status: 'active',
-        scheduleType: 'refill_mini',
-      );
-
-      final result = await ref
-          .read(scheduledTopupControllerProvider.notifier)
-          .saveSchedule(refillSchedule);
-
-      if (result is Success<ScheduledTopup>) {
-        ref.invalidate(simLineDetailControllerProvider(line.id));
-        ref.invalidate(simLinesControllerProvider);
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(AppLocalizations.of(context)!.premiumRefillEnabled),
-              backgroundColor: AppColors.success,
-            ),
-          );
-        }
-      } else if (result is Failure<ScheduledTopup>) {
-        throw Exception(result.error.message);
-      }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              AppLocalizations.of(
-                context,
-              )!.failedToEnableAutoRefill(e.toString()),
-            ),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isToggling = false;
-        });
-      }
-    }
-  }
 
   void _showDeleteScheduleConfirmation(
     BuildContext context,

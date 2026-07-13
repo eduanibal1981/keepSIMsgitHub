@@ -1449,4 +1449,39 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get systemUpdatesDesc =>
       'Actualizaciones vitales del motor, mantenimiento y anuncios de la plataforma.';
+
+  @override
+  String get rescheduleRefill => 'Reschedule Refill';
+
+  @override
+  String get resetToDefault => 'Reset to Default';
+
+  @override
+  String get confirmResetRefill =>
+      'Are you sure you want to reset the scheduled refill date to default?';
+
+  @override
+  String get refillDateUpdated => 'Scheduled refill date updated successfully';
+
+  @override
+  String failedToUpdateRefillDate(String error) {
+    return 'Failed to update scheduled refill date: $error';
+  }
+
+  @override
+  String get changeDate => 'Change Date';
+
+  @override
+  String get reset => 'Reset';
+
+  @override
+  String get refillScheduleConfig => 'Refill Schedule Config';
+
+  @override
+  String refillExecutionNum(int number) {
+    return 'Refill $number';
+  }
+
+  @override
+  String get ok => 'OK';
 }

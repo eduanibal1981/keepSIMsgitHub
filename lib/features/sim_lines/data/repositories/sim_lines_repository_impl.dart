@@ -128,78 +128,6 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
         'metadata': {'carrier_name': line.nickname ?? 'SIM'},
       });
 
-      // 2. Seed Mock Logs for testing (Successful Top-up, Failed Top-up, Health Score Update)
-      final now = DateTime.now();
-
-      // Success execution
-      await _supabase.from('topup_executions').insert({
-        'sim_line_id': createdLine.id,
-        'user_id': userId,
-        'amount': 10.00,
-        'currency': 'USD',
-        'status': 'success',
-        'reloadly_transaction_id':
-            'MOCK_TX_SUCCESS_${createdLine.id.substring(0, 4)}',
-        'executed_at': now.subtract(const Duration(days: 30)).toIso8601String(),
-        'completed_at': now
-            .subtract(const Duration(days: 30))
-            .toIso8601String(),
-      });
-
-      await _supabase.from('line_activity_log').insert({
-        'sim_line_id': createdLine.id,
-        'user_id': userId,
-        'event_type': 'topup_success',
-        'description':
-            'Mock successful auto-renewal top-up of \$10.00 completed.',
-        'metadata': {
-          'is_mock': true,
-          'amount': 10.00,
-          'transaction_id': 'MOCK_TX_SUCCESS',
-        },
-        'created_at': now.subtract(const Duration(days: 30)).toIso8601String(),
-      });
-
-      // Failure execution
-      await _supabase.from('topup_executions').insert({
-        'sim_line_id': createdLine.id,
-        'user_id': userId,
-        'amount': 15.00,
-        'currency': 'USD',
-        'status': 'failed',
-        'failure_reason': 'Insufficient wallet balance',
-        'reloadly_transaction_id':
-            'MOCK_TX_FAILED_${createdLine.id.substring(0, 4)}',
-        'executed_at': now.subtract(const Duration(days: 15)).toIso8601String(),
-        'completed_at': now
-            .subtract(const Duration(days: 15))
-            .toIso8601String(),
-      });
-
-      await _supabase.from('line_activity_log').insert({
-        'sim_line_id': createdLine.id,
-        'user_id': userId,
-        'event_type': 'topup_failed',
-        'description':
-            'Mock top-up renewal of \$15.00 failed: Insufficient wallet balance.',
-        'metadata': {
-          'is_mock': true,
-          'amount': 15.00,
-          'failure_reason': 'Insufficient wallet balance',
-        },
-        'created_at': now.subtract(const Duration(days: 15)).toIso8601String(),
-      });
-
-      // Health update activity log
-      await _supabase.from('line_activity_log').insert({
-        'sim_line_id': createdLine.id,
-        'user_id': userId,
-        'event_type': 'health_update',
-        'description':
-            'Mock health score optimized from 85 to 100 after successful auto-renewal configuration.',
-        'metadata': {'is_mock': true, 'old_score': 85, 'new_score': 100},
-        'created_at': now.subtract(const Duration(days: 5)).toIso8601String(),
-      });
 
       return createdLine;
     } on PostgrestException catch (e) {
@@ -372,6 +300,8 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
           .select()
           .eq('carrier_id', carrierId)
           .eq('rule_type', 'default')
+          .order('updated_at', ascending: false)
+          .limit(1)
           .maybeSingle();
 
       dynamic ruleData;
@@ -382,6 +312,8 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
             .select()
             .eq('carrier_id', carrierId)
             .eq('rule_type', 'prepaid')
+            .order('updated_at', ascending: false)
+            .limit(1)
             .maybeSingle();
 
         if (prepaidResponse == null) {
@@ -619,6 +551,9 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
     required double amount,
     required DateTime executionTime,
     required String executionType,
+    String? offerId,
+    int? offerValue,
+    String? scheduledTopupId,
   }) async {
     try {
       final userId = _supabase.auth.currentUser?.id;
@@ -630,11 +565,16 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
         'sim_line_id': simLineId,
         'user_id': userId,
         'amount': amount,
+        'base_cost_usd': amount,
         'currency': 'USD',
         'status': 'pending',
         'execution_type': executionType,
         'execution_time': executionTime.toIso8601String(),
         'executed_at': null,
+        'offer_id': offerId,
+        'offer_value': offerValue,
+        'payment_gateway_code': null,
+        'scheduled_topup_id': scheduledTopupId,
       });
     } on PostgrestException catch (e) {
       throw Exception('Failed to schedule topup execution: ${e.message}');

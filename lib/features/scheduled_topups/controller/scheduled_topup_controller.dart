@@ -9,7 +9,6 @@ import 'package:keep_sims/core/providers.dart';
 import 'package:keep_sims/core/result.dart';
 import 'package:keep_sims/features/wallet/controller/wallet_controller.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
-import 'package:keep_sims/features/dashboard/presentation/controller/dashboard_controller.dart';
 import '../model/scheduled_topup_model.dart';
 import '../model/topup_execution_model.dart';
 
@@ -140,6 +139,52 @@ class ScheduledTopupController extends _$ScheduledTopupController {
     final result = await repo.deleteExecution(executionId);
 
     if (result is Success<void>) {
+      ref.invalidate(topupExecutionsForLineProvider(simLineId));
+    }
+    return result;
+  }
+
+  /// Reschedules the mini refill date
+  Future<Result<void>> rescheduleMiniRefill(
+    String simLineId,
+    DateTime newDate,
+  ) async {
+    final repo = ref.read(scheduledTopupRepositoryProvider);
+    final result = await repo.rescheduleMiniRefill(
+      simLineId: simLineId,
+      newDate: newDate,
+    );
+    if (result is Success<void>) {
+      await refresh();
+      ref.invalidate(simLinesControllerProvider);
+    }
+    return result;
+  }
+
+  /// Resets the mini refill date to default
+  Future<Result<DateTime>> resetMiniRefillToDefault(String simLineId) async {
+    final repo = ref.read(scheduledTopupRepositoryProvider);
+    final result = await repo.resetMiniRefillToDefault(simLineId);
+    if (result is Success<DateTime>) {
+      await refresh();
+      ref.invalidate(simLinesControllerProvider);
+    }
+    return result;
+  }
+
+  /// Saves updated mini refill execution dates
+  Future<Result<void>> updateMiniRefillDates(
+    String simLineId,
+    Map<String, DateTime> executionDates,
+  ) async {
+    final repo = ref.read(scheduledTopupRepositoryProvider);
+    final result = await repo.updateMiniRefillDates(
+      simLineId: simLineId,
+      executionDates: executionDates,
+    );
+    if (result is Success<void>) {
+      await refresh();
+      ref.invalidate(simLinesControllerProvider);
       ref.invalidate(topupExecutionsForLineProvider(simLineId));
     }
     return result;

@@ -51,7 +51,7 @@ final class AuthControllerProvider
   AuthController create() => AuthController();
 }
 
-String _$authControllerHash() => r'c7ffa89ae4b3b8c2bbb1c3613a5b4557ecb4a91c';
+String _$authControllerHash() => r'c2890f4eca4f454a19cc46b3720e77b147a4b146';
 
 /// Provides the current auth state as an [AsyncValue<UserProfile?>].
 ///

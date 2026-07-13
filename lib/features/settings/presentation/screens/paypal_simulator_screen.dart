@@ -30,7 +30,7 @@ class PaypalSimulatorScreen extends ConsumerStatefulWidget {
 }
 
 class _PaypalSimulatorScreenState extends ConsumerState<PaypalSimulatorScreen>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   late final TabController _tabController;
   final TextEditingController _amountController = TextEditingController(
     text: '2.00',
@@ -76,6 +76,7 @@ class _PaypalSimulatorScreenState extends ConsumerState<PaypalSimulatorScreen>
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _tabController = TabController(length: 2, vsync: this);
     _amount = widget.initialAmount ?? 2.00;
     _amountController.text = _amount.toStringAsFixed(2);
@@ -85,6 +86,7 @@ class _PaypalSimulatorScreenState extends ConsumerState<PaypalSimulatorScreen>
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _amountController.removeListener(_onAmountChanged);
     _cardNumberController.removeListener(_detectCardBrand);
     _amountController.dispose();
@@ -94,6 +96,16 @@ class _PaypalSimulatorScreenState extends ConsumerState<PaypalSimulatorScreen>
     _cardHolderController.dispose();
     _tabController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      if (_status == 'AwaitingPayment' && _orderId != null && _accessToken != null) {
+        debugPrint('[PaypalSimulatorScreen] App resumed and in AwaitingPayment state. Automatically capturing payment...');
+        _captureRealPayment();
+      }
+    }
   }
 
   void _onAmountChanged() {
@@ -1145,7 +1157,7 @@ class _PaypalSimulatorScreenState extends ConsumerState<PaypalSimulatorScreen>
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text(
-          'PayPal SDK Test Tool',
+          'Wallet Deposit (PayPal Test)',
           style: AppTextStyles.headlineLarge.copyWith(
             color: context.onSurfaceColor,
             fontSize: 20,

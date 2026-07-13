@@ -225,6 +225,8 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
           'execution_type': 'refill_custom',
           'execution_time': created.nextExecutionAt.toIso8601String(),
           'scheduled_topup_id': created.id,
+          'offer_id': created.offerId,
+          'offer_value': created.offerValue,
         });
       }
 
@@ -384,6 +386,15 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
         );
       }
 
+      // Cancel any pending executions for this schedule
+      await _client
+          .from('topup_executions')
+          .delete()
+          .eq('scheduled_topup_id', id)
+          .eq('user_id', userId)
+          .eq('status', 'pending');
+
+      // Delete the schedule itself
       await _client
           .from('scheduled_topups')
           .delete()
@@ -956,6 +967,83 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
           .delete()
           .eq('id', executionId)
           .eq('user_id', userId);
+
+      return const Success(null);
+    } on PostgrestException catch (e) {
+      return Failure(AppFailure.server(message: e.message));
+    } catch (e) {
+      return Failure(AppFailure.unknown(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Result<void>> rescheduleMiniRefill({
+    required String simLineId,
+    required DateTime newDate,
+  }) async {
+    try {
+      await _client.rpc('reschedule_mini_refill', params: {
+        'p_sim_line_id': simLineId,
+        'p_new_date': newDate.toUtc().toIso8601String(),
+      });
+      return const Success(null);
+    } on PostgrestException catch (e) {
+      return Failure(AppFailure.server(message: e.message));
+    } catch (e) {
+      return Failure(AppFailure.unknown(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Result<DateTime>> resetMiniRefillToDefault(String simLineId) async {
+    try {
+      final res = await _client.rpc('reset_mini_refill_to_default', params: {
+        'p_sim_line_id': simLineId,
+      });
+      return Success(DateTime.parse(res as String));
+    } on PostgrestException catch (e) {
+      return Failure(AppFailure.server(message: e.message));
+    } catch (e) {
+      return Failure(AppFailure.unknown(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Result<void>> updateMiniRefillDates({
+    required String simLineId,
+    required Map<String, DateTime> executionDates,
+  }) async {
+    try {
+      // 1. Update each modified execution record in topup_executions
+      for (final entry in executionDates.entries) {
+        await _client
+            .from('topup_executions')
+            .update({'execution_time': entry.value.toUtc().toIso8601String()})
+            .eq('id', entry.key);
+      }
+
+      // 2. Find the earliest pending execution of type refill_mini to update the schedule's next_execution_at
+      final earliestRes = await _client
+          .from('topup_executions')
+          .select('execution_time')
+          .eq('sim_line_id', simLineId)
+          .eq('execution_type', 'refill_mini')
+          .eq('status', 'pending')
+          .order('execution_time', ascending: true)
+          .limit(1)
+          .maybeSingle();
+
+      if (earliestRes != null) {
+        final earliestDate = earliestRes['execution_time'] as String;
+        await _client
+            .from('scheduled_topups')
+            .update({
+              'next_execution_at': earliestDate,
+              'updated_at': DateTime.now().toUtc().toIso8601String(),
+            })
+            .eq('sim_line_id', simLineId)
+            .eq('schedule_type', 'refill_mini');
+      }
 
       return const Success(null);
     } on PostgrestException catch (e) {

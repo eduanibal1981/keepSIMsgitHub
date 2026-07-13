@@ -20,6 +20,7 @@ import '../../controller/scheduled_topup_controller.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
 import 'package:keep_sims/features/wallet/controller/wallet_controller.dart';
+import 'package:keep_sims/features/sim_lines/presentation/providers/api_offers_providers.dart';
 
 class ScheduledTopupSheet extends ConsumerStatefulWidget {
   final String simLineId;
@@ -47,8 +48,19 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
   bool _isSaving = false;
   bool _isDeleting = false;
 
-  final List<double> _presetAmounts = [5.0, 10.0, 15.0, 25.0, 50.0];
+  Map<String, dynamic>? _selectedOffer;
+  int? _rangeValue;
+  double _rangeFinalPriceUsd = 0.0;
+  double _rangeBaseCostUsd = 0.0;
+  double _rangeAppFee = 0.0;
+  
+  final TextEditingController _amountController = TextEditingController();
 
+  @override
+  void dispose() {
+    _amountController.dispose();
+    super.dispose();
+  }
   @override
   void initState() {
     super.initState();
@@ -62,6 +74,14 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
       _amount = widget.existingSchedule!.amount;
       _frequencyDays = widget.existingSchedule!.frequencyDays;
       _isActive = widget.existingSchedule!.isActive;
+      if (widget.existingSchedule!.offerId != null) {
+        _selectedOffer = {'offerId': widget.existingSchedule!.offerId};
+      }
+      if (widget.existingSchedule!.offerValue != null) {
+        _rangeValue = widget.existingSchedule!.offerValue;
+        // The text controller won't have the divisor to calculate the original input,
+        // but it's better than nothing.
+      }
     } else {
       _amount = 10.0;
       _frequencyDays = (!isNotifyMode && isPremium) ? 85 : 30;
@@ -482,47 +502,126 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                 ),
               ),
               const SizedBox(height: 12),
-              Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                children: _presetAmounts.map((amount) {
-                  final isSelected = _amount == amount;
-                  return InkWell(
-                    onTap: () => setState(() => _amount = amount),
-                    borderRadius: BorderRadius.circular(12),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? AppColors.primary.withValues(alpha: 0.15)
-                            : context.cardColor,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: isSelected
-                              ? AppColors.primary
-                              : context.dividerColor,
-                          width: 1.5,
-                        ),
-                      ),
-                      child: Text(
-                        '\$${amount.toStringAsFixed(0)}',
-                        style: TextStyle(
-                          color: isSelected
-                              ? context.onSurfaceColor
-                              : context.onSurfaceColor.withValues(alpha: 0.6),
-                          fontWeight: isSelected
-                              ? FontWeight.bold
-                              : FontWeight.normal,
-                          fontSize: 13,
-                        ),
-                      ),
+              if (currentLine?.countryId == null || currentLine?.carrierId == null)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 24),
+                  child: Center(
+                    child: Text(
+                      'Country or Carrier is missing for this SIM line.',
+                      style: TextStyle(color: AppColors.error),
                     ),
-                  );
-                }).toList(),
-              ),
+                  ),
+                )
+              else
+                ref.watch(apiOffersProvider(currentLine!.countryId!, currentLine.carrierId!)).when(
+                  data: (offers) {
+                    if (offers.isEmpty) {
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 24),
+                        child: Center(
+                          child: Text(
+                            'No offers available for this carrier.',
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                        ),
+                      );
+                    }
+                    
+                    final rangeOfferIdx = offers.indexWhere((o) => o['priceType'] == 'RANGE');
+                    if (rangeOfferIdx != -1) {
+                      return _buildRangeUI(offers[rangeOfferIdx]);
+                    }
+                    
+                    return ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxHeight: MediaQuery.of(context).size.height * 0.4,
+                      ),
+                      child: ListView.separated(
+                        shrinkWrap: true,
+                        itemCount: offers.length,
+                        separatorBuilder: (_, _) => const SizedBox(height: 8),
+                        itemBuilder: (context, index) {
+                          final offer = offers[index];
+                          final isSelected = _selectedOffer?['offerId'] == offer['offerId'];
+                          
+                          final baseCost = (offer['baseCostUsd'] as num).toDouble();
+                          // No gateway fee for wallet payment
+                          final appFee = baseCost * 0.05;
+                          final finalPrice = baseCost + appFee;
+
+                          final name = offer['description'] ?? offer['offerId'];
+
+                          return InkWell(
+                            onTap: () {
+                              setState(() {
+                                _selectedOffer = offer;
+                                _amount = finalPrice;
+                              });
+                            },
+                            borderRadius: BorderRadius.circular(12),
+                            child: Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: isSelected ? AppColors.primary.withValues(alpha: 0.1) : AppColors.darkCard,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: isSelected ? AppColors.primary : AppColors.darkBorder,
+                                  width: isSelected ? 2 : 1,
+                                ),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          name,
+                                          style: AppTextStyles.labelLarge.copyWith(
+                                            color: AppColors.textPrimaryDark,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                      Text(
+                                        '\$${finalPrice.toStringAsFixed(2)}',
+                                        style: AppTextStyles.titleMedium.copyWith(
+                                          color: AppColors.primaryLight,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Base: \$${baseCost.toStringAsFixed(2)} | App: \$${appFee.toStringAsFixed(2)}',
+                                    style: AppTextStyles.labelSmall.copyWith(
+                                      color: AppColors.textTertiaryDark,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    );
+                  },
+                  loading: () => const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(24.0),
+                      child: CircularProgressIndicator(color: AppColors.primary),
+                    ),
+                  ),
+                  error: (err, _) => Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text(
+                      'Failed to load offers: $err',
+                      style: const TextStyle(color: AppColors.error),
+                    ),
+                  ),
+                ),
               const SizedBox(height: 24),
             ],
 
@@ -769,6 +868,19 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
       final bool isNotifyMode = widget.configMode == 'notify';
 
       if (!isNotifyMode) {
+        if (_selectedOffer == null && _rangeValue == null) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Please select a refill package or enter a custom amount first.'),
+                backgroundColor: AppColors.error,
+              ),
+            );
+            setState(() => _isSaving = false);
+          }
+          return;
+        }
+
         final walletState = ref.read(walletControllerProvider).value;
         if (walletState != null && walletState.wallet.balance < _amount) {
           if (mounted) {
@@ -818,6 +930,8 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
         scheduleType: widget.configMode == 'refill'
             ? 'refill_custom'
             : widget.configMode,
+        offerId: _selectedOffer?['offerId']?.toString(),
+        offerValue: _selectedOffer?['priceType'] == 'RANGE' ? _rangeValue : null,
       );
 
       final result = await ref
@@ -909,5 +1023,92 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
     } finally {
       if (mounted) setState(() => _isDeleting = false);
     }
+  }
+
+  void _calculateRangeFees() {
+    if (_rangeValue != null) {
+      setState(() {
+        // Assume wallet payment for auto-refill -> 0% gateway fee
+        _rangeAppFee = _rangeBaseCostUsd * 0.05;
+        _rangeFinalPriceUsd = _rangeBaseCostUsd + _rangeAppFee;
+        _amount = _rangeFinalPriceUsd;
+      });
+    }
+  }
+
+  Widget _buildRangeUI(Map<String, dynamic> offer) {
+    if (_selectedOffer?['offerId'] != offer['offerId']) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        setState(() => _selectedOffer = offer);
+      });
+    }
+
+    final minLocal = (offer['min'] as num? ?? 800) / (offer['sendCurrencyDivisor'] as num? ?? 100);
+    final maxLocal = (offer['max'] as num? ?? 20000) / (offer['sendCurrencyDivisor'] as num? ?? 100);
+    final currency = offer['send']?['currency'] ?? 'EGP';
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Custom Amount ($currency)',
+            style: AppTextStyles.labelLarge.copyWith(color: AppColors.textPrimaryDark),
+          ),
+          const SizedBox(height: 8),
+          TextFormField(
+            controller: _amountController,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            style: const TextStyle(color: Colors.white),
+            decoration: InputDecoration(
+              hintText: 'Enter amount (Min: $minLocal, Max: $maxLocal)',
+              hintStyle: const TextStyle(color: Colors.grey),
+              filled: true,
+              fillColor: AppColors.darkCard,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: AppColors.darkBorder),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: AppColors.primary),
+              ),
+            ),
+            onChanged: (value) {
+              final doubleVal = double.tryParse(value);
+              if (doubleVal != null && doubleVal >= minLocal && doubleVal <= maxLocal) {
+                final divisor = (offer['sendCurrencyDivisor'] as num? ?? 100).toInt();
+                final fxRate = (offer['costFx'] as num? ?? 39.0).toDouble();
+
+                final intValue = (doubleVal * divisor).round();
+                final baseCostUsd = doubleVal / fxRate;
+
+                setState(() {
+                  _rangeValue = intValue;
+                  _rangeBaseCostUsd = baseCostUsd;
+                });
+                _calculateRangeFees();
+              } else {
+                setState(() {
+                  _rangeValue = null;
+                  _rangeFinalPriceUsd = 0.0;
+                  _rangeBaseCostUsd = 0.0;
+                  _rangeAppFee = 0.0;
+                });
+              }
+            },
+          ),
+          if (_rangeValue != null)
+             Padding(
+               padding: const EdgeInsets.only(top: 8),
+               child: Text(
+                 'Base: \$${_rangeBaseCostUsd.toStringAsFixed(2)} | App Fee: \$${_rangeAppFee.toStringAsFixed(2)}',
+                 style: AppTextStyles.labelSmall.copyWith(color: AppColors.textTertiaryDark)
+               ),
+             ),
+        ],
+      ),
+    );
   }
 }

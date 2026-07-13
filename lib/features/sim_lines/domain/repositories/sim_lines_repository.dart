@@ -32,6 +32,9 @@ abstract class SimLinesRepository {
     required double amount,
     required DateTime executionTime,
     required String executionType,
+    String? offerId,
+    int? offerValue,
+    String? scheduledTopupId,
   });
   Future<String?> triggerMissedCall(String phoneNumber);
   Future<bool> checkCallStatus(String callSid);

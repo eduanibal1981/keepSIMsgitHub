@@ -48,4 +48,19 @@ abstract interface class ScheduledTopupContract {
 
   /// Deletes a specific execution record (e.g. for mock log deletion).
   Future<Result<void>> deleteExecution(String executionId);
+
+  /// Reschedules the next execution date of a mini refill schedule and its earliest pending execution.
+  Future<Result<void>> rescheduleMiniRefill({
+    required String simLineId,
+    required DateTime newDate,
+  });
+
+  /// Resets the next execution date of a mini refill schedule and its earliest pending execution back to default.
+  Future<Result<DateTime>> resetMiniRefillToDefault(String simLineId);
+
+  /// Updates execution dates for a set of pending executions and syncs the schedule's next execution date.
+  Future<Result<void>> updateMiniRefillDates({
+    required String simLineId,
+    required Map<String, DateTime> executionDates,
+  });
 }

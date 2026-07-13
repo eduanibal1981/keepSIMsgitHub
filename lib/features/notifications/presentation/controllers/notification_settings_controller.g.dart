@@ -82,7 +82,7 @@ final class UserPreferencesControllerProvider
 }
 
 String _$userPreferencesControllerHash() =>
-    r'963230a94a077e2dc189abd4ffcb32d4d8f391a7';
+    r'97b2f649251865a49585948eb1c781de26f5f788';
 
 abstract class _$UserPreferencesController
     extends $AsyncNotifier<UserPreferences> {

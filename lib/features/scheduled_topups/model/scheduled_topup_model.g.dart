@@ -29,6 +29,8 @@ _ScheduledTopup _$ScheduledTopupFromJson(Map<String, dynamic> json) =>
       updatedAt: json['updated_at'] == null
           ? null
           : DateTime.parse(json['updated_at'] as String),
+      offerId: json['offer_id'] as String?,
+      offerValue: (json['offer_value'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$ScheduledTopupToJson(_ScheduledTopup instance) =>
@@ -48,4 +50,6 @@ Map<String, dynamic> _$ScheduledTopupToJson(_ScheduledTopup instance) =>
       'schedule_type': instance.scheduleType,
       'created_at': instance.createdAt?.toIso8601String(),
       'updated_at': instance.updatedAt?.toIso8601String(),
+      'offer_id': instance.offerId,
+      'offer_value': instance.offerValue,
     };
