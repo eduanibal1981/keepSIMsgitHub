@@ -15,6 +15,10 @@ _Carrier _$CarrierFromJson(Map<String, dynamic> json) => _Carrier(
   isSupported: json['is_supported'] as bool,
   fulfillmentGateway: json['fulfillment_gateway'] as String?,
   apiProvider: json['api_provider'] as String?,
+  defaultRefillAmount: json['default_refill_amount'] == null
+      ? 5.00
+      : _parseDouble(json['default_refill_amount']),
+  gatewayPhoneNumber: json['gateway_phone_number'] as String?,
 );
 
 Map<String, dynamic> _$CarrierToJson(_Carrier instance) => <String, dynamic>{
@@ -26,4 +30,6 @@ Map<String, dynamic> _$CarrierToJson(_Carrier instance) => <String, dynamic>{
   'is_supported': instance.isSupported,
   'fulfillment_gateway': instance.fulfillmentGateway,
   'api_provider': instance.apiProvider,
+  'default_refill_amount': instance.defaultRefillAmount,
+  'gateway_phone_number': instance.gatewayPhoneNumber,
 };

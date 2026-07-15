@@ -26,6 +26,7 @@ import 'package:keep_sims/features/household/presentation/controllers/household_
 import 'package:keep_sims/l10n/app_localizations.dart';
 import 'package:keep_sims/core/providers/locale_provider.dart';
 import 'package:keep_sims/features/notifications/presentation/controllers/notification_settings_controller.dart';
+import 'package:keep_sims/core/services/esim_capability_service.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -1155,6 +1156,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   // ── Quick Actions Section ───────────────────────────────────────
   Widget _buildQuickActionsSection(BuildContext context, dynamic profile) {
+    final esimCapability = ref.watch(esimCapabilityServiceProvider);
+    final bool isEsimSupported = esimCapability.maybeWhen(
+      data: (supported) => supported,
+      orElse: () => false,
+    );
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1169,13 +1176,19 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           children: [
             _buildQuickActionCard(
               context,
-              icon: Icons.wifi_off_rounded,
-              label: AppLocalizations.of(context)!.offlineRefillLabel,
-              color: Colors.deepOrangeAccent,
-              onTap: () async {
-                await HapticHelper.lightTick();
-                context.push('/settings/offline-recharge');
-              },
+              assetIcon: 'assets/images/esim.png',
+              label: 'eSIM',
+              color: const Color(0xFF6366F1),
+              enabled: isEsimSupported,
+              subtitle: isEsimSupported ? null : 'Device not supported',
+              onTap: isEsimSupported
+                  ? () async {
+                      await HapticHelper.lightTick();
+                      if (context.mounted) {
+                        context.push(AppRoutes.esim);
+                      }
+                    }
+                  : null,
             ),
             const SizedBox(width: 12),
             _buildQuickActionCard(
@@ -1514,35 +1527,68 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   Widget _buildQuickActionCard(
     BuildContext context, {
-    required IconData icon,
+    IconData? icon,
+    String? assetIcon,
     required String label,
     required Color color,
-    required VoidCallback onTap,
+    VoidCallback? onTap,
+    bool enabled = true,
+    String? subtitle,
   }) {
+    final double opacity = enabled ? 1.0 : 0.45;
+
     return Expanded(
       child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: color.withValues(alpha: 0.3)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, color: color, size: 28),
-              const SizedBox(height: 8),
-              Text(
-                label,
-                textAlign: TextAlign.center,
-                style: AppTextStyles.labelSmall.copyWith(
-                  color: context.onSurfaceColor.withValues(alpha: 0.9),
-                  fontWeight: FontWeight.w600,
+        onTap: enabled ? onTap : null,
+        child: Opacity(
+          opacity: opacity,
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 14),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: color.withValues(alpha: 0.3)),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (assetIcon != null)
+                  Image.asset(
+                    assetIcon,
+                    width: 28,
+                    height: 28,
+                    fit: BoxFit.contain,
+                  )
+                else
+                  Icon(icon, color: color, size: 28),
+                const SizedBox(height: 6),
+                Text(
+                  label,
+                  textAlign: TextAlign.center,
+                  style: AppTextStyles.labelSmall.copyWith(
+                    color: context.onSurfaceColor.withValues(alpha: 0.9),
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-              ),
-            ],
+                if (subtitle != null) ...[
+                  const SizedBox(height: 3),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: Text(
+                      subtitle,
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppColors.error,
+                        fontSize: 8,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
           ),
         ),
       ),

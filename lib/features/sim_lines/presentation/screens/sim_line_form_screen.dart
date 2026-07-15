@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
-import 'package:keep_sims/core/widgets/haptic_helper.dart';
 import 'package:keep_sims/core/utils/build_context_extension.dart';
 import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
@@ -15,6 +14,7 @@ import 'package:keep_sims/l10n/app_localizations.dart';
 import 'package:keep_sims/features/settings/presentation/screens/paypal_refill_simulator_screen.dart';
 import 'package:keep_sims/features/sim_lines/data/repositories/sim_lines_repository_impl.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
+import 'package:keep_sims/features/notifications/presentation/controllers/notification_settings_controller.dart';
 
 import '../../data/models/carrier_rule_model.dart';
 
@@ -93,6 +93,8 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
     final countries = ref.watch(supportedCountriesProvider).value ?? [];
     final user = ref.watch(authControllerProvider).value;
     final globalTier = user?.subscriptionTier ?? 'standard';
+    final notificationChannels =
+        ref.watch(notificationChannelsControllerProvider).value ?? [];
 
     final existingLinesCount = _isEdit
         ? lines.where((l) => l.id != widget.id).length
@@ -277,12 +279,6 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                     ),
                     const SizedBox(height: 24),
 
-                    // Avatar Selector
-                    _buildSectionHeader(context, 'SELECT AVATAR ICON'),
-                    const SizedBox(height: 12),
-                    _buildAvatarSelector(),
-                    const SizedBox(height: 32),
-
                     // Protection Tier Dynamic Billing Info Card
                     _buildSectionHeader(context, 'PROTECTION BILLING DETAILS'),
                     const SizedBox(height: 12),
@@ -294,6 +290,12 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                       isPremiumLoading,
                     ),
                     const SizedBox(height: 48),
+
+                    // Notification Info
+                    _buildSectionHeader(context, 'NOTIFICATION PREFERENCES'),
+                    const SizedBox(height: 12),
+                    _buildNotificationInfo(notificationChannels, _selectedTier),
+                    const SizedBox(height: 32),
 
                     // Glowing Action Save Button
                     SizedBox(
@@ -527,70 +529,114 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
     );
   }
 
-  Widget _buildAvatarSelector() {
+  Widget _buildNotificationInfo(
+    List<Map<String, dynamic>> channels,
+    String selectedTier,
+  ) {
     final isDark = context.isDarkMode;
-    final icons = ['sim_card', 'phone', 'person', 'home'];
-    IconData getIcon(String key) {
-      switch (key) {
-        case 'phone':
-          return Icons.phone_android;
-        case 'person':
-          return Icons.person;
-        case 'home':
-          return Icons.home_outlined;
-        default:
-          return Icons.sim_card;
+
+    final bool isFree =
+        selectedTier.toLowerCase() == 'basic' ||
+        selectedTier.toLowerCase() == 'free';
+
+    // Extract channel statuses
+    final whatsappConfig = channels.firstWhereOrNull(
+      (c) => c['channel_type'] == 'whatsapp',
+    );
+    final telegramConfig = channels.firstWhereOrNull(
+      (c) => c['channel_type'] == 'telegram',
+    );
+    final emailConfig = channels.firstWhereOrNull(
+      (c) => c['channel_type'] == 'email',
+    );
+
+    final whatsappPhone =
+        (whatsappConfig?['config'] as Map<String, dynamic>?)?['phone']
+            as String? ??
+        '';
+    final hasWhatsApp = whatsappPhone.isNotEmpty;
+    final hasTelegram =
+        (telegramConfig?['config'] as Map<String, dynamic>?)?['chat_id'] !=
+        null;
+    final hasEmail =
+        ((emailConfig?['config'] as Map<String, dynamic>?)?['email'] as String?)
+            ?.isNotEmpty ==
+        true;
+
+    String message;
+    if (isFree) {
+      message =
+          'Alerts via Push notifications only. '
+          'Upgrade to a paid plan to unlock WhatsApp, Telegram & Email channels.';
+    } else {
+      // Build a list of active channels
+      final List<String> activeChannels = ['Push'];
+      if (hasWhatsApp) activeChannels.add('WhatsApp ($whatsappPhone)');
+      if (hasTelegram) activeChannels.add('Telegram');
+      if (hasEmail) activeChannels.add('Email');
+
+      if (activeChannels.length == 1) {
+        // Only Push is active, nudge to configure more
+        message =
+            'Alerts via Push only. '
+            'You can also enable WhatsApp, Telegram & Email from Alert Preferences.';
+      } else {
+        message = 'Alerts via ${activeChannels.join(', ')}.';
       }
     }
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: icons.map((iconKey) {
-        final isSelected = _selectedIcon == iconKey;
-        return InkWell(
-          onTap: () {
-            setState(() {
-              _selectedIcon = iconKey;
-            });
-          },
-          borderRadius: BorderRadius.circular(16),
-          child: Container(
-            width: 64,
-            height: 64,
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkCard : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: isSelected
-                  ? (isDark ? AppColors.primary : AppColors.lightPrimary)
-                        .withValues(alpha: 0.15)
-                  : (isDark ? AppColors.darkCard : Colors.white),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: isSelected
-                    ? (isDark ? AppColors.primary : AppColors.lightPrimary)
-                    : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
-                width: 2,
-              ),
-              boxShadow: isDark
-                  ? null
-                  : [
-                      BoxShadow(
-                        color: AppColors.lightPrimary.withValues(alpha: 0.04),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
+              color: AppColors.primary.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(
-              getIcon(iconKey),
-              color: isSelected
-                  ? (isDark ? AppColors.primaryLight : AppColors.lightPrimary)
-                  : (isDark
-                        ? AppColors.textSecondaryDark
-                        : AppColors.textSecondaryLight),
+            child: const Icon(
+              Icons.notifications_active_rounded,
+              color: AppColors.primary,
               size: 28,
             ),
           ),
-        );
-      }).toList(),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  message,
+                  style: TextStyle(
+                    color: context.onSurfaceColor,
+                    fontSize: 14,
+                    height: 1.4,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Manage channels in More → Alert Preferences.',
+                  style: TextStyle(
+                    color: isDark
+                        ? AppColors.textSecondaryDark
+                        : AppColors.textSecondaryLight,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -786,7 +832,9 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                       ? null
                       : [
                           BoxShadow(
-                            color: AppColors.lightPrimary.withValues(alpha: 0.04),
+                            color: AppColors.lightPrimary.withValues(
+                              alpha: 0.04,
+                            ),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
@@ -1392,7 +1440,9 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                   border: Border.all(color: cardBorderColor, width: 2),
                   boxShadow: [
                     BoxShadow(
-                      color: accentColor.withValues(alpha: isDark ? 0.05 : 0.08),
+                      color: accentColor.withValues(
+                        alpha: isDark ? 0.05 : 0.08,
+                      ),
                       blurRadius: 15,
                       spreadRadius: 1,
                     ),
@@ -1439,7 +1489,9 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                             Text(
                               billingPeriod,
                               style: AppTextStyles.caption.copyWith(
-                                color: context.onSurfaceColor.withValues(alpha: 0.5),
+                                color: context.onSurfaceColor.withValues(
+                                  alpha: 0.5,
+                                ),
                                 fontSize: 10,
                               ),
                               textAlign: TextAlign.end,
@@ -1507,7 +1559,9 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                             Text(
                               'Loading auto-refill pricing...',
                               style: AppTextStyles.caption.copyWith(
-                                color: context.onSurfaceColor.withValues(alpha: 0.5),
+                                color: context.onSurfaceColor.withValues(
+                                  alpha: 0.5,
+                                ),
                                 fontStyle: FontStyle.italic,
                               ),
                             ),

@@ -176,7 +176,8 @@
                                                        }
                                           }
                      },
-    "offlineRefillTitle":  "Offline Refill (SMS/WA)",
+    "offlineRefillTitle":  "Offline refill",
+    "offlineRefillSubtitle":  "Trigger a top-up with no data and no credit",
     "selectTargetSimLine":  "Select Target SIM Line",
     "noRegisteredSimLines":  "No registered SIM lines found.",
     "targetSimLine":  "Target SIM Line",
@@ -208,7 +209,7 @@
                                                               }
                                                }
                           },
-    "lowBalanceWarning":  "âš ï¸ Low Balance",
+    "lowBalanceWarning":  "⚠️ Low Balance",
     "localCarrierPlanSuggestions":  "LOCAL CARRIER PLAN SUGGESTIONS",
     "noStandardUssdDialCodes":  "No standard USSD dial codes found for this carrier. You will still receive the cash refill successfully on your line.",
     "dynamicDialCodesPreview":  "Dynamic Dial Codes Preview",
@@ -236,6 +237,75 @@
                                                    }
                               },
     "retry":  "Retry",
+    "offlineRefillLinked":  "{phone} is linked",
+    "@offlineRefillLinked": {
+        "placeholders": {
+            "phone": { "type": "String" }
+        }
+    },
+    "offlineRefillWalletInfo":  "{carrier} line · Wallet balance ${balance}",
+    "@offlineRefillWalletInfo": {
+        "placeholders": {
+            "carrier": { "type": "String" },
+            "balance": { "type": "String" }
+        }
+    },
+    "offlineRefillNoFunds":  "Wallet balance too low",
+    "offlineRefillNoFundsSub":  "{phone} is linked · Balance ${balance}",
+    "@offlineRefillNoFundsSub": {
+        "placeholders": {
+            "phone": { "type": "String" },
+            "balance": { "type": "String" }
+        }
+    },
+    "offlineRefillNotLinked":  "This number isn't linked yet",
+    "offlineRefillNotLinkedSub":  "No KeepSIMs line is selected",
+    "offlineRefillFastest":  "Fastest · Free",
+    "offlineRefillNeedsFunds":  "Needs wallet funds",
+    "offlineRefillNotSetUp":  "Not set up",
+    "offlineRefillCallToTrigger":  "Call to trigger refill",
+    "offlineRefillAddFunds":  "Add funds to enable",
+    "offlineRefillLinkFirst":  "Link this number first",
+    "offlineRefillAddsToNumber":  "Adds to the number you call from",
+    "offlineRefillFinePrintReady":  "We only detect the ring. The call is never answered, so it never costs you anything — even at zero balance.",
+    "offlineRefillFinePrintNoFunds":  "Add balance to your wallet first — an offline refill still needs funds to send.",
+    "offlineRefillFinePrintUnreg":  "Offline refill only works for numbers already added under My Numbers.",
+    "offlineRefillCopied":  "Copied",
+    "offlineRefillOtherWays":  "Other ways in",
+    "offlineRefillIvrTitle":  "Pick your amount",
+    "offlineRefillIvrSubtitle":  "Choose $5, $10 or $25 by key press",
+    "offlineRefillIvrCost":  "~$0.15/call",
+    "offlineRefillSmsTitle":  "Text a code",
+    "offlineRefillSmsSubtitle":  "Send REFILL 5, REFILL 10 or REFILL 25",
+    "offlineRefillSmsCost":  "local SMS rate",
+    "offlineRefillSmsAction":  "Text \"REFILL 5\"",
+    "offlineRefillWaTitle":  "Message on WhatsApp",
+    "offlineRefillWaSubtitle":  "Works on zero-rated data plans",
+    "offlineRefillWaCost":  "free*",
+    "offlineRefillWaAction":  "Message \"REFILL\"",
+    "offlineRefillCallThisNumber":  "Call this number",
+    "offlineRefillDisclaimer":  "Every method matches the refill to the phone number that called, texted, or messaged in. Make sure that's the SIM you want topped up. *Only free where your carrier zero-rates WhatsApp data.",
+    "offlineRefillTimelineRinging":  "Ringing {number}",
+    "@offlineRefillTimelineRinging": {
+        "placeholders": {
+            "number": { "type": "String" }
+        }
+    },
+    "offlineRefillTimelineDetected":  "Missed call detected from {phone}",
+    "@offlineRefillTimelineDetected": {
+        "placeholders": {
+            "phone": { "type": "String" }
+        }
+    },
+    "offlineRefillTimelineSent":  "{amount} sent to {phone}",
+    "@offlineRefillTimelineSent": {
+        "placeholders": {
+            "amount": { "type": "String" },
+            "phone": { "type": "String" }
+        }
+    },
+    "offlineRefillJustNow":  "just now",
+    "offlineRefillSelectNumber":  "Select a number",
     "editProtectedLine":  "Edit Protected Line",
     "saveChanges":  "Save Changes",
     "activateShieldProtection":  "Activate Shield Protection",

@@ -33,6 +33,8 @@ import 'package:keep_sims/features/support/presentation/ui/support_screen.dart';
 import 'package:keep_sims/features/support/presentation/ui/create_ticket_screen.dart';
 import 'package:keep_sims/features/support/presentation/ui/faq_screen.dart';
 import 'package:keep_sims/features/support/presentation/ui/ticket_details_screen.dart';
+import 'package:keep_sims/features/esim/presentation/screens/esim_screen.dart';
+import 'package:keep_sims/features/esim/presentation/screens/esim_plans_screen.dart';
 import 'package:keep_sims/features/support/data/models/support_ticket.dart';
 
 
@@ -61,6 +63,8 @@ abstract final class AppRoutes {
   static const String simulators = '/settings/simulators';
   static const String tests = '/settings/tests';
   static const String support = '/support';
+  static const String esim = '/esim';
+  static const String esimPlans = '/esim/plans';
 }
 
 @riverpod
@@ -264,7 +268,11 @@ RouterConfig<Object> appRouter(Ref ref) {
                 name: 'settingsOfflineRecharge',
                 builder: (context, state) {
                   final simLineId = state.uri.queryParameters['simLineId'];
-                  return OfflineRefillScreen(simLineId: simLineId);
+                  final showSelector = state.uri.queryParameters['showSelector'] == 'true';
+                  return OfflineRefillScreen(
+                    simLineId: simLineId,
+                    autoShowSelector: showSelector,
+                  );
                 },
               ),
               GoRoute(
@@ -283,6 +291,18 @@ RouterConfig<Object> appRouter(Ref ref) {
             path: AppRoutes.household,
             name: 'household',
             builder: (context, state) => const HouseholdScreen(),
+          ),
+          GoRoute(
+            path: AppRoutes.esim,
+            name: 'esim',
+            builder: (context, state) => const EsimScreen(),
+            routes: [
+              GoRoute(
+                path: 'plans',
+                name: 'esimPlans',
+                builder: (context, state) => const EsimPlansScreen(),
+              ),
+            ],
           ),
           GoRoute(
             path: AppRoutes.support,

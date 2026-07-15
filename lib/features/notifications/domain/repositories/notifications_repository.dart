@@ -29,4 +29,11 @@ abstract class NotificationsRepository {
     String? simLineId,
     int delayMinutes = 0,
   });
+
+  Future<void> sendNotification({
+    required String category,
+    required String title,
+    required String body,
+    String? simLineId,
+  });
 }

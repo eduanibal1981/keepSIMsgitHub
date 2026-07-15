@@ -405,6 +405,10 @@ class AppLocalizationsBn extends AppLocalizations {
   String get offlineRefillTitle => 'অফলাইন রিফিল (SMS/WA)';
 
   @override
+  String get offlineRefillSubtitle =>
+      'Trigger a top-up with no data and no credit';
+
+  @override
   String get selectTargetSimLine => 'লক্ষ্য SIM লাইন নির্বাচন করুন';
 
   @override
@@ -534,6 +538,132 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get retry => 'আবার চেষ্টা করুন';
+
+  @override
+  String offlineRefillLinked(String phone) {
+    return '$phone is linked';
+  }
+
+  @override
+  String offlineRefillWalletInfo(String carrier, String balance) {
+    return '$carrier line · Wallet balance \$$balance';
+  }
+
+  @override
+  String get offlineRefillNoFunds => 'Wallet balance too low';
+
+  @override
+  String offlineRefillNoFundsSub(String phone, String balance) {
+    return '$phone is linked · Balance \$$balance';
+  }
+
+  @override
+  String get offlineRefillNotLinked => 'This number isn\'t linked yet';
+
+  @override
+  String get offlineRefillNotLinkedSub => 'No KeepSIMs line is selected';
+
+  @override
+  String get offlineRefillFastest => 'Fastest · Free';
+
+  @override
+  String get offlineRefillNeedsFunds => 'Needs wallet funds';
+
+  @override
+  String get offlineRefillNotSetUp => 'Not set up';
+
+  @override
+  String get offlineRefillCallToTrigger => 'Call to trigger refill';
+
+  @override
+  String get offlineRefillAddFunds => 'Add funds to enable';
+
+  @override
+  String get offlineRefillLinkFirst => 'Link this number first';
+
+  @override
+  String get offlineRefillAddsToNumber => 'Adds to the number you call from';
+
+  @override
+  String get offlineRefillFinePrintReady =>
+      'We only detect the ring. The call is never answered, so it never costs you anything — even at zero balance.';
+
+  @override
+  String get offlineRefillFinePrintNoFunds =>
+      'Add balance to your wallet first — an offline refill still needs funds to send.';
+
+  @override
+  String get offlineRefillFinePrintUnreg =>
+      'Offline refill only works for numbers already added under My Numbers.';
+
+  @override
+  String get offlineRefillCopied => 'Copied';
+
+  @override
+  String get offlineRefillOtherWays => 'Other ways in';
+
+  @override
+  String get offlineRefillIvrTitle => 'Pick your amount';
+
+  @override
+  String get offlineRefillIvrSubtitle =>
+      'Choose \$5, \$10 or \$25 by key press';
+
+  @override
+  String get offlineRefillIvrCost => '~\$0.15/call';
+
+  @override
+  String get offlineRefillSmsTitle => 'Text a code';
+
+  @override
+  String get offlineRefillSmsSubtitle =>
+      'Send REFILL 5, REFILL 10 or REFILL 25';
+
+  @override
+  String get offlineRefillSmsCost => 'local SMS rate';
+
+  @override
+  String get offlineRefillSmsAction => 'Text \"REFILL 5\"';
+
+  @override
+  String get offlineRefillWaTitle => 'Message on WhatsApp';
+
+  @override
+  String get offlineRefillWaSubtitle => 'Works on zero-rated data plans';
+
+  @override
+  String get offlineRefillWaCost => 'free*';
+
+  @override
+  String get offlineRefillWaAction => 'Message \"REFILL\"';
+
+  @override
+  String get offlineRefillCallThisNumber => 'Call this number';
+
+  @override
+  String get offlineRefillDisclaimer =>
+      'Every method matches the refill to the phone number that called, texted, or messaged in. Make sure that\'s the SIM you want topped up. *Only free where your carrier zero-rates WhatsApp data.';
+
+  @override
+  String offlineRefillTimelineRinging(String number) {
+    return 'Ringing $number';
+  }
+
+  @override
+  String offlineRefillTimelineDetected(String phone) {
+    return 'Missed call detected from $phone';
+  }
+
+  @override
+  String offlineRefillTimelineSent(String amount, String phone) {
+    return '$amount sent to $phone';
+  }
+
+  @override
+  String get offlineRefillJustNow => 'just now';
+
+  @override
+  String get offlineRefillSelectNumber => 'Select a number';
 
   @override
   String get editProtectedLine => 'সুরক্ষিত লাইন সম্পাদনা করুন';

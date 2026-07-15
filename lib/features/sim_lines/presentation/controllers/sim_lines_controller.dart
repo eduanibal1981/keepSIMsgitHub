@@ -13,6 +13,7 @@ import 'package:keep_sims/features/wallet/controller/wallet_controller.dart';
 import 'package:keep_sims/core/providers.dart';
 import 'package:keep_sims/features/scheduled_topups/model/scheduled_topup_model.dart';
 import 'package:keep_sims/core/result.dart';
+import 'package:keep_sims/features/notifications/data/repositories/notifications_repository_impl.dart';
 
 part 'sim_lines_controller.g.dart';
 
@@ -181,6 +182,20 @@ class SimLinesController extends _$SimLinesController {
 
           currentExecTime = currentExecTime.add(Duration(days: frequencyDays));
         }
+      }
+
+      // Send welcome notification
+      try {
+        final notificationsRepo = ref.read(notificationsRepositoryProvider);
+        await notificationsRepo.sendNotification(
+          category: 'system',
+          title: 'Welcome to KeepSIMs',
+          body:
+              'Your line ${added.phoneNumber} has been successfully added! We will remind you every $frequencyDays days when it is time to recharge.',
+          simLineId: added.id,
+        );
+      } catch (e) {
+        print('[addSimLine] Failed to send welcome notification: $e');
       }
 
       return [added, ...previousList];

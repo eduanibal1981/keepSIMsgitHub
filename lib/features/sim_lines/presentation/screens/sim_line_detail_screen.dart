@@ -74,11 +74,30 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
           ),
           onPressed: () => context.pop(),
         ),
-        title: Text(
-          AppLocalizations.of(context)!.protectionConsole,
-          style: AppTextStyles.headlineMedium.copyWith(
-            color: context.onSurfaceColor,
-          ),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              AppLocalizations.of(context)!.protectionConsole,
+              style: AppTextStyles.headlineMedium.copyWith(
+                color: context.onSurfaceColor,
+              ),
+            ),
+            if (simLine != null)
+              Text(
+                simLine.isHomeMode
+                    ? AppLocalizations.of(context)!.homeMode
+                    : 'Travel Mode',
+                style: AppTextStyles.caption.copyWith(
+                  color: simLine.isHomeMode
+                      ? Colors.lightBlue
+                      : AppColors.healthAmber,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                ),
+              ),
+          ],
         ),
         actions: [
           if (simLine != null && simLine.userId == user?.id)
@@ -95,19 +114,38 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                 }
               },
             ),
-          IconButton(
-            icon: Icon(
-              Icons.refresh,
-              color: isDark
-                  ? AppColors.textSecondaryDark
-                  : AppColors.textSecondaryLight,
+          if (simLine != null && !_isViewer)
+            IconButton(
+              icon: Icon(
+                Icons.wifi_off_rounded,
+                color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+              ),
+              tooltip: AppLocalizations.of(context)!.offlineRefillLabel,
+              onPressed: () async {
+                await HapticHelper.lightTick();
+                if (context.mounted) {
+                  context.push('/settings/offline-recharge?simLineId=${simLine.id}');
+                }
+              },
             ),
-            tooltip: AppLocalizations.of(context)!.refreshTooltip,
-            onPressed: () async {
-              await HapticHelper.lightTick();
-              ref.invalidate(simLineDetailControllerProvider(widget.id));
-            },
-          ),
+          if (simLine != null && !_isViewer)
+            IconButton(
+              icon: Icon(
+                simLine.isHomeMode ? Icons.flight_takeoff_rounded : Icons.home_rounded,
+                color: simLine.isHomeMode
+                    ? (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight)
+                    : AppColors.primary,
+              ),
+              tooltip: simLine.isHomeMode
+                  ? 'Switch to Travel Mode'
+                  : 'Switch to Home Mode',
+              onPressed: () async {
+                await HapticHelper.lightTick();
+                ref
+                    .read(simLinesControllerProvider.notifier)
+                    .toggleHomeMode(simLine.id, !simLine.isHomeMode);
+              },
+            ),
         ],
       ),
       body: () {
@@ -847,24 +885,19 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
           country.isoCode.toUpperCase();
     }
 
-    if (isHomeCountry && !_isViewer) {
+    if (!_isViewer) {
       activeTiles.add(
         _buildQuickActionTile(
           context: context,
-          title: line.isHomeMode
-              ? AppLocalizations.of(context)!.leaveCountry(homeCountryName)
-              : AppLocalizations.of(
-                  context,
-                )!.backToCountryMode(homeCountryName),
-          subtitle: line.isHomeMode
-              ? AppLocalizations.of(context)!.resumeProtectionLayers
-              : AppLocalizations.of(context)!.pauseWhileVisitingHome,
-          icon: Icons.home_rounded,
-          iconColor: isDark ? AppColors.primaryLight : AppColors.lightPrimary,
+          title: AppLocalizations.of(context)!.offlineRefillLabel,
+          subtitle: 'Request offline recharge',
+          icon: Icons.signal_cellular_connected_no_internet_0_bar_rounded,
+          iconColor: AppColors.healthAmber,
           onTap: () {
-            ref
-                .read(simLinesControllerProvider.notifier)
-                .toggleHomeMode(line.id, !line.isHomeMode);
+            context.pushNamed(
+              'settingsOfflineRecharge',
+              queryParameters: {'simLineId': line.id},
+            );
           },
         ),
       );

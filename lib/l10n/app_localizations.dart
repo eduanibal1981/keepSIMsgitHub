@@ -841,8 +841,14 @@ abstract class AppLocalizations {
   /// No description provided for @offlineRefillTitle.
   ///
   /// In en, this message translates to:
-  /// **'Offline Refill (SMS/WA)'**
+  /// **'Offline refill'**
   String get offlineRefillTitle;
+
+  /// No description provided for @offlineRefillSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Trigger a top-up with no data and no credit'**
+  String get offlineRefillSubtitle;
 
   /// No description provided for @selectTargetSimLine.
   ///
@@ -991,7 +997,7 @@ abstract class AppLocalizations {
   /// No description provided for @lowBalanceWarning.
   ///
   /// In en, this message translates to:
-  /// **'âš ï¸ Low Balance'**
+  /// **'⚠️ Low Balance'**
   String get lowBalanceWarning;
 
   /// No description provided for @localCarrierPlanSuggestions.
@@ -1071,6 +1077,222 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Retry'**
   String get retry;
+
+  /// No description provided for @offlineRefillLinked.
+  ///
+  /// In en, this message translates to:
+  /// **'{phone} is linked'**
+  String offlineRefillLinked(String phone);
+
+  /// No description provided for @offlineRefillWalletInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'{carrier} line · Wallet balance \${balance}'**
+  String offlineRefillWalletInfo(String carrier, String balance);
+
+  /// No description provided for @offlineRefillNoFunds.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet balance too low'**
+  String get offlineRefillNoFunds;
+
+  /// No description provided for @offlineRefillNoFundsSub.
+  ///
+  /// In en, this message translates to:
+  /// **'{phone} is linked · Balance \${balance}'**
+  String offlineRefillNoFundsSub(String phone, String balance);
+
+  /// No description provided for @offlineRefillNotLinked.
+  ///
+  /// In en, this message translates to:
+  /// **'This number isn\'t linked yet'**
+  String get offlineRefillNotLinked;
+
+  /// No description provided for @offlineRefillNotLinkedSub.
+  ///
+  /// In en, this message translates to:
+  /// **'No KeepSIMs line is selected'**
+  String get offlineRefillNotLinkedSub;
+
+  /// No description provided for @offlineRefillFastest.
+  ///
+  /// In en, this message translates to:
+  /// **'Fastest · Free'**
+  String get offlineRefillFastest;
+
+  /// No description provided for @offlineRefillNeedsFunds.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs wallet funds'**
+  String get offlineRefillNeedsFunds;
+
+  /// No description provided for @offlineRefillNotSetUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set up'**
+  String get offlineRefillNotSetUp;
+
+  /// No description provided for @offlineRefillCallToTrigger.
+  ///
+  /// In en, this message translates to:
+  /// **'Call to trigger refill'**
+  String get offlineRefillCallToTrigger;
+
+  /// No description provided for @offlineRefillAddFunds.
+  ///
+  /// In en, this message translates to:
+  /// **'Add funds to enable'**
+  String get offlineRefillAddFunds;
+
+  /// No description provided for @offlineRefillLinkFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Link this number first'**
+  String get offlineRefillLinkFirst;
+
+  /// No description provided for @offlineRefillAddsToNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Adds to the number you call from'**
+  String get offlineRefillAddsToNumber;
+
+  /// No description provided for @offlineRefillFinePrintReady.
+  ///
+  /// In en, this message translates to:
+  /// **'We only detect the ring. The call is never answered, so it never costs you anything — even at zero balance.'**
+  String get offlineRefillFinePrintReady;
+
+  /// No description provided for @offlineRefillFinePrintNoFunds.
+  ///
+  /// In en, this message translates to:
+  /// **'Add balance to your wallet first — an offline refill still needs funds to send.'**
+  String get offlineRefillFinePrintNoFunds;
+
+  /// No description provided for @offlineRefillFinePrintUnreg.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline refill only works for numbers already added under My Numbers.'**
+  String get offlineRefillFinePrintUnreg;
+
+  /// No description provided for @offlineRefillCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied'**
+  String get offlineRefillCopied;
+
+  /// No description provided for @offlineRefillOtherWays.
+  ///
+  /// In en, this message translates to:
+  /// **'Other ways in'**
+  String get offlineRefillOtherWays;
+
+  /// No description provided for @offlineRefillIvrTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick your amount'**
+  String get offlineRefillIvrTitle;
+
+  /// No description provided for @offlineRefillIvrSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose \$5, \$10 or \$25 by key press'**
+  String get offlineRefillIvrSubtitle;
+
+  /// No description provided for @offlineRefillIvrCost.
+  ///
+  /// In en, this message translates to:
+  /// **'~\$0.15/call'**
+  String get offlineRefillIvrCost;
+
+  /// No description provided for @offlineRefillSmsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Text a code'**
+  String get offlineRefillSmsTitle;
+
+  /// No description provided for @offlineRefillSmsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Send REFILL 5, REFILL 10 or REFILL 25'**
+  String get offlineRefillSmsSubtitle;
+
+  /// No description provided for @offlineRefillSmsCost.
+  ///
+  /// In en, this message translates to:
+  /// **'local SMS rate'**
+  String get offlineRefillSmsCost;
+
+  /// No description provided for @offlineRefillSmsAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Text \"REFILL 5\"'**
+  String get offlineRefillSmsAction;
+
+  /// No description provided for @offlineRefillWaTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Message on WhatsApp'**
+  String get offlineRefillWaTitle;
+
+  /// No description provided for @offlineRefillWaSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Works on zero-rated data plans'**
+  String get offlineRefillWaSubtitle;
+
+  /// No description provided for @offlineRefillWaCost.
+  ///
+  /// In en, this message translates to:
+  /// **'free*'**
+  String get offlineRefillWaCost;
+
+  /// No description provided for @offlineRefillWaAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Message \"REFILL\"'**
+  String get offlineRefillWaAction;
+
+  /// No description provided for @offlineRefillCallThisNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Call this number'**
+  String get offlineRefillCallThisNumber;
+
+  /// No description provided for @offlineRefillDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'Every method matches the refill to the phone number that called, texted, or messaged in. Make sure that\'s the SIM you want topped up. *Only free where your carrier zero-rates WhatsApp data.'**
+  String get offlineRefillDisclaimer;
+
+  /// No description provided for @offlineRefillTimelineRinging.
+  ///
+  /// In en, this message translates to:
+  /// **'Ringing {number}'**
+  String offlineRefillTimelineRinging(String number);
+
+  /// No description provided for @offlineRefillTimelineDetected.
+  ///
+  /// In en, this message translates to:
+  /// **'Missed call detected from {phone}'**
+  String offlineRefillTimelineDetected(String phone);
+
+  /// No description provided for @offlineRefillTimelineSent.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} sent to {phone}'**
+  String offlineRefillTimelineSent(String amount, String phone);
+
+  /// No description provided for @offlineRefillJustNow.
+  ///
+  /// In en, this message translates to:
+  /// **'just now'**
+  String get offlineRefillJustNow;
+
+  /// No description provided for @offlineRefillSelectNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a number'**
+  String get offlineRefillSelectNumber;
 
   /// No description provided for @editProtectedLine.
   ///

@@ -314,6 +314,43 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
       throw Exception('Failed to simulate notification: ${e.message}');
     }
   }
+
+  @override
+  Future<void> sendNotification({
+    required String category,
+    required String title,
+    required String body,
+    String? simLineId,
+  }) async {
+    try {
+      final channelsResp = await _supabase
+          .from('notification_channels')
+          .select('channel_type')
+          .eq('user_id', _currentUserId)
+          .eq('is_enabled', true);
+
+      final activeChannels = (channelsResp as List)
+          .map((c) => c['channel_type'] as String)
+          .toList();
+      
+      if (activeChannels.isEmpty) {
+        activeChannels.add('push'); // Fallback
+      }
+
+      await _supabase.from('notifications').insert({
+        'user_id': _currentUserId,
+        'category': category,
+        'title': title,
+        'body': body,
+        'is_read': false,
+        'action_url': simLineId != null ? '/sim_lines/$simLineId' : null,
+        'sim_line_id': simLineId,
+        'delivered_via': activeChannels,
+      });
+    } on PostgrestException catch (e) {
+      throw Exception('Failed to send notification: ${e.message}');
+    }
+  }
 }
 
 @riverpod
