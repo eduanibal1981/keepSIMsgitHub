@@ -8,6 +8,7 @@ import 'package:intl/intl.dart' hide TextDirection;
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
+import 'package:keep_sims/features/sim_lines/domain/sim_line_health.dart';
 import 'package:keep_sims/features/sim_lines/data/models/country_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/carrier_model.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
@@ -75,19 +76,16 @@ class SimLineCard extends ConsumerWidget {
         customSchedule != null && customSchedule.isActive;
 
     // ── Health / glow ────────────────────────────────────────────
-    final bool isVerified = line.status == 'active';
-    final bool recentRefill =
-        line.lastTopupAt != null &&
-        DateTime.now().difference(line.lastTopupAt!).inDays <= 80;
-    final bool hasProtection = isPremium ? isMiniActive : isNotifyActive;
+    // Custom refill schedules count as protection, matching the dashboard
+    // card and the DB's calculate_health_score.
+    final bool hasProtection = isPremium
+        ? (isMiniActive || isCustomActive)
+        : isNotifyActive;
 
-    final int computedHealthScore = line.isHomeMode
-        ? 100
-        : (!isPremium
-              ? (hasProtection ? 100 : 0)
-              : ((hasProtection ? 50 : 0) +
-                    (isVerified ? 25 : 0) +
-                    (recentRefill ? 25 : 0)));
+    final int computedHealthScore = line.displayHealthScore(
+      isPremium: isPremium,
+      hasProtectionActive: hasProtection,
+    );
 
     Color glowColor = AppColors.healthGreen;
     if (isSelected) {

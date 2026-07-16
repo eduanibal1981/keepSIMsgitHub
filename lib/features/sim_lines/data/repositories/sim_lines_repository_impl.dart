@@ -512,6 +512,7 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
       await _supabase.from('topup_executions').insert({
         'sim_line_id': simLineId,
         'user_id': userId,
+        'amount': baseCostUsd,
         'base_cost_usd': baseCostUsd,
         'payment_gateway_code': paymentGatewayCode,
         'currency': 'USD',

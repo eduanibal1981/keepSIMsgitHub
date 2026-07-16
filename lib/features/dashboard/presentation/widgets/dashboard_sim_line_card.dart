@@ -10,6 +10,7 @@ import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import 'package:keep_sims/features/scheduled_topups/controller/scheduled_topup_controller.dart';
 import 'package:keep_sims/features/scheduled_topups/ui/widgets/scheduled_topup_sheet.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
+import 'package:keep_sims/features/sim_lines/domain/sim_line_health.dart';
 import 'package:keep_sims/l10n/app_localizations.dart';
 
 import '../../../sim_lines/presentation/controllers/sim_lines_controller.dart';
@@ -41,18 +42,10 @@ class DashboardSimLineCard extends ConsumerWidget {
 
     bool hasProtectionActive = isPremium ? isRefillActive : isNotifyActive;
 
-    bool isVerified = line.status == 'active';
-    bool recentRefill =
-        line.lastTopupAt != null &&
-        DateTime.now().difference(line.lastTopupAt!).inDays <= 80;
-
-    int computedHealthScore = line.isHomeMode
-        ? 100
-        : (!isPremium
-              ? (hasProtectionActive ? 100 : 0)
-              : ((hasProtectionActive ? 50 : 0) +
-                    (isVerified ? 25 : 0) +
-                    (recentRefill ? 25 : 0)));
+    final int computedHealthScore = line.displayHealthScore(
+      isPremium: isPremium,
+      hasProtectionActive: hasProtectionActive,
+    );
 
     Color glowColor = AppColors.healthGreen;
     if (line.isHomeMode) {

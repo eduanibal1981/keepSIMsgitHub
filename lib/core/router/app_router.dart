@@ -3,6 +3,7 @@
 /// Centralized routing with auth-based redirects.
 library;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -275,17 +276,16 @@ RouterConfig<Object> appRouter(Ref ref) {
                   );
                 },
               ),
-              GoRoute(
-                path: 'simulators',
-                name: 'settingsSimulators',
-                builder: (context, state) => const AlertSimulatorScreen(),
-              // ),
-              // GoRoute(
-              //   path: 'tests',
-              //   name: 'settingsTests',
-              //   builder: (context, state) => const TestListScreen(),
-              // ),
-          )],
+              // Dev-only tools: compiled out of release builds (kDebugMode
+              // is a compile-time constant, so tree shaking removes the
+              // simulator screens from the release bundle).
+              if (kDebugMode)
+                GoRoute(
+                  path: 'simulators',
+                  name: 'settingsSimulators',
+                  builder: (context, state) => const AlertSimulatorScreen(),
+                ),
+            ],
           ),
           GoRoute(
             path: AppRoutes.household,

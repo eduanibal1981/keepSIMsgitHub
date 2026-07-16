@@ -26,7 +26,7 @@ class _ManualRefillBottomSheetState
   Map<String, dynamic>? _selectedOffer;
   bool _isLoading = false;
   PaymentMethod? _selectedPaymentMethod;
-  
+
   final _amountController = TextEditingController();
   int? _rangeValue;
   double _rangeFinalPriceUsd = 0.0;
@@ -42,26 +42,30 @@ class _ManualRefillBottomSheetState
 
   Future<void> _handleRefill() async {
     if (_selectedOffer == null) return;
-    
+
     setState(() => _isLoading = true);
 
     try {
       final isRange = _selectedOffer!['isRange'] == true;
-      final baseCostUsd = isRange ? _rangeBaseCostUsd : (_selectedOffer!['baseCostUsd'] as num).toDouble();
+      final baseCostUsd = isRange
+          ? _rangeBaseCostUsd
+          : (_selectedOffer!['baseCostUsd'] as num).toDouble();
       final offerId = _selectedOffer!['offerId'] as String;
       final offerValue = isRange ? _rangeValue : null;
-      
+
       final pm = _selectedPaymentMethod;
       final paymentCode = pm?.code ?? 'wallet';
-      
-      final gatewayFee = pm != null ? (baseCostUsd * (pm.feePercentage / 100)) + pm.feeFixed : 0.0;
-      final appFee = baseCostUsd * 0.05;
+
+      final gatewayFee = pm != null
+          ? (baseCostUsd * (pm.feePercentage / 100)) + pm.feeFixed
+          : 0.0;
+      final appFee = baseCostUsd * 0.03;
       final totalAmount = baseCostUsd + gatewayFee + appFee;
 
       if (paymentCode == 'paypal') {
         if (!mounted) return;
         Navigator.of(context).pop();
-        
+
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) => PaypalRefillSimulatorScreen(
@@ -72,11 +76,21 @@ class _ManualRefillBottomSheetState
                 try {
                   await ref
                       .read(simLinesControllerProvider.notifier)
-                      .performManualRefill(widget.simLine, baseCostUsd, paymentCode, offerId: offerId, offerValue: offerValue, overrideStatus: 'routing');
+                      .performManualRefill(
+                        widget.simLine,
+                        baseCostUsd,
+                        paymentCode,
+                        offerId: offerId,
+                        offerValue: offerValue,
+                        overrideStatus: 'routing',
+                      );
                 } catch (e) {
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(e.toString()), backgroundColor: AppColors.error),
+                      SnackBar(
+                        content: Text(e.toString()),
+                        backgroundColor: AppColors.error,
+                      ),
                     );
                   }
                 }
@@ -89,11 +103,17 @@ class _ManualRefillBottomSheetState
 
       await ref
           .read(simLinesControllerProvider.notifier)
-          .performManualRefill(widget.simLine, baseCostUsd, paymentCode, offerId: offerId, offerValue: offerValue);
+          .performManualRefill(
+            widget.simLine,
+            baseCostUsd,
+            paymentCode,
+            offerId: offerId,
+            offerValue: offerValue,
+          );
 
       if (!mounted) return;
       Navigator.of(context).pop();
-      
+
       if (paymentCode != 'wallet') {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -127,8 +147,10 @@ class _ManualRefillBottomSheetState
   void _calculateRangeFees() {
     if (_rangeBaseCostUsd == 0) return;
     final pm = _selectedPaymentMethod;
-    final gatewayFee = pm != null ? (_rangeBaseCostUsd * (pm.feePercentage / 100)) + pm.feeFixed : 0.0;
-    final appFee = _rangeBaseCostUsd * 0.05;
+    final gatewayFee = pm != null
+        ? (_rangeBaseCostUsd * (pm.feePercentage / 100)) + pm.feeFixed
+        : 0.0;
+    final appFee = _rangeBaseCostUsd * 0.03;
     setState(() {
       _rangeGatewayFee = gatewayFee;
       _rangeAppFee = appFee;
@@ -152,341 +174,384 @@ class _ManualRefillBottomSheetState
         color: AppColors.darkSurface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Manual Refill',
-                style: AppTextStyles.headlineSmall.copyWith(
-                  color: AppColors.textPrimaryDark,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              IconButton(
-                icon: const Icon(
-                  Icons.close,
-                  color: AppColors.textSecondaryDark,
-                ),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Select an amount to instantly top-up ${widget.simLine.nickname ?? widget.simLine.phoneNumber}.',
-            style: AppTextStyles.bodyMedium.copyWith(
-              color: AppColors.textSecondaryDark,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: AppColors.darkCard,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.darkBorder, width: 1),
-            ),
-            child: Row(
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Icon(
-                  Icons.account_balance_wallet_outlined,
-                  color: AppColors.primary,
-                  size: 20,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Wallet Balance',
-                        style: AppTextStyles.labelSmall.copyWith(
-                          color: AppColors.textTertiaryDark,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      walletState.when(
-                        data: (state) => Text(
-                          '\$${state.wallet.balance.toStringAsFixed(2)}',
-                          style: AppTextStyles.bodyLarge.copyWith(
-                            color: AppColors.textPrimaryDark,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        loading: () => const SizedBox(
-                          height: 16,
-                          width: 16,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 1.5,
-                            valueColor: AlwaysStoppedAnimation(
-                              AppColors.primary,
-                            ),
-                          ),
-                        ),
-                        error: (error, stack) => Text(
-                          '--',
-                          style: AppTextStyles.bodyLarge.copyWith(
-                            color: AppColors.error,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
+                Text(
+                  'Manual Refill',
+                  style: AppTextStyles.headlineSmall.copyWith(
+                    color: AppColors.textPrimaryDark,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-                TextButton.icon(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    context.push(AppRoutes.wallet);
-                  },
+                IconButton(
                   icon: const Icon(
-                    Icons.open_in_new,
-                    size: 14,
-                    color: AppColors.primary,
+                    Icons.close,
+                    color: AppColors.textSecondaryDark,
                   ),
-                  label: Text(
-                    'Open',
-                    style: AppTextStyles.labelMedium.copyWith(
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
+                  onPressed: () => Navigator.of(context).pop(),
                 ),
               ],
             ),
-          ),
-          const SizedBox(height: 16),
-          paymentMethodsAsync.when(
-            data: (methods) {
-              if (methods.isEmpty) return const SizedBox.shrink();
-              
-              if (_selectedPaymentMethod == null) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  setState(() => _selectedPaymentMethod = methods.first);
-                  if (_rangeValue != null) _calculateRangeFees();
-                });
-              }
-
-              return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppColors.darkCard,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.darkBorder),
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<PaymentMethod>(
-                    value: _selectedPaymentMethod,
-                    isExpanded: true,
-                    dropdownColor: AppColors.darkCard,
-                    icon: const Icon(Icons.arrow_drop_down, color: AppColors.primary),
-                    items: methods.map((pm) {
-                      return DropdownMenuItem(
-                        value: pm,
-                        child: Row(
-                          children: [
-                            Icon(
-                              pm.code == 'wallet' ? Icons.account_balance_wallet : Icons.credit_card,
-                              color: AppColors.primary,
-                              size: 20,
-                            ),
-                            const SizedBox(width: 12),
-                            Text(
-                              pm.name,
-                              style: const TextStyle(color: Colors.white, fontSize: 14),
-                            ),
-                          ],
-                        ),
-                      );
-                    }).toList(),
-                    onChanged: (val) {
-                      if (val != null) {
-                        setState(() => _selectedPaymentMethod = val);
-                        if (_rangeValue != null) _calculateRangeFees();
-                      }
-                    },
-                  ),
-                ),
-              );
-            },
-            loading: () => const SizedBox.shrink(),
-            error: (_, _) => const SizedBox.shrink(),
-          ),
-          const SizedBox(height: 24),
-          Text(
-            'Select Refill Package',
-            style: AppTextStyles.labelLarge.copyWith(
-              color: AppColors.textPrimaryDark,
-            ),
-          ),
-          const SizedBox(height: 12),
-          if (widget.simLine.countryId == null || widget.simLine.carrierId == null)
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 24),
-              child: Center(
-                child: Text(
-                  'Country or Carrier is missing for this SIM line.',
-                  style: TextStyle(color: AppColors.error),
-                ),
+            const SizedBox(height: 8),
+            Text(
+              'Select an amount to instantly top-up ${widget.simLine.nickname ?? widget.simLine.phoneNumber}.',
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.textSecondaryDark,
               ),
-            )
-          else
-            ref.watch(apiOffersProvider(widget.simLine.countryId!, widget.simLine.carrierId!)).when(
-              data: (offers) {
-                if (offers.isEmpty) {
-                  return const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 24),
-                    child: Center(
-                      child: Text(
-                        'No offers available for this carrier.',
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                    ),
-                  );
-                }
-                
-                final rangeOfferIdx = offers.indexWhere((o) => o['priceType'] == 'RANGE');
-                if (rangeOfferIdx != -1) {
-                  return _buildRangeUI(offers[rangeOfferIdx]);
-                }
-                
-                return ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxHeight: MediaQuery.of(context).size.height * 0.4,
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: AppColors.darkCard,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.darkBorder, width: 1),
+              ),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.account_balance_wallet_outlined,
+                    color: AppColors.primary,
+                    size: 20,
                   ),
-                  child: ListView.separated(
-                    shrinkWrap: true,
-                    itemCount: offers.length,
-                    separatorBuilder: (_, _) => const SizedBox(height: 8),
-                    itemBuilder: (context, index) {
-                      final offer = offers[index];
-                      final isSelected = _selectedOffer?['offerId'] == offer['offerId'];
-                      
-                      final baseCost = (offer['baseCostUsd'] as num).toDouble();
-                      final pm = _selectedPaymentMethod;
-                      final gatewayFee = pm != null ? (baseCost * (pm.feePercentage / 100)) + pm.feeFixed : 0.0;
-                      final appFee = baseCost * 0.05;
-                      final finalPrice = baseCost + gatewayFee + appFee;
-
-                      final name = offer['description'] ?? offer['offerId'];
-
-                      return InkWell(
-                        onTap: () {
-                          setState(() => _selectedOffer = offer);
-                        },
-                        borderRadius: BorderRadius.circular(12),
-                        child: Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: isSelected ? AppColors.primary.withValues(alpha: 0.1) : AppColors.darkCard,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: isSelected ? AppColors.primary : AppColors.darkBorder,
-                              width: isSelected ? 2 : 1,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Wallet Balance',
+                          style: AppTextStyles.labelSmall.copyWith(
+                            color: AppColors.textTertiaryDark,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        walletState.when(
+                          data: (state) => Text(
+                            '\$${state.wallet.balance.toStringAsFixed(2)}',
+                            style: AppTextStyles.bodyLarge.copyWith(
+                              color: AppColors.textPrimaryDark,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      name,
-                                      style: AppTextStyles.labelLarge.copyWith(
-                                        color: AppColors.textPrimaryDark,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                  Text(
-                                    '\$${finalPrice.toStringAsFixed(2)}',
-                                    style: AppTextStyles.titleMedium.copyWith(
-                                      color: AppColors.primaryLight,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
+                          loading: () => const SizedBox(
+                            height: 16,
+                            width: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 1.5,
+                              valueColor: AlwaysStoppedAnimation(
+                                AppColors.primary,
                               ),
-                              const SizedBox(height: 8),
+                            ),
+                          ),
+                          error: (error, stack) => Text(
+                            '--',
+                            style: AppTextStyles.bodyLarge.copyWith(
+                              color: AppColors.error,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  TextButton.icon(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      context.push(AppRoutes.wallet);
+                    },
+                    icon: const Icon(
+                      Icons.open_in_new,
+                      size: 14,
+                      color: AppColors.primary,
+                    ),
+                    label: Text(
+                      'Open',
+                      style: AppTextStyles.labelMedium.copyWith(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            paymentMethodsAsync.when(
+              data: (methods) {
+                if (methods.isEmpty) return const SizedBox.shrink();
+
+                if (_selectedPaymentMethod == null) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    setState(() => _selectedPaymentMethod = methods.first);
+                    if (_rangeValue != null) _calculateRangeFees();
+                  });
+                }
+
+                return Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.darkCard,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.darkBorder),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<PaymentMethod>(
+                      value: _selectedPaymentMethod,
+                      isExpanded: true,
+                      dropdownColor: AppColors.darkCard,
+                      icon: const Icon(
+                        Icons.arrow_drop_down,
+                        color: AppColors.primary,
+                      ),
+                      items: methods.map((pm) {
+                        return DropdownMenuItem(
+                          value: pm,
+                          child: Row(
+                            children: [
+                              Icon(
+                                pm.code == 'wallet'
+                                    ? Icons.account_balance_wallet
+                                    : Icons.credit_card,
+                                color: AppColors.primary,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 12),
                               Text(
-                                'Base: \$${baseCost.toStringAsFixed(2)} | Fees: \$${gatewayFee.toStringAsFixed(2)} | App: \$${appFee.toStringAsFixed(2)}',
-                                style: AppTextStyles.labelSmall.copyWith(
-                                  color: AppColors.textTertiaryDark,
+                                pm.name,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
                                 ),
                               ),
                             ],
                           ),
-                        ),
-                      );
-                    },
+                        );
+                      }).toList(),
+                      onChanged: (val) {
+                        if (val != null) {
+                          setState(() => _selectedPaymentMethod = val);
+                          if (_rangeValue != null) _calculateRangeFees();
+                        }
+                      },
+                    ),
                   ),
                 );
               },
-              loading: () => const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(24.0),
-                  child: CircularProgressIndicator(),
-                ),
-              ),
-              error: (err, _) => Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Text(
-                  'Failed to load offers: $err',
-                  style: const TextStyle(color: AppColors.error),
-                ),
+              loading: () => const SizedBox.shrink(),
+              error: (_, _) => const SizedBox.shrink(),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Select Refill Package',
+              style: AppTextStyles.labelLarge.copyWith(
+                color: AppColors.textPrimaryDark,
               ),
             ),
-          const SizedBox(height: 32),
-          ElevatedButton(
-            onPressed: (_isLoading || _selectedOffer == null || (_selectedOffer!['isRange'] == true && _rangeValue == null)) ? null : _handleRefill,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-            ),
-            child: _isLoading
-                ? const SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(
-                      color: Colors.white,
-                      strokeWidth: 2,
+            const SizedBox(height: 12),
+            if (widget.simLine.countryId == null ||
+                widget.simLine.carrierId == null)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 24),
+                child: Center(
+                  child: Text(
+                    'Country or Carrier is missing for this SIM line.',
+                    style: TextStyle(color: AppColors.error),
+                  ),
+                ),
+              )
+            else
+              ref
+                  .watch(
+                    apiOffersProvider(
+                      widget.simLine.countryId!,
+                      widget.simLine.carrierId!,
                     ),
                   )
-                : Text(
-                    _selectedOffer == null
-                        ? 'Select a Package'
-                        : (_selectedOffer!['isRange'] == true)
-                            ? (_rangeValue == null ? 'Enter valid amount' : 'Confirm \$${_rangeFinalPriceUsd.toStringAsFixed(2)} Refill')
-                            : 'Confirm \$${((_selectedOffer!['baseCostUsd'] as num).toDouble() + 
-                                    (_selectedPaymentMethod != null ? ((_selectedOffer!['baseCostUsd'] as num).toDouble() * (_selectedPaymentMethod!.feePercentage / 100)) + _selectedPaymentMethod!.feeFixed : 0.0) +
-                                    ((_selectedOffer!['baseCostUsd'] as num).toDouble() * 0.05)).toStringAsFixed(2)} Refill',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                  .when(
+                    data: (offers) {
+                      if (offers.isEmpty) {
+                        return const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 24),
+                          child: Center(
+                            child: Text(
+                              'No offers available for this carrier.',
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                          ),
+                        );
+                      }
+
+                      final rangeOfferIdx = offers.indexWhere(
+                        (o) => o['priceType'] == 'RANGE',
+                      );
+                      if (rangeOfferIdx != -1) {
+                        return _buildRangeUI(offers[rangeOfferIdx]);
+                      }
+
+                      return ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxHeight: MediaQuery.of(context).size.height * 0.4,
+                        ),
+                        child: ListView.separated(
+                          shrinkWrap: true,
+                          itemCount: offers.length,
+                          separatorBuilder: (_, _) => const SizedBox(height: 8),
+                          itemBuilder: (context, index) {
+                            final offer = offers[index];
+                            final isSelected =
+                                _selectedOffer?['offerId'] == offer['offerId'];
+
+                            final baseCost = (offer['baseCostUsd'] as num)
+                                .toDouble();
+                            final pm = _selectedPaymentMethod;
+                            final gatewayFee = pm != null
+                                ? (baseCost * (pm.feePercentage / 100)) +
+                                      pm.feeFixed
+                                : 0.0;
+                            final appFee = baseCost * 0.03;
+                            final finalPrice = baseCost + gatewayFee + appFee;
+
+                            final name =
+                                offer['description'] ?? offer['offerId'];
+
+                            return InkWell(
+                              onTap: () {
+                                setState(() => _selectedOffer = offer);
+                              },
+                              borderRadius: BorderRadius.circular(12),
+                              child: Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: isSelected
+                                      ? AppColors.primary.withValues(alpha: 0.1)
+                                      : AppColors.darkCard,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: isSelected
+                                        ? AppColors.primary
+                                        : AppColors.darkBorder,
+                                    width: isSelected ? 2 : 1,
+                                  ),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            name,
+                                            style: AppTextStyles.labelLarge
+                                                .copyWith(
+                                                  color:
+                                                      AppColors.textPrimaryDark,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                          ),
+                                        ),
+                                        Text(
+                                          '\$${finalPrice.toStringAsFixed(2)}',
+                                          style: AppTextStyles.titleMedium
+                                              .copyWith(
+                                                color: AppColors.primaryLight,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      'Base: \$${baseCost.toStringAsFixed(2)} | Fees: \$${gatewayFee.toStringAsFixed(2)} | App: \$${appFee.toStringAsFixed(2)}',
+                                      style: AppTextStyles.labelSmall.copyWith(
+                                        color: AppColors.textTertiaryDark,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      );
+                    },
+                    loading: () => const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(24.0),
+                        child: CircularProgressIndicator(),
+                      ),
+                    ),
+                    error: (err, _) => Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text(
+                        'Failed to load offers: $err',
+                        style: const TextStyle(color: AppColors.error),
+                      ),
                     ),
                   ),
-          ),
-        ],
+            const SizedBox(height: 32),
+            ElevatedButton(
+              onPressed:
+                  (_isLoading ||
+                      _selectedOffer == null ||
+                      (_selectedOffer!['isRange'] == true &&
+                          _rangeValue == null))
+                  ? null
+                  : _handleRefill,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+              child: _isLoading
+                  ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    )
+                  : Text(
+                      _selectedOffer == null
+                          ? 'Select a Package'
+                          : (_selectedOffer!['isRange'] == true)
+                          ? (_rangeValue == null
+                                ? 'Enter valid amount'
+                                : 'Confirm \$${_rangeFinalPriceUsd.toStringAsFixed(2)} Refill')
+                          : 'Confirm \$${((_selectedOffer!['baseCostUsd'] as num).toDouble() + (_selectedPaymentMethod != null ? ((_selectedOffer!['baseCostUsd'] as num).toDouble() * (_selectedPaymentMethod!.feePercentage / 100)) + _selectedPaymentMethod!.feeFixed : 0.0) + ((_selectedOffer!['baseCostUsd'] as num).toDouble() * 0.03)).toStringAsFixed(2)} Refill',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -499,10 +564,14 @@ class _ManualRefillBottomSheetState
       });
     }
 
-    final minLocal = (offer['min'] as num? ?? 800) / (offer['sendCurrencyDivisor'] as num? ?? 100);
-    final maxLocal = (offer['max'] as num? ?? 20000) / (offer['sendCurrencyDivisor'] as num? ?? 100);
+    final minLocal =
+        (offer['min'] as num? ?? 800) /
+        (offer['sendCurrencyDivisor'] as num? ?? 100);
+    final maxLocal =
+        (offer['max'] as num? ?? 20000) /
+        (offer['sendCurrencyDivisor'] as num? ?? 100);
     final currency = offer['send']?['currency'] ?? 'EGP';
-    
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Column(
@@ -510,7 +579,9 @@ class _ManualRefillBottomSheetState
         children: [
           Text(
             'Custom Amount ($currency)',
-            style: AppTextStyles.labelLarge.copyWith(color: AppColors.textPrimaryDark),
+            style: AppTextStyles.labelLarge.copyWith(
+              color: AppColors.textPrimaryDark,
+            ),
           ),
           const SizedBox(height: 8),
           TextFormField(
@@ -533,13 +604,16 @@ class _ManualRefillBottomSheetState
             ),
             onChanged: (value) {
               final doubleVal = double.tryParse(value);
-              if (doubleVal != null && doubleVal >= minLocal && doubleVal <= maxLocal) {
-                final divisor = (offer['sendCurrencyDivisor'] as num? ?? 100).toInt();
+              if (doubleVal != null &&
+                  doubleVal >= minLocal &&
+                  doubleVal <= maxLocal) {
+                final divisor = (offer['sendCurrencyDivisor'] as num? ?? 100)
+                    .toInt();
                 final fxRate = (offer['costFx'] as num? ?? 39.0).toDouble();
-                
+
                 final intValue = (doubleVal * divisor).round();
                 final baseCostUsd = doubleVal / fxRate;
-                
+
                 setState(() {
                   _rangeValue = intValue;
                   _rangeBaseCostUsd = baseCostUsd;
@@ -557,13 +631,15 @@ class _ManualRefillBottomSheetState
             },
           ),
           if (_rangeValue != null)
-             Padding(
-               padding: const EdgeInsets.only(top: 8),
-               child: Text(
-                 'Base: \$${_rangeBaseCostUsd.toStringAsFixed(2)} | Gateway: \$${_rangeGatewayFee.toStringAsFixed(2)} | App Fee: \$${_rangeAppFee.toStringAsFixed(2)}', 
-                 style: AppTextStyles.labelSmall.copyWith(color: AppColors.textTertiaryDark)
-               ),
-             ),
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(
+                'Base: \$${_rangeBaseCostUsd.toStringAsFixed(2)} | Gateway: \$${_rangeGatewayFee.toStringAsFixed(2)} | App Fee: \$${_rangeAppFee.toStringAsFixed(2)}',
+                style: AppTextStyles.labelSmall.copyWith(
+                  color: AppColors.textTertiaryDark,
+                ),
+              ),
+            ),
         ],
       ),
     );

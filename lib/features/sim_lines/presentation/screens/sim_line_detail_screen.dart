@@ -9,6 +9,7 @@ import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/core/result.dart';
 import 'package:keep_sims/core/utils/build_context_extension.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
+import 'package:keep_sims/features/sim_lines/domain/sim_line_health.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_line_detail_controller.dart';
 import 'package:keep_sims/core/widgets/glass_card.dart';
@@ -178,17 +179,10 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
               : (detailState.notifySchedule != null &&
                     detailState.notifySchedule!.status == 'active');
           final isVerified = line.status == 'active';
-          final recentRefill =
-              line.lastTopupAt != null &&
-              DateTime.now().difference(line.lastTopupAt!).inDays <= 80;
-
-          final score = line.isHomeMode
-              ? 100
-              : (!isPremium
-                    ? (hasProtectionActive ? 100 : 0)
-                    : ((hasProtectionActive ? 50 : 0) +
-                          (isVerified ? 25 : 0) +
-                          (recentRefill ? 25 : 0)));
+          final score = line.displayHealthScore(
+            isPremium: isPremium,
+            hasProtectionActive: hasProtectionActive,
+          );
 
           final String tier = (user != null && user.isPowerUser)
               ? 'premium'

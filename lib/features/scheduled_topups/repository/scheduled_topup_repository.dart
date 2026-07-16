@@ -11,6 +11,7 @@ import 'package:keep_sims/core/services/connectivity_service.dart';
 import 'package:keep_sims/core/services/local_cache_service.dart';
 import 'package:keep_sims/core/services/sync_queue_service.dart';
 import '../contract/scheduled_topup_contract.dart';
+import '../domain/refill_schedule_math.dart';
 import '../model/scheduled_topup_model.dart';
 import '../model/topup_execution_model.dart';
 
@@ -442,7 +443,6 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
           .select()
           .eq('user_id', userId)
           .single();
-      final walletId = walletRes['id'] as String;
       final currentBalance = (walletRes['balance'] as num).toDouble();
 
       // 3. Check Balance
@@ -516,26 +516,27 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
         );
       }
 
-      final newBalance = currentBalance - schedule.amount;
-
-      // 4. Update Wallet Balance
-      await _client
-          .from('wallets')
-          .update({'balance': newBalance})
-          .eq('id', walletId);
-
-      // 5. Insert Wallet Transaction (debit)
-      await _client.from('wallet_transactions').insert({
-        'user_id': userId,
-        'wallet_id': walletId,
-        'amount': schedule.amount,
-        'balance_before': currentBalance,
-        'balance_after': newBalance,
-        'type': 'topup_debit',
-        'status': 'completed',
-        'description': 'Simulated Auto-Refill',
-        'sim_line_id': schedule.simLineId,
-      });
+      // 4+5. Debit wallet server-side (atomic balance update + ledger insert)
+      final debitRes = await _client.functions.invoke(
+        'wallet_transact',
+        body: {
+          'action': 'deduct',
+          'amount': schedule.amount,
+          'description': 'Simulated Auto-Refill',
+          'simLineId': schedule.simLineId,
+        },
+      );
+      final debitData = debitRes.data;
+      if (debitData is! Map<String, dynamic> || debitData['success'] != true) {
+        return Failure(
+          AppFailure.server(
+            message: debitData is Map<String, dynamic>
+                ? (debitData['errorMessage']?.toString() ??
+                      'Wallet debit failed.')
+                : 'Wallet debit failed.',
+          ),
+        );
+      }
 
       // 6. Log Execution
       final mockTxId = 'TX_${100000 + Random().nextInt(900000)}';
@@ -553,18 +554,9 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
       });
 
       // 7. Update Schedule Dates
-      int delayDays = schedule.frequencyDays;
-      if (delayDays == 90) {
-        delayDays = 85;
-      } else if (delayDays == 30)
-        delayDays = 28;
-      else if (delayDays == 14)
-        delayDays = 13;
-
-      final nextExec = DateTime.now().toUtc().add(
-        schedule.frequencyDays == 0
-            ? const Duration(hours: 1)
-            : Duration(days: delayDays),
+      final nextExec = RefillScheduleMath.nextExecutionAt(
+        DateTime.now().toUtc(),
+        schedule.frequencyDays,
       );
       await _client
           .from('scheduled_topups')
@@ -578,16 +570,14 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
           .eq('id', schedule.id);
 
       // 8. Update SIM Line validity + reset Health Score
-      final nextDue = DateTime.now().toUtc().add(
-        schedule.frequencyDays == 0
-            ? const Duration(hours: 1)
-            : Duration(days: schedule.frequencyDays),
+      final nextDue = RefillScheduleMath.nextTopupDue(
+        DateTime.now().toUtc(),
+        schedule.frequencyDays,
       );
-      final validityExpires = nextDue.add(
-        schedule.frequencyDays == 0
-            ? const Duration(hours: 1)
-            : const Duration(days: 7),
-      ); // grace buffer
+      final validityExpires = RefillScheduleMath.validityExpiresAt(
+        nextDue,
+        schedule.frequencyDays,
+      );
       await _client
           .from('sim_lines')
           .update({
@@ -785,7 +775,6 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
           .select()
           .eq('user_id', userId)
           .single();
-      final walletId = walletRes['id'] as String;
       final currentBalance = (walletRes['balance'] as num).toDouble();
 
       // 4. Check Balance
@@ -838,25 +827,27 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
         );
       }
 
-      // 5. Deduct Wallet Balance
-      final newBalance = currentBalance - failedExec.amount;
-      await _client
-          .from('wallets')
-          .update({'balance': newBalance})
-          .eq('id', walletId);
-
-      // 6. Wallet Transaction (debit)
-      await _client.from('wallet_transactions').insert({
-        'user_id': userId,
-        'wallet_id': walletId,
-        'amount': failedExec.amount,
-        'balance_before': currentBalance,
-        'balance_after': newBalance,
-        'type': 'topup_debit',
-        'status': 'completed',
-        'description': 'Simulated Top-Up Retry',
-        'sim_line_id': failedExec.simLineId,
-      });
+      // 5+6. Debit wallet server-side (atomic balance update + ledger insert)
+      final debitRes = await _client.functions.invoke(
+        'wallet_transact',
+        body: {
+          'action': 'deduct',
+          'amount': failedExec.amount,
+          'description': 'Simulated Top-Up Retry',
+          'simLineId': failedExec.simLineId,
+        },
+      );
+      final debitData = debitRes.data;
+      if (debitData is! Map<String, dynamic> || debitData['success'] != true) {
+        return Failure(
+          AppFailure.server(
+            message: debitData is Map<String, dynamic>
+                ? (debitData['errorMessage']?.toString() ??
+                      'Wallet debit failed.')
+                : 'Wallet debit failed.',
+          ),
+        );
+      }
 
       // 7. Update original execution status or link new successful retry
       final mockTxId = 'TX_RETRY_${100000 + Random().nextInt(900000)}';
@@ -884,18 +875,9 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
           .eq('id', executionId);
 
       // 8. Update Schedule Dates and reset retry count
-      int delayDays = schedule.frequencyDays;
-      if (delayDays == 90) {
-        delayDays = 85;
-      } else if (delayDays == 30)
-        delayDays = 28;
-      else if (delayDays == 14)
-        delayDays = 13;
-
-      final nextExec = DateTime.now().toUtc().add(
-        schedule.frequencyDays == 0
-            ? const Duration(hours: 1)
-            : Duration(days: delayDays),
+      final nextExec = RefillScheduleMath.nextExecutionAt(
+        DateTime.now().toUtc(),
+        schedule.frequencyDays,
       );
       await _client
           .from('scheduled_topups')
@@ -909,15 +891,13 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
           .eq('id', schedule.id);
 
       // 9. Update SIM Line
-      final nextDue = DateTime.now().toUtc().add(
-        schedule.frequencyDays == 0
-            ? const Duration(hours: 1)
-            : Duration(days: schedule.frequencyDays),
+      final nextDue = RefillScheduleMath.nextTopupDue(
+        DateTime.now().toUtc(),
+        schedule.frequencyDays,
       );
-      final validityExpires = nextDue.add(
-        schedule.frequencyDays == 0
-            ? const Duration(hours: 1)
-            : const Duration(days: 7),
+      final validityExpires = RefillScheduleMath.validityExpiresAt(
+        nextDue,
+        schedule.frequencyDays,
       );
       await _client
           .from('sim_lines')

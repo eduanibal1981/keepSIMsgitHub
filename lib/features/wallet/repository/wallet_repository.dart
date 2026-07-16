@@ -18,6 +18,22 @@ class WalletRepository implements WalletContract {
 
   WalletRepository(this._client, this._cache, this._connectivity);
 
+  /// All wallet mutations go through the `wallet_transact` Edge Function;
+  /// clients have no INSERT/UPDATE grants on wallets or wallet_transactions.
+  Future<Map<String, dynamic>> _walletTransact(
+    Map<String, dynamic> body,
+  ) async {
+    final response = await _client.functions.invoke(
+      'wallet_transact',
+      body: body,
+    );
+    final data = response.data;
+    if (data is Map<String, dynamic>) {
+      return data;
+    }
+    throw const FormatException('Unexpected response from wallet service');
+  }
+
   @override
   Future<Result<Wallet>> getWallet() async {
     if (_connectivity.isOffline) {
@@ -51,21 +67,21 @@ class WalletRepository implements WalletContract {
         await _cache.writeJson('cached_wallet', response);
         return Success(Wallet.fromJson(response));
       } on PostgrestException catch (e) {
-        // If not found (PGRST116), dynamically construct a starting wallet with $45.20 mock balance
+        // If not found (PGRST116), have the server create the starting wallet
         if (e.code == 'PGRST116') {
-          final newWalletData = {
-            'user_id': userId,
-            'balance': 45.20,
-            'currency': 'USD',
-          };
-          final insertResponse = await _client
-              .from('wallets')
-              .insert(newWalletData)
-              .select()
-              .single();
-
-          await _cache.writeJson('cached_wallet', insertResponse);
-          return Success(Wallet.fromJson(insertResponse));
+          final data = await _walletTransact({'action': 'ensure'});
+          final walletJson = data['wallet'];
+          if (data['success'] == true && walletJson is Map<String, dynamic>) {
+            await _cache.writeJson('cached_wallet', walletJson);
+            return Success(Wallet.fromJson(walletJson));
+          }
+          return Failure(
+            AppFailure.server(
+              message:
+                  data['errorMessage']?.toString() ??
+                  'Failed to create wallet.',
+            ),
+          );
         }
         return Failure(AppFailure.server(message: e.message));
       }
@@ -118,54 +134,26 @@ class WalletRepository implements WalletContract {
         return Success(dbList);
       }
 
-      // 2. If ledger is completely empty, insert initial welcome/referral transactions to match dashboard!
-      final walletResult = await getWallet();
-      if (walletResult is Success<Wallet>) {
-        final walletId = walletResult.data.id;
+      // 2. If ledger is completely empty, have the server seed the welcome
+      // transactions, then re-fetch.
+      final ensured = await _walletTransact({'action': 'ensure'});
+      if (ensured['success'] == true) {
+        final seeded = await _client
+            .from('wallet_transactions')
+            .select()
+            .eq('user_id', userId)
+            .order('created_at', ascending: false);
 
-        final welcomeTx = {
-          'user_id': userId,
-          'wallet_id': walletId,
-          'amount': 43.20,
-          'balance_before': 0.00,
-          'balance_after': 43.20,
-          'type': 'deposit',
-          'description': 'Welcome Credit',
-          'reference_id': 'welcome_bonus',
-        };
+        await _cache.writeJson('cached_wallet_transactions', seeded);
 
-        final referralTx = {
-          'user_id': userId,
-          'wallet_id': walletId,
-          'amount': 2.00,
-          'balance_before': 43.20,
-          'balance_after': 45.20,
-          'type': 'referral_credit',
-          'description': 'Referral Reward',
-          'reference_id': 'referral_bonus',
-        };
-
-        final insertResponse = await _client.from('wallet_transactions').insert(
-          [welcomeTx, referralTx],
-        ).select();
-
-        await _cache.writeJson('cached_wallet_transactions', insertResponse);
-
-        // Update the wallet balance in wallets table to 45.20 to align with transactions
-        await _client
-            .from('wallets')
-            .update({'balance': 45.20})
-            .eq('id', walletId);
-
-        final parsedList = (insertResponse as List)
-            .map(
-              (json) =>
-                  WalletTransaction.fromJson(json as Map<String, dynamic>),
-            )
-            .toList();
-
-        // Sort descending by created_at or default
-        return Success(parsedList);
+        return Success(
+          (seeded as List)
+              .map(
+                (json) =>
+                    WalletTransaction.fromJson(json as Map<String, dynamic>),
+              )
+              .toList(),
+        );
       }
 
       return const Success([]);
@@ -198,39 +186,29 @@ class WalletRepository implements WalletContract {
         );
       }
 
-      final walletResult = await getWallet();
-      if (walletResult is Failure<Wallet>) {
-        return Failure(walletResult.error);
+      // Credited server-side (atomic balance update + ledger insert).
+      final data = await _walletTransact({
+        'action': 'deposit',
+        'amount': amount,
+        'description': description ?? 'Deposit via Visa Card',
+        'referenceId': referenceId,
+      });
+
+      final walletJson = data['wallet'];
+      if (data['success'] == true && walletJson is Map<String, dynamic>) {
+        await _cache.writeJson('cached_wallet', walletJson);
+        return Success(Wallet.fromJson(walletJson));
       }
 
-      final wallet = (walletResult as Success<Wallet>).data;
-      final newBalance = wallet.balance + amount;
-
-      // 1. Insert transaction history item
-      final txData = {
-        'user_id': userId,
-        'wallet_id': wallet.id,
-        'amount': amount,
-        'balance_before': wallet.balance,
-        'balance_after': newBalance,
-        'type': 'deposit',
-        'description': description ?? 'Deposit via Visa Card',
-        'reference_id': referenceId,
-      };
-
-      await _client.from('wallet_transactions').insert(txData);
-
-      // 2. Update wallet balance
-      final updatedWalletJson = await _client
-          .from('wallets')
-          .update({'balance': newBalance})
-          .eq('id', wallet.id)
-          .select()
-          .single();
-
-      return Success(Wallet.fromJson(updatedWalletJson));
-    } on PostgrestException catch (e) {
-      return Failure(AppFailure.server(message: e.message));
+      return Failure(
+        AppFailure.server(
+          message: data['errorMessage']?.toString() ?? 'Deposit failed.',
+        ),
+      );
+    } on FunctionException catch (e) {
+      return Failure(
+        AppFailure.server(message: 'Deposit failed: ${e.reasonPhrase}'),
+      );
     } catch (e) {
       return Failure(AppFailure.unknown(message: e.toString()));
     }
@@ -259,13 +237,20 @@ class WalletRepository implements WalletContract {
         );
       }
 
-      final walletResult = await getWallet();
-      if (walletResult is Failure<Wallet>) {
-        return Failure(walletResult.error);
+      // Debited server-side (atomic balance check + update + ledger insert).
+      final data = await _walletTransact({
+        'action': 'deduct',
+        'amount': amount,
+        'description': description ?? 'Manual SIM Refill',
+      });
+
+      final walletJson = data['wallet'];
+      if (data['success'] == true && walletJson is Map<String, dynamic>) {
+        await _cache.writeJson('cached_wallet', walletJson);
+        return Success(Wallet.fromJson(walletJson));
       }
 
-      final wallet = (walletResult as Success<Wallet>).data;
-      if (wallet.balance < amount) {
+      if (data['code'] == 'insufficient_funds') {
         return const Failure(
           AppFailure.validation(
             message: 'Insufficient funds for this transaction.',
@@ -273,34 +258,15 @@ class WalletRepository implements WalletContract {
         );
       }
 
-      final newBalance = wallet.balance - amount;
-
-      // 1. Insert transaction history item
-      final txData = {
-        'user_id': userId,
-        'wallet_id': wallet.id,
-        'amount':
-            amount, // amount is positive in UI, but represents a deduction
-        'balance_before': wallet.balance,
-        'balance_after': newBalance,
-        'type': type,
-        'description': description ?? 'Manual SIM Refill',
-        'reference_id': referenceId,
-      };
-
-      await _client.from('wallet_transactions').insert(txData);
-
-      // 2. Update wallet balance
-      final updatedWalletJson = await _client
-          .from('wallets')
-          .update({'balance': newBalance})
-          .eq('id', wallet.id)
-          .select()
-          .single();
-
-      return Success(Wallet.fromJson(updatedWalletJson));
-    } on PostgrestException catch (e) {
-      return Failure(AppFailure.server(message: e.message));
+      return Failure(
+        AppFailure.server(
+          message: data['errorMessage']?.toString() ?? 'Deduction failed.',
+        ),
+      );
+    } on FunctionException catch (e) {
+      return Failure(
+        AppFailure.server(message: 'Deduction failed: ${e.reasonPhrase}'),
+      );
     } catch (e) {
       return Failure(AppFailure.unknown(message: e.toString()));
     }

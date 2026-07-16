@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -309,7 +310,7 @@ class SettingsScreen extends ConsumerWidget {
                 isComingSoon: false,
               ),
 
-              if (user != null && user.isPowerUser) ...[
+              if (kDebugMode && user != null && user.isPowerUser) ...[
                 const SizedBox(height: 16),
                 _buildMenuCard(
                   context: context,

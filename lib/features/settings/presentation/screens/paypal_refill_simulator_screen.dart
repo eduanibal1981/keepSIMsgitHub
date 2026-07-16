@@ -62,6 +62,10 @@ class _PaypalRefillSimulatorScreenState extends ConsumerState<PaypalRefillSimula
   String? _approveUrl;
   String? _errorMessage;
 
+  // The resume handler can fire more than once while a capture is still in
+  // flight; without this guard PayPal receives duplicate capture calls.
+  bool _captureInFlight = false;
+
   // Response details for payloads tab
   String? _createResponseJson;
   String? _captureResponseJson;
@@ -102,8 +106,8 @@ class _PaypalRefillSimulatorScreenState extends ConsumerState<PaypalRefillSimula
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       if (_status == 'AwaitingPayment' && _orderId != null && _accessToken != null) {
-        debugPrint('[PaypalSimulatorScreen] App resumed and in AwaitingPayment state. Automatically capturing payment...');
-        _captureRealPayment();
+        debugPrint('[PaypalSimulatorScreen] App resumed while awaiting payment. Checking order status before capture...');
+        _captureIfApproved();
       }
     }
   }
@@ -650,6 +654,66 @@ class _PaypalRefillSimulatorScreenState extends ConsumerState<PaypalRefillSimula
       setState(() {
         _isLoading = false;
       });
+    }
+  }
+
+  /// Asks PayPal for the order's current state.
+  ///
+  /// Returns null when the lookup itself fails, which callers treat as "not
+  /// ready" so a transient network error can never trigger a capture.
+  Future<String?> _fetchOrderStatus() async {
+    try {
+      final statusRes = await http.get(
+        Uri.parse(
+          'https://api-m.sandbox.paypal.com/v2/checkout/orders/$_orderId',
+        ),
+        headers: {
+          'Authorization': 'Bearer $_accessToken',
+          'Accept': 'application/json',
+        },
+      );
+
+      if (statusRes.statusCode != 200) {
+        debugPrint(
+          '[PaypalSimulatorScreen] Order lookup returned ${statusRes.statusCode}: ${statusRes.body}',
+        );
+        return null;
+      }
+
+      return jsonDecode(statusRes.body)['status'] as String?;
+    } catch (e) {
+      debugPrint('[PaypalSimulatorScreen] Order lookup failed: $e');
+      return null;
+    }
+  }
+
+  /// Captures only once PayPal confirms the payer approved the order.
+  ///
+  /// Android delivers `resumed` as soon as the external browser launches —
+  /// before the payer has approved anything. Capturing on that signal alone
+  /// makes PayPal reject the order with 422 ORDER_NOT_APPROVED.
+  Future<void> _captureIfApproved() async {
+    if (_captureInFlight) return;
+    if (_orderId == null || _accessToken == null) return;
+
+    _captureInFlight = true;
+    try {
+      final orderStatus = await _fetchOrderStatus();
+
+      if (orderStatus == 'APPROVED') {
+        await _captureRealPayment();
+      } else if (orderStatus == 'COMPLETED') {
+        debugPrint(
+          '[PaypalSimulatorScreen] Order $_orderId was already captured.',
+        );
+        if (mounted) setState(() => _status = 'Success');
+      } else {
+        debugPrint(
+          '[PaypalSimulatorScreen] Order $_orderId not ready to capture (status: $orderStatus). Staying in AwaitingPayment.',
+        );
+      }
+    } finally {
+      _captureInFlight = false;
     }
   }
 
