@@ -39,8 +39,8 @@ dependencies.
 | B | Stop client wallet writes | 🟡 app writes moved server-side (`wallet_transact` deployed); **revoke migration written but NOT applied** — gated on an end-to-end deposit test → **A1** |
 | C | Secrets out of source | 🟡 Flutter half done (`zendit_repository` → Edge Functions); VM worker secrets + rotation remain → **A2** |
 | C2 | `search_path` hardening | ✅ done (migration `harden_search_path_and_single_health_score`) |
-| D0 | Mini-refill fallback `_offset` fix | 🟡 applied, unproven; 48/49 `carrier_rules` still null `offer_id` → **B1** |
-| D | Atomic deduct/refund + ledger | 🟡 `credit_wallet_for_refund` deployed; workers still call old functions → **B2** |
+| D0 | Mini-refill fallback `_offset` fix | ✅ done as **B1** 2026-07-16 — `_offset` was a misdiagnosis; fallback rewritten (ISO-2, minor units, priceType), proven live; 7 more `offer_id` pinned, 13 carriers have no sandbox coverage (see `B1_B2_REFILL_MONEY_AUDIT.md`) |
+| D | Atomic deduct/refund + ledger | ✅ done as **B2** 2026-07-16 — workers on `debit_wallet_for_topup`/`credit_wallet_for_refund` with per-execution unique references; legacy fns dropped; `wallet_reconciliation` view added |
 | E | One health score | ✅ done (DB overload dropped, `sim_line_health.dart` extension, 3 UI sites) |
 | F | Decouple home-mode from protection | 🟠 not started → **B5** |
 | G | Backend into git | 🟠 not started → **A3** |
@@ -140,7 +140,9 @@ table-by-table RLS matrix committed as `doc/RLS_MATRIX.md`.
 
 # Phase B — Money-path correctness
 
-## 🟠 B1 — Refill engine audit: instant / mini / custom, no double charging
+## ✅ B1 — Refill engine audit: instant / mini / custom, no double charging
+
+**Done 2026-07-16 (with B2, one session). See `doc/B1_B2_REFILL_MONEY_AUDIT.md`.**
 
 Master plan Phase 1 + old D0 leftovers, in one session on the VM + DB:
 
@@ -163,7 +165,9 @@ Master plan Phase 1 + old D0 leftovers, in one session on the VM + DB:
 Acceptance: fallback refill proven on a null-`offer_id` carrier; a written
 argument (with constraints in place) why double-debit is impossible.
 
-## 🟠 B2 — Migrate workers to the atomic wallet functions, drop the old ones
+## ✅ B2 — Migrate workers to the atomic wallet functions, drop the old ones
+
+**Done 2026-07-16 (with B1). See `doc/B1_B2_REFILL_MONEY_AUDIT.md`.**
 
 Finishes old REQUEST D. `credit_wallet_for_refund` is deployed and smoke-tested;
 the VM workers still use `deduct_wallet_atomic` / `refund_wallet_atomic`, and

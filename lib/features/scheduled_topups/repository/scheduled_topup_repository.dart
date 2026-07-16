@@ -324,6 +324,8 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
             'execution_type': 'refill_custom',
             'execution_time': updated.nextExecutionAt.toIso8601String(),
             'scheduled_topup_id': updated.id,
+            'offer_id': updated.offerId,
+            'offer_value': updated.offerValue,
           });
         }
       }
