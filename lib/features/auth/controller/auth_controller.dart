@@ -12,6 +12,7 @@ import 'package:keep_sims/core/result.dart';
 import '../contract/auth_contract.dart';
 import '../model/auth_model.dart';
 import 'package:keep_sims/core/providers.dart';
+import 'package:keep_sims/features/notifications/data/repositories/device_token_repository.dart';
 
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 
@@ -50,6 +51,13 @@ class AuthController extends _$AuthController {
     final profile = await _fetchProfile(repo);
     if (profile != null) {
       OneSignal.login(profile.id);
+      // Register this device's push identifiers for the dispatcher; never block
+      // auth on it.
+      unawaited(
+        ref
+            .read(deviceTokenRepositoryProvider)
+            .registerCurrentDevice(profile.id),
+      );
     }
     return profile;
   }
@@ -153,6 +161,14 @@ class AuthController extends _$AuthController {
 
     switch (result) {
       case Success(data: final _):
+        final userId = state.value?.id;
+        if (userId != null) {
+          unawaited(
+            ref
+                .read(deviceTokenRepositoryProvider)
+                .unregisterCurrentDevice(userId),
+          );
+        }
         OneSignal.logout();
         state = const AsyncValue.data(null);
       case Failure(error: final f):
