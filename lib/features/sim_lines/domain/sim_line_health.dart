@@ -2,16 +2,19 @@ import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
 
 /// Single client-side definition of a line's display health score.
 ///
-/// Mirrors the DB's `calculate_health_score(uuid, text, timestamptz)`:
-/// active protection 50 + line active 25 + refill within 80 days 25.
-/// Free-tier lines are binary (notify schedule on/off). Home-mode forces 100
-/// until REQUEST F decouples home-mode from protection.
+/// Active protection 50 + line active 25 + refill within 80 days 25.
+/// Free-tier lines are binary (notify schedule on/off).
+///
+/// A deliberately paused line shows 100 ("nothing to worry about — you paused
+/// it"). Since B5 this keys on [SimLine.protectionPaused], not home mode: a
+/// resident's always-home line with protection running scores on its real
+/// state instead of being masked healthy while it dies.
 extension SimLineHealth on SimLine {
   int displayHealthScore({
     required bool isPremium,
     required bool hasProtectionActive,
   }) {
-    if (isHomeMode) return 100;
+    if (protectionPaused) return 100;
     if (!isPremium) return hasProtectionActive ? 100 : 0;
 
     final bool isVerified = status == 'active';

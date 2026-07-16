@@ -30,6 +30,9 @@ _SimLine _$SimLineFromJson(Map<String, dynamic> json) => _SimLine(
   protectionTier: json['protection_tier'] as String? ?? 'standard',
   isAutoDetected: json['is_auto_detected'] as bool? ?? false,
   isHomeMode: json['is_home_mode'] as bool? ?? false,
+  protectionPaused: json['protection_paused'] as bool? ?? false,
+  requiresProtectionAtHome:
+      json['requires_protection_at_home'] as bool? ?? false,
   householdId: json['household_id'] as String?,
   planType: json['plan_type'] as String? ?? 'free',
   planExpiresAt: json['plan_expires_at'] == null
@@ -61,6 +64,8 @@ Map<String, dynamic> _$SimLineToJson(_SimLine instance) => <String, dynamic>{
   'protection_tier': instance.protectionTier,
   'is_auto_detected': instance.isAutoDetected,
   'is_home_mode': instance.isHomeMode,
+  'protection_paused': instance.protectionPaused,
+  'requires_protection_at_home': instance.requiresProtectionAtHome,
   'household_id': instance.householdId,
   'plan_type': instance.planType,
   'plan_expires_at': instance.planExpiresAt?.toIso8601String(),

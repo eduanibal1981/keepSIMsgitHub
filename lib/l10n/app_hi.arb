@@ -662,6 +662,8 @@
     "protectionOffLabel": "सुरक्षा बंद",
     "notSet": "सेट नहीं है",
     "homeMode": "होम मोड",
+    "keepProtectedAtHome":  "घर पर भी सुरक्षा जारी रखें",
+    "protectionPausesAtHome":  "घर पर सुरक्षा रुक जाती है",
     "incidentChannelsTitle": "इंसिडेंट चैनल",
     "topUpSuccessTitle": "टॉप-अप सफल",
     "topUpSuccessDesc": "जब ऑटोमेटिक SIM वैलिडिटी एक्सटेंशन सफलतापूर्वक पूरा हो जाए तो मुझे सूचित करें।",

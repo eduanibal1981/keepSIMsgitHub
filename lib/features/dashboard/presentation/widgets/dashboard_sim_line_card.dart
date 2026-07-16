@@ -48,7 +48,7 @@ class DashboardSimLineCard extends ConsumerWidget {
     );
 
     Color glowColor = AppColors.healthGreen;
-    if (line.isHomeMode) {
+    if (line.protectionPaused) {
       glowColor = Colors.lightBlue;
     } else if (computedHealthScore < 30) {
       glowColor = AppColors.healthRed;

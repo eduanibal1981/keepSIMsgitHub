@@ -132,6 +132,31 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
           if (simLine != null && !_isViewer)
             IconButton(
               icon: Icon(
+                simLine.requiresProtectionAtHome
+                    ? Icons.shield_rounded
+                    : Icons.shield_outlined,
+                color: simLine.requiresProtectionAtHome
+                    ? AppColors.success
+                    : (isDark
+                          ? AppColors.textSecondaryDark
+                          : AppColors.textSecondaryLight),
+              ),
+              tooltip: simLine.requiresProtectionAtHome
+                  ? AppLocalizations.of(context)!.keepProtectedAtHome
+                  : AppLocalizations.of(context)!.protectionPausesAtHome,
+              onPressed: () async {
+                await HapticHelper.lightTick();
+                ref
+                    .read(simLinesControllerProvider.notifier)
+                    .setRequiresProtectionAtHome(
+                      simLine.id,
+                      !simLine.requiresProtectionAtHome,
+                    );
+              },
+            ),
+          if (simLine != null && !_isViewer)
+            IconButton(
+              icon: Icon(
                 simLine.isHomeMode ? Icons.flight_takeoff_rounded : Icons.home_rounded,
                 color: simLine.isHomeMode
                     ? (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight)
@@ -210,7 +235,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                         isVerified,
                         score,
                       ),
-                      if (score < 30 && !line.isHomeMode)
+                      if (score < 30 && !line.protectionPaused)
                         const SizedBox(height: 20),
 
                       // 2. Protection Layers configuration (renamed from AutoRefillSection)
@@ -373,7 +398,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
     }
 
     Color scoreColor;
-    if (line.isHomeMode) {
+    if (line.protectionPaused) {
       scoreColor = Colors.lightBlue;
     } else if (score >= 60) {
       scoreColor = AppColors.healthGreen;
@@ -662,7 +687,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
     bool isVerified,
     int score,
   ) {
-    if (score >= 30 || detail.simLine.isHomeMode) {
+    if (score >= 30 || detail.simLine.protectionPaused) {
       return const SizedBox.shrink();
     }
 
@@ -1379,7 +1404,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
     }
 
     final dateFormat = DateFormat('MMM dd, yyyy');
-    final isPausedByHome = line.isHomeMode;
+    final isPausedByHome = line.protectionPaused;
     final displayActive = schedule.isActive && !isPausedByHome;
 
     return GlassCard(
@@ -1654,7 +1679,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
 
     // Custom Auto-Refill Card
     final isConfigured = customSchedule != null;
-    final isPausedByHome = line.isHomeMode;
+    final isPausedByHome = line.protectionPaused;
     final displayActive =
         customSchedule != null && customSchedule.isActive && !isPausedByHome;
 

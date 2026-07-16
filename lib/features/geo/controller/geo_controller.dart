@@ -128,6 +128,14 @@ class GeoController extends _$GeoController {
           (c) => c.isoCode != homeCountryCode,
         ), // fallback
       );
+      // Lines flagged requiresProtectionAtHome must never be auto-frozen —
+      // a resident's dormant second SIM dies if its refills stop (B5).
+      if (line.requiresProtectionAtHome) {
+        _logs.add(
+          '🛡️ Kept protected: Line ${line.phoneNumber} (always-protected).',
+        );
+        continue;
+      }
       if (country.isoCode != homeCountryCode && line.status == 'active') {
         await ref
             .read(simLinesControllerProvider.notifier)

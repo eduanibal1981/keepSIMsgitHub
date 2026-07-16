@@ -1508,6 +1508,12 @@ class AppLocalizationsEs extends AppLocalizations {
   String get homeMode => 'Modo Hogar';
 
   @override
+  String get keepProtectedAtHome => 'Mantener protegida en casa';
+
+  @override
+  String get protectionPausesAtHome => 'La protección se pausa en casa';
+
+  @override
   String get incidentChannelsTitle => 'Canales de Incidentes';
 
   @override

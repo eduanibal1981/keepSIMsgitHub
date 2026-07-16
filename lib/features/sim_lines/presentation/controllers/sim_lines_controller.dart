@@ -371,7 +371,15 @@ class SimLinesController extends _$SimLinesController {
       final previousList = state.value ?? [];
       final line = previousList.firstWhere((l) => l.id == simLineId);
 
-      SimLine updatedLine = line.copyWith(isHomeMode: isHome);
+      // Home mode is a location fact; pausing protection is a separate intent
+      // (B5). Lines flagged requiresProtectionAtHome keep their schedules
+      // running while home — e.g. a resident's dormant second SIM.
+      final bool pauseProtection = isHome && !line.requiresProtectionAtHome;
+
+      SimLine updatedLine = line.copyWith(
+        isHomeMode: isHome,
+        protectionPaused: pauseProtection,
+      );
       if (!isHome) {
         // Returning to abroad mode: treat as recent refill
         updatedLine = updatedLine.copyWith(lastTopupAt: DateTime.now());
@@ -379,37 +387,11 @@ class SimLinesController extends _$SimLinesController {
 
       updatedLine = await repo.updateSimLine(updatedLine);
 
-      final schedules = ref.read(scheduledTopupControllerProvider).value ?? [];
-      final lineSchedules = schedules
-          .where((s) => s.simLineId == simLineId)
-          .toList();
-
-      for (final schedule in lineSchedules) {
-        if (isHome) {
-          // Pause schedule
-          await ref
-              .read(scheduledTopupControllerProvider.notifier)
-              .toggleActive(schedule.id, false);
-        } else {
-          // Resume and adjust nextExecutionAt
-          final nextDue = DateTime.now().add(
-            schedule.frequencyDays == 0
-                ? const Duration(hours: 1)
-                : Duration(days: schedule.frequencyDays),
-          );
-          final updatedSchedule = schedule.copyWith(
-            isActive: true,
-            status: 'active',
-            nextExecutionAt: nextDue,
-          );
-
-          final topupRepo = ref.read(scheduledTopupRepositoryProvider);
-          await topupRepo.updateSchedule(updatedSchedule);
-        }
-      }
-      if (lineSchedules.isNotEmpty && !isHome) {
-        ref.invalidate(scheduledTopupControllerProvider);
-      }
+      await _applyProtectionPause(
+        simLineId,
+        wasPaused: line.protectionPaused,
+        pauseNow: pauseProtection,
+      );
 
       state = AsyncData(
         previousList
@@ -418,6 +400,84 @@ class SimLinesController extends _$SimLinesController {
       );
     } catch (e, st) {
       state = AsyncError(e, st);
+    }
+  }
+
+  /// Marks a line as needing protection even while the user is home.
+  /// If the line is currently in home mode, its protection pause is
+  /// recomputed immediately (schedules resume or pause accordingly).
+  Future<void> setRequiresProtectionAtHome(
+    String simLineId,
+    bool required,
+  ) async {
+    try {
+      final repo = ref.read(simLinesRepositoryProvider);
+      final previousList = state.value ?? [];
+      final line = previousList.firstWhere((l) => l.id == simLineId);
+
+      final bool pauseProtection = line.isHomeMode && !required;
+
+      SimLine updatedLine = line.copyWith(
+        requiresProtectionAtHome: required,
+        protectionPaused: pauseProtection,
+      );
+      updatedLine = await repo.updateSimLine(updatedLine);
+
+      await _applyProtectionPause(
+        simLineId,
+        wasPaused: line.protectionPaused,
+        pauseNow: pauseProtection,
+      );
+
+      state = AsyncData(
+        previousList
+            .map((item) => item.id == simLineId ? updatedLine : item)
+            .toList(),
+      );
+    } catch (e, st) {
+      state = AsyncError(e, st);
+    }
+  }
+
+  /// Pauses or resumes the line's refill schedules when the protection pause
+  /// state actually changes (no-op otherwise).
+  Future<void> _applyProtectionPause(
+    String simLineId, {
+    required bool wasPaused,
+    required bool pauseNow,
+  }) async {
+    if (wasPaused == pauseNow) return;
+
+    final schedules = ref.read(scheduledTopupControllerProvider).value ?? [];
+    final lineSchedules = schedules
+        .where((s) => s.simLineId == simLineId)
+        .toList();
+
+    for (final schedule in lineSchedules) {
+      if (pauseNow) {
+        // Pause schedule
+        await ref
+            .read(scheduledTopupControllerProvider.notifier)
+            .toggleActive(schedule.id, false);
+      } else {
+        // Resume and adjust nextExecutionAt
+        final nextDue = DateTime.now().add(
+          schedule.frequencyDays == 0
+              ? const Duration(hours: 1)
+              : Duration(days: schedule.frequencyDays),
+        );
+        final updatedSchedule = schedule.copyWith(
+          isActive: true,
+          status: 'active',
+          nextExecutionAt: nextDue,
+        );
+
+        final topupRepo = ref.read(scheduledTopupRepositoryProvider);
+        await topupRepo.updateSchedule(updatedSchedule);
+      }
+    }
+    if (lineSchedules.isNotEmpty && !pauseNow) {
+      ref.invalidate(scheduledTopupControllerProvider);
     }
   }
 

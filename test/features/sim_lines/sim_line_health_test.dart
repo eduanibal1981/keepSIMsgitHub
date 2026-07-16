@@ -6,6 +6,8 @@ SimLine _line({
   String status = 'active',
   DateTime? lastTopupAt,
   bool isHomeMode = false,
+  bool protectionPaused = false,
+  bool requiresProtectionAtHome = false,
 }) {
   return SimLine(
     id: 'line-1',
@@ -14,6 +16,8 @@ SimLine _line({
     status: status,
     lastTopupAt: lastTopupAt,
     isHomeMode: isHomeMode,
+    protectionPaused: protectionPaused,
+    requiresProtectionAtHome: requiresProtectionAtHome,
   );
 }
 
@@ -70,14 +74,56 @@ void main() {
     });
   });
 
-  group('displayHealthScore — home mode', () {
-    // Documents current behavior; REQUEST F will decouple home-mode from
-    // protection so a dormant resident line reports true risk.
-    test('forces 100 regardless of protection', () {
-      final line = _line(status: 'expired', isHomeMode: true);
+  group('displayHealthScore — home mode vs protection (B5)', () {
+    test('a deliberately paused line shows 100 (nothing to worry about)', () {
+      final line = _line(
+        status: 'expired',
+        isHomeMode: true,
+        protectionPaused: true,
+      );
       expect(
         line.displayHealthScore(isPremium: true, hasProtectionActive: false),
         100,
+      );
+    });
+
+    test(
+      "resident's dormant line at home reports true risk, not a masked 100",
+      () {
+        // Home mode is only a location fact: with protection NOT paused
+        // (requiresProtectionAtHome), the score reflects the real state.
+        final line = _line(
+          status: 'expired',
+          lastTopupAt: null,
+          isHomeMode: true,
+          requiresProtectionAtHome: true,
+        );
+        expect(
+          line.displayHealthScore(isPremium: true, hasProtectionActive: false),
+          0,
+        );
+      },
+    );
+
+    test('protected line at home scores on its real protection state', () {
+      final line = _line(
+        lastTopupAt: DateTime.now().subtract(const Duration(days: 5)),
+        isHomeMode: true,
+        requiresProtectionAtHome: true,
+      );
+      expect(
+        line.displayHealthScore(isPremium: true, hasProtectionActive: true),
+        100,
+      );
+    });
+
+    test('home mode alone no longer masks health', () {
+      // isHomeMode true but protectionPaused false (e.g. flag flipped while
+      // requiresProtectionAtHome was set): the real score wins.
+      final line = _line(status: 'expired', isHomeMode: true);
+      expect(
+        line.displayHealthScore(isPremium: true, hasProtectionActive: false),
+        0,
       );
     });
   });

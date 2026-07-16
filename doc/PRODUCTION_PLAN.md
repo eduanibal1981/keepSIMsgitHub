@@ -185,12 +185,12 @@ read-modify-write on `balance` with a separate ledger insert (line ~143).
 
 Requires A2/A3 done (you'll be editing VM code — do it under git).
 
-## 🟡 B3 — PayPal webhook hardening + receipts
+## ✅ B3 — PayPal webhook hardening + receipts
 
-**Implemented 2026-07-16** (see `doc/B1_B2_REFILL_MONEY_AUDIT.md`, B3 section).
-Remaining: set `PAYPAL_CLIENT_ID` / `PAYPAL_CLIENT_SECRET` /
-`PAYPAL_WEBHOOK_ID` as Edge Function secrets (user), then verify one sandbox
-payment end-to-end (webhook → credit → receipt).
+**Done 2026-07-16** (see `doc/B1_B2_REFILL_MONEY_AUDIT.md`, B3 section).
+Secrets set on webhook `5FA85715EA0979031` ("KeepSIMs us" REST app); verified
+e2e: sandbox card capture `8T699212A1920500M` → webhook → $1.23 credit with
+full receipt metadata (gross/fee/net/ids).
 
 Master plan Phase 2. PayPal is sandbox and stays sandbox, but the plumbing must
 be production-shaped:
@@ -223,7 +223,15 @@ repository boundary. Priority order:
 
 Target meaningful coverage of financial logic, not a percentage.
 
-## 🟠 B5 — Decouple home-mode from protection
+## ✅ B5 — Decouple home-mode from protection
+
+**Done 2026-07-16.** `protection_paused` (intent) + `requires_protection_at_home`
+added and backfilled (`20260716040000`); all pausing/health/UI-suppression keys
+on `protection_paused`; `toggleHomeMode` computes the pause from
+`requires_protection_at_home`; new `setRequiresProtectionAtHome` + shield
+toggle in the line detail app bar (ARB strings in all 9 locales);
+`freezeAllInternationalLines()` skips always-protected lines; health tests
+cover the resident-dormant-line case.
 
 Old REQUEST F, verbatim scope. `is_home_mode` conflates "user is in this SIM's
 country" with "pause protection"; a resident's dormant second SIM is

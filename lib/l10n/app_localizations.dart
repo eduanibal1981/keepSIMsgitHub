@@ -2722,6 +2722,18 @@ abstract class AppLocalizations {
   /// **'Home Mode'**
   String get homeMode;
 
+  /// No description provided for @keepProtectedAtHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep protected at home'**
+  String get keepProtectedAtHome;
+
+  /// No description provided for @protectionPausesAtHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Protection pauses at home'**
+  String get protectionPausesAtHome;
+
   /// No description provided for @incidentChannelsTitle.
   ///
   /// In en, this message translates to:

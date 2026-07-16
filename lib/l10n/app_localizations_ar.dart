@@ -1473,6 +1473,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get homeMode => 'وضع الوطن';
 
   @override
+  String get keepProtectedAtHome => 'إبقاء الحماية مفعّلة في الوطن';
+
+  @override
+  String get protectionPausesAtHome => 'تتوقف الحماية مؤقتًا في الوطن';
+
+  @override
   String get incidentChannelsTitle => 'قنوات التنبيه';
 
   @override

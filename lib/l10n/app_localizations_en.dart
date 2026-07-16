@@ -1479,6 +1479,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeMode => 'Home Mode';
 
   @override
+  String get keepProtectedAtHome => 'Keep protected at home';
+
+  @override
+  String get protectionPausesAtHome => 'Protection pauses at home';
+
+  @override
   String get incidentChannelsTitle => 'Incident Channels';
 
   @override

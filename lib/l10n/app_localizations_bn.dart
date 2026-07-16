@@ -1484,6 +1484,12 @@ class AppLocalizationsBn extends AppLocalizations {
   String get homeMode => 'হোম মোড';
 
   @override
+  String get keepProtectedAtHome => 'বাড়িতেও সুরক্ষা চালু রাখুন';
+
+  @override
+  String get protectionPausesAtHome => 'বাড়িতে সুরক্ষা সাময়িক বন্ধ থাকে';
+
+  @override
   String get incidentChannelsTitle => 'ঘটনা চ্যানেল';
 
   @override

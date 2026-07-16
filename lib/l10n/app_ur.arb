@@ -662,6 +662,8 @@
     "protectionOffLabel": "پروٹیکشن آف",
     "notSet": "سیٹ نہیں",
     "homeMode": "ہوم موڈ",
+    "keepProtectedAtHome":  "گھر پر بھی تحفظ جاری رکھیں",
+    "protectionPausesAtHome":  "گھر پر تحفظ عارضی طور پر رک جاتا ہے",
     "incidentChannelsTitle": "انسیڈنٹ چینلز",
     "topUpSuccessTitle": "ٹاپ اپ کامیاب",
     "topUpSuccessDesc": "جب خودکار SIM ویلیڈیٹی توسیع کامیابی سے مکمل ہو جائے تو مجھے مطلع کریں۔",

@@ -732,6 +732,8 @@
     "protectionOffLabel":  "Protection Off",
     "notSet":  "Not set",
     "homeMode":  "Home Mode",
+    "keepProtectedAtHome":  "Keep protected at home",
+    "protectionPausesAtHome":  "Protection pauses at home",
     "incidentChannelsTitle":  "Incident Channels",
     "topUpSuccessTitle":  "Top-up Successful",
     "topUpSuccessDesc":  "Notify me when an automatic SIM validity extension is completed successfully.",

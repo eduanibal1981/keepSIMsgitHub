@@ -662,6 +662,8 @@
     "protectionOffLabel":  "Protección Desactivada",
     "notSet":  "No configurado",
     "homeMode":  "Modo Hogar",
+    "keepProtectedAtHome":  "Mantener protegida en casa",
+    "protectionPausesAtHome":  "La protección se pausa en casa",
     "incidentChannelsTitle":  "Canales de Incidentes",
     "topUpSuccessTitle":  "Recarga Exitosa",
     "topUpSuccessDesc":  "Notificarme cuando se complete exitosamente una extensión automática de validez de SIM.",

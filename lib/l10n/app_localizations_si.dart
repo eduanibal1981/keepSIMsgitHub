@@ -1489,6 +1489,12 @@ class AppLocalizationsSi extends AppLocalizations {
   String get homeMode => 'නිවෙස් මාදිලිය';
 
   @override
+  String get keepProtectedAtHome => 'නිවසේදීත් ආරක්ෂාව පවත්වා ගන්න';
+
+  @override
+  String get protectionPausesAtHome => 'නිවසේදී ආරක්ෂාව විරාම වේ';
+
+  @override
   String get incidentChannelsTitle => 'සිද්ධි නාලිකා';
 
   @override

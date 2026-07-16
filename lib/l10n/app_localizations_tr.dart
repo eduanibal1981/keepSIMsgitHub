@@ -1490,6 +1490,12 @@ class AppLocalizationsTr extends AppLocalizations {
   String get homeMode => 'Ev Modu';
 
   @override
+  String get keepProtectedAtHome => 'Evdeyken korumayı sürdür';
+
+  @override
+  String get protectionPausesAtHome => 'Evdeyken koruma duraklatılır';
+
+  @override
   String get incidentChannelsTitle => 'Olay Kanalları';
 
   @override

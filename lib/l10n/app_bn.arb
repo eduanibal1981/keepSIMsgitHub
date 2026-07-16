@@ -662,6 +662,8 @@
     "protectionOffLabel": "সুরক্ষা বন্ধ",
     "notSet": "সেট করা হয়নি",
     "homeMode": "হোম মোড",
+    "keepProtectedAtHome":  "বাড়িতেও সুরক্ষা চালু রাখুন",
+    "protectionPausesAtHome":  "বাড়িতে সুরক্ষা সাময়িক বন্ধ থাকে",
     "incidentChannelsTitle": "ঘটনা চ্যানেল",
     "topUpSuccessTitle": "টপআপ সফল",
     "topUpSuccessDesc": "স্বয়ংক্রিয় SIM বৈধতা বৃদ্ধি সফলভাবে সম্পন্ন হলে আমাকে জানান।",

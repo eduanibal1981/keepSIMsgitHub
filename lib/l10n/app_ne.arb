@@ -662,6 +662,8 @@
     "protectionOffLabel": "सुरक्षा बन्द",
     "notSet": "सेट गरिएको छैन",
     "homeMode": "गृह मोड",
+    "keepProtectedAtHome":  "घरमा पनि सुरक्षा जारी राख्नुहोस्",
+    "protectionPausesAtHome":  "घरमा सुरक्षा रोकिन्छ",
     "incidentChannelsTitle": "घटना च्यानलहरू",
     "topUpSuccessTitle": "टपअप सफल",
     "topUpSuccessDesc": "स्वचालित SIM वैधता विस्तार सफलतापूर्वक पूरा भएमा मलाई सूचित गर्नुहोस्।",

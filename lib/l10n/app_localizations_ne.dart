@@ -1486,6 +1486,12 @@ class AppLocalizationsNe extends AppLocalizations {
   String get homeMode => 'गृह मोड';
 
   @override
+  String get keepProtectedAtHome => 'घरमा पनि सुरक्षा जारी राख्नुहोस्';
+
+  @override
+  String get protectionPausesAtHome => 'घरमा सुरक्षा रोकिन्छ';
+
+  @override
   String get incidentChannelsTitle => 'घटना च्यानलहरू';
 
   @override

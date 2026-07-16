@@ -1,4 +1,4 @@
-﻿{
+{
     "@@locale":  "ar",
     "appName":  "KeepSIMs",
     "preferencesAndSecurity":  "التفضيلات والأمان",
@@ -586,6 +586,8 @@
     "protectionOffLabel":  "الحماية متوقفة",
     "notSet":  "غير محدد",
     "homeMode":  "وضع الوطن",
+    "keepProtectedAtHome":  "إبقاء الحماية مفعّلة في الوطن",
+    "protectionPausesAtHome":  "تتوقف الحماية مؤقتًا في الوطن",
     "incidentChannelsTitle":  "قنوات التنبيه",
     "topUpSuccessTitle":  "نجاح عملية الشحن",
     "topUpSuccessDesc":  "إشعار عند إتمام تمديد صلاحية الشريحة تلقائياً بنجاح.",

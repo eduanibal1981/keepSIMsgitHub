@@ -662,6 +662,8 @@
     "protectionOffLabel": "Koruma Kapalı",
     "notSet": "Ayarlanmadı",
     "homeMode": "Ev Modu",
+    "keepProtectedAtHome":  "Evdeyken korumayı sürdür",
+    "protectionPausesAtHome":  "Evdeyken koruma duraklatılır",
     "incidentChannelsTitle": "Olay Kanalları",
     "topUpSuccessTitle": "Yükleme Başarılı",
     "topUpSuccessDesc": "Otomatik SIM geçerlilik uzatması başarıyla tamamlandığında beni bilgilendir.",

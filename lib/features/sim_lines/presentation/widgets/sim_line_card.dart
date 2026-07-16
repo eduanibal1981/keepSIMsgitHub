@@ -90,7 +90,7 @@ class SimLineCard extends ConsumerWidget {
     Color glowColor = AppColors.healthGreen;
     if (isSelected) {
       glowColor = AppColors.primary;
-    } else if (line.isHomeMode) {
+    } else if (line.protectionPaused) {
       glowColor = Colors.lightBlue;
     } else if (computedHealthScore < 30) {
       glowColor = AppColors.healthRed;
@@ -98,7 +98,7 @@ class SimLineCard extends ConsumerWidget {
       glowColor = AppColors.healthAmber;
     }
 
-    final bool hasError = computedHealthScore < 30 && !line.isHomeMode;
+    final bool hasError = computedHealthScore < 30 && !line.protectionPaused;
     final isDark = context.isDarkMode;
 
     // ── Card background ──────────────────────────────────────────
@@ -826,7 +826,7 @@ class SimLineCard extends ConsumerWidget {
             scrollDirection: Axis.horizontal,
             child: Row(
               children: [
-                if (line.isHomeMode)
+                if (line.protectionPaused)
                   chip(
                     AppLocalizations.of(context)!.homeMode,
                     true,

@@ -1485,6 +1485,12 @@ class AppLocalizationsHi extends AppLocalizations {
   String get homeMode => 'होम मोड';
 
   @override
+  String get keepProtectedAtHome => 'घर पर भी सुरक्षा जारी रखें';
+
+  @override
+  String get protectionPausesAtHome => 'घर पर सुरक्षा रुक जाती है';
+
+  @override
   String get incidentChannelsTitle => 'इंसिडेंट चैनल';
 
   @override
