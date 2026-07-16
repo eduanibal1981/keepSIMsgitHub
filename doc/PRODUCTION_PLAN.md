@@ -209,7 +209,17 @@ be production-shaped:
 4. Failure paths: underpaid/currency-mismatch/refunded webhooks → alert row in
    `system_alerts`.
 
-## 🟠 B4 — Money-path test suite
+## ✅ B4 — Money-path test suite
+
+**Done 2026-07-16.** Dart: 27 tests (`refill_schedule_math` incl. month-end/
+year-end/leap-day/DST claim-window safety, `sim_line_health` incl. B5 cases,
+`carrier_rule` money parsing). DB: `supabase/tests/b4_money_path_tests.sql` —
+11 assertions run live inside BEGIN..ROLLBACK covering `calculate_topup_fees`,
+`route_topup_execution`, `debit_wallet_for_topup` (happy/duplicate/overdraft/
+negative), `credit_wallet_for_refund`, `credit_wallet_for_deposit` (receipt +
+capture idempotency), and the zero-drift reconciliation invariant. All passed
+against live on 2026-07-16. Deferred: mocktail repository-boundary tests for
+controller flows (add alongside C-phase features as they change).
 
 Old REQUEST 8; seed exists (`refill_schedule_math.dart` + 19 passing tests).
 Extend `test/` with `flutter_test` + `mocktail`, mocking Supabase at the
