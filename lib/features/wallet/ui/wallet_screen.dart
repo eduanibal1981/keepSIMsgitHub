@@ -1,4 +1,4 @@
-/// SIM Shield — Wallet Screen
+﻿/// SIM Shield — Wallet Screen
 ///
 /// High-end dark-mode user interface representing the prepaid wallet.
 /// Integrates card deposit models, transactional ledgers, and glowing SVG analytics.
@@ -6,7 +6,6 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:keep_sims/l10n/app_localizations.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
@@ -17,8 +16,7 @@ import '../model/wallet_model.dart';
 import 'package:keep_sims/core/widgets/shimmer_loading.dart';
 import 'package:keep_sims/core/widgets/error_state.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
-import 'package:keep_sims/features/payments/controller/payments_controller.dart';
-import 'package:go_router/go_router.dart';
+import 'package:keep_sims/features/settings/presentation/screens/paypal_refill_simulator_screen.dart';
 
 class WalletScreen extends ConsumerStatefulWidget {
   const WalletScreen({super.key});
@@ -730,82 +728,200 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
       sign = '+';
     }
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurface : Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-          width: 1,
+    final hasReceipt = tx.metadata != null && tx.metadata!.isNotEmpty;
+
+    return GestureDetector(
+      onTap: hasReceipt ? () => _showReceiptSheet(tx) : null,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.darkSurface : Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+            width: 1,
+          ),
         ),
-      ),
-      child: Row(
-        children: [
-          // Icon block
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: typeColor.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
+        child: Row(
+          children: [
+            // Icon block
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: typeColor.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(typeIcon, color: typeColor, size: 20),
             ),
-            child: Icon(typeIcon, color: typeColor, size: 20),
-          ),
-          const SizedBox(width: 14),
-          // Description details
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  tx.description ??
-                      (isDeposit
-                          ? AppLocalizations.of(context)!.depositFunds
-                          : 'Line Renewal'),
-                  style: AppTextStyles.titleMedium.copyWith(
-                    color: isDark
-                        ? AppColors.textPrimaryDark
-                        : AppColors.textPrimaryLight,
+            const SizedBox(width: 14),
+            // Description details
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    tx.description ??
+                        (isDeposit
+                            ? AppLocalizations.of(context)!.depositFunds
+                            : 'Line Renewal'),
+                    style: AppTextStyles.titleMedium.copyWith(
+                      color: isDark
+                          ? AppColors.textPrimaryDark
+                          : AppColors.textPrimaryLight,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  tx.createdAt != null
-                      ? '${tx.createdAt!.day}/${tx.createdAt!.month}/${tx.createdAt!.year}'
-                      : 'Just now',
-                  style: AppTextStyles.caption.copyWith(
-                    color: isDark
-                        ? AppColors.textTertiaryDark
-                        : AppColors.textTertiaryLight,
+                  const SizedBox(height: 2),
+                  Text(
+                    tx.createdAt != null
+                        ? '${tx.createdAt!.day}/${tx.createdAt!.month}/${tx.createdAt!.year}'
+                        : 'Just now',
+                    style: AppTextStyles.caption.copyWith(
+                      color: isDark
+                          ? AppColors.textTertiaryDark
+                          : AppColors.textTertiaryLight,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          const SizedBox(width: 8),
-          // Amount text
-          Text(
-            '$sign\$${tx.amount.toStringAsFixed(2)}',
-            style: AppTextStyles.titleLarge.copyWith(
-              color: typeColor,
-              fontFamily: 'SpaceGrotesk',
-              fontWeight: FontWeight.bold,
+            const SizedBox(width: 8),
+            // Amount text
+            Text(
+              '$sign\$${tx.amount.toStringAsFixed(2)}',
+              style: AppTextStyles.titleLarge.copyWith(
+                color: typeColor,
+                fontFamily: 'SpaceGrotesk',
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
-        ],
+            if (hasReceipt) ...[
+              const SizedBox(width: 6),
+              Icon(
+                Icons.receipt_long_rounded,
+                size: 16,
+                color: isDark
+                    ? AppColors.textTertiaryDark
+                    : AppColors.textTertiaryLight,
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }
 
-  // ── Deposit Sheet Modal ───────────────────────────────────────
-  void _showDepositModalSheet(BuildContext context) {
+  // ── Receipt Detail Sheet ─────────────────────────────────────
+  // Shows the receipt payload the paypal-webhook stored with the deposit:
+  // gross, gateway fee, net payout, method, and the external PayPal ids.
+  void _showReceiptSheet(WalletTransaction tx) {
+    final meta = tx.metadata!;
+    final isDark = context.isDarkMode;
+
+    String money(dynamic v) {
+      final parsed = v is num ? v.toDouble() : double.tryParse('$v');
+      return parsed != null ? '\$${parsed.toStringAsFixed(2)}' : '—';
+    }
+
+    Widget row(String label, String value, {bool bold = false}) => Padding(
+          padding: const EdgeInsets.symmetric(vertical: 6),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                label,
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: isDark
+                      ? AppColors.textSecondaryDark
+                      : AppColors.textSecondaryLight,
+                ),
+              ),
+              Flexible(
+                child: Text(
+                  value,
+                  textAlign: TextAlign.end,
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: isDark
+                        ? AppColors.textPrimaryDark
+                        : AppColors.textPrimaryLight,
+                    fontWeight: bold ? FontWeight.bold : FontWeight.normal,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+
     showModalBottomSheet(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => const DepositModalSheet(),
+      backgroundColor: isDark ? AppColors.darkSurface : Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) => Padding(
+        padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.receipt_long_rounded,
+                  color: isDark
+                      ? AppColors.primaryLight
+                      : AppColors.lightPrimary,
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  'Receipt',
+                  style: AppTextStyles.titleLarge.copyWith(
+                    color: isDark
+                        ? AppColors.textPrimaryDark
+                        : AppColors.textPrimaryLight,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            row('Amount credited', money(tx.amount), bold: true),
+            if (meta['gross'] != null) row('Gross payment', money(meta['gross'])),
+            if (meta['paypal_fee'] != null)
+              row('Gateway fee', money(meta['paypal_fee'])),
+            if (meta['net'] != null) row('Net payout', money(meta['net'])),
+            const Divider(height: 20),
+            if (meta['method'] != null)
+              row('Method', '${meta['method']}'.toUpperCase()),
+            if (meta['paypal_order_id'] != null)
+              row('Order ID', '${meta['paypal_order_id']}'),
+            if (meta['paypal_capture_id'] != null)
+              row('Transaction ID', '${meta['paypal_capture_id']}'),
+            if (tx.createdAt != null)
+              row(
+                'Date',
+                '${tx.createdAt!.day}/${tx.createdAt!.month}/${tx.createdAt!.year} '
+                    '${tx.createdAt!.hour.toString().padLeft(2, '0')}:${tx.createdAt!.minute.toString().padLeft(2, '0')}',
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── Add Funds ────────────────────────────────────────────────
+  // Deposits go through the real PayPal flow; the wallet is credited
+  // server-side by the paypal-webhook once PayPal confirms the capture.
+  // (The old in-app card form credited a client-chosen amount with no real
+  // payment behind it — removed in B3.)
+  void _showDepositModalSheet(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const PaypalRefillSimulatorScreen(
+          initialAmount: 20.0,
+          paymentReason: 'KeepSIMs Wallet Top-up',
+        ),
+      ),
     );
   }
 }
@@ -922,728 +1038,3 @@ class AnalyticsChartPainter extends CustomPainter {
   }
 }
 
-class DepositModalSheet extends ConsumerStatefulWidget {
-  const DepositModalSheet({super.key});
-
-  @override
-  ConsumerState<DepositModalSheet> createState() => _DepositModalSheetState();
-}
-
-class _DepositModalSheetState extends ConsumerState<DepositModalSheet> {
-  final _formKey = GlobalKey<FormState>();
-  final _amountController = TextEditingController(text: '20.00');
-  final _cardNumberController = TextEditingController();
-  final _expiryController = TextEditingController();
-  final _cvvController = TextEditingController();
-
-  bool _isSubmitting = false;
-
-  @override
-  void dispose() {
-    _amountController.dispose();
-    _cardNumberController.dispose();
-    _expiryController.dispose();
-    _cvvController.dispose();
-    super.dispose();
-  }
-
-  void _selectQuickAmount(String amount) {
-    setState(() {
-      _amountController.text = amount;
-    });
-  }
-
-  Future<void> _submitDeposit() async {
-    if (!_formKey.currentState!.validate()) return;
-
-    setState(() {
-      _isSubmitting = true;
-    });
-
-    final amount = double.tryParse(_amountController.text) ?? 0.0;
-    if (amount <= 0.0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a valid deposit amount.')),
-      );
-      setState(() {
-        _isSubmitting = false;
-      });
-      return;
-    }
-
-    final success = await ref
-        .read(walletControllerProvider.notifier)
-        .deposit(
-          amount,
-          description:
-              'Deposit via Card ending in ${_cardNumberController.text.substring(_cardNumberController.text.length - 4)}',
-        );
-
-    if (success) {
-      if (mounted) {
-        Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: AppColors.success,
-            content: Row(
-              children: [
-                const Icon(Icons.check_circle_rounded, color: Colors.white),
-                const SizedBox(width: 12),
-                Text(
-                  'Successfully deposited \$$amount USD!',
-                  style: AppTextStyles.bodyMedium.copyWith(color: Colors.white),
-                ),
-              ],
-            ),
-          ),
-        );
-      }
-    } else {
-      if (mounted) {
-        setState(() {
-          _isSubmitting = false;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: AppColors.healthRed,
-            content: Text(AppLocalizations.of(context)!.failedToDepositFunds),
-          ),
-        );
-      }
-    }
-  }
-
-  void _showSavedCards() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: context.isDarkMode
-          ? AppColors.darkSurface
-          : AppColors.lightSurface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) {
-        return Consumer(
-          builder: (context, ref, child) {
-            final state = ref.watch(paymentsControllerProvider).asData?.value;
-            final methods = state?.paymentMethods ?? [];
-
-            if (methods.isEmpty) {
-              return Container(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      AppLocalizations.of(context)!.noSavedPaymentMethods,
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        color: context.isDarkMode
-                            ? AppColors.textSecondaryDark
-                            : AppColors.textSecondaryLight,
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        context.pushNamed('settingsPayments');
-                      },
-                      icon: const Icon(Icons.add_card, size: 20),
-                      label: Text(
-                        AppLocalizations.of(context)!.addPaymentMethod,
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: context.isDarkMode
-                            ? AppColors.primary
-                            : AppColors.lightPrimary,
-                        foregroundColor: Colors.white,
-                        minimumSize: const Size(double.infinity, 48),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }
-
-            return Container(
-              padding: const EdgeInsets.symmetric(vertical: 24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: Text(
-                      AppLocalizations.of(context)!.savedPaymentMethods,
-                      style: AppTextStyles.titleLarge.copyWith(
-                        color: context.isDarkMode
-                            ? AppColors.textPrimaryDark
-                            : AppColors.textPrimaryLight,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Flexible(
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: methods.length,
-                      itemBuilder: (context, index) {
-                        final method = methods[index];
-                        return ListTile(
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 8,
-                          ),
-                          leading: Icon(
-                            Icons.credit_card,
-                            color: context.isDarkMode
-                                ? AppColors.primaryLight
-                                : AppColors.lightPrimary,
-                          ),
-                          title: Text(
-                            '•••• •••• •••• ${method.lastFour ?? "****"}',
-                            style: AppTextStyles.bodyLarge.copyWith(
-                              color: context.isDarkMode
-                                  ? AppColors.textPrimaryDark
-                                  : AppColors.textPrimaryLight,
-                            ),
-                          ),
-                          subtitle: Text(
-                            'Expires ${method.expiryMonth?.toString().padLeft(2, "0") ?? "--"}/${method.expiryYear?.toString().substring(method.expiryYear.toString().length > 2 ? method.expiryYear.toString().length - 2 : 0) ?? "--"}',
-                            style: AppTextStyles.caption.copyWith(
-                              color: context.isDarkMode
-                                  ? AppColors.textSecondaryDark
-                                  : AppColors.textSecondaryLight,
-                            ),
-                          ),
-                          onTap: () {
-                            setState(() {
-                              _cardNumberController.text =
-                                  '4242 4242 4242 ${method.lastFour ?? "4242"}';
-                              _expiryController.text =
-                                  '${method.expiryMonth?.toString().padLeft(2, "0") ?? "12"}/${method.expiryYear?.toString().substring(method.expiryYear.toString().length > 2 ? method.expiryYear.toString().length - 2 : 0) ?? "30"}';
-                              _cvvController.text = '123';
-                            });
-                            Navigator.pop(context);
-                          },
-                        );
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: TextButton.icon(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        context.pushNamed('settingsPayments');
-                      },
-                      icon: const Icon(Icons.add),
-                      label: Text(
-                        AppLocalizations.of(context)!.addAnotherPaymentMethod,
-                      ),
-                      style: TextButton.styleFrom(
-                        foregroundColor: context.isDarkMode
-                            ? AppColors.secondary
-                            : AppColors.lightSecondary,
-                        minimumSize: const Size(double.infinity, 48),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          side: BorderSide(
-                            color: context.isDarkMode
-                                ? AppColors.darkBorder
-                                : AppColors.lightBorder,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final isWebMobileOffset = MediaQuery.of(context).viewInsets.bottom;
-
-    return Container(
-      padding: EdgeInsets.fromLTRB(24, 24, 24, 24 + isWebMobileOffset),
-      decoration: BoxDecoration(
-        color: context.isDarkMode
-            ? AppColors.darkSurface
-            : AppColors.lightSurface,
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(28),
-          topRight: Radius.circular(28),
-        ),
-        border: Border(
-          top: BorderSide(
-            color: context.isDarkMode
-                ? AppColors.darkBorder
-                : AppColors.lightBorder,
-            width: 1.5,
-          ),
-        ),
-      ),
-      child: Form(
-        key: _formKey,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Pull Bar indicator
-              Center(
-                child: Container(
-                  width: 48,
-                  height: 4,
-                  margin: const EdgeInsets.only(bottom: 20),
-                  decoration: BoxDecoration(
-                    color: context.isDarkMode
-                        ? AppColors.darkBorder
-                        : AppColors.lightBorder,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    AppLocalizations.of(context)!.loadCreditFunds,
-                    style: AppTextStyles.headlineMedium.copyWith(
-                      color: context.isDarkMode
-                          ? AppColors.textPrimaryDark
-                          : AppColors.textPrimaryLight,
-                    ),
-                  ),
-                  if (_isSubmitting)
-                    SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2.5,
-                        color: context.isDarkMode
-                            ? AppColors.primary
-                            : AppColors.lightPrimary,
-                      ),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 20),
-
-              // ── Quick selection amounts ──────────────────────────
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _buildQuickSelectButton('10.00'),
-                  _buildQuickSelectButton('20.00'),
-                  _buildQuickSelectButton('50.00'),
-                  _buildQuickSelectButton('100.00'),
-                ],
-              ),
-              const SizedBox(height: 16),
-
-              // ── Custom Input Amount ────────────────────────────────
-              TextFormField(
-                controller: _amountController,
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
-                style: AppTextStyles.bodyLarge.copyWith(
-                  color: context.isDarkMode
-                      ? AppColors.textPrimaryDark
-                      : AppColors.textPrimaryLight,
-                ),
-                decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context)!.depositAmountUsd,
-                  labelStyle: TextStyle(
-                    color: context.isDarkMode
-                        ? AppColors.textSecondaryDark
-                        : AppColors.textSecondaryLight,
-                  ),
-                  prefixIcon: Icon(
-                    Icons.attach_money_rounded,
-                    color: context.isDarkMode
-                        ? AppColors.primary
-                        : AppColors.lightPrimary,
-                  ),
-                  filled: true,
-                  fillColor: context.isDarkMode
-                      ? AppColors.darkBg
-                      : const Color(0xFFEAEEF1),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide(
-                      color: context.isDarkMode
-                          ? AppColors.darkBorder
-                          : AppColors.lightBorder,
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide(
-                      color: context.isDarkMode
-                          ? AppColors.primary
-                          : AppColors.lightPrimary,
-                      width: 1.5,
-                    ),
-                  ),
-                ),
-                validator: (val) {
-                  if (val == null || val.isEmpty) {
-                    return AppLocalizations.of(context)!.pleaseEnterAmount;
-                  }
-                  final parsed = double.tryParse(val);
-                  if (parsed == null || parsed <= 0.0) {
-                    return AppLocalizations.of(context)!.enterPositiveNumber;
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 24),
-
-              // ── Credit Card Inputs ─────────────────────────────────
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    AppLocalizations.of(context)!.cardDetails,
-                    style: AppTextStyles.labelLarge.copyWith(
-                      color: context.isDarkMode
-                          ? AppColors.textPrimaryDark
-                          : AppColors.textPrimaryLight,
-                    ),
-                  ),
-                  TextButton.icon(
-                    onPressed: _showSavedCards,
-                    icon: const Icon(Icons.credit_card, size: 16),
-                    label: Text(AppLocalizations.of(context)!.savedCards),
-                    style: TextButton.styleFrom(
-                      foregroundColor: context.isDarkMode
-                          ? AppColors.secondary
-                          : AppColors.lightSecondary,
-                      padding: EdgeInsets.zero,
-                      minimumSize: Size.zero,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _cardNumberController,
-                keyboardType: TextInputType.number,
-                maxLength: 19,
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly,
-                  CardNumberInputFormatter(),
-                ],
-                style: AppTextStyles.bodyLarge.copyWith(
-                  color: context.isDarkMode
-                      ? AppColors.textPrimaryDark
-                      : AppColors.textPrimaryLight,
-                ),
-                decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context)!.visaCardNumber,
-                  labelStyle: TextStyle(
-                    color: context.isDarkMode
-                        ? AppColors.textSecondaryDark
-                        : AppColors.textSecondaryLight,
-                  ),
-                  prefixIcon: Icon(
-                    Icons.credit_card_rounded,
-                    color: context.isDarkMode
-                        ? AppColors.secondary
-                        : AppColors.lightSecondary,
-                  ),
-                  counterText: '',
-                  filled: true,
-                  fillColor: context.isDarkMode
-                      ? AppColors.darkBg
-                      : const Color(0xFFEAEEF1),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide(
-                      color: context.isDarkMode
-                          ? AppColors.darkBorder
-                          : AppColors.lightBorder,
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide(
-                      color: context.isDarkMode
-                          ? AppColors.secondary
-                          : AppColors.lightSecondary,
-                      width: 1.5,
-                    ),
-                  ),
-                ),
-                validator: (val) {
-                  if (val == null || val.isEmpty) {
-                    return AppLocalizations.of(context)!.pleaseEnterCardNumber;
-                  }
-                  final clean = val.replaceAll(' ', '');
-                  if (clean.length < 16) {
-                    return AppLocalizations.of(context)!.mustBe16Digits;
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
-              Row(
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      controller: _expiryController,
-                      keyboardType: TextInputType.number,
-                      maxLength: 5,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly,
-                        CardExpiryInputFormatter(),
-                      ],
-                      style: AppTextStyles.bodyLarge.copyWith(
-                        color: context.isDarkMode
-                            ? AppColors.textPrimaryDark
-                            : AppColors.textPrimaryLight,
-                      ),
-                      decoration: InputDecoration(
-                        labelText: AppLocalizations.of(context)!.expiryMmYy,
-                        labelStyle: TextStyle(
-                          color: context.isDarkMode
-                              ? AppColors.textSecondaryDark
-                              : AppColors.textSecondaryLight,
-                        ),
-                        counterText: '',
-                        filled: true,
-                        fillColor: context.isDarkMode
-                            ? AppColors.darkBg
-                            : const Color(0xFFEAEEF1),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
-                          borderSide: BorderSide(
-                            color: context.isDarkMode
-                                ? AppColors.darkBorder
-                                : AppColors.lightBorder,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
-                          borderSide: BorderSide(
-                            color: context.isDarkMode
-                                ? AppColors.primary
-                                : AppColors.lightPrimary,
-                            width: 1.5,
-                          ),
-                        ),
-                      ),
-                      validator: (val) {
-                        if (val == null || val.isEmpty) {
-                          return AppLocalizations.of(context)!.expiryRequired;
-                        }
-                        if (val.length < 5) {
-                          return AppLocalizations.of(context)!.invalid;
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: TextFormField(
-                      controller: _cvvController,
-                      keyboardType: TextInputType.number,
-                      maxLength: 3,
-                      obscureText: true,
-                      style: AppTextStyles.bodyLarge.copyWith(
-                        color: context.isDarkMode
-                            ? AppColors.textPrimaryDark
-                            : AppColors.textPrimaryLight,
-                      ),
-                      decoration: InputDecoration(
-                        labelText: AppLocalizations.of(context)!.cvv,
-                        labelStyle: TextStyle(
-                          color: context.isDarkMode
-                              ? AppColors.textSecondaryDark
-                              : AppColors.textSecondaryLight,
-                        ),
-                        counterText: '',
-                        filled: true,
-                        fillColor: context.isDarkMode
-                            ? AppColors.darkBg
-                            : const Color(0xFFEAEEF1),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
-                          borderSide: BorderSide(
-                            color: context.isDarkMode
-                                ? AppColors.darkBorder
-                                : AppColors.lightBorder,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
-                          borderSide: BorderSide(
-                            color: context.isDarkMode
-                                ? AppColors.primary
-                                : AppColors.lightPrimary,
-                            width: 1.5,
-                          ),
-                        ),
-                      ),
-                      validator: (val) {
-                        if (val == null || val.isEmpty) {
-                          return AppLocalizations.of(context)!.cvvRequired;
-                        }
-                        if (val.length < 3) {
-                          return AppLocalizations.of(context)!.invalid;
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-
-              // ── Submit Button ──────────────────────────────────────
-              SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: ElevatedButton(
-                  onPressed: _isSubmitting ? null : _submitDeposit,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: context.isDarkMode
-                        ? AppColors.primary
-                        : AppColors.lightPrimary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    elevation: 4,
-                  ),
-                  child: Text(
-                    _isSubmitting
-                        ? AppLocalizations.of(context)!.verifyingCardSecurity
-                        : AppLocalizations.of(context)!.authorizeDepositFunds,
-                    style: AppTextStyles.titleMedium.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 8),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildQuickSelectButton(String amount) {
-    final active = _amountController.text == amount;
-    return InkWell(
-      onTap: () => _selectQuickAmount(amount),
-      borderRadius: BorderRadius.circular(10),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          color: active
-              ? (context.isDarkMode
-                    ? AppColors.primary.withValues(alpha: 0.15)
-                    : AppColors.lightPrimary.withValues(alpha: 0.15))
-              : (context.isDarkMode
-                    ? AppColors.darkBg
-                    : const Color(0xFFEAEEF1)),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: active
-                ? (context.isDarkMode
-                      ? AppColors.primary
-                      : AppColors.lightPrimary)
-                : (context.isDarkMode
-                      ? AppColors.darkBorder
-                      : AppColors.lightBorder),
-            width: 1.2,
-          ),
-        ),
-        child: Text(
-          '\$$amount',
-          style: AppTextStyles.labelMedium.copyWith(
-            color: active
-                ? (context.isDarkMode
-                      ? AppColors.primaryLight
-                      : AppColors.lightPrimary)
-                : (context.isDarkMode
-                      ? AppColors.textSecondaryDark
-                      : AppColors.textSecondaryLight),
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Helper formatter to insert spaces every 4 digits in card inputs.
-class CardNumberInputFormatter extends TextInputFormatter {
-  @override
-  TextEditingValue formatEditUpdate(
-    TextEditingValue oldValue,
-    TextEditingValue newValue,
-  ) {
-    final text = newValue.text;
-    if (newValue.selection.baseOffset == 0) return newValue;
-
-    final buffer = StringBuffer();
-    for (int i = 0; i < text.length; i++) {
-      buffer.write(text[i]);
-      final nonSpaceLength = i + 1;
-      if (nonSpaceLength % 4 == 0 && nonSpaceLength != text.length) {
-        buffer.write(' ');
-      }
-    }
-
-    final string = buffer.toString();
-    return newValue.copyWith(
-      text: string,
-      selection: TextSelection.collapsed(offset: string.length),
-    );
-  }
-}
-
-/// Helper formatter to insert a slash after 2 digits in expiry inputs (MM/YY).
-class CardExpiryInputFormatter extends TextInputFormatter {
-  @override
-  TextEditingValue formatEditUpdate(
-    TextEditingValue oldValue,
-    TextEditingValue newValue,
-  ) {
-    final text = newValue.text;
-    if (newValue.selection.baseOffset == 0) return newValue;
-
-    final buffer = StringBuffer();
-    for (int i = 0; i < text.length; i++) {
-      buffer.write(text[i]);
-      final nonSlashLength = i + 1;
-      if (nonSlashLength == 2 && nonSlashLength != text.length) {
-        buffer.write('/');
-      }
-    }
-
-    final string = buffer.toString();
-    return newValue.copyWith(
-      text: string,
-      selection: TextSelection.collapsed(offset: string.length),
-    );
-  }
-}

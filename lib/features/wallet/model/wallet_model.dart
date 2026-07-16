@@ -41,6 +41,9 @@ abstract class WalletTransaction with _$WalletTransaction {
     String type, // 'deposit', 'topup_debit', 'referral_credit'
     String? description,
     String? referenceId,
+    // Receipt payload written by the paypal-webhook Edge Function:
+    // gross / paypal_fee / net / method / paypal_capture_id / paypal_order_id.
+    Map<String, dynamic>? metadata,
     DateTime? createdAt,
   }) = _WalletTransaction;
 

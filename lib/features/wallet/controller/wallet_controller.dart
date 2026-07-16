@@ -66,8 +66,9 @@ class WalletController extends _$WalletController {
     }
   }
 
-  /// Triggers a deposit credit and invalidates related screens.
-  Future<bool> deposit(double amount, {String? description}) async {
+  /// Waits for the server-side PayPal webhook to credit a captured order,
+  /// then invalidates related screens. The client never credits itself.
+  Future<bool> awaitPayPalCredit(String orderId) async {
     final current = state.value;
     if (current == null) return false;
 
@@ -75,11 +76,7 @@ class WalletController extends _$WalletController {
     state = AsyncData(current.copyWith(isSubmitting: true));
 
     final repo = ref.read(walletRepositoryProvider);
-    final result = await repo.deposit(
-      amount: amount,
-      description: description ?? 'Funds added via Visa Card',
-      referenceId: 'visa_${DateTime.now().millisecondsSinceEpoch}',
-    );
+    final result = await repo.awaitPayPalCredit(orderId: orderId);
 
     switch (result) {
       case Success():

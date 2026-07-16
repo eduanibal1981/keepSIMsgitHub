@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
@@ -144,6 +145,14 @@ class _PaypalRefillSimulatorScreenState extends ConsumerState<PaypalRefillSimula
     });
   }
 
+  // Ties the PayPal order to this account so the server-side paypal-webhook
+  // Edge Function can credit the right wallet. Deposits are credited only by
+  // that webhook — never by this client.
+  String get _paypalCustomId => jsonEncode({
+        'u': Supabase.instance.client.auth.currentUser?.id,
+        'k': 'deposit',
+      });
+
   // Live Math: No fee deducted for refill
   double get _calculatedFee {
     return 0.0;
@@ -281,22 +290,11 @@ class _PaypalRefillSimulatorScreenState extends ConsumerState<PaypalRefillSimula
       _capturedFee = _calculatedFee;
       _capturedNet = _calculatedNet;
 
-      // Deposit into Wallet
-      final success = await ref
-          .read(walletControllerProvider.notifier)
-          .deposit(
-            _amount,
-            description: 'Deposit via CardFields (Token: $mockNonce)',
-          );
-
-      if (success) {
-        setState(() => _status = 'Success');
-        await HapticHelper.successFeedback();
-      } else {
-        throw Exception(
-          'Card tokenized and captured successfully, but failed to credit database wallet.',
-        );
-      }
+      // Mock gateway: visual demo only. Real deposits are credited
+      // exclusively by the server-side paypal-webhook, and a mock flow never
+      // produces a PayPal event — so nothing is credited here.
+      setState(() => _status = 'Success');
+      await HapticHelper.successFeedback();
     } catch (e) {
       setState(() {
         _status = 'Error';
@@ -363,6 +361,7 @@ class _PaypalRefillSimulatorScreenState extends ConsumerState<PaypalRefillSimula
               'value': _amount.toStringAsFixed(2),
             },
             'description': 'KeepSIMs Wallet Top-up',
+            'custom_id': _paypalCustomId,
           },
         ],
         'payment_source': {
@@ -435,14 +434,11 @@ class _PaypalRefillSimulatorScreenState extends ConsumerState<PaypalRefillSimula
         _capturedNet = _calculatedNet;
 
         if (widget.depositToWallet) {
+          // Credited server-side by the paypal-webhook once PayPal confirms
+          // the capture; we only wait for it to land.
           final success = await ref
               .read(walletControllerProvider.notifier)
-              .deposit(
-                _amount,
-                description:
-                    widget.paymentReason ??
-                    'Deposit via PayPal (Mock Order: $_orderId)',
-              );
+              .awaitPayPalCredit(_orderId!);
 
           if (success) {
             setState(() => _status = 'Success');
@@ -450,7 +446,8 @@ class _PaypalRefillSimulatorScreenState extends ConsumerState<PaypalRefillSimula
             if (widget.onSuccess != null) widget.onSuccess!();
           } else {
             throw Exception(
-              'Failed to update wallet database after mock capture',
+              'Payment captured, but the wallet credit has not arrived yet. '
+              'Your balance will update automatically once PayPal confirms.',
             );
           }
         } else {
@@ -522,14 +519,11 @@ class _PaypalRefillSimulatorScreenState extends ConsumerState<PaypalRefillSimula
     }
 
     if (widget.depositToWallet) {
+      // Credited server-side by the paypal-webhook once PayPal confirms the
+      // capture; we only wait for it to land.
       final success = await ref
           .read(walletControllerProvider.notifier)
-          .deposit(
-            _amount,
-            description:
-                widget.paymentReason ??
-                'Deposit via CardFields (Order: $orderId)',
-          );
+          .awaitPayPalCredit(orderId);
 
       if (success) {
         setState(() => _status = 'Success');
@@ -537,7 +531,8 @@ class _PaypalRefillSimulatorScreenState extends ConsumerState<PaypalRefillSimula
         if (widget.onSuccess != null) widget.onSuccess!();
       } else {
         throw Exception(
-          'Successfully captured payment, but failed to credit database wallet.',
+          'Payment captured, but the wallet credit has not arrived yet. '
+          'Your balance will update automatically once PayPal confirms.',
         );
       }
     } else {
@@ -601,6 +596,7 @@ class _PaypalRefillSimulatorScreenState extends ConsumerState<PaypalRefillSimula
                 'value': _amount.toStringAsFixed(2),
               },
               'description': widget.paymentReason ?? 'KeepSIMs Wallet Top-up',
+              'custom_id': _paypalCustomId,
             },
           ],
           'application_context': {
@@ -767,15 +763,11 @@ class _PaypalRefillSimulatorScreenState extends ConsumerState<PaypalRefillSimula
       }
 
       if (widget.depositToWallet) {
-        // 4. Deposit into Wallet
+        // 4. Credited server-side by the paypal-webhook once PayPal confirms
+        // the capture; we only wait for it to land.
         final success = await ref
             .read(walletControllerProvider.notifier)
-            .deposit(
-              _amount,
-              description:
-                  widget.paymentReason ??
-                  'Deposit via PayPal (Order: $_orderId)',
-            );
+            .awaitPayPalCredit(_orderId!);
 
         if (success) {
           setState(() => _status = 'Success');
@@ -783,7 +775,8 @@ class _PaypalRefillSimulatorScreenState extends ConsumerState<PaypalRefillSimula
           if (widget.onSuccess != null) widget.onSuccess!();
         } else {
           throw Exception(
-            'Successfully captured payment, but failed to credit app wallet database.',
+            'Payment captured, but the wallet credit has not arrived yet. '
+            'Your balance will update automatically once PayPal confirms.',
           );
         }
       } else {
@@ -1167,24 +1160,13 @@ class _PaypalRefillSimulatorScreenState extends ConsumerState<PaypalRefillSimula
     _capturedFee = _calculatedFee;
     _capturedNet = _calculatedNet;
 
-    // Credit app wallet
-    final success = await ref
-        .read(walletControllerProvider.notifier)
-        .deposit(
-          _amount,
-          description: 'Deposit via PayPal (Mock Order: $_orderId)',
-        );
-
+    // Mock checkout: visual demo only. No real PayPal event exists, so the
+    // server-side paypal-webhook has nothing to credit — the wallet is
+    // intentionally left untouched.
     if (mounted) {
       Navigator.pop(context); // Close bottom sheet
       setState(() {
-        if (success) {
-          _status = 'Success';
-        } else {
-          _status = 'Error';
-          _errorMessage =
-              'Successfully authorized mock payment, but failed to credit app wallet database.';
-        }
+        _status = 'Success';
       });
     }
   }

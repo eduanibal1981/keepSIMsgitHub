@@ -165,10 +165,9 @@ class WalletRepository implements WalletContract {
   }
 
   @override
-  Future<Result<Wallet>> deposit({
-    required double amount,
-    String? description,
-    String? referenceId,
+  Future<Result<Wallet>> awaitPayPalCredit({
+    required String orderId,
+    Duration timeout = const Duration(seconds: 60),
   }) async {
     if (_connectivity.isOffline) {
       return const Failure(
@@ -186,29 +185,34 @@ class WalletRepository implements WalletContract {
         );
       }
 
-      // Credited server-side (atomic balance update + ledger insert).
-      final data = await _walletTransact({
-        'action': 'deposit',
-        'amount': amount,
-        'description': description ?? 'Deposit via Visa Card',
-        'referenceId': referenceId,
-      });
+      // The paypal-webhook Edge Function writes the deposit row with the
+      // PayPal order id in its receipt metadata; poll our own ledger (RLS
+      // read-own) until it lands.
+      final deadline = DateTime.now().add(timeout);
+      while (DateTime.now().isBefore(deadline)) {
+        final rows = await _client
+            .from('wallet_transactions')
+            .select('id')
+            .eq('user_id', userId)
+            .eq('type', 'deposit')
+            .filter('metadata->>paypal_order_id', 'eq', orderId)
+            .limit(1);
 
-      final walletJson = data['wallet'];
-      if (data['success'] == true && walletJson is Map<String, dynamic>) {
-        await _cache.writeJson('cached_wallet', walletJson);
-        return Success(Wallet.fromJson(walletJson));
+        if ((rows as List).isNotEmpty) {
+          return getWallet();
+        }
+        await Future.delayed(const Duration(seconds: 3));
       }
 
-      return Failure(
+      return const Failure(
         AppFailure.server(
-          message: data['errorMessage']?.toString() ?? 'Deposit failed.',
+          message:
+              'Payment approved — crediting is taking longer than usual. '
+              'Your balance will update automatically once PayPal confirms.',
         ),
       );
-    } on FunctionException catch (e) {
-      return Failure(
-        AppFailure.server(message: 'Deposit failed: ${e.reasonPhrase}'),
-      );
+    } on PostgrestException catch (e) {
+      return Failure(AppFailure.server(message: e.message));
     } catch (e) {
       return Failure(AppFailure.unknown(message: e.toString()));
     }

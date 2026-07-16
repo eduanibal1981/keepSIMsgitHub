@@ -45,6 +45,7 @@ _WalletTransaction _$WalletTransactionFromJson(Map<String, dynamic> json) =>
       type: json['type'] as String? ?? 'deposit',
       description: json['description'] as String?,
       referenceId: json['reference_id'] as String?,
+      metadata: json['metadata'] as Map<String, dynamic>?,
       createdAt: json['created_at'] == null
           ? null
           : DateTime.parse(json['created_at'] as String),
@@ -61,5 +62,6 @@ Map<String, dynamic> _$WalletTransactionToJson(_WalletTransaction instance) =>
       'type': instance.type,
       'description': instance.description,
       'reference_id': instance.referenceId,
+      'metadata': instance.metadata,
       'created_at': instance.createdAt?.toIso8601String(),
     };

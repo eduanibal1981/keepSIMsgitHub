@@ -1,4 +1,4 @@
-# B1 + B2 — Refill engine audit & atomic wallet migration (2026-07-16)
+# B1 + B2 + B3 — Refill engine audit, atomic wallet migration & PayPal webhook (2026-07-16)
 
 Sessions B1 and B2 of `PRODUCTION_PLAN.md`, done together because both edit the
 same three VM workers. Everything below is applied to the live Supabase project
@@ -141,6 +141,53 @@ edited schedules to the fallback path.
   deliberately unmanaged (live WhatsApp session; retired at E1).
 - Backend repo pushed to GitHub from the workstation via git bundle (VM still
   has no push credentials — leftover A3 item).
+
+## B3 — PayPal webhook hardening + receipts (same day, follow-up session)
+
+The old deposit flow let the client credit itself: after (or even without) a
+PayPal capture, the app called `wallet_transact {action: 'deposit'}` with a
+**client-chosen amount** — indistinguishable from minting money. The wallet
+screen even had a fake Visa form (`DepositModalSheet`) that credited with no
+payment behind it at all. All of that is gone:
+
+1. **`paypal-webhook` Edge Function** (verify_jwt off; PayPal can't send a
+   Supabase JWT) — every event is verified against PayPal's
+   `verify-webhook-signature` API (transmission headers + our webhook id
+   `161008855X9841929` + exact raw body); failures get 400. On
+   `PAYMENT.CAPTURE.COMPLETED`: currency must be USD, the wallet owner comes
+   from the order's `custom_id` (`{"u": <user id>, "k": "deposit"}` — the app
+   now sets it at order creation), credit lands via
+   `credit_wallet_for_deposit` with `reference_id = 'paypal_<capture_id>'`.
+   Missing/foreign `custom_id`, wrong currency, malformed events →
+   `system_alerts` + 200 (no retry storm). Transient DB failures → 500 so
+   PayPal redelivers. `PAYMENT.CAPTURE.REFUNDED/REVERSED/DENIED/DECLINED` →
+   `system_alerts`. Other event types (webhook subscribes to All Events) are
+   acknowledged and ignored — subscription events will get handlers when the
+   yearly Standard/Premium plan billing is built.
+2. **Idempotency**: partial unique index `uq_wallet_transactions_paypal_capture`
+   on `reference_id` for `type='deposit' AND reference_id LIKE 'paypal_%'`
+   (scoped because the legacy `welcome_bonus` reference is shared by design);
+   `credit_wallet_for_deposit` rolls the whole credit back on a duplicate, so
+   webhook retries cannot double-credit (`20260716030000_b3_paypal_deposit_receipts.sql`).
+3. **Receipts**: `wallet_transactions.metadata jsonb` stores gross, PayPal fee,
+   net payout, method, capture id, order id; the wallet screen's transaction
+   rows are now tappable when a receipt exists and open a receipt sheet.
+4. **Client changes**: `wallet_transact`'s `deposit` action removed (v2
+   deployed — only `ensure` + `deduct` remain);
+   `WalletRepository.deposit()` replaced by `awaitPayPalCredit(orderId)`,
+   which polls the user's own ledger (RLS read-own) until the webhook-created
+   deposit for that order appears; both PayPal screens' real flows wait for
+   the webhook instead of self-crediting, and their mock/offline flows are
+   visual-only (no credit — no PayPal event exists to verify); the fake Visa
+   `DepositModalSheet` is deleted and "Add funds" routes to the real PayPal
+   flow.
+
+**Deployment state**: function deployed but requires secrets
+`PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET`, `PAYPAL_WEBHOOK_ID` (and optional
+`PAYPAL_API_BASE`) — until they are set it answers 500 ("webhook not
+configured"), which makes PayPal retry deliveries, so nothing is lost. Live
+end-to-end verification (sandbox payment → webhook → credit → receipt) is the
+remaining step after secrets are set.
 
 ## Flagged for later sessions
 

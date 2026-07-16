@@ -185,7 +185,12 @@ read-modify-write on `balance` with a separate ledger insert (line ~143).
 
 Requires A2/A3 done (you'll be editing VM code — do it under git).
 
-## 🟠 B3 — PayPal webhook hardening + receipts
+## 🟡 B3 — PayPal webhook hardening + receipts
+
+**Implemented 2026-07-16** (see `doc/B1_B2_REFILL_MONEY_AUDIT.md`, B3 section).
+Remaining: set `PAYPAL_CLIENT_ID` / `PAYPAL_CLIENT_SECRET` /
+`PAYPAL_WEBHOOK_ID` as Edge Function secrets (user), then verify one sandbox
+payment end-to-end (webhook → credit → receipt).
 
 Master plan Phase 2. PayPal is sandbox and stays sandbox, but the plumbing must
 be production-shaped:

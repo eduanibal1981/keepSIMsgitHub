@@ -125,14 +125,18 @@ serve(async (req) => {
       return jsonResponse({ success: false, errorMessage: 'Not authenticated' }, 401);
     }
 
-    const { action, amount, description, referenceId, simLineId } = await req.json();
+    const { action, amount, description, simLineId } = await req.json();
 
     if (action === 'ensure') {
       const wallet = await ensureWallet(userId);
       return jsonResponse({ success: true, wallet }, 200);
     }
 
-    if (action !== 'deposit' && action !== 'deduct') {
+    // 'deposit' was removed in B3: the client chose its own credit amount,
+    // which is indistinguishable from minting money. Deposits are credited
+    // exclusively by the paypal-webhook function after PayPal confirms a
+    // capture.
+    if (action !== 'deduct') {
       return jsonResponse({ success: false, errorMessage: `Unknown action: ${action}` }, 400);
     }
 
@@ -145,23 +149,12 @@ serve(async (req) => {
     }
     const rounded = Math.round(value * 100) / 100;
 
-    let result;
-    if (action === 'deposit') {
-      result = await rpc('credit_wallet', {
-        p_user_id: userId,
-        p_amount: rounded,
-        p_type: 'deposit',
-        p_description: typeof description === 'string' ? description.slice(0, 500) : 'Wallet deposit',
-        p_reference_id: typeof referenceId === 'string' ? referenceId.slice(0, 200) : null,
-      });
-    } else {
-      result = await rpc('debit_wallet_for_topup', {
-        p_user_id: userId,
-        p_sim_line_id: typeof simLineId === 'string' && simLineId.length > 0 ? simLineId : null,
-        p_amount: rounded,
-        p_description: typeof description === 'string' ? description.slice(0, 500) : 'SIM top-up',
-      });
-    }
+    const result = await rpc('debit_wallet_for_topup', {
+      p_user_id: userId,
+      p_sim_line_id: typeof simLineId === 'string' && simLineId.length > 0 ? simLineId : null,
+      p_amount: rounded,
+      p_description: typeof description === 'string' ? description.slice(0, 500) : 'SIM top-up',
+    });
 
     if (!result.ok) {
       const message: string = result.body?.message ?? JSON.stringify(result.body);
