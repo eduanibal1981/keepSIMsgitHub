@@ -469,9 +469,29 @@ refill of the same base cost pays 3%. That asymmetry is **correct**:
   debited per refill by `worker_instant_refill`.
 
 So `carrier_rules.inapp_pricing` is the premium subscription rate and
-`system_configs.APP_FEE_PERCENT` is the pay-as-you-go rate. Both stay. Do not
-"unify" them — and note `inapp_pricing` is load-bearing for the premium quote,
-not a dead column.
+`system_configs.APP_FEE_PERCENT` is the pay-as-you-go rate. Do not "unify" them
+— and note `inapp_pricing` is load-bearing for the premium quote, not a dead
+column.
+
+**🟠 OPEN — the stored premium rate does not match the stated rule.** The owner
+describes Premium as *base + 3% app fee + gateway fees*. The stored values are
+actually `(minimum_topup_amount + 0.30) * 1.08` — **27 of 29 rows match that
+exactly, 0 match base + 3%** (the exceptions are round-number overrides: Orange
+Egypt 4.30, du 2.00). So it encodes **8%, not 3%**, plus a flat $0.30 that is
+Stripe's `fee_fixed` applied even though premium is billed once yearly rather
+than per refill, and no percentage gateway fee at all. Because the value is
+**stored** rather than computed, it is already stale — it was derived under an
+8% rule and `APP_FEE_PERCENT` is now 3 — and `onboarding_screen.dart:280` reads
+it straight into the premium quote. Decide before E1: compute the quote from
+`minimum_topup_amount` + `APP_FEE_PERCENT` + gateway fees (no drift possible, one
+rate change updates every carrier), recompute the 29 stored rows against the 3%
+rule, or confirm 8% is a deliberate premium margin and document it as such.
+
+**🟠 Also unbuilt: "Baqa"** (pre-travel top-up for the line's home country, paid
+by wallet or PayPal). It is sold on the plan page —
+`subscription_screen.dart:66` and `sim_lines_list_screen.dart:721` both list
+"Baqa local calls + data operator detection" — but no flow, wallet path or
+PayPal path exists. Same shape as C3's original problem: advertised, unreachable.
 
 ## 🟠 C4 — Offline Recharge: stacked fallback cards (WhatsApp → SMS → missed call)
 
