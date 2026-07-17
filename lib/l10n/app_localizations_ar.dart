@@ -1609,4 +1609,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get ok => 'OK';
+
+  @override
+  String get rechargeNow => 'اشحن الآن';
 }

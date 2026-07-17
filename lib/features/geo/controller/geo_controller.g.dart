@@ -41,7 +41,7 @@ final class GeoControllerProvider
   }
 }
 
-String _$geoControllerHash() => r'5a37081d2f8d17ccf84c323117987d8901ec75d4';
+String _$geoControllerHash() => r'2b12e4b5f2b89c523ae624eea290d32260f59034';
 
 abstract class _$GeoController extends $Notifier<GeoState> {
   GeoState build();

@@ -505,6 +505,123 @@ final class TopupExecutionsForLineFamily extends $Family
   String toString() => r'topupExecutionsForLineProvider';
 }
 
+/// Live execution status for a SIM line (C3).
+///
+/// An instant refill is handed to worker_instant_refill, whose round trip has
+/// no fixed duration — it debits the wallet, calls the provider, and may refund.
+/// The UI used to guess with a 3-second timer, which refreshed the balance
+/// either before the worker had finished or long after. Streaming the row means
+/// the status and the wallet update exactly when the worker actually moves them.
+
+@ProviderFor(topupExecutionsLive)
+final topupExecutionsLiveProvider = TopupExecutionsLiveFamily._();
+
+/// Live execution status for a SIM line (C3).
+///
+/// An instant refill is handed to worker_instant_refill, whose round trip has
+/// no fixed duration — it debits the wallet, calls the provider, and may refund.
+/// The UI used to guess with a 3-second timer, which refreshed the balance
+/// either before the worker had finished or long after. Streaming the row means
+/// the status and the wallet update exactly when the worker actually moves them.
+
+final class TopupExecutionsLiveProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<TopupExecution>>,
+          List<TopupExecution>,
+          Stream<List<TopupExecution>>
+        >
+    with
+        $FutureModifier<List<TopupExecution>>,
+        $StreamProvider<List<TopupExecution>> {
+  /// Live execution status for a SIM line (C3).
+  ///
+  /// An instant refill is handed to worker_instant_refill, whose round trip has
+  /// no fixed duration — it debits the wallet, calls the provider, and may refund.
+  /// The UI used to guess with a 3-second timer, which refreshed the balance
+  /// either before the worker had finished or long after. Streaming the row means
+  /// the status and the wallet update exactly when the worker actually moves them.
+  TopupExecutionsLiveProvider._({
+    required TopupExecutionsLiveFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'topupExecutionsLiveProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$topupExecutionsLiveHash();
+
+  @override
+  String toString() {
+    return r'topupExecutionsLiveProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $StreamProviderElement<List<TopupExecution>> $createElement(
+    $ProviderPointer pointer,
+  ) => $StreamProviderElement(pointer);
+
+  @override
+  Stream<List<TopupExecution>> create(Ref ref) {
+    final argument = this.argument as String;
+    return topupExecutionsLive(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is TopupExecutionsLiveProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$topupExecutionsLiveHash() =>
+    r'a7202867d5fb4eacb916a2de8837e33112499d13';
+
+/// Live execution status for a SIM line (C3).
+///
+/// An instant refill is handed to worker_instant_refill, whose round trip has
+/// no fixed duration — it debits the wallet, calls the provider, and may refund.
+/// The UI used to guess with a 3-second timer, which refreshed the balance
+/// either before the worker had finished or long after. Streaming the row means
+/// the status and the wallet update exactly when the worker actually moves them.
+
+final class TopupExecutionsLiveFamily extends $Family
+    with $FunctionalFamilyOverride<Stream<List<TopupExecution>>, String> {
+  TopupExecutionsLiveFamily._()
+    : super(
+        retry: null,
+        name: r'topupExecutionsLiveProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// Live execution status for a SIM line (C3).
+  ///
+  /// An instant refill is handed to worker_instant_refill, whose round trip has
+  /// no fixed duration — it debits the wallet, calls the provider, and may refund.
+  /// The UI used to guess with a 3-second timer, which refreshed the balance
+  /// either before the worker had finished or long after. Streaming the row means
+  /// the status and the wallet update exactly when the worker actually moves them.
+
+  TopupExecutionsLiveProvider call(String simLineId) =>
+      TopupExecutionsLiveProvider._(argument: simLineId, from: this);
+
+  @override
+  String toString() => r'topupExecutionsLiveProvider';
+}
+
 /// Paginated execution history provider.
 
 @ProviderFor(SimLineExecutionsHistory)

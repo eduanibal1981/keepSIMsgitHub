@@ -692,5 +692,6 @@
     "deliverVia":  "Enviar por",
     "channelPushShort":  "Push",
     "channelEmailShort":  "Correo",
-    "channelOffGlobally":  "Desactivado en Canales de alerta arriba"
+    "channelOffGlobally":  "Desactivado en Canales de alerta arriba",
+    "rechargeNow":  "Recargar ahora"
 }

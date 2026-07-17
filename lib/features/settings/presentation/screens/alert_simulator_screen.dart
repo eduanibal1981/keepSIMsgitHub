@@ -11,7 +11,6 @@ import 'package:keep_sims/features/scheduled_topups/controller/scheduled_topup_c
 import 'package:keep_sims/core/result.dart';
 import 'package:keep_sims/core/services/connectivity_service.dart';
 import 'package:keep_sims/features/settings/presentation/screens/paypal_simulator_screen.dart';
-import 'package:keep_sims/features/settings/presentation/screens/zendit_simulator_screen.dart';
 
 class AlertSimulatorScreen extends ConsumerStatefulWidget {
   const AlertSimulatorScreen({super.key});
@@ -67,35 +66,6 @@ class _AlertSimulatorScreenState extends ConsumerState<AlertSimulatorScreen> {
           ),
         ),
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 8.0),
-            child: TextButton.icon(
-              style: TextButton.styleFrom(
-                backgroundColor: Colors.deepPurple.withValues(alpha: 0.08),
-                foregroundColor: Colors.deepPurple,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  side: const BorderSide(color: Colors.deepPurple, width: 1),
-                ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-              ),
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => const ZenditSimulatorScreen(),
-                  ),
-                );
-              },
-              icon: const Icon(Icons.phonelink_ring, size: 16),
-              label: const Text(
-                'Zendit',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-              ),
-            ),
-          ),
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
             child: TextButton.icon(

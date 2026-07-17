@@ -1623,4 +1623,7 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get ok => 'OK';
+
+  @override
+  String get rechargeNow => 'ابھی ریچارج کریں';
 }

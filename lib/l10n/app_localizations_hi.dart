@@ -1623,4 +1623,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get ok => 'OK';
+
+  @override
+  String get rechargeNow => 'अभी रिचार्ज करें';
 }

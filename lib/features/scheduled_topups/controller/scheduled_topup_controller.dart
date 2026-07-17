@@ -5,6 +5,7 @@
 library;
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:keep_sims/core/providers.dart';
 import 'package:keep_sims/core/result.dart';
 import 'package:keep_sims/features/wallet/controller/wallet_controller.dart';
@@ -251,6 +252,23 @@ FutureOr<List<TopupExecution>> topupExecutionsForLine(
     Success(data: final list) => list,
     Failure(error: final failure) => throw Exception(failure.message),
   };
+}
+
+/// Live execution status for a SIM line (C3).
+///
+/// An instant refill is handed to worker_instant_refill, whose round trip has
+/// no fixed duration — it debits the wallet, calls the provider, and may refund.
+/// The UI used to guess with a 3-second timer, which refreshed the balance
+/// either before the worker had finished or long after. Streaming the row means
+/// the status and the wallet update exactly when the worker actually moves them.
+@riverpod
+Stream<List<TopupExecution>> topupExecutionsLive(Ref ref, String simLineId) {
+  return Supabase.instance.client
+      .from('topup_executions')
+      .stream(primaryKey: ['id'])
+      .eq('sim_line_id', simLineId)
+      .order('created_at')
+      .map((rows) => rows.map(TopupExecution.fromJson).toList());
 }
 
 /// Paginated execution history provider.

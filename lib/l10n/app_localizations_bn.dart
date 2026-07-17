@@ -1621,4 +1621,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get ok => 'OK';
+
+  @override
+  String get rechargeNow => 'এখনই রিচার্জ করুন';
 }

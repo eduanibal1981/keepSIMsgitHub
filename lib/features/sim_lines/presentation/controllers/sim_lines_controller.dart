@@ -547,19 +547,13 @@ class SimLinesController extends _$SimLinesController {
       offerValue: offerValue,
     );
 
-    // 3. Invalidate states
+    // 3. Invalidate states. The wallet is deliberately not refreshed on a timer
+    //    here: the worker's debit lands whenever it lands, so the balance is
+    //    refreshed by the topupExecutionsLive subscription the moment the
+    //    execution actually reaches a terminal status.
     ref.invalidateSelf();
     ref.invalidate(topupExecutionsForLineProvider(line.id));
     ref.invalidate(simLineActivityLogsProvider(line.id));
-
-    // Delay invalidating wallet to allow backend worker time to deduct funds
-    if (paymentGatewayCode == 'wallet') {
-      Future.delayed(const Duration(seconds: 3), () {
-        try {
-          ref.invalidate(walletControllerProvider);
-        } catch (_) {}
-      });
-    }
   }
 }
 

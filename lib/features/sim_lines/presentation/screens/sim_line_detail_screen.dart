@@ -17,6 +17,7 @@ import 'package:keep_sims/core/widgets/glass_toggle_switch.dart';
 import 'package:keep_sims/features/scheduled_topups/model/scheduled_topup_model.dart';
 import 'package:keep_sims/features/scheduled_topups/ui/widgets/scheduled_topup_sheet.dart';
 import 'package:keep_sims/features/scheduled_topups/controller/scheduled_topup_controller.dart';
+import 'package:keep_sims/features/wallet/controller/wallet_controller.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/number_verification_dialog.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/manual_refill_bottom_sheet.dart';
@@ -43,8 +44,34 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
   late bool _isViewer;
   dynamic _membership;
 
+  /// Executions already seen in a terminal state, so re-emissions of the same
+  /// row (realtime replays the whole matching set on every change) don't
+  /// re-trigger the refresh.
+  final Set<String> _settledExecutions = {};
+
+  static const _terminalStatuses = {'success', 'failed', 'refunded'};
+
+  /// Refresh the wallet and the activity log the moment the worker finishes an
+  /// execution, rather than guessing at how long its round trip takes.
+  void _watchExecutionStatus() {
+    ref.listen(topupExecutionsLiveProvider(widget.id), (previous, next) {
+      final rows = next.value;
+      if (rows == null) return;
+
+      for (final exec in rows) {
+        if (!_terminalStatuses.contains(exec.status)) continue;
+        if (!_settledExecutions.add(exec.id)) continue;
+
+        ref.invalidate(walletControllerProvider);
+        ref.invalidate(simLineActivityLogsProvider(widget.id));
+        ref.invalidate(topupExecutionsForLineProvider(widget.id));
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    _watchExecutionStatus();
     final detailAsync = ref.watch(simLineDetailControllerProvider(widget.id));
     final countriesState = ref.watch(supportedCountriesProvider);
     final user = ref.watch(authControllerProvider).value;

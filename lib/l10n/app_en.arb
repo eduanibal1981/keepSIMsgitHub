@@ -787,5 +787,6 @@
             }
         }
     },
-    "ok": "OK"
+    "ok": "OK",
+    "rechargeNow":  "Recharge Now"
 }

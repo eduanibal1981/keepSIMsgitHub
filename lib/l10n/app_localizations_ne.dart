@@ -1624,4 +1624,7 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String get ok => 'OK';
+
+  @override
+  String get rechargeNow => 'अहिले रिचार्ज गर्नुहोस्';
 }

@@ -10,6 +10,7 @@ import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import 'package:keep_sims/features/scheduled_topups/controller/scheduled_topup_controller.dart';
 import 'package:keep_sims/features/scheduled_topups/ui/widgets/scheduled_topup_sheet.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
+import 'package:keep_sims/features/sim_lines/presentation/widgets/manual_refill_bottom_sheet.dart';
 import 'package:keep_sims/features/sim_lines/domain/sim_line_health.dart';
 import 'package:keep_sims/l10n/app_localizations.dart';
 
@@ -586,6 +587,53 @@ class DashboardSimLineCard extends ConsumerWidget {
                         ),
                 ),
               ],
+            ),
+
+            // Recharge Now (C3) — the same instant-refill sheet the line detail
+            // screen opens, surfaced one tap from the dashboard.
+            const SizedBox(height: 12),
+            GestureDetector(
+              onTap: () async {
+                await HapticHelper.lightTick();
+                if (!context.mounted) return;
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (_) => ManualRefillBottomSheet(simLine: line),
+                );
+              },
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                decoration: BoxDecoration(
+                  color: Colors.amber.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: Colors.amber.withValues(alpha: 0.35),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.bolt_rounded,
+                      color: Colors.amber,
+                      size: 16,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      AppLocalizations.of(context)!.rechargeNow,
+                      style: AppTextStyles.labelSmall.copyWith(
+                        color: isLight
+                            ? const Color(0xFFB45309)
+                            : Colors.amber,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ],
         ),

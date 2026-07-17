@@ -616,5 +616,6 @@
     "deliverVia":  "الإرسال عبر",
     "channelPushShort":  "إشعار",
     "channelEmailShort":  "بريد",
-    "channelOffGlobally":  "معطل في قنوات التنبيه أعلاه"
+    "channelOffGlobally":  "معطل في قنوات التنبيه أعلاه",
+    "rechargeNow":  "اشحن الآن"
 }

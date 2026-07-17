@@ -1646,4 +1646,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get ok => 'OK';
+
+  @override
+  String get rechargeNow => 'Recargar ahora';
 }

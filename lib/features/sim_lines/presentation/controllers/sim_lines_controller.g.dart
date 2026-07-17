@@ -34,7 +34,7 @@ final class SimLinesControllerProvider
 }
 
 String _$simLinesControllerHash() =>
-    r'b1e8375371dae8a6aa7058f4a77d012f3716743c';
+    r'de3c13c995925c4f08ccdd52325d4e49ff25627b';
 
 abstract class _$SimLinesController extends $AsyncNotifier<List<SimLine>> {
   FutureOr<List<SimLine>> build();

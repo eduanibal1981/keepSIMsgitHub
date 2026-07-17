@@ -35,7 +35,7 @@ final class AlertSettingsControllerProvider
 }
 
 String _$alertSettingsControllerHash() =>
-    r'730729cc55ccb39e11b4361fd0990b17310dc31b';
+    r'ecd1f6119b1c085c560f4942e6349213805d1a54';
 
 abstract class _$AlertSettingsController
     extends $AsyncNotifier<List<AlertSetting>> {

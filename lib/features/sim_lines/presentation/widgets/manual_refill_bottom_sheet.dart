@@ -10,6 +10,8 @@ import 'package:go_router/go_router.dart';
 import 'package:keep_sims/core/router/app_router.dart';
 import 'package:keep_sims/features/settings/presentation/screens/paypal_refill_simulator_screen.dart';
 import 'package:keep_sims/features/sim_lines/presentation/providers/api_offers_providers.dart';
+import 'package:keep_sims/core/providers/app_config_provider.dart';
+import 'package:keep_sims/features/sim_lines/domain/refill_pricing.dart';
 
 class ManualRefillBottomSheet extends ConsumerStatefulWidget {
   final SimLine simLine;
@@ -40,6 +42,20 @@ class _ManualRefillBottomSheetState
     super.dispose();
   }
 
+  /// The app fee rate currently configured server-side. Falls back to the same
+  /// default `calculate_topup_fees` uses, so a failed read cannot make the
+  /// quote disagree with the debit.
+  double get _appFeePercent =>
+      ref.watch(appFeePercentProvider).value ?? kDefaultAppFeePercent;
+
+  RefillQuote _quote(double baseCostUsd, PaymentMethod? pm) =>
+      RefillPricing.quote(
+        baseCostUsd: baseCostUsd,
+        appFeePercent: _appFeePercent,
+        gatewayFeePercentage: pm?.feePercentage ?? 0,
+        gatewayFeeFixed: pm?.feeFixed ?? 0,
+      );
+
   Future<void> _handleRefill() async {
     if (_selectedOffer == null) return;
 
@@ -56,11 +72,21 @@ class _ManualRefillBottomSheetState
       final pm = _selectedPaymentMethod;
       final paymentCode = pm?.code ?? 'wallet';
 
-      final gatewayFee = pm != null
-          ? (baseCostUsd * (pm.feePercentage / 100)) + pm.feeFixed
-          : 0.0;
-      final appFee = baseCostUsd * 0.03;
-      final totalAmount = baseCostUsd + gatewayFee + appFee;
+      final totalAmount = _quote(baseCostUsd, pm).total;
+
+      // Wallet refills are debited server-side by worker_instant_refill, which
+      // fails the execution outright when the balance is short. Catching it here
+      // means the user gets a top-up prompt instead of a queued request that
+      // turns into a failure notification a few seconds later.
+      if (paymentCode == 'wallet') {
+        final balance = ref.read(walletControllerProvider).value?.wallet.balance;
+        if (balance != null && balance < totalAmount) {
+          if (!mounted) return;
+          setState(() => _isLoading = false);
+          await _promptTopUp(balance, totalAmount);
+          return;
+        }
+      }
 
       if (paymentCode == 'paypal') {
         if (!mounted) return;
@@ -144,17 +170,66 @@ class _ManualRefillBottomSheetState
     }
   }
 
+  /// Shown instead of queuing a refill the wallet cannot cover.
+  Future<void> _promptTopUp(double balance, double required) async {
+    final shortfall = required - balance;
+    final goToWallet = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: AppColors.darkSurface,
+        title: Text(
+          'Not enough balance',
+          style: AppTextStyles.titleMedium.copyWith(
+            color: AppColors.textPrimaryDark,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: Text(
+          'This refill costs \$${required.toStringAsFixed(2)} but your wallet '
+          'has \$${balance.toStringAsFixed(2)}. Add at least '
+          '\$${shortfall.toStringAsFixed(2)} to continue.',
+          style: AppTextStyles.bodyMedium.copyWith(
+            color: AppColors.textSecondaryDark,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(
+              'Cancel',
+              style: AppTextStyles.labelMedium.copyWith(
+                color: AppColors.textSecondaryDark,
+              ),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
+            child: const Text(
+              'Top up wallet',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (goToWallet == true && mounted) {
+      Navigator.of(context).pop();
+      context.push(AppRoutes.wallet);
+    }
+  }
+
   void _calculateRangeFees() {
     if (_rangeBaseCostUsd == 0) return;
-    final pm = _selectedPaymentMethod;
-    final gatewayFee = pm != null
-        ? (_rangeBaseCostUsd * (pm.feePercentage / 100)) + pm.feeFixed
-        : 0.0;
-    final appFee = _rangeBaseCostUsd * 0.03;
+    final q = _quote(_rangeBaseCostUsd, _selectedPaymentMethod);
     setState(() {
-      _rangeGatewayFee = gatewayFee;
-      _rangeAppFee = appFee;
-      _rangeFinalPriceUsd = _rangeBaseCostUsd + gatewayFee + appFee;
+      _rangeGatewayFee = q.gatewayFee;
+      _rangeAppFee = q.appFee;
+      _rangeFinalPriceUsd = q.total;
     });
   }
 
@@ -423,13 +498,10 @@ class _ManualRefillBottomSheetState
 
                             final baseCost = (offer['baseCostUsd'] as num)
                                 .toDouble();
-                            final pm = _selectedPaymentMethod;
-                            final gatewayFee = pm != null
-                                ? (baseCost * (pm.feePercentage / 100)) +
-                                      pm.feeFixed
-                                : 0.0;
-                            final appFee = baseCost * 0.03;
-                            final finalPrice = baseCost + gatewayFee + appFee;
+                            final q = _quote(baseCost, _selectedPaymentMethod);
+                            final gatewayFee = q.gatewayFee;
+                            final appFee = q.appFee;
+                            final finalPrice = q.total;
 
                             final name =
                                 offer['description'] ?? offer['offerId'];
@@ -536,13 +608,7 @@ class _ManualRefillBottomSheetState
                       ),
                     )
                   : Text(
-                      _selectedOffer == null
-                          ? 'Select a Package'
-                          : (_selectedOffer!['isRange'] == true)
-                          ? (_rangeValue == null
-                                ? 'Enter valid amount'
-                                : 'Confirm \$${_rangeFinalPriceUsd.toStringAsFixed(2)} Refill')
-                          : 'Confirm \$${((_selectedOffer!['baseCostUsd'] as num).toDouble() + (_selectedPaymentMethod != null ? ((_selectedOffer!['baseCostUsd'] as num).toDouble() * (_selectedPaymentMethod!.feePercentage / 100)) + _selectedPaymentMethod!.feeFixed : 0.0) + ((_selectedOffer!['baseCostUsd'] as num).toDouble() * 0.03)).toStringAsFixed(2)} Refill',
+                      _confirmLabel(),
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -554,6 +620,21 @@ class _ManualRefillBottomSheetState
         ),
       ),
     );
+  }
+
+  String _confirmLabel() {
+    final offer = _selectedOffer;
+    if (offer == null) return 'Select a Package';
+    if (offer['isRange'] == true) {
+      return _rangeValue == null
+          ? 'Enter valid amount'
+          : 'Confirm \$${_rangeFinalPriceUsd.toStringAsFixed(2)} Refill';
+    }
+    final total = _quote(
+      (offer['baseCostUsd'] as num).toDouble(),
+      _selectedPaymentMethod,
+    ).total;
+    return 'Confirm \$${total.toStringAsFixed(2)} Refill';
   }
 
   Widget _buildRangeUI(Map<String, dynamic> offer) {

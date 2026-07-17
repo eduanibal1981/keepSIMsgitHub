@@ -1628,4 +1628,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get ok => 'OK';
+
+  @override
+  String get rechargeNow => 'Şimdi Yükle';
 }

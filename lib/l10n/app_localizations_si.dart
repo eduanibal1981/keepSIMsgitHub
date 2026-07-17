@@ -1627,4 +1627,7 @@ class AppLocalizationsSi extends AppLocalizations {
 
   @override
   String get ok => 'OK';
+
+  @override
+  String get rechargeNow => 'දැන් රීචාජ් කරන්න';
 }

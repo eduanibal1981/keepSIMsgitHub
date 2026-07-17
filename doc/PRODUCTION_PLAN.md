@@ -329,18 +329,79 @@ Also fixed in passing: dispatch-alert read `config.email_address` while the
 settings UI writes `config.email`, so a user's configured address was silently
 ignored in favour of their account email. Now accepts both (v19).
 
-## 🟠 C3 — Instant Recharge in-app (server-side execution)
+## ✅ C3 — Instant Recharge in-app (server-side execution) — done 2026-07-17
 
-Old REQUEST 9, unchanged scope: sold on the pricing page, unreachable in-app
-(`ITopUpRepository.executeRecharge` only called from the dev simulator).
+Old REQUEST 9. ~~Sold on the pricing page, unreachable in-app~~ — that was only
+true of the Zendit path. `ManualRefillBottomSheet` already shipped and is
+reachable from the line-detail Quick Actions ("Charge from wallet now"), and it
+already did the right thing: insert a `topup_executions` row → the
+`route_topup_execution` trigger assigns a gateway and bumps it to `routing` →
+`claim_instant_executions` → `worker_instant_refill`, which does the atomic
+`debit_wallet_for_topup`, the Zendit purchase keyed `z_<execution_id>`, and
+`credit_wallet_for_refund` on failure. The money path was already correct (B2).
 
-Build "Recharge Now" on `sim_line_detail_screen.dart` + dashboard card; amount
-seeded from `carrier.defaultRefillAmount`; wallet balance check with top-up
-prompt; **insert a `topup_executions` row** (trigger `route_topup_execution`
-assigns gateway; `claim_instant_executions` picks it up) — never call Zendit
-from the client. Realtime subscription for status. Test insufficient-balance
-and provider-failure paths. Coordinate with A4 item 2: after this ships, the
-client no longer needs UPDATE on `topup_executions` — revoke it.
+What C3 actually fixed:
+
+1. **The money faucet.** `execute_zendit_recharge` accepted phoneNumber /
+   countryCode / amount from *any* authenticated caller and purchased from
+   Zendit with no wallet debit, no ledger row, no `topup_executions` record and
+   no ownership check. The in-app entry point was `kDebugMode`-gated, which
+   never protected the endpoint itself — a signup plus the public anon key was
+   enough. Deleted: the Edge Function is now a 410 tombstone (verified live),
+   and `lib/features/topup/` (ZenditRepository, ITopUpRepository, TopUpResult)
+   plus `ZenditSimulatorScreen` are gone. **Still to do manually: delete the
+   function itself in the Supabase dashboard** — the MCP has no delete tool and
+   the local CLI is signed into a different account.
+2. **A silent overcharge on every refill.** The client quoted `base * 3%` while
+   `calculate_topup_fees` charged `base * 5%`, so a $5.00 refill displayed
+   "Confirm $5.15" and debited $5.25. The rate now lives once, in
+   `system_configs.APP_FEE_PERCENT` (**3**, changeable by a power user from the
+   dashboard with no redeploy). Both sides read it and share the trigger's
+   rounding order via `RefillPricing`, pinned by
+   `test/features/sim_lines/refill_pricing_test.dart` whose expectations were
+   copied off the live trigger.
+3. **A rate limiter that never fired.** `check_topup_rate_limit` tested
+   `execution_type = 'instant'`; the pipeline has always used `'refill_instant'`.
+   Fixed, so the 10s-per-line throttle now actually guards the spend button.
+   `refill_mini` is deliberately unthrottled — the auto workers pre-queue it.
+4. Wallet balance check with top-up prompt: done, on the wallet payment method.
+   The worker still fails short-balance executions server-side; this just means
+   the user gets a prompt instead of a failure notification seconds later.
+5. Realtime subscription for status: `topupExecutionsLiveProvider` streams
+   `topup_executions` for the line; the detail screen refreshes the wallet and
+   activity log when an execution reaches a terminal status. Replaces a fixed
+   3-second timer that guessed at the worker's round trip.
+6. Dashboard "Recharge Now" card: added to `dashboard_sim_line_card`.
+
+~~Coordinate with A4 item 2: revoke client UPDATE on `topup_executions`~~ →
+**deferred to C3b**, because it is not safely executable as written: see below.
+
+## 🟠 C3b — Lock down `topup_executions` client writes (found during C3)
+
+**Latent money bug.** Client `DELETE` on `topup_executions` is a silent no-op —
+HTTP 200, 0 rows — because the table has SELECT/INSERT/UPDATE policies but *no
+DELETE policy*. `deleteExecution`, `cancelSchedule` and `cleanMockLogs` all
+believe they cancelled queued work and did not. `topup_executions.scheduled_topup_id`
+is `ON DELETE SET NULL`, so deleting a schedule **orphans** its pending
+executions instead of removing them, and `worker_auto_mini_refill` claims on
+`status='pending' AND execution_time <= now()` with no parent-schedule check —
+so a cancelled schedule's refills would still fire and debit the wallet. Nothing
+is burning today (verified: zero orphaned pending rows), and Zendit is still on
+sandbox keys.
+
+Scope: add `cancel_topup_execution` RPC + `'cancelled'` to
+`topup_executions_status_check`; make cancellation actually stop the worker;
+migrate the two live client UPDATE sites (`retryFailedExecution`, which has the
+client marking an execution `'refunded'`, and `updateMiniRefillDates`) to
+SECURITY DEFINER RPCs; then revoke UPDATE/DELETE/INSERT on `topup_executions`
+from `anon` + `authenticated` (A4 item 2). Also trim the excess grants: `anon`
+currently holds INSERT/UPDATE/DELETE/TRUNCATE on this table (RLS and PostgREST
+contain it today, but the grants have no business existing).
+
+Also noticed, not yet decided: scheduled refills insert with
+`payment_gateway_code = NULL`, so `calculate_topup_fees` never fires and they
+carry **no app fee**, while a manual refill of the same base cost pays 3%. Worth
+confirming that asymmetry is intentional.
 
 ## 🟠 C4 — Offline Recharge: stacked fallback cards (WhatsApp → SMS → missed call)
 
@@ -580,7 +641,7 @@ volume justifies it.
 ```
 A1 → A2 → A3 → A4            (security closed)
 B1 → B2 → B3 → B5 → B4       (money correct; B4 tests last, covers all of B)
-C1 → C2 → C3 → C4 → C6 → C7 → C5 → C8 → C9
+C1 → C2 → C3 → C3b → C4 → C6 → C7 → C5 → C8 → C9
 D1 … D5 (any order; D4 before any release build ships)
 E1 … E6 (post-launch roadmap; E1 is the launch itself)
 ```
