@@ -417,6 +417,76 @@ computes `base_cost_usd` itself, after which client INSERT can be revoked
 outright. The worker check makes that safe to defer, but it should land before
 E1 flips to production keys.
 
+## 🔴 C3c — Payments & fees: one source of truth — **DO THIS BEFORE ANYTHING ELSE**
+
+**Owner's instruction (2026-07-17):** *"I want to reorganize the payment and fees
+before going anywhere, so I can control or change any of that through the
+database."* Every price, fee, margin and payout number must be a DB row, not a
+literal — changeable with no app update and no redeploy. Do this before C3b-2,
+C4 or anything else, because each of those adds more money paths on top.
+
+### Already database-driven (do not regress these)
+
+| Where | Holds |
+|---|---|
+| `payment_gateways` | `fee_percentage`, `fee_fixed`, `is_active` per gateway. Live: paypal 3.4% + $0.49, stripe 4.5% + $0.30, wallet 0% + $0.00. **The source of truth for gateway fees** — read by `calculate_topup_fees`, `getPaymentMethods()`, `paymentGatewayProvider`. |
+| `system_configs` | `APP_FEE_PERCENT`=3, `PREMIUM_MARGIN_PERCENT`=5, `PREMIUM_MARGIN_PER_REFILL_USD`=0.324, `ACTIVE_FULFILLMENT_METHOD`, `DEFAULT_WHATSAPP_SERVER_URL` |
+| `carrier_rules` | `minimum_topup_amount` (the real Zendit cost), `inapp_pricing` (**an override now**, not the default), `offer_id`, `offer_value`, `topup_validity_days` |
+| `carriers` | `default_refill_amount`, `fulfillment_gateway`, `api_provider`, `gateway_phone_number` |
+
+### Still hardcoded — this is the work
+
+1. **The $2.50/yr base service fee.** `onboarding_screen.dart:159`
+   (`_baseServiceFeeUsd`) plus six display strings (1220, 1221, 1713, 1723,
+   1734, 1735). Both paid tiers charge it. Nothing in the DB knows it exists.
+2. **A rival subscription model, contradicting the $2.50/yr one.**
+   `subscription_screen.dart:85` `_calculatePrice()` prices Standard at
+   **$0.20/mo annually / $0.40/mo monthly**, Premium at **$0.40 / $0.80**, plus
+   $0.10–$0.40 per line beyond 2, capped at 5 lines for Standard — with a second
+   `_calculateOriginalPrice()` for strike-through display. $0.20/mo × 12 =
+   $2.40/yr, *near* but not equal to onboarding's $2.50/yr. **The screen is
+   orphaned** (not routed, not imported anywhere), so it charges nobody today —
+   but it is a loaded gun: wire it up and the app has two prices. Decide which
+   model is real, put it in the DB, and delete or rebuild the other.
+3. **Offline gateway numbers and amounts.** `offline_refill_screen.dart:442`
+   (`?? 5.00`), `:444` (`?? '+968 24 555 0110'`), and hardcoded numbers at 514 /
+   526 / 539 (`+968 24 555 0111/0112/0113`) for the WhatsApp / SMS / missed-call
+   cards. `offline_refill_repository.dart:32,64` hardcodes `10.00`. See C3b-3:
+   `carriers` is not cached, so offline these fallbacks are what users actually
+   get — an offline user outside Oman is told to message the wrong number.
+4. `paypal_simulator_screen.dart` — 3.49% + $0.49. `kDebugMode`-only dev tool,
+   lowest priority, but it should read `payment_gateways` like everything else.
+
+### Rules that were expensive to learn — do not break them
+
+* **Gross up, do not mark up.** A gateway takes its percentage of the *total
+  billed*, so `net * (1 + pct) + fixed` under-recovers. Use
+  `(net + fixed) / (1 - pct)`. Tested in `refill_pricing_test.dart`.
+* **Premium and pay-as-you-go are different products.** Premium is pre-paid
+  yearly (`worker_auto_mini_refill` deliberately does **no** wallet debit);
+  instant refill is debited per refill. `calculate_topup_fees` only fires when
+  `payment_gateway_code IS NOT NULL`, which is why scheduled rows carry no app
+  fee. That asymmetry is correct — do not "unify" it.
+* **The premium margin needs two knobs.** It is `5% * cost + $0.324/refill`; the
+  flat part is ~2.6% of a $277 plan but ~41% of a $13 one, so no single
+  percentage fits.
+* **`inapp_pricing` is an override**: positive wins (keeps Orange Egypt 4.30, du
+  2.00), null parses to 0 = "compute it". It is **not** dead — it also feeds the
+  premium quote path.
+* **Do not remove the worker's offer-price validation** (C3b-1). The client
+  names both the offer and its price; the worker is the only thing that checks
+  they match.
+
+### Open pricing decisions for the owner
+
+* `PREMIUM_MARGIN_PERCENT = 5` keeps the old margin but raises user prices ~3.7%
+  (PayPal is now grossed up instead of absorbed). ~1 holds the old user price.
+* Which subscription model is real — $2.50/yr flat, or the orphaned screen's
+  per-month/per-line one?
+* "Baqa" is advertised (`subscription_screen.dart:66`,
+  `sim_lines_list_screen.dart:721`) but **unbuilt** — it has a price in the
+  marketing copy and no implementation.
+
 ### 🟠 C3b-3 — offline: cache `carriers` + `carrier_rules` (found 2026-07-17)
 
 Only `sim_lines` is cached locally (`cached_sim_lines`). `carriers` and
