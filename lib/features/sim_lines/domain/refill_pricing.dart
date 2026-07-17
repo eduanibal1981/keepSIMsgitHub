@@ -59,4 +59,75 @@ class RefillPricing {
       total: round2(baseCostUsd + gatewayFee + appFee),
     );
   }
+
+  /// Refills a premium subscription pre-pays for in a year.
+  static int refillsPerYear(int topupValidityDays) =>
+      topupValidityDays <= 0 ? 0 : (365 / topupValidityDays).ceil();
+
+  /// What one premium refill costs, before the gateway takes its cut.
+  ///
+  /// No gateway fee here on purpose: premium is billed as a **single** yearly
+  /// charge, so the gateway is applied once to the whole total in
+  /// [premiumYearlyTotal], not once per refill.
+  ///
+  /// This replaces the stored `carrier_rules.inapp_pricing`, which was a
+  /// *snapshot* of the fees when it was written: it baked in $0.30 + 5%
+  /// (Stripe's fixed fee, despite premium billing through PayPal) and an 8%
+  /// predating `APP_FEE_PERCENT` being 3, and it charged that fixed fee once per
+  /// refill — 13x $0.30 to cover one $0.49 charge. Being stored, a renegotiated
+  /// rate meant recomputing every carrier row by hand: the opposite of the
+  /// "change it in the database, no app update" goal.
+  ///
+  /// [inappPricingOverride] keeps deliberate per-carrier prices working: a
+  /// positive value wins, anything else (including the 0 a null column parses
+  /// to) means "compute it".
+  static double premiumRefillPrice({
+    required double minimumTopupAmount,
+    required double appFeePercent,
+    double? inappPricingOverride,
+  }) {
+    if (inappPricingOverride != null && inappPricingOverride > 0) {
+      return inappPricingOverride;
+    }
+    return quote(baseCostUsd: minimumTopupAmount, appFeePercent: appFeePercent)
+        .total;
+  }
+
+  /// The single up-front charge for a year of premium.
+  ///
+  /// [premiumMarginPercent] is the margin, stated rather than hidden inside a
+  /// mis-applied gateway fee — it is `system_configs.PREMIUM_MARGIN_PERCENT`, so
+  /// it moves in one row with no app update.
+  ///
+  /// The gateway is grossed up, not marked up. The gateway charges its
+  /// percentage on the **total billed**, so `net * (1 + pct) + fixed` quietly
+  /// under-recovers (bill $269.45 on a $260.12 subtotal and PayPal's $9.65 cut
+  /// leaves $259.80). Solving `charged - (charged*pct + fixed) = net` instead
+  /// leaves exactly [premiumMarginPercent]-inclusive net in the account.
+  static double premiumYearlyTotal({
+    required double baseServiceFeeUsd,
+    required double minimumTopupAmount,
+    required int topupValidityDays,
+    required double appFeePercent,
+    required double premiumMarginPercent,
+    required double gatewayFeePercentage,
+    required double gatewayFeeFixed,
+    double? inappPricingOverride,
+  }) {
+    final perRefill = premiumRefillPrice(
+      minimumTopupAmount: minimumTopupAmount,
+      appFeePercent: appFeePercent,
+      inappPricingOverride: inappPricingOverride,
+    );
+    final net = round2(
+      (baseServiceFeeUsd + perRefill * refillsPerYear(topupValidityDays)) *
+          (1 + premiumMarginPercent / 100),
+    );
+
+    final pct = gatewayFeePercentage / 100;
+    // A gateway taking 100% or more can never be covered; charging the raw net
+    // is wrong but at least finite, and such a row is a data error, not a price.
+    if (pct >= 1) return net;
+    return round2((net + gatewayFeeFixed) / (1 - pct));
+  }
 }

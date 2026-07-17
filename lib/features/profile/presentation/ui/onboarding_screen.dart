@@ -24,6 +24,8 @@ import 'package:keep_sims/features/sim_lines/data/models/country_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/carrier_model.dart';
 
 import '../../../sim_lines/data/models/carrier_rule_model.dart';
+import 'package:keep_sims/core/providers/app_config_provider.dart';
+import 'package:keep_sims/features/sim_lines/domain/refill_pricing.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
@@ -153,6 +155,65 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     }
   }
 
+  /// The $2.50/yr base service fee both paid tiers carry.
+  static const double _baseServiceFeeUsd = 2.50;
+
+  /// `inapp_pricing` is now an override, not the default: the column parses null
+  /// to 0, so only a positive value counts as a deliberate per-carrier price.
+  double? _overrideFor(CarrierRule rule) =>
+      rule.inappPricing > 0 ? rule.inappPricing : null;
+
+  /// What one premium refill costs, before the gateway's cut.
+  ///
+  /// Priced from `system_configs.APP_FEE_PERCENT` rather than the stored
+  /// `carrier_rules.inapp_pricing` snapshot, so a rate change is one row with no
+  /// app update. Safe to call during build().
+  double _premiumRefillPriceSync(CarrierRule rule) => RefillPricing.premiumRefillPrice(
+    minimumTopupAmount: rule.minimumTopupAmount,
+    appFeePercent: ref.watch(appFeePercentProvider).value ?? kDefaultAppFeePercent,
+    inappPricingOverride: _overrideFor(rule),
+  );
+
+  /// The single up-front charge for a year of premium on [rule]'s carrier.
+  ///
+  /// Premium bills through PayPal as one transaction, so PayPal's fee — read
+  /// from `payment_gateways`, the source of truth — is grossed up once over the
+  /// whole year rather than added per refill.
+  double _premiumYearlyTotalSync(CarrierRule rule) {
+    final paypal = ref.watch(paymentGatewayProvider('paypal')).value;
+    return RefillPricing.premiumYearlyTotal(
+      baseServiceFeeUsd: _baseServiceFeeUsd,
+      minimumTopupAmount: rule.minimumTopupAmount,
+      topupValidityDays: rule.topupValidityDays,
+      appFeePercent: ref.watch(appFeePercentProvider).value ?? kDefaultAppFeePercent,
+      premiumMarginPercent: ref.watch(premiumMarginPercentProvider).value ?? 0,
+      // Until the gateway row loads, quote without its fee rather than guessing
+      // a rate; _submit() awaits the real row before charging anything.
+      gatewayFeePercentage: paypal?.feePercentage ?? 0,
+      gatewayFeeFixed: paypal?.feeFixed ?? 0,
+      inappPricingOverride: _overrideFor(rule),
+    );
+  }
+
+  /// Authoritative version for the charge itself: awaits the config and gateway
+  /// rows instead of pricing on whatever build() happened to have cached.
+  Future<double> _premiumYearlyTotal(CarrierRule rule) async {
+    final appFee = await ref.read(appFeePercentProvider.future);
+    final margin = await ref.read(premiumMarginPercentProvider.future);
+    final paypal = await ref.read(paymentGatewayProvider('paypal').future);
+
+    return RefillPricing.premiumYearlyTotal(
+      baseServiceFeeUsd: _baseServiceFeeUsd,
+      minimumTopupAmount: rule.minimumTopupAmount,
+      topupValidityDays: rule.topupValidityDays,
+      appFeePercent: appFee,
+      premiumMarginPercent: margin,
+      gatewayFeePercentage: paypal?.feePercentage ?? 0,
+      gatewayFeeFixed: paypal?.feeFixed ?? 0,
+      inappPricingOverride: _overrideFor(rule),
+    );
+  }
+
   Future<void> _submit() async {
     if (!_agreedToTerms) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -268,16 +329,15 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
     final isPaid = _selectedTier != 'free';
     if (isPaid) {
-      double amountToCharge = _selectedTier == 'standard'
-          ? 2.50
-          : 2.50; // Base service fee
+      // Standard is the bare service fee. Premium is that plus a pre-paid year
+      // of refills, grossed up once for PayPal — see _premiumYearlyTotal.
+      double amountToCharge = _baseServiceFeeUsd;
       if (_selectedTier == 'premium' && hasSimDetails) {
         final rule = await ref
             .read(simLinesRepositoryProvider)
             .getCarrierRule(_selectedSimCarrier!.id);
         if (rule != null) {
-          int refillsPerYear = (365 / rule.topupValidityDays).ceil();
-          amountToCharge += refillsPerYear * rule.inappPricing;
+          amountToCharge = await _premiumYearlyTotal(rule);
         }
       }
 
@@ -1645,8 +1705,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         billingDesc = 'Loading premium pricing rules for this carrier...';
         billingRate = '\$2.50/yr + ...';
       } else if (premiumRule != null) {
+        // The whole year is charged once, up front — the old copy read as though
+        // each refill were billed separately.
+        final cur = premiumRule.inappPricingCurrency.toUpperCase();
         billingDesc =
-            'Fully automated top-ups. You will be billed \$2.50/yr + ${premiumRule.inappPricing} ${premiumRule.inappPricingCurrency.toUpperCase()} every ${premiumRule.topupValidityDays} days.';
+            'Fully automated top-ups. ${_premiumYearlyTotalSync(premiumRule).toStringAsFixed(2)} $cur charged once for the year — '
+            '\$${_baseServiceFeeUsd.toStringAsFixed(2)} service plus '
+            '${RefillPricing.refillsPerYear(premiumRule.topupValidityDays)} refills of '
+            '${_premiumRefillPriceSync(premiumRule).toStringAsFixed(2)} $cur, one every ${premiumRule.topupValidityDays} days.';
         billingRate = '\$2.50/yr + Refill';
       } else {
         billingDesc =
@@ -2062,7 +2128,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                             ),
                             if (isPremium && premiumRule != null)
                               Text(
-                                '+ ${premiumRule.inappPricing} ${premiumRule.inappPricingCurrency.toUpperCase()} refill',
+                                '+ ${_premiumRefillPriceSync(premiumRule).toStringAsFixed(2)} ${premiumRule.inappPricingCurrency.toUpperCase()} refill',
                                 style: TextStyle(
                                   fontSize: 9,
                                   fontWeight: FontWeight.w600,
@@ -2149,7 +2215,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
-                                  'Auto-refill: ${premiumRule.inappPricing} ${premiumRule.inappPricingCurrency.toUpperCase()} every ${premiumRule.topupValidityDays} days (telecom, VAT included)',
+                                  'Auto-refill: ${_premiumRefillPriceSync(premiumRule).toStringAsFixed(2)} ${premiumRule.inappPricingCurrency.toUpperCase()} every ${premiumRule.topupValidityDays} days (telecom, VAT included)',
                                   style: AppTextStyles.caption.copyWith(
                                     color: context.onSurfaceColor.withValues(
                                       alpha: 0.7,

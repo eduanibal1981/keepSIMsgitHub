@@ -473,19 +473,42 @@ So `carrier_rules.inapp_pricing` is the premium subscription rate and
 — and note `inapp_pricing` is load-bearing for the premium quote, not a dead
 column.
 
-**🟠 OPEN — the stored premium rate does not match the stated rule.** The owner
-describes Premium as *base + 3% app fee + gateway fees*. The stored values are
-actually `(minimum_topup_amount + 0.30) * 1.08` — **27 of 29 rows match that
-exactly, 0 match base + 3%** (the exceptions are round-number overrides: Orange
-Egypt 4.30, du 2.00). So it encodes **8%, not 3%**, plus a flat $0.30 that is
-Stripe's `fee_fixed` applied even though premium is billed once yearly rather
-than per refill, and no percentage gateway fee at all. Because the value is
-**stored** rather than computed, it is already stale — it was derived under an
-8% rule and `APP_FEE_PERCENT` is now 3 — and `onboarding_screen.dart:280` reads
-it straight into the premium quote. Decide before E1: compute the quote from
-`minimum_topup_amount` + `APP_FEE_PERCENT` + gateway fees (no drift possible, one
-rate change updates every carrier), recompute the 29 stored rows against the 3%
-rule, or confirm 8% is a deliberate premium margin and document it as such.
+**✅ RESOLVED 2026-07-17 — `payment_gateways` is now the source of truth and the
+premium quote is computed, not stored.** The owner's rule was *base + 3% app fee
++ gateway fees*; the stored values were `(minimum_topup_amount + 0.30) * 1.08`
+(27 of 29 rows matched that exactly, **0** matched base + 3%). That snapshot
+encoded 8% rather than 3%, and a $0.30 that is **Stripe's** `fee_fixed` even
+though premium bills through PayPal — applied **once per refill**, so 13 x $0.30
+covered a single $0.49 charge. Being stored, it also defeated the stated goal:
+renegotiating a gateway rate meant recomputing every carrier row by hand.
+
+What shipped:
+
+* **Gateway fees come only from `payment_gateways`.** `calculate_topup_fees` and
+  `getPaymentMethods()` already did; `onboarding_screen.dart` now does too, via
+  `paymentGatewayProvider('paypal')`. One row change reprices every carrier with
+  no app update.
+* **The gateway is grossed up once over the yearly total**, not added per refill:
+  `(net + fixed) / (1 - pct)`. A naive `net * (1 + pct) + fixed` under-recovers,
+  because the gateway takes its percentage of the **total billed** — billing
+  $269.45 on a $260.12 subtotal nets $259.80, $0.32 short. The gross-up nets the
+  subtotal exactly.
+* **Margin is explicit**: `system_configs.PREMIUM_MARGIN_PERCENT`, default **0**.
+  The old over-recovery implied a different rate per carrier (~2.7% O2 Germany,
+  ~5.2% Turkcell) because a per-refill fixed fee is not a percentage, so no
+  single number reproduces it. **At 0 prices fall ~2.5–5% (O2 $276.84 →
+  $269.82); at 3 they land within ~1% of today (O2 → $277.90).** Owner's call —
+  one row, no redeploy.
+* **`carrier_rules.inapp_pricing` is now an override, not the default.** A
+  positive value still wins, so the deliberate round-number prices (Orange Egypt
+  4.30, du 2.00) keep working; null parses to 0, which means "compute it". The
+  admin app may keep writing it.
+* Also fixed: `scheduled_topup_sheet.dart` hardcoded `baseCost * 0.05` in two
+  places — the old 5% app fee — so it quoted a rate the rest of the system had
+  stopped charging. It reads `APP_FEE_PERCENT` now.
+
+Only remaining hardcoded fee is `paypal_simulator_screen.dart` (3.49% + $0.49),
+reachable solely from the `kDebugMode`-gated simulator — a dev tool, not a price.
 
 **🟠 Also unbuilt: "Baqa"** (pre-travel top-up for the line's home country, paid
 by wallet or PayPal). It is sold on the plan page —

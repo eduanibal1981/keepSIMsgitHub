@@ -77,4 +77,121 @@ void main() {
       expect(RefillPricing.round2(0.135), 0.14);
     });
   });
+
+  group('Premium yearly pricing', () {
+    // O2 Germany, the live row: $19.24 base cost, 30-day validity, PayPal at
+    // 3.4% + $0.49 per payment_gateways.
+    const o2Base = 19.24;
+    const o2Validity = 30;
+    const paypalPct = 3.4;
+    const paypalFixed = 0.49;
+
+    double yearly({double margin = 0, double? override}) =>
+        RefillPricing.premiumYearlyTotal(
+          baseServiceFeeUsd: 2.50,
+          minimumTopupAmount: o2Base,
+          topupValidityDays: o2Validity,
+          appFeePercent: 3,
+          premiumMarginPercent: margin,
+          gatewayFeePercentage: paypalPct,
+          gatewayFeeFixed: paypalFixed,
+          inappPricingOverride: override,
+        );
+
+    test('a 30-day carrier pre-pays 13 refills', () {
+      expect(RefillPricing.refillsPerYear(30), 13);
+      expect(RefillPricing.refillsPerYear(90), 5);
+      expect(RefillPricing.refillsPerYear(365), 1);
+    });
+
+    test('a zero or negative validity cannot divide by zero', () {
+      expect(RefillPricing.refillsPerYear(0), 0);
+      expect(RefillPricing.refillsPerYear(-5), 0);
+    });
+
+    test('the per-refill price carries no gateway fee', () {
+      // The gateway is charged once over the yearly total, not per refill —
+      // charging it 13 times to cover one $0.49 transaction is the bug this
+      // whole change exists to remove.
+      expect(
+        RefillPricing.premiumRefillPrice(
+          minimumTopupAmount: o2Base,
+          appFeePercent: 3,
+        ),
+        19.82, // 19.24 + round(0.5772) = 19.24 + 0.58
+      );
+    });
+
+    test('THE POINT: the gross-up leaves the full subtotal after the gateway cut', () {
+      final charged = yearly();
+      final subtotal = RefillPricing.round2(2.50 + 19.82 * 13);
+      final gatewayTakes =
+          RefillPricing.round2(charged * (paypalPct / 100) + paypalFixed);
+
+      expect(subtotal, 260.16);
+      // A naive `subtotal * (1 + pct) + fixed` bills 269.49 and nets 259.84 —
+      // 0.32 short, because the gateway's percentage applies to the total
+      // billed, not to the subtotal.
+      expect(RefillPricing.round2(charged - gatewayTakes), subtotal);
+    });
+
+    test('margin is explicit and scales the whole year, gateway on top', () {
+      final none = yearly();
+      final five = yearly(margin: 5);
+      expect(five, greaterThan(none));
+      // 5% of the subtotal, grossed up for the gateway's cut of the extra.
+      expect(RefillPricing.round2(five - none), 13.47);
+    });
+
+    test('a zero margin is honoured, not treated as unset', () {
+      // The whole reason PREMIUM_MARGIN_PERCENT exists is to be a number that
+      // means what it says — 0 must mean "no margin", not "use some default".
+      final subtotal = RefillPricing.round2(2.50 + 19.82 * 13);
+      final expected = RefillPricing.round2((subtotal + paypalFixed) / (1 - 0.034));
+      expect(yearly(margin: 0), expected);
+    });
+
+    test('a deliberate per-carrier override replaces the computed refill price', () {
+      // du and Orange Egypt carry round-number prices set by hand; those must
+      // survive, while every other carrier follows the config.
+      final withOverride = yearly(override: 2.00);
+      final expectedNet = RefillPricing.round2(2.50 + 2.00 * 13);
+      expect(
+        withOverride,
+        RefillPricing.round2((expectedNet + paypalFixed) / (1 - 0.034)),
+      );
+    });
+
+    test('a non-positive override means "compute it", since null parses to 0', () {
+      expect(yearly(override: 0), yearly());
+      expect(yearly(override: -1), yearly());
+    });
+
+    test('a wallet-style 0% / \$0 gateway adds nothing', () {
+      final total = RefillPricing.premiumYearlyTotal(
+        baseServiceFeeUsd: 2.50,
+        minimumTopupAmount: o2Base,
+        topupValidityDays: o2Validity,
+        appFeePercent: 3,
+        premiumMarginPercent: 0,
+        gatewayFeePercentage: 0,
+        gatewayFeeFixed: 0,
+      );
+      expect(total, RefillPricing.round2(2.50 + 19.82 * 13));
+    });
+
+    test('an impossible 100% gateway does not divide by zero or go negative', () {
+      final total = RefillPricing.premiumYearlyTotal(
+        baseServiceFeeUsd: 2.50,
+        minimumTopupAmount: o2Base,
+        topupValidityDays: o2Validity,
+        appFeePercent: 3,
+        premiumMarginPercent: 0,
+        gatewayFeePercentage: 100,
+        gatewayFeeFixed: 0,
+      );
+      expect(total, isPositive);
+      expect(total.isFinite, isTrue);
+    });
+  });
 }

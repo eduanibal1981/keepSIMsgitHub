@@ -12,6 +12,8 @@ import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:go_router/go_router.dart';
 import 'package:keep_sims/core/result.dart';
+import 'package:keep_sims/core/providers/app_config_provider.dart';
+import 'package:keep_sims/features/sim_lines/domain/refill_pricing.dart';
 import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import 'package:keep_sims/features/notifications/presentation/controllers/notification_settings_controller.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
@@ -545,9 +547,9 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                           final isSelected = _selectedOffer?['offerId'] == offer['offerId'];
                           
                           final baseCost = (offer['baseCostUsd'] as num).toDouble();
-                          // No gateway fee for wallet payment
-                          final appFee = baseCost * 0.05;
-                          final finalPrice = baseCost + appFee;
+                          final q = _quote(baseCost);
+                          final appFee = q.appFee;
+                          final finalPrice = q.total;
 
                           final name = offer['description'] ?? offer['offerId'];
 
@@ -1025,12 +1027,23 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
     }
   }
 
+  /// The configured app fee. Was hardcoded at 5% here while the manual sheet and
+  /// calculate_topup_fees moved to system_configs.APP_FEE_PERCENT (3%), so this
+  /// screen quoted a price the rest of the system had stopped charging.
+  double get _appFeePercent =>
+      ref.watch(appFeePercentProvider).value ?? kDefaultAppFeePercent;
+
+  /// Auto-refill is funded from the wallet, which is a 0% / $0.00 gateway in
+  /// payment_gateways — so there is no gateway fee to add here, only the app fee.
+  RefillQuote _quote(double baseCostUsd) =>
+      RefillPricing.quote(baseCostUsd: baseCostUsd, appFeePercent: _appFeePercent);
+
   void _calculateRangeFees() {
     if (_rangeValue != null) {
+      final q = _quote(_rangeBaseCostUsd);
       setState(() {
-        // Assume wallet payment for auto-refill -> 0% gateway fee
-        _rangeAppFee = _rangeBaseCostUsd * 0.05;
-        _rangeFinalPriceUsd = _rangeBaseCostUsd + _rangeAppFee;
+        _rangeAppFee = q.appFee;
+        _rangeFinalPriceUsd = q.total;
         _amount = _rangeFinalPriceUsd;
       });
     }
