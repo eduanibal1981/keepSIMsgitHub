@@ -1,5 +1,8 @@
+import 'dart:async';
 import 'dart:math';
 
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -13,8 +16,13 @@ part 'device_token_repository.g.dart';
 ///
 /// OneSignal delivery uses the `external_id` alias (= user id), but we also
 /// persist the OneSignal subscription id per device for debugging and future
-/// direct targeting. The raw FCM token stays null until the Firebase client
-/// integration lands (C1b); the FCM fallback reads it once populated.
+/// direct targeting. The raw FCM token is what the dispatcher's FCM fallback
+/// sends to when OneSignal is unreachable.
+///
+/// This deliberately registers no FirebaseMessaging message handlers: OneSignal
+/// owns notification display, and we only need Firebase for the token. FCM
+/// fallback messages carry a `notification` payload, so Android renders them
+/// from the system tray without routing through a Dart handler.
 class DeviceTokenRepository {
   DeviceTokenRepository({required SupabaseClient supabase})
     : _supabase = supabase;
@@ -23,19 +31,44 @@ class DeviceTokenRepository {
 
   static const _deviceIdKey = 'keepsims_device_id';
   bool _observerAttached = false;
+  StreamSubscription<String>? _fcmRefreshSub;
 
   /// Upserts this device's identifiers for [userId]. Safe to call repeatedly.
-  /// Also attaches a one-time observer so a subscription id that only becomes
-  /// available after the user grants push permission is captured later.
+  /// Also attaches one-time listeners so identifiers that only become available
+  /// later — a OneSignal subscription id after the user grants push permission,
+  /// or a rotated FCM token — are captured.
   Future<void> registerCurrentDevice(String userId) async {
     await _upsert(userId);
 
     if (!_observerAttached) {
       _observerAttached = true;
+
       OneSignal.User.pushSubscription.addObserver((_) {
         // The id can change after opt-in; re-upsert. Fire-and-forget.
         _upsert(userId);
       });
+
+      if (_firebaseReady) {
+        _fcmRefreshSub = FirebaseMessaging.instance.onTokenRefresh.listen(
+          (_) => _upsert(userId),
+          onError: (_) {},
+        );
+      }
+    }
+  }
+
+  /// True once Firebase has initialised on this platform. iOS has no
+  /// GoogleService-Info.plist yet, so the FCM half stays inert there.
+  bool get _firebaseReady => Firebase.apps.isNotEmpty;
+
+  Future<String?> _fcmToken() async {
+    if (!_firebaseReady) return null;
+    try {
+      return await FirebaseMessaging.instance.getToken();
+    } catch (_) {
+      // No Play Services, no permission, or FCM unreachable — the OneSignal
+      // path still works; the fallback just has no address for this device.
+      return null;
     }
   }
 
@@ -61,17 +94,29 @@ class DeviceTokenRepository {
   Future<void> _upsert(String userId) async {
     try {
       final deviceId = await _deviceId();
-      final playerId = OneSignal.User.pushSubscription.id;
-      await _supabase.from('device_push_tokens').upsert({
+      final payload = <String, dynamic>{
         'user_id': userId,
         'device_id': deviceId,
         'platform': _platform,
-        'onesignal_player_id': playerId,
+        'onesignal_player_id': OneSignal.User.pushSubscription.id,
         'updated_at': DateTime.now().toUtc().toIso8601String(),
-      }, onConflict: 'user_id, device_id');
+      };
+
+      // Only write fcm_token when we actually have one, so a platform without
+      // Firebase configured cannot wipe a previously registered token.
+      final fcm = await _fcmToken();
+      if (fcm != null) payload['fcm_token'] = fcm;
+
+      await _supabase
+          .from('device_push_tokens')
+          .upsert(payload, onConflict: 'user_id, device_id');
     } catch (_) {
       // Non-fatal: token registration must never block auth.
     }
+  }
+
+  void dispose() {
+    _fcmRefreshSub?.cancel();
   }
 
   /// A stable per-install id, persisted locally, used as the upsert key so a
@@ -105,5 +150,7 @@ class DeviceTokenRepository {
 
 @riverpod
 DeviceTokenRepository deviceTokenRepository(Ref ref) {
-  return DeviceTokenRepository(supabase: Supabase.instance.client);
+  final repo = DeviceTokenRepository(supabase: Supabase.instance.client);
+  ref.onDispose(repo.dispose);
+  return repo;
 }

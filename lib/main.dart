@@ -3,6 +3,7 @@
 /// Initializes Supabase and wraps the app in ProviderScope.
 library;
 
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/rendering.dart';
@@ -41,6 +42,17 @@ void main() async {
   // Use this method to prompt for push notifications.
   // We recommend removing this method after testing and instead use In-App Messages to prompt for notification permission.
   OneSignal.Notifications.requestPermission(false);
+
+  // Firebase powers only the FCM fallback used by the dispatch-alert function
+  // when OneSignal is unreachable — never as a datastore. Platforms without a
+  // Firebase config file (currently iOS, which has no GoogleService-Info.plist)
+  // must not crash at startup: the fallback simply stays inactive there.
+  try {
+    await Firebase.initializeApp();
+  } catch (e) {
+    debugPrint('Firebase init skipped; FCM fallback inactive: $e');
+  }
+
   // Initialize Supabase
   await initSupabase();
 
