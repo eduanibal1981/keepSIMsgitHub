@@ -477,12 +477,40 @@ C4 or anything else, because each of those adds more money paths on top.
   names both the offer and its price; the worker is the only thing that checks
   they match.
 
+### ✅ Decided 2026-07-17 — yearly only, monthly is removed
+
+**Owner's call, and the numbers are emphatic.** PayPal's **$0.49 fixed fee** does
+not care how small the charge is:
+
+| Charge | PayPal takes | You net | Lost to fees |
+|---|---|---|---|
+| Standard monthly $0.40 | $0.50 | **−$0.10** | **126%** |
+| Premium monthly $0.80 | $0.52 | $0.28 | 65% |
+| Standard yearly $2.50 | $0.58 | $1.93 | 23% |
+| Premium yearly $287.09 (O2) | $10.25 | $276.84 | 3.6% |
+
+Monthly Standard **loses $0.10 per subscriber per month** — you would pay to bill
+them. Remove the monthly option entirely (`subscription_screen.dart`'s
+`isAnnually` branches and any monthly copy); yearly only.
+
+**Note for whoever does C3c:** the same fixed fee still eats **23%** of a
+standalone $2.50/yr Standard plan. Premium survives it (3.6%) only because the
+year's refills ride the same single charge. Worth raising with the owner — a
+Standard tier that hands PayPal a quarter of its revenue is a pricing problem
+that no amount of DB-ifying will fix. Options if they want it addressed:
+bundle Standard billing with something, raise it, or take it via wallet balance
+(0% + $0.00 in `payment_gateways`) rather than PayPal.
+
 ### Open pricing decisions for the owner
 
+* **Which yearly model is real?** Onboarding charges **$2.50/yr per line**; the
+  orphaned `subscription_screen.dart` charges **$2.40/yr per account** ($0.20/mo
+  annually) *including 2 lines*, +$1.20/yr per extra line, capped at 5 lines for
+  Standard. For a 2-line account that is $5.00/yr vs $2.40/yr — they are
+  different structures, not just different numbers. Removing monthly does not
+  settle this.
 * `PREMIUM_MARGIN_PERCENT = 5` keeps the old margin but raises user prices ~3.7%
   (PayPal is now grossed up instead of absorbed). ~1 holds the old user price.
-* Which subscription model is real — $2.50/yr flat, or the orphaned screen's
-  per-month/per-line one?
 * "Baqa" is advertised (`subscription_screen.dart:66`,
   `sim_lines_list_screen.dart:721`) but **unbuilt** — it has a price in the
   marketing copy and no implementation.
