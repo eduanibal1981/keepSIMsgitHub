@@ -1627,4 +1627,8 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String get rechargeNow => 'अहिले रिचार्ज गर्नुहोस्';
+
+  @override
+  String get planFeePaidFromWallet =>
+      'योजना शुल्क तपाईंको वालेट ब्यालेन्सबाट भुक्तानी गरियो।';
 }

@@ -1619,4 +1619,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get rechargeNow => 'Recharge Now';
+
+  @override
+  String get planFeePaidFromWallet => 'Plan fee paid from your wallet balance.';
 }

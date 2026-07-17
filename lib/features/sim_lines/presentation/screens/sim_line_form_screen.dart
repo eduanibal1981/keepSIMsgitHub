@@ -15,6 +15,9 @@ import 'package:keep_sims/features/settings/presentation/screens/paypal_refill_s
 import 'package:keep_sims/features/sim_lines/data/repositories/sim_lines_repository_impl.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
 import 'package:keep_sims/features/notifications/presentation/controllers/notification_settings_controller.dart';
+import 'package:keep_sims/core/providers/app_config_provider.dart';
+import 'package:keep_sims/features/sim_lines/domain/plan_payment.dart';
+import 'package:keep_sims/features/sim_lines/domain/refill_pricing.dart';
 
 import '../../data/models/carrier_rule_model.dart';
 
@@ -41,6 +44,16 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
   bool _isEdit = false;
   bool _hasPrepopulated = false;
   bool _isSaving = false;
+
+  /// The yearly base service fee both paid tiers carry, from
+  /// `system_configs.BASE_SERVICE_FEE_USD` (C3c). Display only — the charge
+  /// paths await the real rows via [PlanPayment].
+  double get _baseServiceFeeUsd =>
+      ref.watch(baseServiceFeeUsdProvider).value ?? kDefaultBaseServiceFeeUsd;
+
+  /// `$2.50/yr`-style label used across the plan copy.
+  String get _feePerYearLabel =>
+      '\$${_baseServiceFeeUsd.toStringAsFixed(2)}/yr';
 
   @override
   void initState() {
@@ -661,11 +674,17 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
       planColor = isDark ? Colors.purpleAccent : Colors.purple;
       if (isPremiumLoading) {
         billingDesc = 'Loading premium pricing rules for this carrier...';
-        billingRate = '\$2.50/yr + ...';
+        billingRate = '$_feePerYearLabel + ...';
       } else if (premiumRule != null) {
+        // Same computed quote as onboarding — the whole year charged once, not
+        // the stored inapp_pricing snapshot the old copy showed.
+        final cur = premiumRule.inappPricingCurrency.toUpperCase();
         billingDesc =
-            'Fully automated top-ups. You will be billed \$2.50/yr + ${premiumRule.inappPricing} ${premiumRule.inappPricingCurrency.toUpperCase()} every ${premiumRule.topupValidityDays} days.';
-        billingRate = '\$2.50/yr + Refill';
+            'Fully automated top-ups. ${PlanPayment.premiumYearlyTotalSync(ref, premiumRule).toStringAsFixed(2)} $cur charged once for the year — '
+            '\$${_baseServiceFeeUsd.toStringAsFixed(2)} service plus '
+            '${RefillPricing.refillsPerYear(premiumRule.topupValidityDays)} refills of '
+            '${PlanPayment.premiumRefillPriceSync(ref, premiumRule).toStringAsFixed(2)} $cur, one every ${premiumRule.topupValidityDays} days.';
+        billingRate = '$_feePerYearLabel + Refill';
       } else {
         billingDesc =
             'Premium auto-refill is not yet supported for this carrier. Please choose the Standard Plan.';
@@ -676,8 +695,8 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
       planName = 'Standard Plan';
       planColor = isDark ? AppColors.primary : AppColors.lightPrimary;
       billingDesc =
-          'Automated tracking & notifications. You will be billed \$2.50/yr for this line.';
-      billingRate = '\$2.50/yr';
+          'Automated tracking & notifications. You will be billed $_feePerYearLabel for this line.';
+      billingRate = _feePerYearLabel;
     }
 
     return Container(
@@ -1261,18 +1280,66 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
         }
       }
 
-      if (selectedPlanType != 'free') {
-        // We have to calculate the amount.
-        double amountToCharge = selectedPlanType == 'standard'
-            ? 2.50
-            : 2.50; // Base service fee
+      // Charge only when the plan is newly set or changed to a paid tier.
+      // Before C3c this charged on EVERY save of a paid line — renaming a
+      // Standard line's nickname billed the service fee again.
+      final originalPlan = _isEdit
+          ? currentLines
+                .firstWhereOrNull((l) => l.id == widget.id)
+                ?.planType
+                .trim()
+                .toLowerCase()
+          : null;
+      final needsCharge =
+          selectedPlanType != 'free' && originalPlan != selectedPlanType;
+
+      if (needsCharge) {
+        // Standard bills wallet-first (C3c): the wallet gateway is free while
+        // PayPal's fixed fee eats 23% of a standalone service-fee charge. The
+        // wallet debit is priced server-side by pay_plan_fee_from_wallet.
+        if (selectedPlanType == 'standard') {
+          try {
+            if (await PlanPayment.tryStandardFromWallet(
+              ref,
+              simLineId: _isEdit ? widget.id : null,
+            )) {
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      AppLocalizations.of(context)!.planFeePaidFromWallet,
+                    ),
+                    backgroundColor: AppColors.success,
+                  ),
+                );
+              }
+              await commitSave();
+              return;
+            }
+          } catch (e) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Payment failed: $e'),
+                  backgroundColor: AppColors.error,
+                ),
+              );
+              setState(() => _isSaving = false);
+            }
+            return;
+          }
+        }
+
+        // PayPal fallback (and the premium path): Standard is the service fee
+        // grossed up so it survives PayPal's cut; premium is the fee plus a
+        // pre-paid year of refills, grossed up once — same math as onboarding.
+        double amountToCharge = await PlanPayment.standardPayPalTotal(ref);
         if (selectedPlanType == 'premium' && carrierRuleId != null) {
           final rule = await ref
               .read(simLinesRepositoryProvider)
               .getCarrierRule(_selectedCarrier!.id);
           if (rule != null) {
-            int refillsPerYear = (365 / rule.topupValidityDays).ceil();
-            amountToCharge += refillsPerYear * rule.inappPricing;
+            amountToCharge = await PlanPayment.premiumYearlyTotal(ref, rule);
           }
         }
 
@@ -1290,6 +1357,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                 paymentReason: 'Payment for $selectedPlanType protection plan',
                 depositToWallet:
                     false, // direct payment, don't deposit to wallet
+                paymentKind: 'plan',
                 onSuccess: () {
                   Navigator.of(context).pop(); // pop Paypal screen
                   setState(() => _isSaving = true);
@@ -1342,7 +1410,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
       title = 'Premium Plan';
       icon = Icons.workspace_premium_rounded;
       accentColor = const Color(0xFF2E7D32); // Green
-      priceStr = '\$2.50';
+      priceStr = '\$${_baseServiceFeeUsd.toStringAsFixed(2)}';
       billingPeriod = '/yr per line';
       features = [
         'Everything in Standard',
@@ -1356,7 +1424,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
       title = 'Standard Plan';
       icon = Icons.verified_user_rounded;
       accentColor = const Color(0xFF1565C0); // Blue
-      priceStr = '\$2.50';
+      priceStr = '\$${_baseServiceFeeUsd.toStringAsFixed(2)}';
       billingPeriod = '/yr per line';
       features = [
         'Push notification alerts',

@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:keep_sims/features/settings/presentation/screens/paypal_refill_simulator_screen.dart';
+import 'package:keep_sims/core/providers/app_config_provider.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/carrier_rule_model.dart';
+import 'package:keep_sims/features/sim_lines/domain/plan_payment.dart';
+import 'package:keep_sims/features/sim_lines/domain/refill_pricing.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_line_detail_controller.dart';
 import 'package:keep_sims/core/utils/build_context_extension.dart';
+import 'package:keep_sims/l10n/app_localizations.dart';
 
 /// A professional bottom sheet for upgrading a SIM line's protection tier.
 /// Shows available upgrade plans (Standard / Premium) with features and pricing,
@@ -38,13 +42,15 @@ class LineUpgradeSheet extends ConsumerStatefulWidget {
 class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
   String? _selectedPlan;
 
-  // Plan definitions
+  // Plan definitions. Prices are NOT stored here: this sheet used to carry a
+  // third rival price list (Standard $1.99/mo, Premium $3.99/mo, charged as a
+  // one-off) — the canonical model is the per-line yearly fee from
+  // `system_configs.BASE_SERVICE_FEE_USD` plus, for premium, the computed
+  // pre-paid year of refills (C3c).
   static const _plans = {
     'standard': _PlanInfo(
       name: 'Standard',
       icon: Icons.verified_outlined,
-      monthlyPrice: 1.99,
-      annualPrice: 19.99,
       color: Color(0xFF1565C0),
       darkColor: Color(0xFF64B5F6),
       features: [
@@ -57,8 +63,6 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
     'premium': _PlanInfo(
       name: 'Premium',
       icon: Icons.workspace_premium,
-      monthlyPrice: 3.99,
-      annualPrice: 39.99,
       color: Color(0xFF2E7D32),
       darkColor: Color(0xFFFFD700),
       features: [
@@ -71,6 +75,10 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
       ],
     ),
   };
+
+  /// The yearly base service fee, from `system_configs` (display fallback).
+  double get _baseServiceFeeUsd =>
+      ref.watch(baseServiceFeeUsdProvider).value ?? kDefaultBaseServiceFeeUsd;
 
   @override
   Widget build(BuildContext context) {
@@ -249,62 +257,115 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
                             final planName = plan.name;
                             final lineNickname =
                                 widget.simLine.nickname ?? 'SIM';
+                            final tier = _selectedPlan!;
 
-                            // Calculate total: plan price + refill cost for premium
-                            double totalAmount = plan.monthlyPrice;
-                            String reason =
-                                '$planName Plan upgrade for $lineNickname (${widget.simLine.phoneNumber})';
-                            if (_selectedPlan == 'premium' &&
-                                carrierRule != null) {
-                              int refillsPerYear = (365 / carrierRule.topupValidityDays).ceil();
-                              totalAmount += refillsPerYear * carrierRule.inappPricing;
-                              reason =
-                                  '$planName Plan (\$${plan.monthlyPrice}/mo + ${carrierRule.inappPricing} ${carrierRule.inappPricingCurrency.toUpperCase()} refill every ${carrierRule.topupValidityDays} days) for $lineNickname';
-                            }
-
+                            final messenger = ScaffoldMessenger.of(context);
+                            final navigator = Navigator.of(context);
                             final container = ProviderScope.containerOf(
                               context,
                             );
+                            final l = AppLocalizations.of(context)!;
+
+                            if (tier == 'premium' && carrierRule == null) {
+                              messenger.showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Premium auto-refill is not yet supported for this carrier.',
+                                  ),
+                                  backgroundColor: AppColors.error,
+                                ),
+                              );
+                              return;
+                            }
+
+                            // A paid year starts now — the old code upgraded
+                            // the tier without ever setting an expiry.
                             final updatedLine = widget.simLine.copyWith(
-                              protectionTier: _selectedPlan!,
-                              planType: _selectedPlan!,
+                              protectionTier: tier,
+                              planType: tier,
+                              planExpiresAt: DateTime.now().add(
+                                const Duration(days: 365),
+                              ),
                             );
 
-                            Navigator.pop(context);
+                            Future<void> commitUpgrade() async {
+                              try {
+                                await container
+                                    .read(
+                                      simLinesControllerProvider.notifier,
+                                    )
+                                    .updateSimLine(updatedLine);
+                                container.invalidate(
+                                  simLineDetailControllerProvider(
+                                    widget.simLine.id,
+                                  ),
+                                );
+                              } catch (e) {
+                                messenger.showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Failed to save upgrade: $e',
+                                    ),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+                            }
+
+                            // The canonical price (C3c): Standard is the yearly
+                            // service fee, billed wallet-first; premium is the
+                            // fee plus a pre-paid year of refills in ONE PayPal
+                            // charge, same math as onboarding.
+                            double totalAmount;
+                            String reason =
+                                '$planName Plan upgrade for $lineNickname (${widget.simLine.phoneNumber})';
+                            if (tier == 'standard') {
+                              try {
+                                if (await PlanPayment.tryStandardFromWallet(
+                                  ref,
+                                  simLineId: widget.simLine.id,
+                                )) {
+                                  await commitUpgrade();
+                                  messenger.showSnackBar(
+                                    SnackBar(
+                                      content: Text(l.planFeePaidFromWallet),
+                                      backgroundColor: AppColors.success,
+                                    ),
+                                  );
+                                  navigator.pop();
+                                  return;
+                                }
+                              } catch (e) {
+                                messenger.showSnackBar(
+                                  SnackBar(
+                                    content: Text('Payment failed: $e'),
+                                    backgroundColor: AppColors.error,
+                                  ),
+                                );
+                                return;
+                              }
+                              totalAmount =
+                                  await PlanPayment.standardPayPalTotal(ref);
+                            } else {
+                              totalAmount = await PlanPayment.premiumYearlyTotal(
+                                ref,
+                                carrierRule!,
+                              );
+                            }
+                            totalAmount = double.parse(
+                              totalAmount.toStringAsFixed(2),
+                            );
+
+                            navigator.pop();
                             // Navigate directly to PayPal payment
-                            Navigator.of(context).push(
+                            navigator.push(
                               MaterialPageRoute(
                                 builder: (context) => PaypalRefillSimulatorScreen(
                                   initialAmount: totalAmount,
                                   paymentReason: reason,
                                   depositToWallet: false,
-                                  onSuccess: () async {
-                                    try {
-                                      await container
-                                          .read(
-                                            simLinesControllerProvider.notifier,
-                                          )
-                                          .updateSimLine(updatedLine);
-                                      container.invalidate(
-                                        simLineDetailControllerProvider(
-                                          widget.simLine.id,
-                                        ),
-                                      );
-                                    } catch (e) {
-                                      if (context.mounted) {
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          SnackBar(
-                                            content: Text(
-                                              'Failed to save upgrade: $e',
-                                            ),
-                                            backgroundColor: Colors.red,
-                                          ),
-                                        );
-                                      }
-                                    }
-                                  },
+                                  paymentKind: 'plan',
+                                  onSuccess: commitUpgrade,
                                 ),
                               ),
                             );
@@ -471,19 +532,23 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
                   ),
                 ),
 
-                // Price column
+                // Price column — the canonical yearly model (C3c): premium
+                // shows the single all-in charge for the year, standard the
+                // bare service fee.
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      '\$${plan.monthlyPrice.toStringAsFixed(2)}',
+                      planKey == 'premium' && carrierRule != null
+                          ? '\$${PlanPayment.premiumYearlyTotalSync(ref, carrierRule).toStringAsFixed(2)}'
+                          : '\$${_baseServiceFeeUsd.toStringAsFixed(2)}',
                       style: AppTextStyles.titleLarge.copyWith(
                         color: accentColor,
                         fontWeight: FontWeight.w900,
                       ),
                     ),
                     Text(
-                      '/mo per line',
+                      '/yr per line',
                       style: AppTextStyles.caption.copyWith(
                         color: context.onSurfaceColor.withValues(alpha: 0.4),
                         fontSize: 10,
@@ -492,7 +557,7 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
                     // Show "+ Refill" for premium if carrier rule exists
                     if (planKey == 'premium' && carrierRule != null)
                       Text(
-                        '+ ${carrierRule.inappPricing} ${carrierRule.inappPricingCurrency.toUpperCase()} refill',
+                        'incl. ${PlanPayment.premiumRefillPriceSync(ref, carrierRule).toStringAsFixed(2)} ${carrierRule.inappPricingCurrency.toUpperCase()} × ${RefillPricing.refillsPerYear(carrierRule.topupValidityDays)} refills',
                         style: TextStyle(
                           fontSize: 9,
                           fontWeight: FontWeight.w600,
@@ -589,7 +654,7 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
-                                  'Auto-refill: ${carrierRule.inappPricing} ${carrierRule.inappPricingCurrency.toUpperCase()} every ${carrierRule.topupValidityDays} days (telecom, VAT included)',
+                                  'Auto-refill: ${PlanPayment.premiumRefillPriceSync(ref, carrierRule).toStringAsFixed(2)} ${carrierRule.inappPricingCurrency.toUpperCase()} every ${carrierRule.topupValidityDays} days (telecom, VAT included)',
                                   style: AppTextStyles.caption.copyWith(
                                     color: context.onSurfaceColor.withValues(
                                       alpha: 0.7,
@@ -669,12 +734,11 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
   }
 }
 
-/// Internal data class for plan info.
+/// Internal data class for plan info. Deliberately price-free — prices come
+/// from the DB via [PlanPayment], never from widget constants.
 class _PlanInfo {
   final String name;
   final IconData icon;
-  final double monthlyPrice;
-  final double annualPrice;
   final Color color;
   final Color darkColor;
   final List<String> features;
@@ -682,8 +746,6 @@ class _PlanInfo {
   const _PlanInfo({
     required this.name,
     required this.icon,
-    required this.monthlyPrice,
-    required this.annualPrice,
     required this.color,
     required this.darkColor,
     required this.features,

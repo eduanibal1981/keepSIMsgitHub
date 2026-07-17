@@ -693,5 +693,6 @@
     "channelPushShort": "पुश",
     "channelEmailShort": "इमेल",
     "channelOffGlobally": "माथिको अलर्ट च्यानलमा बन्द छ",
-    "rechargeNow": "अहिले रिचार्ज गर्नुहोस्"
+    "rechargeNow": "अहिले रिचार्ज गर्नुहोस्",
+    "planFeePaidFromWallet": "योजना शुल्क तपाईंको वालेट ब्यालेन्सबाट भुक्तानी गरियो।"
 }

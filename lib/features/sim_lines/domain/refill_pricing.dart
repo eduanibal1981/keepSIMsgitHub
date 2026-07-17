@@ -105,14 +105,30 @@ class RefillPricing {
         premiumMarginPerRefillUsd;
   }
 
-  /// The single up-front charge for a year of premium.
+  /// What to bill through a gateway so that exactly [net] survives its cut.
   ///
-  /// The gateway is **grossed up, not marked up**. It charges its percentage on
-  /// the *total billed*, so `net * (1 + pct) + fixed` quietly under-recovers —
+  /// **Grossed up, not marked up.** A gateway charges its percentage on the
+  /// *total billed*, so `net * (1 + pct) + fixed` quietly under-recovers —
   /// bill $269.45 on a $260.12 subtotal and PayPal's $9.65 cut leaves $259.80.
   /// Solving `charged - (charged*pct + fixed) = net` leaves exactly [net]
-  /// behind, so the margin above survives contact with the gateway instead of
-  /// being eaten by it.
+  /// behind. Used for the premium yearly charge and for the Standard service
+  /// fee when it falls back from the wallet to PayPal.
+  static double grossUpTotal({
+    required double net,
+    required double gatewayFeePercentage,
+    required double gatewayFeeFixed,
+  }) {
+    final pct = gatewayFeePercentage / 100;
+    // A gateway taking 100% or more can never be covered; charging the raw net
+    // is wrong but at least finite, and such a row is a data error, not a price.
+    if (pct >= 1) return round2(net);
+    return round2((net + gatewayFeeFixed) / (1 - pct));
+  }
+
+  /// The single up-front charge for a year of premium.
+  ///
+  /// The gateway fee is applied once here via [grossUpTotal], so the margin
+  /// above survives contact with the gateway instead of being eaten by it.
   static double premiumYearlyTotal({
     required double baseServiceFeeUsd,
     required double minimumTopupAmount,
@@ -133,10 +149,10 @@ class RefillPricing {
     );
     final net = baseServiceFeeUsd + perRefill * refillsPerYear(topupValidityDays);
 
-    final pct = gatewayFeePercentage / 100;
-    // A gateway taking 100% or more can never be covered; charging the raw net
-    // is wrong but at least finite, and such a row is a data error, not a price.
-    if (pct >= 1) return round2(net);
-    return round2((net + gatewayFeeFixed) / (1 - pct));
+    return grossUpTotal(
+      net: net,
+      gatewayFeePercentage: gatewayFeePercentage,
+      gatewayFeeFixed: gatewayFeeFixed,
+    );
   }
 }

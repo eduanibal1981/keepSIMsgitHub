@@ -1,5 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:keep_sims/core/services/local_cache_service.dart';
 import 'package:keep_sims/features/sim_lines/data/models/payment_method_model.dart';
 
 part 'app_config_provider.g.dart';
@@ -41,6 +42,37 @@ Future<double> appFeePercent(Ref ref) async {
   }
 }
 
+/// Fallback yearly service fee, matching `pay_plan_fee_from_wallet`'s own
+/// fallback so a failed read here quotes the price the RPC would debit.
+const double kDefaultBaseServiceFeeUsd = 2.50;
+
+/// The yearly per-line service fee both paid tiers carry.
+///
+/// Read from `system_configs.BASE_SERVICE_FEE_USD` (C3c) instead of the
+/// hardcoded $2.50 that lived in three screens. The wallet-billed charge is
+/// priced server-side by `pay_plan_fee_from_wallet` from the same row; this
+/// value only decides what is displayed and what a PayPal fallback bills.
+/// Zero and negative are refused like the RPC refuses them, so the quote and
+/// the debit cannot disagree.
+@Riverpod(keepAlive: true)
+Future<double> baseServiceFeeUsd(Ref ref) async {
+  try {
+    final row = await Supabase.instance.client
+        .from('system_configs')
+        .select('config_value')
+        .eq('config_key', 'BASE_SERVICE_FEE_USD')
+        .maybeSingle();
+
+    final parsed = double.tryParse(row?['config_value']?.toString() ?? '');
+    if (parsed == null || parsed <= 0 || parsed > 1000) {
+      return kDefaultBaseServiceFeeUsd;
+    }
+    return parsed;
+  } catch (_) {
+    return kDefaultBaseServiceFeeUsd;
+  }
+}
+
 /// Percentage part of the premium margin, applied to the refill's cost.
 ///
 /// Stated rather than hidden: it used to live inside `inapp_pricing` labelled as
@@ -77,6 +109,40 @@ Future<double> _numericConfig(
     if (parsed == null || parsed < 0 || parsed > max) return fallback;
     return parsed;
   } catch (_) {
+    return fallback;
+  }
+}
+
+/// A contact number for the offline-recharge flow, from `system_configs`.
+///
+/// These were hardcoded Oman numbers in `offline_refill_screen.dart` (C3c).
+/// The screen exists precisely for when the device is offline, so the last
+/// good DB value is cached locally and served when the read fails; only a
+/// fresh install that has never been online sees [fallback].
+@Riverpod(keepAlive: true)
+Future<String> offlineContactNumber(
+  Ref ref,
+  String configKey,
+  String fallback,
+) async {
+  final cache = ref.watch(localCacheServiceProvider);
+  final cacheKey = 'cached_system_config_$configKey';
+  try {
+    final row = await Supabase.instance.client
+        .from('system_configs')
+        .select('config_value')
+        .eq('config_key', configKey)
+        .maybeSingle();
+
+    final value = row?['config_value']?.toString().trim();
+    if (value == null || value.isEmpty) return fallback;
+    await cache.writeJson(cacheKey, {'value': value});
+    return value;
+  } catch (_) {
+    final cached = cache.readJson(cacheKey);
+    if (cached is Map && cached['value'] is String) {
+      return cached['value'] as String;
+    }
     return fallback;
   }
 }

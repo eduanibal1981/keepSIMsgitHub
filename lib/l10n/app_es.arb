@@ -693,5 +693,6 @@
     "channelPushShort":  "Push",
     "channelEmailShort":  "Correo",
     "channelOffGlobally":  "Desactivado en Canales de alerta arriba",
-    "rechargeNow":  "Recargar ahora"
+    "rechargeNow":  "Recargar ahora",
+    "planFeePaidFromWallet": "La tarifa del plan se pagó con el saldo de tu billetera."
 }

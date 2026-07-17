@@ -57,11 +57,12 @@ class OfflineRefillRepository implements OfflineRefillContract {
         return Success(OfflineRefillSettings.fromJson(response));
       } on PostgrestException catch (e) {
         if (e.code == 'PGRST116') {
-          // Dynamic initial settings if none exist
+          // Seed initial settings if none exist. default_refill_amount is
+          // deliberately omitted so the DB column default applies — changing
+          // it is a schema-side ALTER, not an app update (C3c).
           final newSettings = {
             'user_id': userId,
             'is_enabled': true,
-            'default_refill_amount': 10.00,
           };
           // Insert into Supabase
           final inserted = await _client

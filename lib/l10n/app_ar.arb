@@ -617,5 +617,6 @@
     "channelPushShort":  "إشعار",
     "channelEmailShort":  "بريد",
     "channelOffGlobally":  "معطل في قنوات التنبيه أعلاه",
-    "rechargeNow":  "اشحن الآن"
+    "rechargeNow":  "اشحن الآن",
+    "planFeePaidFromWallet": "تم دفع رسوم الخطة من رصيد محفظتك."
 }

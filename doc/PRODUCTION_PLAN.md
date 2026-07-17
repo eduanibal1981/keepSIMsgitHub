@@ -417,13 +417,65 @@ computes `base_cost_usd` itself, after which client INSERT can be revoked
 outright. The worker check makes that safe to defer, but it should land before
 E1 flips to production keys.
 
-## 🔴 C3c — Payments & fees: one source of truth — **DO THIS BEFORE ANYTHING ELSE**
+## ✅ C3c — Payments & fees: one source of truth — **DONE 2026-07-17**
 
 **Owner's instruction (2026-07-17):** *"I want to reorganize the payment and fees
 before going anywhere, so I can control or change any of that through the
 database."* Every price, fee, margin and payout number must be a DB row, not a
 literal — changeable with no app update and no redeploy. Do this before C3b-2,
 C4 or anything else, because each of those adds more money paths on top.
+
+### ✅ What shipped (2026-07-17, migration `20260717050000_c3c_plan_billing`, paypal-webhook v6)
+
+**Owner's decisions, both settled:** the **per-line $2.50/yr** model is
+canonical (onboarding's; the orphaned per-account $2.40/yr dies with
+`subscription_screen.dart`, deleted), and Standard bills **wallet-first with a
+grossed-up PayPal fallback** (wallet = 0% + $0.00; PayPal fallback bills
+$3.10 so exactly $2.50 survives the 3.4% + $0.49 cut).
+
+* `system_configs.BASE_SERVICE_FEE_USD` = 2.50 — read by every screen that
+  displays or charges the fee (`baseServiceFeeUsdProvider`); the wallet charge
+  is priced **server-side** by the new `pay_plan_fee_from_wallet(p_reference_id,
+  p_sim_line_id?)` RPC (SECURITY DEFINER, authenticated-only, idempotent per
+  reference via partial unique index, new ledger type `plan_fee_debit`).
+  Proven over PostgREST as the a1 fixture: 45.72 → 43.22, retry with the same
+  reference adopted the original txn.
+* **Found & fixed: every PayPal plan charge was credited back to the payer's
+  wallet.** All plan-charge sites tagged orders `custom_id {k:'deposit'}` and
+  the webhook credits deposits — paid plans were effectively free (the payer
+  got the full charge as spendable balance). `PaypalRefillSimulatorScreen` now
+  takes `paymentKind` ('deposit' default; **manual-refill PayPal keeps
+  'deposit' on purpose** — that credit funds the worker's debit); plan sites
+  pass `'plan'`, and webhook v6 records those in the new `plan_payments` table
+  (RLS read-own, service_role-only writes, unique capture_id) instead of
+  crediting.
+* **Found & fixed: a THIRD rival price list, live.** `line_upgrade_sheet.dart`
+  (reachable from line cards, dashboard, detail screen) charged Standard
+  $1.99/"mo" / Premium $3.99/"mo" as one-off PayPal charges with raw
+  `inappPricing` refills and no expiry set. Rebuilt onto the canonical model
+  via the shared `PlanPayment` helper (`lib/features/sim_lines/domain/
+  plan_payment.dart`); upgrades now set `planExpiresAt` (+365d).
+* **Found & fixed: `sim_line_form_screen` re-charged on every save** of a paid
+  line (renaming a nickname billed $2.50 again) and quoted premium with
+  pre-C3b math. Now charges only when the plan is newly set or changed, and
+  uses the shared quote.
+* Onboarding, form, and upgrade sheet all quote/charge through `PlanPayment` +
+  `RefillPricing.grossUpTotal` (extracted, tested); onboarding's copy strings
+  interpolate the DB fee.
+* Offline: `OFFLINE_IVR_NUMBER` / `OFFLINE_SMS_NUMBER` / `OFFLINE_WHATSAPP_NUMBER`
+  in `system_configs`, read via `offlineContactNumberProvider` (cached in
+  LocalCacheService so the last good value survives offline). Also fixed: the
+  action buttons dialed numbers **missing their final digit**, and the SMS
+  body hardcoded "REFILL 5" regardless of the line's amount. The settings
+  seed insert now omits `default_refill_amount` (DB column default rules).
+  Deep fallbacks (no cache, never online) remain the Oman defaults — real fix
+  is C3b-3 caching.
+* `paypal_simulator_screen`'s 3.49%+$0.49 hardcode was already gone (it parses
+  PayPal's real capture breakdown) — item 4 was stale.
+* Tests: `supabase/tests/c3c_plan_billing_tests.sql` (8 assertions, live
+  BEGIN..ROLLBACK, all pass), `grossUpTotal` tests in `refill_pricing_test`
+  (48 Dart tests pass), analyze 155 (was 157; the deleted screen carried 2),
+  ARB `planFeePaidFromWallet` × 9 locales, debug APK builds.
 
 ### Already database-driven (do not regress these)
 
@@ -501,19 +553,20 @@ that no amount of DB-ifying will fix. Options if they want it addressed:
 bundle Standard billing with something, raise it, or take it via wallet balance
 (0% + $0.00 in `payment_gateways`) rather than PayPal.
 
-### Open pricing decisions for the owner
+### Pricing decisions — settled 2026-07-17
 
-* **Which yearly model is real?** Onboarding charges **$2.50/yr per line**; the
-  orphaned `subscription_screen.dart` charges **$2.40/yr per account** ($0.20/mo
-  annually) *including 2 lines*, +$1.20/yr per extra line, capped at 5 lines for
-  Standard. For a 2-line account that is $5.00/yr vs $2.40/yr — they are
-  different structures, not just different numbers. Removing monthly does not
-  settle this.
-* `PREMIUM_MARGIN_PERCENT = 5` keeps the old margin but raises user prices ~3.7%
-  (PayPal is now grossed up instead of absorbed). ~1 holds the old user price.
-* "Baqa" is advertised (`subscription_screen.dart:66`,
-  `sim_lines_list_screen.dart:721`) but **unbuilt** — it has a price in the
-  marketing copy and no implementation.
+* ✅ **Per line — $2.50/yr each** (owner's call). Onboarding's model is
+  canonical; `subscription_screen.dart` and its per-account structure are
+  deleted. The number lives in `system_configs.BASE_SERVICE_FEE_USD`.
+* ✅ **Standard bills wallet-first, grossed-up PayPal fallback** (owner's
+  call). Wallet costs 0% + $0.00; the fallback bills ~$3.10 so the full fee
+  survives PayPal's cut, tagged kind 'plan' so the webhook records rather
+  than credits it.
+* Still open: `PREMIUM_MARGIN_PERCENT = 5` keeps the old margin but raises
+  user prices ~3.7% (PayPal is now grossed up instead of absorbed). ~1 holds
+  the old user price. One row to change.
+* Still open: "Baqa" remains advertised (`sim_lines_list_screen.dart:721`;
+  the subscription_screen mention died with the file) but **unbuilt**.
 
 ### 🟠 C3b-3 — offline: cache `carriers` + `carrier_rules` (found 2026-07-17)
 

@@ -76,6 +76,65 @@ final class AppFeePercentProvider
 
 String _$appFeePercentHash() => r'3ef7ad79cecd31c5a4db6b43b8c00e62d4672321';
 
+/// The yearly per-line service fee both paid tiers carry.
+///
+/// Read from `system_configs.BASE_SERVICE_FEE_USD` (C3c) instead of the
+/// hardcoded $2.50 that lived in three screens. The wallet-billed charge is
+/// priced server-side by `pay_plan_fee_from_wallet` from the same row; this
+/// value only decides what is displayed and what a PayPal fallback bills.
+/// Zero and negative are refused like the RPC refuses them, so the quote and
+/// the debit cannot disagree.
+
+@ProviderFor(baseServiceFeeUsd)
+final baseServiceFeeUsdProvider = BaseServiceFeeUsdProvider._();
+
+/// The yearly per-line service fee both paid tiers carry.
+///
+/// Read from `system_configs.BASE_SERVICE_FEE_USD` (C3c) instead of the
+/// hardcoded $2.50 that lived in three screens. The wallet-billed charge is
+/// priced server-side by `pay_plan_fee_from_wallet` from the same row; this
+/// value only decides what is displayed and what a PayPal fallback bills.
+/// Zero and negative are refused like the RPC refuses them, so the quote and
+/// the debit cannot disagree.
+
+final class BaseServiceFeeUsdProvider
+    extends $FunctionalProvider<AsyncValue<double>, double, FutureOr<double>>
+    with $FutureModifier<double>, $FutureProvider<double> {
+  /// The yearly per-line service fee both paid tiers carry.
+  ///
+  /// Read from `system_configs.BASE_SERVICE_FEE_USD` (C3c) instead of the
+  /// hardcoded $2.50 that lived in three screens. The wallet-billed charge is
+  /// priced server-side by `pay_plan_fee_from_wallet` from the same row; this
+  /// value only decides what is displayed and what a PayPal fallback bills.
+  /// Zero and negative are refused like the RPC refuses them, so the quote and
+  /// the debit cannot disagree.
+  BaseServiceFeeUsdProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'baseServiceFeeUsdProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$baseServiceFeeUsdHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<double> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<double> create(Ref ref) {
+    return baseServiceFeeUsd(ref);
+  }
+}
+
+String _$baseServiceFeeUsdHash() => r'169bbf3542dfaf4b8e1abdb44f1e6ae83fcd09bb';
+
 /// Percentage part of the premium margin, applied to the refill's cost.
 ///
 /// Stated rather than hidden: it used to live inside `inapp_pricing` labelled as
@@ -177,6 +236,113 @@ final class PremiumMarginPerRefillUsdProvider
 
 String _$premiumMarginPerRefillUsdHash() =>
     r'812dec90ee252a2de078d94ce60bae8e35611c44';
+
+/// A contact number for the offline-recharge flow, from `system_configs`.
+///
+/// These were hardcoded Oman numbers in `offline_refill_screen.dart` (C3c).
+/// The screen exists precisely for when the device is offline, so the last
+/// good DB value is cached locally and served when the read fails; only a
+/// fresh install that has never been online sees [fallback].
+
+@ProviderFor(offlineContactNumber)
+final offlineContactNumberProvider = OfflineContactNumberFamily._();
+
+/// A contact number for the offline-recharge flow, from `system_configs`.
+///
+/// These were hardcoded Oman numbers in `offline_refill_screen.dart` (C3c).
+/// The screen exists precisely for when the device is offline, so the last
+/// good DB value is cached locally and served when the read fails; only a
+/// fresh install that has never been online sees [fallback].
+
+final class OfflineContactNumberProvider
+    extends $FunctionalProvider<AsyncValue<String>, String, FutureOr<String>>
+    with $FutureModifier<String>, $FutureProvider<String> {
+  /// A contact number for the offline-recharge flow, from `system_configs`.
+  ///
+  /// These were hardcoded Oman numbers in `offline_refill_screen.dart` (C3c).
+  /// The screen exists precisely for when the device is offline, so the last
+  /// good DB value is cached locally and served when the read fails; only a
+  /// fresh install that has never been online sees [fallback].
+  OfflineContactNumberProvider._({
+    required OfflineContactNumberFamily super.from,
+    required (String, String) super.argument,
+  }) : super(
+         retry: null,
+         name: r'offlineContactNumberProvider',
+         isAutoDispose: false,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$offlineContactNumberHash();
+
+  @override
+  String toString() {
+    return r'offlineContactNumberProvider'
+        ''
+        '$argument';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<String> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<String> create(Ref ref) {
+    final argument = this.argument as (String, String);
+    return offlineContactNumber(ref, argument.$1, argument.$2);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is OfflineContactNumberProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$offlineContactNumberHash() =>
+    r'0b1a86107735c85194b2c4c73af3974f7ee79e85';
+
+/// A contact number for the offline-recharge flow, from `system_configs`.
+///
+/// These were hardcoded Oman numbers in `offline_refill_screen.dart` (C3c).
+/// The screen exists precisely for when the device is offline, so the last
+/// good DB value is cached locally and served when the read fails; only a
+/// fresh install that has never been online sees [fallback].
+
+final class OfflineContactNumberFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<String>, (String, String)> {
+  OfflineContactNumberFamily._()
+    : super(
+        retry: null,
+        name: r'offlineContactNumberProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: false,
+      );
+
+  /// A contact number for the offline-recharge flow, from `system_configs`.
+  ///
+  /// These were hardcoded Oman numbers in `offline_refill_screen.dart` (C3c).
+  /// The screen exists precisely for when the device is offline, so the last
+  /// good DB value is cached locally and served when the read fails; only a
+  /// fresh install that has never been online sees [fallback].
+
+  OfflineContactNumberProvider call(String configKey, String fallback) =>
+      OfflineContactNumberProvider._(
+        argument: (configKey, fallback),
+        from: this,
+      );
+
+  @override
+  String toString() => r'offlineContactNumberProvider';
+}
 
 /// One gateway's fees, straight from `payment_gateways` — the single source of
 /// truth for what a gateway charges.

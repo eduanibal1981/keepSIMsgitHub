@@ -1649,4 +1649,8 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get rechargeNow => 'Recargar ahora';
+
+  @override
+  String get planFeePaidFromWallet =>
+      'La tarifa del plan se pagó con el saldo de tu billetera.';
 }

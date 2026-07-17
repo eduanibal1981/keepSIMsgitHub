@@ -693,5 +693,6 @@
     "channelPushShort":  "පුෂ්",
     "channelEmailShort":  "ඊමේල්",
     "channelOffGlobally":  "ඉහත ඇඟවීම් නාලිකා තුළ අක්‍රියයි",
-    "rechargeNow":  "දැන් රීචාජ් කරන්න"
+    "rechargeNow":  "දැන් රීචාජ් කරන්න",
+    "planFeePaidFromWallet": "සැලසුම් ගාස්තුව ඔබගේ පසුම්බි ශේෂයෙන් ගෙවන ලදී."
 }

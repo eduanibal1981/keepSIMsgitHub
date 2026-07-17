@@ -78,6 +78,48 @@ void main() {
     });
   });
 
+  group('grossUpTotal — the Standard fee PayPal fallback (C3c)', () {
+    // payment_gateways live row: paypal 3.4% + $0.49.
+    const paypalPct = 3.4;
+    const paypalFixed = 0.49;
+
+    test('THE POINT: billing the grossed-up total nets exactly the fee', () {
+      // A standalone $2.50 Standard charge through PayPal must bill ~$3.10 so
+      // that after PayPal takes 3.4% of the TOTAL plus $0.49, exactly $2.50
+      // survives. Billing $2.50 flat nets $1.93 — a 23% loss.
+      final charged = RefillPricing.grossUpTotal(
+        net: 2.50,
+        gatewayFeePercentage: paypalPct,
+        gatewayFeeFixed: paypalFixed,
+      );
+      expect(charged, 3.10); // (2.50 + 0.49) / (1 - 0.034) = 3.0952 -> 3.10
+      final gatewayTakes =
+          RefillPricing.round2(charged * (paypalPct / 100) + paypalFixed);
+      expect(RefillPricing.round2(charged - gatewayTakes), closeTo(2.50, 0.01));
+    });
+
+    test('a wallet-style 0% / \$0 gateway grosses up to the net itself', () {
+      expect(
+        RefillPricing.grossUpTotal(
+          net: 2.50,
+          gatewayFeePercentage: 0,
+          gatewayFeeFixed: 0,
+        ),
+        2.50,
+      );
+    });
+
+    test('an impossible 100% gateway stays finite', () {
+      final total = RefillPricing.grossUpTotal(
+        net: 2.50,
+        gatewayFeePercentage: 100,
+        gatewayFeeFixed: 0,
+      );
+      expect(total, isPositive);
+      expect(total.isFinite, isTrue);
+    });
+  });
+
   group('Premium yearly pricing', () {
     // O2 Germany, the live row: $19.24 base cost, 30-day validity, PayPal at
     // 3.4% + $0.49 per payment_gateways.

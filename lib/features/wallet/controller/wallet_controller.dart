@@ -5,6 +5,7 @@
 library;
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:keep_sims/core/failure.dart';
 import 'package:keep_sims/core/providers.dart';
 import 'package:keep_sims/core/result.dart';
 import 'package:keep_sims/features/auth/controller/auth_controller.dart';
@@ -86,6 +87,34 @@ class WalletController extends _$WalletController {
       case Failure(error: final f):
         state = AsyncError(Exception(f.message), StackTrace.current);
         return false;
+    }
+  }
+
+  /// Pays the yearly plan service fee from the wallet (priced server-side).
+  ///
+  /// Returns false — without charging anything — when the balance cannot
+  /// cover the fee, so the caller can fall back to a PayPal charge. Any other
+  /// failure throws.
+  Future<bool> payPlanFee({String? simLineId}) async {
+    final current = state.value;
+    if (current == null) return false;
+
+    state = AsyncData(current.copyWith(isSubmitting: true));
+
+    final repo = ref.read(walletRepositoryProvider);
+    final result = await repo.payPlanFee(simLineId: simLineId);
+
+    switch (result) {
+      case Success():
+        ref.invalidateSelf();
+        return true;
+      case Failure(error: final f):
+        state = AsyncData(current.copyWith(isSubmitting: false));
+        if (f is ValidationFailure ||
+            f.message.contains('Insufficient funds')) {
+          return false;
+        }
+        throw Exception(f.message);
     }
   }
 

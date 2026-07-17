@@ -1624,4 +1624,8 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get rechargeNow => 'এখনই রিচার্জ করুন';
+
+  @override
+  String get planFeePaidFromWallet =>
+      'প্ল্যান ফি আপনার ওয়ালেট ব্যালেন্স থেকে পরিশোধ করা হয়েছে।';
 }

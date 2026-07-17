@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:keep_sims/core/providers/app_config_provider.dart';
 import 'package:keep_sims/features/sim_lines/data/models/carrier_model.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
 import 'package:keep_sims/features/wallet/controller/wallet_controller.dart';
@@ -444,6 +445,37 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen>
         activeCarrier?.gatewayPhoneNumber ?? '+968 24 555 0110';
     final gatewayNumberClean = gatewayNumber.replaceAll(RegExp(r'[^\d+]'), '');
 
+    // Contact numbers from system_configs (C3c), cached locally so the last
+    // good value survives being offline — which is when this screen matters.
+    final ivrNumber = ref
+            .watch(
+              offlineContactNumberProvider(
+                'OFFLINE_IVR_NUMBER',
+                '+968 24 555 0111',
+              ),
+            )
+            .value ??
+        '+968 24 555 0111';
+    final smsNumber = ref
+            .watch(
+              offlineContactNumberProvider(
+                'OFFLINE_SMS_NUMBER',
+                '+968 24 555 0112',
+              ),
+            )
+            .value ??
+        '+968 24 555 0112';
+    final waNumber = ref
+            .watch(
+              offlineContactNumberProvider(
+                'OFFLINE_WHATSAPP_NUMBER',
+                '+968 24 555 0113',
+              ),
+            )
+            .value ??
+        '+968 24 555 0113';
+    String dialable(String n) => n.replaceAll(RegExp(r'[^\d+]'), '');
+
     final status = _computeStatus(
       hasSimLine: activeSim != null,
       walletBalance: walletBalance,
@@ -511,9 +543,11 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen>
                     title: l.offlineRefillIvrTitle,
                     subtitle: l.offlineRefillIvrSubtitle,
                     cost: l.offlineRefillIvrCost,
-                    number: '+968 24 555 0111',
+                    number: ivrNumber,
                     actionLabel: l.offlineRefillCallThisNumber,
-                    onAction: () => _launchDialer('+96824555011'),
+                    // Dial exactly the displayed number — the old hardcoded
+                    // dial string was missing its final digit.
+                    onAction: () => _launchDialer(dialable(ivrNumber)),
                   ),
                   const SizedBox(height: 8),
 
@@ -523,10 +557,12 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen>
                     title: l.offlineRefillSmsTitle,
                     subtitle: l.offlineRefillSmsSubtitle,
                     cost: l.offlineRefillSmsCost,
-                    number: '+968 24 555 0112',
+                    number: smsNumber,
                     actionLabel: l.offlineRefillSmsAction,
-                    onAction: () =>
-                        _launchSms('+96824555012', 'REFILL 5'),
+                    onAction: () => _launchSms(
+                      dialable(smsNumber),
+                      'REFILL ${refillAmount.toStringAsFixed(0)}',
+                    ),
                   ),
                   const SizedBox(height: 8),
 
@@ -536,10 +572,10 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen>
                     title: l.offlineRefillWaTitle,
                     subtitle: l.offlineRefillWaSubtitle,
                     cost: l.offlineRefillWaCost,
-                    number: '+968 24 555 0113',
+                    number: waNumber,
                     actionLabel: l.offlineRefillWaAction,
                     onAction: () =>
-                        _launchWhatsApp('+96824555013', 'REFILL'),
+                        _launchWhatsApp(dialable(waNumber), 'REFILL'),
                   ),
                   const SizedBox(height: 22),
 

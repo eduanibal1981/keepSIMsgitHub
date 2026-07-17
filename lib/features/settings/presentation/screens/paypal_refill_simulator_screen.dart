@@ -17,12 +17,24 @@ class PaypalRefillSimulatorScreen extends ConsumerStatefulWidget {
   final VoidCallback? onSuccess;
   final bool depositToWallet;
 
+  /// What this payment is FOR, carried to the server in the PayPal order's
+  /// custom_id and dispatched on by the paypal-webhook:
+  ///  * 'deposit' — a wallet top-up; the webhook credits the wallet. Also used
+  ///    by PayPal-funded manual refills on purpose: the credit funds the
+  ///    worker's debit.
+  ///  * 'plan' — a plan purchase; the webhook records it in `plan_payments`
+  ///    and must NOT credit the wallet. Before C3c plan charges were tagged
+  ///    'deposit', so every plan payment bounced straight back into the
+  ///    payer's wallet as spendable balance.
+  final String paymentKind;
+
   const PaypalRefillSimulatorScreen({
     super.key,
     this.initialAmount,
     this.paymentReason,
     this.onSuccess,
     this.depositToWallet = true,
+    this.paymentKind = 'deposit',
   });
 
   @override
@@ -146,11 +158,12 @@ class _PaypalRefillSimulatorScreenState extends ConsumerState<PaypalRefillSimula
   }
 
   // Ties the PayPal order to this account so the server-side paypal-webhook
-  // Edge Function can credit the right wallet. Deposits are credited only by
-  // that webhook — never by this client.
+  // Edge Function can route the money: kind 'deposit' credits the wallet,
+  // kind 'plan' records a plan purchase. Nothing is ever credited by this
+  // client — only by the webhook.
   String get _paypalCustomId => jsonEncode({
         'u': Supabase.instance.client.auth.currentUser?.id,
-        'k': 'deposit',
+        'k': widget.paymentKind,
       });
 
   // Live Math: No fee deducted for refill

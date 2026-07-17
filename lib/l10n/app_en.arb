@@ -788,5 +788,6 @@
         }
     },
     "ok": "OK",
-    "rechargeNow":  "Recharge Now"
+    "rechargeNow":  "Recharge Now",
+    "planFeePaidFromWallet": "Plan fee paid from your wallet balance."
 }

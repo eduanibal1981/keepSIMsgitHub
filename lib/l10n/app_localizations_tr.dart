@@ -1631,4 +1631,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get rechargeNow => 'Şimdi Yükle';
+
+  @override
+  String get planFeePaidFromWallet => 'Plan ücreti cüzdan bakiyenizden ödendi.';
 }

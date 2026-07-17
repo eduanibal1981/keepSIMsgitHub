@@ -1626,4 +1626,8 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get rechargeNow => 'ابھی ریچارج کریں';
+
+  @override
+  String get planFeePaidFromWallet =>
+      'پلان کی فیس آپ کے والٹ بیلنس سے ادا کر دی گئی۔';
 }

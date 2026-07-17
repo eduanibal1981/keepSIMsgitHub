@@ -25,7 +25,9 @@ import 'package:keep_sims/features/sim_lines/data/models/carrier_model.dart';
 
 import '../../../sim_lines/data/models/carrier_rule_model.dart';
 import 'package:keep_sims/core/providers/app_config_provider.dart';
+import 'package:keep_sims/features/sim_lines/domain/plan_payment.dart';
 import 'package:keep_sims/features/sim_lines/domain/refill_pricing.dart';
+import 'package:keep_sims/l10n/app_localizations.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
@@ -155,71 +157,27 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     }
   }
 
-  /// The $2.50/yr base service fee both paid tiers carry.
-  static const double _baseServiceFeeUsd = 2.50;
+  /// The yearly base service fee both paid tiers carry, from
+  /// `system_configs.BASE_SERVICE_FEE_USD` (C3c) — one row, no app update.
+  /// Safe to call during build(); _submit() awaits the real row before
+  /// charging anything.
+  double get _baseServiceFeeUsd =>
+      ref.watch(baseServiceFeeUsdProvider).value ?? kDefaultBaseServiceFeeUsd;
 
-  /// `inapp_pricing` is now an override, not the default: the column parses null
-  /// to 0, so only a positive value counts as a deliberate per-carrier price.
-  double? _overrideFor(CarrierRule rule) =>
-      rule.inappPricing > 0 ? rule.inappPricing : null;
+  /// `$2.50/yr`-style label used across the plan copy.
+  String get _feePerYearLabel =>
+      '\$${_baseServiceFeeUsd.toStringAsFixed(2)}/yr';
 
-  /// What one premium refill costs, before the gateway's cut.
-  ///
-  /// Priced from `system_configs` rather than the stored
-  /// `carrier_rules.inapp_pricing` snapshot, so a rate change is one row with no
-  /// app update. Safe to call during build().
-  double _premiumRefillPriceSync(CarrierRule rule) => RefillPricing.premiumRefillPrice(
-    minimumTopupAmount: rule.minimumTopupAmount,
-    appFeePercent: ref.watch(appFeePercentProvider).value ?? kDefaultAppFeePercent,
-    premiumMarginPercent: ref.watch(premiumMarginPercentProvider).value ?? 0,
-    premiumMarginPerRefillUsd:
-        ref.watch(premiumMarginPerRefillUsdProvider).value ?? 0,
-    inappPricingOverride: _overrideFor(rule),
-  );
+  /// Premium quoting/charging is shared with the add-line form and upgrade
+  /// sheet via [PlanPayment] — three screens, one price.
+  double _premiumRefillPriceSync(CarrierRule rule) =>
+      PlanPayment.premiumRefillPriceSync(ref, rule);
 
-  /// The single up-front charge for a year of premium on [rule]'s carrier.
-  ///
-  /// Premium bills through PayPal as one transaction, so PayPal's fee — read
-  /// from `payment_gateways`, the source of truth — is grossed up once over the
-  /// whole year rather than added per refill.
-  double _premiumYearlyTotalSync(CarrierRule rule) {
-    final paypal = ref.watch(paymentGatewayProvider('paypal')).value;
-    return RefillPricing.premiumYearlyTotal(
-      baseServiceFeeUsd: _baseServiceFeeUsd,
-      minimumTopupAmount: rule.minimumTopupAmount,
-      topupValidityDays: rule.topupValidityDays,
-      appFeePercent: ref.watch(appFeePercentProvider).value ?? kDefaultAppFeePercent,
-      premiumMarginPercent: ref.watch(premiumMarginPercentProvider).value ?? 0,
-      premiumMarginPerRefillUsd:
-          ref.watch(premiumMarginPerRefillUsdProvider).value ?? 0,
-      // Until the gateway row loads, quote without its fee rather than guessing
-      // a rate; _submit() awaits the real row before charging anything.
-      gatewayFeePercentage: paypal?.feePercentage ?? 0,
-      gatewayFeeFixed: paypal?.feeFixed ?? 0,
-      inappPricingOverride: _overrideFor(rule),
-    );
-  }
+  double _premiumYearlyTotalSync(CarrierRule rule) =>
+      PlanPayment.premiumYearlyTotalSync(ref, rule);
 
-  /// Authoritative version for the charge itself: awaits the config and gateway
-  /// rows instead of pricing on whatever build() happened to have cached.
-  Future<double> _premiumYearlyTotal(CarrierRule rule) async {
-    final appFee = await ref.read(appFeePercentProvider.future);
-    final margin = await ref.read(premiumMarginPercentProvider.future);
-    final marginFlat = await ref.read(premiumMarginPerRefillUsdProvider.future);
-    final paypal = await ref.read(paymentGatewayProvider('paypal').future);
-
-    return RefillPricing.premiumYearlyTotal(
-      baseServiceFeeUsd: _baseServiceFeeUsd,
-      minimumTopupAmount: rule.minimumTopupAmount,
-      topupValidityDays: rule.topupValidityDays,
-      appFeePercent: appFee,
-      premiumMarginPercent: margin,
-      premiumMarginPerRefillUsd: marginFlat,
-      gatewayFeePercentage: paypal?.feePercentage ?? 0,
-      gatewayFeeFixed: paypal?.feeFixed ?? 0,
-      inappPricingOverride: _overrideFor(rule),
-    );
-  }
+  Future<double> _premiumYearlyTotal(CarrierRule rule) =>
+      PlanPayment.premiumYearlyTotal(ref, rule);
 
   Future<void> _submit() async {
     if (!_agreedToTerms) {
@@ -336,9 +294,40 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
     final isPaid = _selectedTier != 'free';
     if (isPaid) {
-      // Standard is the bare service fee. Premium is that plus a pre-paid year
-      // of refills, grossed up once for PayPal — see _premiumYearlyTotal.
-      double amountToCharge = _baseServiceFeeUsd;
+      // Standard bills wallet-first (C3c): the wallet gateway is free while
+      // PayPal's fixed fee eats 23% of a standalone service-fee charge. The
+      // wallet debit is priced server-side by pay_plan_fee_from_wallet.
+      if (_selectedTier == 'standard') {
+        try {
+          if (await PlanPayment.tryStandardFromWallet(ref)) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(AppLocalizations.of(context)!.planFeePaidFromWallet),
+                  backgroundColor: AppColors.success,
+                ),
+              );
+            }
+            await commitSubmit();
+            return;
+          }
+        } catch (e) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Payment failed: $e'),
+                backgroundColor: AppColors.error,
+              ),
+            );
+          }
+          return;
+        }
+      }
+
+      // PayPal fallback (and the premium path): Standard is the service fee
+      // grossed up so it survives PayPal's cut; premium is the fee plus a
+      // pre-paid year of refills, grossed up once — see _premiumYearlyTotal.
+      double amountToCharge = await PlanPayment.standardPayPalTotal(ref);
       if (_selectedTier == 'premium' && hasSimDetails) {
         final rule = await ref
             .read(simLinesRepositoryProvider)
@@ -356,6 +345,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               initialAmount: amountToCharge,
               paymentReason: 'Payment for $_selectedTier plan',
               depositToWallet: false,
+              paymentKind: 'plan',
               onSuccess: () {
                 Navigator.of(context).pop();
                 commitSubmit();
@@ -1217,8 +1207,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   value: _selectedTier == 'free'
                       ? 'Free Plan (\$0)'
                       : (_selectedTier == 'standard'
-                            ? 'Standard Plan (\$2.50/yr)'
-                            : 'Premium Plan (\$2.50/yr + Refill)'),
+                            ? 'Standard Plan ($_feePerYearLabel)'
+                            : 'Premium Plan ($_feePerYearLabel + Refill)'),
                   icon: Icons.shield_rounded,
                   valueColor: _selectedTier == 'free'
                       ? Colors.blueAccent
@@ -1710,7 +1700,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       planColor = isDark ? Colors.purpleAccent : Colors.purple;
       if (isPremiumLoading) {
         billingDesc = 'Loading premium pricing rules for this carrier...';
-        billingRate = '\$2.50/yr + ...';
+        billingRate = '$_feePerYearLabel + ...';
       } else if (premiumRule != null) {
         // The whole year is charged once, up front — the old copy read as though
         // each refill were billed separately.
@@ -1720,7 +1710,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             '\$${_baseServiceFeeUsd.toStringAsFixed(2)} service plus '
             '${RefillPricing.refillsPerYear(premiumRule.topupValidityDays)} refills of '
             '${_premiumRefillPriceSync(premiumRule).toStringAsFixed(2)} $cur, one every ${premiumRule.topupValidityDays} days.';
-        billingRate = '\$2.50/yr + Refill';
+        billingRate = '$_feePerYearLabel + Refill';
       } else {
         billingDesc =
             'Premium auto-refill is not yet supported for this carrier. Please choose the Standard Plan.';
@@ -1731,8 +1721,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       planName = 'Standard Plan';
       planColor = isDark ? AppColors.primary : AppColors.lightPrimary;
       billingDesc =
-          'Automated tracking & notifications. You will be billed \$2.50/yr for this line.';
-      billingRate = '\$2.50/yr';
+          'Automated tracking & notifications. You will be billed $_feePerYearLabel for this line.';
+      billingRate = _feePerYearLabel;
     }
 
     return Container(
@@ -1983,7 +1973,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       title = 'Premium Plan';
       icon = Icons.workspace_premium_rounded;
       accentColor = const Color(0xFF2E7D32); // Green
-      priceStr = '\$2.50';
+      priceStr = '\$${_baseServiceFeeUsd.toStringAsFixed(2)}';
       billingPeriod = '/yr per line';
       features = [
         'Everything in Standard',
@@ -1997,7 +1987,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       title = 'Standard Plan';
       icon = Icons.verified_user_rounded;
       accentColor = const Color(0xFF1565C0); // Blue
-      priceStr = '\$2.50';
+      priceStr = '\$${_baseServiceFeeUsd.toStringAsFixed(2)}';
       billingPeriod = '/yr per line';
       features = [
         'Push notification alerts',

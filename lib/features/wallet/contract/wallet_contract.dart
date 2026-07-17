@@ -28,4 +28,10 @@ abstract interface class WalletContract {
     String? referenceId,
     String type = 'topup_debit',
   });
+
+  /// Pays the yearly plan service fee from the wallet.
+  ///
+  /// The amount is priced server-side by `pay_plan_fee_from_wallet` from
+  /// `system_configs.BASE_SERVICE_FEE_USD` — the client never states it.
+  Future<Result<Wallet>> payPlanFee({String? simLineId});
 }

@@ -2973,6 +2973,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Recharge Now'**
   String get rechargeNow;
+
+  /// No description provided for @planFeePaidFromWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan fee paid from your wallet balance.'**
+  String get planFeePaidFromWallet;
 }
 
 class _AppLocalizationsDelegate

@@ -1630,4 +1630,8 @@ class AppLocalizationsSi extends AppLocalizations {
 
   @override
   String get rechargeNow => 'දැන් රීචාජ් කරන්න';
+
+  @override
+  String get planFeePaidFromWallet =>
+      'සැලසුම් ගාස්තුව ඔබගේ පසුම්බි ශේෂයෙන් ගෙවන ලදී.';
 }

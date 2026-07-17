@@ -1626,4 +1626,8 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get rechargeNow => 'अभी रिचार्ज करें';
+
+  @override
+  String get planFeePaidFromWallet =>
+      'प्लान शुल्क आपके वॉलेट बैलेंस से भुगतान किया गया।';
 }

@@ -1612,4 +1612,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get rechargeNow => 'اشحن الآن';
+
+  @override
+  String get planFeePaidFromWallet => 'تم دفع رسوم الخطة من رصيد محفظتك.';
 }

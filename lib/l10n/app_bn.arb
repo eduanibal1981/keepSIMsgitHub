@@ -693,5 +693,6 @@
     "channelPushShort": "পুশ",
     "channelEmailShort": "ইমেল",
     "channelOffGlobally": "উপরের অ্যালার্ট চ্যানেলে বন্ধ",
-    "rechargeNow": "এখনই রিচার্জ করুন"
+    "rechargeNow": "এখনই রিচার্জ করুন",
+    "planFeePaidFromWallet": "প্ল্যান ফি আপনার ওয়ালেট ব্যালেন্স থেকে পরিশোধ করা হয়েছে।"
 }

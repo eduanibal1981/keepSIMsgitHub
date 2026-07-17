@@ -275,4 +275,49 @@ class WalletRepository implements WalletContract {
       return Failure(AppFailure.unknown(message: e.toString()));
     }
   }
+
+  @override
+  Future<Result<Wallet>> payPlanFee({String? simLineId}) async {
+    if (_connectivity.isOffline) {
+      return const Failure(
+        AppFailure.server(
+          message: 'Plan payments require an active internet connection.',
+        ),
+      );
+    }
+
+    try {
+      final userId = _client.auth.currentUser?.id;
+      if (userId == null) {
+        return const Failure(
+          AppFailure.auth(message: 'No authenticated user.'),
+        );
+      }
+
+      // Priced and debited server-side; the reference id makes a network retry
+      // of this exact attempt adopt the original debit instead of paying twice.
+      final referenceId =
+          'planfee_${userId.substring(0, 8)}_${DateTime.now().microsecondsSinceEpoch}';
+      await _client.rpc(
+        'pay_plan_fee_from_wallet',
+        params: {
+          'p_reference_id': referenceId,
+          'p_sim_line_id': simLineId,
+        },
+      );
+
+      return getWallet();
+    } on PostgrestException catch (e) {
+      if (e.message.contains('Insufficient wallet balance')) {
+        return const Failure(
+          AppFailure.validation(
+            message: 'Insufficient funds for this transaction.',
+          ),
+        );
+      }
+      return Failure(AppFailure.server(message: e.message));
+    } catch (e) {
+      return Failure(AppFailure.unknown(message: e.toString()));
+    }
+  }
 }

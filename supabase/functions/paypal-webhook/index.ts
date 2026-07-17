@@ -145,9 +145,48 @@ async function handleCaptureCompleted(event: any): Promise<Response> {
     return json({ received: true, credited: false, reason: 'no_custom_id' }, 200);
   }
 
+  // Plan charges (kind 'plan') are payments TO KeepSIMs, not wallet deposits.
+  // Before C3c every plan charge was tagged 'deposit', so the webhook credited
+  // the full charge back into the payer's wallet — paid plans were free.
+  if (kind === 'plan') {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/plan_payments`, {
+      method: 'POST',
+      headers: { ...serviceHeaders, 'Prefer': 'return=minimal' },
+      body: JSON.stringify({
+        user_id: userId,
+        capture_id: captureId,
+        order_id: orderId ?? null,
+        kind,
+        gross_usd: gross,
+        paypal_fee_usd: fee,
+        net_usd: net,
+        metadata: {
+          event_id: event.id,
+          event_time: event.create_time ?? null,
+          currency,
+        },
+      }),
+    });
+
+    if (res.ok) {
+      console.log(`Recorded plan payment $${gross} from ${userId} (capture ${captureId})`);
+      return json({ received: true, recorded: true }, 200);
+    }
+
+    const body = await res.text();
+    if (res.status === 409 || body.includes('duplicate key')) {
+      console.log(`Plan payment ${captureId} already recorded — webhook retry, ignoring.`);
+      return json({ received: true, recorded: false, reason: 'already_recorded' }, 200);
+    }
+
+    // Transient — 500 so PayPal retries rather than losing the record.
+    console.error(`plan_payments insert failed for ${captureId}: ${body}`);
+    return json({ received: true, recorded: false, error: body }, 500);
+  }
+
   if (kind !== 'deposit') {
-    // Future flows (direct-pay refill, subscriptions) route here later; alert
-    // so nothing silently disappears until they are built.
+    // Future flows (direct-pay refill) route here later; alert so nothing
+    // silently disappears until they are built.
     await systemAlert('paypal_unhandled_kind',
       `PayPal capture ${captureId} carries kind '${kind}', which has no handler yet. Not credited.`,
       { capture_id: captureId, order_id: orderId ?? null, kind, user_id: userId, gross });
