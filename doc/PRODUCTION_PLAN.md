@@ -417,6 +417,20 @@ computes `base_cost_usd` itself, after which client INSERT can be revoked
 outright. The worker check makes that safe to defer, but it should land before
 E1 flips to production keys.
 
+### 🟠 C3b-3 — offline: cache `carriers` + `carrier_rules` (found 2026-07-17)
+
+Only `sim_lines` is cached locally (`cached_sim_lines`). `carriers` and
+`carrier_rules` are not, so **offline** — the one state the offline-recharge flow
+exists for — `offline_refill_screen.dart` falls back to
+`activeCarrier?.defaultRefillAmount ?? 5.00` **and**
+`activeCarrier?.gatewayPhoneNumber ?? '+968 24 555 0110'`. An offline user on a
+non-Oman carrier is shown the wrong amount and told to message **the wrong
+number**. Both tables are small, change rarely (they are admin-curated, which is
+the whole point of pinning `offer_id` / `minimum_topup_amount` there rather than
+fetching Zendit per line), and are exactly what the offline path needs. Cache
+them alongside `cached_sim_lines`. Belongs with C4 (offline recharge) if that
+lands first.
+
 ### 🟠 C3b-2 — remaining (not started)
 
 **Latent money bug.** Client `DELETE` on `topup_executions` is a silent no-op —
@@ -439,10 +453,25 @@ from `anon` + `authenticated` (A4 item 2). Also trim the excess grants: `anon`
 currently holds INSERT/UPDATE/DELETE/TRUNCATE on this table (RLS and PostgREST
 contain it today, but the grants have no business existing).
 
-Also noticed, not yet decided: scheduled refills insert with
-`payment_gateway_code = NULL`, so `calculate_topup_fees` never fires and they
-carry **no app fee**, while a manual refill of the same base cost pays 3%. Worth
-confirming that asymmetry is intentional.
+**Resolved 2026-07-17 — the two pricing models are two products, not a
+conflict.** Scheduled refills insert with `payment_gateway_code = NULL`, so
+`calculate_topup_fees` never fires and they carry no app fee, while a manual
+refill of the same base cost pays 3%. That asymmetry is **correct**:
+
+* **Premium (auto/mini refill)** is *pre-paid yearly*. `onboarding_screen.dart`
+  quotes `ceil(365 / carrier_rules.topup_validity_days) * carrier_rules.inapp_pricing`
+  (plus $2.50/yr), and `inapp_pricing` is `minimum_topup_amount` + a per-carrier
+  margin — e.g. O2 Germany costs 19.24, charges 21.1032, ×13 refills = $274.34/yr
+  with $24.22 margin. That is why `worker_auto_mini_refill` deliberately does no
+  wallet debit ("premium users pay upfront"). Charging an app fee at execution
+  time would double-charge a refill the user already bought.
+* **Instant/manual refill** is *pay-as-you-go*: base cost + `APP_FEE_PERCENT`,
+  debited per refill by `worker_instant_refill`.
+
+So `carrier_rules.inapp_pricing` is the premium subscription rate and
+`system_configs.APP_FEE_PERCENT` is the pay-as-you-go rate. Both stay. Do not
+"unify" them — and note `inapp_pricing` is load-bearing for the premium quote,
+not a dead column.
 
 ## 🟠 C4 — Offline Recharge: stacked fallback cards (WhatsApp → SMS → missed call)
 
