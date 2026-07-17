@@ -252,18 +252,25 @@ serve(async (req: Request) => {
               const osBody = await response.json().catch(() => ({} as Record<string, unknown>));
               const recipients = Number(osBody?.recipients ?? 0);
               const hasErrors = osBody?.errors != null;
+              const osId = osBody?.id ?? null;
 
-              if (response.ok && recipients > 0 && !hasErrors) {
+              // An alias-targeted send is accepted when OneSignal returns 200 with a
+              // notification id and no errors; the recipients count in that immediate
+              // response is resolved asynchronously and is NOT authoritative. Only a
+              // real error (e.g. "All included players are not subscribed") means
+              // nobody was reached. Treating recipients===0 as failure would fall back
+              // to FCM on every send and deliver the notification twice.
+              if (response.ok && !hasErrors && osId != null) {
                 oneSignalOk = true;
-                results["push"] = `Delivered via OneSignal to ${recipients} device(s).`;
+                results["push"] = `Delivered via OneSignal (id ${osId}, recipients ${recipients}).`;
                 logDelivery("push_onesignal", "delivered", results["push"], response.status);
               } else {
                 results["push"] =
-                  `OneSignal did not deliver (status ${response.status}, recipients ${recipients}). Falling back to FCM.`;
+                  `OneSignal did not deliver (status ${response.status}, errors ${JSON.stringify(osBody?.errors ?? null)}). Falling back to FCM.`;
                 logDelivery(
                   "push_onesignal",
                   "failed",
-                  `status ${response.status}, recipients ${recipients}, errors ${JSON.stringify(osBody?.errors ?? null)}`,
+                  `status ${response.status}, recipients ${recipients}, id ${osId}, errors ${JSON.stringify(osBody?.errors ?? null)}`,
                   response.status,
                 );
               }
