@@ -378,6 +378,47 @@ What C3 actually fixed:
 
 ## 🟠 C3b — Lock down `topup_executions` client writes (found during C3)
 
+### ✅ C3b-1 — Offer/price validation — done 2026-07-17
+
+**This was the worst hole found so far** — worse than C3's Zendit faucet,
+because it ran through the *sanctioned* pipeline and looked legitimate in the
+ledger. The client picked **both** the offer to buy (`offer_id`) and the price
+it claimed that offer costs (`base_cost_usd` → `calculate_topup_fees` →
+`amount`, which is what gets debited). Nothing reconciled the two: there is no
+server-side copy of Zendit's price list, and all three workers only consulted
+the catalog `if (!offerId)` — a supplied `offer_id` went straight to purchase.
+So: name a $6.22 offer, declare it costs $0.01, get it for a cent. Repeatable;
+the 10s rate limit is per line and users can add lines.
+
+Fixed in the workers (backend commits `d89bf36`, `8e4593b`), because they are
+the only thing that actually spends. All three now always resolve the catalog
+(cached 5 min per country/brand) and require a named offer to be an enabled
+top-up in **that line's own** country/carrier catalog at the price charged.
+FIXED must match within a cent; RANGE must have the price inside the range
+**and** the send value be the one that price actually buys — inside-the-range
+alone would let a caller pay the minimum and claim the maximum. Validated
+against `base_cost_usd`, not `amount` (which carries the fees). A mismatch
+throws → existing catch refunds and fails the execution → plus a
+`system_alerts` row (`offer_price_mismatch`), which C1 fans out to power users.
+
+`worker_auto_mini_refill` needed it too despite doing no wallet debit (premium
+pays upfront): there the gain is "claim more", not "pay less" — an expensive
+offer drawn from a plan that entitles you to a small one.
+
+Comparison rules, the cached catalog loader and the alert live once in
+`servers/offer_validation.js` (they had already drifted across the three
+copies). 22 tests via `node --test`. Proven live: `ETISALAT_EG_011` ($6.22)
+named at $0.01 → failed, wallet net 0.00, no purchase, alert raised; the same
+offer at $6.22 → success, wallet −6.41.
+
+**Still architecturally weak:** the client states a price at all. The real end
+state is a server-side offers cache + a `request_instant_refill` RPC that
+computes `base_cost_usd` itself, after which client INSERT can be revoked
+outright. The worker check makes that safe to defer, but it should land before
+E1 flips to production keys.
+
+### 🟠 C3b-2 — remaining (not started)
+
 **Latent money bug.** Client `DELETE` on `topup_executions` is a silent no-op —
 HTTP 200, 0 rows — because the table has SELECT/INSERT/UPDATE policies but *no
 DELETE policy*. `deleteExecution`, `cancelSchedule` and `cleanMockLogs` all
