@@ -1564,6 +1564,32 @@ class AppLocalizationsHi extends AppLocalizations {
       'महत्वपूर्ण इंजन अपडेट, मेंटेनेंस और प्लेटफ़ॉर्म घोषणाएं।';
 
   @override
+  String get walletCreditTitle => 'वॉलेट में राशि जमा';
+
+  @override
+  String get walletCreditDesc =>
+      'जब मेरे वॉलेट में जमा राशि आए तो मुझे सूचित करें।';
+
+  @override
+  String get promoTitle => 'ऑफ़र और प्रचार';
+
+  @override
+  String get promoDesc =>
+      'सौदों और नई सुविधाओं के बारे में कभी-कभार समाचार। जब तक आप चालू न करें, बंद रहता है।';
+
+  @override
+  String get deliverVia => 'इसके द्वारा भेजें';
+
+  @override
+  String get channelPushShort => 'पुश';
+
+  @override
+  String get channelEmailShort => 'ईमेल';
+
+  @override
+  String get channelOffGlobally => 'ऊपर अलर्ट चैनल में बंद है';
+
+  @override
   String get rescheduleRefill => 'Reschedule Refill';
 
   @override

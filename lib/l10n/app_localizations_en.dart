@@ -1558,6 +1558,31 @@ class AppLocalizationsEn extends AppLocalizations {
       'Vital engine updates, maintenance, and platform announcements.';
 
   @override
+  String get walletCreditTitle => 'Wallet Credited';
+
+  @override
+  String get walletCreditDesc => 'Notify me when a deposit lands in my wallet.';
+
+  @override
+  String get promoTitle => 'Offers & Promotions';
+
+  @override
+  String get promoDesc =>
+      'Occasional news about deals and new features. Stays off until you turn it on.';
+
+  @override
+  String get deliverVia => 'Deliver via';
+
+  @override
+  String get channelPushShort => 'Push';
+
+  @override
+  String get channelEmailShort => 'Email';
+
+  @override
+  String get channelOffGlobally => 'Off in Alert Channels above';
+
+  @override
   String get rescheduleRefill => 'Reschedule Refill';
 
   @override

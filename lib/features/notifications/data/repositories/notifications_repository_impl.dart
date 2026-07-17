@@ -87,50 +87,14 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
   @override
   Future<List<AlertSetting>> getAlertSettings() async {
     try {
-      final userId = _currentUserId;
+      // Rows are seeded server-side by trg_profiles_seed_alert_settings (C2);
+      // the dispatcher also defaults a missing row to enabled, so an empty list
+      // is safe to render rather than something the client must repair.
       final response = await _supabase
           .from('alert_settings')
           .select()
-          .eq('user_id', userId);
-
-      if ((response as List).isEmpty) {
-        // Seed default alert settings
-        final categories = [
-          'top_up_success',
-          'top_up_failed',
-          'wallet_low',
-          'wallet_depleted',
-          'line_critical',
-          'line_entering_grace',
-          'geo_fence_triggered',
-          'welcome_home_ready',
-          'referral_reward',
-          'system',
-        ];
-
-        final rows = categories
-            .map(
-              (cat) => {
-                'user_id': userId,
-                'category': cat,
-                'is_enabled': true,
-                'channels': ['push'],
-              },
-            )
-            .toList();
-
-        await _supabase.from('alert_settings').insert(rows);
-
-        // Re-fetch alert settings
-        final reResponse = await _supabase
-            .from('alert_settings')
-            .select()
-            .eq('user_id', userId);
-
-        return (reResponse as List)
-            .map((json) => AlertSetting.fromJson(json))
-            .toList();
-      }
+          .eq('user_id', _currentUserId)
+          .order('category');
 
       return (response as List)
           .map((json) => AlertSetting.fromJson(json))

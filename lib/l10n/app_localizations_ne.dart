@@ -1565,6 +1565,32 @@ class AppLocalizationsNe extends AppLocalizations {
       'महत्त्वपूर्ण इन्जिन अपडेटहरू, मर्मत र प्लेटफर्म घोषणाहरू।';
 
   @override
+  String get walletCreditTitle => 'वालेटमा रकम जम्मा';
+
+  @override
+  String get walletCreditDesc =>
+      'मेरो वालेटमा रकम जम्मा हुँदा मलाई सूचित गर्नुहोस्।';
+
+  @override
+  String get promoTitle => 'अफर र प्रवर्धन';
+
+  @override
+  String get promoDesc =>
+      'छुट र नयाँ सुविधाहरूबारे कहिलेकाहीँ समाचार। तपाईंले नखोल्दासम्म बन्द रहन्छ।';
+
+  @override
+  String get deliverVia => 'यसमार्फत पठाउनुहोस्';
+
+  @override
+  String get channelPushShort => 'पुश';
+
+  @override
+  String get channelEmailShort => 'इमेल';
+
+  @override
+  String get channelOffGlobally => 'माथिको अलर्ट च्यानलमा बन्द छ';
+
+  @override
   String get rescheduleRefill => 'Reschedule Refill';
 
   @override

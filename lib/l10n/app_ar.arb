@@ -608,5 +608,13 @@
     "referralRewardTitle":  "الإحالات والمكافآت",
     "referralRewardDesc":  "إشعار عند قيام إحالات الأصدقاء بإيداع أرصدة ترويجية في محفظتي.",
     "systemUpdatesTitle":  "تحديثات النظام العامة",
-    "systemUpdatesDesc":  "تحديثات المحرك الحيوية والصيانة وإعلانات المنصة."
+    "systemUpdatesDesc":  "تحديثات المحرك الحيوية والصيانة وإعلانات المنصة.",
+    "walletCreditTitle":  "تم شحن المحفظة",
+    "walletCreditDesc":  "إشعار عند إيداع مبلغ في محفظتي.",
+    "promoTitle":  "العروض والترويج",
+    "promoDesc":  "أخبار من حين لآخر عن العروض والميزات الجديدة. يبقى معطلاً حتى تقوم بتفعيله.",
+    "deliverVia":  "الإرسال عبر",
+    "channelPushShort":  "إشعار",
+    "channelEmailShort":  "بريد",
+    "channelOffGlobally":  "معطل في قنوات التنبيه أعلاه"
 }

@@ -1564,6 +1564,32 @@ class AppLocalizationsUr extends AppLocalizations {
       'اہم انجن اپڈیٹس، مینٹیننس، اور پلیٹ فارم اعلانات۔';
 
   @override
+  String get walletCreditTitle => 'والٹ میں رقم جمع';
+
+  @override
+  String get walletCreditDesc =>
+      'جب میرے والٹ میں رقم جمع ہو تو مجھے اطلاع دیں۔';
+
+  @override
+  String get promoTitle => 'پیشکشیں اور پروموشنز';
+
+  @override
+  String get promoDesc =>
+      'سودوں اور نئی خصوصیات کے بارے میں کبھی کبھار خبریں۔ جب تک آپ آن نہ کریں بند رہتا ہے۔';
+
+  @override
+  String get deliverVia => 'اس کے ذریعے بھیجیں';
+
+  @override
+  String get channelPushShort => 'پش';
+
+  @override
+  String get channelEmailShort => 'ای میل';
+
+  @override
+  String get channelOffGlobally => 'اوپر الرٹ چینلز میں بند ہے';
+
+  @override
   String get rescheduleRefill => 'Reschedule Refill';
 
   @override

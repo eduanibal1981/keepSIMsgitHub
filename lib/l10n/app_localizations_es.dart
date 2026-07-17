@@ -1587,6 +1587,32 @@ class AppLocalizationsEs extends AppLocalizations {
       'Actualizaciones vitales del motor, mantenimiento y anuncios de la plataforma.';
 
   @override
+  String get walletCreditTitle => 'Monedero acreditado';
+
+  @override
+  String get walletCreditDesc =>
+      'Avísame cuando entre un depósito en mi monedero.';
+
+  @override
+  String get promoTitle => 'Ofertas y promociones';
+
+  @override
+  String get promoDesc =>
+      'Novedades ocasionales sobre ofertas y nuevas funciones. Permanece desactivado hasta que lo actives.';
+
+  @override
+  String get deliverVia => 'Enviar por';
+
+  @override
+  String get channelPushShort => 'Push';
+
+  @override
+  String get channelEmailShort => 'Correo';
+
+  @override
+  String get channelOffGlobally => 'Desactivado en Canales de alerta arriba';
+
+  @override
   String get rescheduleRefill => 'Reschedule Refill';
 
   @override

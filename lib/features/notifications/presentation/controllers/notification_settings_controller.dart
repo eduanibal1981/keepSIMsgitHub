@@ -22,24 +22,51 @@ class AlertSettingsController extends _$AlertSettingsController {
 
   /// Toggles whether a specific alert category is enabled.
   Future<void> toggleCategory(String category, bool isEnabled) async {
+    await _mutate(category, (item) => item.copyWith(isEnabled: isEnabled));
+  }
+
+  /// Toggles a single delivery channel for one category (C2).
+  ///
+  /// This only narrows: the channel must also be enabled globally in
+  /// `notification_channels` for anything to be sent, which is what the
+  /// dispatch trigger intersects against.
+  Future<void> toggleChannelForCategory(
+    String category,
+    String channel,
+    bool isEnabled,
+  ) async {
+    await _mutate(category, (item) {
+      final channels = item.channels.toSet();
+      if (isEnabled) {
+        channels.add(channel);
+      } else {
+        channels.remove(channel);
+      }
+      return item.copyWith(channels: channels.toList()..sort());
+    });
+  }
+
+  /// Applies [change] to one category optimistically, then persists it. The
+  /// optimistic write is what makes the toggles feel instant offline; a failed
+  /// round-trip reloads so the UI can never drift from the server.
+  Future<void> _mutate(
+    String category,
+    AlertSetting Function(AlertSetting) change,
+  ) async {
     final repo = ref.read(notificationsRepositoryProvider);
 
-    // Optimistic UI update
-    state = state.whenData((list) {
-      return list.map((item) {
-        if (item.category == category) {
-          return item.copyWith(isEnabled: isEnabled);
-        }
-        return item;
-      }).toList();
-    });
+    state = state.whenData(
+      (list) => list
+          .map((item) => item.category == category ? change(item) : item)
+          .toList(),
+    );
 
     try {
-      final list = state.value ?? [];
-      final match = list.firstWhere((item) => item.category == category);
+      final match = (state.value ?? []).firstWhere(
+        (item) => item.category == category,
+      );
       await repo.updateAlertSetting(match);
     } catch (_) {
-      // Reload on failure
       ref.invalidateSelf();
     }
   }

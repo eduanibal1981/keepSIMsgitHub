@@ -1568,6 +1568,32 @@ class AppLocalizationsSi extends AppLocalizations {
       'අත්‍යවශ්‍ය එන්ජින් යාවත්කාලීන, නඩත්තු සහ වේදිකා නිවේදන.';
 
   @override
+  String get walletCreditTitle => 'පසුම්බියට බැර විය';
+
+  @override
+  String get walletCreditDesc =>
+      'මගේ පසුම්බියට තැන්පතුවක් ලැබුණු විට මට දන්වන්න.';
+
+  @override
+  String get promoTitle => 'දීමනා සහ ප්‍රවර්ධන';
+
+  @override
+  String get promoDesc =>
+      'ගනුදෙනු සහ නව විශේෂාංග ගැන ඉඳහිට පුවත්. ඔබ ක්‍රියාත්මක කරන තෙක් අක්‍රියව පවතී.';
+
+  @override
+  String get deliverVia => 'යවන්නේ';
+
+  @override
+  String get channelPushShort => 'පුෂ්';
+
+  @override
+  String get channelEmailShort => 'ඊමේල්';
+
+  @override
+  String get channelOffGlobally => 'ඉහත ඇඟවීම් නාලිකා තුළ අක්‍රියයි';
+
+  @override
   String get rescheduleRefill => 'Reschedule Refill';
 
   @override

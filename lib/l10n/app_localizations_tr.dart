@@ -1569,6 +1569,32 @@ class AppLocalizationsTr extends AppLocalizations {
       'Önemli motor güncellemeleri, bakım ve platform duyuruları.';
 
   @override
+  String get walletCreditTitle => 'Cüzdana Para Yüklendi';
+
+  @override
+  String get walletCreditDesc =>
+      'Cüzdanıma para yatırıldığında beni bilgilendir.';
+
+  @override
+  String get promoTitle => 'Teklifler ve Promosyonlar';
+
+  @override
+  String get promoDesc =>
+      'Fırsatlar ve yeni özellikler hakkında ara sıra haberler. Siz açana kadar kapalı kalır.';
+
+  @override
+  String get deliverVia => 'Şununla gönder';
+
+  @override
+  String get channelPushShort => 'Anlık';
+
+  @override
+  String get channelEmailShort => 'E-posta';
+
+  @override
+  String get channelOffGlobally => 'Yukarıdaki Uyarı Kanalları\'nda kapalı';
+
+  @override
   String get rescheduleRefill => 'Reschedule Refill';
 
   @override

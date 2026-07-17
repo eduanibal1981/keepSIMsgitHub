@@ -1551,6 +1551,31 @@ class AppLocalizationsAr extends AppLocalizations {
       'تحديثات المحرك الحيوية والصيانة وإعلانات المنصة.';
 
   @override
+  String get walletCreditTitle => 'تم شحن المحفظة';
+
+  @override
+  String get walletCreditDesc => 'إشعار عند إيداع مبلغ في محفظتي.';
+
+  @override
+  String get promoTitle => 'العروض والترويج';
+
+  @override
+  String get promoDesc =>
+      'أخبار من حين لآخر عن العروض والميزات الجديدة. يبقى معطلاً حتى تقوم بتفعيله.';
+
+  @override
+  String get deliverVia => 'الإرسال عبر';
+
+  @override
+  String get channelPushShort => 'إشعار';
+
+  @override
+  String get channelEmailShort => 'بريد';
+
+  @override
+  String get channelOffGlobally => 'معطل في قنوات التنبيه أعلاه';
+
+  @override
   String get rescheduleRefill => 'Reschedule Refill';
 
   @override

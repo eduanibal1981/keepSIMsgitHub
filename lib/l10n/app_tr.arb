@@ -684,5 +684,13 @@
     "referralRewardTitle": "Davet ve Ödüller",
     "referralRewardDesc": "Arkadaş davetleri cüzdanıma promosyon bakiyesi yatırdığında beni bilgilendir.",
     "systemUpdatesTitle": "Genel Sistem Güncellemeleri",
-    "systemUpdatesDesc": "Önemli motor güncellemeleri, bakım ve platform duyuruları."
+    "systemUpdatesDesc": "Önemli motor güncellemeleri, bakım ve platform duyuruları.",
+    "walletCreditTitle": "Cüzdana Para Yüklendi",
+    "walletCreditDesc": "Cüzdanıma para yatırıldığında beni bilgilendir.",
+    "promoTitle": "Teklifler ve Promosyonlar",
+    "promoDesc": "Fırsatlar ve yeni özellikler hakkında ara sıra haberler. Siz açana kadar kapalı kalır.",
+    "deliverVia": "Şununla gönder",
+    "channelPushShort": "Anlık",
+    "channelEmailShort": "E-posta",
+    "channelOffGlobally": "Yukarıdaki Uyarı Kanalları'nda kapalı"
 }

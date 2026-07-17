@@ -684,5 +684,13 @@
     "referralRewardTitle":  "Referidos y Recompensas",
     "referralRewardDesc":  "Notificarme cuando los referidos de amigos depositen saldos promocionales en mi billetera.",
     "systemUpdatesTitle":  "Actualizaciones Generales del Sistema",
-    "systemUpdatesDesc":  "Actualizaciones vitales del motor, mantenimiento y anuncios de la plataforma."
+    "systemUpdatesDesc":  "Actualizaciones vitales del motor, mantenimiento y anuncios de la plataforma.",
+    "walletCreditTitle":  "Monedero acreditado",
+    "walletCreditDesc":  "Avísame cuando entre un depósito en mi monedero.",
+    "promoTitle":  "Ofertas y promociones",
+    "promoDesc":  "Novedades ocasionales sobre ofertas y nuevas funciones. Permanece desactivado hasta que lo actives.",
+    "deliverVia":  "Enviar por",
+    "channelPushShort":  "Push",
+    "channelEmailShort":  "Correo",
+    "channelOffGlobally":  "Desactivado en Canales de alerta arriba"
 }

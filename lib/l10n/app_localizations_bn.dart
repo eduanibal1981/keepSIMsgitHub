@@ -1563,6 +1563,31 @@ class AppLocalizationsBn extends AppLocalizations {
       'গুরুত্বপূর্ণ ইঞ্জিন আপডেট, রক্ষণাবেক্ষণ ও প্ল্যাটফর্ম ঘোষণা।';
 
   @override
+  String get walletCreditTitle => 'ওয়ালেটে জমা হয়েছে';
+
+  @override
+  String get walletCreditDesc => 'আমার ওয়ালেটে জমা এলে আমাকে জানান।';
+
+  @override
+  String get promoTitle => 'অফার ও প্রচার';
+
+  @override
+  String get promoDesc =>
+      'ডিল ও নতুন ফিচার সম্পর্কে মাঝে মাঝে খবর। আপনি চালু না করা পর্যন্ত বন্ধ থাকে।';
+
+  @override
+  String get deliverVia => 'যার মাধ্যমে পাঠান';
+
+  @override
+  String get channelPushShort => 'পুশ';
+
+  @override
+  String get channelEmailShort => 'ইমেল';
+
+  @override
+  String get channelOffGlobally => 'উপরের অ্যালার্ট চ্যানেলে বন্ধ';
+
+  @override
   String get rescheduleRefill => 'Reschedule Refill';
 
   @override

@@ -684,5 +684,13 @@
     "referralRewardTitle": "ریفرل اور ریوارڈز",
     "referralRewardDesc": "جب دوستوں کے ریفرلز میرے والیٹ میں پروموشنل بیلنس جمع کریں تو مجھے مطلع کریں۔",
     "systemUpdatesTitle": "عمومی سسٹم اپڈیٹس",
-    "systemUpdatesDesc": "اہم انجن اپڈیٹس، مینٹیننس، اور پلیٹ فارم اعلانات۔"
+    "systemUpdatesDesc": "اہم انجن اپڈیٹس، مینٹیننس، اور پلیٹ فارم اعلانات۔",
+    "walletCreditTitle": "والٹ میں رقم جمع",
+    "walletCreditDesc": "جب میرے والٹ میں رقم جمع ہو تو مجھے اطلاع دیں۔",
+    "promoTitle": "پیشکشیں اور پروموشنز",
+    "promoDesc": "سودوں اور نئی خصوصیات کے بارے میں کبھی کبھار خبریں۔ جب تک آپ آن نہ کریں بند رہتا ہے۔",
+    "deliverVia": "اس کے ذریعے بھیجیں",
+    "channelPushShort": "پش",
+    "channelEmailShort": "ای میل",
+    "channelOffGlobally": "اوپر الرٹ چینلز میں بند ہے"
 }

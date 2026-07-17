@@ -2860,6 +2860,54 @@ abstract class AppLocalizations {
   /// **'Vital engine updates, maintenance, and platform announcements.'**
   String get systemUpdatesDesc;
 
+  /// No description provided for @walletCreditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet Credited'**
+  String get walletCreditTitle;
+
+  /// No description provided for @walletCreditDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Notify me when a deposit lands in my wallet.'**
+  String get walletCreditDesc;
+
+  /// No description provided for @promoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Offers & Promotions'**
+  String get promoTitle;
+
+  /// No description provided for @promoDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Occasional news about deals and new features. Stays off until you turn it on.'**
+  String get promoDesc;
+
+  /// No description provided for @deliverVia.
+  ///
+  /// In en, this message translates to:
+  /// **'Deliver via'**
+  String get deliverVia;
+
+  /// No description provided for @channelPushShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Push'**
+  String get channelPushShort;
+
+  /// No description provided for @channelEmailShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get channelEmailShort;
+
+  /// No description provided for @channelOffGlobally.
+  ///
+  /// In en, this message translates to:
+  /// **'Off in Alert Channels above'**
+  String get channelOffGlobally;
+
   /// No description provided for @rescheduleRefill.
   ///
   /// In en, this message translates to:

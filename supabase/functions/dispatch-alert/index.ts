@@ -8,6 +8,10 @@
 //   telegram / whatsapp / webhook -> unchanged legacy channels.
 // Every attempt is logged to public.notification_deliveries.
 //
+// Which channels arrive here is decided by the trigger: it intersects the
+// user's global notification_channels switches with the per-category opt-in in
+// alert_settings.channels (C2), so this function just delivers what it is told.
+//
 // Secrets: the trigger authenticates with a shared secret stored in Supabase
 // Vault (dispatch_shared_secret), read back here via the get_internal_secret
 // RPC. Provider keys come from Edge Function secrets / env only.
@@ -337,7 +341,11 @@ serve(async (req: Request) => {
             .eq("is_enabled", true)
             .maybeSingle();
 
-          let emailAddress = channelData?.config?.email_address;
+          // The settings UI writes config.email; older rows/tests use
+          // config.email_address. Accept both — reading only the latter meant a
+          // user's configured address was silently ignored in favour of their
+          // account email (same shape as the phone_number/phone pair below).
+          let emailAddress = channelData?.config?.email_address ?? channelData?.config?.email;
           if (!emailAddress) {
             const { data: profile } = await supabase
               .from("profiles")

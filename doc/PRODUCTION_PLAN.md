@@ -276,22 +276,58 @@ falls back to FCM on failure.
    power user.
 4. Email: verify existing templates render; send via the current provider for
    the same events where email is enabled.
-5. Every dispatch consults `user_alert_settings` (C2) — build the check now,
-   default all-on until C2 ships the UI.
+5. Every dispatch consults `alert_settings` (C2; the plan originally called this
+   `user_alert_settings`) — build the check now, default all-on until C2 ships
+   the UI.
 
-## 🟠 C2 — Alert preferences (predefined toggle categories) — after C1
+## ✅ C2 — Alert preferences (predefined toggle categories) — done 2026-07-17
 
 **User decision:** predefined categories users toggle individually.
 
-1. Table `user_alert_settings(user_id, category, push_enabled, email_enabled,
-   updated_at)` with RLS `auth.uid() = user_id`; categories as a Postgres enum:
-   `low_balance`, `upcoming_expiry`, `refill_success`, `refill_failure`,
-   `wallet_activity`, `travel_roaming`, `promo`. Seed defaults on signup
-   (trigger on `profiles`): all on except `promo`.
-2. Settings screen section under `lib/features/settings/`: one row per
-   category, push + email toggles, instant persistence, offline-tolerant.
-3. `dispatch_notification` (C1) must skip disabled categories — add the test.
-4. Compliance nicety: `promo` respects a marketing-consent flag for stores.
+Shipped as migration `20260717010000_c2_alert_preferences` + dispatch-alert v19.
+Three items below were specified against a schema that did not match the live DB;
+what actually shipped is recorded after each.
+
+1. ~~Table `user_alert_settings(user_id, category, push_enabled, email_enabled,
+   updated_at)`~~ → the live table is **`alert_settings`**, which already had
+   RLS `auth.uid() = user_id`, `UNIQUE (user_id, category)` and a `channels
+   text[]` column. C2 added `updated_at` and made `channels` live rather than
+   adding `push_enabled`/`email_enabled` booleans — the array already covered
+   the app's four real channels (push/email/telegram/whatsapp) and two booleans
+   would have been a regression against telegram/whatsapp.
+   ~~categories as a Postgres enum: `low_balance`, `upcoming_expiry`,
+   `refill_success`, `refill_failure`, `wallet_activity`, `travel_roaming`,
+   `promo`~~ → **superseded, signed off 2026-07-17.** That enum predates the
+   live schema and is strictly lossier: it has no equivalent for `system`,
+   `referral_reward` or `wallet_depleted`, so adopting it would have merged away
+   categories users can already toggle. The live names stay canonical:
+   `top_up_success`, `top_up_failed`, `wallet_low`, `wallet_depleted`,
+   `line_critical`, `line_entering_grace`, `geo_fence_triggered`,
+   `welcome_home_ready`, `referral_reward`, `system`, `wallet_credit` (C1), plus
+   **`promo`** (new). `wallet_credit` was dispatchable since C1 but missing from
+   `alert_settings_category_check`, so deposit alerts could not be muted — fixed.
+   Seed defaults on signup: done via `trg_profiles_seed_alert_settings`, all on
+   except `promo`; existing users backfilled.
+2. ~~Settings screen section under `lib/features/settings/`~~ → the screen
+   already existed at
+   `lib/features/notifications/presentation/screens/notification_settings_screen.dart`
+   with per-category toggles, quiet hours and a **global** per-channel section.
+   C2 added the per-category push/email chips on each row (dimmed with a tooltip
+   when that channel is off globally), instant optimistic persistence.
+3. Dispatch skips disabled categories — the gate is in
+   `trg_fn_dispatch_notification`, not the Edge Function; effective channels are
+   `alert_settings.channels ∩ enabled(notification_channels) ∩ tier clamp`.
+   Tests in `supabase/tests/c2_alert_preferences_tests.sql` (10 assertions,
+   asserting on `net.http_request_queue` — the only observable proof a dispatch
+   was decided).
+4. Compliance: `promo` **is** the consent flag rather than a second source of
+   truth — it seeds off, and it is the one category where a missing row means
+   "no consent" instead of the default-on rule. `updated_at` is the consent
+   timestamp.
+
+Also fixed in passing: dispatch-alert read `config.email_address` while the
+settings UI writes `config.email`, so a user's configured address was silently
+ignored in favour of their account email. Now accepts both (v19).
 
 ## 🟠 C3 — Instant Recharge in-app (server-side execution)
 
@@ -402,7 +438,7 @@ only the **newest 20 rows per user** in Supabase `activity_logs`.
 3. UI under Help & Support: list, detail thread (realtime subscription so admin
    replies appear live), create form with category picker.
 4. Notify on admin reply through C1 dispatcher (`category: support` — add to
-   the C2 enum).
+   both category CHECK constraints and the seed list; see C2).
 
 ## 🟠 C8 — Travel & geolocation: country-change → roaming advice / eSIM offer
 
@@ -417,8 +453,9 @@ is "user entered a new country."
 2. Interplay with B5: entering a country still triggers
    `freezeAllInternationalLines()` minus `requires_protection_at_home` lines.
 3. Privacy: coordinates never stored — only ISO country code; disclose in
-   privacy policy (D3 session touches this); respect the `travel_roaming`
-   toggle from C2; degrade gracefully when permission denied.
+   privacy policy (D3 session touches this); respect the `geo_fence_triggered`
+   toggle from C2 (the plan's `travel_roaming` name was superseded — see C2);
+   degrade gracefully when permission denied.
 4. No background location — keeps store review simple. Note the limitation
    (detection happens on next app open) in the UI copy.
 

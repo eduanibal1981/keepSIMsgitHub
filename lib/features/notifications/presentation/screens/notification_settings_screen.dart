@@ -87,7 +87,25 @@ class NotificationSettingsScreen extends ConsumerWidget {
       icon: Icons.settings_suggest_rounded,
       color: AppColors.primary,
     ),
+    'wallet_credit': _CategoryMeta(
+      name: 'Wallet Credited',
+      description: 'Notify me when a deposit lands in my wallet.',
+      icon: Icons.account_balance_wallet_rounded,
+      color: AppColors.success,
+    ),
+    'promo': _CategoryMeta(
+      name: 'Offers & Promotions',
+      description:
+          'Occasional news about deals and new features. Stays off until you turn it on.',
+      icon: Icons.local_offer_rounded,
+      color: const Color(0xFFEC4899),
+    ),
   };
+
+  /// Channels a user can switch per category. telegram and whatsapp stay on the
+  /// global switches above — they carry their own config and tier gating, and
+  /// the dispatcher intersects both lists anyway.
+  static const List<String> _perCategoryChannels = ['push', 'email'];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -235,8 +253,12 @@ class NotificationSettingsScreen extends ConsumerWidget {
               AppLocalizations.of(context)!.incidentChannelsTitle,
             ),
             alertSettingsAsync.when(
-              data: (settings) =>
-                  _buildIncidentChannels(context, ref, settings),
+              data: (settings) => _buildIncidentChannels(
+                context,
+                ref,
+                settings,
+                channelsAsync.value ?? const [],
+              ),
               loading: () => Center(
                 child: Padding(
                   padding: const EdgeInsets.all(32.0),
@@ -602,6 +624,20 @@ class NotificationSettingsScreen extends ConsumerWidget {
           icon: defaultMeta.icon,
           color: defaultMeta.color,
         );
+      case 'wallet_credit':
+        return _CategoryMeta(
+          name: local.walletCreditTitle,
+          description: local.walletCreditDesc,
+          icon: defaultMeta.icon,
+          color: defaultMeta.color,
+        );
+      case 'promo':
+        return _CategoryMeta(
+          name: local.promoTitle,
+          description: local.promoDesc,
+          icon: defaultMeta.icon,
+          color: defaultMeta.color,
+        );
       default:
         return defaultMeta;
     }
@@ -611,8 +647,13 @@ class NotificationSettingsScreen extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     List<AlertSetting> settings,
+    List<Map<String, dynamic>> channels,
   ) {
     final isDark = context.isDarkMode;
+    final globallyEnabled = {
+      for (final c in channels)
+        if (c['is_enabled'] == true) c['channel_type'] as String,
+    };
     if (settings.isEmpty) {
       return Center(
         child: Padding(
@@ -659,76 +700,162 @@ class NotificationSettingsScreen extends ConsumerWidget {
                         : AppColors.lightBorder.withValues(alpha: 0.5)),
             ),
           ),
-          child: SwitchListTile(
-            value: item.isEnabled,
-            activeThumbColor: metadata.color,
-            activeTrackColor: metadata.color.withValues(alpha: 0.2),
-            inactiveThumbColor: isDark
-                ? AppColors.textTertiaryDark
-                : AppColors.textTertiaryLight,
-            inactiveTrackColor: isDark
-                ? AppColors.darkBorder
-                : AppColors.lightBorder,
-            title: Row(
-              children: [
-                Container(
-                  width: 32,
-                  height: 32,
-                  decoration: BoxDecoration(
-                    color: item.isEnabled
-                        ? metadata.color.withValues(alpha: 0.1)
-                        : (isDark
-                              ? AppColors.darkBorder
-                              : Colors.black.withValues(alpha: 0.04)),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    metadata.icon,
-                    color: item.isEnabled
-                        ? metadata.color
-                        : (isDark
-                              ? AppColors.textTertiaryDark
-                              : AppColors.textTertiaryLight),
-                    size: 16,
-                  ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SwitchListTile(
+                value: item.isEnabled,
+                activeThumbColor: metadata.color,
+                activeTrackColor: metadata.color.withValues(alpha: 0.2),
+                inactiveThumbColor: isDark
+                    ? AppColors.textTertiaryDark
+                    : AppColors.textTertiaryLight,
+                inactiveTrackColor: isDark
+                    ? AppColors.darkBorder
+                    : AppColors.lightBorder,
+                title: Row(
+                  children: [
+                    Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: item.isEnabled
+                            ? metadata.color.withValues(alpha: 0.1)
+                            : (isDark
+                                  ? AppColors.darkBorder
+                                  : Colors.black.withValues(alpha: 0.04)),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        metadata.icon,
+                        color: item.isEnabled
+                            ? metadata.color
+                            : (isDark
+                                  ? AppColors.textTertiaryDark
+                                  : AppColors.textTertiaryLight),
+                        size: 16,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        metadata.name,
+                        style: AppTextStyles.titleMedium.copyWith(
+                          color: item.isEnabled
+                              ? context.onSurfaceColor
+                              : (isDark
+                                    ? AppColors.textSecondaryDark
+                                    : AppColors.textSecondaryLight),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 12),
-                Expanded(
+                subtitle: Padding(
+                  padding: const EdgeInsets.only(top: 4.0),
                   child: Text(
-                    metadata.name,
-                    style: AppTextStyles.titleMedium.copyWith(
-                      color: item.isEnabled
-                          ? context.onSurfaceColor
-                          : (isDark
-                                ? AppColors.textSecondaryDark
-                                : AppColors.textSecondaryLight),
-                      fontWeight: FontWeight.w600,
+                    metadata.description,
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: isDark
+                          ? AppColors.textSecondaryDark
+                          : AppColors.textSecondaryLight,
+                      height: 1.3,
                     ),
                   ),
                 ),
-              ],
-            ),
-            subtitle: Padding(
-              padding: const EdgeInsets.only(top: 4.0),
-              child: Text(
-                metadata.description,
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: isDark
-                      ? AppColors.textSecondaryDark
-                      : AppColors.textSecondaryLight,
-                  height: 1.3,
-                ),
+                onChanged: (val) async {
+                  await HapticHelper.mediumImpact();
+                  ref
+                      .read(alertSettingsControllerProvider.notifier)
+                      .toggleCategory(item.category, val);
+                },
               ),
-            ),
-            onChanged: (val) async {
-              await HapticHelper.mediumImpact();
-              ref
-                  .read(alertSettingsControllerProvider.notifier)
-                  .toggleCategory(item.category, val);
-            },
+              if (item.isEnabled)
+                _buildCategoryChannels(context, ref, item, globallyEnabled),
+            ],
           ),
         );
       },
+    );
+  }
+
+  /// Per-category delivery routes (C2). These only narrow: a channel also has
+  /// to be enabled globally above, which is why one that is off globally is
+  /// shown dimmed rather than hidden — hiding it would make the category look
+  /// like it had fewer routes than it does.
+  Widget _buildCategoryChannels(
+    BuildContext context,
+    WidgetRef ref,
+    AlertSetting item,
+    Set<String> globallyEnabled,
+  ) {
+    final local = AppLocalizations.of(context)!;
+    final isDark = context.isDarkMode;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+      child: Wrap(
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: 8,
+        runSpacing: 4,
+        children: [
+          Text(
+            local.deliverVia,
+            style: AppTextStyles.bodySmall.copyWith(
+              color: isDark
+                  ? AppColors.textTertiaryDark
+                  : AppColors.textTertiaryLight,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          ..._perCategoryChannels.map((channel) {
+            final selected = item.channels.contains(channel);
+            final offGlobally = !globallyEnabled.contains(channel);
+            final label = channel == 'push'
+                ? local.channelPushShort
+                : local.channelEmailShort;
+
+            final chip = FilterChip(
+              selected: selected,
+              showCheckmark: false,
+              visualDensity: VisualDensity.compact,
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              label: Text(
+                label,
+                style: AppTextStyles.caption.copyWith(
+                  color: selected
+                      ? context.primaryColor
+                      : (isDark
+                            ? AppColors.textSecondaryDark
+                            : AppColors.textSecondaryLight),
+                  fontWeight: FontWeight.bold,
+                  decoration: offGlobally && selected
+                      ? TextDecoration.lineThrough
+                      : null,
+                ),
+              ),
+              selectedColor: context.primaryColor.withValues(alpha: 0.15),
+              backgroundColor: isDark ? AppColors.darkCard : AppColors.lightBg,
+              side: BorderSide(
+                color: selected
+                    ? context.primaryColor.withValues(alpha: 0.5)
+                    : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
+              ),
+              onSelected: (val) async {
+                await HapticHelper.lightTick();
+                ref
+                    .read(alertSettingsControllerProvider.notifier)
+                    .toggleChannelForCategory(item.category, channel, val);
+              },
+            );
+
+            return offGlobally
+                ? Tooltip(message: local.channelOffGlobally, child: chip)
+                : chip;
+          }),
+        ],
+      ),
     );
   }
 
