@@ -165,12 +165,15 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   /// What one premium refill costs, before the gateway's cut.
   ///
-  /// Priced from `system_configs.APP_FEE_PERCENT` rather than the stored
+  /// Priced from `system_configs` rather than the stored
   /// `carrier_rules.inapp_pricing` snapshot, so a rate change is one row with no
   /// app update. Safe to call during build().
   double _premiumRefillPriceSync(CarrierRule rule) => RefillPricing.premiumRefillPrice(
     minimumTopupAmount: rule.minimumTopupAmount,
     appFeePercent: ref.watch(appFeePercentProvider).value ?? kDefaultAppFeePercent,
+    premiumMarginPercent: ref.watch(premiumMarginPercentProvider).value ?? 0,
+    premiumMarginPerRefillUsd:
+        ref.watch(premiumMarginPerRefillUsdProvider).value ?? 0,
     inappPricingOverride: _overrideFor(rule),
   );
 
@@ -187,6 +190,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       topupValidityDays: rule.topupValidityDays,
       appFeePercent: ref.watch(appFeePercentProvider).value ?? kDefaultAppFeePercent,
       premiumMarginPercent: ref.watch(premiumMarginPercentProvider).value ?? 0,
+      premiumMarginPerRefillUsd:
+          ref.watch(premiumMarginPerRefillUsdProvider).value ?? 0,
       // Until the gateway row loads, quote without its fee rather than guessing
       // a rate; _submit() awaits the real row before charging anything.
       gatewayFeePercentage: paypal?.feePercentage ?? 0,
@@ -200,6 +205,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   Future<double> _premiumYearlyTotal(CarrierRule rule) async {
     final appFee = await ref.read(appFeePercentProvider.future);
     final margin = await ref.read(premiumMarginPercentProvider.future);
+    final marginFlat = await ref.read(premiumMarginPerRefillUsdProvider.future);
     final paypal = await ref.read(paymentGatewayProvider('paypal').future);
 
     return RefillPricing.premiumYearlyTotal(
@@ -208,6 +214,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       topupValidityDays: rule.topupValidityDays,
       appFeePercent: appFee,
       premiumMarginPercent: margin,
+      premiumMarginPerRefillUsd: marginFlat,
       gatewayFeePercentage: paypal?.feePercentage ?? 0,
       gatewayFeeFixed: paypal?.feeFixed ?? 0,
       inappPricingOverride: _overrideFor(rule),

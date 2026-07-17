@@ -493,12 +493,25 @@ What shipped:
   because the gateway takes its percentage of the **total billed** — billing
   $269.45 on a $260.12 subtotal nets $259.80, $0.32 short. The gross-up nets the
   subtotal exactly.
-* **Margin is explicit**: `system_configs.PREMIUM_MARGIN_PERCENT`, default **0**.
-  The old over-recovery implied a different rate per carrier (~2.7% O2 Germany,
-  ~5.2% Turkcell) because a per-refill fixed fee is not a percentage, so no
-  single number reproduces it. **At 0 prices fall ~2.5–5% (O2 $276.84 →
-  $269.82); at 3 they land within ~1% of today (O2 → $277.90).** Owner's call —
-  one row, no redeploy.
+* **Margin is explicit, and has two parts.** The stored price decomposes exactly
+  as `cost + 3% app fee + (5% * cost + $0.324)`, and that last bracket was
+  labelled "PayPal fees (0.30 + 5%)". It is **not a fee**: it was charged once
+  per refill while PayPal bills once per *year*, so a 13-refill plan collected
+  13 x $0.324 = $4.21 against a real PayPal charge of ~$9.90 on the total. The
+  surplus was unnamed margin — ~$6.78/yr on O2 Germany, ~$3.63 on Grameenphone.
+  One knob cannot express it: the flat part is ~2.6% of a $277 plan but ~41% of
+  a $13 one, so matching O2 at 3% would roughly halve Grameenphone. Hence
+  `system_configs.PREMIUM_MARGIN_PERCENT` = **5** and
+  `PREMIUM_MARGIN_PER_REFILL_USD` = **0.324** — every carrier's per-refill margin
+  is byte-identical to the old stored value, now stated rather than disguised.
+  Both move in one row with no app update.
+* **Prices rose ~3.7% because PayPal is no longer absorbed.** The margin is
+  unchanged, but PayPal's cut used to come *out of* it; now it is grossed up on
+  top. O2 Germany: user pays $276.84 → **$287.09**, profit $16.82 → **$26.72**
+  (up by exactly the $9.90 PayPal used to eat). To hold the old *user* price
+  instead of the old margin, lower `PREMIUM_MARGIN_PERCENT` (~1 keeps both the
+  price and the profit near today's for O2, though the exact figure varies by
+  carrier) — one row, no redeploy.
 * **`carrier_rules.inapp_pricing` is now an override, not the default.** A
   positive value still wins, so the deliberate round-number prices (Orange Egypt
   4.30, du 2.00) keep working; null parses to 0, which means "compute it". The

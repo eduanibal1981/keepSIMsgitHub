@@ -76,32 +76,29 @@ final class AppFeePercentProvider
 
 String _$appFeePercentHash() => r'3ef7ad79cecd31c5a4db6b43b8c00e62d4672321';
 
-/// Margin on a premium subscription, as a percentage of the year's cost.
+/// Percentage part of the premium margin, applied to the refill's cost.
 ///
-/// Stated rather than hidden: it used to live inside `inapp_pricing` as a
-/// gateway fixed fee charged once per refill (13x $0.30 to cover one $0.49
-/// PayPal charge). Now it is `system_configs.PREMIUM_MARGIN_PERCENT` — one row,
-/// no app update, and the number means what its name says.
+/// Stated rather than hidden: it used to live inside `inapp_pricing` labelled as
+/// a PayPal fee, charged once per refill against a bill PayPal issues once a
+/// year. `system_configs.PREMIUM_MARGIN_PERCENT` — one row, no app update.
 
 @ProviderFor(premiumMarginPercent)
 final premiumMarginPercentProvider = PremiumMarginPercentProvider._();
 
-/// Margin on a premium subscription, as a percentage of the year's cost.
+/// Percentage part of the premium margin, applied to the refill's cost.
 ///
-/// Stated rather than hidden: it used to live inside `inapp_pricing` as a
-/// gateway fixed fee charged once per refill (13x $0.30 to cover one $0.49
-/// PayPal charge). Now it is `system_configs.PREMIUM_MARGIN_PERCENT` — one row,
-/// no app update, and the number means what its name says.
+/// Stated rather than hidden: it used to live inside `inapp_pricing` labelled as
+/// a PayPal fee, charged once per refill against a bill PayPal issues once a
+/// year. `system_configs.PREMIUM_MARGIN_PERCENT` — one row, no app update.
 
 final class PremiumMarginPercentProvider
     extends $FunctionalProvider<AsyncValue<double>, double, FutureOr<double>>
     with $FutureModifier<double>, $FutureProvider<double> {
-  /// Margin on a premium subscription, as a percentage of the year's cost.
+  /// Percentage part of the premium margin, applied to the refill's cost.
   ///
-  /// Stated rather than hidden: it used to live inside `inapp_pricing` as a
-  /// gateway fixed fee charged once per refill (13x $0.30 to cover one $0.49
-  /// PayPal charge). Now it is `system_configs.PREMIUM_MARGIN_PERCENT` — one row,
-  /// no app update, and the number means what its name says.
+  /// Stated rather than hidden: it used to live inside `inapp_pricing` labelled as
+  /// a PayPal fee, charged once per refill against a bill PayPal issues once a
+  /// year. `system_configs.PREMIUM_MARGIN_PERCENT` — one row, no app update.
   PremiumMarginPercentProvider._()
     : super(
         from: null,
@@ -129,6 +126,57 @@ final class PremiumMarginPercentProvider
 
 String _$premiumMarginPercentHash() =>
     r'294ef4db0eb7b6d8669974ff38aa2c23903ca74a';
+
+/// Flat part of the premium margin, per refill.
+///
+/// The margin needs both parts: the flat component is worth ~2.6% of a $277 plan
+/// but ~41% of a $13 one, so a single percentage cannot express it. Capped well
+/// above any sane value rather than at 100, since this is dollars, not a rate.
+
+@ProviderFor(premiumMarginPerRefillUsd)
+final premiumMarginPerRefillUsdProvider = PremiumMarginPerRefillUsdProvider._();
+
+/// Flat part of the premium margin, per refill.
+///
+/// The margin needs both parts: the flat component is worth ~2.6% of a $277 plan
+/// but ~41% of a $13 one, so a single percentage cannot express it. Capped well
+/// above any sane value rather than at 100, since this is dollars, not a rate.
+
+final class PremiumMarginPerRefillUsdProvider
+    extends $FunctionalProvider<AsyncValue<double>, double, FutureOr<double>>
+    with $FutureModifier<double>, $FutureProvider<double> {
+  /// Flat part of the premium margin, per refill.
+  ///
+  /// The margin needs both parts: the flat component is worth ~2.6% of a $277 plan
+  /// but ~41% of a $13 one, so a single percentage cannot express it. Capped well
+  /// above any sane value rather than at 100, since this is dollars, not a rate.
+  PremiumMarginPerRefillUsdProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'premiumMarginPerRefillUsdProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$premiumMarginPerRefillUsdHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<double> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<double> create(Ref ref) {
+    return premiumMarginPerRefillUsd(ref);
+  }
+}
+
+String _$premiumMarginPerRefillUsdHash() =>
+    r'812dec90ee252a2de078d94ce60bae8e35611c44';
 
 /// One gateway's fees, straight from `payment_gateways` — the single source of
 /// truth for what a gateway charges.

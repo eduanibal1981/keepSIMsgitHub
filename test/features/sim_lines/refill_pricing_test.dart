@@ -86,17 +86,25 @@ void main() {
     const paypalPct = 3.4;
     const paypalFixed = 0.49;
 
-    double yearly({double margin = 0, double? override}) =>
-        RefillPricing.premiumYearlyTotal(
-          baseServiceFeeUsd: 2.50,
-          minimumTopupAmount: o2Base,
-          topupValidityDays: o2Validity,
-          appFeePercent: 3,
-          premiumMarginPercent: margin,
-          gatewayFeePercentage: paypalPct,
-          gatewayFeeFixed: paypalFixed,
-          inappPricingOverride: override,
-        );
+    // The live config: margin is 5% of cost + $0.324 flat per refill.
+    const marginPct = 5.0;
+    const marginFlat = 0.324;
+
+    double yearly({
+      double margin = 0,
+      double flat = 0,
+      double? override,
+    }) => RefillPricing.premiumYearlyTotal(
+      baseServiceFeeUsd: 2.50,
+      minimumTopupAmount: o2Base,
+      topupValidityDays: o2Validity,
+      appFeePercent: 3,
+      premiumMarginPercent: margin,
+      premiumMarginPerRefillUsd: flat,
+      gatewayFeePercentage: paypalPct,
+      gatewayFeeFixed: paypalFixed,
+      inappPricingOverride: override,
+    );
 
     test('a 30-day carrier pre-pays 13 refills', () {
       expect(RefillPricing.refillsPerYear(30), 13);
@@ -111,51 +119,79 @@ void main() {
 
     test('the per-refill price carries no gateway fee', () {
       // The gateway is charged once over the yearly total, not per refill —
-      // charging it 13 times to cover one $0.49 transaction is the bug this
-      // whole change exists to remove.
+      // collecting it 13 times against one $0.49 transaction is the surplus
+      // this whole change exists to expose as margin.
       expect(
         RefillPricing.premiumRefillPrice(
           minimumTopupAmount: o2Base,
           appFeePercent: 3,
+          premiumMarginPercent: 0,
+          premiumMarginPerRefillUsd: 0,
         ),
-        19.82, // 19.24 + round(0.5772) = 19.24 + 0.58
+        closeTo(19.8172, 0.0001), // 19.24 * 1.03, unrounded
+      );
+    });
+
+    test('THE POINT: margin 5% + \$0.324 reproduces the old stored price exactly', () {
+      // carrier_rules.inapp_pricing held 21.1032 for O2 Germany, derived as
+      // (19.24 + 0.30) * 1.08. Decomposed honestly that is
+      // cost + 3% app fee + (5% cost + 0.324) margin — same number, but now
+      // every term is named and lives in a config row.
+      expect(
+        RefillPricing.premiumRefillPrice(
+          minimumTopupAmount: o2Base,
+          appFeePercent: 3,
+          premiumMarginPercent: marginPct,
+          premiumMarginPerRefillUsd: marginFlat,
+        ),
+        closeTo(21.1032, 0.0001),
       );
     });
 
     test('THE POINT: the gross-up leaves the full subtotal after the gateway cut', () {
-      final charged = yearly();
-      final subtotal = RefillPricing.round2(2.50 + 19.82 * 13);
+      final charged = yearly(margin: marginPct, flat: marginFlat);
+      const subtotal = 2.50 + 21.1032 * 13; // 276.8416
       final gatewayTakes =
           RefillPricing.round2(charged * (paypalPct / 100) + paypalFixed);
 
-      expect(subtotal, 260.16);
-      // A naive `subtotal * (1 + pct) + fixed` bills 269.49 and nets 259.84 —
-      // 0.32 short, because the gateway's percentage applies to the total
-      // billed, not to the subtotal.
-      expect(RefillPricing.round2(charged - gatewayTakes), subtotal);
+      // A naive `subtotal * (1 + pct) + fixed` under-recovers, because the
+      // gateway's percentage applies to the total billed, not to the subtotal.
+      expect(
+        RefillPricing.round2(charged - gatewayTakes),
+        closeTo(RefillPricing.round2(subtotal), 0.01),
+      );
     });
 
-    test('margin is explicit and scales the whole year, gateway on top', () {
-      final none = yearly();
-      final five = yearly(margin: 5);
-      expect(five, greaterThan(none));
-      // 5% of the subtotal, grossed up for the gateway's cut of the extra.
-      expect(RefillPricing.round2(five - none), 13.47);
+    test('both margin parts are needed: the flat part does not scale', () {
+      // A cheap carrier and an expensive one get the same flat margin but very
+      // different percentage margins — which is exactly why one knob could not
+      // express this and the old "PayPal fee" looked like 2.6% here and 41%
+      // there.
+      double perRefill(double cost) => RefillPricing.premiumRefillPrice(
+        minimumTopupAmount: cost,
+        appFeePercent: 3,
+        premiumMarginPercent: marginPct,
+        premiumMarginPerRefillUsd: marginFlat,
+      );
+      expect(perRefill(19.24) - 19.24 * 1.08, closeTo(marginFlat, 0.0001));
+      expect(perRefill(0.48) - 0.48 * 1.08, closeTo(marginFlat, 0.0001));
     });
 
     test('a zero margin is honoured, not treated as unset', () {
-      // The whole reason PREMIUM_MARGIN_PERCENT exists is to be a number that
-      // means what it says — 0 must mean "no margin", not "use some default".
-      final subtotal = RefillPricing.round2(2.50 + 19.82 * 13);
-      final expected = RefillPricing.round2((subtotal + paypalFixed) / (1 - 0.034));
-      expect(yearly(margin: 0), expected);
+      // The whole reason these configs exist is to be numbers that mean what
+      // they say — 0 must mean "no margin", not "use some default".
+      const subtotal = 2.50 + 19.24 * 1.03 * 13;
+      expect(
+        yearly(margin: 0, flat: 0),
+        RefillPricing.round2((subtotal + paypalFixed) / (1 - 0.034)),
+      );
     });
 
     test('a deliberate per-carrier override replaces the computed refill price', () {
       // du and Orange Egypt carry round-number prices set by hand; those must
       // survive, while every other carrier follows the config.
-      final withOverride = yearly(override: 2.00);
-      final expectedNet = RefillPricing.round2(2.50 + 2.00 * 13);
+      final withOverride = yearly(margin: marginPct, flat: marginFlat, override: 2.00);
+      const expectedNet = 2.50 + 2.00 * 13;
       expect(
         withOverride,
         RefillPricing.round2((expectedNet + paypalFixed) / (1 - 0.034)),
@@ -163,8 +199,10 @@ void main() {
     });
 
     test('a non-positive override means "compute it", since null parses to 0', () {
-      expect(yearly(override: 0), yearly());
-      expect(yearly(override: -1), yearly());
+      expect(yearly(margin: marginPct, flat: marginFlat, override: 0),
+          yearly(margin: marginPct, flat: marginFlat));
+      expect(yearly(margin: marginPct, flat: marginFlat, override: -1),
+          yearly(margin: marginPct, flat: marginFlat));
     });
 
     test('a wallet-style 0% / \$0 gateway adds nothing', () {
@@ -174,10 +212,11 @@ void main() {
         topupValidityDays: o2Validity,
         appFeePercent: 3,
         premiumMarginPercent: 0,
+        premiumMarginPerRefillUsd: 0,
         gatewayFeePercentage: 0,
         gatewayFeeFixed: 0,
       );
-      expect(total, RefillPricing.round2(2.50 + 19.82 * 13));
+      expect(total, RefillPricing.round2(2.50 + 19.24 * 1.03 * 13));
     });
 
     test('an impossible 100% gateway does not divide by zero or go negative', () {
@@ -187,6 +226,7 @@ void main() {
         topupValidityDays: o2Validity,
         appFeePercent: 3,
         premiumMarginPercent: 0,
+        premiumMarginPerRefillUsd: 0,
         gatewayFeePercentage: 100,
         gatewayFeeFixed: 0,
       );
