@@ -1344,6 +1344,10 @@ class AppLocalizationsTr extends AppLocalizations {
       'Yükleme tekrar denemesi başarıyla tamamlandı!';
 
   @override
+  String get refillRetryQueued =>
+      'Tekrar deneme sıraya alındı — yükleme işleniyor.';
+
+  @override
   String get renewalRetrySuccess =>
       'Yenileme tekrar denemesi başarıyla tamamlandı!';
 

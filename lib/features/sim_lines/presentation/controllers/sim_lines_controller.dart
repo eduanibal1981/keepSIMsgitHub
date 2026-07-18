@@ -161,26 +161,15 @@ class SimLinesController extends _$SimLinesController {
           offerValue: offerValue,
         );
         final result = await topupNotifier.saveSchedule(refillSchedule);
-        String? scheduledTopupId;
-        if (result is Success<ScheduledTopup>) {
-          scheduledTopupId = result.data.id;
-        }
 
-        DateTime currentExecTime = DateTime.now().toUtc();
-
-        while (planExpiresAt != null &&
-            currentExecTime.isBefore(planExpiresAt)) {
-          await repo.scheduleTopupExecution(
+        // C3b-2: the plan year's mini refills are queued and priced
+        // server-side from carrier_rules in one call.
+        if (result is Success<ScheduledTopup> && planExpiresAt != null) {
+          await repo.queuePremiumRefillExecutions(
             simLineId: added.id,
-            amount: topupAmount,
-            executionTime: currentExecTime,
-            executionType: 'refill_mini',
-            offerId: offerId,
-            offerValue: offerValue,
-            scheduledTopupId: scheduledTopupId,
+            scheduledTopupId: result.data.id,
+            planExpiresAt: planExpiresAt,
           );
-
-          currentExecTime = currentExecTime.add(Duration(days: frequencyDays));
         }
       }
 
@@ -316,29 +305,14 @@ class SimLinesController extends _$SimLinesController {
               offerValue: offerValue,
             );
             final result = await topupNotifier.saveSchedule(refillSchedule);
-            String? scheduledTopupId;
+
+            // C3b-2: queued and priced server-side from carrier_rules.
             if (result is Success<ScheduledTopup>) {
-              scheduledTopupId = result.data.id;
-            }
-
-            final expiry =
-                line.planExpiresAt ??
-                DateTime.now().toUtc().add(const Duration(days: 365));
-            DateTime currentExecTime = DateTime.now().toUtc();
-
-            while (currentExecTime.isBefore(expiry)) {
-              await repo.scheduleTopupExecution(
+              await repo.queuePremiumRefillExecutions(
                 simLineId: line.id,
-                amount: topupAmount,
-                executionTime: currentExecTime,
-                executionType: 'refill_mini',
-                offerId: offerId,
-                offerValue: offerValue,
-                scheduledTopupId: scheduledTopupId,
-              );
-
-              currentExecTime = currentExecTime.add(
-                Duration(days: frequencyDays),
+                scheduledTopupId: result.data.id,
+                planExpiresAt: line.planExpiresAt ??
+                    DateTime.now().toUtc().add(const Duration(days: 365)),
               );
             }
           }
@@ -518,36 +492,27 @@ class SimLinesController extends _$SimLinesController {
 
   Future<void> performManualRefill(
     SimLine line,
-    double baseCostUsd,
     String paymentGatewayCode, {
-    String? offerId,
-    int? offerValue,
-    String? overrideStatus,
+    required String offerId,
+    required double displayBaseUsd,
+    double? amountUsd,
   }) async {
     // NOTE: Wallet deduction is now handled securely by the backend worker daemon.
 
     final repo = ref.read(simLinesRepositoryProvider);
 
-    // 1. Update SimLine lastTopupAt (optional, you might want to move this to worker too)
-    final updatedLine = line.copyWith(lastTopupAt: DateTime.now());
-    await repo.updateSimLine(updatedLine);
-
-    // For wallet we go straight to routing. For others, we wait for payment unless overridden
-    final initialStatus =
-        overrideStatus ??
-        (paymentGatewayCode == 'wallet' ? 'routing' : 'pending_payment');
-
-    // 2. Record successful execution (inserts as pending/routing for worker)
-    await repo.recordManualTopupExecution(
+    // C3b-2: request_instant_refill prices the offer server-side and queues it
+    // for worker_instant_refill; sim_lines.last_topup_at is set by the DB
+    // trigger when the refill actually succeeds, not at request time.
+    await repo.requestInstantRefill(
       simLineId: line.id,
-      baseCostUsd: baseCostUsd,
-      paymentGatewayCode: paymentGatewayCode,
-      status: initialStatus,
       offerId: offerId,
-      offerValue: offerValue,
+      paymentGatewayCode: paymentGatewayCode,
+      displayBaseUsd: displayBaseUsd,
+      amountUsd: amountUsd,
     );
 
-    // 3. Invalidate states. The wallet is deliberately not refreshed on a timer
+    // Invalidate states. The wallet is deliberately not refreshed on a timer
     //    here: the worker's debit lands whenever it lands, so the balance is
     //    refreshed by the topupExecutionsLive subscription the moment the
     //    execution actually reaches a terminal status.

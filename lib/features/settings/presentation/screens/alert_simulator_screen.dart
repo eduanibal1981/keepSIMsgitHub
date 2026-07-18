@@ -7,9 +7,6 @@ import 'package:keep_sims/features/notifications/presentation/controllers/notifi
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
 import 'package:keep_sims/whatsapp_service.dart';
-import 'package:keep_sims/features/scheduled_topups/controller/scheduled_topup_controller.dart';
-import 'package:keep_sims/core/result.dart';
-import 'package:keep_sims/core/services/connectivity_service.dart';
 import 'package:keep_sims/features/settings/presentation/screens/paypal_simulator_screen.dart';
 
 class AlertSimulatorScreen extends ConsumerStatefulWidget {
@@ -25,7 +22,6 @@ class _AlertSimulatorScreenState extends ConsumerState<AlertSimulatorScreen> {
   String? _selectedSimLineId;
   int _selectedDelayMinutes = 0;
   bool _sendLocalWhatsApp = false;
-  bool _isSimulatingSchedule = false;
   late final TextEditingController _whatsappPhoneController;
 
   final Map<String, String> _simulatorCategories = {
@@ -511,198 +507,9 @@ class _AlertSimulatorScreenState extends ConsumerState<AlertSimulatorScreen> {
               label: const Text('Inject simulated incident'),
             ),
           ),
-          const SizedBox(height: 24),
-
-          // Schedule Execution Simulator
-          Row(
-            children: [
-              Icon(
-                Icons.schedule_rounded,
-                color: isDark ? AppColors.secondary : AppColors.lightSecondary,
-                size: 18,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                'Schedule Execution Simulator',
-                style: AppTextStyles.titleMedium.copyWith(
-                  color: context.onSurfaceColor,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          if (_selectedSimLineId != null)
-            _buildScheduleSimulatorSection(context),
         ],
       ),
     );
-  }
-
-  Widget _buildScheduleSimulatorSection(BuildContext context) {
-    if (_selectedSimLineId == null) return const SizedBox.shrink();
-
-    final notifySchedule = ref.watch(
-      scheduledNotifyForLineProvider(_selectedSimLineId!),
-    );
-    final miniRefill = ref.watch(
-      scheduledMiniRefillForLineProvider(_selectedSimLineId!),
-    );
-    final customRefill = ref.watch(
-      scheduledCustomRefillForLineProvider(_selectedSimLineId!),
-    );
-    final refillSchedule = customRefill ?? miniRefill;
-
-    if (notifySchedule == null && refillSchedule == null) {
-      return Text(
-        'No active schedules for this SIM line.',
-        style: AppTextStyles.bodySmall.copyWith(
-          color: context.isDarkMode
-              ? AppColors.textTertiaryDark
-              : AppColors.textTertiaryLight,
-        ),
-      );
-    }
-
-    return Column(
-      children: [
-        if (notifySchedule != null)
-          _buildSimulateButton(
-            context: context,
-            label: 'Simulate Notify',
-            scheduleId: notifySchedule.id,
-            isRefill: false,
-          ),
-        if (notifySchedule != null && refillSchedule != null)
-          const SizedBox(height: 10),
-        if (refillSchedule != null)
-          _buildSimulateButton(
-            context: context,
-            label: 'Simulate Refill',
-            scheduleId: refillSchedule.id,
-            isRefill: true,
-          ),
-      ],
-    );
-  }
-
-  Widget _buildSimulateButton({
-    required BuildContext context,
-    required String label,
-    required String scheduleId,
-    required bool isRefill,
-  }) {
-    final networkStatus = ref.watch(connectivityServiceProvider);
-    final isOffline = networkStatus == NetworkStatus.offline;
-
-    return SizedBox(
-      width: double.infinity,
-      height: 38,
-      child: ElevatedButton.icon(
-        onPressed: _isSimulatingSchedule
-            ? null
-            : (isOffline
-                  ? () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            isRefill
-                                ? 'Refill simulation requires an active internet connection.'
-                                : 'Notify simulation requires an active internet connection.',
-                          ),
-                          backgroundColor: AppColors.error,
-                        ),
-                      );
-                    }
-                  : () => _simulateSchedule(scheduleId, isRefill)),
-        icon: _isSimulatingSchedule
-            ? SizedBox(
-                width: 14,
-                height: 14,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: context.onSurfaceColor,
-                ),
-              )
-            : Icon(
-                isOffline ? Icons.lock_outline_rounded : Icons.flash_on_rounded,
-                size: 16,
-                color: isOffline
-                    ? context.onSurfaceColor.withValues(alpha: 0.4)
-                    : Colors.white,
-              ),
-        label: Text(
-          isOffline ? 'Simulation Locked 🔒' : label,
-          style: TextStyle(
-            color: isOffline
-                ? context.onSurfaceColor.withValues(alpha: 0.4)
-                : Colors.white,
-          ),
-        ),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: isOffline
-              ? Colors.grey.withValues(alpha: 0.12)
-              : (isRefill ? AppColors.secondaryDark : AppColors.primary),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        ),
-      ),
-    );
-  }
-
-  Future<void> _simulateSchedule(String scheduleId, bool isRefill) async {
-    setState(() => _isSimulatingSchedule = true);
-    try {
-      final result = await ref
-          .read(scheduledTopupControllerProvider.notifier)
-          .executeMockTopup(scheduleId);
-
-      if (mounted) {
-        switch (result) {
-          case Success():
-            ref.invalidate(simLinesControllerProvider);
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Row(
-                  children: [
-                    Icon(
-                      Icons.check_circle_rounded,
-                      color: context.onSurfaceColor,
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        isRefill
-                            ? 'Auto-refill execution simulated! Balance deducted & validity extended.'
-                            : 'Renewal execution simulated! Validity extended.',
-                      ),
-                    ),
-                  ],
-                ),
-                backgroundColor: AppColors.success,
-                duration: const Duration(seconds: 4),
-              ),
-            );
-          case Failure(error: final err):
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(err.message),
-                backgroundColor: AppColors.error,
-              ),
-            );
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Simulated execution failed: $e'),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _isSimulatingSchedule = false);
-    }
   }
 
   void _triggerSimulatedAlert() {

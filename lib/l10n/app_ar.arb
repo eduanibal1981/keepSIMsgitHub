@@ -494,6 +494,7 @@
                                                      }
                                 },
     "refillRetrySuccess":  "تمت إعادة محاولة التعبئة بنجاح!",
+    "refillRetryQueued":  "تمت إضافة إعادة المحاولة إلى قائمة الانتظار — جاري معالجة التعبئة.",
     "renewalRetrySuccess":  "تمت إعادة محاولة التجديد بنجاح!",
     "retryFailed":  "فشلت إعادة المحاولة: {error}",
     "@retryFailed":  {

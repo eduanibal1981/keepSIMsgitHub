@@ -1334,6 +1334,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get refillRetrySuccess => 'Refill retry completed successfully!';
 
   @override
+  String get refillRetryQueued =>
+      'Retry queued — the refill is being processed.';
+
+  @override
   String get renewalRetrySuccess => 'Renewal retry completed successfully!';
 
   @override

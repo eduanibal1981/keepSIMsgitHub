@@ -1329,6 +1329,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get refillRetrySuccess => 'تمت إعادة محاولة التعبئة بنجاح!';
 
   @override
+  String get refillRetryQueued =>
+      'تمت إضافة إعادة المحاولة إلى قائمة الانتظار — جاري معالجة التعبئة.';
+
+  @override
   String get renewalRetrySuccess => 'تمت إعادة محاولة التجديد بنجاح!';
 
   @override

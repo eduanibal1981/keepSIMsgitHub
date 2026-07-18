@@ -2464,6 +2464,12 @@ abstract class AppLocalizations {
   /// **'Refill retry completed successfully!'**
   String get refillRetrySuccess;
 
+  /// No description provided for @refillRetryQueued.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry queued — the refill is being processed.'**
+  String get refillRetryQueued;
+
   /// No description provided for @renewalRetrySuccess.
   ///
   /// In en, this message translates to:

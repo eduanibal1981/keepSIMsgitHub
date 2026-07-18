@@ -570,6 +570,7 @@
                                                      }
                                 },
     "refillRetrySuccess":  "¡Reintento de recarga completado exitosamente!",
+    "refillRetryQueued":  "Reintento en cola — la recarga se está procesando.",
     "renewalRetrySuccess":  "¡Reintento de renovación completado exitosamente!",
     "retryFailed":  "Error en el reintento: {error}",
     "@retryFailed":  {

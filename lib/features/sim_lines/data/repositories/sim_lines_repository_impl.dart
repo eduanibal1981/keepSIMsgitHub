@@ -460,14 +460,9 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
   @override
   Future<void> cleanMockLogs(String simLineId) async {
     try {
-      // 1. Delete mock executions from topup_executions
-      await _supabase
-          .from('topup_executions')
-          .delete()
-          .eq('sim_line_id', simLineId)
-          .like('reloadly_transaction_id', 'MOCK_%');
-
-      // 2. Delete mock logs from line_activity_log (where metadata->>is_mock is 'true')
+      // topup_executions is no longer client-writable (C3b-2), and the old
+      // delete here was a silent no-op anyway (the table never had a DELETE
+      // policy). Only the mock activity-log entries are cleanable.
       await _supabase
           .from('line_activity_log')
           .delete()
@@ -493,14 +488,12 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
   }
 
   @override
-  Future<void> recordManualTopupExecution({
+  Future<String> requestInstantRefill({
     required String simLineId,
-    required double baseCostUsd,
+    required String offerId,
     required String paymentGatewayCode,
-    required String status,
-    String? failureReason,
-    String? offerId,
-    int? offerValue,
+    required double displayBaseUsd,
+    double? amountUsd,
   }) async {
     try {
       final userId = _supabase.auth.currentUser?.id;
@@ -508,77 +501,61 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
         throw Exception('No authenticated user session found.');
       }
 
-      // Insert pending topup execution into the central queue
-      await _supabase.from('topup_executions').insert({
-        'sim_line_id': simLineId,
-        'user_id': userId,
-        'amount': baseCostUsd,
-        'base_cost_usd': baseCostUsd,
-        'payment_gateway_code': paymentGatewayCode,
-        'currency': 'USD',
-        // status is passed from the controller ('routing', 'pending_payment', or 'failed')
-        'status': status,
-        'failure_reason': ?failureReason,
-        'offer_id': ?offerId,
-        'offer_value': ?offerValue,
-        'execution_type': 'refill_instant',
-        'execution_time': DateTime.now().toIso8601String(),
-        'executed_at': null,
-      });
+      // C3b-2: the server prices the refill from its own offers cache; the
+      // client only names the offer (and, for RANGE offers, how many USD to
+      // spend). base_cost_usd is no longer client input.
+      final executionId = await _supabase.rpc(
+        'request_instant_refill',
+        params: {
+          'p_sim_line_id': simLineId,
+          'p_offer_id': offerId,
+          'p_payment_gateway_code': paymentGatewayCode,
+          'p_amount_usd': amountUsd,
+        },
+      );
 
-      // Also log the activity
+      // Activity trail only; displayBaseUsd is the quoted price for display,
+      // the debit itself comes from the server-priced execution.
       await _supabase.from('line_activity_log').insert({
         'sim_line_id': simLineId,
         'user_id': userId,
-        'event_type': status != 'failed' ? 'topup_success' : 'topup_failed',
-        'description': status != 'failed'
-            ? 'Manual Refill of \$${baseCostUsd.toStringAsFixed(2)} successful.'
-            : 'Manual Refill of \$${baseCostUsd.toStringAsFixed(2)} failed: $failureReason',
+        'event_type': 'topup_success',
+        'description':
+            'Manual Refill of \$${displayBaseUsd.toStringAsFixed(2)} requested.',
         'metadata': {
-          'amount': baseCostUsd,
+          'amount': displayBaseUsd,
           'type': 'manual_refill',
-          if (status == 'failed') 'failure_reason': failureReason,
+          'execution_id': executionId,
         },
         'created_at': DateTime.now().toIso8601String(),
       });
+
+      return executionId as String;
     } on PostgrestException catch (e) {
-      throw Exception('Failed to record manual topup execution: ${e.message}');
+      throw Exception('Failed to request refill: ${e.message}');
     }
   }
 
   @override
-  Future<void> scheduleTopupExecution({
+  Future<int> queuePremiumRefillExecutions({
     required String simLineId,
-    required double amount,
-    required DateTime executionTime,
-    required String executionType,
-    String? offerId,
-    int? offerValue,
-    String? scheduledTopupId,
+    required String scheduledTopupId,
+    DateTime? planExpiresAt,
   }) async {
     try {
-      final userId = _supabase.auth.currentUser?.id;
-      if (userId == null) {
-        throw Exception('No authenticated user session found.');
-      }
-
-      await _supabase.from('topup_executions').insert({
-        'sim_line_id': simLineId,
-        'user_id': userId,
-        'amount': amount,
-        'base_cost_usd': amount,
-        'currency': 'USD',
-        'status': 'pending',
-        'execution_type': executionType,
-        'execution_time': executionTime.toIso8601String(),
-        'executed_at': null,
-        'offer_id': offerId,
-        'offer_value': offerValue,
-        'payment_gateway_code': null,
-        'scheduled_topup_id': scheduledTopupId,
-      });
+      // Server-side: prices every queued refill from carrier_rules and is
+      // idempotent per schedule (requeue cancels the previous queue first).
+      final count = await _supabase.rpc(
+        'queue_premium_refill_executions',
+        params: {
+          'p_sim_line_id': simLineId,
+          'p_scheduled_topup_id': scheduledTopupId,
+          'p_plan_expires_at': planExpiresAt?.toUtc().toIso8601String(),
+        },
+      );
+      return (count as num).toInt();
     } on PostgrestException catch (e) {
-      throw Exception('Failed to schedule topup execution: ${e.message}');
+      throw Exception('Failed to schedule premium refills: ${e.message}');
     }
   }
 
@@ -640,52 +617,55 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
   @override
   Future<List<Map<String, dynamic>>> fetchZenditOffers(String countryId, String carrierId) async {
     try {
-      print('DEBUG: fetchZenditOffers called with countryId: $countryId, carrierId: $carrierId');
-      // 1. Get Country ISO code
-      print('DEBUG: Fetching country...');
+      // 1. Resolve the line's Zendit catalog coordinates.
       final countryRes = await _supabase
           .from('countries')
           .select('iso_code') // Using iso_code as per the Country model
           .eq('id', countryId)
           .single();
       final countryCode = countryRes['iso_code'] as String;
-      print('DEBUG: Found countryCode: $countryCode');
 
-      // 2. Get Carrier mapping
-      print('DEBUG: Fetching carrier...');
       final carrierRes = await _supabase
           .from('carriers')
           .select('zen_carrier')
           .eq('id', carrierId)
           .single();
       final zenCarrier = carrierRes['zen_carrier'] as String?;
-      print('DEBUG: Found zenCarrier: $zenCarrier');
+      if (zenCarrier == null) return [];
 
-      // 3. Invoke Edge Function
-      print('DEBUG: Invoking fetch_zendit_offers edge function...');
-      final response = await _supabase.functions.invoke(
-        'fetch_zendit_offers',
-        body: {
-          'countryCode': countryCode,
-          'zenCarrier': zenCarrier,
-        },
-      );
-      print('DEBUG: Edge function response status: ${response.status}');
+      // 2. Read the server-side offers cache (C3b-2). This is the exact list
+      // request_instant_refill will price from, so what the sheet shows is
+      // always purchasable — unlike the old per-open Edge Function fetch.
+      final rows = await _supabase
+          .from('zendit_offers_cache')
+          .select()
+          .eq('country_code', countryCode)
+          .eq('zen_carrier', zenCarrier);
 
-      if (response.status != 200) {
-        throw Exception('Failed to fetch offers: ${response.status}');
-      }
+      final offers = (rows as List)
+          .cast<Map<String, dynamic>>()
+          .map<Map<String, dynamic>>((r) => {
+                'offerId': r['offer_id'],
+                'description': r['offer_name'] ?? r['offer_id'],
+                'priceType': r['price_type'],
+                'isRange': r['price_type'] == 'RANGE',
+                'baseCostUsd': (r['price_fixed_usd'] as num?)?.toDouble(),
+                'priceMinUsd': (r['price_min_usd'] as num?)?.toDouble(),
+                'priceMaxUsd': (r['price_max_usd'] as num?)?.toDouble(),
+                'min': r['send_min'],
+                'max': r['send_max'],
+                'sendCurrencyDivisor': r['send_currency_divisor'] ?? 100,
+                'send': {'currency': r['send_currency']},
+              })
+          .toList();
 
-      final data = response.data as Map<String, dynamic>;
-      final offers = data['offers'] as List<dynamic>;
-      print('DEBUG: Successfully parsed ${offers.length} offers.');
-      return offers.cast<Map<String, dynamic>>();
+      offers.sort((a, b) =>
+          ((a['baseCostUsd'] ?? a['priceMinUsd'] ?? 0.0) as double)
+              .compareTo((b['baseCostUsd'] ?? b['priceMinUsd'] ?? 0.0) as double));
+      return offers;
     } on PostgrestException catch (e) {
-      print('DEBUG: PostgrestException: ${e.message}');
-      throw Exception('Database error fetching mappings: ${e.message}');
-    } catch (e, stackTrace) {
-      print('DEBUG: General Exception: $e');
-      print('DEBUG: StackTrace: $stackTrace');
+      throw Exception('Database error fetching offers: ${e.message}');
+    } catch (e) {
       throw Exception('Error fetching Zendit offers: $e');
     }
   }

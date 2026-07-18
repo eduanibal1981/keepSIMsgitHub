@@ -570,6 +570,7 @@
         }
     },
     "refillRetrySuccess": "रिफिल पुनः प्रयास सफलतापूर्वक पूरा हुआ!",
+    "refillRetryQueued": "पुनः प्रयास कतार में जोड़ा गया — रिफिल संसाधित हो रहा है।",
     "renewalRetrySuccess": "रिन्यूअल पुनः प्रयास सफलतापूर्वक पूरा हुआ!",
     "retryFailed": "पुनः प्रयास विफल: {error}",
     "@retryFailed": {

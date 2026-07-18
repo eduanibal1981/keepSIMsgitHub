@@ -1340,6 +1340,10 @@ class AppLocalizationsUr extends AppLocalizations {
   String get refillRetrySuccess => 'ریفل دوبارہ کوشش کامیابی سے مکمل ہوئی!';
 
   @override
+  String get refillRetryQueued =>
+      'دوبارہ کوشش قطار میں شامل کر دی گئی — ریفل پر کارروائی جاری ہے۔';
+
+  @override
   String get renewalRetrySuccess => 'تجدید دوبارہ کوشش کامیابی سے مکمل ہوئی!';
 
   @override

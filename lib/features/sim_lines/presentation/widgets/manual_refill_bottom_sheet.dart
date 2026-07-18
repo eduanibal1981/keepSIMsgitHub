@@ -67,7 +67,6 @@ class _ManualRefillBottomSheetState
           ? _rangeBaseCostUsd
           : (_selectedOffer!['baseCostUsd'] as num).toDouble();
       final offerId = _selectedOffer!['offerId'] as String;
-      final offerValue = isRange ? _rangeValue : null;
 
       final pm = _selectedPaymentMethod;
       final paymentCode = pm?.code ?? 'wallet';
@@ -104,11 +103,10 @@ class _ManualRefillBottomSheetState
                       .read(simLinesControllerProvider.notifier)
                       .performManualRefill(
                         widget.simLine,
-                        baseCostUsd,
                         paymentCode,
                         offerId: offerId,
-                        offerValue: offerValue,
-                        overrideStatus: 'routing',
+                        displayBaseUsd: baseCostUsd,
+                        amountUsd: isRange ? _rangeBaseCostUsd : null,
                       );
                 } catch (e) {
                   if (context.mounted) {
@@ -131,10 +129,10 @@ class _ManualRefillBottomSheetState
           .read(simLinesControllerProvider.notifier)
           .performManualRefill(
             widget.simLine,
-            baseCostUsd,
             paymentCode,
             offerId: offerId,
-            offerValue: offerValue,
+            displayBaseUsd: baseCostUsd,
+            amountUsd: isRange ? _rangeBaseCostUsd : null,
           );
 
       if (!mounted) return;
@@ -690,10 +688,21 @@ class _ManualRefillBottomSheetState
                   doubleVal <= maxLocal) {
                 final divisor = (offer['sendCurrencyDivisor'] as num? ?? 100)
                     .toInt();
-                final fxRate = (offer['costFx'] as num? ?? 39.0).toDouble();
-
                 final intValue = (doubleVal * divisor).round();
-                final baseCostUsd = doubleVal / fxRate;
+
+                // USD cost interpolated across the offer's price range — the
+                // same mapping request_instant_refill applies server-side, so
+                // the quote here matches what the RPC will charge.
+                final sendMin = (offer['min'] as num? ?? 0).toDouble();
+                final sendMax = (offer['max'] as num? ?? 0).toDouble();
+                final priceMin = (offer['priceMinUsd'] as num? ?? 0).toDouble();
+                final priceMax = (offer['priceMaxUsd'] as num? ?? 0).toDouble();
+                final frac = sendMax > sendMin
+                    ? (intValue - sendMin) / (sendMax - sendMin)
+                    : 0.0;
+                final baseCostUsd = double.parse(
+                  (priceMin + frac * (priceMax - priceMin)).toStringAsFixed(2),
+                );
 
                 setState(() {
                   _rangeValue = intValue;

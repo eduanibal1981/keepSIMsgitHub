@@ -582,27 +582,100 @@ fetching Zendit per line), and are exactly what the offline path needs. Cache
 them alongside `cached_sim_lines`. Belongs with C4 (offline recharge) if that
 lands first.
 
-### 🟠 C3b-2 — remaining (not started)
+### ✅ C3b-2 — DONE 2026-07-17/18: topup_executions client writes locked down
 
-**Latent money bug.** Client `DELETE` on `topup_executions` is a silent no-op —
-HTTP 200, 0 rows — because the table has SELECT/INSERT/UPDATE policies but *no
-DELETE policy*. `deleteExecution`, `cancelSchedule` and `cleanMockLogs` all
-believe they cancelled queued work and did not. `topup_executions.scheduled_topup_id`
-is `ON DELETE SET NULL`, so deleting a schedule **orphans** its pending
-executions instead of removing them, and `worker_auto_mini_refill` claims on
-`status='pending' AND execution_time <= now()` with no parent-schedule check —
-so a cancelled schedule's refills would still fire and debit the wallet. Nothing
-is burning today (verified: zero orphaned pending rows), and Zendit is still on
-sandbox keys.
+The table is now **read-only from every client role** — `anon` and
+`authenticated` hold only SELECT, all write policies are dropped, and every
+write path goes through a SECURITY DEFINER RPC or a DB trigger. Workers
+(service_role) are unaffected. Proven live over PostgREST as the a1 fixture:
+direct INSERT/UPDATE/DELETE now return 403 "permission denied", and a real
+end-to-end refill (`request_instant_refill` → routing → worker_instant_refill →
+Zendit sandbox purchase `z_<id>` → wallet debit) succeeded at the
+server-computed price.
 
-Scope: add `cancel_topup_execution` RPC + `'cancelled'` to
-`topup_executions_status_check`; make cancellation actually stop the worker;
-migrate the two live client UPDATE sites (`retryFailedExecution`, which has the
-client marking an execution `'refunded'`, and `updateMiniRefillDates`) to
-SECURITY DEFINER RPCs; then revoke UPDATE/DELETE/INSERT on `topup_executions`
-from `anon` + `authenticated` (A4 item 2). Also trim the excess grants: `anon`
-currently holds INSERT/UPDATE/DELETE/TRUNCATE on this table (RLS and PostgREST
-contain it today, but the grants have no business existing).
+**The latent money bug is fixed** (client DELETE was a silent no-op, the
+SET NULL FK orphaned pending executions, and the workers claimed with no
+parent check):
+
+* `'cancelled'` joined `topup_executions_status_check`;
+  `cancel_topup_execution(p_execution_id)` cancels queued
+  (`pending`/`pending_payment`) rows for the payer/owner/household-manager.
+* `trg_cancel_executions_on_schedule_delete` (BEFORE DELETE on
+  `scheduled_topups`) cancels the schedule's queued work before the FK nulls
+  it — every deletion path, not just the app's.
+* `claim_due_executions` now skips rows whose parent schedule is missing or
+  `is_active = false` (NULL-parent rows stay claimable for legacy data).
+  **Pausing a schedule now actually pauses it**; on resume, past-due rows fire
+  on the next poll (catch-up is deliberate — premium pre-paid those refills).
+
+**The server prices instant refills** (closes C3b-1's "client states a price"
+architecture gap):
+
+* `zendit_offers_cache` — the server-side copy of Zendit's enabled mobile
+  top-up catalog (USD-normalised prices; RANGE send bounds in Zendit units +
+  divisor for display), keyed by `(country_code, zen_carrier)`, RLS
+  authenticated-SELECT, writes service_role-only. Refreshed every 10 min by
+  **`worker_offers_cache`** on the VM (pm2, reuses `createCatalogFetcher` /
+  new `offerCacheRow` in `servers/offer_validation.js`; ~780 offers across 50
+  catalogs). The manual-refill sheet now reads this table instead of invoking
+  the fetch_zendit_offers Edge Function per open — what it shows is exactly
+  what the RPC will price.
+* `request_instant_refill(p_sim_line_id, p_offer_id, p_payment_gateway_code,
+  p_amount_usd)` — the only way a client starts an instant refill. FIXED
+  offers cost their catalog price (client sends no price at all); RANGE takes
+  the user's USD amount, bounds-checks it and interpolates the send value
+  (same math as `offer_validation.js`). Refuses offers outside the line's own
+  catalog and cache rows older than 24 h (dead refresher ⇒ refills pause, not
+  misprice). The C3b-1 worker check **stays** as the drift guard.
+* Client: `recordManualTopupExecution`/`scheduleTopupExecution` are gone;
+  `performManualRefill` names an offer, and the RANGE sheet derives USD by
+  interpolating the cached price bounds (the old `costFx` division is gone).
+
+**The mock-era flows are deleted, retry is real** (owner's decision — the bulk
+"Simulate" button shipped in release builds and debited real wallet money for a
+fabricated success with no purchase):
+
+* `simulateExecution`/`executeMockTopup`, the bulk Simulate button, and the
+  alert simulator's schedule-simulation section are removed.
+* `retry_topup_execution(p_execution_id)` queues a **new** execution
+  (`retry_of` = original) through the real pipeline — new row because the
+  BEFORE INSERT triggers don't fire on UPDATE, the debit ref `exec_<id>` and
+  Zendit txn `z_<id>` are per-execution, and the original must stay `failed`
+  (the old flow relabelled it `'refunded'`). Refuses double retries and
+  retries of inactive schedules. UI shows "retry queued"; the outcome streams
+  in via `topupExecutionsLiveProvider` (ARB `refillRetryQueued` × 9).
+
+**The other write paths moved server-side:**
+
+* `update_mini_refill_dates(p_sim_line_id, p_updates jsonb)` — moves only that
+  line's own pending `refill_mini` rows, re-syncs the schedule.
+* `queue_premium_refill_executions(p_sim_line_id, p_scheduled_topup_id,
+  p_plan_expires_at, p_start_at)` — replaces the client-side year-of-inserts
+  loop in onboarding/upgrade; prices from `carrier_rules` server-side,
+  idempotent per schedule (requeue cancels the old queue first).
+* `trg_sync_custom_refill_queue` (AFTER INSERT OR UPDATE on
+  `scheduled_topups`) — refill_custom executions are queued/rebuilt/cancelled
+  by the schedule row itself; idempotent against the success-path requeue in
+  `update_sim_line_last_topup_at`.
+* Admin app (`keep_sims_admin`, **not a git repo** — edited in place):
+  `completeManualRefill`/`switchGatewayToManual` now call power-user-gated
+  `admin_complete_manual_refill`/`admin_switch_gateway_to_manual`. Its legacy
+  mock-insert copies (`recordManualTopupExecution` type `'manual'`,
+  `scheduleTopupExecution`, `cleanMockLogs`' execution delete) were left as-is
+  and now fail loudly with a permission error if used — follow-up if the admin
+  app ever needs them.
+
+Migrations `20260717…_c3b2_cancel_and_claim_guard` /
+`_c3b2_offers_cache_and_request_instant_refill` / `_c3b2_scheduled_write_rpcs` /
+`_c3b2_admin_rpcs_and_revoke` / `_c3b2_offers_cache_send_divisor` /
+`_c3b2_revoke_fee_trigger_execute`. Tests:
+`supabase/tests/c3b2_lockdown_tests.sql` (12 assertions, live BEGIN..ROLLBACK,
+all pass), 24 backend tests (`node --test offer_validation.test.js`), 48 Dart
+tests, analyze 150 (baseline was 155 — deleted code carried 5 infos), debug APK
+builds. Smoke purchase moved the a1 fixture wallet **43.22 → 42.96** ($0.25
+ETISALAT_EG_001 + $0.01 app fee). Advisors: net-new findings are the expected
+authenticated-callable SECURITY DEFINER RPCs (self-scoped to auth.uid(), same
+class as pay_plan_fee_from_wallet).
 
 **Resolved 2026-07-17 — the two pricing models are two products, not a
 conflict.** Scheduled refills insert with `payment_gateway_code = NULL`, so

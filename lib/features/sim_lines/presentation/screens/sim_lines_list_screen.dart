@@ -109,70 +109,6 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
     }
   }
 
-  Future<void> _bulkSimulateRefill(
-    List<SimLine> selectedLines,
-    List<ScheduledTopup> schedules,
-  ) async {
-    setState(() => _isBulkActionLoading = true);
-    int successCount = 0;
-    int failCount = 0;
-    String? errorMessage;
-
-    for (final line in selectedLines) {
-      final schedule = schedules.firstWhereOrNull(
-        (s) => s.simLineId == line.id,
-      );
-      if (schedule != null) {
-        if (schedule.isActive) {
-          final res = await ref
-              .read(scheduledTopupControllerProvider.notifier)
-              .executeMockTopup(schedule.id);
-          if (res is Success) {
-            successCount++;
-          } else {
-            failCount++;
-            if (res is Failure) {
-              errorMessage = res.error.message;
-            }
-          }
-        } else {
-          failCount++;
-        }
-      } else {
-        failCount++;
-      }
-    }
-
-    if (mounted) {
-      if (successCount > 0) {
-        ref.invalidate(simLinesControllerProvider);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Successfully simulated auto-refill for $successCount SIM card(s)! Balance deducted & validity extended.',
-            ),
-            backgroundColor: AppColors.success,
-          ),
-        );
-      }
-      if (failCount > 0) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Failed to simulate auto-refill for $failCount SIM(s).${errorMessage != null ? ' Last error: $errorMessage' : ' Ensure schedules are configured & active.'}',
-            ),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      }
-      setState(() {
-        _isBulkActionLoading = false;
-        _isSelectMode = false;
-        _selectedIds.clear();
-      });
-    }
-  }
-
   Widget _buildBulkActionsConsole(List<SimLine> myLines) {
     if (!_isSelectMode) return const SizedBox.shrink();
 
@@ -301,17 +237,6 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
                               schedules,
                               false,
                             ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _buildConsoleButton(
-                      label: AppLocalizations.of(context)!.simulate,
-                      icon: Icons.flash_on_rounded,
-                      color: AppColors.success,
-                      onPressed: _isBulkActionLoading || count == 0
-                          ? null
-                          : () => _bulkSimulateRefill(selectedLines, schedules),
                     ),
                   ),
                 ],

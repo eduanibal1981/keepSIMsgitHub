@@ -570,6 +570,7 @@
         }
     },
     "refillRetrySuccess": "Yükleme tekrar denemesi başarıyla tamamlandı!",
+    "refillRetryQueued": "Tekrar deneme sıraya alındı — yükleme işleniyor.",
     "renewalRetrySuccess": "Yenileme tekrar denemesi başarıyla tamamlandı!",
     "retryFailed": "Tekrar deneme başarısız oldu: {error}",
     "@retryFailed": {

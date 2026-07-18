@@ -27,12 +27,6 @@ abstract interface class ScheduledTopupContract {
   /// Deletes a scheduled top-up.
   Future<Result<void>> deleteSchedule(String id);
 
-  /// Performs a high-fidelity simulated execution of the scheduled top-up.
-  /// Deducts funds from the user wallet, creates a completed debit transaction,
-  /// logs a success execution entry, updates the target SIM line parameters,
-  /// and updates the scheduled top-up's next execution date.
-  Future<Result<void>> simulateExecution(String id);
-
   /// Fetches execution history for a SIM line.
   Future<Result<List<TopupExecution>>> getExecutionsForLine(String simLineId);
 
@@ -43,11 +37,12 @@ abstract interface class ScheduledTopupContract {
     required int pageSize,
   });
 
-  /// Retries a failed execution by ID.
+  /// Retries a failed execution by queueing a fresh one (retry_of = original)
+  /// through the real worker pipeline.
   Future<Result<void>> retryExecution(String executionId);
 
-  /// Deletes a specific execution record (e.g. for mock log deletion).
-  Future<Result<void>> deleteExecution(String executionId);
+  /// Cancels a queued ('pending'/'pending_payment') execution.
+  Future<Result<void>> cancelExecution(String executionId);
 
   /// Reschedules the next execution date of a mini refill schedule and its earliest pending execution.
   Future<Result<void>> rescheduleMiniRefill({

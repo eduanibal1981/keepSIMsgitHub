@@ -1338,6 +1338,10 @@ class AppLocalizationsBn extends AppLocalizations {
       'রিফিল পুনরায় চেষ্টা সফলভাবে সম্পন্ন হয়েছে!';
 
   @override
+  String get refillRetryQueued =>
+      'পুনরায় চেষ্টা সারিতে যুক্ত হয়েছে — রিফিল প্রক্রিয়াধীন রয়েছে।';
+
+  @override
   String get renewalRetrySuccess =>
       'নবায়ন পুনরায় চেষ্টা সফলভাবে সম্পন্ন হয়েছে!';
 

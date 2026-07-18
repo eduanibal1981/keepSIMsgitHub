@@ -1343,6 +1343,10 @@ class AppLocalizationsSi extends AppLocalizations {
       'පිරවීම් නැවත උත්සාහය සාර්ථකව සම්පූර්ණ කෙරිණි!';
 
   @override
+  String get refillRetryQueued =>
+      'නැවත උත්සාහය පේළිගත කෙරිණි — පිරවීම සැකසෙමින් පවතී.';
+
+  @override
   String get renewalRetrySuccess =>
       'අලුත් කිරීම් නැවත උත්සාහය සාර්ථකව සම්පූර්ණ කෙරිණි!';
 

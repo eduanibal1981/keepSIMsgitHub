@@ -98,23 +98,9 @@ class ScheduledTopupController extends _$ScheduledTopupController {
     return result;
   }
 
-  /// Triggers a simulated E2E execution of an auto refill.
-  Future<Result<void>> executeMockTopup(String id) async {
-    final repo = ref.read(scheduledTopupRepositoryProvider);
-    final result = await repo.simulateExecution(id);
-
-    if (result is Success<void>) {
-      // Reload everything to get updated next execution time, last execution time, and new wallet balance!
-      await refresh();
-
-      // Invalidate the wallet and SIM line controllers so the UI reflects the deducted balance & restored status instantly!
-      ref.invalidate(walletControllerProvider);
-      ref.invalidate(simLinesControllerProvider);
-    }
-    return result;
-  }
-
-  /// Retries a failed execution record.
+  /// Retries a failed execution record by queueing a fresh one through the
+  /// real worker pipeline (C3b-2); progress streams in via
+  /// topupExecutionsLiveProvider.
   Future<Result<void>> retryFailedExecution(
     String executionId,
     String simLineId,
@@ -131,13 +117,13 @@ class ScheduledTopupController extends _$ScheduledTopupController {
     return result;
   }
 
-  /// Removes an execution record by ID.
+  /// Cancels a queued execution by ID.
   Future<Result<void>> removeExecution(
     String executionId,
     String simLineId,
   ) async {
     final repo = ref.read(scheduledTopupRepositoryProvider);
-    final result = await repo.deleteExecution(executionId);
+    final result = await repo.cancelExecution(executionId);
 
     if (result is Success<void>) {
       ref.invalidate(topupExecutionsForLineProvider(simLineId));

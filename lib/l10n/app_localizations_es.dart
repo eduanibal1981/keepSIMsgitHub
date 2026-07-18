@@ -1361,6 +1361,10 @@ class AppLocalizationsEs extends AppLocalizations {
       '¡Reintento de recarga completado exitosamente!';
 
   @override
+  String get refillRetryQueued =>
+      'Reintento en cola — la recarga se está procesando.';
+
+  @override
   String get renewalRetrySuccess =>
       '¡Reintento de renovación completado exitosamente!';
 

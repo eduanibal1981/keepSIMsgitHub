@@ -570,6 +570,7 @@
         }
     },
     "refillRetrySuccess": "ریفل دوبارہ کوشش کامیابی سے مکمل ہوئی!",
+    "refillRetryQueued": "دوبارہ کوشش قطار میں شامل کر دی گئی — ریفل پر کارروائی جاری ہے۔",
     "renewalRetrySuccess": "تجدید دوبارہ کوشش کامیابی سے مکمل ہوئی!",
     "retryFailed": "دوبارہ کوشش ناکام: {error}",
     "@retryFailed": {

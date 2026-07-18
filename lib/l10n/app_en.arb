@@ -640,6 +640,7 @@
                                                      }
                                 },
     "refillRetrySuccess":  "Refill retry completed successfully!",
+    "refillRetryQueued":  "Retry queued — the refill is being processed.",
     "renewalRetrySuccess":  "Renewal retry completed successfully!",
     "retryFailed":  "Retry failed: {error}",
     "@retryFailed":  {

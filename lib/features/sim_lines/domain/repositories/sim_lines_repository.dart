@@ -18,23 +18,17 @@ abstract class SimLinesRepository {
   Future<void> deleteLineActivityLog(String id);
   Future<void> cleanMockLogs(String simLineId);
   Future<void> clearAllActivityLogs(String simLineId);
-  Future<void> recordManualTopupExecution({
+  Future<String> requestInstantRefill({
     required String simLineId,
-    required double baseCostUsd,
+    required String offerId,
     required String paymentGatewayCode,
-    required String status,
-    String? failureReason,
-    String? offerId,
-    int? offerValue,
+    required double displayBaseUsd,
+    double? amountUsd,
   });
-  Future<void> scheduleTopupExecution({
+  Future<int> queuePremiumRefillExecutions({
     required String simLineId,
-    required double amount,
-    required DateTime executionTime,
-    required String executionType,
-    String? offerId,
-    int? offerValue,
-    String? scheduledTopupId,
+    required String scheduledTopupId,
+    DateTime? planExpiresAt,
   });
   Future<String?> triggerMissedCall(String phoneNumber);
   Future<bool> checkCallStatus(String callSid);

@@ -3,7 +3,6 @@
 /// Implements [ScheduledTopupContract] using Supabase.
 library;
 
-import 'dart:math';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:keep_sims/core/failure.dart';
 import 'package:keep_sims/core/result.dart';
@@ -11,7 +10,6 @@ import 'package:keep_sims/core/services/connectivity_service.dart';
 import 'package:keep_sims/core/services/local_cache_service.dart';
 import 'package:keep_sims/core/services/sync_queue_service.dart';
 import '../contract/scheduled_topup_contract.dart';
-import '../domain/refill_schedule_math.dart';
 import '../model/scheduled_topup_model.dart';
 import '../model/topup_execution_model.dart';
 
@@ -215,21 +213,8 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
 
       final created = ScheduledTopup.fromJson(response);
 
-      // If the created schedule is for custom refill, immediately queue its first execution
-      if (created.scheduleType == 'refill_custom' && created.isActive) {
-        await _client.from('topup_executions').insert({
-          'sim_line_id': created.simLineId,
-          'user_id': created.userId,
-          'amount': created.amount,
-          'currency': created.currency,
-          'status': 'pending',
-          'execution_type': 'refill_custom',
-          'execution_time': created.nextExecutionAt.toIso8601String(),
-          'scheduled_topup_id': created.id,
-          'offer_id': created.offerId,
-          'offer_value': created.offerValue,
-        });
-      }
+      // C3b-2: a refill_custom schedule's execution queue is managed by the
+      // trg_sync_custom_refill_queue DB trigger; the insert here is gone.
 
       // Update local cache
       final cached = _cache.readJson('cached_schedules') as List? ?? [];
@@ -306,29 +291,9 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
 
       final updated = ScheduledTopup.fromJson(response);
 
-      // Requeue custom refill execution to reflect any changes in amount/date
-      if (updated.scheduleType == 'refill_custom') {
-        await _client
-            .from('topup_executions')
-            .delete()
-            .eq('scheduled_topup_id', updated.id)
-            .eq('status', 'pending');
-
-        if (updated.isActive) {
-          await _client.from('topup_executions').insert({
-            'sim_line_id': updated.simLineId,
-            'user_id': updated.userId,
-            'amount': updated.amount,
-            'currency': updated.currency,
-            'status': 'pending',
-            'execution_type': 'refill_custom',
-            'execution_time': updated.nextExecutionAt.toIso8601String(),
-            'scheduled_topup_id': updated.id,
-            'offer_id': updated.offerId,
-            'offer_value': updated.offerValue,
-          });
-        }
-      }
+      // C3b-2: requeueing after an amount/date change is done by the
+      // trg_sync_custom_refill_queue DB trigger. (The delete that used to run
+      // here was a silent no-op — topup_executions never had a DELETE policy.)
 
       // Update cache
       final cached = _cache.readJson('cached_schedules') as List? ?? [];
@@ -389,224 +354,14 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
         );
       }
 
-      // Cancel any pending executions for this schedule
-      await _client
-          .from('topup_executions')
-          .delete()
-          .eq('scheduled_topup_id', id)
-          .eq('user_id', userId)
-          .eq('status', 'pending');
-
-      // Delete the schedule itself
+      // C3b-2: deleting the schedule cancels its queued executions via the
+      // trg_cancel_executions_on_schedule_delete DB trigger. (The client-side
+      // delete that used to run here was a silent no-op that left orphans.)
       await _client
           .from('scheduled_topups')
           .delete()
           .eq('id', id)
           .eq('user_id', userId);
-
-      return const Success(null);
-    } on PostgrestException catch (e) {
-      return Failure(AppFailure.server(message: e.message));
-    } catch (e) {
-      return Failure(AppFailure.unknown(message: e.toString()));
-    }
-  }
-
-  @override
-  Future<Result<void>> simulateExecution(String id) async {
-    if (_connectivity.isOffline) {
-      return const Failure(
-        AppFailure.server(
-          message: 'Refill simulations require an active internet connection.',
-        ),
-      );
-    }
-
-    try {
-      final userId = _client.auth.currentUser?.id;
-      if (userId == null) {
-        return const Failure(
-          AppFailure.auth(message: 'No authenticated user.'),
-        );
-      }
-
-      // 1. Fetch Schedule Info
-      final scheduleRes = await _client
-          .from('scheduled_topups')
-          .select()
-          .eq('id', id)
-          .eq('user_id', userId)
-          .single();
-      final schedule = ScheduledTopup.fromJson(scheduleRes);
-
-      // 2. Fetch Wallet Info
-      final walletRes = await _client
-          .from('wallets')
-          .select()
-          .eq('user_id', userId)
-          .single();
-      final currentBalance = (walletRes['balance'] as num).toDouble();
-
-      // 3. Check Balance
-      if (currentBalance < schedule.amount) {
-        // Record failed execution in db
-        await _client.from('topup_executions').insert({
-          'scheduled_topup_id': schedule.id,
-          'sim_line_id': schedule.simLineId,
-          'user_id': userId,
-          'amount': schedule.amount,
-          'currency': schedule.currency,
-          'status': 'failed',
-          'failure_reason': 'Insufficient wallet balance',
-          'executed_at': DateTime.now().toUtc().toIso8601String(),
-          'completed_at': DateTime.now().toUtc().toIso8601String(),
-        });
-
-        // Increment retry count
-        final newRetryCount = schedule.retryCount + 1;
-        final failedPermanently = newRetryCount >= schedule.maxRetries;
-        await _client
-            .from('scheduled_topups')
-            .update({
-              'retry_count': newRetryCount,
-              'status': failedPermanently ? 'failed_permanently' : 'active',
-              'updated_at': DateTime.now().toUtc().toIso8601String(),
-            })
-            .eq('id', schedule.id);
-
-        // Fetch current SIM Line to update health
-        final simRes = await _client
-            .from('sim_lines')
-            .select()
-            .eq('id', schedule.simLineId)
-            .single();
-        final currentHealth = simRes['health_score'] as int;
-        final newHealth = max(0, currentHealth - 25);
-        final newStatus = newHealth == 0
-            ? 'grace_period'
-            : (simRes['status'] as String);
-
-        await _client
-            .from('sim_lines')
-            .update({
-              'health_score': newHealth,
-              'status': newStatus,
-              'updated_at': DateTime.now().toUtc().toIso8601String(),
-            })
-            .eq('id', schedule.simLineId);
-
-        // Log failed activity
-        await _client.from('line_activity_log').insert({
-          'sim_line_id': schedule.simLineId,
-          'user_id': userId,
-          'event_type': 'topup_failed',
-          'description': 'Auto-Refill failed: Insufficient wallet balance.',
-          'metadata': {
-            'amount': schedule.amount,
-            'retry_count': newRetryCount,
-            'max_retries': schedule.maxRetries,
-            'health_score_after': newHealth,
-          },
-          'created_at': DateTime.now().toUtc().toIso8601String(),
-        });
-
-        return const Failure(
-          AppFailure.server(
-            message:
-                'Insufficient wallet balance for this auto refill. Please top up your wallet.',
-          ),
-        );
-      }
-
-      // 4+5. Debit wallet server-side (atomic balance update + ledger insert)
-      final debitRes = await _client.functions.invoke(
-        'wallet_transact',
-        body: {
-          'action': 'deduct',
-          'amount': schedule.amount,
-          'description': 'Simulated Auto-Refill',
-          'simLineId': schedule.simLineId,
-        },
-      );
-      final debitData = debitRes.data;
-      if (debitData is! Map<String, dynamic> || debitData['success'] != true) {
-        return Failure(
-          AppFailure.server(
-            message: debitData is Map<String, dynamic>
-                ? (debitData['errorMessage']?.toString() ??
-                      'Wallet debit failed.')
-                : 'Wallet debit failed.',
-          ),
-        );
-      }
-
-      // 6. Log Execution
-      final mockTxId = 'TX_${100000 + Random().nextInt(900000)}';
-      await _client.from('topup_executions').insert({
-        'scheduled_topup_id': schedule.id,
-        'sim_line_id': schedule.simLineId,
-        'user_id': userId,
-        'amount': schedule.amount,
-        'currency': schedule.currency,
-        'status': 'success',
-        'reloadly_transaction_id': mockTxId,
-        'executed_at': DateTime.now().toUtc().toIso8601String(),
-        'completed_at': DateTime.now().toUtc().toIso8601String(),
-        'validity_days_added': schedule.frequencyDays,
-      });
-
-      // 7. Update Schedule Dates
-      final nextExec = RefillScheduleMath.nextExecutionAt(
-        DateTime.now().toUtc(),
-        schedule.frequencyDays,
-      );
-      await _client
-          .from('scheduled_topups')
-          .update({
-            'last_execution_at': DateTime.now().toUtc().toIso8601String(),
-            'next_execution_at': nextExec.toIso8601String(),
-            'retry_count': 0,
-            'status': 'active',
-            'updated_at': DateTime.now().toUtc().toIso8601String(),
-          })
-          .eq('id', schedule.id);
-
-      // 8. Update SIM Line validity + reset Health Score
-      final nextDue = RefillScheduleMath.nextTopupDue(
-        DateTime.now().toUtc(),
-        schedule.frequencyDays,
-      );
-      final validityExpires = RefillScheduleMath.validityExpiresAt(
-        nextDue,
-        schedule.frequencyDays,
-      );
-      await _client
-          .from('sim_lines')
-          .update({
-            'last_topup_at': DateTime.now().toUtc().toIso8601String(),
-            'next_topup_due': nextDue.toIso8601String(),
-            'validity_expires_at': validityExpires.toIso8601String(),
-            'health_score': 100,
-            'status': 'active',
-            'updated_at': DateTime.now().toUtc().toIso8601String(),
-          })
-          .eq('id', schedule.simLineId);
-
-      // 9. Log Success Activity
-      await _client.from('line_activity_log').insert({
-        'sim_line_id': schedule.simLineId,
-        'user_id': userId,
-        'event_type': 'topup_success',
-        'description': schedule.frequencyDays == 0
-            ? 'Auto-Refill successful. Next top-up due in 1 hour.'
-            : 'Auto-Refill successful. Next top-up due in ${schedule.frequencyDays} days.',
-        'metadata': {
-          'amount': schedule.amount,
-          'reloadly_transaction_id': mockTxId,
-          'validity_days_added': schedule.frequencyDays,
-        },
-        'created_at': DateTime.now().toUtc().toIso8601String(),
-      });
 
       return const Success(null);
     } on PostgrestException catch (e) {
@@ -732,200 +487,14 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
   @override
   Future<Result<void>> retryExecution(String executionId) async {
     try {
-      final userId = _client.auth.currentUser?.id;
-      if (userId == null) {
-        return const Failure(
-          AppFailure.auth(message: 'No authenticated user.'),
-        );
-      }
-
-      // 1. Fetch Execution details
-      final execRes = await _client
-          .from('topup_executions')
-          .select()
-          .eq('id', executionId)
-          .eq('user_id', userId)
-          .single();
-      final failedExec = TopupExecution.fromJson(execRes);
-
-      if (failedExec.status != 'failed') {
-        return const Failure(
-          AppFailure.server(
-            message: 'This execution is not in a failed state.',
-          ),
-        );
-      }
-
-      // 2. Fetch Schedule
-      if (failedExec.scheduledTopupId == null) {
-        return const Failure(
-          AppFailure.server(
-            message: 'No active schedule linked to this execution.',
-          ),
-        );
-      }
-      final scheduleRes = await _client
-          .from('scheduled_topups')
-          .select()
-          .eq('id', failedExec.scheduledTopupId!)
-          .single();
-      final schedule = ScheduledTopup.fromJson(scheduleRes);
-
-      // 3. Fetch Wallet
-      final walletRes = await _client
-          .from('wallets')
-          .select()
-          .eq('user_id', userId)
-          .single();
-      final currentBalance = (walletRes['balance'] as num).toDouble();
-
-      // 4. Check Balance
-      if (currentBalance < failedExec.amount) {
-        // Record retry attempt failed
-        final newRetryCount = schedule.retryCount + 1;
-        final failedPermanently = newRetryCount >= schedule.maxRetries;
-
-        await _client
-            .from('scheduled_topups')
-            .update({
-              'retry_count': newRetryCount,
-              'status': failedPermanently ? 'failed_permanently' : 'active',
-              'updated_at': DateTime.now().toUtc().toIso8601String(),
-            })
-            .eq('id', schedule.id);
-
-        await _client.from('topup_executions').insert({
-          'scheduled_topup_id': schedule.id,
-          'sim_line_id': failedExec.simLineId,
-          'user_id': userId,
-          'amount': failedExec.amount,
-          'currency': failedExec.currency,
-          'status': 'failed',
-          'failure_reason': 'Retry failed: Insufficient wallet balance',
-          'retry_of': executionId,
-          'executed_at': DateTime.now().toUtc().toIso8601String(),
-          'completed_at': DateTime.now().toUtc().toIso8601String(),
-        });
-
-        // Log failed retry activity
-        await _client.from('line_activity_log').insert({
-          'sim_line_id': failedExec.simLineId,
-          'user_id': userId,
-          'event_type': 'topup_failed',
-          'description': 'Manual retry failed: Insufficient wallet balance.',
-          'metadata': {
-            'amount': failedExec.amount,
-            'retry_count': newRetryCount,
-            'max_retries': schedule.maxRetries,
-          },
-          'created_at': DateTime.now().toUtc().toIso8601String(),
-        });
-
-        return const Failure(
-          AppFailure.server(
-            message:
-                'Insufficient balance to retry. Please top up your wallet.',
-          ),
-        );
-      }
-
-      // 5+6. Debit wallet server-side (atomic balance update + ledger insert)
-      final debitRes = await _client.functions.invoke(
-        'wallet_transact',
-        body: {
-          'action': 'deduct',
-          'amount': failedExec.amount,
-          'description': 'Simulated Top-Up Retry',
-          'simLineId': failedExec.simLineId,
-        },
-      );
-      final debitData = debitRes.data;
-      if (debitData is! Map<String, dynamic> || debitData['success'] != true) {
-        return Failure(
-          AppFailure.server(
-            message: debitData is Map<String, dynamic>
-                ? (debitData['errorMessage']?.toString() ??
-                      'Wallet debit failed.')
-                : 'Wallet debit failed.',
-          ),
-        );
-      }
-
-      // 7. Update original execution status or link new successful retry
-      final mockTxId = 'TX_RETRY_${100000 + Random().nextInt(900000)}';
-      await _client.from('topup_executions').insert({
-        'scheduled_topup_id': schedule.id,
-        'sim_line_id': failedExec.simLineId,
-        'user_id': userId,
-        'amount': failedExec.amount,
-        'currency': failedExec.currency,
-        'status': 'success',
-        'reloadly_transaction_id': mockTxId,
-        'retry_of': executionId,
-        'executed_at': DateTime.now().toUtc().toIso8601String(),
-        'completed_at': DateTime.now().toUtc().toIso8601String(),
-        'validity_days_added': schedule.frequencyDays,
+      // C3b-2: a retry is a NEW queued execution created server-side
+      // (retry_of = original) that runs through the real worker pipeline —
+      // actual purchase, real debit/refund. The old client-side flow debited
+      // the wallet, fabricated a mock 'success' row and marked the original
+      // 'refunded' without ever buying a top-up.
+      await _client.rpc('retry_topup_execution', params: {
+        'p_execution_id': executionId,
       });
-
-      // Update failed execution status so it doesn't show as unresolved
-      await _client
-          .from('topup_executions')
-          .update({
-            'status': 'refunded',
-            'failure_reason': 'Resolved by successful retry',
-          })
-          .eq('id', executionId);
-
-      // 8. Update Schedule Dates and reset retry count
-      final nextExec = RefillScheduleMath.nextExecutionAt(
-        DateTime.now().toUtc(),
-        schedule.frequencyDays,
-      );
-      await _client
-          .from('scheduled_topups')
-          .update({
-            'last_execution_at': DateTime.now().toUtc().toIso8601String(),
-            'next_execution_at': nextExec.toIso8601String(),
-            'retry_count': 0,
-            'status': 'active',
-            'updated_at': DateTime.now().toUtc().toIso8601String(),
-          })
-          .eq('id', schedule.id);
-
-      // 9. Update SIM Line
-      final nextDue = RefillScheduleMath.nextTopupDue(
-        DateTime.now().toUtc(),
-        schedule.frequencyDays,
-      );
-      final validityExpires = RefillScheduleMath.validityExpiresAt(
-        nextDue,
-        schedule.frequencyDays,
-      );
-      await _client
-          .from('sim_lines')
-          .update({
-            'last_topup_at': DateTime.now().toUtc().toIso8601String(),
-            'next_topup_due': nextDue.toIso8601String(),
-            'validity_expires_at': validityExpires.toIso8601String(),
-            'health_score': 100,
-            'status': 'active',
-            'updated_at': DateTime.now().toUtc().toIso8601String(),
-          })
-          .eq('id', failedExec.simLineId);
-
-      // 10. Log Success Activity
-      await _client.from('line_activity_log').insert({
-        'sim_line_id': failedExec.simLineId,
-        'user_id': userId,
-        'event_type': 'topup_success',
-        'description': 'Retry successful: Auto-refill resolved.',
-        'metadata': {
-          'amount': failedExec.amount,
-          'reloadly_transaction_id': mockTxId,
-        },
-        'created_at': DateTime.now().toUtc().toIso8601String(),
-      });
-
       return const Success(null);
     } on PostgrestException catch (e) {
       return Failure(AppFailure.server(message: e.message));
@@ -935,21 +504,14 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
   }
 
   @override
-  Future<Result<void>> deleteExecution(String executionId) async {
+  Future<Result<void>> cancelExecution(String executionId) async {
     try {
-      final userId = _client.auth.currentUser?.id;
-      if (userId == null) {
-        return const Failure(
-          AppFailure.auth(message: 'No authenticated user.'),
-        );
-      }
-
-      await _client
-          .from('topup_executions')
-          .delete()
-          .eq('id', executionId)
-          .eq('user_id', userId);
-
+      // C3b-2: the old client DELETE was a silent no-op (no DELETE policy) —
+      // the row stayed pending and the worker still fired it. The RPC really
+      // cancels queued work ('pending'/'pending_payment' → 'cancelled').
+      await _client.rpc('cancel_topup_execution', params: {
+        'p_execution_id': executionId,
+      });
       return const Success(null);
     } on PostgrestException catch (e) {
       return Failure(AppFailure.server(message: e.message));
@@ -996,37 +558,15 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
     required Map<String, DateTime> executionDates,
   }) async {
     try {
-      // 1. Update each modified execution record in topup_executions
-      for (final entry in executionDates.entries) {
-        await _client
-            .from('topup_executions')
-            .update({'execution_time': entry.value.toUtc().toIso8601String()})
-            .eq('id', entry.key);
-      }
-
-      // 2. Find the earliest pending execution of type refill_mini to update the schedule's next_execution_at
-      final earliestRes = await _client
-          .from('topup_executions')
-          .select('execution_time')
-          .eq('sim_line_id', simLineId)
-          .eq('execution_type', 'refill_mini')
-          .eq('status', 'pending')
-          .order('execution_time', ascending: true)
-          .limit(1)
-          .maybeSingle();
-
-      if (earliestRes != null) {
-        final earliestDate = earliestRes['execution_time'] as String;
-        await _client
-            .from('scheduled_topups')
-            .update({
-              'next_execution_at': earliestDate,
-              'updated_at': DateTime.now().toUtc().toIso8601String(),
-            })
-            .eq('sim_line_id', simLineId)
-            .eq('schedule_type', 'refill_mini');
-      }
-
+      // C3b-2: one RPC moves the line's own pending refill_mini rows and
+      // re-syncs the schedule's next_execution_at server-side.
+      await _client.rpc('update_mini_refill_dates', params: {
+        'p_sim_line_id': simLineId,
+        'p_updates': {
+          for (final entry in executionDates.entries)
+            entry.key: entry.value.toUtc().toIso8601String(),
+        },
+      });
       return const Success(null);
     } on PostgrestException catch (e) {
       return Failure(AppFailure.server(message: e.message));

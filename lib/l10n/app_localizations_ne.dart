@@ -1342,6 +1342,10 @@ class AppLocalizationsNe extends AppLocalizations {
   String get refillRetrySuccess => 'रिफिल पुनः प्रयास सफलतापूर्वक पूरा भयो!';
 
   @override
+  String get refillRetryQueued =>
+      'पुनः प्रयास लाइनमा राखियो — रिफिल प्रशोधन हुँदैछ।';
+
+  @override
   String get renewalRetrySuccess => 'नवीकरण पुनः प्रयास सफलतापूर्वक पूरा भयो!';
 
   @override

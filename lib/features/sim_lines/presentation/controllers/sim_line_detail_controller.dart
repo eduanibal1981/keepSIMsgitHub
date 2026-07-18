@@ -6,7 +6,6 @@ import 'package:keep_sims/features/scheduled_topups/model/topup_execution_model.
 import 'package:keep_sims/features/scheduled_topups/controller/scheduled_topup_controller.dart';
 import 'package:keep_sims/features/sim_lines/data/models/line_activity_log_model.dart';
 import 'package:keep_sims/core/result.dart';
-import 'package:keep_sims/core/failure.dart';
 
 part 'sim_line_detail_controller.g.dart';
 
@@ -72,24 +71,6 @@ class SimLineDetailController extends _$SimLineDetailController {
       executions: executions,
       activityLogs: activityLogs,
     );
-  }
-
-  /// Triggers a mock refill execution
-  Future<Result<void>> triggerRefill() async {
-    final detailState = state.value;
-    final refillSchedule =
-        detailState?.customRefillSchedule ?? detailState?.miniRefillSchedule;
-    if (detailState == null || refillSchedule == null) {
-      return const Failure(
-        AppFailure.validation(
-          message: 'No active Auto-Refill configuration found for this line.',
-        ),
-      );
-    }
-
-    return ref
-        .read(scheduledTopupControllerProvider.notifier)
-        .executeMockTopup(refillSchedule.id);
   }
 
   /// Retries a failed execution

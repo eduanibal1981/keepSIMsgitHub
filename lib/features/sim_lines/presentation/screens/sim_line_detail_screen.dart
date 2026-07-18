@@ -2721,18 +2721,11 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
           .retryFailedTopup(executionId);
       if (context.mounted) {
         if (result is Success<void>) {
-          final detailState = ref
-              .read(simLineDetailControllerProvider(widget.id))
-              .value;
-          final isPremium =
-              detailState?.simLine.protectionTier.toLowerCase() == 'premium';
+          // C3b-2: the retry is queued through the real worker pipeline; its
+          // outcome streams in via topupExecutionsLiveProvider.
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(
-                isPremium
-                    ? AppLocalizations.of(context)!.refillRetrySuccess
-                    : AppLocalizations.of(context)!.renewalRetrySuccess,
-              ),
+              content: Text(AppLocalizations.of(context)!.refillRetryQueued),
               backgroundColor: AppColors.success,
             ),
           );
