@@ -619,5 +619,22 @@
     "channelEmailShort":  "بريد",
     "channelOffGlobally":  "معطل في قنوات التنبيه أعلاه",
     "rechargeNow":  "اشحن الآن",
-    "planFeePaidFromWallet": "تم دفع رسوم الخطة من رصيد محفظتك."
+    "planFeePaidFromWallet": "تم دفع رسوم الخطة من رصيد محفظتك.",
+    "offlineRefillChannelsHeader":  "طرق إعادة الشحن دون اتصال",
+    "offlineRefillTopUpFromWallet":  "اشحن {amount} من رصيد محفظتك",
+    "offlineRefillWalletFunded":  "من محفظتك",
+    "offlineRefillServiceFee":  "رسوم +{fee}",
+    "offlineRefillMissedCallTitle":  "اتصال غير مُجاب",
+    "offlineRefillMissedCallSubtitle":  "لا حاجة لرصيد أو بيانات",
+    "offlineRefillCallAction":  "اتصل لإعادة الشحن",
+    "offlineRefillRetry":  "حاول مرة أخرى",
+    "offlineRefillWaitSeconds":  "انتظر {seconds}ث",
+    "offlineRefillStatusSent":  "تم الإرسال — بانتظار التأكيد",
+    "offlineRefillStatusProcessing":  "جارٍ شحن خطك…",
+    "offlineRefillStatusConfirmed":  "تم تأكيد الشحن",
+    "offlineRefillStatusFailed":  "لم تنجح — جرّب طريقة أخرى",
+    "offlineRefillStatusTimedOut":  "لا يوجد رد بعد — جرّب طريقة أخرى",
+    "offlineRefillUssdTitle":  "استفد أكثر من شحنتك",
+    "offlineRefillUssdSubtitle":  "بعد وصول الرصيد، اطلب رمز مشغّلك للحصول على أفضل قيمة",
+    "offlineRefillUssdDial":  "اطلب"
 }

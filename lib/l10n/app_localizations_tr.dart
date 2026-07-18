@@ -670,6 +670,65 @@ class AppLocalizationsTr extends AppLocalizations {
   String get offlineRefillSelectNumber => 'Select a number';
 
   @override
+  String get offlineRefillChannelsHeader => 'Çevrimdışı yükleme yolları';
+
+  @override
+  String offlineRefillTopUpFromWallet(String amount) {
+    return 'Cüzdanından $amount yükle';
+  }
+
+  @override
+  String get offlineRefillWalletFunded => 'Cüzdanından';
+
+  @override
+  String offlineRefillServiceFee(String fee) {
+    return '+$fee ücret';
+  }
+
+  @override
+  String get offlineRefillMissedCallTitle => 'Cevapsız çağrı bırak';
+
+  @override
+  String get offlineRefillMissedCallSubtitle => 'Bakiye veya veri gerekmez';
+
+  @override
+  String get offlineRefillCallAction => 'Yüklemek için ara';
+
+  @override
+  String get offlineRefillRetry => 'Tekrar dene';
+
+  @override
+  String offlineRefillWaitSeconds(int seconds) {
+    return '${seconds}sn bekle';
+  }
+
+  @override
+  String get offlineRefillStatusSent => 'Gönderildi — onay bekleniyor';
+
+  @override
+  String get offlineRefillStatusProcessing => 'Hattın yükleniyor…';
+
+  @override
+  String get offlineRefillStatusConfirmed => 'Yükleme onaylandı';
+
+  @override
+  String get offlineRefillStatusFailed => 'Gerçekleşmedi — başka bir yol dene';
+
+  @override
+  String get offlineRefillStatusTimedOut =>
+      'Henüz yanıt yok — başka bir yol dene';
+
+  @override
+  String get offlineRefillUssdTitle => 'Yüklemenden en iyi şekilde yararlan';
+
+  @override
+  String get offlineRefillUssdSubtitle =>
+      'Bakiye geldikten sonra, en iyi değer için operatörünün kodunu çevir';
+
+  @override
+  String get offlineRefillUssdDial => 'Çevir';
+
+  @override
   String get editProtectedLine => 'Korunan Hattı Düzenle';
 
   @override

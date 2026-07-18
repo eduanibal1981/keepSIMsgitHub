@@ -664,6 +664,65 @@ class AppLocalizationsEn extends AppLocalizations {
   String get offlineRefillSelectNumber => 'Select a number';
 
   @override
+  String get offlineRefillChannelsHeader => 'Ways to refill offline';
+
+  @override
+  String offlineRefillTopUpFromWallet(String amount) {
+    return 'Top up $amount from your wallet';
+  }
+
+  @override
+  String get offlineRefillWalletFunded => 'From your wallet';
+
+  @override
+  String offlineRefillServiceFee(String fee) {
+    return '+$fee fee';
+  }
+
+  @override
+  String get offlineRefillMissedCallTitle => 'Give a missed call';
+
+  @override
+  String get offlineRefillMissedCallSubtitle => 'No balance or data needed';
+
+  @override
+  String get offlineRefillCallAction => 'Call to refill';
+
+  @override
+  String get offlineRefillRetry => 'Try again';
+
+  @override
+  String offlineRefillWaitSeconds(int seconds) {
+    return 'Wait ${seconds}s';
+  }
+
+  @override
+  String get offlineRefillStatusSent => 'Sent — awaiting confirmation';
+
+  @override
+  String get offlineRefillStatusProcessing => 'Topping up your line…';
+
+  @override
+  String get offlineRefillStatusConfirmed => 'Top-up confirmed';
+
+  @override
+  String get offlineRefillStatusFailed =>
+      'Didn\'t go through — try another way';
+
+  @override
+  String get offlineRefillStatusTimedOut => 'No response yet — try another way';
+
+  @override
+  String get offlineRefillUssdTitle => 'Get more from your top-up';
+
+  @override
+  String get offlineRefillUssdSubtitle =>
+      'After the balance lands, dial your carrier\'s code for the best value';
+
+  @override
+  String get offlineRefillUssdDial => 'Dial';
+
+  @override
   String get editProtectedLine => 'Edit Protected Line';
 
   @override

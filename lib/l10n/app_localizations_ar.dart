@@ -663,6 +663,64 @@ class AppLocalizationsAr extends AppLocalizations {
   String get offlineRefillSelectNumber => 'Select a number';
 
   @override
+  String get offlineRefillChannelsHeader => 'طرق إعادة الشحن دون اتصال';
+
+  @override
+  String offlineRefillTopUpFromWallet(String amount) {
+    return 'اشحن $amount من رصيد محفظتك';
+  }
+
+  @override
+  String get offlineRefillWalletFunded => 'من محفظتك';
+
+  @override
+  String offlineRefillServiceFee(String fee) {
+    return 'رسوم +$fee';
+  }
+
+  @override
+  String get offlineRefillMissedCallTitle => 'اتصال غير مُجاب';
+
+  @override
+  String get offlineRefillMissedCallSubtitle => 'لا حاجة لرصيد أو بيانات';
+
+  @override
+  String get offlineRefillCallAction => 'اتصل لإعادة الشحن';
+
+  @override
+  String get offlineRefillRetry => 'حاول مرة أخرى';
+
+  @override
+  String offlineRefillWaitSeconds(int seconds) {
+    return 'انتظر $secondsث';
+  }
+
+  @override
+  String get offlineRefillStatusSent => 'تم الإرسال — بانتظار التأكيد';
+
+  @override
+  String get offlineRefillStatusProcessing => 'جارٍ شحن خطك…';
+
+  @override
+  String get offlineRefillStatusConfirmed => 'تم تأكيد الشحن';
+
+  @override
+  String get offlineRefillStatusFailed => 'لم تنجح — جرّب طريقة أخرى';
+
+  @override
+  String get offlineRefillStatusTimedOut => 'لا يوجد رد بعد — جرّب طريقة أخرى';
+
+  @override
+  String get offlineRefillUssdTitle => 'استفد أكثر من شحنتك';
+
+  @override
+  String get offlineRefillUssdSubtitle =>
+      'بعد وصول الرصيد، اطلب رمز مشغّلك للحصول على أفضل قيمة';
+
+  @override
+  String get offlineRefillUssdDial => 'اطلب';
+
+  @override
   String get editProtectedLine => 'تعديل الخط المحمي';
 
   @override

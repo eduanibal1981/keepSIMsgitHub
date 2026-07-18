@@ -695,5 +695,22 @@
     "channelEmailShort": "ईमेल",
     "channelOffGlobally": "ऊपर अलर्ट चैनल में बंद है",
     "rechargeNow": "अभी रिचार्ज करें",
-    "planFeePaidFromWallet": "प्लान शुल्क आपके वॉलेट बैलेंस से भुगतान किया गया।"
+    "planFeePaidFromWallet": "प्लान शुल्क आपके वॉलेट बैलेंस से भुगतान किया गया।",
+    "offlineRefillChannelsHeader":  "ऑफ़लाइन रिफ़िल के तरीके",
+    "offlineRefillTopUpFromWallet":  "अपने वॉलेट से {amount} टॉप अप करें",
+    "offlineRefillWalletFunded":  "आपके वॉलेट से",
+    "offlineRefillServiceFee":  "+{fee} शुल्क",
+    "offlineRefillMissedCallTitle":  "मिस्ड कॉल दें",
+    "offlineRefillMissedCallSubtitle":  "बैलेंस या डेटा की ज़रूरत नहीं",
+    "offlineRefillCallAction":  "रिफ़िल के लिए कॉल करें",
+    "offlineRefillRetry":  "फिर से आज़माएँ",
+    "offlineRefillWaitSeconds":  "{seconds}से प्रतीक्षा करें",
+    "offlineRefillStatusSent":  "भेजा गया — पुष्टि की प्रतीक्षा",
+    "offlineRefillStatusProcessing":  "आपकी लाइन टॉप अप हो रही है…",
+    "offlineRefillStatusConfirmed":  "टॉप-अप की पुष्टि हो गई",
+    "offlineRefillStatusFailed":  "पूरा नहीं हुआ — दूसरा तरीका आज़माएँ",
+    "offlineRefillStatusTimedOut":  "अभी तक कोई जवाब नहीं — दूसरा तरीका आज़माएँ",
+    "offlineRefillUssdTitle":  "अपने टॉप-अप से ज़्यादा पाएँ",
+    "offlineRefillUssdSubtitle":  "बैलेंस आने के बाद, सबसे अच्छे मूल्य के लिए अपने ऑपरेटर का कोड डायल करें",
+    "offlineRefillUssdDial":  "डायल करें"
 }

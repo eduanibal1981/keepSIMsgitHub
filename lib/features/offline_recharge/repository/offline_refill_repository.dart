@@ -212,4 +212,149 @@ class OfflineRefillRepository implements OfflineRefillContract {
       return Failure(AppFailure.unknown(message: errStr));
     }
   }
+
+  // ── Pending offline refills (persist-before-launch + reconcile, C4) ────────
+  static const _pendingKey = 'pending_offline_refills';
+
+  List<PendingOfflineRefill> _readPending() {
+    final cached = _cache.readJson(_pendingKey);
+    if (cached is List) {
+      return cached
+          .whereType<Map>()
+          .map(
+            (j) => PendingOfflineRefill.fromJson(
+              Map<String, dynamic>.from(j),
+            ),
+          )
+          .toList();
+    }
+    return [];
+  }
+
+  Future<void> _writePending(List<PendingOfflineRefill> list) async {
+    await _cache.writeJson(_pendingKey, list.map((e) => e.toJson()).toList());
+  }
+
+  /// Drops terminal entries older than 6h so a resolved card doesn't linger
+  /// forever; keeps everything still reconciling.
+  List<PendingOfflineRefill> _prune(List<PendingOfflineRefill> list) {
+    final cutoff = DateTime.now().subtract(const Duration(hours: 6));
+    return list
+        .where(
+          (p) =>
+              !PendingRefillStatus.isTerminal(p.status) ||
+              p.launchedAt.isAfter(cutoff),
+        )
+        .toList();
+  }
+
+  @override
+  Future<Result<PendingOfflineRefill>> queuePendingRefill(
+    PendingOfflineRefill request,
+  ) async {
+    try {
+      final list = _readPending()..insert(0, request);
+      // Only recent requests matter for reconciliation — cap the queue.
+      await _writePending(list.take(20).toList());
+      return Success(request);
+    } catch (e) {
+      return Failure(AppFailure.unknown(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Result<void>> updatePendingRefill(PendingOfflineRefill request) async {
+    try {
+      final list = _readPending();
+      final idx = list.indexWhere((e) => e.id == request.id);
+      if (idx >= 0) {
+        list[idx] = request;
+      } else {
+        list.insert(0, request);
+      }
+      await _writePending(list.take(20).toList());
+      return const Success(null);
+    } catch (e) {
+      return Failure(AppFailure.unknown(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Result<List<PendingOfflineRefill>>> getPendingRefills() async {
+    final stored = _readPending();
+    if (_connectivity.isOffline) {
+      return Success(_prune(stored));
+    }
+    try {
+      final reconciled = _prune(await _reconcile(stored));
+      await _writePending(reconciled);
+      return Success(reconciled);
+    } catch (_) {
+      // Reconciliation is best-effort — never hide the queue behind an error.
+      return Success(_prune(stored));
+    }
+  }
+
+  /// Matches each non-terminal pending against the server-created
+  /// `topup_executions` row the channel's webhook queued (same line, same
+  /// `refill_channel`, on/after launch). No match within 15 min ⇒ the message
+  /// or call never reached us ⇒ timed out.
+  Future<List<PendingOfflineRefill>> _reconcile(
+    List<PendingOfflineRefill> list,
+  ) async {
+    final out = <PendingOfflineRefill>[];
+    for (final p in list) {
+      if (PendingRefillStatus.isTerminal(p.status)) {
+        out.add(p);
+        continue;
+      }
+      try {
+        final rows = await _client
+            .from('topup_executions')
+            .select('id,status,created_at')
+            .eq('sim_line_id', p.simLineId)
+            .eq('refill_channel', p.channel)
+            .gte(
+              'created_at',
+              p.launchedAt
+                  .subtract(const Duration(minutes: 2))
+                  .toIso8601String(),
+            )
+            .order('created_at', ascending: false)
+            .limit(1);
+
+        if (rows.isNotEmpty) {
+          final row = rows.first;
+          out.add(
+            p.copyWith(
+              executionId: row['id'] as String?,
+              status: _mapExecStatus((row['status'] as String?) ?? ''),
+            ),
+          );
+        } else if (p.launchedAt.isBefore(
+          DateTime.now().subtract(const Duration(minutes: 15)),
+        )) {
+          out.add(p.copyWith(status: PendingRefillStatus.timedOut));
+        } else {
+          out.add(p);
+        }
+      } catch (_) {
+        out.add(p);
+      }
+    }
+    return out;
+  }
+
+  String _mapExecStatus(String execStatus) {
+    switch (execStatus) {
+      case 'success':
+        return PendingRefillStatus.confirmed;
+      case 'failed':
+      case 'refunded':
+      case 'cancelled':
+        return PendingRefillStatus.failed;
+      default:
+        return PendingRefillStatus.processing;
+    }
+  }
 }

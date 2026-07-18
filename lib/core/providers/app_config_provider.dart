@@ -147,6 +147,47 @@ Future<String> offlineContactNumber(
   }
 }
 
+/// A per-channel offline-recharge message fee, from `system_configs`.
+///
+/// The official WhatsApp Business API, the SMS gateway and the Twilio voice
+/// number each cost us per inbound message; that cost is passed to the wallet by
+/// `calculate_topup_fees` when the refill's channel is set (C4). Keys:
+/// `OFFLINE_WHATSAPP_MESSAGE_FEE_USD` / `OFFLINE_SMS_MESSAGE_FEE_USD` /
+/// `OFFLINE_MISSED_CALL_FEE_USD`.
+///
+/// Cached locally like [offlineContactNumber] because this screen is *for* being
+/// offline — the last good value is shown when the read fails. The DB trigger is
+/// always the authority on what is actually debited; this only decides what the
+/// card shows before the user acts.
+@Riverpod(keepAlive: true)
+Future<double> offlineMessageFeeUsd(
+  Ref ref,
+  String configKey,
+  double fallback,
+) async {
+  final cache = ref.watch(localCacheServiceProvider);
+  final cacheKey = 'cached_system_config_num_$configKey';
+  try {
+    final row = await Supabase.instance.client
+        .from('system_configs')
+        .select('config_value')
+        .eq('config_key', configKey)
+        .maybeSingle();
+
+    final parsed = double.tryParse(row?['config_value']?.toString() ?? '');
+    // Same sanity window as calculate_topup_fees' message-fee guard.
+    if (parsed == null || parsed < 0 || parsed > 100) return fallback;
+    await cache.writeJson(cacheKey, {'value': parsed});
+    return parsed;
+  } catch (_) {
+    final cached = cache.readJson(cacheKey);
+    if (cached is Map && cached['value'] is num) {
+      return (cached['value'] as num).toDouble();
+    }
+    return fallback;
+  }
+}
+
 /// One gateway's fees, straight from `payment_gateways` — the single source of
 /// truth for what a gateway charges.
 ///

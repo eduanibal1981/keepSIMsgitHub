@@ -676,6 +676,65 @@ class AppLocalizationsEs extends AppLocalizations {
   String get offlineRefillSelectNumber => 'Select a number';
 
   @override
+  String get offlineRefillChannelsHeader => 'Formas de recargar sin conexión';
+
+  @override
+  String offlineRefillTopUpFromWallet(String amount) {
+    return 'Recarga $amount desde tu billetera';
+  }
+
+  @override
+  String get offlineRefillWalletFunded => 'Desde tu billetera';
+
+  @override
+  String offlineRefillServiceFee(String fee) {
+    return '+$fee de comisión';
+  }
+
+  @override
+  String get offlineRefillMissedCallTitle => 'Da una llamada perdida';
+
+  @override
+  String get offlineRefillMissedCallSubtitle => 'Sin saldo ni datos';
+
+  @override
+  String get offlineRefillCallAction => 'Llama para recargar';
+
+  @override
+  String get offlineRefillRetry => 'Reintentar';
+
+  @override
+  String offlineRefillWaitSeconds(int seconds) {
+    return 'Espera ${seconds}s';
+  }
+
+  @override
+  String get offlineRefillStatusSent => 'Enviado — esperando confirmación';
+
+  @override
+  String get offlineRefillStatusProcessing => 'Recargando tu línea…';
+
+  @override
+  String get offlineRefillStatusConfirmed => 'Recarga confirmada';
+
+  @override
+  String get offlineRefillStatusFailed => 'No se completó — prueba otra vía';
+
+  @override
+  String get offlineRefillStatusTimedOut =>
+      'Sin respuesta aún — prueba otra vía';
+
+  @override
+  String get offlineRefillUssdTitle => 'Aprovecha más tu recarga';
+
+  @override
+  String get offlineRefillUssdSubtitle =>
+      'Cuando llegue el saldo, marca el código de tu operador para el mejor valor';
+
+  @override
+  String get offlineRefillUssdDial => 'Marcar';
+
+  @override
   String get editProtectedLine => 'Editar Línea Protegida';
 
   @override

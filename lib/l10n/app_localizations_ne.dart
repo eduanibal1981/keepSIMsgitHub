@@ -668,6 +668,66 @@ class AppLocalizationsNe extends AppLocalizations {
   String get offlineRefillSelectNumber => 'Select a number';
 
   @override
+  String get offlineRefillChannelsHeader => 'अफलाइन रिफिलका तरिका';
+
+  @override
+  String offlineRefillTopUpFromWallet(String amount) {
+    return 'आफ्नो वालेटबाट $amount टप अप गर्नुहोस्';
+  }
+
+  @override
+  String get offlineRefillWalletFunded => 'तपाईंको वालेटबाट';
+
+  @override
+  String offlineRefillServiceFee(String fee) {
+    return '+$fee शुल्क';
+  }
+
+  @override
+  String get offlineRefillMissedCallTitle => 'मिस्ड कल दिनुहोस्';
+
+  @override
+  String get offlineRefillMissedCallSubtitle => 'ब्यालेन्स वा डेटा आवश्यक छैन';
+
+  @override
+  String get offlineRefillCallAction => 'रिफिल गर्न कल गर्नुहोस्';
+
+  @override
+  String get offlineRefillRetry => 'फेरि प्रयास गर्नुहोस्';
+
+  @override
+  String offlineRefillWaitSeconds(int seconds) {
+    return '$secondsसे पर्खनुहोस्';
+  }
+
+  @override
+  String get offlineRefillStatusSent => 'पठाइयो — पुष्टिको प्रतीक्षामा';
+
+  @override
+  String get offlineRefillStatusProcessing => 'तपाईंको लाइन टप अप हुँदैछ…';
+
+  @override
+  String get offlineRefillStatusConfirmed => 'टप-अप पुष्टि भयो';
+
+  @override
+  String get offlineRefillStatusFailed =>
+      'सफल भएन — अर्को तरिका प्रयास गर्नुहोस्';
+
+  @override
+  String get offlineRefillStatusTimedOut =>
+      'अझै कुनै जवाफ छैन — अर्को तरिका प्रयास गर्नुहोस्';
+
+  @override
+  String get offlineRefillUssdTitle => 'आफ्नो टप-अपबाट धेरै लाभ लिनुहोस्';
+
+  @override
+  String get offlineRefillUssdSubtitle =>
+      'ब्यालेन्स आएपछि, उत्तम मूल्यको लागि आफ्नो अपरेटरको कोड डायल गर्नुहोस्';
+
+  @override
+  String get offlineRefillUssdDial => 'डायल गर्नुहोस्';
+
+  @override
   String get editProtectedLine => 'सुरक्षित लाइन सम्पादन गर्नुहोस्';
 
   @override

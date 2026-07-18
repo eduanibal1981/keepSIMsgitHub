@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:keep_sims/features/sim_lines/data/models/country_model.dart';
@@ -59,6 +61,10 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
           .toList();
 
       await _cache.writeJson('cached_sim_lines', response);
+      // Fill the offline-recharge caches for these lines' carriers while we have
+      // a connection (C3b-3). Fire-and-forget: a warm failure must never break
+      // the sim-line load.
+      unawaited(_warmOfflineRefillCaches(list));
       return list;
     } on PostgrestException catch (e) {
       final cached = _cache.readJson('cached_sim_lines');
@@ -81,6 +87,31 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
         throw Exception('No internet connection. Please check your network.');
       }
       throw Exception('Failed to load SIM lines: $errStr');
+    }
+  }
+
+  /// Pre-fills the offline-recharge caches (carrier list + carrier rule per
+  /// line) so `offline_refill_screen` works on a cold first offline open
+  /// (C3b-3). Best-effort: every fetch here already writes its own cache and
+  /// swallows failures, so this only ever fills, never breaks.
+  Future<void> _warmOfflineRefillCaches(List<SimLine> lines) async {
+    final countryIds = <String>{};
+    final carrierIds = <String>{};
+    for (final line in lines) {
+      final countryId = line.countryId;
+      final carrierId = line.carrierId;
+      if (countryId != null && countryId.isNotEmpty) countryIds.add(countryId);
+      if (carrierId != null && carrierId.isNotEmpty) carrierIds.add(carrierId);
+    }
+    for (final countryId in countryIds) {
+      try {
+        await getCarriersForCountry(countryId);
+      } catch (_) {/* cache fill only */}
+    }
+    for (final carrierId in carrierIds) {
+      try {
+        await getCarrierRule(carrierId);
+      } catch (_) {/* cache fill only */}
     }
   }
 
@@ -266,6 +297,23 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
 
   @override
   Future<List<Carrier>> getCarriersForCountry(String countryId) async {
+    // Cached per country so the offline-recharge screen has the line's carrier
+    // (its default_refill_amount, gateway number) when the device is offline —
+    // the one state that screen exists for (C3b-3). Without this the provider
+    // threw offline and the UI fell back to a single hardcoded Oman number for
+    // every carrier.
+    final cacheKey = 'cached_carriers_$countryId';
+
+    if (_connectivity.isOffline) {
+      final cached = _cache.readJson(cacheKey);
+      if (cached is List) {
+        return cached
+            .map((json) => Carrier.fromJson(json as Map<String, dynamic>))
+            .toList();
+      }
+      return [];
+    }
+
     try {
       final response = await _supabase
           .from('carriers')
@@ -274,11 +322,31 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
           .eq('is_supported', true)
           .order('name', ascending: true);
 
+      await _cache.writeJson(cacheKey, response);
       return (response as List)
           .map((json) => Carrier.fromJson(json as Map<String, dynamic>))
           .toList();
     } on PostgrestException catch (e) {
+      final cached = _cache.readJson(cacheKey);
+      if (cached is List) {
+        return cached
+            .map((json) => Carrier.fromJson(json as Map<String, dynamic>))
+            .toList();
+      }
       throw Exception('Failed to load carriers: ${e.message}');
+    } catch (e) {
+      final cached = _cache.readJson(cacheKey);
+      if (cached is List) {
+        return cached
+            .map((json) => Carrier.fromJson(json as Map<String, dynamic>))
+            .toList();
+      }
+      final errStr = e.toString();
+      if (errStr.contains('SocketException') ||
+          errStr.contains('Failed host lookup')) {
+        throw Exception('No internet connection. Please check your network.');
+      }
+      throw Exception('Failed to load carriers: $errStr');
     }
   }
 

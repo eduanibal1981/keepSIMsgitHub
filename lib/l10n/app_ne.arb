@@ -695,5 +695,22 @@
     "channelEmailShort": "इमेल",
     "channelOffGlobally": "माथिको अलर्ट च्यानलमा बन्द छ",
     "rechargeNow": "अहिले रिचार्ज गर्नुहोस्",
-    "planFeePaidFromWallet": "योजना शुल्क तपाईंको वालेट ब्यालेन्सबाट भुक्तानी गरियो।"
+    "planFeePaidFromWallet": "योजना शुल्क तपाईंको वालेट ब्यालेन्सबाट भुक्तानी गरियो।",
+    "offlineRefillChannelsHeader":  "अफलाइन रिफिलका तरिका",
+    "offlineRefillTopUpFromWallet":  "आफ्नो वालेटबाट {amount} टप अप गर्नुहोस्",
+    "offlineRefillWalletFunded":  "तपाईंको वालेटबाट",
+    "offlineRefillServiceFee":  "+{fee} शुल्क",
+    "offlineRefillMissedCallTitle":  "मिस्ड कल दिनुहोस्",
+    "offlineRefillMissedCallSubtitle":  "ब्यालेन्स वा डेटा आवश्यक छैन",
+    "offlineRefillCallAction":  "रिफिल गर्न कल गर्नुहोस्",
+    "offlineRefillRetry":  "फेरि प्रयास गर्नुहोस्",
+    "offlineRefillWaitSeconds":  "{seconds}से पर्खनुहोस्",
+    "offlineRefillStatusSent":  "पठाइयो — पुष्टिको प्रतीक्षामा",
+    "offlineRefillStatusProcessing":  "तपाईंको लाइन टप अप हुँदैछ…",
+    "offlineRefillStatusConfirmed":  "टप-अप पुष्टि भयो",
+    "offlineRefillStatusFailed":  "सफल भएन — अर्को तरिका प्रयास गर्नुहोस्",
+    "offlineRefillStatusTimedOut":  "अझै कुनै जवाफ छैन — अर्को तरिका प्रयास गर्नुहोस्",
+    "offlineRefillUssdTitle":  "आफ्नो टप-अपबाट धेरै लाभ लिनुहोस्",
+    "offlineRefillUssdSubtitle":  "ब्यालेन्स आएपछि, उत्तम मूल्यको लागि आफ्नो अपरेटरको कोड डायल गर्नुहोस्",
+    "offlineRefillUssdDial":  "डायल गर्नुहोस्"
 }

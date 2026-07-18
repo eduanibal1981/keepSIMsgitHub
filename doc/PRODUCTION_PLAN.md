@@ -568,19 +568,21 @@ bundle Standard billing with something, raise it, or take it via wallet balance
 * Still open: "Baqa" remains advertised (`sim_lines_list_screen.dart:721`;
   the subscription_screen mention died with the file) but **unbuilt**.
 
-### 🟠 C3b-3 — offline: cache `carriers` + `carrier_rules` (found 2026-07-17)
+### ✅ C3b-3 — DONE 2026-07-18 (with C4): offline caches carriers + rules
 
-Only `sim_lines` is cached locally (`cached_sim_lines`). `carriers` and
-`carrier_rules` are not, so **offline** — the one state the offline-recharge flow
-exists for — `offline_refill_screen.dart` falls back to
-`activeCarrier?.defaultRefillAmount ?? 5.00` **and**
-`activeCarrier?.gatewayPhoneNumber ?? '+968 24 555 0110'`. An offline user on a
-non-Oman carrier is shown the wrong amount and told to message **the wrong
-number**. Both tables are small, change rarely (they are admin-curated, which is
-the whole point of pinning `offer_id` / `minimum_topup_amount` there rather than
-fetching Zendit per line), and are exactly what the offline path needs. Cache
-them alongside `cached_sim_lines`. Belongs with C4 (offline recharge) if that
-lands first.
+`getCarriersForCountry` had **no offline branch and no caching** — it threw
+offline, so `offline_refill_screen.dart` fell back to
+`activeCarrier?.defaultRefillAmount ?? 5.00` and a hardcoded Oman gateway number
+for **every** carrier (and in fact **0 of 50 carriers** have a
+`gateway_phone_number`, so the Oman fallback fired for everyone). Fixed: the
+method now caches per country (`cached_carriers_<countryId>`) and reads the cache
+offline, matching `getSupportedCountries`. `getCarrierRule` already cached; a new
+best-effort `_warmOfflineRefillCaches` warms carriers + carrier rule for every
+line right after an online `getSimLines`, so the offline screen works on a cold
+first offline open. The rebuilt C4 screen no longer uses the per-carrier gateway
+number at all — the three contact numbers come from `system_configs`
+(`OFFLINE_WHATSAPP/SMS/IVR_NUMBER`, already cached via `offlineContactNumber`),
+and USSD suggestions are cached per carrier.
 
 ### ✅ C3b-2 — DONE 2026-07-17/18: topup_executions client writes locked down
 
@@ -753,7 +755,82 @@ by wallet or PayPal). It is sold on the plan page —
 "Baqa local calls + data operator detection" — but no flow, wallet path or
 PayPal path exists. Same shape as C3's original problem: advertised, unreachable.
 
-## 🟠 C4 — Offline Recharge: stacked fallback cards (WhatsApp → SMS → missed call)
+## ✅ C4 — DONE 2026-07-18: offline recharge (WhatsApp → SMS → missed call)
+
+Flutter commit + backend Edge Functions live (project `zwxswagokhgbuzrrbnhr`).
+Offline recharge is always wallet-funded; the debit happens server-side, never
+from the cached balance.
+
+**How it works.** The device is offline, so the request arrives out-of-band and
+a webhook (Edge Function, `service_role`) turns it into a real
+`topup_executions` row via the new `ingest_offline_refill` RPC — the client
+never writes `topup_executions` (C3b-2 lockdown intact). The existing BEFORE
+INSERT triggers price + route it and `worker_instant_refill` (the proven C3b-2
+instant-refill worker, unchanged) debits the wallet and buys. No new VM worker.
+
+* **Per-channel message fee (owner decision: per-channel DB fees).** The
+  official WhatsApp Business API, the SMS gateway and the Twilio voice number
+  each bill us per inbound message; that cost rides on the wallet debit the same
+  way the app fee does. `calculate_topup_fees` now adds a per-channel fee from
+  `system_configs` when `topup_executions.refill_channel` is set (new column +
+  `message_fee_usd`); NULL channel (every in-app/scheduled refill) adds nothing,
+  so those paths are byte-identical. Configs seeded:
+  `OFFLINE_WHATSAPP_MESSAGE_FEE_USD`=0.05, `OFFLINE_SMS_MESSAGE_FEE_USD`=0.03,
+  `OFFLINE_MISSED_CALL_FEE_USD`=0.02 — tuned in the DB, no redeploy.
+* **`ingest_offline_refill(p_provider, p_provider_msg_id, p_sender_phone,
+  p_channel, p_amount_usd?, p_raw?)`** — SECURITY DEFINER, `service_role` only
+  (REVOKEd from anon/authenticated). Dedupes on `(provider, provider_msg_id)`,
+  resolves the sender phone → user (exact normalised digits, then an
+  *unambiguous* trailing-9 match, else reject), requires offline settings
+  enabled + a resolvable target line (`target_sim_line_id`, else the user's
+  single active line, else `no_target`), prices the carrier's admin-pinned
+  `carrier_rules.offer_id` from `zendit_offers_cache` (same FIXED/RANGE + 24h
+  freshness guard as `request_instant_refill`), and queues a `'wallet'` refill
+  tagged with the channel. Every outcome — queued or rejected with a reason — is
+  written to the new `offline_refill_events` inbox (service_role-only, RLS no
+  policy, dedupe/audit), so a webhook never decides policy and never 500s on an
+  expected rejection.
+* **Three Edge Functions** (`verify_jwt` off, signature-verified when the
+  provider secret is set, skip-with-warning until then): `waba-webhook`
+  (WhatsApp Cloud API — GET verify handshake + POST messages, X-Hub-Signature-256),
+  `sms-webhook` (Twilio Messaging form POST, X-Twilio-Signature, empty TwiML),
+  `twilio-voice-webhook` (Twilio Voice — `<Reject reason="busy"/>` so the caller
+  isn't charged; the ring is the trigger). Each parses sender + provider message
+  id and calls the RPC. Reachable with **no** `apikey`/Authorization header, as
+  Meta/Twilio send.
+* **Client (refactored per ARCHITECTURE_RULES).** `offline_refill_screen.dart`
+  rebuilt from a 1,403-line widget with a fake timeline + a dead
+  `refill_requests` realtime listener into three stacked channel cards with real
+  per-channel status (sent → processing → confirmed / failed / timed-out),
+  per-line cooldown (matches the 10s server rate limit), retry, per-channel fee
+  chips, and a USSD-suggestions section (existing `carrier_ussd_suggestions`
+  data — dial the carrier's best-value bundle code after the balance lands).
+  New `PendingOfflineRefill` model + `PendingOfflineRefillsController`: the
+  request is persisted locally (LocalCacheService) **before** the external app
+  launches, and reconciled against `topup_executions`
+  (`sim_line_id`+`refill_channel`) on screen open / app resume — confirmed if a
+  matching row lands, timed-out after 15 min if none. Picking a line persists it
+  as `offline_refill_settings.target_sim_line_id` so an offline message/call
+  tops up the right line.
+* **Tests.** `supabase/tests/c4_offline_recharge_tests.sql` (10 assertions, live
+  BEGIN..ROLLBACK, all pass): fee configs, the `refill_channel` CHECK, FIXED
+  ($0.25→$0.31 incl. $0.05 WA fee) + RANGE (clamp + interpolate + $0.03 SMS fee)
+  happy paths, dedupe, no_target, disabled, unknown_sender, the RPC + inbox
+  lockdown, and an unchanged NULL-channel refill. Webhooks proven live via
+  simulated POSTs (unknown sender → audited rejection). 53 Dart tests (+5 new),
+  analyze **143** (down from 150 — the refactor removed more than it added),
+  debug APK builds, ARB ×9.
+
+**Still the owner's to provision** (functions are deployed and ready): a WhatsApp
+Business number (test `+96893990492`) + `WABA_VERIFY_TOKEN` / `WABA_APP_SECRET`;
+a Twilio number + `TWILIO_AUTH_TOKEN` for SMS + voice; then point each provider's
+webhook at `https://zwxswagokhgbuzrrbnhr.supabase.co/functions/v1/<waba-webhook
+| sms-webhook | twilio-voice-webhook>`. Signature checks activate automatically
+once the secrets are set. Full notification migration off Baileys stays E1.
+
+---
+
+### C4 original notes (for reference)
 
 **User decision:** present the fallbacks as cards stacked above each other, in
 order:

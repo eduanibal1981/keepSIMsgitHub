@@ -667,6 +667,67 @@ class AppLocalizationsSi extends AppLocalizations {
   String get offlineRefillSelectNumber => 'Select a number';
 
   @override
+  String get offlineRefillChannelsHeader => 'නොබැඳිව නැවත පිරවීමේ ක්‍රම';
+
+  @override
+  String offlineRefillTopUpFromWallet(String amount) {
+    return 'ඔබගේ පසුම්බියෙන් $amount ක් පුරවන්න';
+  }
+
+  @override
+  String get offlineRefillWalletFunded => 'ඔබගේ පසුම්බියෙන්';
+
+  @override
+  String offlineRefillServiceFee(String fee) {
+    return '+$fee ගාස්තුව';
+  }
+
+  @override
+  String get offlineRefillMissedCallTitle => 'මගහැරුණු ඇමතුමක් දෙන්න';
+
+  @override
+  String get offlineRefillMissedCallSubtitle => 'ශේෂයක් හෝ දත්ත අවශ්‍ය නැත';
+
+  @override
+  String get offlineRefillCallAction => 'නැවත පිරවීමට අමතන්න';
+
+  @override
+  String get offlineRefillRetry => 'නැවත උත්සාහ කරන්න';
+
+  @override
+  String offlineRefillWaitSeconds(int seconds) {
+    return '$secondsතත් රැඳී සිටින්න';
+  }
+
+  @override
+  String get offlineRefillStatusSent =>
+      'යවන ලදී — තහවුරු කිරීම බලාපොරොත්තුවෙන්';
+
+  @override
+  String get offlineRefillStatusProcessing => 'ඔබගේ රේඛාව පුරවමින්…';
+
+  @override
+  String get offlineRefillStatusConfirmed => 'පිරවීම තහවුරු විය';
+
+  @override
+  String get offlineRefillStatusFailed =>
+      'සාර්ථක නොවීය — වෙනත් ක්‍රමයක් උත්සාහ කරන්න';
+
+  @override
+  String get offlineRefillStatusTimedOut =>
+      'තවම පිළිතුරක් නැත — වෙනත් ක්‍රමයක් උත්සාහ කරන්න';
+
+  @override
+  String get offlineRefillUssdTitle => 'ඔබගේ පිරවීමෙන් වැඩි ප්‍රයෝජනයක් ගන්න';
+
+  @override
+  String get offlineRefillUssdSubtitle =>
+      'ශේෂය පැමිණි පසු, හොඳම වටිනාකම සඳහා ඔබගේ ක්‍රියාකරුගේ කේතය අමතන්න';
+
+  @override
+  String get offlineRefillUssdDial => 'අමතන්න';
+
+  @override
   String get editProtectedLine => 'ආරක්ෂිත රේඛාව සංස්කරණය කරන්න';
 
   @override

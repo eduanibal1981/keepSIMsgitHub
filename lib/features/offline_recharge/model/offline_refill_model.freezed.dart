@@ -570,4 +570,291 @@ as DateTime?,
 
 }
 
+
+/// @nodoc
+mixin _$PendingOfflineRefill {
+
+ String get id; String get channel;@JsonKey(name: 'sim_line_id') String get simLineId;@JsonKey(name: 'phone_number') String get phoneNumber; double get amount; String get status;@JsonKey(name: 'launched_at') DateTime get launchedAt;@JsonKey(name: 'execution_id') String? get executionId;@JsonKey(name: 'failure_reason') String? get failureReason;
+/// Create a copy of PendingOfflineRefill
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$PendingOfflineRefillCopyWith<PendingOfflineRefill> get copyWith => _$PendingOfflineRefillCopyWithImpl<PendingOfflineRefill>(this as PendingOfflineRefill, _$identity);
+
+  /// Serializes this PendingOfflineRefill to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PendingOfflineRefill&&(identical(other.id, id) || other.id == id)&&(identical(other.channel, channel) || other.channel == channel)&&(identical(other.simLineId, simLineId) || other.simLineId == simLineId)&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.status, status) || other.status == status)&&(identical(other.launchedAt, launchedAt) || other.launchedAt == launchedAt)&&(identical(other.executionId, executionId) || other.executionId == executionId)&&(identical(other.failureReason, failureReason) || other.failureReason == failureReason));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,id,channel,simLineId,phoneNumber,amount,status,launchedAt,executionId,failureReason);
+
+@override
+String toString() {
+  return 'PendingOfflineRefill(id: $id, channel: $channel, simLineId: $simLineId, phoneNumber: $phoneNumber, amount: $amount, status: $status, launchedAt: $launchedAt, executionId: $executionId, failureReason: $failureReason)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $PendingOfflineRefillCopyWith<$Res>  {
+  factory $PendingOfflineRefillCopyWith(PendingOfflineRefill value, $Res Function(PendingOfflineRefill) _then) = _$PendingOfflineRefillCopyWithImpl;
+@useResult
+$Res call({
+ String id, String channel,@JsonKey(name: 'sim_line_id') String simLineId,@JsonKey(name: 'phone_number') String phoneNumber, double amount, String status,@JsonKey(name: 'launched_at') DateTime launchedAt,@JsonKey(name: 'execution_id') String? executionId,@JsonKey(name: 'failure_reason') String? failureReason
+});
+
+
+
+
+}
+/// @nodoc
+class _$PendingOfflineRefillCopyWithImpl<$Res>
+    implements $PendingOfflineRefillCopyWith<$Res> {
+  _$PendingOfflineRefillCopyWithImpl(this._self, this._then);
+
+  final PendingOfflineRefill _self;
+  final $Res Function(PendingOfflineRefill) _then;
+
+/// Create a copy of PendingOfflineRefill
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? channel = null,Object? simLineId = null,Object? phoneNumber = null,Object? amount = null,Object? status = null,Object? launchedAt = null,Object? executionId = freezed,Object? failureReason = freezed,}) {
+  return _then(_self.copyWith(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,channel: null == channel ? _self.channel : channel // ignore: cast_nullable_to_non_nullable
+as String,simLineId: null == simLineId ? _self.simLineId : simLineId // ignore: cast_nullable_to_non_nullable
+as String,phoneNumber: null == phoneNumber ? _self.phoneNumber : phoneNumber // ignore: cast_nullable_to_non_nullable
+as String,amount: null == amount ? _self.amount : amount // ignore: cast_nullable_to_non_nullable
+as double,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as String,launchedAt: null == launchedAt ? _self.launchedAt : launchedAt // ignore: cast_nullable_to_non_nullable
+as DateTime,executionId: freezed == executionId ? _self.executionId : executionId // ignore: cast_nullable_to_non_nullable
+as String?,failureReason: freezed == failureReason ? _self.failureReason : failureReason // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [PendingOfflineRefill].
+extension PendingOfflineRefillPatterns on PendingOfflineRefill {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _PendingOfflineRefill value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _PendingOfflineRefill() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _PendingOfflineRefill value)  $default,){
+final _that = this;
+switch (_that) {
+case _PendingOfflineRefill():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _PendingOfflineRefill value)?  $default,){
+final _that = this;
+switch (_that) {
+case _PendingOfflineRefill() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String channel, @JsonKey(name: 'sim_line_id')  String simLineId, @JsonKey(name: 'phone_number')  String phoneNumber,  double amount,  String status, @JsonKey(name: 'launched_at')  DateTime launchedAt, @JsonKey(name: 'execution_id')  String? executionId, @JsonKey(name: 'failure_reason')  String? failureReason)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _PendingOfflineRefill() when $default != null:
+return $default(_that.id,_that.channel,_that.simLineId,_that.phoneNumber,_that.amount,_that.status,_that.launchedAt,_that.executionId,_that.failureReason);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String channel, @JsonKey(name: 'sim_line_id')  String simLineId, @JsonKey(name: 'phone_number')  String phoneNumber,  double amount,  String status, @JsonKey(name: 'launched_at')  DateTime launchedAt, @JsonKey(name: 'execution_id')  String? executionId, @JsonKey(name: 'failure_reason')  String? failureReason)  $default,) {final _that = this;
+switch (_that) {
+case _PendingOfflineRefill():
+return $default(_that.id,_that.channel,_that.simLineId,_that.phoneNumber,_that.amount,_that.status,_that.launchedAt,_that.executionId,_that.failureReason);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String channel, @JsonKey(name: 'sim_line_id')  String simLineId, @JsonKey(name: 'phone_number')  String phoneNumber,  double amount,  String status, @JsonKey(name: 'launched_at')  DateTime launchedAt, @JsonKey(name: 'execution_id')  String? executionId, @JsonKey(name: 'failure_reason')  String? failureReason)?  $default,) {final _that = this;
+switch (_that) {
+case _PendingOfflineRefill() when $default != null:
+return $default(_that.id,_that.channel,_that.simLineId,_that.phoneNumber,_that.amount,_that.status,_that.launchedAt,_that.executionId,_that.failureReason);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+@JsonSerializable(fieldRename: FieldRename.snake)
+class _PendingOfflineRefill implements PendingOfflineRefill {
+  const _PendingOfflineRefill({required this.id, required this.channel, @JsonKey(name: 'sim_line_id') required this.simLineId, @JsonKey(name: 'phone_number') required this.phoneNumber, required this.amount, this.status = PendingRefillStatus.sent, @JsonKey(name: 'launched_at') required this.launchedAt, @JsonKey(name: 'execution_id') this.executionId, @JsonKey(name: 'failure_reason') this.failureReason});
+  factory _PendingOfflineRefill.fromJson(Map<String, dynamic> json) => _$PendingOfflineRefillFromJson(json);
+
+@override final  String id;
+@override final  String channel;
+@override@JsonKey(name: 'sim_line_id') final  String simLineId;
+@override@JsonKey(name: 'phone_number') final  String phoneNumber;
+@override final  double amount;
+@override@JsonKey() final  String status;
+@override@JsonKey(name: 'launched_at') final  DateTime launchedAt;
+@override@JsonKey(name: 'execution_id') final  String? executionId;
+@override@JsonKey(name: 'failure_reason') final  String? failureReason;
+
+/// Create a copy of PendingOfflineRefill
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$PendingOfflineRefillCopyWith<_PendingOfflineRefill> get copyWith => __$PendingOfflineRefillCopyWithImpl<_PendingOfflineRefill>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$PendingOfflineRefillToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PendingOfflineRefill&&(identical(other.id, id) || other.id == id)&&(identical(other.channel, channel) || other.channel == channel)&&(identical(other.simLineId, simLineId) || other.simLineId == simLineId)&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.status, status) || other.status == status)&&(identical(other.launchedAt, launchedAt) || other.launchedAt == launchedAt)&&(identical(other.executionId, executionId) || other.executionId == executionId)&&(identical(other.failureReason, failureReason) || other.failureReason == failureReason));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,id,channel,simLineId,phoneNumber,amount,status,launchedAt,executionId,failureReason);
+
+@override
+String toString() {
+  return 'PendingOfflineRefill(id: $id, channel: $channel, simLineId: $simLineId, phoneNumber: $phoneNumber, amount: $amount, status: $status, launchedAt: $launchedAt, executionId: $executionId, failureReason: $failureReason)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$PendingOfflineRefillCopyWith<$Res> implements $PendingOfflineRefillCopyWith<$Res> {
+  factory _$PendingOfflineRefillCopyWith(_PendingOfflineRefill value, $Res Function(_PendingOfflineRefill) _then) = __$PendingOfflineRefillCopyWithImpl;
+@override @useResult
+$Res call({
+ String id, String channel,@JsonKey(name: 'sim_line_id') String simLineId,@JsonKey(name: 'phone_number') String phoneNumber, double amount, String status,@JsonKey(name: 'launched_at') DateTime launchedAt,@JsonKey(name: 'execution_id') String? executionId,@JsonKey(name: 'failure_reason') String? failureReason
+});
+
+
+
+
+}
+/// @nodoc
+class __$PendingOfflineRefillCopyWithImpl<$Res>
+    implements _$PendingOfflineRefillCopyWith<$Res> {
+  __$PendingOfflineRefillCopyWithImpl(this._self, this._then);
+
+  final _PendingOfflineRefill _self;
+  final $Res Function(_PendingOfflineRefill) _then;
+
+/// Create a copy of PendingOfflineRefill
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? channel = null,Object? simLineId = null,Object? phoneNumber = null,Object? amount = null,Object? status = null,Object? launchedAt = null,Object? executionId = freezed,Object? failureReason = freezed,}) {
+  return _then(_PendingOfflineRefill(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,channel: null == channel ? _self.channel : channel // ignore: cast_nullable_to_non_nullable
+as String,simLineId: null == simLineId ? _self.simLineId : simLineId // ignore: cast_nullable_to_non_nullable
+as String,phoneNumber: null == phoneNumber ? _self.phoneNumber : phoneNumber // ignore: cast_nullable_to_non_nullable
+as String,amount: null == amount ? _self.amount : amount // ignore: cast_nullable_to_non_nullable
+as double,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as String,launchedAt: null == launchedAt ? _self.launchedAt : launchedAt // ignore: cast_nullable_to_non_nullable
+as DateTime,executionId: freezed == executionId ? _self.executionId : executionId // ignore: cast_nullable_to_non_nullable
+as String?,failureReason: freezed == failureReason ? _self.failureReason : failureReason // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+
+}
+
 // dart format on

@@ -695,5 +695,22 @@
     "channelEmailShort": "ای میل",
     "channelOffGlobally": "اوپر الرٹ چینلز میں بند ہے",
     "rechargeNow": "ابھی ریچارج کریں",
-    "planFeePaidFromWallet": "پلان کی فیس آپ کے والٹ بیلنس سے ادا کر دی گئی۔"
+    "planFeePaidFromWallet": "پلان کی فیس آپ کے والٹ بیلنس سے ادا کر دی گئی۔",
+    "offlineRefillChannelsHeader":  "آف لائن ری فل کے طریقے",
+    "offlineRefillTopUpFromWallet":  "اپنے والٹ سے {amount} ٹاپ اپ کریں",
+    "offlineRefillWalletFunded":  "آپ کے والٹ سے",
+    "offlineRefillServiceFee":  "+{fee} فیس",
+    "offlineRefillMissedCallTitle":  "مسڈ کال دیں",
+    "offlineRefillMissedCallSubtitle":  "بیلنس یا ڈیٹا کی ضرورت نہیں",
+    "offlineRefillCallAction":  "ری فل کے لیے کال کریں",
+    "offlineRefillRetry":  "دوبارہ کوشش کریں",
+    "offlineRefillWaitSeconds":  "{seconds} سیکنڈ انتظار کریں",
+    "offlineRefillStatusSent":  "بھیج دیا — تصدیق کا انتظار ہے",
+    "offlineRefillStatusProcessing":  "آپ کی لائن ٹاپ اپ ہو رہی ہے…",
+    "offlineRefillStatusConfirmed":  "ٹاپ اپ کی تصدیق ہو گئی",
+    "offlineRefillStatusFailed":  "کامیاب نہیں ہوا — کوئی اور طریقہ آزمائیں",
+    "offlineRefillStatusTimedOut":  "ابھی تک کوئی جواب نہیں — کوئی اور طریقہ آزمائیں",
+    "offlineRefillUssdTitle":  "اپنے ٹاپ اپ سے زیادہ فائدہ اٹھائیں",
+    "offlineRefillUssdSubtitle":  "بیلنس آنے کے بعد، بہترین ویلیو کے لیے اپنے آپریٹر کا کوڈ ڈائل کریں",
+    "offlineRefillUssdDial":  "ڈائل کریں"
 }

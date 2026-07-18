@@ -695,5 +695,22 @@
     "channelEmailShort": "ইমেল",
     "channelOffGlobally": "উপরের অ্যালার্ট চ্যানেলে বন্ধ",
     "rechargeNow": "এখনই রিচার্জ করুন",
-    "planFeePaidFromWallet": "প্ল্যান ফি আপনার ওয়ালেট ব্যালেন্স থেকে পরিশোধ করা হয়েছে।"
+    "planFeePaidFromWallet": "প্ল্যান ফি আপনার ওয়ালেট ব্যালেন্স থেকে পরিশোধ করা হয়েছে।",
+    "offlineRefillChannelsHeader":  "অফলাইনে রিফিলের উপায়",
+    "offlineRefillTopUpFromWallet":  "আপনার ওয়ালেট থেকে {amount} টপ আপ করুন",
+    "offlineRefillWalletFunded":  "আপনার ওয়ালেট থেকে",
+    "offlineRefillServiceFee":  "+{fee} ফি",
+    "offlineRefillMissedCallTitle":  "একটি মিসড কল দিন",
+    "offlineRefillMissedCallSubtitle":  "ব্যালেন্স বা ডেটার প্রয়োজন নেই",
+    "offlineRefillCallAction":  "রিফিল করতে কল করুন",
+    "offlineRefillRetry":  "আবার চেষ্টা করুন",
+    "offlineRefillWaitSeconds":  "{seconds}সে অপেক্ষা করুন",
+    "offlineRefillStatusSent":  "পাঠানো হয়েছে — নিশ্চিতকরণের অপেক্ষায়",
+    "offlineRefillStatusProcessing":  "আপনার লাইন টপ আপ হচ্ছে…",
+    "offlineRefillStatusConfirmed":  "টপ-আপ নিশ্চিত হয়েছে",
+    "offlineRefillStatusFailed":  "সফল হয়নি — অন্য উপায়ে চেষ্টা করুন",
+    "offlineRefillStatusTimedOut":  "এখনও কোনো সাড়া নেই — অন্য উপায়ে চেষ্টা করুন",
+    "offlineRefillUssdTitle":  "আপনার টপ-আপ থেকে আরও বেশি পান",
+    "offlineRefillUssdSubtitle":  "ব্যালেন্স আসার পর, সেরা মূল্যের জন্য আপনার অপারেটরের কোড ডায়াল করুন",
+    "offlineRefillUssdDial":  "ডায়াল"
 }

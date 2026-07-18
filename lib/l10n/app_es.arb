@@ -695,5 +695,22 @@
     "channelEmailShort":  "Correo",
     "channelOffGlobally":  "Desactivado en Canales de alerta arriba",
     "rechargeNow":  "Recargar ahora",
-    "planFeePaidFromWallet": "La tarifa del plan se pagó con el saldo de tu billetera."
+    "planFeePaidFromWallet": "La tarifa del plan se pagó con el saldo de tu billetera.",
+    "offlineRefillChannelsHeader":  "Formas de recargar sin conexión",
+    "offlineRefillTopUpFromWallet":  "Recarga {amount} desde tu billetera",
+    "offlineRefillWalletFunded":  "Desde tu billetera",
+    "offlineRefillServiceFee":  "+{fee} de comisión",
+    "offlineRefillMissedCallTitle":  "Da una llamada perdida",
+    "offlineRefillMissedCallSubtitle":  "Sin saldo ni datos",
+    "offlineRefillCallAction":  "Llama para recargar",
+    "offlineRefillRetry":  "Reintentar",
+    "offlineRefillWaitSeconds":  "Espera {seconds}s",
+    "offlineRefillStatusSent":  "Enviado — esperando confirmación",
+    "offlineRefillStatusProcessing":  "Recargando tu línea…",
+    "offlineRefillStatusConfirmed":  "Recarga confirmada",
+    "offlineRefillStatusFailed":  "No se completó — prueba otra vía",
+    "offlineRefillStatusTimedOut":  "Sin respuesta aún — prueba otra vía",
+    "offlineRefillUssdTitle":  "Aprovecha más tu recarga",
+    "offlineRefillUssdSubtitle":  "Cuando llegue el saldo, marca el código de tu operador para el mejor valor",
+    "offlineRefillUssdDial":  "Marcar"
 }

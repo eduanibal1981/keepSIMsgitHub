@@ -344,6 +344,143 @@ final class OfflineContactNumberFamily extends $Family
   String toString() => r'offlineContactNumberProvider';
 }
 
+/// A per-channel offline-recharge message fee, from `system_configs`.
+///
+/// The official WhatsApp Business API, the SMS gateway and the Twilio voice
+/// number each cost us per inbound message; that cost is passed to the wallet by
+/// `calculate_topup_fees` when the refill's channel is set (C4). Keys:
+/// `OFFLINE_WHATSAPP_MESSAGE_FEE_USD` / `OFFLINE_SMS_MESSAGE_FEE_USD` /
+/// `OFFLINE_MISSED_CALL_FEE_USD`.
+///
+/// Cached locally like [offlineContactNumber] because this screen is *for* being
+/// offline — the last good value is shown when the read fails. The DB trigger is
+/// always the authority on what is actually debited; this only decides what the
+/// card shows before the user acts.
+
+@ProviderFor(offlineMessageFeeUsd)
+final offlineMessageFeeUsdProvider = OfflineMessageFeeUsdFamily._();
+
+/// A per-channel offline-recharge message fee, from `system_configs`.
+///
+/// The official WhatsApp Business API, the SMS gateway and the Twilio voice
+/// number each cost us per inbound message; that cost is passed to the wallet by
+/// `calculate_topup_fees` when the refill's channel is set (C4). Keys:
+/// `OFFLINE_WHATSAPP_MESSAGE_FEE_USD` / `OFFLINE_SMS_MESSAGE_FEE_USD` /
+/// `OFFLINE_MISSED_CALL_FEE_USD`.
+///
+/// Cached locally like [offlineContactNumber] because this screen is *for* being
+/// offline — the last good value is shown when the read fails. The DB trigger is
+/// always the authority on what is actually debited; this only decides what the
+/// card shows before the user acts.
+
+final class OfflineMessageFeeUsdProvider
+    extends $FunctionalProvider<AsyncValue<double>, double, FutureOr<double>>
+    with $FutureModifier<double>, $FutureProvider<double> {
+  /// A per-channel offline-recharge message fee, from `system_configs`.
+  ///
+  /// The official WhatsApp Business API, the SMS gateway and the Twilio voice
+  /// number each cost us per inbound message; that cost is passed to the wallet by
+  /// `calculate_topup_fees` when the refill's channel is set (C4). Keys:
+  /// `OFFLINE_WHATSAPP_MESSAGE_FEE_USD` / `OFFLINE_SMS_MESSAGE_FEE_USD` /
+  /// `OFFLINE_MISSED_CALL_FEE_USD`.
+  ///
+  /// Cached locally like [offlineContactNumber] because this screen is *for* being
+  /// offline — the last good value is shown when the read fails. The DB trigger is
+  /// always the authority on what is actually debited; this only decides what the
+  /// card shows before the user acts.
+  OfflineMessageFeeUsdProvider._({
+    required OfflineMessageFeeUsdFamily super.from,
+    required (String, double) super.argument,
+  }) : super(
+         retry: null,
+         name: r'offlineMessageFeeUsdProvider',
+         isAutoDispose: false,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$offlineMessageFeeUsdHash();
+
+  @override
+  String toString() {
+    return r'offlineMessageFeeUsdProvider'
+        ''
+        '$argument';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<double> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<double> create(Ref ref) {
+    final argument = this.argument as (String, double);
+    return offlineMessageFeeUsd(ref, argument.$1, argument.$2);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is OfflineMessageFeeUsdProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$offlineMessageFeeUsdHash() =>
+    r'2115d59e4654d3018de41734ff67c27e252c60df';
+
+/// A per-channel offline-recharge message fee, from `system_configs`.
+///
+/// The official WhatsApp Business API, the SMS gateway and the Twilio voice
+/// number each cost us per inbound message; that cost is passed to the wallet by
+/// `calculate_topup_fees` when the refill's channel is set (C4). Keys:
+/// `OFFLINE_WHATSAPP_MESSAGE_FEE_USD` / `OFFLINE_SMS_MESSAGE_FEE_USD` /
+/// `OFFLINE_MISSED_CALL_FEE_USD`.
+///
+/// Cached locally like [offlineContactNumber] because this screen is *for* being
+/// offline — the last good value is shown when the read fails. The DB trigger is
+/// always the authority on what is actually debited; this only decides what the
+/// card shows before the user acts.
+
+final class OfflineMessageFeeUsdFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<double>, (String, double)> {
+  OfflineMessageFeeUsdFamily._()
+    : super(
+        retry: null,
+        name: r'offlineMessageFeeUsdProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: false,
+      );
+
+  /// A per-channel offline-recharge message fee, from `system_configs`.
+  ///
+  /// The official WhatsApp Business API, the SMS gateway and the Twilio voice
+  /// number each cost us per inbound message; that cost is passed to the wallet by
+  /// `calculate_topup_fees` when the refill's channel is set (C4). Keys:
+  /// `OFFLINE_WHATSAPP_MESSAGE_FEE_USD` / `OFFLINE_SMS_MESSAGE_FEE_USD` /
+  /// `OFFLINE_MISSED_CALL_FEE_USD`.
+  ///
+  /// Cached locally like [offlineContactNumber] because this screen is *for* being
+  /// offline — the last good value is shown when the read fails. The DB trigger is
+  /// always the authority on what is actually debited; this only decides what the
+  /// card shows before the user acts.
+
+  OfflineMessageFeeUsdProvider call(String configKey, double fallback) =>
+      OfflineMessageFeeUsdProvider._(
+        argument: (configKey, fallback),
+        from: this,
+      );
+
+  @override
+  String toString() => r'offlineMessageFeeUsdProvider';
+}
+
 /// One gateway's fees, straight from `payment_gateways` — the single source of
 /// truth for what a gateway charges.
 ///

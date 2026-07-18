@@ -306,6 +306,38 @@
     },
     "offlineRefillJustNow":  "just now",
     "offlineRefillSelectNumber":  "Select a number",
+    "offlineRefillChannelsHeader":  "Ways to refill offline",
+    "offlineRefillTopUpFromWallet":  "Top up {amount} from your wallet",
+    "@offlineRefillTopUpFromWallet": {
+        "placeholders": {
+            "amount": { "type": "String" }
+        }
+    },
+    "offlineRefillWalletFunded":  "From your wallet",
+    "offlineRefillServiceFee":  "+{fee} fee",
+    "@offlineRefillServiceFee": {
+        "placeholders": {
+            "fee": { "type": "String" }
+        }
+    },
+    "offlineRefillMissedCallTitle":  "Give a missed call",
+    "offlineRefillMissedCallSubtitle":  "No balance or data needed",
+    "offlineRefillCallAction":  "Call to refill",
+    "offlineRefillRetry":  "Try again",
+    "offlineRefillWaitSeconds":  "Wait {seconds}s",
+    "@offlineRefillWaitSeconds": {
+        "placeholders": {
+            "seconds": { "type": "int" }
+        }
+    },
+    "offlineRefillStatusSent":  "Sent — awaiting confirmation",
+    "offlineRefillStatusProcessing":  "Topping up your line…",
+    "offlineRefillStatusConfirmed":  "Top-up confirmed",
+    "offlineRefillStatusFailed":  "Didn't go through — try another way",
+    "offlineRefillStatusTimedOut":  "No response yet — try another way",
+    "offlineRefillUssdTitle":  "Get more from your top-up",
+    "offlineRefillUssdSubtitle":  "After the balance lands, dial your carrier's code for the best value",
+    "offlineRefillUssdDial":  "Dial",
     "editProtectedLine":  "Edit Protected Line",
     "saveChanges":  "Save Changes",
     "activateShieldProtection":  "Activate Shield Protection",

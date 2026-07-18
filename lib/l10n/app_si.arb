@@ -695,5 +695,22 @@
     "channelEmailShort":  "ඊමේල්",
     "channelOffGlobally":  "ඉහත ඇඟවීම් නාලිකා තුළ අක්‍රියයි",
     "rechargeNow":  "දැන් රීචාජ් කරන්න",
-    "planFeePaidFromWallet": "සැලසුම් ගාස්තුව ඔබගේ පසුම්බි ශේෂයෙන් ගෙවන ලදී."
+    "planFeePaidFromWallet": "සැලසුම් ගාස්තුව ඔබගේ පසුම්බි ශේෂයෙන් ගෙවන ලදී.",
+    "offlineRefillChannelsHeader":  "නොබැඳිව නැවත පිරවීමේ ක්‍රම",
+    "offlineRefillTopUpFromWallet":  "ඔබගේ පසුම්බියෙන් {amount} ක් පුරවන්න",
+    "offlineRefillWalletFunded":  "ඔබගේ පසුම්බියෙන්",
+    "offlineRefillServiceFee":  "+{fee} ගාස්තුව",
+    "offlineRefillMissedCallTitle":  "මගහැරුණු ඇමතුමක් දෙන්න",
+    "offlineRefillMissedCallSubtitle":  "ශේෂයක් හෝ දත්ත අවශ්‍ය නැත",
+    "offlineRefillCallAction":  "නැවත පිරවීමට අමතන්න",
+    "offlineRefillRetry":  "නැවත උත්සාහ කරන්න",
+    "offlineRefillWaitSeconds":  "{seconds}තත් රැඳී සිටින්න",
+    "offlineRefillStatusSent":  "යවන ලදී — තහවුරු කිරීම බලාපොරොත්තුවෙන්",
+    "offlineRefillStatusProcessing":  "ඔබගේ රේඛාව පුරවමින්…",
+    "offlineRefillStatusConfirmed":  "පිරවීම තහවුරු විය",
+    "offlineRefillStatusFailed":  "සාර්ථක නොවීය — වෙනත් ක්‍රමයක් උත්සාහ කරන්න",
+    "offlineRefillStatusTimedOut":  "තවම පිළිතුරක් නැත — වෙනත් ක්‍රමයක් උත්සාහ කරන්න",
+    "offlineRefillUssdTitle":  "ඔබගේ පිරවීමෙන් වැඩි ප්‍රයෝජනයක් ගන්න",
+    "offlineRefillUssdSubtitle":  "ශේෂය පැමිණි පසු, හොඳම වටිනාකම සඳහා ඔබගේ ක්‍රියාකරුගේ කේතය අමතන්න",
+    "offlineRefillUssdDial":  "අමතන්න"
 }

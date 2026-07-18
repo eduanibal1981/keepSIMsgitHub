@@ -695,5 +695,22 @@
     "channelEmailShort": "E-posta",
     "channelOffGlobally": "Yukarıdaki Uyarı Kanalları'nda kapalı",
     "rechargeNow": "Şimdi Yükle",
-    "planFeePaidFromWallet": "Plan ücreti cüzdan bakiyenizden ödendi."
+    "planFeePaidFromWallet": "Plan ücreti cüzdan bakiyenizden ödendi.",
+    "offlineRefillChannelsHeader":  "Çevrimdışı yükleme yolları",
+    "offlineRefillTopUpFromWallet":  "Cüzdanından {amount} yükle",
+    "offlineRefillWalletFunded":  "Cüzdanından",
+    "offlineRefillServiceFee":  "+{fee} ücret",
+    "offlineRefillMissedCallTitle":  "Cevapsız çağrı bırak",
+    "offlineRefillMissedCallSubtitle":  "Bakiye veya veri gerekmez",
+    "offlineRefillCallAction":  "Yüklemek için ara",
+    "offlineRefillRetry":  "Tekrar dene",
+    "offlineRefillWaitSeconds":  "{seconds}sn bekle",
+    "offlineRefillStatusSent":  "Gönderildi — onay bekleniyor",
+    "offlineRefillStatusProcessing":  "Hattın yükleniyor…",
+    "offlineRefillStatusConfirmed":  "Yükleme onaylandı",
+    "offlineRefillStatusFailed":  "Gerçekleşmedi — başka bir yol dene",
+    "offlineRefillStatusTimedOut":  "Henüz yanıt yok — başka bir yol dene",
+    "offlineRefillUssdTitle":  "Yüklemenden en iyi şekilde yararlan",
+    "offlineRefillUssdSubtitle":  "Bakiye geldikten sonra, en iyi değer için operatörünün kodunu çevir",
+    "offlineRefillUssdDial":  "Çevir"
 }

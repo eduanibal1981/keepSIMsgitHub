@@ -143,3 +143,84 @@ final class CarrierUssdSuggestionsFamily extends $Family
   @override
   String toString() => r'carrierUssdSuggestionsProvider';
 }
+
+/// The locally-queued offline refills, reconciled against the server on build
+/// (C4). Drives the per-channel status chips: a refill is queued locally the
+/// moment the user launches WhatsApp / SMS / the dialer, then resolves to
+/// confirmed / failed / timed-out as the channel's webhook creates (or never
+/// creates) the matching `topup_executions` row.
+
+@ProviderFor(PendingOfflineRefillsController)
+final pendingOfflineRefillsControllerProvider =
+    PendingOfflineRefillsControllerProvider._();
+
+/// The locally-queued offline refills, reconciled against the server on build
+/// (C4). Drives the per-channel status chips: a refill is queued locally the
+/// moment the user launches WhatsApp / SMS / the dialer, then resolves to
+/// confirmed / failed / timed-out as the channel's webhook creates (or never
+/// creates) the matching `topup_executions` row.
+final class PendingOfflineRefillsControllerProvider
+    extends
+        $AsyncNotifierProvider<
+          PendingOfflineRefillsController,
+          List<PendingOfflineRefill>
+        > {
+  /// The locally-queued offline refills, reconciled against the server on build
+  /// (C4). Drives the per-channel status chips: a refill is queued locally the
+  /// moment the user launches WhatsApp / SMS / the dialer, then resolves to
+  /// confirmed / failed / timed-out as the channel's webhook creates (or never
+  /// creates) the matching `topup_executions` row.
+  PendingOfflineRefillsControllerProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'pendingOfflineRefillsControllerProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$pendingOfflineRefillsControllerHash();
+
+  @$internal
+  @override
+  PendingOfflineRefillsController create() => PendingOfflineRefillsController();
+}
+
+String _$pendingOfflineRefillsControllerHash() =>
+    r'628b14698788a133aa3635ac0c94bf719fdda5db';
+
+/// The locally-queued offline refills, reconciled against the server on build
+/// (C4). Drives the per-channel status chips: a refill is queued locally the
+/// moment the user launches WhatsApp / SMS / the dialer, then resolves to
+/// confirmed / failed / timed-out as the channel's webhook creates (or never
+/// creates) the matching `topup_executions` row.
+
+abstract class _$PendingOfflineRefillsController
+    extends $AsyncNotifier<List<PendingOfflineRefill>> {
+  FutureOr<List<PendingOfflineRefill>> build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref =
+        this.ref
+            as $Ref<
+              AsyncValue<List<PendingOfflineRefill>>,
+              List<PendingOfflineRefill>
+            >;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<
+                AsyncValue<List<PendingOfflineRefill>>,
+                List<PendingOfflineRefill>
+              >,
+              AsyncValue<List<PendingOfflineRefill>>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}

@@ -56,3 +56,31 @@ Map<String, dynamic> _$OfflineRefillSettingsToJson(
   'created_at': instance.createdAt?.toIso8601String(),
   'updated_at': instance.updatedAt?.toIso8601String(),
 };
+
+_PendingOfflineRefill _$PendingOfflineRefillFromJson(
+  Map<String, dynamic> json,
+) => _PendingOfflineRefill(
+  id: json['id'] as String,
+  channel: json['channel'] as String,
+  simLineId: json['sim_line_id'] as String,
+  phoneNumber: json['phone_number'] as String,
+  amount: (json['amount'] as num).toDouble(),
+  status: json['status'] as String? ?? PendingRefillStatus.sent,
+  launchedAt: DateTime.parse(json['launched_at'] as String),
+  executionId: json['execution_id'] as String?,
+  failureReason: json['failure_reason'] as String?,
+);
+
+Map<String, dynamic> _$PendingOfflineRefillToJson(
+  _PendingOfflineRefill instance,
+) => <String, dynamic>{
+  'id': instance.id,
+  'channel': instance.channel,
+  'sim_line_id': instance.simLineId,
+  'phone_number': instance.phoneNumber,
+  'amount': instance.amount,
+  'status': instance.status,
+  'launched_at': instance.launchedAt.toIso8601String(),
+  'execution_id': instance.executionId,
+  'failure_reason': instance.failureReason,
+};

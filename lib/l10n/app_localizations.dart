@@ -1294,6 +1294,108 @@ abstract class AppLocalizations {
   /// **'Select a number'**
   String get offlineRefillSelectNumber;
 
+  /// No description provided for @offlineRefillChannelsHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Ways to refill offline'**
+  String get offlineRefillChannelsHeader;
+
+  /// No description provided for @offlineRefillTopUpFromWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Top up {amount} from your wallet'**
+  String offlineRefillTopUpFromWallet(String amount);
+
+  /// No description provided for @offlineRefillWalletFunded.
+  ///
+  /// In en, this message translates to:
+  /// **'From your wallet'**
+  String get offlineRefillWalletFunded;
+
+  /// No description provided for @offlineRefillServiceFee.
+  ///
+  /// In en, this message translates to:
+  /// **'+{fee} fee'**
+  String offlineRefillServiceFee(String fee);
+
+  /// No description provided for @offlineRefillMissedCallTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Give a missed call'**
+  String get offlineRefillMissedCallTitle;
+
+  /// No description provided for @offlineRefillMissedCallSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No balance or data needed'**
+  String get offlineRefillMissedCallSubtitle;
+
+  /// No description provided for @offlineRefillCallAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Call to refill'**
+  String get offlineRefillCallAction;
+
+  /// No description provided for @offlineRefillRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get offlineRefillRetry;
+
+  /// No description provided for @offlineRefillWaitSeconds.
+  ///
+  /// In en, this message translates to:
+  /// **'Wait {seconds}s'**
+  String offlineRefillWaitSeconds(int seconds);
+
+  /// No description provided for @offlineRefillStatusSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent — awaiting confirmation'**
+  String get offlineRefillStatusSent;
+
+  /// No description provided for @offlineRefillStatusProcessing.
+  ///
+  /// In en, this message translates to:
+  /// **'Topping up your line…'**
+  String get offlineRefillStatusProcessing;
+
+  /// No description provided for @offlineRefillStatusConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Top-up confirmed'**
+  String get offlineRefillStatusConfirmed;
+
+  /// No description provided for @offlineRefillStatusFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Didn\'t go through — try another way'**
+  String get offlineRefillStatusFailed;
+
+  /// No description provided for @offlineRefillStatusTimedOut.
+  ///
+  /// In en, this message translates to:
+  /// **'No response yet — try another way'**
+  String get offlineRefillStatusTimedOut;
+
+  /// No description provided for @offlineRefillUssdTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Get more from your top-up'**
+  String get offlineRefillUssdTitle;
+
+  /// No description provided for @offlineRefillUssdSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'After the balance lands, dial your carrier\'s code for the best value'**
+  String get offlineRefillUssdSubtitle;
+
+  /// No description provided for @offlineRefillUssdDial.
+  ///
+  /// In en, this message translates to:
+  /// **'Dial'**
+  String get offlineRefillUssdDial;
+
   /// No description provided for @editProtectedLine.
   ///
   /// In en, this message translates to:
