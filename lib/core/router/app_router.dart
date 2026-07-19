@@ -38,7 +38,6 @@ import 'package:keep_sims/features/esim/presentation/screens/esim_screen.dart';
 import 'package:keep_sims/features/esim/presentation/screens/esim_plans_screen.dart';
 import 'package:keep_sims/features/support/data/models/support_ticket.dart';
 
-
 part 'app_router.g.dart';
 
 /// Route path constants to avoid magic strings.
@@ -138,8 +137,6 @@ RouterConfig<Object> appRouter(Ref ref) {
           currentPath == AppRoutes.onboarding) {
         return AppRoutes.home;
       }
-
-
 
       // Otherwise, stay on current page
       return null;
@@ -269,7 +266,8 @@ RouterConfig<Object> appRouter(Ref ref) {
                 name: 'settingsOfflineRecharge',
                 builder: (context, state) {
                   final simLineId = state.uri.queryParameters['simLineId'];
-                  final showSelector = state.uri.queryParameters['showSelector'] == 'true';
+                  final showSelector =
+                      state.uri.queryParameters['showSelector'] == 'true';
                   return OfflineRefillScreen(
                     simLineId: simLineId,
                     autoShowSelector: showSelector,
@@ -337,20 +335,24 @@ RouterConfig<Object> appRouter(Ref ref) {
     ],
   );
 
-  final filteringProvider = FilteringRouteInformationProvider(router.routeInformationProvider);
+  final filteringProvider = FilteringRouteInformationProvider(
+    router.routeInformationProvider,
+  );
   return FilteringRouterConfig(router, filteringProvider);
 }
 
 /// A custom RouteInformationProvider that ignores deep links to payment-success page,
 /// so GoRouter does not rebuild the Navigator stack and dismiss the active payment screen.
-class FilteringRouteInformationProvider extends RouteInformationProvider with ChangeNotifier {
+class FilteringRouteInformationProvider extends RouteInformationProvider
+    with ChangeNotifier {
   final GoRouteInformationProvider _delegate;
   late RouteInformation _currentValue;
 
   FilteringRouteInformationProvider(this._delegate) {
     final initial = _delegate.value;
     final uriString = initial.uri.toString();
-    if (uriString.contains('payment-success') || uriString.contains('success.html')) {
+    if (uriString.contains('payment-success') ||
+        uriString.contains('success.html')) {
       _currentValue = RouteInformation(uri: Uri.parse(AppRoutes.home));
     } else {
       _currentValue = initial;
@@ -361,8 +363,11 @@ class FilteringRouteInformationProvider extends RouteInformationProvider with Ch
   void _onDelegateChanged() {
     final routeInfo = _delegate.value;
     final uriString = routeInfo.uri.toString();
-    if (uriString.contains('payment-success') || uriString.contains('success.html')) {
-      debugPrint('[Router] Intercepted and ignored payment-success deep link: ${routeInfo.uri}');
+    if (uriString.contains('payment-success') ||
+        uriString.contains('success.html')) {
+      debugPrint(
+        '[Router] Intercepted and ignored payment-success deep link: ${routeInfo.uri}',
+      );
       return;
     }
     _currentValue = routeInfo;
