@@ -636,5 +636,14 @@
     "offlineRefillStatusTimedOut":  "لا يوجد رد بعد — جرّب طريقة أخرى",
     "offlineRefillUssdTitle":  "استفد أكثر من شحنتك",
     "offlineRefillUssdSubtitle":  "بعد وصول الرصيد، اطلب رمز مشغّلك للحصول على أفضل قيمة",
-    "offlineRefillUssdDial":  "اطلب"
+    "offlineRefillUssdDial":  "اطلب",
+    "activityTopupRequested": "تم تقديم طلب إعادة الشحن بمبلغ ${amount}",
+    "activityTopupSuccess": "اكتملت إعادة الشحن بمبلغ ${amount} عبر {provider}",
+    "activityTopupFailed": "فشلت إعادة الشحن بمبلغ ${amount}: {reason}",
+    "activityTopupRefunded": "تم استرداد مبلغ ${amount} إلى المحفظة",
+    "activityTopupCancelled": "تم إلغاء طلب إعادة الشحن بمبلغ ${amount}",
+    "activityTopupRetryQueued": "تمت إضافة إعادة المحاولة لشحن ${amount}",
+    "activityLineCreated": "تم تسجيل شريحة SIM بنجاح في SIM Shield",
+    "activityHealthUpdate": "تم التحقق من نشاط شريحة SIM",
+    "activityReminderSent": "تم إرسال تذكير بتجديد الشريحة"
 }

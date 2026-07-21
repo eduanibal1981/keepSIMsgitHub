@@ -822,5 +822,46 @@
     },
     "ok": "OK",
     "rechargeNow":  "Recharge Now",
-    "planFeePaidFromWallet": "Plan fee paid from your wallet balance."
+    "planFeePaidFromWallet": "Plan fee paid from your wallet balance.",
+    "activityTopupRequested": "Refill request submitted for ${amount}",
+    "@activityTopupRequested": {
+        "placeholders": {
+            "amount": { "type": "String" }
+        }
+    },
+    "activityTopupSuccess": "Top-up of ${amount} completed via {provider}",
+    "@activityTopupSuccess": {
+        "placeholders": {
+            "amount": { "type": "String" },
+            "provider": { "type": "String" }
+        }
+    },
+    "activityTopupFailed": "Top-up of ${amount} failed: {reason}",
+    "@activityTopupFailed": {
+        "placeholders": {
+            "amount": { "type": "String" },
+            "reason": { "type": "String" }
+        }
+    },
+    "activityTopupRefunded": "Refill of ${amount} refunded to wallet",
+    "@activityTopupRefunded": {
+        "placeholders": {
+            "amount": { "type": "String" }
+        }
+    },
+    "activityTopupCancelled": "Refill request of ${amount} cancelled",
+    "@activityTopupCancelled": {
+        "placeholders": {
+            "amount": { "type": "String" }
+        }
+    },
+    "activityTopupRetryQueued": "Retry queued for refill of ${amount}",
+    "@activityTopupRetryQueued": {
+        "placeholders": {
+            "amount": { "type": "String" }
+        }
+    },
+    "activityLineCreated": "SIM Line registered in SIM Shield",
+    "activityHealthUpdate": "SIM Line active status verified",
+    "activityReminderSent": "Renewal reminder notification sent"
 }

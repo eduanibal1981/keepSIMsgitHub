@@ -712,5 +712,14 @@
     "offlineRefillStatusTimedOut":  "Sin respuesta aún — prueba otra vía",
     "offlineRefillUssdTitle":  "Aprovecha más tu recarga",
     "offlineRefillUssdSubtitle":  "Cuando llegue el saldo, marca el código de tu operador para el mejor valor",
-    "offlineRefillUssdDial":  "Marcar"
+    "offlineRefillUssdDial":  "Marcar",
+    "activityTopupRequested": "Solicitud de recarga enviada por ${amount}",
+    "activityTopupSuccess": "Recarga de ${amount} completada mediante {provider}",
+    "activityTopupFailed": "Error en recarga de ${amount}: {reason}",
+    "activityTopupRefunded": "Recarga de ${amount} reembolsada a la billetera",
+    "activityTopupCancelled": "Solicitud de recarga de ${amount} cancelada",
+    "activityTopupRetryQueued": "Reintento programado para recarga de ${amount}",
+    "activityLineCreated": "Línea SIM registrada en SIM Shield",
+    "activityHealthUpdate": "Estado activo de la línea SIM verificado",
+    "activityReminderSent": "Notificación de recordatorio de renovación enviada"
 }

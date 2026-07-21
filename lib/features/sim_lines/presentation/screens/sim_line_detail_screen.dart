@@ -2428,6 +2428,16 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                 } else if (log.eventType == 'topup_failed') {
                   iconColor = AppColors.error;
                   iconData = Icons.error_outline;
+                } else if (log.eventType == 'topup_requested' ||
+                    log.eventType == 'topup_retry_queued') {
+                  iconColor = AppColors.warning;
+                  iconData = Icons.hourglass_top;
+                } else if (log.eventType == 'topup_refunded') {
+                  iconColor = AppColors.info;
+                  iconData = Icons.history;
+                } else if (log.eventType == 'topup_cancelled') {
+                  iconColor = AppColors.error;
+                  iconData = Icons.cancel_outlined;
                 } else if (log.eventType == 'health_update') {
                   iconColor = isDark
                       ? AppColors.secondary
@@ -2438,11 +2448,16 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                       ? AppColors.primaryLight
                       : AppColors.lightPrimary;
                   iconData = Icons.add_box_outlined;
+                } else if (log.eventType == 'reminder_sent') {
+                  iconColor = AppColors.info;
+                  iconData = Icons.notifications_active_outlined;
                 }
 
                 final dateStr = DateFormat(
                   'MMM dd, yyyy HH:mm',
                 ).format(log.createdAt);
+
+                final isFinancialEvent = log.eventType.startsWith('topup_');
 
                 return IntrinsicHeight(
                   child: Row(
@@ -2484,7 +2499,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              log.description ?? '',
+                              log.getLocalizedDescription(context),
                               style: AppTextStyles.bodyMedium.copyWith(
                                 color: context.onSurfaceColor,
                                 height: 1.3,
@@ -2503,8 +2518,8 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                           ],
                         ),
                       ),
-                      // Actions
-                      if (!_isViewer)
+                      // Actions (Option A: financial events are immutable)
+                      if (!_isViewer && !isFinancialEvent)
                         Align(
                           alignment: Alignment.topRight,
                           child: IconButton(

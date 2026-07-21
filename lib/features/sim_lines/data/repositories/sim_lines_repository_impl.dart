@@ -547,10 +547,20 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
   @override
   Future<void> clearAllActivityLogs(String simLineId) async {
     try {
+      // Option A: Money trail events (topup_*) are immutable; only non-financial
+      // events (health_update, created, etc.) are deleted.
       await _supabase
           .from('line_activity_log')
           .delete()
-          .eq('sim_line_id', simLineId);
+          .eq('sim_line_id', simLineId)
+          .not('event_type', 'in', [
+            'topup_requested',
+            'topup_success',
+            'topup_failed',
+            'topup_refunded',
+            'topup_cancelled',
+            'topup_retry_queued'
+          ]);
       final cacheKey = 'cached_logs_$simLineId';
       await _cache.writeJson(cacheKey, []);
     } on PostgrestException catch (e) {
@@ -585,21 +595,8 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
         },
       );
 
-      // Activity trail only; displayBaseUsd is the quoted price for display,
-      // the debit itself comes from the server-priced execution.
-      await _supabase.from('line_activity_log').insert({
-        'sim_line_id': simLineId,
-        'user_id': userId,
-        'event_type': 'topup_success',
-        'description':
-            'Manual Refill of \$${displayBaseUsd.toStringAsFixed(2)} requested.',
-        'metadata': {
-          'amount': displayBaseUsd,
-          'type': 'manual_refill',
-          'execution_id': executionId,
-        },
-        'created_at': DateTime.now().toIso8601String(),
-      });
+      // Server DB trigger trg_topup_executions_activity automatically logs the
+      // activity trail on topup_executions INSERT and status transitions.
 
       return executionId as String;
     } on PostgrestException catch (e) {

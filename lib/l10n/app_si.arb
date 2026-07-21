@@ -712,5 +712,14 @@
     "offlineRefillStatusTimedOut":  "තවම පිළිතුරක් නැත — වෙනත් ක්‍රමයක් උත්සාහ කරන්න",
     "offlineRefillUssdTitle":  "ඔබගේ පිරවීමෙන් වැඩි ප්‍රයෝජනයක් ගන්න",
     "offlineRefillUssdSubtitle":  "ශේෂය පැමිණි පසු, හොඳම වටිනාකම සඳහා ඔබගේ ක්‍රියාකරුගේ කේතය අමතන්න",
-    "offlineRefillUssdDial":  "අමතන්න"
+    "offlineRefillUssdDial":  "අමතන්න",
+    "activityTopupRequested": "${amount} සඳහා නැවත පිරවීමේ ඉල්ලීම යොමු කරන ලදී",
+    "activityTopupSuccess": "{provider} හරහා ${amount} හි ටොප්-අප් සාර්ථක විය",
+    "activityTopupFailed": "${amount} හි ටොප්-අප් අසාර්ථක විය: {reason}",
+    "activityTopupRefunded": "${amount} හි නැවත පිරවීම පසුම්බියට ආපසු ගෙවන ලදී",
+    "activityTopupCancelled": "${amount} හි නැවත පිරවීමේ ඉල්ලීම අවලංගු කරන ලදී",
+    "activityTopupRetryQueued": "${amount} හි නැවත පිරවීම සඳහා නැවත උත්සාහ කිරීම පෝලිම් කරන ලදී",
+    "activityLineCreated": "SIM රේඛාව SIM Shield හි ලියාපදිංචි විය",
+    "activityHealthUpdate": "SIM රේඛාවේ සක්‍රිය තත්ත්වය තහවුරු විය",
+    "activityReminderSent": "නවීකරණ මතක් කිරීමේ දැනුම්දීම යවන ලදී"
 }

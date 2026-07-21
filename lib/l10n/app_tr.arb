@@ -712,5 +712,14 @@
     "offlineRefillStatusTimedOut":  "Henüz yanıt yok — başka bir yol dene",
     "offlineRefillUssdTitle":  "Yüklemenden en iyi şekilde yararlan",
     "offlineRefillUssdSubtitle":  "Bakiye geldikten sonra, en iyi değer için operatörünün kodunu çevir",
-    "offlineRefillUssdDial":  "Çevir"
+    "offlineRefillUssdDial":  "Çevir",
+    "activityTopupRequested": "${amount} tutarında yükleme talebi gönderildi",
+    "activityTopupSuccess": "${amount} yüklemesi {provider} üzerinden tamamlandı",
+    "activityTopupFailed": "${amount} yüklemesi başarısız oldu: {reason}",
+    "activityTopupRefunded": "${amount} yüklemesi cüzdana iade edildi",
+    "activityTopupCancelled": "${amount} yükleme talebi iptal edildi",
+    "activityTopupRetryQueued": "${amount} yüklemesi için tekrar deneme sıraya alındı",
+    "activityLineCreated": "SIM Hattı SIM Shield'e kaydedildi",
+    "activityHealthUpdate": "SIM Hattı aktif durumu doğrulandı",
+    "activityReminderSent": "Yenileme hatırlatma bildirimi gönderildi"
 }

@@ -712,5 +712,14 @@
     "offlineRefillStatusTimedOut":  "এখনও কোনো সাড়া নেই — অন্য উপায়ে চেষ্টা করুন",
     "offlineRefillUssdTitle":  "আপনার টপ-আপ থেকে আরও বেশি পান",
     "offlineRefillUssdSubtitle":  "ব্যালেন্স আসার পর, সেরা মূল্যের জন্য আপনার অপারেটরের কোড ডায়াল করুন",
-    "offlineRefillUssdDial":  "ডায়াল"
+    "offlineRefillUssdDial":  "ডায়াল",
+    "activityTopupRequested": "${amount} এর রিফিল অনুরোধ জমা দেওয়া হয়েছে",
+    "activityTopupSuccess": "{provider} এর মাধ্যমে ${amount} টপ-আপ সম্পন্ন হয়েছে",
+    "activityTopupFailed": "${amount} এর টপ-আপ ব্যর্থ হয়েছে: {reason}",
+    "activityTopupRefunded": "${amount} এর রিফিল ওয়ালেটে ফেরত দেওয়া হয়েছে",
+    "activityTopupCancelled": "${amount} এর রিফিল অনুরোধ বাতিল করা হয়েছে",
+    "activityTopupRetryQueued": "${amount} এর রিফিলের জন্য পুনরায় চেষ্টা সারিবদ্ধ করা হয়েছে",
+    "activityLineCreated": "SIM লাইন SIM Shield এ নিবন্ধিত হয়েছে",
+    "activityHealthUpdate": "SIM লাইনের সক্রিয় স্থিতি যাচাই করা হয়েছে",
+    "activityReminderSent": "নবায়ন অনুস্মারক বিজ্ঞপ্তি পাঠানো হয়েছে"
 }

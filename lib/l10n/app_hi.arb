@@ -712,5 +712,14 @@
     "offlineRefillStatusTimedOut":  "अभी तक कोई जवाब नहीं — दूसरा तरीका आज़माएँ",
     "offlineRefillUssdTitle":  "अपने टॉप-अप से ज़्यादा पाएँ",
     "offlineRefillUssdSubtitle":  "बैलेंस आने के बाद, सबसे अच्छे मूल्य के लिए अपने ऑपरेटर का कोड डायल करें",
-    "offlineRefillUssdDial":  "डायल करें"
+    "offlineRefillUssdDial":  "डायल करें",
+    "activityTopupRequested": "${amount} के रिफ़िल अनुरोध प्रस्तुत किया गया",
+    "activityTopupSuccess": "{provider} के माध्यम से ${amount} का टॉप-अप पूरा हुआ",
+    "activityTopupFailed": "${amount} का टॉप-अप विफल रहा: {reason}",
+    "activityTopupRefunded": "${amount} का रिफ़िल वॉलेट में वापस कर दिया गया",
+    "activityTopupCancelled": "${amount} का रिफ़िल अनुरोध रद्द कर दिया गया",
+    "activityTopupRetryQueued": "${amount} के रिफ़िल के लिए पुन: प्रयास कतारबद्ध किया गया",
+    "activityLineCreated": "SIM लाइन SIM Shield में पंजीकृत",
+    "activityHealthUpdate": "SIM लाइन सक्रिय स्थिति सत्यापित",
+    "activityReminderSent": "नवीनीकरण अनुस्मारक सूचना भेजी गई"
 }

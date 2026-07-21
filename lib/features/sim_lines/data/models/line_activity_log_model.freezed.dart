@@ -214,8 +214,8 @@ return $default(_that.id,_that.simLineId,_that.userId,_that.eventType,_that.desc
 /// @nodoc
 
 @JsonSerializable(fieldRename: FieldRename.snake)
-class _LineActivityLog implements LineActivityLog {
-  const _LineActivityLog({required this.id, required this.simLineId, required this.userId, required this.eventType, this.description, final  Map<String, dynamic> metadata = const {}, required this.createdAt}): _metadata = metadata;
+class _LineActivityLog extends LineActivityLog {
+  const _LineActivityLog({required this.id, required this.simLineId, required this.userId, required this.eventType, this.description, final  Map<String, dynamic> metadata = const {}, required this.createdAt}): _metadata = metadata,super._();
   factory _LineActivityLog.fromJson(Map<String, dynamic> json) => _$LineActivityLogFromJson(json);
 
 @override final  String id;

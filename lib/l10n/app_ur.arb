@@ -712,5 +712,14 @@
     "offlineRefillStatusTimedOut":  "ابھی تک کوئی جواب نہیں — کوئی اور طریقہ آزمائیں",
     "offlineRefillUssdTitle":  "اپنے ٹاپ اپ سے زیادہ فائدہ اٹھائیں",
     "offlineRefillUssdSubtitle":  "بیلنس آنے کے بعد، بہترین ویلیو کے لیے اپنے آپریٹر کا کوڈ ڈائل کریں",
-    "offlineRefillUssdDial":  "ڈائل کریں"
+    "offlineRefillUssdDial":  "ڈائل کریں",
+    "activityTopupRequested": "${amount} کے لیے ری فل کی درخواست جمع کر دی گئی",
+    "activityTopupSuccess": "{provider} کے ذریعے ${amount} کا ٹاپ اپ مکمل ہو گیا",
+    "activityTopupFailed": "${amount} کا ٹاپ اپ ناکام ہو گیا: {reason}",
+    "activityTopupRefunded": "${amount} کا ری فل والٹ میں واپس کر دیا گیا",
+    "activityTopupCancelled": "${amount} کے ری فل کی درخواست منسوخ کر دی گئی",
+    "activityTopupRetryQueued": "${amount} کے ری فل کی دوبارہ کوشش صف میں شامل کر دی گئی",
+    "activityLineCreated": "سم لائن SIM Shield میں رجسٹر ہو گئی",
+    "activityHealthUpdate": "سم لائن کی فعال حیثیت کی تصدیق ہو گئی",
+    "activityReminderSent": "تجدید کی یاد دہانی کا نوٹیفکیشن بھیج دیا گیا"
 }

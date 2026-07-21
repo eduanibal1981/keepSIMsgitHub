@@ -927,20 +927,19 @@ or 1 user × 10 lines both qualify).
 
 ## 🟠 C6 — Activity log: local mirror + capped cloud table + dashboard feed
 
-**User decision:** store full history locally (SQLite/Hive) for offline; keep
-only the **newest 20 rows per user** in Supabase `activity_logs`.
+**Status:** ✅ **DONE (Server-Authored Activity Logging & Option A Retention Policy)**
 
-1. Table `activity_logs(id, user_id, type, title, metadata jsonb, created_at)`;
-   RLS read-own; inserts from server paths (wallet txns, refill status changes,
-   profile updates) via trigger or from the existing write sites.
-2. Prune: `AFTER INSERT` trigger deleting rows beyond the newest 20 per user
-   (or a pg_cron sweep — trigger preferred, it's self-maintaining).
-3. Local: Hive box (already a dependency? verify; else `sqflite`) mirroring
-   every event the client sees, unlimited history, exposed with pagination.
-4. Unified "Recent Activity" feed on the Dashboard merging cloud + local,
-   deduped by id, offline-capable.
-5. Migrate anything currently scattered (wallet txn list, refill history) to
-   read from this feed where it makes sense — audit, don't force.
+**Implementation Record:**
+- Migration `20260722000000_c6_server_authored_activity_log.sql` applied to live database `zwxswagokhgbuzrrbnhr`.
+- `line_activity_log_event_type_check` updated to support true lifecycle & money events (`topup_requested`, `topup_success`, `topup_failed`, `topup_refunded`, `topup_cancelled`, `topup_retry_queued`, `reminder_sent`, `status_change`, `health_update`, `tier_change`, `paused`, `resumed`, `created`, `grace_period_entered`, `rescue_topup_triggered`, `validity_extended`).
+- Trigger `trg_topup_executions_activity` automatically logs execution lifecycle events directly from DB state transitions; client-side insert in `requestInstantRefill` removed.
+- Trigger `trg_line_activity_log_prune` self-maintains a strict cap of 50 activity log entries per SIM line.
+- Default `created_at` set to `clock_timestamp()` for monotonic ordering across concurrent trigger calls.
+- **Option A Deletion Policy**: RLS policies ("Users can delete non-financial line activity") and repository method `clearAllActivityLogs` restrict deletion to non-financial cosmetic events (`created`, `health_update`, etc.). Financial money trail events (`topup_*`) are immutable.
+- ARB localization added across 9 locales (`app_en`, `app_ar`, `app_es`, `app_tr`, `app_hi`, `app_bn`, `app_ne`, `app_si`, `app_ur`) with `getLocalizedDescription(context)` method on `LineActivityLog`.
+- `keep_sims_admin` updated with `displayDescription` fallback.
+- Live DB test suite `c6_activity_log_tests.sql` verified passing via MCP `execute_sql`.
+- 52/52 Flutter unit tests passing.
 
 ## 🟠 C7 — Support tickets (native Supabase, admin replies via dashboard)
 
