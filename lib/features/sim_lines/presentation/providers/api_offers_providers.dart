@@ -32,10 +32,11 @@ Future<List<Map<String, dynamic>>> apiOffers(
   switch (providerName) {
     case 'zendit':
       return ref.watch(zenditOffersProvider(countryId, carrierId).future);
+    case 'dtconnect':
+    case 'dtone':
+      return ref.watch(dtconnectOffersProvider(countryId, carrierId).future);
     case 'ding':
       return ref.watch(dingOffersProvider(countryId, carrierId).future);
-    case 'dtconnect':
-      return ref.watch(dtconnectOffersProvider(countryId, carrierId).future);
     case 'reloadly':
       return ref.watch(reloadlyOffersProvider(countryId, carrierId).future);
     default:
@@ -68,9 +69,8 @@ Future<List<Map<String, dynamic>>> dtconnectOffers(
   Ref ref,
   String countryId,
   String carrierId,
-) async {
-  // TODO: Implement DTConnect fetching
-  return [];
+) {
+  return ref.watch(simLinesRepositoryProvider).fetchZenditOffers(countryId, carrierId);
 }
 
 @riverpod

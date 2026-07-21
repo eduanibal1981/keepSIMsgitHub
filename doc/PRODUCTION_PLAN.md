@@ -411,6 +411,38 @@ copies). 22 tests via `node --test`. Proven live: `ETISALAT_EG_011` ($6.22)
 named at $0.01 → failed, wallet net 0.00, no purchase, alert raised; the same
 offer at $6.22 → success, wallet −6.41.
 
+## ✅ C3b-3 — Multi-provider support: DTone integration — done 2026-07-21
+
+Integrated DTone DVS (pre-production sandbox) as a second top-up provider alongside Zendit.
+
+Key Architecture & DB updates:
+- Migration `20260721000000_provider_offers_cache_and_dtone.sql`:
+  - Created `provider_offers_cache` with composite PK `(api_provider, offer_id)`, indexed on `(api_provider, country_code, carrier_code)`.
+  - Migrated existing `zendit_offers_cache` into `provider_offers_cache` and provided backward-compatible view `zendit_offers_cache`.
+  - Updated `request_instant_refill` RPC to resolve `ca.api_provider`, pick `zen_carrier` vs `dt_carrier`, and price from `provider_offers_cache`.
+- Migration `20260721010000_dtone_carrier_mappings.sql`:
+  - Populated `dt_country` and `dt_carrier` across 18 carriers in US, GB, SA, KW, OM, JO, AE.
+  - Enabled DTone on **Zain KSA** (`api_provider = 'dtone'`).
+
+VM Backend Workers:
+- Created `servers/providers/dtone.js` with Basic Auth, ISO3 country mapping, product normalization, transaction POST (`dt_<execution_id>`), and status polling.
+- Updated `servers/providers/zendit.js` and `servers/offer_validation.js` for multi-provider catalog caching and offer verification.
+- Updated `worker_instant_refill.js`, `worker_auto_mini_refill.js`, and `worker_auto_custom_refill.js` to dispatch on `execution.api_provider`.
+- Updated `worker_offers_cache.js` to refresh both Zendit and DTone catalogs.
+- Verified with 23 node `--test` unit tests on VM.
+
+Flutter App Integration:
+- Updated `SimLinesRepositoryImpl.fetchZenditOffers` to query `provider_offers_cache` dynamically based on carrier's `api_provider` and matching carrier code column (`zen_carrier` vs `dt_carrier`).
+- Updated `api_offers_providers.dart` so `dtone` and `dtconnect` route through `dtconnectOffersProvider`.
+
+End-to-End Smoke Test:
+- Verified on live Supabase & VM with fixture user `a1-wallet-test@example.com` on Zain KSA:
+  1. Starting wallet balance: **42.96 USD**.
+  2. Executed `request_instant_refill` for DTone offer `dt_zain_5usd`: created execution `57424419-2d67-4ed6-8c0c-33351e9b9173` stamped with `api_provider = 'dtone'`.
+  3. `worker_instant_refill` claimed execution, debited wallet **$5.15** (5.00 base + 3% app fee), called DTone pre-prod with external ID `dt_57424419-2d67-4ed6-8c0c-33351e9b9173`, and marked status `success` (`reloadly_transaction_id = 'dt_tx_57424419'`).
+  4. Wallet balance after spend: **37.81 USD**.
+  5. Tested price tampering rejection: execution `ea70588f-be31-47c1-9363-ae408f1cdc67` (tampered $1.00 base cost vs $5.00 offer) was rejected with `Offer price mismatch`, refunded back to wallet ($37.81 balance preserved), and logged to `system_alerts`.
+
 **Still architecturally weak:** the client states a price at all. The real end
 state is a server-side offers cache + a `request_instant_refill` RPC that
 computes `base_cost_usd` itself, after which client INSERT can be revoked

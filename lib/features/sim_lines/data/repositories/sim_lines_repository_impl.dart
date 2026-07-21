@@ -698,20 +698,23 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
 
       final carrierRes = await _supabase
           .from('carriers')
-          .select('zen_carrier')
+          .select('api_provider, zen_carrier, dt_carrier')
           .eq('id', carrierId)
           .single();
-      final zenCarrier = carrierRes['zen_carrier'] as String?;
-      if (zenCarrier == null) return [];
+      final apiProvider =
+          (carrierRes['api_provider'] as String?)?.toLowerCase() ?? 'zendit';
+      final carrierCode = (apiProvider == 'dtone'
+          ? carrierRes['dt_carrier']
+          : carrierRes['zen_carrier']) as String?;
+      if (carrierCode == null) return [];
 
-      // 2. Read the server-side offers cache (C3b-2). This is the exact list
-      // request_instant_refill will price from, so what the sheet shows is
-      // always purchasable — unlike the old per-open Edge Function fetch.
+      // 2. Read the server-side offers cache (C3b-2 / provider-aware).
       final rows = await _supabase
-          .from('zendit_offers_cache')
+          .from('provider_offers_cache')
           .select()
+          .eq('api_provider', apiProvider)
           .eq('country_code', countryCode)
-          .eq('zen_carrier', zenCarrier);
+          .eq('carrier_code', carrierCode);
 
       final offers = (rows as List)
           .cast<Map<String, dynamic>>()
