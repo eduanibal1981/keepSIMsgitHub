@@ -1697,4 +1697,119 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get planFeePaidFromWallet => 'Plan ücreti cüzdan bakiyenizden ödendi.';
+
+  @override
+  String activityTopupRequested(String amount) {
+    return '\$$amount tutarında yükleme talebi gönderildi';
+  }
+
+  @override
+  String activityTopupSuccess(String amount, String provider) {
+    return '\$$amount yüklemesi $provider üzerinden tamamlandı';
+  }
+
+  @override
+  String activityTopupFailed(String amount, String reason) {
+    return '\$$amount yüklemesi başarısız oldu: $reason';
+  }
+
+  @override
+  String activityTopupRefunded(String amount) {
+    return '\$$amount yüklemesi cüzdana iade edildi';
+  }
+
+  @override
+  String activityTopupCancelled(String amount) {
+    return '\$$amount yükleme talebi iptal edildi';
+  }
+
+  @override
+  String activityTopupRetryQueued(String amount) {
+    return '\$$amount yüklemesi için tekrar deneme sıraya alındı';
+  }
+
+  @override
+  String get activityLineCreated => 'SIM Hattı SIM Shield\'e kaydedildi';
+
+  @override
+  String get activityHealthUpdate => 'SIM Hattı aktif durumu doğrulandı';
+
+  @override
+  String get activityReminderSent => 'Yenileme hatırlatma bildirimi gönderildi';
+
+  @override
+  String get supportTicketsTitle => 'Yardım ve Destek';
+
+  @override
+  String get supportTicketsSubtitle =>
+      'Destek talepleri gönderin, etkinlik günlüklerini ekleyin ve destek ekibimizle canlı sohbet edin.';
+
+  @override
+  String get supportTicketsEmpty => 'Destek talebi bulunamadı.';
+
+  @override
+  String get createSupportTicket => 'Talep Oluştur';
+
+  @override
+  String get ticketCategoryGeneral => 'Genel Soru';
+
+  @override
+  String get ticketCategoryBilling => 'Faturalandırma ve Cüzdan';
+
+  @override
+  String get ticketCategoryTechnical => 'Teknik Sorun';
+
+  @override
+  String get ticketCategoryRefillIssue => 'Yükleme Sorunu';
+
+  @override
+  String get ticketCategoryAccount => 'Hesap ve Güvenlik';
+
+  @override
+  String get ticketStatusOpen => 'Açık';
+
+  @override
+  String get ticketStatusPending => 'Yanıt Bekliyor';
+
+  @override
+  String get ticketStatusResolved => 'Çözüldü';
+
+  @override
+  String get ticketStatusClosed => 'Kapandı';
+
+  @override
+  String get ticketSubjectLabel => 'Konu';
+
+  @override
+  String get ticketSubjectHint => 'Sorunun kısa açıklaması';
+
+  @override
+  String get ticketCategoryLabel => 'Kategori';
+
+  @override
+  String get ticketMessageLabel => 'Mesaj';
+
+  @override
+  String get ticketMessageHint => 'Detaylı bilgi verin...';
+
+  @override
+  String get attachImage => 'Görsel Ekle';
+
+  @override
+  String get attachActivityLogs => 'Hat Günlüklerini Ekle';
+
+  @override
+  String get submitTicket => 'Talebi Gönder';
+
+  @override
+  String get typeMessageHint => 'Bir mesaj yazın...';
+
+  @override
+  String get closeTicketButton => 'Talebi Kapat';
+
+  @override
+  String get ticketClosedNotice => 'Bu destek talebi kapatıldı.';
+
+  @override
+  String get attachedFiles => 'Ekler';
 }

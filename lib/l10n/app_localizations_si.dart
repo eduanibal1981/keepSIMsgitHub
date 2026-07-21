@@ -1699,4 +1699,119 @@ class AppLocalizationsSi extends AppLocalizations {
   @override
   String get planFeePaidFromWallet =>
       'සැලසුම් ගාස්තුව ඔබගේ පසුම්බි ශේෂයෙන් ගෙවන ලදී.';
+
+  @override
+  String activityTopupRequested(String amount) {
+    return '\$$amount සඳහා නැවත පිරවීමේ ඉල්ලීම යොමු කරන ලදී';
+  }
+
+  @override
+  String activityTopupSuccess(String amount, String provider) {
+    return '$provider හරහා \$$amount හි ටොප්-අප් සාර්ථක විය';
+  }
+
+  @override
+  String activityTopupFailed(String amount, String reason) {
+    return '\$$amount හි ටොප්-අප් අසාර්ථක විය: $reason';
+  }
+
+  @override
+  String activityTopupRefunded(String amount) {
+    return '\$$amount හි නැවත පිරවීම පසුම්බියට ආපසු ගෙවන ලදී';
+  }
+
+  @override
+  String activityTopupCancelled(String amount) {
+    return '\$$amount හි නැවත පිරවීමේ ඉල්ලීම අවලංගු කරන ලදී';
+  }
+
+  @override
+  String activityTopupRetryQueued(String amount) {
+    return '\$$amount හි නැවත පිරවීම සඳහා නැවත උත්සාහ කිරීම පෝලිම් කරන ලදී';
+  }
+
+  @override
+  String get activityLineCreated => 'SIM රේඛාව SIM Shield හි ලියාපදිංචි විය';
+
+  @override
+  String get activityHealthUpdate => 'SIM රේඛාවේ සක්‍රිය තත්ත්වය තහවුරු විය';
+
+  @override
+  String get activityReminderSent => 'නවීකරණ මතක් කිරීමේ දැනුම්දීම යවන ලදී';
+
+  @override
+  String get supportTicketsTitle => 'උදව් සහ සහාය';
+
+  @override
+  String get supportTicketsSubtitle =>
+      'සහාය ඉල්ලීම් යොමු කරන්න, ක්‍රියාකාරකම් සටහන් අමුණන්න, සහ සහායක කණ්ඩායම සමඟ සජීවීව කතාබස් කරන්න.';
+
+  @override
+  String get supportTicketsEmpty => 'සහාය ටිකට්පත් කිසිවක් හමු නොවීය.';
+
+  @override
+  String get createSupportTicket => 'ටිකට්පතක් සාදන්න';
+
+  @override
+  String get ticketCategoryGeneral => 'සාමාන්‍ය විමසීම';
+
+  @override
+  String get ticketCategoryBilling => 'ගෙවීම් සහ පසුම්බිය';
+
+  @override
+  String get ticketCategoryTechnical => 'තාක්ෂණික ගැටලුව';
+
+  @override
+  String get ticketCategoryRefillIssue => 'නැවත පිරවීමේ ගැටලුව';
+
+  @override
+  String get ticketCategoryAccount => 'ගිණුම සහ ආරක්ෂාව';
+
+  @override
+  String get ticketStatusOpen => 'විවෘතයි';
+
+  @override
+  String get ticketStatusPending => 'පිළිතුරක් බලාපොරොත්තුවෙන්';
+
+  @override
+  String get ticketStatusResolved => 'විසඳන ලදී';
+
+  @override
+  String get ticketStatusClosed => 'වසා ඇත';
+
+  @override
+  String get ticketSubjectLabel => 'මාතෘකාව';
+
+  @override
+  String get ticketSubjectHint => 'ගැටලුවේ කෙටි විස්තරයක්';
+
+  @override
+  String get ticketCategoryLabel => 'වර්ගය';
+
+  @override
+  String get ticketMessageLabel => 'පණිවිඩය';
+
+  @override
+  String get ticketMessageHint => 'විස්තරාත්මක තොරතුරු සපයන්න...';
+
+  @override
+  String get attachImage => 'රූපයක් අමුණන්න';
+
+  @override
+  String get attachActivityLogs => 'රේඛීය සටහන් අමුණන්න';
+
+  @override
+  String get submitTicket => 'ටිකට්පත යොමු කරන්න';
+
+  @override
+  String get typeMessageHint => 'පණිවිඩයක් ලියන්න...';
+
+  @override
+  String get closeTicketButton => 'ටිකට්පත වසන්න';
+
+  @override
+  String get ticketClosedNotice => 'මෙම සහාය ටිකට්පත වසා ඇත.';
+
+  @override
+  String get attachedFiles => 'ඇමුණුම්';
 }

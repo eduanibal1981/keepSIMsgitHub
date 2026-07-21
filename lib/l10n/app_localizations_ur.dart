@@ -1694,4 +1694,120 @@ class AppLocalizationsUr extends AppLocalizations {
   @override
   String get planFeePaidFromWallet =>
       'پلان کی فیس آپ کے والٹ بیلنس سے ادا کر دی گئی۔';
+
+  @override
+  String activityTopupRequested(String amount) {
+    return '\$$amount کے لیے ری فل کی درخواست جمع کر دی گئی';
+  }
+
+  @override
+  String activityTopupSuccess(String amount, String provider) {
+    return '$provider کے ذریعے \$$amount کا ٹاپ اپ مکمل ہو گیا';
+  }
+
+  @override
+  String activityTopupFailed(String amount, String reason) {
+    return '\$$amount کا ٹاپ اپ ناکام ہو گیا: $reason';
+  }
+
+  @override
+  String activityTopupRefunded(String amount) {
+    return '\$$amount کا ری فل والٹ میں واپس کر دیا گیا';
+  }
+
+  @override
+  String activityTopupCancelled(String amount) {
+    return '\$$amount کے ری فل کی درخواست منسوخ کر دی گئی';
+  }
+
+  @override
+  String activityTopupRetryQueued(String amount) {
+    return '\$$amount کے ری فل کی دوبارہ کوشش صف میں شامل کر دی گئی';
+  }
+
+  @override
+  String get activityLineCreated => 'سم لائن SIM Shield میں رجسٹر ہو گئی';
+
+  @override
+  String get activityHealthUpdate => 'سم لائن کی فعال حیثیت کی تصدیق ہو گئی';
+
+  @override
+  String get activityReminderSent =>
+      'تجدید کی یاد دہانی کا نوٹیفکیشن بھیج دیا گیا';
+
+  @override
+  String get supportTicketsTitle => 'مدد اور معاونت';
+
+  @override
+  String get supportTicketsSubtitle =>
+      'مدد کی درخواستیں جمع کرائیں، سرگرمی کے لاگز منسلک کریں، اور ہماری سپورٹ ٹیم کے ساتھ براہ راست بات چیت کریں۔';
+
+  @override
+  String get supportTicketsEmpty => 'کوئی سپورٹ ٹکٹ نہیں ملا۔';
+
+  @override
+  String get createSupportTicket => 'ٹکٹ بنائیں';
+
+  @override
+  String get ticketCategoryGeneral => 'عام پوچھ گچھ';
+
+  @override
+  String get ticketCategoryBilling => 'بلنگ اور والٹ';
+
+  @override
+  String get ticketCategoryTechnical => 'تکنیکی مسئلہ';
+
+  @override
+  String get ticketCategoryRefillIssue => 'ری فل کا مسئلہ';
+
+  @override
+  String get ticketCategoryAccount => 'اکاؤنٹ اور سیکیورٹی';
+
+  @override
+  String get ticketStatusOpen => 'کھلا ہوا';
+
+  @override
+  String get ticketStatusPending => 'جواب کا منتظر';
+
+  @override
+  String get ticketStatusResolved => 'حل ہو گیا';
+
+  @override
+  String get ticketStatusClosed => 'بند';
+
+  @override
+  String get ticketSubjectLabel => 'موضوع';
+
+  @override
+  String get ticketSubjectHint => 'مسئلے کی مختصر تفصیل';
+
+  @override
+  String get ticketCategoryLabel => 'زمرہ';
+
+  @override
+  String get ticketMessageLabel => 'پیغام';
+
+  @override
+  String get ticketMessageHint => 'تفصیلی معلومات فراہم کریں...';
+
+  @override
+  String get attachImage => 'تصویر منسلک کریں';
+
+  @override
+  String get attachActivityLogs => 'لائن لاگز منسلک کریں';
+
+  @override
+  String get submitTicket => 'ٹکٹ جمع کرائیں';
+
+  @override
+  String get typeMessageHint => 'پیغام لکھیں...';
+
+  @override
+  String get closeTicketButton => 'ٹکٹ بند کریں';
+
+  @override
+  String get ticketClosedNotice => 'یہ سپورٹ ٹکٹ بند کر دیا گیا ہے۔';
+
+  @override
+  String get attachedFiles => 'منسلکات';
 }

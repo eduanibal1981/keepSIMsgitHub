@@ -98,7 +98,14 @@ class NotificationSettingsScreen extends ConsumerWidget {
       description:
           'Occasional news about deals and new features. Stays off until you turn it on.',
       icon: Icons.local_offer_rounded,
-      color: const Color(0xFFEC4899),
+      color: const Color(0xFFF59E0B),
+    ),
+    'support': _CategoryMeta(
+      name: 'Support & Tickets',
+      description:
+          'Notify me when support replies to my tickets or updates ticket status.',
+      icon: Icons.headset_mic_rounded,
+      color: AppColors.info,
     ),
   };
 

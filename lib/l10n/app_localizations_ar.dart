@@ -1677,4 +1677,119 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get planFeePaidFromWallet => 'تم دفع رسوم الخطة من رصيد محفظتك.';
+
+  @override
+  String activityTopupRequested(String amount) {
+    return 'تم تقديم طلب إعادة الشحن بمبلغ \$$amount';
+  }
+
+  @override
+  String activityTopupSuccess(String amount, String provider) {
+    return 'اكتملت إعادة الشحن بمبلغ \$$amount عبر $provider';
+  }
+
+  @override
+  String activityTopupFailed(String amount, String reason) {
+    return 'فشلت إعادة الشحن بمبلغ \$$amount: $reason';
+  }
+
+  @override
+  String activityTopupRefunded(String amount) {
+    return 'تم استرداد مبلغ \$$amount إلى المحفظة';
+  }
+
+  @override
+  String activityTopupCancelled(String amount) {
+    return 'تم إلغاء طلب إعادة الشحن بمبلغ \$$amount';
+  }
+
+  @override
+  String activityTopupRetryQueued(String amount) {
+    return 'تمت إضافة إعادة المحاولة لشحن \$$amount';
+  }
+
+  @override
+  String get activityLineCreated => 'تم تسجيل خط SIM في SIM Shield';
+
+  @override
+  String get activityHealthUpdate => 'تم التحقق من حالة خط SIM النشط';
+
+  @override
+  String get activityReminderSent => 'تم إرسال إشعار تذكير بالتجديد';
+
+  @override
+  String get supportTicketsTitle => 'المساعدة والدعم';
+
+  @override
+  String get supportTicketsSubtitle =>
+      'قدم طلبات الدعم، وأرفق سجلات النشاط، وتحدث مباشرة مع فريق الدعم لدينا.';
+
+  @override
+  String get supportTicketsEmpty => 'لم يتم العثور على تذاكر دعم.';
+
+  @override
+  String get createSupportTicket => 'إنشاء تذكرة';
+
+  @override
+  String get ticketCategoryGeneral => 'استفسار عام';
+
+  @override
+  String get ticketCategoryBilling => 'الفوترة والمحفظة';
+
+  @override
+  String get ticketCategoryTechnical => 'مشكلة تقنية';
+
+  @override
+  String get ticketCategoryRefillIssue => 'مشكلة إعادة الشحن';
+
+  @override
+  String get ticketCategoryAccount => 'الحساب والأمان';
+
+  @override
+  String get ticketStatusOpen => 'مفتوحة';
+
+  @override
+  String get ticketStatusPending => 'في انتظار الرد';
+
+  @override
+  String get ticketStatusResolved => 'تم الحل';
+
+  @override
+  String get ticketStatusClosed => 'مغلقة';
+
+  @override
+  String get ticketSubjectLabel => 'الموضوع';
+
+  @override
+  String get ticketSubjectHint => 'وصف قصير للمشكلة';
+
+  @override
+  String get ticketCategoryLabel => 'الفئة';
+
+  @override
+  String get ticketMessageLabel => 'الرسالة';
+
+  @override
+  String get ticketMessageHint => 'قدّم معلومات تفصيلية...';
+
+  @override
+  String get attachImage => 'إرفاق صورة';
+
+  @override
+  String get attachActivityLogs => 'إرفاق سجلات الخط';
+
+  @override
+  String get submitTicket => 'إرسال التذكرة';
+
+  @override
+  String get typeMessageHint => 'اكتب رسالة...';
+
+  @override
+  String get closeTicketButton => 'إغلاق التذكرة';
+
+  @override
+  String get ticketClosedNotice => 'تم إغلاق تذكرة الدعم هذه.';
+
+  @override
+  String get attachedFiles => 'المرفقات';
 }

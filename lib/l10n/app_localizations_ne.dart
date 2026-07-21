@@ -1695,4 +1695,119 @@ class AppLocalizationsNe extends AppLocalizations {
   @override
   String get planFeePaidFromWallet =>
       'योजना शुल्क तपाईंको वालेट ब्यालेन्सबाट भुक्तानी गरियो।';
+
+  @override
+  String activityTopupRequested(String amount) {
+    return '\$$amount को रिफिल अनुरोध पेश गरियो';
+  }
+
+  @override
+  String activityTopupSuccess(String amount, String provider) {
+    return '$provider मार्फत \$$amount को टप-अप सम्पन्न भयो';
+  }
+
+  @override
+  String activityTopupFailed(String amount, String reason) {
+    return '\$$amount को टप-अप असफल भयो: $reason';
+  }
+
+  @override
+  String activityTopupRefunded(String amount) {
+    return '\$$amount को रिफिल वालेटमा फिर्ता गरियो';
+  }
+
+  @override
+  String activityTopupCancelled(String amount) {
+    return '\$$amount को रिफिल अनुरोध रद्द गरियो';
+  }
+
+  @override
+  String activityTopupRetryQueued(String amount) {
+    return '\$$amount को रिफिलको लागि पुनः प्रयास कतारमा राखियो';
+  }
+
+  @override
+  String get activityLineCreated => 'SIM लाइन SIM Shield मा दर्ता भयो';
+
+  @override
+  String get activityHealthUpdate => 'SIM लाइन सक्रिय स्थिति प्रमाणीकरण भयो';
+
+  @override
+  String get activityReminderSent => 'नवीकरण स्मरण गराउने सूचना पठाइयो';
+
+  @override
+  String get supportTicketsTitle => 'सहायता र समर्थन';
+
+  @override
+  String get supportTicketsSubtitle =>
+      'सहायता अनुरोध पेश गर्नुहोस्, गतिविधि लगहरू संलग्न गर्नुहोस्, र समर्थन टोलीसँग प्रत्यक्ष कुराकानी गर्नुहोस्।';
+
+  @override
+  String get supportTicketsEmpty => 'कुनै सहायता टिकट भेटिएन।';
+
+  @override
+  String get createSupportTicket => 'टिकट बनाउनुहोस्';
+
+  @override
+  String get ticketCategoryGeneral => 'साधारण सोधपुछ';
+
+  @override
+  String get ticketCategoryBilling => 'बिलिङ र वालेट';
+
+  @override
+  String get ticketCategoryTechnical => 'प्राविधिक समस्या';
+
+  @override
+  String get ticketCategoryRefillIssue => 'रिफिल समस्या';
+
+  @override
+  String get ticketCategoryAccount => 'खाता र सुरक्षा';
+
+  @override
+  String get ticketStatusOpen => 'खुल्ला';
+
+  @override
+  String get ticketStatusPending => 'जवाफको पर्खाइमा';
+
+  @override
+  String get ticketStatusResolved => 'समाधान भयो';
+
+  @override
+  String get ticketStatusClosed => 'बन्द';
+
+  @override
+  String get ticketSubjectLabel => 'विषय';
+
+  @override
+  String get ticketSubjectHint => 'समस्याको छोटो विवरण';
+
+  @override
+  String get ticketCategoryLabel => 'वर्ग';
+
+  @override
+  String get ticketMessageLabel => 'सन्देश';
+
+  @override
+  String get ticketMessageHint => 'विस्तृत जानकारी प्रदान गर्नुहोस्...';
+
+  @override
+  String get attachImage => 'तस्बिर संलग्न गर्नुहोस्';
+
+  @override
+  String get attachActivityLogs => 'लाइन लग संलग्न गर्नुहोस्';
+
+  @override
+  String get submitTicket => 'टिकट पेश गर्नुहोस्';
+
+  @override
+  String get typeMessageHint => 'सन्देश लेख्नुहोस्...';
+
+  @override
+  String get closeTicketButton => 'टिकट बन्द गर्नुहोस्';
+
+  @override
+  String get ticketClosedNotice => 'यो सहायता टिकट बन्द गरिएको छ।';
+
+  @override
+  String get attachedFiles => 'संलग्नकहरू';
 }

@@ -30,13 +30,11 @@ import 'package:keep_sims/features/payments/ui/payments_screen.dart';
 import 'package:keep_sims/features/geo/ui/geo_screen.dart';
 import 'package:keep_sims/features/offline_recharge/ui/offline_refill_screen.dart';
 import 'package:keep_sims/features/settings/presentation/screens/alert_simulator_screen.dart';
-import 'package:keep_sims/features/support/presentation/ui/support_screen.dart';
-import 'package:keep_sims/features/support/presentation/ui/create_ticket_screen.dart';
-import 'package:keep_sims/features/support/presentation/ui/faq_screen.dart';
-import 'package:keep_sims/features/support/presentation/ui/ticket_details_screen.dart';
+import 'package:keep_sims/features/support/presentation/screens/support_tickets_list_screen.dart';
+import 'package:keep_sims/features/support/presentation/screens/create_ticket_screen.dart';
+import 'package:keep_sims/features/support/presentation/screens/ticket_detail_screen.dart';
 import 'package:keep_sims/features/esim/presentation/screens/esim_screen.dart';
 import 'package:keep_sims/features/esim/presentation/screens/esim_plans_screen.dart';
-import 'package:keep_sims/features/support/data/models/support_ticket.dart';
 
 part 'app_router.g.dart';
 
@@ -305,27 +303,24 @@ RouterConfig<Object> appRouter(Ref ref) {
           GoRoute(
             path: AppRoutes.support,
             name: 'support',
-            builder: (context, state) => const SupportScreen(),
+            builder: (context, state) => const SupportTicketsListScreen(),
             routes: [
+              GoRoute(
+                path: 'new',
+                name: 'supportNewTicket',
+                builder: (context, state) => const CreateTicketScreen(),
+              ),
               GoRoute(
                 path: 'create',
                 name: 'supportCreate',
-                builder: (context, state) {
-                  final initialCategory = state.uri.queryParameters['category'];
-                  return CreateTicketScreen(initialCategory: initialCategory);
-                },
-              ),
-              GoRoute(
-                path: 'faq',
-                name: 'supportFaq',
-                builder: (context, state) => const FaqScreen(),
+                builder: (context, state) => const CreateTicketScreen(),
               ),
               GoRoute(
                 path: ':id',
                 name: 'supportDetail',
                 builder: (context, state) {
-                  final ticket = state.extra as SupportTicket;
-                  return TicketDetailsScreen(ticket: ticket);
+                  final ticketId = state.pathParameters['id']!;
+                  return TicketDetailScreen(ticketId: ticketId);
                 },
               ),
             ],

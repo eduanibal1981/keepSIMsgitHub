@@ -1716,4 +1716,120 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get planFeePaidFromWallet =>
       'La tarifa del plan se pagó con el saldo de tu billetera.';
+
+  @override
+  String activityTopupRequested(String amount) {
+    return 'Solicitud de recarga enviada por \$$amount';
+  }
+
+  @override
+  String activityTopupSuccess(String amount, String provider) {
+    return 'Recarga de \$$amount completada mediante $provider';
+  }
+
+  @override
+  String activityTopupFailed(String amount, String reason) {
+    return 'Error en recarga de \$$amount: $reason';
+  }
+
+  @override
+  String activityTopupRefunded(String amount) {
+    return 'Recarga de \$$amount reembolsada a la billetera';
+  }
+
+  @override
+  String activityTopupCancelled(String amount) {
+    return 'Solicitud de recarga de \$$amount cancelada';
+  }
+
+  @override
+  String activityTopupRetryQueued(String amount) {
+    return 'Reintento programado para recarga de \$$amount';
+  }
+
+  @override
+  String get activityLineCreated => 'Línea SIM registrada en SIM Shield';
+
+  @override
+  String get activityHealthUpdate => 'Estado activo de la línea SIM verificado';
+
+  @override
+  String get activityReminderSent =>
+      'Notificación de recordatorio de renovación enviada';
+
+  @override
+  String get supportTicketsTitle => 'Ayuda y soporte';
+
+  @override
+  String get supportTicketsSubtitle =>
+      'Envía solicitudes de soporte, adjunta registros de actividad y chatea en vivo con nuestro equipo.';
+
+  @override
+  String get supportTicketsEmpty => 'No se encontraron tickets de soporte.';
+
+  @override
+  String get createSupportTicket => 'Crear ticket';
+
+  @override
+  String get ticketCategoryGeneral => 'Consulta general';
+
+  @override
+  String get ticketCategoryBilling => 'Facturación y billetera';
+
+  @override
+  String get ticketCategoryTechnical => 'Problema técnico';
+
+  @override
+  String get ticketCategoryRefillIssue => 'Problema de recarga';
+
+  @override
+  String get ticketCategoryAccount => 'Cuenta y seguridad';
+
+  @override
+  String get ticketStatusOpen => 'Abierto';
+
+  @override
+  String get ticketStatusPending => 'Respuesta pendiente';
+
+  @override
+  String get ticketStatusResolved => 'Resuelto';
+
+  @override
+  String get ticketStatusClosed => 'Cerrado';
+
+  @override
+  String get ticketSubjectLabel => 'Asunto';
+
+  @override
+  String get ticketSubjectHint => 'Breve descripción del problema';
+
+  @override
+  String get ticketCategoryLabel => 'Categoría';
+
+  @override
+  String get ticketMessageLabel => 'Mensaje';
+
+  @override
+  String get ticketMessageHint => 'Proporciona información detallada...';
+
+  @override
+  String get attachImage => 'Adjuntar imagen';
+
+  @override
+  String get attachActivityLogs => 'Adjuntar registros de línea';
+
+  @override
+  String get submitTicket => 'Enviar ticket';
+
+  @override
+  String get typeMessageHint => 'Escribe un mensaje...';
+
+  @override
+  String get closeTicketButton => 'Cerrar ticket';
+
+  @override
+  String get ticketClosedNotice => 'Este ticket de soporte ha sido cerrado.';
+
+  @override
+  String get attachedFiles => 'Archivos adjuntos';
 }

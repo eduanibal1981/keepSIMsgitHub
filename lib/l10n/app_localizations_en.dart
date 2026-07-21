@@ -1685,4 +1685,119 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get planFeePaidFromWallet => 'Plan fee paid from your wallet balance.';
+
+  @override
+  String activityTopupRequested(String amount) {
+    return 'Refill request submitted for \$$amount';
+  }
+
+  @override
+  String activityTopupSuccess(String amount, String provider) {
+    return 'Top-up of \$$amount completed via $provider';
+  }
+
+  @override
+  String activityTopupFailed(String amount, String reason) {
+    return 'Top-up of \$$amount failed: $reason';
+  }
+
+  @override
+  String activityTopupRefunded(String amount) {
+    return 'Refill of \$$amount refunded to wallet';
+  }
+
+  @override
+  String activityTopupCancelled(String amount) {
+    return 'Refill request of \$$amount cancelled';
+  }
+
+  @override
+  String activityTopupRetryQueued(String amount) {
+    return 'Retry queued for refill of \$$amount';
+  }
+
+  @override
+  String get activityLineCreated => 'SIM Line registered in SIM Shield';
+
+  @override
+  String get activityHealthUpdate => 'SIM Line active status verified';
+
+  @override
+  String get activityReminderSent => 'Renewal reminder notification sent';
+
+  @override
+  String get supportTicketsTitle => 'Help & Support';
+
+  @override
+  String get supportTicketsSubtitle =>
+      'Submit support requests, attach activity logs, and chat live with our support team.';
+
+  @override
+  String get supportTicketsEmpty => 'No support tickets found.';
+
+  @override
+  String get createSupportTicket => 'Create Ticket';
+
+  @override
+  String get ticketCategoryGeneral => 'General Inquiry';
+
+  @override
+  String get ticketCategoryBilling => 'Billing & Wallet';
+
+  @override
+  String get ticketCategoryTechnical => 'Technical Issue';
+
+  @override
+  String get ticketCategoryRefillIssue => 'Refill Issue';
+
+  @override
+  String get ticketCategoryAccount => 'Account & Security';
+
+  @override
+  String get ticketStatusOpen => 'Open';
+
+  @override
+  String get ticketStatusPending => 'Pending Reply';
+
+  @override
+  String get ticketStatusResolved => 'Resolved';
+
+  @override
+  String get ticketStatusClosed => 'Closed';
+
+  @override
+  String get ticketSubjectLabel => 'Subject';
+
+  @override
+  String get ticketSubjectHint => 'Brief description of the issue';
+
+  @override
+  String get ticketCategoryLabel => 'Category';
+
+  @override
+  String get ticketMessageLabel => 'Message';
+
+  @override
+  String get ticketMessageHint => 'Provide detailed information...';
+
+  @override
+  String get attachImage => 'Attach Image';
+
+  @override
+  String get attachActivityLogs => 'Attach Line Logs';
+
+  @override
+  String get submitTicket => 'Submit Ticket';
+
+  @override
+  String get typeMessageHint => 'Type a message...';
+
+  @override
+  String get closeTicketButton => 'Close Ticket';
+
+  @override
+  String get ticketClosedNotice => 'This support ticket has been closed.';
+
+  @override
+  String get attachedFiles => 'Attachments';
 }

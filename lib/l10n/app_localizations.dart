@@ -3087,6 +3087,210 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Plan fee paid from your wallet balance.'**
   String get planFeePaidFromWallet;
+
+  /// No description provided for @activityTopupRequested.
+  ///
+  /// In en, this message translates to:
+  /// **'Refill request submitted for \${amount}'**
+  String activityTopupRequested(String amount);
+
+  /// No description provided for @activityTopupSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Top-up of \${amount} completed via {provider}'**
+  String activityTopupSuccess(String amount, String provider);
+
+  /// No description provided for @activityTopupFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Top-up of \${amount} failed: {reason}'**
+  String activityTopupFailed(String amount, String reason);
+
+  /// No description provided for @activityTopupRefunded.
+  ///
+  /// In en, this message translates to:
+  /// **'Refill of \${amount} refunded to wallet'**
+  String activityTopupRefunded(String amount);
+
+  /// No description provided for @activityTopupCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Refill request of \${amount} cancelled'**
+  String activityTopupCancelled(String amount);
+
+  /// No description provided for @activityTopupRetryQueued.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry queued for refill of \${amount}'**
+  String activityTopupRetryQueued(String amount);
+
+  /// No description provided for @activityLineCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'SIM Line registered in SIM Shield'**
+  String get activityLineCreated;
+
+  /// No description provided for @activityHealthUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'SIM Line active status verified'**
+  String get activityHealthUpdate;
+
+  /// No description provided for @activityReminderSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Renewal reminder notification sent'**
+  String get activityReminderSent;
+
+  /// No description provided for @supportTicketsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Help & Support'**
+  String get supportTicketsTitle;
+
+  /// No description provided for @supportTicketsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit support requests, attach activity logs, and chat live with our support team.'**
+  String get supportTicketsSubtitle;
+
+  /// No description provided for @supportTicketsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No support tickets found.'**
+  String get supportTicketsEmpty;
+
+  /// No description provided for @createSupportTicket.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Ticket'**
+  String get createSupportTicket;
+
+  /// No description provided for @ticketCategoryGeneral.
+  ///
+  /// In en, this message translates to:
+  /// **'General Inquiry'**
+  String get ticketCategoryGeneral;
+
+  /// No description provided for @ticketCategoryBilling.
+  ///
+  /// In en, this message translates to:
+  /// **'Billing & Wallet'**
+  String get ticketCategoryBilling;
+
+  /// No description provided for @ticketCategoryTechnical.
+  ///
+  /// In en, this message translates to:
+  /// **'Technical Issue'**
+  String get ticketCategoryTechnical;
+
+  /// No description provided for @ticketCategoryRefillIssue.
+  ///
+  /// In en, this message translates to:
+  /// **'Refill Issue'**
+  String get ticketCategoryRefillIssue;
+
+  /// No description provided for @ticketCategoryAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Account & Security'**
+  String get ticketCategoryAccount;
+
+  /// No description provided for @ticketStatusOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get ticketStatusOpen;
+
+  /// No description provided for @ticketStatusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending Reply'**
+  String get ticketStatusPending;
+
+  /// No description provided for @ticketStatusResolved.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolved'**
+  String get ticketStatusResolved;
+
+  /// No description provided for @ticketStatusClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get ticketStatusClosed;
+
+  /// No description provided for @ticketSubjectLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Subject'**
+  String get ticketSubjectLabel;
+
+  /// No description provided for @ticketSubjectHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Brief description of the issue'**
+  String get ticketSubjectHint;
+
+  /// No description provided for @ticketCategoryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get ticketCategoryLabel;
+
+  /// No description provided for @ticketMessageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get ticketMessageLabel;
+
+  /// No description provided for @ticketMessageHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Provide detailed information...'**
+  String get ticketMessageHint;
+
+  /// No description provided for @attachImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Attach Image'**
+  String get attachImage;
+
+  /// No description provided for @attachActivityLogs.
+  ///
+  /// In en, this message translates to:
+  /// **'Attach Line Logs'**
+  String get attachActivityLogs;
+
+  /// No description provided for @submitTicket.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit Ticket'**
+  String get submitTicket;
+
+  /// No description provided for @typeMessageHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Type a message...'**
+  String get typeMessageHint;
+
+  /// No description provided for @closeTicketButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Close Ticket'**
+  String get closeTicketButton;
+
+  /// No description provided for @ticketClosedNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'This support ticket has been closed.'**
+  String get ticketClosedNotice;
+
+  /// No description provided for @attachedFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Attachments'**
+  String get attachedFiles;
 }
 
 class _AppLocalizationsDelegate
