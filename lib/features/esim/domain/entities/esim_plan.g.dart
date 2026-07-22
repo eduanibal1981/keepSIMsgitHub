@@ -18,7 +18,13 @@ _EsimPlan _$EsimPlanFromJson(Map<String, dynamic> json) => _EsimPlan(
           ?.map((e) => e as String)
           .toList() ??
       const [],
+  roamingEnabled:
+      (json['roamingEnabled'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList() ??
+      const [],
   description: json['description'] as String?,
+  imageUrl: json['imageUrl'] as String?,
 );
 
 Map<String, dynamic> _$EsimPlanToJson(_EsimPlan instance) => <String, dynamic>{
@@ -29,5 +35,7 @@ Map<String, dynamic> _$EsimPlanToJson(_EsimPlan instance) => <String, dynamic>{
   'priceUsd': instance.priceUsd,
   'providerName': instance.providerName,
   'supportedCountries': instance.supportedCountries,
+  'roamingEnabled': instance.roamingEnabled,
   'description': instance.description,
+  'imageUrl': instance.imageUrl,
 };

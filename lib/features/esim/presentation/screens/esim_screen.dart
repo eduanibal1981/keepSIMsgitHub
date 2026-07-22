@@ -12,7 +12,7 @@ import 'package:keep_sims/core/utils/build_context_extension.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
 import 'package:keep_sims/core/services/esim_capability_service.dart';
 import 'package:keep_sims/core/router/app_router.dart';
-import 'package:go_router/go_router.dart';
+import 'package:keep_sims/l10n/app_localizations.dart';
 
 class EsimScreen extends ConsumerWidget {
   const EsimScreen({super.key});
@@ -21,6 +21,7 @@ class EsimScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final esimCapability = ref.watch(esimCapabilityServiceProvider);
     final isDark = context.isDarkMode;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: context.scaffoldBackgroundColor,
@@ -29,7 +30,7 @@ class EsimScreen extends ConsumerWidget {
         elevation: 0,
         scrolledUnderElevation: 0,
         title: Text(
-          'eSIM Manager',
+          l10n.esimManagerTitle,
           style: AppTextStyles.headlineMedium.copyWith(
             color: context.onSurfaceColor,
             fontWeight: FontWeight.bold,
@@ -55,6 +56,8 @@ class EsimScreen extends ConsumerWidget {
   }
 
   Widget _buildContent(BuildContext context, bool isDark, bool isSupported) {
+    final l10n = AppLocalizations.of(context)!;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       child: Column(
@@ -68,6 +71,21 @@ class EsimScreen extends ConsumerWidget {
             // ── Quick Actions ───────────────────────────────────────
             _buildSectionTitle(context, 'eSIM Actions'),
             const SizedBox(height: 14),
+            _buildActionTile(
+              context,
+              isDark: isDark,
+              icon: Icons.travel_explore_rounded,
+              title: l10n.esimPlansTitle,
+              subtitle: l10n.searchDestinationHint,
+              color: const Color(0xFF8B5CF6),
+              onTap: () async {
+                await HapticHelper.lightTick();
+                if (context.mounted) {
+                  context.push(AppRoutes.esimPlans);
+                }
+              },
+            ),
+            const SizedBox(height: 10),
             _buildActionTile(
               context,
               isDark: isDark,
@@ -97,25 +115,10 @@ class EsimScreen extends ConsumerWidget {
                 }
               },
             ),
-            const SizedBox(height: 10),
-            _buildActionTile(
-              context,
-              isDark: isDark,
-              icon: Icons.travel_explore_rounded,
-              title: 'Browse eSIM Plans',
-              subtitle: 'Find data plans for your destination',
-              color: const Color(0xFF8B5CF6),
-              onTap: () async {
-                await HapticHelper.lightTick();
-                if (context.mounted) {
-                  context.push(AppRoutes.esimPlans);
-                }
-              },
-            ),
             const SizedBox(height: 28),
 
             // ── Installed eSIM Profiles ─────────────────────────────
-            _buildSectionTitle(context, 'Installed Profiles'),
+            _buildSectionTitle(context, 'My eSIMs'),
             const SizedBox(height: 14),
             _buildEmptyProfilesCard(context, isDark),
           ] else ...[
@@ -258,7 +261,7 @@ class EsimScreen extends ConsumerWidget {
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      'Add an eSIM profile to get started with digital SIM management.',
+                      'Browse travel data plans for 150+ countries with instant digital activation.',
                       style: AppTextStyles.caption.copyWith(
                         color: Colors.white.withValues(alpha: 0.85),
                         height: 1.3,
@@ -274,7 +277,6 @@ class EsimScreen extends ConsumerWidget {
     );
   }
 
-  // ── Section Title ───────────────────────────────────────────────
   Widget _buildSectionTitle(BuildContext context, String title) {
     return Text(
       title,
@@ -284,7 +286,6 @@ class EsimScreen extends ConsumerWidget {
     );
   }
 
-  // ── Action Tile ─────────────────────────────────────────────────
   Widget _buildActionTile(
     BuildContext context, {
     required bool isDark,
@@ -355,11 +356,10 @@ class EsimScreen extends ConsumerWidget {
     );
   }
 
-  // ── Empty Profiles Card ─────────────────────────────────────────
   Widget _buildEmptyProfilesCard(BuildContext context, bool isDark) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
+      padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 24),
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCard : AppColors.lightCard,
         borderRadius: BorderRadius.circular(18),
@@ -371,8 +371,8 @@ class EsimScreen extends ConsumerWidget {
       child: Column(
         children: [
           Container(
-            width: 64,
-            height: 64,
+            width: 60,
+            height: 60,
             decoration: BoxDecoration(
               color: const Color(0xFF6366F1).withValues(alpha: 0.1),
               shape: BoxShape.circle,
@@ -380,12 +380,12 @@ class EsimScreen extends ConsumerWidget {
             child: const Icon(
               Icons.sim_card_outlined,
               color: Color(0xFF6366F1),
-              size: 28,
+              size: 26,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 14),
           Text(
-            'No eSIM Profiles Installed',
+            'No Active eSIMs Yet',
             style: AppTextStyles.bodyMedium.copyWith(
               color: context.onSurfaceColor,
               fontWeight: FontWeight.w600,
@@ -393,7 +393,7 @@ class EsimScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            'Add an eSIM profile to start managing\nyour digital SIM cards here.',
+            'Browse and buy eSIM travel packages to view your active data passes here.',
             textAlign: TextAlign.center,
             style: AppTextStyles.caption.copyWith(
               color: context.onSurfaceColor.withValues(alpha: 0.5),
@@ -405,8 +405,8 @@ class EsimScreen extends ConsumerWidget {
     );
   }
 
-  // ── Not Supported Info ──────────────────────────────────────────
   Widget _buildNotSupportedInfo(BuildContext context, bool isDark) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
@@ -439,7 +439,7 @@ class EsimScreen extends ConsumerWidget {
               const SizedBox(width: 14),
               Expanded(
                 child: Text(
-                  'Device Not Compatible',
+                  l10n.deviceIncompatibleNotice,
                   style: AppTextStyles.bodyMedium.copyWith(
                     color: context.onSurfaceColor,
                     fontWeight: FontWeight.bold,
@@ -448,77 +448,11 @@ class EsimScreen extends ConsumerWidget {
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          Text(
-            'Your device does not support eSIM technology. eSIM requires:',
-            style: AppTextStyles.bodySmall.copyWith(
-              color: context.onSurfaceColor.withValues(alpha: 0.7),
-              height: 1.4,
-            ),
-          ),
-          const SizedBox(height: 12),
-          _buildRequirementRow(
-            context,
-            '📱',
-            'A device with an embedded eUICC chip',
-          ),
-          const SizedBox(height: 8),
-          _buildRequirementRow(
-            context,
-            '🤖',
-            'Android 9 (Pie) or later',
-          ),
-          const SizedBox(height: 8),
-          _buildRequirementRow(
-            context,
-            '🍎',
-            'iPhone XS / XR or newer (iOS 12+)',
-          ),
-          const SizedBox(height: 16),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.06),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              'Most smartphones manufactured after 2019 support eSIM. '
-              'Check your device settings or manufacturer specifications.',
-              style: AppTextStyles.caption.copyWith(
-                color: context.onSurfaceColor.withValues(alpha: 0.6),
-                height: 1.4,
-              ),
-            ),
-          ),
         ],
       ),
     );
   }
 
-  Widget _buildRequirementRow(
-    BuildContext context,
-    String emoji,
-    String text,
-  ) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(emoji, style: const TextStyle(fontSize: 16)),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Text(
-            text,
-            style: AppTextStyles.bodySmall.copyWith(
-              color: context.onSurfaceColor.withValues(alpha: 0.65),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  // ── Coming Soon Bottom Sheet ────────────────────────────────────
   void _showComingSoonSheet(BuildContext context, bool isDark) {
     showModalBottomSheet(
       context: context,
@@ -532,86 +466,16 @@ class EsimScreen extends ConsumerWidget {
               topLeft: Radius.circular(28),
               topRight: Radius.circular(28),
             ),
-            border: Border(
-              top: BorderSide(
-                color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-                width: 1.5,
-              ),
-            ),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Center(
-                child: Container(
-                  width: 48,
-                  height: 4,
-                  margin: const EdgeInsets.only(bottom: 24),
-                  decoration: BoxDecoration(
-                    color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              Container(
-                width: 72,
-                height: 72,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF6366F1).withValues(alpha: 0.12),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.rocket_launch_rounded,
-                  color: Color(0xFF6366F1),
-                  size: 32,
-                ),
-              ),
-              const SizedBox(height: 20),
-              Text(
-                'Coming Soon',
-                style: AppTextStyles.headlineMedium.copyWith(
-                  color: isDark
-                      ? AppColors.textPrimaryDark
-                      : AppColors.textPrimaryLight,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'This feature is under active development and will be '
-                'available in an upcoming release. Stay tuned!',
-                textAlign: TextAlign.center,
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: isDark
-                      ? AppColors.textSecondaryDark
-                      : AppColors.textSecondaryLight,
-                  height: 1.4,
-                ),
-              ),
-              const SizedBox(height: 28),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () => Navigator.pop(context),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF6366F1),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    elevation: 0,
-                  ),
-                  child: const Text(
-                    'Got it',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 8),
+              Text('Coming Soon in C9b', style: AppTextStyles.headlineSmall),
+              const SizedBox(height: 12),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              )
             ],
           ),
         );

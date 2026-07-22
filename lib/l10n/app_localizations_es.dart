@@ -1956,4 +1956,79 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get detectedViaIp => 'Detectado por IP';
+
+  @override
+  String get esimManagerTitle => 'Gestor de eSIM';
+
+  @override
+  String get esimPlansTitle => 'Planes de eSIM';
+
+  @override
+  String get searchDestinationHint =>
+      'Buscar destino (ej. Francia, Estados Unidos)';
+
+  @override
+  String get selectDestinationTitle => 'Seleccionar destino';
+
+  @override
+  String get localTab => 'Local';
+
+  @override
+  String get regionalTab => 'Regional';
+
+  @override
+  String get globalTab => 'Global';
+
+  @override
+  String get bestValueBadge => 'MEJOR VALOR';
+
+  @override
+  String get perGb => '/ GB';
+
+  @override
+  String validityDays(Object days) {
+    return '$days Días';
+  }
+
+  @override
+  String get buyPlanButton => 'Comprar Plan';
+
+  @override
+  String get deviceIncompatibleNotice =>
+      'Tu dispositivo no es compatible con la tecnología eSIM.';
+
+  @override
+  String get activationPolicyTitle => 'Política de activación';
+
+  @override
+  String get activationPolicyNotice =>
+      'La validez comienza cuando la eSIM se conecta a una red compatible en tu destino.';
+
+  @override
+  String get coveredCountriesTitle => 'Países cubiertos';
+
+  @override
+  String get sortPriceLowToHigh => 'Precio: menor a mayor';
+
+  @override
+  String get sortPricePerGb => 'Precio / GB: menor a mayor';
+
+  @override
+  String get sortDataHighToLow => 'Datos: mayor a menor';
+
+  @override
+  String get filterAll => 'Todos los planes';
+
+  @override
+  String get filterMin5Gb => '≥ 5 GB';
+
+  @override
+  String get filterMin15Days => '≥ 15 Días';
+
+  @override
+  String get filterUnlimited => 'Ilimitado';
+
+  @override
+  String get purchaseInNextRelease =>
+      'La opción de compra estará disponible en la próxima versión (C9b).';
 }

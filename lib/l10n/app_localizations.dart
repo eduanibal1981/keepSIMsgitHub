@@ -3513,6 +3513,144 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Detected via IP'**
   String get detectedViaIp;
+
+  /// No description provided for @esimManagerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'eSIM Manager'**
+  String get esimManagerTitle;
+
+  /// No description provided for @esimPlansTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'eSIM Plans'**
+  String get esimPlansTitle;
+
+  /// No description provided for @searchDestinationHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search destination (e.g. France, United States)'**
+  String get searchDestinationHint;
+
+  /// No description provided for @selectDestinationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Destination'**
+  String get selectDestinationTitle;
+
+  /// No description provided for @localTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Local'**
+  String get localTab;
+
+  /// No description provided for @regionalTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Regional'**
+  String get regionalTab;
+
+  /// No description provided for @globalTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Global'**
+  String get globalTab;
+
+  /// No description provided for @bestValueBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'BEST VALUE'**
+  String get bestValueBadge;
+
+  /// No description provided for @perGb.
+  ///
+  /// In en, this message translates to:
+  /// **'/ GB'**
+  String get perGb;
+
+  /// No description provided for @validityDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{days} Days'**
+  String validityDays(Object days);
+
+  /// No description provided for @buyPlanButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy Plan'**
+  String get buyPlanButton;
+
+  /// No description provided for @deviceIncompatibleNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Your device does not support eSIM functionality.'**
+  String get deviceIncompatibleNotice;
+
+  /// No description provided for @activationPolicyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Activation Policy'**
+  String get activationPolicyTitle;
+
+  /// No description provided for @activationPolicyNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Validity starts when the eSIM connects to a supported network at your destination.'**
+  String get activationPolicyNotice;
+
+  /// No description provided for @coveredCountriesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Covered Countries'**
+  String get coveredCountriesTitle;
+
+  /// No description provided for @sortPriceLowToHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'Price: Low to High'**
+  String get sortPriceLowToHigh;
+
+  /// No description provided for @sortPricePerGb.
+  ///
+  /// In en, this message translates to:
+  /// **'Price / GB: Low to High'**
+  String get sortPricePerGb;
+
+  /// No description provided for @sortDataHighToLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Data: High to Low'**
+  String get sortDataHighToLow;
+
+  /// No description provided for @filterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All Plans'**
+  String get filterAll;
+
+  /// No description provided for @filterMin5Gb.
+  ///
+  /// In en, this message translates to:
+  /// **'≥ 5 GB'**
+  String get filterMin5Gb;
+
+  /// No description provided for @filterMin15Days.
+  ///
+  /// In en, this message translates to:
+  /// **'≥ 15 Days'**
+  String get filterMin15Days;
+
+  /// No description provided for @filterUnlimited.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlimited'**
+  String get filterUnlimited;
+
+  /// No description provided for @purchaseInNextRelease.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase flow will land in the next release (C9b).'**
+  String get purchaseInNextRelease;
 }
 
 class _AppLocalizationsDelegate

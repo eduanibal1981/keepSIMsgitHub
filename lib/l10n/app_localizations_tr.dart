@@ -1936,4 +1936,79 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get detectedViaIp => 'IP İle Tespit Edildi';
+
+  @override
+  String get esimManagerTitle => 'eSIM Yöneticisi';
+
+  @override
+  String get esimPlansTitle => 'eSIM Paketleri';
+
+  @override
+  String get searchDestinationHint =>
+      'Hedef ara (ör. Fransa, Amerika Birleşik Devletleri)';
+
+  @override
+  String get selectDestinationTitle => 'Hedef Seçin';
+
+  @override
+  String get localTab => 'Yerel';
+
+  @override
+  String get regionalTab => 'Bölgesel';
+
+  @override
+  String get globalTab => 'Küresel';
+
+  @override
+  String get bestValueBadge => 'EN İYİ FİYAT';
+
+  @override
+  String get perGb => '/ GB';
+
+  @override
+  String validityDays(Object days) {
+    return '$days Gün';
+  }
+
+  @override
+  String get buyPlanButton => 'Paket Satın Al';
+
+  @override
+  String get deviceIncompatibleNotice =>
+      'Cihazınız eSIM teknolojisini desteklememektedir.';
+
+  @override
+  String get activationPolicyTitle => 'Aktivasyon Politikası';
+
+  @override
+  String get activationPolicyNotice =>
+      'Geçerlilik süresi eSIM hedefinizdeki desteklenen bir ağa bağlandığında başlar.';
+
+  @override
+  String get coveredCountriesTitle => 'Kapsanan Ülkeler';
+
+  @override
+  String get sortPriceLowToHigh => 'Fiyat: Düşükten Yükseğe';
+
+  @override
+  String get sortPricePerGb => 'Fiyat / GB: Düşükten Yükseğe';
+
+  @override
+  String get sortDataHighToLow => 'Veri: Yüksekten Düşüğe';
+
+  @override
+  String get filterAll => 'Tüm Paketler';
+
+  @override
+  String get filterMin5Gb => '≥ 5 GB';
+
+  @override
+  String get filterMin15Days => '≥ 15 Gün';
+
+  @override
+  String get filterUnlimited => 'Sınırsız';
+
+  @override
+  String get purchaseInNextRelease =>
+      'Satın alma özelliği bir sonraki sürümde (C9b) sunulacaktır.';
 }

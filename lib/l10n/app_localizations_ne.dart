@@ -1936,4 +1936,79 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String get detectedViaIp => 'आईपी मार्फत पहिचान गरिएको';
+
+  @override
+  String get esimManagerTitle => 'eSIM प्रबन्धक';
+
+  @override
+  String get esimPlansTitle => 'eSIM योजनाहरू';
+
+  @override
+  String get searchDestinationHint =>
+      'गन्तव्य खोज्नुहोस् (जस्तै फ्रान्स, संयुक्त राज्य अमेरिका)';
+
+  @override
+  String get selectDestinationTitle => 'गन्तव्य चयन गर्नुहोस्';
+
+  @override
+  String get localTab => 'स्थानीय';
+
+  @override
+  String get regionalTab => 'क्षेत्रीय';
+
+  @override
+  String get globalTab => 'ग्लोबल';
+
+  @override
+  String get bestValueBadge => 'सर्वोत्कृष्ट मूल्य';
+
+  @override
+  String get perGb => '/ GB';
+
+  @override
+  String validityDays(Object days) {
+    return '$days दिन';
+  }
+
+  @override
+  String get buyPlanButton => 'योजना किन्नुहोस्';
+
+  @override
+  String get deviceIncompatibleNotice =>
+      'तपाईंको उपकरणले eSIM प्रविधिलाई समर्थन गर्दैन।';
+
+  @override
+  String get activationPolicyTitle => 'सक्रियता नीति';
+
+  @override
+  String get activationPolicyNotice =>
+      'तपाईंको गन्तव्यमा समर्थित नेटवर्कमा eSIM जडान भएपछि मान्यता अवधि सुरु हुन्छ।';
+
+  @override
+  String get coveredCountriesTitle => 'समावेश गरिएका देशहरू';
+
+  @override
+  String get sortPriceLowToHigh => 'मूल्य: कम देखि बढी';
+
+  @override
+  String get sortPricePerGb => 'मूल्य / GB: कम देखि बढी';
+
+  @override
+  String get sortDataHighToLow => 'डेटा: बढी देखि कम';
+
+  @override
+  String get filterAll => 'सबै योजनाहरू';
+
+  @override
+  String get filterMin5Gb => '≥ ५ GB';
+
+  @override
+  String get filterMin15Days => '≥ १५ दिन';
+
+  @override
+  String get filterUnlimited => 'अनलिमिटेड';
+
+  @override
+  String get purchaseInNextRelease =>
+      'खरिद सुविधा आगामी संस्करण (C9b) मा उपलब्ध हुनेछ।';
 }

@@ -20,7 +20,6 @@ import 'package:onesignal_flutter/onesignal_flutter.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:keep_sims/core/services/local_cache_service.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,9 +29,6 @@ void main() async {
 
   // Lock to portrait on mobile
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-
-  // Load environment variables
-  await dotenv.load(fileName: ".env");
 
   // Intialize OneSignal (for push notifications)
   // Enable verbose logging for debugging (remove in production)

@@ -1938,4 +1938,79 @@ class AppLocalizationsSi extends AppLocalizations {
 
   @override
   String get detectedViaIp => 'IP මගින් හඳුනා ගන්නා ලදී';
+
+  @override
+  String get esimManagerTitle => 'eSIM කළමනාකරු';
+
+  @override
+  String get esimPlansTitle => 'eSIM පැකේජ';
+
+  @override
+  String get searchDestinationHint =>
+      'ගමනාන්තය සොයන්න (උදා. ප්‍රංශය, එක්සත් ජනපදය)';
+
+  @override
+  String get selectDestinationTitle => 'ගමනාන්තය තෝරන්න';
+
+  @override
+  String get localTab => 'දේශීය';
+
+  @override
+  String get regionalTab => 'කලාපීය';
+
+  @override
+  String get globalTab => 'ගෝලීය';
+
+  @override
+  String get bestValueBadge => 'හොඳම වටිනාකම';
+
+  @override
+  String get perGb => '/ GB';
+
+  @override
+  String validityDays(Object days) {
+    return 'දින $days';
+  }
+
+  @override
+  String get buyPlanButton => 'පැකේජය මිලදී ගන්න';
+
+  @override
+  String get deviceIncompatibleNotice =>
+      'ඔබගේ උපාංගය eSIM තාක්ෂණයට සහාය නොදක්වයි.';
+
+  @override
+  String get activationPolicyTitle => 'ක්‍රියාත්මක කිරීමේ ප්‍රතිපත්තිය';
+
+  @override
+  String get activationPolicyNotice =>
+      'ඔබගේ ගමනාන්තයේ සහාය දක්වන ජාලයකට eSIM සම්බන්ධ වූ විට වලංගු කාලය ආරම්භ වේ.';
+
+  @override
+  String get coveredCountriesTitle => 'ඇතුළත් රටවල්';
+
+  @override
+  String get sortPriceLowToHigh => 'මිල: අඩු සිට වැඩි';
+
+  @override
+  String get sortPricePerGb => 'මිල / GB: අඩු සිට වැඩි';
+
+  @override
+  String get sortDataHighToLow => 'දත්ත: වැඩි සිට අඩු';
+
+  @override
+  String get filterAll => 'සියලුම පැකේජ';
+
+  @override
+  String get filterMin5Gb => '≥ 5 GB';
+
+  @override
+  String get filterMin15Days => '≥ දින 15';
+
+  @override
+  String get filterUnlimited => 'අසීමිත';
+
+  @override
+  String get purchaseInNextRelease =>
+      'මිලදී ගැනීමේ வசතිය ඊළඟ නිකුතුවේදී (C9b) ලබා ගත හැක.';
 }

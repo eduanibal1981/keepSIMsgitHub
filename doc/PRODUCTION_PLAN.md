@@ -978,16 +978,31 @@ Big session — acceptable to split UI (1–3) and server webhooks (4) into two.
   - `flutter analyze`: 0 errors. All 55 Flutter unit tests PASSED.
   - `flutter build apk --debug`: Compiled successfully.
 
-## ⚪ C9 — eSIM management (big — split if needed)
+## 🟠 C9 — eSIM management
 
-Old REQUEST 11: `lib/features/esim/` is a facade (both CTAs at
-`esim_screen.dart:81,96` show "coming soon"). Build browse-by-destination,
-purchase against the wallet, QR/activation delivery, "My eSIMs" with data
-remaining + expiry, low-data alerts via C1. eSIM Go calls go through an Edge
-Function (never `ESIM_GO_API_KEY` in the app — it's currently via
-`flutter_dotenv`, which bundles as an extractable asset; move it server-side as
-part of this). Surface eSIMs alongside physical lines. Reasonable split:
-(a) catalog + purchase, (b) management + alerts.
+**Status:** 🟠 **PARTIAL (C9a DONE: Security Cutover, Server Catalog Cache & Markup View, VM Catalog Worker & Airalo-Class Browse/Compare UX)**
+
+**Implementation Record (C9a - 2026-07-22):**
+- **Architecture Deviations & Decisions:**
+  1. *Client Key Eviction:* Removed `ESIM_GO_API_KEY`, `EsimGoApiClient`, `flutter_dotenv` package, `.env` asset, and `dotenv.load()` from client codebase entirely. Key management moved strictly to GCP VM `servers/.env`.
+  2. *Server-Side Catalog & Wholesale Isolation:* Created `esim_offers_cache` (wholesale prices isolated from client roles via RLS). Exposed retail catalog via security-definer view `esim_offers` applying `system_configs.ESIM_MARKUP_PERCENT` (seeded at 30%, DB-tunable with zero app updates).
+  3. *VM Catalog Worker:* Created `servers/worker_esim_catalog.js` (refreshes eSIM Go catalogue every 6h via PM2, with `esimCatalogRow` single-row transform tested by `node --test servers/test/esim_catalog_test.js`).
+  4. *Airalo/Holafly-Class Browse & Compare UX:* Built destination-first country picker with flags + search (preselected from `profiles.last_country` / `home_country_code`), Local / Regional / Global coverage tabs, quick filter chips (`≥5 GB`, `≥15 Days`, `Unlimited`), sort dropdown (`Price`, `$/GB`, `Data`), computed "Best Value" badge on the cheapest $/GB offer, and Plan Detail Sheet with activation policy copy and eSIM device capability gating.
+  5. *Notification Canon Extension:* Extended notification category canon from 13 to 14 (`esim_low_data`) across `notifications_category_check`, `alert_settings_category_check`, and `trg_profiles_seed_alert_settings`.
+- **Database Migration (`supabase/migrations/20260726000000_c9a_esim_catalog.sql`):**
+  - Created `esim_offers_cache` with PK `(provider, bundle_name)` and RLS enabled (no direct SELECT for authenticated/anon).
+  - Seeded `ESIM_MARKUP_PERCENT = '30'` in `system_configs`.
+  - Created public view `esim_offers` computing `retail_price_usd`.
+  - Updated category CHECK constraints and seeded `esim_low_data` for existing profiles.
+- **Verification:**
+  - SQL test suite (`supabase/tests/c9a_esim_tests.sql`) executed live in `BEGIN..ROLLBACK`: ALL PASSED.
+  - PostgREST wallet balance for `a1-wallet-test@example.com` verified unchanged at $37.81.
+  - MCP `get_advisors`: 0 net-new security findings.
+  - `flutter analyze`: 0 errors. All 55 Flutter unit tests PASSED.
+  - Node test suite: 3/3 tests PASSED (`node --test servers/test/esim_catalog_test.js`).
+  - Debug APK built successfully (`flutter build apk --debug`).
+
+*Next up in C9b:* Wallet purchase RPC + order tracking table + `worker_esim_fulfillment` VM worker + LPA QR delivery & "My eSIMs" manager + low-data background alerts.
 
 ---
 

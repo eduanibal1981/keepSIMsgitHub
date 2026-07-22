@@ -1933,4 +1933,79 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get detectedViaIp => 'আইপি দ্বারা সনাক্ত করা হয়েছে';
+
+  @override
+  String get esimManagerTitle => 'eSIM ম্যানেজার';
+
+  @override
+  String get esimPlansTitle => 'eSIM প্ল্যানসমূহ';
+
+  @override
+  String get searchDestinationHint =>
+      'গন্তব্য খুঁজুন (যেমন ফ্রান্স, মার্কিন যুক্তরাষ্ট্র)';
+
+  @override
+  String get selectDestinationTitle => 'গন্তব্য নির্বাচন করুন';
+
+  @override
+  String get localTab => 'লোকাল';
+
+  @override
+  String get regionalTab => 'আঞ্চলিক';
+
+  @override
+  String get globalTab => 'গ্লোবাল';
+
+  @override
+  String get bestValueBadge => 'সেরা মূল্য';
+
+  @override
+  String get perGb => '/ জিবি';
+
+  @override
+  String validityDays(Object days) {
+    return '$days দিন';
+  }
+
+  @override
+  String get buyPlanButton => 'প্ল্যান কিনুন';
+
+  @override
+  String get deviceIncompatibleNotice =>
+      'আপনার ডিভাইসটি eSIM প্রযুক্তি সমর্থন করে না।';
+
+  @override
+  String get activationPolicyTitle => 'অ্যাক্টিভেশন পলিসি';
+
+  @override
+  String get activationPolicyNotice =>
+      'আপনার গন্তব্যে সমর্থিত নেটওয়ার্কের সাথে eSIM যুক্ত হলে মেয়াদ শুরু হয়।';
+
+  @override
+  String get coveredCountriesTitle => 'অন্তর্ভুক্ত দেশসমূহ';
+
+  @override
+  String get sortPriceLowToHigh => 'মূল্য: কম থেকে বেশি';
+
+  @override
+  String get sortPricePerGb => 'মূল্য / জিবি: কম থেকে বেশি';
+
+  @override
+  String get sortDataHighToLow => 'ডেটা: বেশি থেকে কম';
+
+  @override
+  String get filterAll => 'সকল প্ল্যান';
+
+  @override
+  String get filterMin5Gb => '≥ ৫ জিবি';
+
+  @override
+  String get filterMin15Days => '≥ ১৫ দিন';
+
+  @override
+  String get filterUnlimited => 'আনলিমিটেড';
+
+  @override
+  String get purchaseInNextRelease =>
+      'ক্রয় করার সুবিধা পরবর্তী রিলিজে (C9b) আসবে।';
 }

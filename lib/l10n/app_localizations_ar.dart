@@ -1914,4 +1914,79 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get detectedViaIp => 'تم اكتشافه عبر IP';
+
+  @override
+  String get esimManagerTitle => 'إدارة الشريحة الإلكترونية';
+
+  @override
+  String get esimPlansTitle => 'باقات الشريحة الإلكترونية';
+
+  @override
+  String get searchDestinationHint =>
+      'ابحث عن الوجهة (مثل فرنسا، الولايات المتحدة)';
+
+  @override
+  String get selectDestinationTitle => 'اختر الوجهة';
+
+  @override
+  String get localTab => 'محلي';
+
+  @override
+  String get regionalTab => 'إقليمي';
+
+  @override
+  String get globalTab => 'عالمي';
+
+  @override
+  String get bestValueBadge => 'أفضل قيمة';
+
+  @override
+  String get perGb => '/ جيجابايت';
+
+  @override
+  String validityDays(Object days) {
+    return '$days يومًا';
+  }
+
+  @override
+  String get buyPlanButton => 'شراء الباقة';
+
+  @override
+  String get deviceIncompatibleNotice =>
+      'جهازك لا يدعم ميزة الشريحة الإلكترونية (eSIM).';
+
+  @override
+  String get activationPolicyTitle => 'سياسة التفعيل';
+
+  @override
+  String get activationPolicyNotice =>
+      'تبدأ فترة الصلاحية عند اتصال الشريحة الإلكترونية بشبكة مدعومة في وجهتك.';
+
+  @override
+  String get coveredCountriesTitle => 'الدول المشمولة';
+
+  @override
+  String get sortPriceLowToHigh => 'السعر: من الأقل للأعلى';
+
+  @override
+  String get sortPricePerGb => 'السعر / جيجابايت: من الأقل للأعلى';
+
+  @override
+  String get sortDataHighToLow => 'البيانات: من الأعلى للأقل';
+
+  @override
+  String get filterAll => 'كل الباقات';
+
+  @override
+  String get filterMin5Gb => '≥ 5 جيجابايت';
+
+  @override
+  String get filterMin15Days => '≥ 15 يومًا';
+
+  @override
+  String get filterUnlimited => 'غير محدود';
+
+  @override
+  String get purchaseInNextRelease =>
+      'سوف تتوفر ميزة الشراء في الإصدار القادم (C9b).';
 }
