@@ -806,5 +806,11 @@
     "filterMin5Gb": "≥ 5 GB",
     "filterMin15Days": "≥ දින 15",
     "filterUnlimited": "අසීමිත",
-    "purchaseInNextRelease": "මිලදී ගැනීමේ வசතිය ඊළඟ නිකුතුවේදී (C9b) ලබා ගත හැක."
+    "purchaseInNextRelease": "Purchase flow will land in the next release (C9b).",
+    "confirmPurchaseTitle": "eSIM මිලදී ගැනීම තහවුරු කරන්න",
+    "myEsimsTitle": "මගේ eSIM",
+    "showQrCode": "QR කේතය පෙන්වන්න",
+    "buyAgain": "නැවත මිලදී ගන්න",
+    "dataRemaining": "ඉතිරි දත්ත",
+    "archivedEsims": "සංරක්ෂිත eSIM"
 }

@@ -730,5 +730,11 @@
     "filterMin5Gb": "≥ 5 جيجابايت",
     "filterMin15Days": "≥ 15 يومًا",
     "filterUnlimited": "غير محدود",
-    "purchaseInNextRelease": "سوف تتوفر ميزة الشراء في الإصدار القادم (C9b)."
+    "purchaseInNextRelease": "Purchase flow will land in the next release (C9b).",
+    "confirmPurchaseTitle": "تأكيد شراء الشريحة الإلكترونية",
+    "myEsimsTitle": "شرائحي الإلكترونية",
+    "showQrCode": "عرض رمز الاستجابة السريعة",
+    "buyAgain": "شراء مرة أخرى",
+    "dataRemaining": "البيانات المتبقية",
+    "archivedEsims": "الشرائح المؤرشفة"
 }

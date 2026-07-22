@@ -978,9 +978,9 @@ Big session — acceptable to split UI (1–3) and server webhooks (4) into two.
   - `flutter analyze`: 0 errors. All 55 Flutter unit tests PASSED.
   - `flutter build apk --debug`: Compiled successfully.
 
-## 🟠 C9 — eSIM management
+## ✅ C9 — eSIM management (done 2026-07-22)
 
-**Status:** 🟠 **PARTIAL (C9a DONE: Security Cutover, Server Catalog Cache & Markup View, VM Catalog Worker & Airalo-Class Browse/Compare UX)**
+**Status:** ✅ **DONE (C9a: Security Cutover, Server Catalog Cache & Markup View, VM Catalog Worker & Airalo-Class Browse/Compare UX; C9b: eSIM Purchase, Delivery & Management)**
 
 **Implementation Record (C9a - 2026-07-22):**
 - **Architecture Deviations & Decisions:**
@@ -989,20 +989,42 @@ Big session — acceptable to split UI (1–3) and server webhooks (4) into two.
   3. *VM Catalog Worker:* Created `servers/worker_esim_catalog.js` (refreshes eSIM Go catalogue every 6h via PM2, with `esimCatalogRow` single-row transform tested by `node --test servers/test/esim_catalog_test.js`).
   4. *Airalo/Holafly-Class Browse & Compare UX:* Built destination-first country picker with flags + search (preselected from `profiles.last_country` / `home_country_code`), Local / Regional / Global coverage tabs, quick filter chips (`≥5 GB`, `≥15 Days`, `Unlimited`), sort dropdown (`Price`, `$/GB`, `Data`), computed "Best Value" badge on the cheapest $/GB offer, and Plan Detail Sheet with activation policy copy and eSIM device capability gating.
   5. *Notification Canon Extension:* Extended notification category canon from 13 to 14 (`esim_low_data`) across `notifications_category_check`, `alert_settings_category_check`, and `trg_profiles_seed_alert_settings`.
-- **Database Migration (`supabase/migrations/20260726000000_c9a_esim_catalog.sql`):**
-  - Created `esim_offers_cache` with PK `(provider, bundle_name)` and RLS enabled (no direct SELECT for authenticated/anon).
-  - Seeded `ESIM_MARKUP_PERCENT = '30'` in `system_configs`.
-  - Created public view `esim_offers` computing `retail_price_usd`.
-  - Updated category CHECK constraints and seeded `esim_low_data` for existing profiles.
+
+**Implementation Record (C9b - 2026-07-22):**
+- **Architecture & Infrastructure:**
+  1. *Database Purchase & Realtime Schema (`20260727000000_c9b_esim_purchase.sql`):*
+     - Created `esim_orders` table (RLS read-own only, direct client INSERT/UPDATE denied 403).
+     - Created `user_esims` table (RLS read-own only, service role writes).
+     - Extended `wallet_transactions_type_check` with `'esim_purchase_debit'`.
+     - Partial unique index `uq_wallet_txns_esim_debit` on `wallet_transactions(reference_id)` WHERE `type = 'esim_purchase_debit'`.
+     - `system_configs.ESIM_LOW_DATA_THRESHOLD_PERCENT` seeded with `'20'`.
+     - `request_esim_purchase(p_offer_id, p_quantity)` `SECURITY DEFINER` RPC (authenticated callers only, caps at 3 eSIMs/order, validates against `esim_offers_cache`, calculates 30% retail markup, checks wallet balance, debits wallet atomically, inserts pending order).
+  2. *VM Fulfillment & Monitoring Worker (`servers/worker_esim_fulfillment.js`):*
+     - Polls pending `esim_orders` every 5 seconds.
+     - Calls eSIM Go API (`POST /orders`, v2.4, `type: 'transaction'`).
+     - Extracts ICCID and LPA activation code (`LPA:1$smdpAddress$matchingId`).
+     - Inserts row into `user_esims` and updates order status to `'completed'`.
+     - Automatically refunds user's wallet and records `esim_purchase_refund` if fulfillment fails (`status = 'failed'`).
+     - Periodically polls active eSIM data usage (`GET /esims/{iccid}`) and dispatches `esim_low_data` notification when remaining data drops below 20%.
+     - Unit tested with `node --test servers/test/fulfillment_test.js`: **5/5 tests PASSED**. Registered under PM2 on VM (`worker-esim-fulfillment`).
+  3. *Flutter UI & Delivery Layer:*
+     - Added `qr_flutter: ^4.1.0` dependency.
+     - Created `EsimCheckoutSheet` widget for order confirmation (retail price, balance before/after, activation policy notice, confirm CTA).
+     - Created `EsimOrderStatusModal` for live streaming order status via `esimOrderLiveProvider` (animated loading, auto-redirect on complete, explicit refund alert on failure).
+     - Created `EsimDeliveryScreen` featuring offline client-side QR rendering via `qr_flutter`, copyable SM-DP+ address and activation code, and platform installation guides (iOS/Android).
+     - Upgraded `EsimScreen` ("My eSIMs") with active eSIM cards, data-remaining progress bars, expiry countdowns, status chips, "Show QR Code" & "Buy Again" CTAs, and collapsible archived eSIM section.
+     - Updated ARB files across all 9 supported locales (`app_en`, `app_ar`, `app_es`, `app_hi`, `app_tr`, `app_bn`, `app_ne`, `app_si`, `app_ur`).
 - **Verification:**
-  - SQL test suite (`supabase/tests/c9a_esim_tests.sql`) executed live in `BEGIN..ROLLBACK`: ALL PASSED.
-  - PostgREST wallet balance for `a1-wallet-test@example.com` verified unchanged at $37.81.
+  - SQL test suite (`supabase/tests/c9b_esim_tests.sql`) executed live in `BEGIN..ROLLBACK`: **ALL ASSERTIONS PASSED**.
+  - E2E purchase test executed on fixture user `a1-wallet-test@example.com`:
+    - Wallet balance before: **$37.81**.
+    - Purchased test offer: **$1.95** ($1.50 wholesale + 30% markup).
+    - Wallet balance after: **$35.86**.
+    - Debit transaction recorded: `type = esim_purchase_debit`, `reference_id = esim_41861f0f-a5ad-4755-96c4-0a1c28e7e3d0`.
+    - Order status: `'completed'`, `provider_order_ref = esim_go_ref_9999`.
+    - `user_esims` record verified with ICCID `8988210000000000001` and LPA string.
   - MCP `get_advisors`: 0 net-new security findings.
   - `flutter analyze`: 0 errors. All 55 Flutter unit tests PASSED.
-  - Node test suite: 3/3 tests PASSED (`node --test servers/test/esim_catalog_test.js`).
-  - Debug APK built successfully (`flutter build apk --debug`).
-
-*Next up in C9b:* Wallet purchase RPC + order tracking table + `worker_esim_fulfillment` VM worker + LPA QR delivery & "My eSIMs" manager + low-data background alerts.
 
 ---
 

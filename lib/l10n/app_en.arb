@@ -948,5 +948,11 @@
     "filterMin5Gb": "≥ 5 GB",
     "filterMin15Days": "≥ 15 Days",
     "filterUnlimited": "Unlimited",
-    "purchaseInNextRelease": "Purchase flow will land in the next release (C9b)."
+    "purchaseInNextRelease": "Purchase flow will land in the next release (C9b).",
+    "confirmPurchaseTitle": "Confirm eSIM Purchase",
+    "myEsimsTitle": "My eSIMs",
+    "showQrCode": "Show QR Code",
+    "buyAgain": "Buy Again",
+    "dataRemaining": "Data Remaining",
+    "archivedEsims": "Archived eSIMs"
 }

@@ -806,5 +806,11 @@
     "filterMin5Gb": "≥ 5 GB",
     "filterMin15Days": "≥ 15 दिन",
     "filterUnlimited": "अनलिमिटेड",
-    "purchaseInNextRelease": "खरीद की सुविधा अगले रिलीज़ (C9b) में उपलब्ध होगी।"
+    "purchaseInNextRelease": "खरीद की सुविधा अगले रिलीज़ (C9b) में उपलब्ध होगी।",
+    "confirmPurchaseTitle": "eSIM खरीद की पुष्टि करें",
+    "myEsimsTitle": "मेरी eSIMs",
+    "showQrCode": "QR कोड दिखाएं",
+    "buyAgain": "पुनः खरीदें",
+    "dataRemaining": "शेष डेटा",
+    "archivedEsims": "आर्काइव की गई eSIMs"
 }

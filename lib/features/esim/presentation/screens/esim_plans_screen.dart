@@ -10,6 +10,8 @@ import 'package:keep_sims/core/widgets/haptic_helper.dart';
 import 'package:keep_sims/core/services/esim_capability_service.dart';
 import 'package:keep_sims/features/esim/domain/entities/esim_plan.dart';
 import 'package:keep_sims/features/esim/presentation/controllers/esim_plans_controller.dart';
+import 'package:keep_sims/features/esim/presentation/widgets/esim_checkout_sheet.dart';
+import 'package:keep_sims/l10n/app_localizations.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 enum EsimSortMode {
@@ -120,7 +122,7 @@ class _EsimPlansScreenState extends ConsumerState<EsimPlansScreen>
 
   @override
   Widget build(BuildContext context) {
-    final l10n = context.l10n;
+    final l10n = AppLocalizations.of(context)!;
     final isDark = context.isDarkMode;
     final esimCapability = ref.watch(esimCapabilityServiceProvider);
     final plansState =
@@ -321,7 +323,7 @@ class _EsimPlansScreenState extends ConsumerState<EsimPlansScreen>
 
   // ── Filter and Sort Controls Bar ─────────────────────────────
   Widget _buildFilterAndSortBar(BuildContext context, bool isDark) {
-    final l10n = context.l10n;
+    final l10n = AppLocalizations.of(context)!;
 
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -543,7 +545,7 @@ class _EsimPlansScreenState extends ConsumerState<EsimPlansScreen>
     required bool isBestValue,
     required bool isDeviceSupported,
   }) {
-    final l10n = context.l10n;
+    final l10n = AppLocalizations.of(context)!;
 
     return Material(
       color: isDark ? AppColors.darkCard : AppColors.lightCard,
@@ -692,7 +694,7 @@ class _EsimPlansScreenState extends ConsumerState<EsimPlansScreen>
     required bool isBestValue,
     required bool isDeviceSupported,
   }) {
-    final l10n = context.l10n;
+    final l10n = AppLocalizations.of(context)!;
 
     showModalBottomSheet(
       context: context,
@@ -700,7 +702,9 @@ class _EsimPlansScreenState extends ConsumerState<EsimPlansScreen>
       backgroundColor: Colors.transparent,
       builder: (context) {
         return Container(
-          maxHeight: MediaQuery.of(context).size.height * 0.85,
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.85,
+          ),
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
             color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
@@ -864,7 +868,7 @@ class _EsimPlansScreenState extends ConsumerState<EsimPlansScreen>
                             await HapticHelper.mediumImpact();
                             if (context.mounted) {
                               Navigator.pop(context);
-                              _showBuyIntentNotice(context);
+                              EsimCheckoutSheet.show(context, plan);
                             }
                           }
                         : null,
@@ -919,27 +923,9 @@ class _EsimPlansScreenState extends ConsumerState<EsimPlansScreen>
     );
   }
 
-  // ── C9b Purchase Landing Notice ──────────────────────────────
-  void _showBuyIntentNotice(BuildContext context) {
-    final l10n = context.l10n;
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.buyPlanButton),
-        content: Text(l10n.purchaseInNextRelease),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
-  }
-
   // ── Country Picker Bottom Sheet ──────────────────────────────
   void _showCountryPickerBottomSheet(BuildContext context, bool isDark) {
-    final l10n = context.l10n;
+    final l10n = AppLocalizations.of(context)!;
     String filterQuery = '';
 
     showModalBottomSheet(
@@ -947,7 +933,7 @@ class _EsimPlansScreenState extends ConsumerState<EsimPlansScreen>
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) {
-        return StatefulWidget(
+        return StatefulBuilder(
           builder: (context, setSheetState) {
             final filtered = _popularDestinations.entries.where((entry) {
               final code = entry.key.toLowerCase();
@@ -957,7 +943,9 @@ class _EsimPlansScreenState extends ConsumerState<EsimPlansScreen>
             }).toList();
 
             return Container(
-              maxHeight: MediaQuery.of(context).size.height * 0.8,
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.8,
+              ),
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 color: isDark ? AppColors.darkSurface : AppColors.lightSurface,

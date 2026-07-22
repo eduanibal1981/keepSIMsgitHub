@@ -11,7 +11,11 @@ import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/core/utils/build_context_extension.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
 import 'package:keep_sims/core/services/esim_capability_service.dart';
+import 'package:go_router/go_router.dart';
 import 'package:keep_sims/core/router/app_router.dart';
+import 'package:keep_sims/features/esim/domain/entities/user_esim.dart';
+import 'package:keep_sims/features/esim/presentation/controllers/user_esims_controller.dart';
+import 'package:keep_sims/features/esim/presentation/screens/esim_delivery_screen.dart';
 import 'package:keep_sims/l10n/app_localizations.dart';
 
 class EsimScreen extends ConsumerWidget {
@@ -47,85 +51,234 @@ class EsimScreen extends ConsumerWidget {
       ),
       body: SafeArea(
         child: esimCapability.when(
-          data: (isSupported) => _buildContent(context, isDark, isSupported),
+          data: (isSupported) => _buildContent(context, ref, isDark, isSupported),
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (err, _) => _buildContent(context, isDark, false),
+          error: (err, _) => _buildContent(context, ref, isDark, false),
         ),
       ),
     );
   }
 
-  Widget _buildContent(BuildContext context, bool isDark, bool isSupported) {
+  Widget _buildContent(
+    BuildContext context,
+    WidgetRef ref,
+    bool isDark,
+    bool isSupported,
+  ) {
     final l10n = AppLocalizations.of(context)!;
+    final userEsimsAsync = ref.watch(userEsimsControllerProvider);
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+    return RefreshIndicator(
+      onRefresh: () async {
+        await ref.read(userEsimsControllerProvider.notifier).refresh();
+      },
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ── Hero eSIM Card ───────────────────────────────────────
+            _buildEsimHeroCard(context, isDark, isSupported),
+            const SizedBox(height: 28),
+
+            if (isSupported) ...[
+              // ── Quick Actions ───────────────────────────────────────
+              _buildSectionTitle(context, 'eSIM Actions'),
+              const SizedBox(height: 14),
+              _buildActionTile(
+                context,
+                isDark: isDark,
+                icon: Icons.travel_explore_rounded,
+                title: l10n.esimPlansTitle,
+                subtitle: l10n.searchDestinationHint,
+                color: const Color(0xFF8B5CF6),
+                onTap: () async {
+                  await HapticHelper.lightTick();
+                  if (context.mounted) {
+                    context.push(AppRoutes.esimPlans);
+                  }
+                },
+              ),
+              const SizedBox(height: 28),
+
+              // ── Installed eSIM Profiles ("My eSIMs") ────────────────
+              _buildSectionTitle(context, 'My eSIMs'),
+              const SizedBox(height: 14),
+
+              userEsimsAsync.when(
+                data: (esims) {
+                  if (esims.isEmpty) {
+                    return _buildEmptyProfilesCard(context, isDark);
+                  }
+                  final activeEsims = esims.where((e) => e.status == 'active' || e.status == 'installed').toList();
+                  final archivedEsims = esims.where((e) => e.status == 'expired' || e.status == 'depleted').toList();
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (activeEsims.isNotEmpty)
+                        ...activeEsims.map((esim) => _buildEsimCard(context, esim, isDark)),
+
+                      if (archivedEsims.isNotEmpty) ...[
+                        const SizedBox(height: 20),
+                        ExpansionTile(
+                          title: Text(
+                            'Archived eSIMs (${archivedEsims.length})',
+                            style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.bold),
+                          ),
+                          children: archivedEsims.map((esim) => _buildEsimCard(context, esim, isDark)).toList(),
+                        ),
+                      ],
+                    ],
+                  );
+                },
+                loading: () => const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(24.0),
+                    child: CircularProgressIndicator(),
+                  ),
+                ),
+                error: (err, _) => _buildEmptyProfilesCard(context, isDark),
+              ),
+            ] else ...[
+              // ── Device Not Supported ────────────────────────────────
+              _buildNotSupportedInfo(context, isDark),
+            ],
+            const SizedBox(height: 40),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEsimCard(BuildContext context, UserEsim esim, bool isDark) {
+    final theme = Theme.of(context);
+    final double remainingMb = esim.dataRemainingMb.toDouble();
+    final double totalMb = esim.dataTotalMb > 0 ? esim.dataTotalMb.toDouble() : 1024.0;
+    final double pct = (remainingMb / totalMb).clamp(0.0, 1.0);
+
+    final bool isActive = esim.status == 'active' || esim.status == 'installed';
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkCard : AppColors.lightCard,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: isActive ? Colors.teal.withOpacity(0.5) : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
+          width: isActive ? 1.5 : 1.0,
+        ),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Hero eSIM Card ───────────────────────────────────────
-          _buildEsimHeroCard(context, isDark, isSupported),
-          const SizedBox(height: 28),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.teal.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(Icons.sim_card, color: Colors.teal, size: 20),
+                  ),
+                  const SizedBox(width: 10),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        esim.bundleName,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        'ICCID: ${esim.iccid.length > 10 ? "${esim.iccid.substring(0, 8)}..." : esim.iccid}',
+                        style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: isActive ? Colors.green.withOpacity(0.15) : Colors.orange.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  esim.status.toUpperCase(),
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: isActive ? Colors.green : Colors.orange,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
 
-          if (isSupported) ...[
-            // ── Quick Actions ───────────────────────────────────────
-            _buildSectionTitle(context, 'eSIM Actions'),
-            const SizedBox(height: 14),
-            _buildActionTile(
-              context,
-              isDark: isDark,
-              icon: Icons.travel_explore_rounded,
-              title: l10n.esimPlansTitle,
-              subtitle: l10n.searchDestinationHint,
-              color: const Color(0xFF8B5CF6),
-              onTap: () async {
-                await HapticHelper.lightTick();
-                if (context.mounted) {
-                  context.push(AppRoutes.esimPlans);
-                }
-              },
+          // Data Remaining Progress Bar
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Data Remaining',
+                style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey),
+              ),
+              Text(
+                '${(remainingMb / 1024).toStringAsFixed(1)} GB / ${(totalMb / 1024).toStringAsFixed(1)} GB',
+                style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: pct,
+              minHeight: 8,
+              backgroundColor: Colors.grey.withOpacity(0.2),
+              color: pct > 0.2 ? Colors.teal : Colors.deepOrange,
             ),
-            const SizedBox(height: 10),
-            _buildActionTile(
-              context,
-              isDark: isDark,
-              icon: Icons.add_circle_outline_rounded,
-              title: 'Add eSIM Profile',
-              subtitle: 'Scan QR code or enter activation details',
-              color: AppColors.primary,
-              onTap: () async {
-                await HapticHelper.lightTick();
-                if (context.mounted) {
-                  _showComingSoonSheet(context, isDark);
-                }
-              },
-            ),
-            const SizedBox(height: 10),
-            _buildActionTile(
-              context,
-              isDark: isDark,
-              icon: Icons.swap_horiz_rounded,
-              title: 'Transfer eSIM',
-              subtitle: 'Move an existing eSIM to this device',
-              color: AppColors.secondary,
-              onTap: () async {
-                await HapticHelper.lightTick();
-                if (context.mounted) {
-                  _showComingSoonSheet(context, isDark);
-                }
-              },
-            ),
-            const SizedBox(height: 28),
+          ),
+          const SizedBox(height: 14),
 
-            // ── Installed eSIM Profiles ─────────────────────────────
-            _buildSectionTitle(context, 'My eSIMs'),
-            const SizedBox(height: 14),
-            _buildEmptyProfilesCard(context, isDark),
-          ] else ...[
-            // ── Device Not Supported ────────────────────────────────
-            _buildNotSupportedInfo(context, isDark),
-          ],
-          const SizedBox(height: 40),
+          // Action Buttons
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () => EsimDeliveryScreen.show(context, esim),
+                  icon: const Icon(Icons.qr_code, size: 16),
+                  label: const Text('Show QR Code'),
+                  style: OutlinedButton.styleFrom(
+                    visualDensity: VisualDensity.compact,
+                    foregroundColor: Colors.teal,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () => context.push(AppRoutes.esimPlans),
+                  icon: const Icon(Icons.shopping_bag, size: 16),
+                  label: const Text('Buy Again'),
+                  style: ElevatedButton.styleFrom(
+                    visualDensity: VisualDensity.compact,
+                    backgroundColor: Colors.teal,
+                    foregroundColor: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
@@ -450,36 +603,6 @@ class EsimScreen extends ConsumerWidget {
           ),
         ],
       ),
-    );
-  }
-
-  void _showComingSoonSheet(BuildContext context, bool isDark) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        return Container(
-          padding: const EdgeInsets.all(28),
-          decoration: BoxDecoration(
-            color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(28),
-              topRight: Radius.circular(28),
-            ),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('Coming Soon in C9b', style: AppTextStyles.headlineSmall),
-              const SizedBox(height: 12),
-              ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('OK'),
-              )
-            ],
-          ),
-        );
-      },
     );
   }
 }
