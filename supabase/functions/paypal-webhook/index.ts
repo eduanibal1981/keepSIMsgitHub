@@ -99,18 +99,22 @@ async function rpc(name: string, args: Record<string, unknown>): Promise<{ ok: b
 }
 
 // custom_id set at order creation: either the bare user uuid, or JSON
-// {"u": "<uuid>", "k": "<kind>"} for future flows (direct-pay refill,
+// {"u": "<uuid>", "k": "<kind>", "l": "<sim_line_id>"} for future flows (direct-pay refill,
 // subscriptions).
-function parseCustomId(customId: string | undefined): { userId: string | null; kind: string } {
-  if (!customId) return { userId: null, kind: 'deposit' };
+function parseCustomId(customId: string | undefined): { userId: string | null; kind: string; simLineId: string | null } {
+  if (!customId) return { userId: null, kind: 'deposit', simLineId: null };
   try {
     const parsed = JSON.parse(customId);
     if (parsed && typeof parsed.u === 'string') {
-      return { userId: parsed.u, kind: typeof parsed.k === 'string' ? parsed.k : 'deposit' };
+      return {
+        userId: parsed.u,
+        kind: typeof parsed.k === 'string' ? parsed.k : 'deposit',
+        simLineId: typeof parsed.l === 'string' ? parsed.l : null,
+      };
     }
   } catch (_) { /* not JSON — treat as bare uuid */ }
   const uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-  return uuidRe.test(customId) ? { userId: customId, kind: 'deposit' } : { userId: null, kind: 'deposit' };
+  return uuidRe.test(customId) ? { userId: customId, kind: 'deposit', simLineId: null } : { userId: null, kind: 'deposit', simLineId: null };
 }
 
 async function handleCaptureCompleted(event: any): Promise<Response> {
@@ -122,7 +126,7 @@ async function handleCaptureCompleted(event: any): Promise<Response> {
   const breakdown = capture.seller_receivable_breakdown ?? {};
   const fee = Number(breakdown.paypal_fee?.value ?? 0);
   const net = Number(breakdown.net_amount?.value ?? gross);
-  const { userId, kind } = parseCustomId(capture.custom_id);
+  const { userId, kind, simLineId } = parseCustomId(capture.custom_id);
 
   if (!captureId || !Number.isFinite(gross) || gross <= 0) {
     await systemAlert('paypal_webhook_malformed',
@@ -154,6 +158,7 @@ async function handleCaptureCompleted(event: any): Promise<Response> {
       headers: { ...serviceHeaders, 'Prefer': 'return=minimal' },
       body: JSON.stringify({
         user_id: userId,
+        sim_line_id: simLineId ?? null,
         capture_id: captureId,
         order_id: orderId ?? null,
         kind,

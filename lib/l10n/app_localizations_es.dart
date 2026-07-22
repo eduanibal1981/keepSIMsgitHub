@@ -1832,4 +1832,87 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get attachedFiles => 'Archivos adjuntos';
+
+  @override
+  String get referralsTitle => 'Recomienda y Gana';
+
+  @override
+  String get referralsSubtitle =>
+      '¡Invita amigos, gana puntos en sus suscripciones SIM y canjéalos por crédito de billetera!';
+
+  @override
+  String get referralCode => 'Tu Código de Referido';
+
+  @override
+  String get copyCode => 'Copiar Código';
+
+  @override
+  String get codeCopied => '¡Código de referido copiado al portapapeles!';
+
+  @override
+  String get shareCode => 'Compartir Código';
+
+  @override
+  String get pointsBalance => 'Balance de Puntos';
+
+  @override
+  String get pointsUnit => 'puntos';
+
+  @override
+  String progressToNextRedemption(Object pointsNeeded) {
+    return '$pointsNeeded puntos más para la próxima recompensa de \$2.00';
+  }
+
+  @override
+  String get redeemButton => 'Canjear 10 Puntos por \$2.00';
+
+  @override
+  String get redeemSuccess =>
+      '¡Se canjearon con éxito 10 puntos por \$2.00 de crédito de billetera!';
+
+  @override
+  String get applyCodeTitle => '¿Tienes un Código de Referido?';
+
+  @override
+  String get applyCodeHint => 'Ingresa el código de referido';
+
+  @override
+  String get applyCodeButton => 'Aplicar Código';
+
+  @override
+  String get applyCodeSuccess => '¡Código de referido aplicado con éxito!';
+
+  @override
+  String get referredFriendsTitle => 'Amigos Referidos';
+
+  @override
+  String get noReferredFriends =>
+      '¡Aún no hay amigos referidos. Comparte tu código para empezar!';
+
+  @override
+  String get redemptionHistoryTitle => 'Historial de Canjes';
+
+  @override
+  String get noRedemptions => 'Sin canjes aún.';
+
+  @override
+  String get pointHistoryTitle => 'Historial de Puntos';
+
+  @override
+  String get noPointsEarned => 'Sin puntos ganados aún.';
+
+  @override
+  String get howItWorksTitle => 'Cómo Funciona Recomienda y Gana';
+
+  @override
+  String get howItWorksStep1 =>
+      '1. Comparte tu código de referido único con amigos.';
+
+  @override
+  String get howItWorksStep2 =>
+      '2. Gana 1 punto cada vez que un amigo referido suscriba una línea SIM.';
+
+  @override
+  String get howItWorksStep3 =>
+      '3. ¡Canjea 10 puntos por \$2.00 de crédito de billetera en cualquier momento!';
 }

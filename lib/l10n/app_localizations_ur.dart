@@ -1810,4 +1810,87 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get attachedFiles => 'منسلکات';
+
+  @override
+  String get referralsTitle => 'ریفر کریں اور کمائیں';
+
+  @override
+  String get referralsSubtitle =>
+      'دوستوں کو مدعو کریں، ان کے سم سبسکرپشنز پر پوائنٹس کمائیں اور والٹ کریڈٹ کے لیے ریڈیم کریں!';
+
+  @override
+  String get referralCode => 'آپ کا ریفرل کوڈ';
+
+  @override
+  String get copyCode => 'کوڈ کاپی کریں';
+
+  @override
+  String get codeCopied => 'ریفرل کوڈ کلپ بورڈ پر کاپی ہو گیا!';
+
+  @override
+  String get shareCode => 'کوڈ شیئر کریں';
+
+  @override
+  String get pointsBalance => 'پوائنٹس کا بیلنس';
+
+  @override
+  String get pointsUnit => 'پوائنٹس';
+
+  @override
+  String progressToNextRedemption(Object pointsNeeded) {
+    return 'اگلے \$2.00 انعام کے لیے مزید $pointsNeeded پوائنٹس درکار ہیں';
+  }
+
+  @override
+  String get redeemButton => '\$2.00 کے لیے 10 پوائنٹس ریڈیم کریں';
+
+  @override
+  String get redeemSuccess =>
+      '\$2.00 والٹ کریڈٹ کے لیے 10 پوائنٹس کامیابی سے ریڈیم ہو گئے!';
+
+  @override
+  String get applyCodeTitle => 'کیا آپ کے پاس ریفرل کوڈ ہے؟';
+
+  @override
+  String get applyCodeHint => 'ریفرل کوڈ درج کریں';
+
+  @override
+  String get applyCodeButton => 'کوڈ اپلائی کریں';
+
+  @override
+  String get applyCodeSuccess => 'ریفرل کوڈ کامیابی سے اپلائی ہو گیا!';
+
+  @override
+  String get referredFriendsTitle => 'ریفر کیے گئے دوست';
+
+  @override
+  String get noReferredFriends =>
+      'ابھی تک کوئی دوست ریفر نہیں کیا گیا۔ شروع کرنے کے لیے اپنا کوڈ شیئر کریں!';
+
+  @override
+  String get redemptionHistoryTitle => 'ریڈیمپشن کی ہسٹری';
+
+  @override
+  String get noRedemptions => 'ابھی تک کوئی ریڈیمپشن نہیں۔';
+
+  @override
+  String get pointHistoryTitle => 'پوائنٹس کی ہسٹری';
+
+  @override
+  String get noPointsEarned => 'ابھی تک کوئی پوائنٹس نہیں کمائے گئے۔';
+
+  @override
+  String get howItWorksTitle => 'ریفر اور ارن کیسے کام کرتا ہے';
+
+  @override
+  String get howItWorksStep1 =>
+      '1. دوستوں کے ساتھ اپنا منفرد ریفرل کوڈ شیئر کریں۔';
+
+  @override
+  String get howItWorksStep2 =>
+      '2. جب بھی کوئی ریفر کیا گیا دوست سم لائن سبسکرائب کرے تو 1 پوائنٹ کمائیں۔';
+
+  @override
+  String get howItWorksStep3 =>
+      '3. کسی بھی وقت \$2.00 والٹ کریڈٹ کے لیے 10 پوائنٹس ریڈیم کریں!';
 }

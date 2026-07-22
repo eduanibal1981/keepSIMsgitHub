@@ -1814,4 +1814,87 @@ class AppLocalizationsSi extends AppLocalizations {
 
   @override
   String get attachedFiles => 'ඇමුණුම්';
+
+  @override
+  String get referralsTitle => 'යොමු කර උපයන්න';
+
+  @override
+  String get referralsSubtitle =>
+      'මිතුරන්ට ආරාධනා කරන්න, ඔවුන්ගේ SIM සබ්ස්ක්‍රිප්ෂන් මගින් ලකුණු උපයන්න සහ පසුම්බි ණය ලබා ගන්න!';
+
+  @override
+  String get referralCode => 'ඔබගේ යොමු කිරීමේ කේතය';
+
+  @override
+  String get copyCode => 'කේතය පිටපත් කරන්න';
+
+  @override
+  String get codeCopied => 'යොමු කිරීමේ කේතය ක්ලිප්බෝඩ් එකට පිටපත් කරන ලදී!';
+
+  @override
+  String get shareCode => 'කේතය බෙදාගන්න';
+
+  @override
+  String get pointsBalance => 'ලකුණු ශේෂය';
+
+  @override
+  String get pointsUnit => 'ලකුණු';
+
+  @override
+  String progressToNextRedemption(Object pointsNeeded) {
+    return 'ඊළඟ \$2.00 ත්‍යාගය සඳහා තව ලකුණු $pointsNeeded ක් අවශ්‍යයි';
+  }
+
+  @override
+  String get redeemButton => '\$2.00 සඳහා ලකුණු 10 ක් මාරු කරන්න';
+
+  @override
+  String get redeemSuccess =>
+      '\$2.00 පසුම්බි ණය සඳහා ලකුණු 10 ක් සාර්ථකව මාරු කරන ලදී!';
+
+  @override
+  String get applyCodeTitle => 'ඔබ සතුව යොමු කිරීමේ කේතයක් තිබේද?';
+
+  @override
+  String get applyCodeHint => 'යොමු කිරීමේ කේතය ඇතුළත් කරන්න';
+
+  @override
+  String get applyCodeButton => 'කේතය යොදන්න';
+
+  @override
+  String get applyCodeSuccess => 'යොමු කිරීමේ කේතය සාර්ථකව යොදන ලදී!';
+
+  @override
+  String get referredFriendsTitle => 'යොමු කළ මිතුරන්';
+
+  @override
+  String get noReferredFriends =>
+      'තවම මිතුරන් යොමු කර නොමැත. ආරම්භ කිරීමට ඔබගේ කේතය බෙදා ගන්න!';
+
+  @override
+  String get redemptionHistoryTitle => 'මාරු කිරීම් ඉතිහාසය';
+
+  @override
+  String get noRedemptions => 'තවම මාරු කිරීම් නොමැත.';
+
+  @override
+  String get pointHistoryTitle => 'ලකුණු ඉතිහාසය';
+
+  @override
+  String get noPointsEarned => 'තවම ලකුණු උපයා නොමැත.';
+
+  @override
+  String get howItWorksTitle => 'යොමු කර උපයන්න ක්‍රියා කරන ආකාරය';
+
+  @override
+  String get howItWorksStep1 =>
+      '1. මිතුරන් සමඟ ඔබගේ සුවිශේෂී යොමු කේතය බෙදා ගන්න.';
+
+  @override
+  String get howItWorksStep2 =>
+      '2. යොමු කළ මිතුරෙකු SIM මාර්ගයක් සම්බන්ධ කරගත් විට ලකුණු 1 ක් උපයන්න.';
+
+  @override
+  String get howItWorksStep3 =>
+      '3. ඕනෑම වේලාවක \$2.00 පසුම්බි ණය සඳහා ලකුණු 10 ක් ලබා ගන්න!';
 }

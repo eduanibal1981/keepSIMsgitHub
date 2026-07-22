@@ -365,6 +365,7 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
                                   paymentReason: reason,
                                   depositToWallet: false,
                                   paymentKind: 'plan',
+                                  simLineId: widget.simLine.id,
                                   onSuccess: commitUpgrade,
                                 ),
                               ),

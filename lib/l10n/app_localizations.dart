@@ -3291,6 +3291,156 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Attachments'**
   String get attachedFiles;
+
+  /// No description provided for @referralsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Refer & Earn'**
+  String get referralsTitle;
+
+  /// No description provided for @referralsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite friends, earn points on SIM subscriptions, and redeem for wallet credits!'**
+  String get referralsSubtitle;
+
+  /// No description provided for @referralCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Referral Code'**
+  String get referralCode;
+
+  /// No description provided for @copyCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy Code'**
+  String get copyCode;
+
+  /// No description provided for @codeCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Referral code copied to clipboard!'**
+  String get codeCopied;
+
+  /// No description provided for @shareCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Share Code'**
+  String get shareCode;
+
+  /// No description provided for @pointsBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Points Balance'**
+  String get pointsBalance;
+
+  /// No description provided for @pointsUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'points'**
+  String get pointsUnit;
+
+  /// No description provided for @progressToNextRedemption.
+  ///
+  /// In en, this message translates to:
+  /// **'{pointsNeeded} more points until next \$2.00 reward'**
+  String progressToNextRedemption(Object pointsNeeded);
+
+  /// No description provided for @redeemButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Redeem 10 Points for \$2.00'**
+  String get redeemButton;
+
+  /// No description provided for @redeemSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Successfully redeemed 10 points for \$2.00 wallet credit!'**
+  String get redeemSuccess;
+
+  /// No description provided for @applyCodeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Have a Referral Code?'**
+  String get applyCodeTitle;
+
+  /// No description provided for @applyCodeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter referral code'**
+  String get applyCodeHint;
+
+  /// No description provided for @applyCodeButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply Code'**
+  String get applyCodeButton;
+
+  /// No description provided for @applyCodeSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Referral code applied successfully!'**
+  String get applyCodeSuccess;
+
+  /// No description provided for @referredFriendsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Referred Friends'**
+  String get referredFriendsTitle;
+
+  /// No description provided for @noReferredFriends.
+  ///
+  /// In en, this message translates to:
+  /// **'No friends referred yet. Share your code to get started!'**
+  String get noReferredFriends;
+
+  /// No description provided for @redemptionHistoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Redemption History'**
+  String get redemptionHistoryTitle;
+
+  /// No description provided for @noRedemptions.
+  ///
+  /// In en, this message translates to:
+  /// **'No redemptions yet.'**
+  String get noRedemptions;
+
+  /// No description provided for @pointHistoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Points History'**
+  String get pointHistoryTitle;
+
+  /// No description provided for @noPointsEarned.
+  ///
+  /// In en, this message translates to:
+  /// **'No points earned yet.'**
+  String get noPointsEarned;
+
+  /// No description provided for @howItWorksTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How Refer & Earn Works'**
+  String get howItWorksTitle;
+
+  /// No description provided for @howItWorksStep1.
+  ///
+  /// In en, this message translates to:
+  /// **'1. Share your unique referral code with friends.'**
+  String get howItWorksStep1;
+
+  /// No description provided for @howItWorksStep2.
+  ///
+  /// In en, this message translates to:
+  /// **'2. Earn 1 point whenever a referred friend subscribes a SIM line.'**
+  String get howItWorksStep2;
+
+  /// No description provided for @howItWorksStep3.
+  ///
+  /// In en, this message translates to:
+  /// **'3. Redeem 10 points for \$2.00 spendable wallet credit anytime!'**
+  String get howItWorksStep3;
 }
 
 class _AppLocalizationsDelegate

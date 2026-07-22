@@ -66,7 +66,7 @@ final class ApiOffersProvider
   }
 }
 
-String _$apiOffersHash() => r'62794aa5581e381b2d27aa8ded83f3a80e37c078';
+String _$apiOffersHash() => r'd6fab28df19478ca3b52a457a50b29b25085b7ad';
 
 final class ApiOffersFamily extends $Family
     with
@@ -309,7 +309,7 @@ final class DtconnectOffersProvider
   }
 }
 
-String _$dtconnectOffersHash() => r'9e2c1942700f07d894bc719af24097ccac828999';
+String _$dtconnectOffersHash() => r'0be271a699ea6741d208e6f25b702ac7b8cbee92';
 
 final class DtconnectOffersFamily extends $Family
     with

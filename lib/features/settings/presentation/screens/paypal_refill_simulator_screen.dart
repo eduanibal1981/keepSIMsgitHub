@@ -16,6 +16,7 @@ class PaypalRefillSimulatorScreen extends ConsumerStatefulWidget {
   final String? paymentReason;
   final VoidCallback? onSuccess;
   final bool depositToWallet;
+  final String paymentKind;
 
   /// What this payment is FOR, carried to the server in the PayPal order's
   /// custom_id and dispatched on by the paypal-webhook:
@@ -26,7 +27,9 @@ class PaypalRefillSimulatorScreen extends ConsumerStatefulWidget {
   ///    and must NOT credit the wallet. Before C3c plan charges were tagged
   ///    'deposit', so every plan payment bounced straight back into the
   ///    payer's wallet as spendable balance.
-  final String paymentKind;
+  /// The SIM line ID for plan payments, passed as 'l' in custom_id payload to link
+  /// paypal-webhook plan_payments insert to sim_lines for referral awards.
+  final String? simLineId;
 
   const PaypalRefillSimulatorScreen({
     super.key,
@@ -35,6 +38,7 @@ class PaypalRefillSimulatorScreen extends ConsumerStatefulWidget {
     this.onSuccess,
     this.depositToWallet = true,
     this.paymentKind = 'deposit',
+    this.simLineId,
   });
 
   @override
@@ -164,6 +168,7 @@ class _PaypalRefillSimulatorScreenState extends ConsumerState<PaypalRefillSimula
   String get _paypalCustomId => jsonEncode({
         'u': Supabase.instance.client.auth.currentUser?.id,
         'k': widget.paymentKind,
+        if (widget.simLineId != null) 'l': widget.simLineId,
       });
 
   // Live Math: No fee deducted for refill

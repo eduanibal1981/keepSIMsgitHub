@@ -1800,4 +1800,87 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get attachedFiles => 'Attachments';
+
+  @override
+  String get referralsTitle => 'Refer & Earn';
+
+  @override
+  String get referralsSubtitle =>
+      'Invite friends, earn points on SIM subscriptions, and redeem for wallet credits!';
+
+  @override
+  String get referralCode => 'Your Referral Code';
+
+  @override
+  String get copyCode => 'Copy Code';
+
+  @override
+  String get codeCopied => 'Referral code copied to clipboard!';
+
+  @override
+  String get shareCode => 'Share Code';
+
+  @override
+  String get pointsBalance => 'Points Balance';
+
+  @override
+  String get pointsUnit => 'points';
+
+  @override
+  String progressToNextRedemption(Object pointsNeeded) {
+    return '$pointsNeeded more points until next \$2.00 reward';
+  }
+
+  @override
+  String get redeemButton => 'Redeem 10 Points for \$2.00';
+
+  @override
+  String get redeemSuccess =>
+      'Successfully redeemed 10 points for \$2.00 wallet credit!';
+
+  @override
+  String get applyCodeTitle => 'Have a Referral Code?';
+
+  @override
+  String get applyCodeHint => 'Enter referral code';
+
+  @override
+  String get applyCodeButton => 'Apply Code';
+
+  @override
+  String get applyCodeSuccess => 'Referral code applied successfully!';
+
+  @override
+  String get referredFriendsTitle => 'Referred Friends';
+
+  @override
+  String get noReferredFriends =>
+      'No friends referred yet. Share your code to get started!';
+
+  @override
+  String get redemptionHistoryTitle => 'Redemption History';
+
+  @override
+  String get noRedemptions => 'No redemptions yet.';
+
+  @override
+  String get pointHistoryTitle => 'Points History';
+
+  @override
+  String get noPointsEarned => 'No points earned yet.';
+
+  @override
+  String get howItWorksTitle => 'How Refer & Earn Works';
+
+  @override
+  String get howItWorksStep1 =>
+      '1. Share your unique referral code with friends.';
+
+  @override
+  String get howItWorksStep2 =>
+      '2. Earn 1 point whenever a referred friend subscribes a SIM line.';
+
+  @override
+  String get howItWorksStep3 =>
+      '3. Redeem 10 points for \$2.00 spendable wallet credit anytime!';
 }

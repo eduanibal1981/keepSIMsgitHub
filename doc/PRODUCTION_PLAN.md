@@ -899,31 +899,25 @@ Big session — acceptable to split UI (1–3) and server webhooks (4) into two.
 
 ## 🟠 C5 — Refer & Earn (build nearly from scratch)
 
-**User decision (encoded; confirm the arithmetic in-session before coding):**
-points system. A referred user's phone-number subscription on a **Standard or
-Premium** plan earns the referrer points; **10 numbers subscribed = 2 USD** —
-i.e. 1 point per subscribed number, and at 10 points the user can convert to
-$2.00 wallet credit. Multiple referred users can contribute (10 users × 1 line
-or 1 user × 10 lines both qualify).
+**Status:** ✅ **DONE (Points-based Refer & Earn System with 10 Points = $2.00 Redemption)**
 
-1. Schema: `referral_codes(user_id, code UNIQUE)`,
-   `referrals(referrer_id, referred_user_id UNIQUE, code, created_at)`,
-   `referral_points(id, referrer_id, referred_user_id, sim_line_id UNIQUE,
-   points, source, created_at)` (UNIQUE on `sim_line_id` prevents double
-   counting), `referral_redemptions(user_id, points_spent, wallet_txn_id,
-   created_at)`. RLS: read own rows only; **all writes server-side**.
-2. Award trigger: on a sim line's subscription becoming active on a Standard or
-   Premium plan where the owner is a referred user → insert 1 point row. Handle
-   downgrades/cancellations (points are awarded once, not clawed back — confirm).
-3. Redemption: RPC (`SECURITY DEFINER`, service-role-ish gating like
-   `wallet_transact`) that atomically deducts 10 points and credits $2 via
-   `credit_wallet` — never from the client.
-4. Existing `apply_referral` RPC (locked down in REQUEST A) — read it first;
-   reuse or replace deliberately.
-5. UI in `lib/features/referral/` (or create): code + share link, points
-   balance, progress to next $2, redemption button, history.
-6. Abuse controls: self-referral block, same-device heuristic, cap pending
-   points per referrer per day.
+**Implementation Record:**
+- Migration `20260724000000_c5_refer_and_earn.sql` applied to live project `zwxswagokhgbuzrrbnhr`.
+- Reshaped `referrals` table `(id, referrer_id, referred_user_id UNIQUE, code, created_at)` with RLS `auth.uid() IN (referrer_id, referred_user_id)`. Direct client writes denied.
+- Created `referral_points` table `(id, referrer_id, referred_user_id, sim_line_id UNIQUE, points, source, created_at)` with RLS `auth.uid() = referrer_id`. Direct client writes denied.
+- Created `referral_redemptions` table `(id, user_id, points_spent, wallet_txn_id, created_at)` with RLS `auth.uid() = user_id`. Direct client writes denied.
+- Added `sim_line_id` column to `plan_payments` table for PayPal transaction tracking.
+- Partial unique index `uq_wallet_txns_referral_credit_ref` added to `wallet_transactions` (`type = 'referral_credit' AND reference_id LIKE 'refredeem_%'`).
+- Seeded `REFERRAL_DAILY_POINT_CAP = '10'` in `system_configs`.
+- Rewrote `public.apply_referral(p_referred_id, p_referral_code)` RPC in place with security guards, `profiles.referred_by` linking, and `referrals` insert (0 instant cash payout at code entry time).
+- Created trigger function `trg_fn_award_referral_points()` enforcing daily cap and `ON CONFLICT (sim_line_id) DO NOTHING` attached to `wallet_transactions` (`type='plan_fee_debit'`) and `plan_payments` (`kind='plan'`). Revoked `EXECUTE` from PUBLIC/authenticated.
+- Created `public.redeem_referral_points()` RPC (self-scoped to `auth.uid()`, locks rows, requires balance ≥ 10, credits $2.00 via `credit_wallet` type `'referral_credit'`, inserts `referral_redemptions`). `GRANT EXECUTE` to authenticated.
+- Updated PayPal Edge Function `paypal-webhook` (`index.ts`) to parse `l` (`sim_line_id`) in `custom_id` JSON payload (`{u, k, l}`) and set `sim_line_id` on `plan_payments` insert. Deployed v7 (ACTIVE).
+- Updated Flutter payment screens (`PaypalRefillSimulatorScreen`, `line_upgrade_sheet.dart`, `sim_line_form_screen.dart`) to pass `simLineId`.
+- Rebuilt Freezed models (`referral_model.dart`), contract (`referrals_contract.dart`), repository (`referrals_repository.dart`), and controller (`referrals_controller.dart`).
+- Rebuilt `ReferralsScreen` UI with points balance, progress bar, copy code, apply code form, referred friends list, points/redemption history, and localized ARB keys across all 9 supported locales.
+- Live database SQL test suite `supabase/tests/c5_referrals_tests.sql` (11 test cases) executed and verified passing via MCP `execute_sql`.
+- Flutter test suite: 52/52 tests passing. `flutter analyze` verified clean (0 errors).
 
 ## 🟠 C6 — Activity log: local mirror + capped cloud table + dashboard feed
 

@@ -13,7 +13,7 @@ part of 'referrals_controller.dart';
 final referralsControllerProvider = ReferralsControllerProvider._();
 
 final class ReferralsControllerProvider
-    extends $AsyncNotifierProvider<ReferralsController, ReferralsState> {
+    extends $AsyncNotifierProvider<ReferralsController, ReferralSummary> {
   ReferralsControllerProvider._()
     : super(
         from: null,
@@ -34,19 +34,19 @@ final class ReferralsControllerProvider
 }
 
 String _$referralsControllerHash() =>
-    r'6539c7488aee6e80a96e2439ddf4b7af5aea0fdb';
+    r'77abf18ecee9b34374d5c683c5039b7b2ac94e09';
 
-abstract class _$ReferralsController extends $AsyncNotifier<ReferralsState> {
-  FutureOr<ReferralsState> build();
+abstract class _$ReferralsController extends $AsyncNotifier<ReferralSummary> {
+  FutureOr<ReferralSummary> build();
   @$mustCallSuper
   @override
   WhenComplete runBuild() {
-    final ref = this.ref as $Ref<AsyncValue<ReferralsState>, ReferralsState>;
+    final ref = this.ref as $Ref<AsyncValue<ReferralSummary>, ReferralSummary>;
     final element =
         ref.element
             as $ClassProviderElement<
-              AnyNotifier<AsyncValue<ReferralsState>, ReferralsState>,
-              AsyncValue<ReferralsState>,
+              AnyNotifier<AsyncValue<ReferralSummary>, ReferralSummary>,
+              AsyncValue<ReferralSummary>,
               Object?,
               Object?
             >;

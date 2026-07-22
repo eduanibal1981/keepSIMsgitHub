@@ -1792,4 +1792,86 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get attachedFiles => 'المرفقات';
+
+  @override
+  String get referralsTitle => 'دعوة وكسب';
+
+  @override
+  String get referralsSubtitle =>
+      'ادعُ أصدقاءك، واكسب نقاطًا على اشتراكات الشريحة، واستبدلها برصيد محفظة!';
+
+  @override
+  String get referralCode => 'رمز الدعوة الخاص بك';
+
+  @override
+  String get copyCode => 'نسخ الرمز';
+
+  @override
+  String get codeCopied => 'تم نسخ رمز الدعوة إلى الحافظة!';
+
+  @override
+  String get shareCode => 'مشاركة الرمز';
+
+  @override
+  String get pointsBalance => 'رصيد النقاط';
+
+  @override
+  String get pointsUnit => 'نقاط';
+
+  @override
+  String progressToNextRedemption(Object pointsNeeded) {
+    return 'باقي $pointsNeeded نقطة للحصول على مكافأة \$2.00 التالية';
+  }
+
+  @override
+  String get redeemButton => 'استبدال 10 نقاط بـ \$2.00';
+
+  @override
+  String get redeemSuccess => 'تم استبدال 10 نقاط بـ \$2.00 رصيد محفظة بنجاح!';
+
+  @override
+  String get applyCodeTitle => 'هل لديك رمز دعوة؟';
+
+  @override
+  String get applyCodeHint => 'أدخل رمز الدعوة';
+
+  @override
+  String get applyCodeButton => 'تطبيق الرمز';
+
+  @override
+  String get applyCodeSuccess => 'تم تطبيق رمز الدعوة بنجاح!';
+
+  @override
+  String get referredFriendsTitle => 'الأصدقاء المدعوون';
+
+  @override
+  String get noReferredFriends =>
+      'لم تقم بدعوة أي أصدقاء بعد. شارك رمزك للبدء!';
+
+  @override
+  String get redemptionHistoryTitle => 'سجل الاستبدال';
+
+  @override
+  String get noRedemptions => 'لا يوجد عمليات استبدال بعد.';
+
+  @override
+  String get pointHistoryTitle => 'سجل النقاط';
+
+  @override
+  String get noPointsEarned => 'لم تكسب أي نقاط بعد.';
+
+  @override
+  String get howItWorksTitle => 'كيف يعمل برنامج دعوة وكسب';
+
+  @override
+  String get howItWorksStep1 =>
+      '1. شارك رمز الدعوة الفريد الخاص بك مع الأصدقاء.';
+
+  @override
+  String get howItWorksStep2 =>
+      '2. اكسب نقطة واحدة عندما يشترك صديق مدعو في خط SIM.';
+
+  @override
+  String get howItWorksStep3 =>
+      '3. استبدل 10 نقاط بـ \$2.00 رصيد محفظة قابل للاستخدام في أي وقت!';
 }

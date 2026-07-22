@@ -1358,6 +1358,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                 depositToWallet:
                     false, // direct payment, don't deposit to wallet
                 paymentKind: 'plan',
+                simLineId: widget.id,
                 onSuccess: () {
                   Navigator.of(context).pop(); // pop Paypal screen
                   setState(() => _isSaving = true);

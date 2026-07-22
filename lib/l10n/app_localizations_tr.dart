@@ -1812,4 +1812,87 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get attachedFiles => 'Ekler';
+
+  @override
+  String get referralsTitle => 'Davet Et & Kazan';
+
+  @override
+  String get referralsSubtitle =>
+      'Arkadaşlarınızı davet edin, SIM aboneliklerinden puan kazanın ve cüzdan kredisine dönüştürün!';
+
+  @override
+  String get referralCode => 'Davet Kodunuz';
+
+  @override
+  String get copyCode => 'Kodu Kopyala';
+
+  @override
+  String get codeCopied => 'Davet kodu panoya kopyalandı!';
+
+  @override
+  String get shareCode => 'Kodu Paylaş';
+
+  @override
+  String get pointsBalance => 'Puan Bakiyesi';
+
+  @override
+  String get pointsUnit => 'puan';
+
+  @override
+  String progressToNextRedemption(Object pointsNeeded) {
+    return 'Sonraki \$2.00 ödül için $pointsNeeded puan daha gerekli';
+  }
+
+  @override
+  String get redeemButton => '10 Puanı \$2.00 olarak Bozdur';
+
+  @override
+  String get redeemSuccess =>
+      '10 puan başarıyla \$2.00 cüzdan kredisine dönüştürüldü!';
+
+  @override
+  String get applyCodeTitle => 'Davet Kodunuz Var mı?';
+
+  @override
+  String get applyCodeHint => 'Davet kodunu girin';
+
+  @override
+  String get applyCodeButton => 'Kodu Uygula';
+
+  @override
+  String get applyCodeSuccess => 'Davet kodu başarıyla uygulandı!';
+
+  @override
+  String get referredFriendsTitle => 'Davet Edilen Arkadaşlar';
+
+  @override
+  String get noReferredFriends =>
+      'Henüz arkadaş davet edilmedi. Başlamak için kodunuzu paylaşın!';
+
+  @override
+  String get redemptionHistoryTitle => 'Bozdurma Geçmişi';
+
+  @override
+  String get noRedemptions => 'Henüz bozdurma yok.';
+
+  @override
+  String get pointHistoryTitle => 'Puan Geçmişi';
+
+  @override
+  String get noPointsEarned => 'Henüz puan kazanılmadı.';
+
+  @override
+  String get howItWorksTitle => 'Davet Et & Kazan Nasıl Çalışır';
+
+  @override
+  String get howItWorksStep1 =>
+      '1. Benzersiz davet kodunuzu arkadaşlarınızla paylaşın.';
+
+  @override
+  String get howItWorksStep2 =>
+      '2. Davet edilen bir arkadaşınız SIM hattı abonesi olduğunda 1 puan kazanın.';
+
+  @override
+  String get howItWorksStep3 =>
+      '3. İstediğiniz zaman 10 puanı \$2.00 harcanabilir cüzdan kredisine dönüştürün!';
 }

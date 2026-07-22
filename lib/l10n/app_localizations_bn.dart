@@ -1809,4 +1809,87 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get attachedFiles => 'সংযুক্তি';
+
+  @override
+  String get referralsTitle => 'রেফার ও ইনকাম';
+
+  @override
+  String get referralsSubtitle =>
+      'বন্ধুদের আমন্ত্রণ জানান, তাদের সিম সাবস্ক্রিপশনে পয়েন্ট অর্জন করুন এবং ওয়ালেট ক্রেডিটে রূপান্তর করুন!';
+
+  @override
+  String get referralCode => 'আপনার রেফারেল কোড';
+
+  @override
+  String get copyCode => 'কোড কপি করুন';
+
+  @override
+  String get codeCopied => 'রেফারেল কোড ক্লিপবোর্ডে কপি করা হয়েছে!';
+
+  @override
+  String get shareCode => 'কোড শেয়ার করুন';
+
+  @override
+  String get pointsBalance => 'পয়েন্ট ব্যালেন্স';
+
+  @override
+  String get pointsUnit => 'পয়েন্ট';
+
+  @override
+  String progressToNextRedemption(Object pointsNeeded) {
+    return 'পরবর্তী \$2.00 পুরস্কারের জন্য আর $pointsNeeded পয়েন্ট প্রয়োজন';
+  }
+
+  @override
+  String get redeemButton => '১০ পয়েন্ট \$২.০০ এর জন্য রিডিম করুন';
+
+  @override
+  String get redeemSuccess =>
+      '১০ পয়েন্ট সফলভাবে \$২.০০ ওয়ালেট ক্রেডিটে রিডিম করা হয়েছে!';
+
+  @override
+  String get applyCodeTitle => 'আপনার কি রেফারেল কোড আছে?';
+
+  @override
+  String get applyCodeHint => 'রেফারেল কোড লিখুন';
+
+  @override
+  String get applyCodeButton => 'কোড প্রযোগ করুন';
+
+  @override
+  String get applyCodeSuccess => 'রেফারেল কোড সফলভাবে প্রয়োগ করা হয়েছে!';
+
+  @override
+  String get referredFriendsTitle => 'রেফার করা বন্ধুরা';
+
+  @override
+  String get noReferredFriends =>
+      'এখনও কোনও বন্ধুকে রেফার করা হয়নি। শুরু করতে আপনার কোড শেয়ার করুন!';
+
+  @override
+  String get redemptionHistoryTitle => 'রিডেম্পশন ইতিহাস';
+
+  @override
+  String get noRedemptions => 'এখনও কোনো রিডেম্পশন নেই।';
+
+  @override
+  String get pointHistoryTitle => 'পয়েন্ট ইতিহাস';
+
+  @override
+  String get noPointsEarned => 'এখনও কোনো পয়েন্ট অর্জিত হয়নি।';
+
+  @override
+  String get howItWorksTitle => 'রেফার ও ইনকাম কীভাবে কাজ করে';
+
+  @override
+  String get howItWorksStep1 =>
+      '১. বন্ধুদের সাথে আপনার অনন্য রেফারেল কোড শেয়ার করুন।';
+
+  @override
+  String get howItWorksStep2 =>
+      '২. যখনই কোনো রেফার করা বন্ধু সিম লাইন সাবস্ক্রাইব করবে তখনই ১ পয়েন্ট অর্জন করুন।';
+
+  @override
+  String get howItWorksStep3 =>
+      '৩. যেকোনো সময় \$২.০০ খরচযোগ্য ওয়ালেট ক্রেডিটের জন্য ১০ পয়েন্ট রিডিম করুন!';
 }

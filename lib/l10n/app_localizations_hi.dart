@@ -1808,4 +1808,87 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get attachedFiles => 'संलग्नक';
+
+  @override
+  String get referralsTitle => 'रेफर करें और कमाएं';
+
+  @override
+  String get referralsSubtitle =>
+      'दोस्तों को आमंत्रित करें, उनके सिम सब्सक्रिप्शन पर अंक कमाएं और वॉलेट क्रेडिट के रूप में रिडीम करें!';
+
+  @override
+  String get referralCode => 'आपका रेफरल कोड';
+
+  @override
+  String get copyCode => 'कोड कॉपी करें';
+
+  @override
+  String get codeCopied => 'रेफरल कोड क्लिपबोर्ड पर कॉपी हो गया!';
+
+  @override
+  String get shareCode => 'कोड शेयर करें';
+
+  @override
+  String get pointsBalance => 'पॉइंट्स बैलेंस';
+
+  @override
+  String get pointsUnit => 'अंक';
+
+  @override
+  String progressToNextRedemption(Object pointsNeeded) {
+    return 'अगले \$2.00 इनाम के लिए $pointsNeeded और अंक चाहिए';
+  }
+
+  @override
+  String get redeemButton => '\$2.00 के लिए 10 अंक रिडीम करें';
+
+  @override
+  String get redeemSuccess =>
+      '\$2.00 वॉलेट क्रेडिट के लिए 10 अंक सफलतापूर्वक रिडीम किए गए!';
+
+  @override
+  String get applyCodeTitle => 'क्या आपके पास रेफरल कोड है?';
+
+  @override
+  String get applyCodeHint => 'रेफरल कोड दर्ज करें';
+
+  @override
+  String get applyCodeButton => 'कोड लागू करें';
+
+  @override
+  String get applyCodeSuccess => 'रेफरल कोड सफलतापूर्वक लागू किया गया!';
+
+  @override
+  String get referredFriendsTitle => 'रेफर किए गए मित्र';
+
+  @override
+  String get noReferredFriends =>
+      'अभी तक कोई मित्र रेफर नहीं किया गया। शुरू करने के लिए अपना कोड शेयर करें!';
+
+  @override
+  String get redemptionHistoryTitle => 'रिडेम्प्शन इतिहास';
+
+  @override
+  String get noRedemptions => 'अभी तक कोई रिडेम्प्शन नहीं।';
+
+  @override
+  String get pointHistoryTitle => 'पॉइंट्स इतिहास';
+
+  @override
+  String get noPointsEarned => 'अभी तक कोई अंक नहीं कमाए गए।';
+
+  @override
+  String get howItWorksTitle => 'रेफर और अर्न कैसे काम करता है';
+
+  @override
+  String get howItWorksStep1 =>
+      '1. दोस्तों के साथ अपना अनूठा रेफरल कोड शेयर करें।';
+
+  @override
+  String get howItWorksStep2 =>
+      '2. जब भी कोई रेफर किया गया मित्र सिम लाइन सब्सक्राइब करता है तो 1 अंक कमाएं।';
+
+  @override
+  String get howItWorksStep3 =>
+      '3. किसी भी समय \$2.00 वॉलेट क्रेडिट के लिए 10 अंक रिडीम करें!';
 }
