@@ -10,6 +10,8 @@ import 'package:keep_sims/core/widgets/haptic_helper.dart';
 import 'package:keep_sims/core/providers/locale_provider.dart';
 import 'package:keep_sims/l10n/app_localizations.dart';
 
+import 'package:keep_sims/core/services/biometric_lock_controller.dart';
+
 class PreferencesScreen extends ConsumerStatefulWidget {
   const PreferencesScreen({super.key});
 
@@ -17,93 +19,13 @@ class PreferencesScreen extends ConsumerStatefulWidget {
   ConsumerState<PreferencesScreen> createState() => _PreferencesScreenState();
 }
 
-class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _biometricAnimController;
-  bool _isSimulatingScan = false;
-  String _scanStatusText = 'Initializing scan...';
-
+class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
   // Custom Keyboard variables for PIN setup
   bool _isSettingPin = false;
   String _pinInput = '';
   String _firstPinInput = '';
   bool _isConfirmStep = false;
   String _pinSetupError = '';
-
-  @override
-  void initState() {
-    super.initState();
-    _biometricAnimController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 2),
-    );
-  }
-
-  @override
-  void dispose() {
-    _biometricAnimController.dispose();
-    super.dispose();
-  }
-
-  void _runBiometricSimulation(bool enable) async {
-    if (!enable) {
-      await HapticHelper.lightTick();
-      ref
-          .read(userPreferencesControllerProvider.notifier)
-          .toggleBiometricAuth(false);
-      return;
-    }
-
-    setState(() {
-      _isSimulatingScan = true;
-      _scanStatusText = 'Aligning camera...';
-    });
-    _biometricAnimController.repeat();
-
-    Future.delayed(const Duration(milliseconds: 800), () async {
-      if (!mounted) return;
-      await HapticHelper.lightTick();
-      setState(() {
-        _scanStatusText = 'Scanning Face ID...';
-      });
-    });
-
-    Future.delayed(const Duration(milliseconds: 2000), () async {
-      if (!mounted) return;
-      await HapticHelper.lightTick();
-      setState(() {
-        _scanStatusText = 'Securing signature...';
-      });
-    });
-
-    Future.delayed(const Duration(milliseconds: 2800), () async {
-      if (!mounted) return;
-      _biometricAnimController.stop();
-      setState(() {
-        _isSimulatingScan = false;
-      });
-      ref
-          .read(userPreferencesControllerProvider.notifier)
-          .toggleBiometricAuth(true);
-      await HapticHelper.successFeedback();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              Icon(Icons.face_unlock_rounded, color: context.onSurfaceColor),
-              const SizedBox(width: 12),
-              const Text('Face ID successfully paired!'),
-            ],
-          ),
-          backgroundColor: const Color(0xFF10B981),
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-      );
-    });
-  }
 
   // Interactive Custom PIN Keyboard bottom sheet
   void _showPinSetupSheet(BuildContext context, bool isChange) {
@@ -682,9 +604,6 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
                   ],
                 ),
               ),
-
-              // Animated Scanning Biometrics Overlay
-              if (_isSimulatingScan) _buildScanningOverlay(),
             ],
           );
         },
@@ -938,10 +857,22 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
               ),
             ),
             trailing: Switch(
-              value: prefs.biometricEnabled,
+              value: ref.watch(biometricLockControllerProvider).value ?? false,
               onChanged: (val) async {
                 await HapticHelper.mediumImpact();
-                _runBiometricSimulation(val);
+                final reason =
+                    AppLocalizations.of(context)!.biometricReasonUnlock;
+                final success = await ref
+                    .read(biometricLockControllerProvider.notifier)
+                    .setLockEnabled(val, reason: reason);
+                if (!success && mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                          AppLocalizations.of(context)!.biometricCancel),
+                    ),
+                  );
+                }
               },
               activeThumbColor: const Color(0xFF6366F1),
               activeTrackColor: const Color(0xFF6366F1).withValues(alpha: 0.3),
@@ -1235,81 +1166,5 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
       ),
     );
   }
-
-  // ── Biometrics Scanner Overlay ──────────────────────────────────────
-  Widget _buildScanningOverlay() {
-    return Container(
-      color: context.theme.shadowColor.withValues(alpha: 0.85),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Radar sweeping circle
-            AnimatedBuilder(
-              animation: _biometricAnimController,
-              builder: (context, child) {
-                return Container(
-                  width: 140,
-                  height: 140,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: const Color(0xFF6366F1).withValues(alpha: 0.2),
-                      width: 2,
-                    ),
-                  ),
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      // Rotating sweep line
-                      Transform.rotate(
-                        angle: _biometricAnimController.value * 2 * 3.14159,
-                        child: Container(
-                          width: 128,
-                          height: 128,
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                            gradient: SweepGradient(
-                              colors: [
-                                Colors.transparent,
-                                Colors.transparent,
-                                Color(0xFF6366F1),
-                              ],
-                              stops: [0.0, 0.7, 1.0],
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      // Face icon glowing
-                      Icon(
-                        Icons.face_unlock_rounded,
-                        size: 64,
-                        color: const Color(0xFF6366F1).withValues(alpha: 0.8),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-            const SizedBox(height: 36),
-            Text(
-              'Biometric Security Lock',
-              style: AppTextStyles.titleMedium.copyWith(
-                color: context.onSurfaceColor,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              _scanStatusText,
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: context.onSurfaceColor.withValues(alpha: 0.6),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
+

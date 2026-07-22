@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:keep_sims/features/settings/presentation/screens/paypal_refill_simulator_screen.dart';
+import 'package:keep_sims/core/services/biometric_auth_service.dart';
 import 'package:keep_sims/core/providers/app_config_provider.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
@@ -355,6 +356,16 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
                             totalAmount = double.parse(
                               totalAmount.toStringAsFixed(2),
                             );
+
+                            final authGuard = ref.read(paymentAuthGuardProvider);
+                            final authResult = await authGuard.confirmPayment(
+                              reason: 'Authenticate to confirm plan upgrade',
+                            );
+                            if (authResult == BiometricResult.cancelled ||
+                                authResult == BiometricResult.failed ||
+                                authResult == BiometricResult.lockedOut) {
+                              return;
+                            }
 
                             navigator.pop();
                             // Navigate directly to PayPal payment

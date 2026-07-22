@@ -12,6 +12,7 @@ import 'package:keep_sims/features/settings/presentation/screens/paypal_refill_s
 import 'package:keep_sims/features/sim_lines/presentation/providers/api_offers_providers.dart';
 import 'package:keep_sims/core/providers/app_config_provider.dart';
 import 'package:keep_sims/features/sim_lines/domain/refill_pricing.dart';
+import 'package:keep_sims/core/services/biometric_auth_service.dart';
 
 class ManualRefillBottomSheet extends ConsumerStatefulWidget {
   final SimLine simLine;
@@ -72,6 +73,17 @@ class _ManualRefillBottomSheetState
       final paymentCode = pm?.code ?? 'wallet';
 
       final totalAmount = _quote(baseCostUsd, pm).total;
+
+      final authGuard = ref.read(paymentAuthGuardProvider);
+      final authResult = await authGuard.confirmPayment(
+        reason: 'Authenticate to confirm refill',
+      );
+      if (authResult == BiometricResult.cancelled ||
+          authResult == BiometricResult.failed ||
+          authResult == BiometricResult.lockedOut) {
+        if (mounted) setState(() => _isLoading = false);
+        return;
+      }
 
       // Wallet refills are debited server-side by worker_instant_refill, which
       // fails the execution outright when the balance is short. Catching it here

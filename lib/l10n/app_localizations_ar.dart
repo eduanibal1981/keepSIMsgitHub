@@ -50,6 +50,29 @@ class AppLocalizationsAr extends AppLocalizations {
   String get biometricDesc => 'تسجيل الدخول باستخدام الوجه أو البصمة';
 
   @override
+  String get biometricReasonPayment => 'المصادقة لتأكيد الدفع';
+
+  @override
+  String get biometricReasonUnlock => 'المصادقة لفتح KeepSIMs';
+
+  @override
+  String get biometricLockout =>
+      'تم قفل المصادقة البيومترية بسبب كثرة المحاولات الخاطئة. يرجى استخدام رمز المرور للجهاز.';
+
+  @override
+  String get biometricNotEnrolled =>
+      'المصادقة البيومترية غير مفعّلة على هذا الجهاز.';
+
+  @override
+  String get biometricAppLockTitle => 'KeepSIMs مقفل';
+
+  @override
+  String get biometricUnlockButton => 'فتح باستخدام البصمة';
+
+  @override
+  String get biometricCancel => 'إلغاء';
+
+  @override
   String get transactionPin => 'رمز PIN للعمليات';
 
   @override
@@ -1988,5 +2011,23 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get purchaseInNextRelease =>
-      'سوف تتوفر ميزة الشراء في الإصدار القادم (C9b).';
+      'Purchase flow will land in the next release (C9b).';
+
+  @override
+  String get confirmPurchaseTitle => 'تأكيد شراء الشريحة الإلكترونية';
+
+  @override
+  String get myEsimsTitle => 'شرائحي الإلكترونية';
+
+  @override
+  String get showQrCode => 'عرض رمز الاستجابة السريعة';
+
+  @override
+  String get buyAgain => 'شراء مرة أخرى';
+
+  @override
+  String get dataRemaining => 'البيانات المتبقية';
+
+  @override
+  String get archivedEsims => 'الشرائح المؤرشفة';
 }

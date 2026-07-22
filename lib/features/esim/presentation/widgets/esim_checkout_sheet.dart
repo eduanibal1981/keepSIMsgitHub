@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:keep_sims/features/esim/data/repositories/esim_provider_factory.dart';
 import 'package:keep_sims/features/esim/domain/entities/esim_plan.dart';
 import 'package:keep_sims/features/esim/presentation/widgets/esim_order_status_modal.dart';
+import 'package:keep_sims/core/services/biometric_auth_service.dart';
 
 class EsimCheckoutSheet extends ConsumerStatefulWidget {
   final EsimPlan plan;
@@ -65,6 +66,16 @@ class _EsimCheckoutSheetState extends ConsumerState<EsimCheckoutSheet> {
         _errorMessage =
             'Insufficient wallet balance. Please top up your wallet first.';
       });
+      return;
+    }
+
+    final authGuard = ref.read(paymentAuthGuardProvider);
+    final authResult = await authGuard.confirmPayment(
+      reason: 'Authenticate to confirm eSIM purchase',
+    );
+    if (authResult == BiometricResult.cancelled ||
+        authResult == BiometricResult.failed ||
+        authResult == BiometricResult.lockedOut) {
       return;
     }
 

@@ -19,6 +19,7 @@ import 'package:keep_sims/core/widgets/haptic_helper.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
 import 'package:keep_sims/features/settings/presentation/screens/paypal_refill_simulator_screen.dart';
+import 'package:keep_sims/core/services/biometric_auth_service.dart';
 import 'package:keep_sims/features/sim_lines/data/repositories/sim_lines_repository_impl.dart';
 import 'package:keep_sims/features/sim_lines/data/models/country_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/carrier_model.dart';
@@ -338,6 +339,17 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       }
 
       amountToCharge = double.parse(amountToCharge.toStringAsFixed(2));
+
+      final authGuard = ref.read(paymentAuthGuardProvider);
+      final authResult = await authGuard.confirmPayment(
+        reason: 'Authenticate to confirm plan payment',
+      );
+      if (authResult == BiometricResult.cancelled ||
+          authResult == BiometricResult.failed ||
+          authResult == BiometricResult.lockedOut) {
+        return;
+      }
+
       if (mounted) {
         Navigator.of(context).push(
           MaterialPageRoute(

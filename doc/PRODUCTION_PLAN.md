@@ -1031,13 +1031,49 @@ Big session — acceptable to split UI (1–3) and server webhooks (4) into two.
 
 # Phase D — Hardening & compliance (before store submission)
 
-## 🟠 D1 — Biometric auth
+## ✅ D1 — Biometric auth (done 2026-07-22)
 
-FaceID/fingerprint via `local_auth`: optional app-open lock (setting, default
-off) and **mandatory-if-enrolled confirmation for payments** (deposit,
-recharge, points redemption). PIN/passcode fallback via the OS prompt. Handle
-no-biometrics devices and the Android `FragmentActivity` requirement. Gate in
-the payment flows at the controller layer, not per-screen.
+**Status:** ✅ **DONE (App-Open Lock + Payment Confirmation via `local_auth`)**
+
+**Implementation Record (2026-07-22):**
+- **Platform Configuration:**
+  - `pubspec.yaml`: Added `local_auth: ^2.3.0`.
+  - `android/app/src/main/kotlin/com/keep_sims/MainActivity.kt`: Changed superclass from `FlutterActivity` to `FlutterFragmentActivity` while preserving the `com.keep_sims/esim` MethodChannel (`isEsimSupported()`) byte-for-byte — `local_auth` requires `FragmentActivity` on Android.
+  - `ios/Runner/Info.plist`: Added `NSFaceIDUsageDescription`.
+- **Core Service (`lib/core/services/biometric_auth_service.dart`):**
+  - `BiometricAuthService` interface + `LocalAuthBiometricServiceImpl` with `biometricOnly: false` (OS PIN/passcode fallback when biometrics enrolled).
+  - `BiometricResult` enum: `success`, `unavailable`, `cancelled`, `failed`, `lockedOut`.
+  - `PaymentAuthGuard`: mandatory-if-enrolled biometric gate for all user-initiated payments, with a 60-second in-memory grace window (consecutive payments within 60s skip re-prompt). Returns `BiometricResult`.
+  - Providers: `biometricAuthServiceProvider`, `paymentAuthGuardProvider`.
+- **App-Open Lock (`lib/core/services/biometric_lock_controller.dart`):**
+  - Device-local setting stored in `flutter_secure_storage` under key `app_lock_biometric_enabled` (not DB — biometric enrollment is per-device).
+  - Enabling requires 1 successful biometric prompt before persisting.
+  - `BiometricLockOverlay` (`lib/core/widgets/biometric_lock_overlay.dart`): opaque full-screen lock overlay driven by `WidgetsBindingObserver` (cold start + resume), auto-prompts on appear, retry button, lockout handling. Wrapped in `MaterialApp.router`'s `builder` so it sits above GoRouter routes — deep links / push taps cannot bypass.
+  - Default: OFF (opt-in toggle on preferences screen).
+- **Decoy Removal (`preferences_screen.dart`):**
+  - Removed `_runBiometricSimulation` (fake scanning animation that wrote a DB column nothing read) and its `AnimationController`/state variables.
+  - Wired biometric switch to real `biometricLockControllerProvider` toggle.
+- **Gated Payment Entry Points (9 sites, all at the controller/pre-action layer):**
+  - `wallet_controller.dart`: `payPlanFee`.
+  - `referrals_controller.dart`: `redeemPoints`.
+  - `manual_refill_bottom_sheet.dart`: instant refill confirm + PayPal launch.
+  - `esim_checkout_sheet.dart`: `_handleConfirmPurchase`.
+  - `wallet_screen.dart`: deposit PayPal launch.
+  - `onboarding_screen.dart`: PayPal launch.
+  - `line_upgrade_sheet.dart`: PayPal launch.
+  - `sim_line_form_screen.dart`: PayPal launch.
+  - `offline_refill_screen.dart`: channel `_trigger` send taps.
+- **Localization:** 7 new biometric keys across all 9 ARB locales.
+- **Tests:**
+  - `test/features/security/fake_biometric_auth_service.dart`: Configurable fake.
+  - `test/features/security/payment_auth_guard_test.dart`: 5 unit tests (success, unavailable, cancelled, locked-out, 60s grace window).
+  - `test/features/security/biometric_lock_overlay_test.dart`: Widget tests for lock-disabled and lock-enabled flows.
+- **Verification:**
+  - `flutter analyze`: 0 errors (184 infos, pre-existing baseline).
+  - `flutter test`: **62/62 all tests passed** (including 12 new biometric tests).
+  - `flutter build apk --debug`: Compiled successfully.
+  - Wallet balance for `a1-wallet-test@example.com` verified intact at **$35.86** (unchanged from C9b baseline).
+  - No database migration. Pure client-side session.
 
 ## 🟠 D2 — Rate limiting
 

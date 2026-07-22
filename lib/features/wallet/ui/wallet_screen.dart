@@ -1,4 +1,4 @@
-﻿/// SIM Shield — Wallet Screen
+/// SIM Shield — Wallet Screen
 ///
 /// High-end dark-mode user interface representing the prepaid wallet.
 /// Integrates card deposit models, transactional ledgers, and glowing SVG analytics.
@@ -17,6 +17,7 @@ import 'package:keep_sims/core/widgets/shimmer_loading.dart';
 import 'package:keep_sims/core/widgets/error_state.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
 import 'package:keep_sims/features/settings/presentation/screens/paypal_refill_simulator_screen.dart';
+import 'package:keep_sims/core/services/biometric_auth_service.dart';
 
 class WalletScreen extends ConsumerStatefulWidget {
   const WalletScreen({super.key});
@@ -914,7 +915,18 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
   // server-side by the paypal-webhook once PayPal confirms the capture.
   // (The old in-app card form credited a client-chosen amount with no real
   // payment behind it — removed in B3.)
-  void _showDepositModalSheet(BuildContext context) {
+  void _showDepositModalSheet(BuildContext context) async {
+    final authGuard = ref.read(paymentAuthGuardProvider);
+    final authResult = await authGuard.confirmPayment(
+      reason: 'Authenticate to add funds to wallet',
+    );
+    if (authResult == BiometricResult.cancelled ||
+        authResult == BiometricResult.failed ||
+        authResult == BiometricResult.lockedOut) {
+      return;
+    }
+
+    if (!context.mounted) return;
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => const PaypalRefillSimulatorScreen(

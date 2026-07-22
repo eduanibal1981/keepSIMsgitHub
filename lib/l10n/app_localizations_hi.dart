@@ -50,6 +50,31 @@ class AppLocalizationsHi extends AppLocalizations {
   String get biometricDesc => 'Face ID या Touch ID का उपयोग करके साइन इन करें';
 
   @override
+  String get biometricReasonPayment =>
+      'भुगतान की पुष्टि के लिए प्रमाणीकृत करें';
+
+  @override
+  String get biometricReasonUnlock =>
+      'KeepSIMs अनलॉक करने के लिए प्रमाणीकृत करें';
+
+  @override
+  String get biometricLockout =>
+      'अत्यधिक असफल प्रयासों के कारण बायोमेट्रिक प्रमाणीकरण लॉक हो गया है। कृपया अपने डिवाइस पासकोड का उपयोग करें।';
+
+  @override
+  String get biometricNotEnrolled =>
+      'इस डिवाइस पर बायोमेट्रिक प्रमाणीकरण सेट नहीं है।';
+
+  @override
+  String get biometricAppLockTitle => 'KeepSIMs लॉक है';
+
+  @override
+  String get biometricUnlockButton => 'बायोमेट्रिक्स से अनलॉक करें';
+
+  @override
+  String get biometricCancel => 'रद्द करें';
+
+  @override
   String get transactionPin => 'ट्रांज़ैक्शन PIN';
 
   @override
@@ -2008,4 +2033,22 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get purchaseInNextRelease =>
       'खरीद की सुविधा अगले रिलीज़ (C9b) में उपलब्ध होगी।';
+
+  @override
+  String get confirmPurchaseTitle => 'eSIM खरीद की पुष्टि करें';
+
+  @override
+  String get myEsimsTitle => 'मेरी eSIMs';
+
+  @override
+  String get showQrCode => 'QR कोड दिखाएं';
+
+  @override
+  String get buyAgain => 'पुनः खरीदें';
+
+  @override
+  String get dataRemaining => 'शेष डेटा';
+
+  @override
+  String get archivedEsims => 'आर्काइव की गई eSIMs';
 }

@@ -11,6 +11,7 @@ import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import 'package:keep_sims/features/dashboard/presentation/controller/dashboard_controller.dart';
 import 'package:keep_sims/features/wallet/controller/wallet_controller.dart';
 import '../model/referral_model.dart';
+import 'package:keep_sims/core/services/biometric_auth_service.dart';
 
 part 'referrals_controller.g.dart';
 
@@ -18,13 +19,7 @@ part 'referrals_controller.g.dart';
 class ReferralsController extends _$ReferralsController {
   @override
   FutureOr<ReferralSummary> build() async {
-    final authProfile = ref.watch(authControllerProvider);
-    final profile = authProfile.value;
-    if (profile == null) {
-      throw Exception('User is not authenticated');
-    }
-
-    final repo = ref.watch(referralsRepositoryProvider);
+    final repo = ref.read(referralsRepositoryProvider);
     final result = await repo.getSummary();
 
     switch (result) {
@@ -35,7 +30,7 @@ class ReferralsController extends _$ReferralsController {
     }
   }
 
-  /// Applies a referral code for the current user. Returns error message if failed, null on success.
+  /// Applies a referral code. Returns error message if failed, null on success.
   Future<String?> applyReferral(String code) async {
     final repo = ref.read(referralsRepositoryProvider);
     final result = await repo.applyReferral(code);
@@ -53,6 +48,16 @@ class ReferralsController extends _$ReferralsController {
 
   /// Redeems 10 points for $2.00 wallet credit. Returns error message if failed, null on success.
   Future<String?> redeemPoints() async {
+    final authGuard = ref.read(paymentAuthGuardProvider);
+    final authResult = await authGuard.confirmPayment(
+      reason: 'Authenticate to redeem referral points',
+    );
+    if (authResult == BiometricResult.cancelled ||
+        authResult == BiometricResult.failed ||
+        authResult == BiometricResult.lockedOut) {
+      return 'Authentication cancelled or failed';
+    }
+
     final repo = ref.read(referralsRepositoryProvider);
     final result = await repo.redeemPoints();
 

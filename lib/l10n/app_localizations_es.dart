@@ -50,6 +50,29 @@ class AppLocalizationsEs extends AppLocalizations {
   String get biometricDesc => 'Iniciar sesión con Face ID o Touch ID';
 
   @override
+  String get biometricReasonPayment => 'Autentícate para confirmar el pago';
+
+  @override
+  String get biometricReasonUnlock => 'Autentícate para desbloquear KeepSIMs';
+
+  @override
+  String get biometricLockout =>
+      'Autenticación biométrica bloqueada por demasiados intentos fallidos. Utiliza el código de acceso de tu dispositivo.';
+
+  @override
+  String get biometricNotEnrolled =>
+      'La autenticación biométrica no está configurada en este dispositivo.';
+
+  @override
+  String get biometricAppLockTitle => 'KeepSIMs está bloqueado';
+
+  @override
+  String get biometricUnlockButton => 'Desbloquear con biometría';
+
+  @override
+  String get biometricCancel => 'Cancelar';
+
+  @override
   String get transactionPin => 'PIN de Transacción';
 
   @override
@@ -2031,4 +2054,22 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get purchaseInNextRelease =>
       'La opción de compra estará disponible en la próxima versión (C9b).';
+
+  @override
+  String get confirmPurchaseTitle => 'Confirmar compra de eSIM';
+
+  @override
+  String get myEsimsTitle => 'Mis eSIMs';
+
+  @override
+  String get showQrCode => 'Mostrar código QR';
+
+  @override
+  String get buyAgain => 'Comprar de nuevo';
+
+  @override
+  String get dataRemaining => 'Datos restantes';
+
+  @override
+  String get archivedEsims => 'eSIMs archivadas';
 }

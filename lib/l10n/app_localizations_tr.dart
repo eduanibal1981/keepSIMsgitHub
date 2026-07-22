@@ -50,6 +50,31 @@ class AppLocalizationsTr extends AppLocalizations {
   String get biometricDesc => 'Face ID veya Touch ID kullanarak giriş yapın';
 
   @override
+  String get biometricReasonPayment =>
+      'Ödemeyi onaylamak için kimlik doğrulayın';
+
+  @override
+  String get biometricReasonUnlock =>
+      'KeepSIMs kilidini açmak için kimlik doğrulayın';
+
+  @override
+  String get biometricLockout =>
+      'Çok fazla başarısız deneme nedeniyle biyometrik doğrulama kilitlendi. Lütfen cihaz şifrenizi kullanın.';
+
+  @override
+  String get biometricNotEnrolled =>
+      'Bu cihazda biyometrik doğrulama ayarlanmamış.';
+
+  @override
+  String get biometricAppLockTitle => 'KeepSIMs Kilitli';
+
+  @override
+  String get biometricUnlockButton => 'Biyometri ile Kilidi Aç';
+
+  @override
+  String get biometricCancel => 'İptal';
+
+  @override
   String get transactionPin => 'İşlem PIN\'i';
 
   @override
@@ -2011,4 +2036,22 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get purchaseInNextRelease =>
       'Satın alma özelliği bir sonraki sürümde (C9b) sunulacaktır.';
+
+  @override
+  String get confirmPurchaseTitle => 'eSIM Satın Alımını Onayla';
+
+  @override
+  String get myEsimsTitle => 'eSIM\'lerim';
+
+  @override
+  String get showQrCode => 'QR Kodunu Göster';
+
+  @override
+  String get buyAgain => 'Tekrar Satın Al';
+
+  @override
+  String get dataRemaining => 'Kalan Veri';
+
+  @override
+  String get archivedEsims => 'Arşivlenmiş eSIM\'ler';
 }

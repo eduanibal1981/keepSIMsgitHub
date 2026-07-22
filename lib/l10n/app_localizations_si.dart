@@ -50,6 +50,28 @@ class AppLocalizationsSi extends AppLocalizations {
   String get biometricDesc => 'Face ID හෝ Touch ID භාවිතා කර පිවිසෙන්න';
 
   @override
+  String get biometricReasonPayment => 'ගෙවීම තහවුරු කිරීමට සත්‍යාපනය කරන්න';
+
+  @override
+  String get biometricReasonUnlock => 'KeepSIMs අගුළු ඇරීමට සත්‍යාපනය කරන්න';
+
+  @override
+  String get biometricLockout =>
+      'වැරදි උත්සාහයන් වැඩි නිසා ජෛවමිතික සත්‍යාපනය අගුළු වැටී ඇත. කරුණාකර ඔබගේ උපාංග මුරපදය භාවිතා කරන්න.';
+
+  @override
+  String get biometricNotEnrolled => 'මෙම උපාංගයේ ජෛවමිතික සත්‍යාපනය සකසා නැත.';
+
+  @override
+  String get biometricAppLockTitle => 'KeepSIMs අගුළු දමා ඇත';
+
+  @override
+  String get biometricUnlockButton => 'ජෛවමිතියෙන් අගුළු අරින්න';
+
+  @override
+  String get biometricCancel => 'අවලංගු කරන්න';
+
+  @override
   String get transactionPin => 'ගනුදෙනු PIN';
 
   @override
@@ -2012,5 +2034,23 @@ class AppLocalizationsSi extends AppLocalizations {
 
   @override
   String get purchaseInNextRelease =>
-      'මිලදී ගැනීමේ வசතිය ඊළඟ නිකුතුවේදී (C9b) ලබා ගත හැක.';
+      'Purchase flow will land in the next release (C9b).';
+
+  @override
+  String get confirmPurchaseTitle => 'eSIM මිලදී ගැනීම තහවුරු කරන්න';
+
+  @override
+  String get myEsimsTitle => 'මගේ eSIM';
+
+  @override
+  String get showQrCode => 'QR කේතය පෙන්වන්න';
+
+  @override
+  String get buyAgain => 'නැවත මිලදී ගන්න';
+
+  @override
+  String get dataRemaining => 'ඉතිරි දත්ත';
+
+  @override
+  String get archivedEsims => 'සංරක්ෂිත eSIM';
 }

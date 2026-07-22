@@ -10,6 +10,7 @@ import 'package:keep_sims/core/providers.dart';
 import 'package:keep_sims/core/result.dart';
 import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import '../model/wallet_model.dart';
+import 'package:keep_sims/core/services/biometric_auth_service.dart';
 
 part 'wallet_controller.g.dart';
 
@@ -98,6 +99,16 @@ class WalletController extends _$WalletController {
   Future<bool> payPlanFee({String? simLineId}) async {
     final current = state.value;
     if (current == null) return false;
+
+    final authGuard = ref.read(paymentAuthGuardProvider);
+    final authResult = await authGuard.confirmPayment(
+      reason: 'Authenticate to confirm plan fee payment',
+    );
+    if (authResult == BiometricResult.cancelled ||
+        authResult == BiometricResult.failed ||
+        authResult == BiometricResult.lockedOut) {
+      return false;
+    }
 
     state = AsyncData(current.copyWith(isSubmitting: true));
 

@@ -14,6 +14,7 @@ import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_
 import 'package:keep_sims/features/wallet/controller/wallet_controller.dart';
 import 'package:keep_sims/l10n/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:keep_sims/core/services/biometric_auth_service.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // DARK PALETTE
@@ -206,6 +207,17 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen>
   // ── Trigger a channel: persist BEFORE launching, then launch ─────────────
   Future<void> _trigger(_Channel channel, SimLine line, double amount) async {
     if (_cooldown > 0) return;
+
+    final authGuard = ref.read(paymentAuthGuardProvider);
+    final authResult = await authGuard.confirmPayment(
+      reason: 'Authenticate to confirm offline refill request',
+    );
+    if (authResult == BiometricResult.cancelled ||
+        authResult == BiometricResult.failed ||
+        authResult == BiometricResult.lockedOut) {
+      return;
+    }
+
     final notifier = ref.read(pendingOfflineRefillsControllerProvider.notifier);
 
     PendingOfflineRefill? pending;

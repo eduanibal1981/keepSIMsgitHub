@@ -190,6 +190,48 @@ abstract class AppLocalizations {
   /// **'Sign in using Face ID or Touch ID'**
   String get biometricDesc;
 
+  /// No description provided for @biometricReasonPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Authenticate to confirm payment'**
+  String get biometricReasonPayment;
+
+  /// No description provided for @biometricReasonUnlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Authenticate to unlock KeepSIMs'**
+  String get biometricReasonUnlock;
+
+  /// No description provided for @biometricLockout.
+  ///
+  /// In en, this message translates to:
+  /// **'Biometric authentication locked due to too many failed attempts. Please use your device passcode to unlock.'**
+  String get biometricLockout;
+
+  /// No description provided for @biometricNotEnrolled.
+  ///
+  /// In en, this message translates to:
+  /// **'Biometric authentication is not set up on this device.'**
+  String get biometricNotEnrolled;
+
+  /// No description provided for @biometricAppLockTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'KeepSIMs is Locked'**
+  String get biometricAppLockTitle;
+
+  /// No description provided for @biometricUnlockButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock with Biometrics'**
+  String get biometricUnlockButton;
+
+  /// No description provided for @biometricCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get biometricCancel;
+
   /// No description provided for @transactionPin.
   ///
   /// In en, this message translates to:
@@ -3651,6 +3693,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Purchase flow will land in the next release (C9b).'**
   String get purchaseInNextRelease;
+
+  /// No description provided for @confirmPurchaseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm eSIM Purchase'**
+  String get confirmPurchaseTitle;
+
+  /// No description provided for @myEsimsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My eSIMs'**
+  String get myEsimsTitle;
+
+  /// No description provided for @showQrCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Show QR Code'**
+  String get showQrCode;
+
+  /// No description provided for @buyAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy Again'**
+  String get buyAgain;
+
+  /// No description provided for @dataRemaining.
+  ///
+  /// In en, this message translates to:
+  /// **'Data Remaining'**
+  String get dataRemaining;
+
+  /// No description provided for @archivedEsims.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived eSIMs'**
+  String get archivedEsims;
 }
 
 class _AppLocalizationsDelegate

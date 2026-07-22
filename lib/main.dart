@@ -20,6 +20,7 @@ import 'package:onesignal_flutter/onesignal_flutter.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:keep_sims/core/services/local_cache_service.dart';
+import 'package:keep_sims/core/widgets/biometric_lock_overlay.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -102,6 +103,11 @@ class KeepSIMsApp extends ConsumerWidget {
 
       // Router
       routerConfig: router,
+      builder: (context, child) {
+        return BiometricLockOverlay(
+          child: child ?? const SizedBox.shrink(),
+        );
+      },
     );
   }
 }

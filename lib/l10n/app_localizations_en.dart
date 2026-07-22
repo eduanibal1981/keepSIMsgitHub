@@ -50,6 +50,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get biometricDesc => 'Sign in using Face ID or Touch ID';
 
   @override
+  String get biometricReasonPayment => 'Authenticate to confirm payment';
+
+  @override
+  String get biometricReasonUnlock => 'Authenticate to unlock KeepSIMs';
+
+  @override
+  String get biometricLockout =>
+      'Biometric authentication locked due to too many failed attempts. Please use your device passcode to unlock.';
+
+  @override
+  String get biometricNotEnrolled =>
+      'Biometric authentication is not set up on this device.';
+
+  @override
+  String get biometricAppLockTitle => 'KeepSIMs is Locked';
+
+  @override
+  String get biometricUnlockButton => 'Unlock with Biometrics';
+
+  @override
+  String get biometricCancel => 'Cancel';
+
+  @override
   String get transactionPin => 'Transaction PIN';
 
   @override
@@ -1999,4 +2022,22 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get purchaseInNextRelease =>
       'Purchase flow will land in the next release (C9b).';
+
+  @override
+  String get confirmPurchaseTitle => 'Confirm eSIM Purchase';
+
+  @override
+  String get myEsimsTitle => 'My eSIMs';
+
+  @override
+  String get showQrCode => 'Show QR Code';
+
+  @override
+  String get buyAgain => 'Buy Again';
+
+  @override
+  String get dataRemaining => 'Data Remaining';
+
+  @override
+  String get archivedEsims => 'Archived eSIMs';
 }
