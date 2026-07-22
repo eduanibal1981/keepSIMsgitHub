@@ -6,7 +6,7 @@ This guide outlines the steps to connect the Supabase MCP server to the Codex en
 **Crucial:** Never hardcode the token in the config file. Set the token in your current shell session (PowerShell example below).
 
 ```powershell
-$env:SUPABASE_ACCESS_TOKEN="your_token_here"
+$env:SUPABASE_ACCESS_TOKEN="sbp_16fbecc7563474bcba3602ffc09e5dc66778d515"
 2. Global Configuration
 Add the server definition to your Global Codex Config (usually config.toml), not the project-specific config.
 
@@ -21,7 +21,7 @@ bearer_token_env_var = "SUPABASE_ACCESS_TOKEN"
 Run the one-time MCP authentication command to establish the link.
 
 Bash
-codex mcp login supabase-gyshsorklnpudckucpva
+codex mcp login supabase-zwxswagokhgbuzrrbnhr
 4. Verification
 Verify that the server is active and responding correctly.
 

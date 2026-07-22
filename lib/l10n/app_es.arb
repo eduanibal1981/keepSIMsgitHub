@@ -771,5 +771,17 @@
     "howItWorksTitle": "Cómo Funciona Recomienda y Gana",
     "howItWorksStep1": "1. Comparte tu código de referido único con amigos.",
     "howItWorksStep2": "2. Gana 1 punto cada vez que un amigo referido suscriba una línea SIM.",
-    "howItWorksStep3": "3. ¡Canjea 10 puntos por $2.00 de crédito de billetera en cualquier momento!"
+    "howItWorksStep3": "3. ¡Canjea 10 puntos por $2.00 de crédito en la billetera en cualquier momento!",
+    "geoTitle": "Viajes y Geolocalización",
+    "geoSubtitle": "Detección automática de país y protección de líneas SIM internacionales",
+    "currentCountryLabel": "Ubicación actual",
+    "travelModeToggle": "Modo viaje",
+    "travelModeDescription": "Verifica el país al abrir la aplicación para gestionar la protección de líneas internacionales",
+    "geoNotice": "El país se verifica mediante búsqueda IP al abrir la aplicación. Sin permisos de ubicación.",
+    "freezeInternationalLines": "Congelar líneas internacionales",
+    "resumeInternationalLines": "Reanudar líneas internacionales",
+    "linesFrozenSuccess": "¡Líneas SIM internacionales congeladas y recargas programadas pausadas!",
+    "linesResumedSuccess": "¡Líneas SIM internacionales y recargas reactivadas!",
+    "alwaysProtectedBadge": "Siempre protegida",
+    "detectedViaIp": "Detectado por IP"
 }

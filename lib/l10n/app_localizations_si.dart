@@ -1897,4 +1897,45 @@ class AppLocalizationsSi extends AppLocalizations {
   @override
   String get howItWorksStep3 =>
       '3. ඕනෑම වේලාවක \$2.00 පසුම්බි ණය සඳහා ලකුණු 10 ක් ලබා ගන්න!';
+
+  @override
+  String get geoTitle => 'ගමන් සහ භූ-ස්ථානය';
+
+  @override
+  String get geoSubtitle =>
+      'ස්වයංක්‍රීය රට හඳුනාගැනීම සහ ජාත්‍යන්තර SIM රේඛා ආරක්ෂාව';
+
+  @override
+  String get currentCountryLabel => 'වත්මන් ස්ථානය';
+
+  @override
+  String get travelModeToggle => 'ගමන් ප්‍රකාරය';
+
+  @override
+  String get travelModeDescription =>
+      'ජාත්‍යන්තර රේඛා ආරක්ෂාව කළමනාකරණය කිරීමට යෙදුම විවෘත කරන විට රට පරීක්ෂා කරන්න';
+
+  @override
+  String get geoNotice =>
+      'ඔබ යෙදුම විවෘත කරන විට IP මගින් රට පරීක්ෂා කෙරේ. ස්ථාන අවසර අවශ්‍ය නොවේ.';
+
+  @override
+  String get freezeInternationalLines => 'ජාත්‍යන්තර රේඛා අත්හිටුවන්න';
+
+  @override
+  String get resumeInternationalLines => 'ජාත්‍යන්තර රේඛා නැවත ආරම්භ කරන්න';
+
+  @override
+  String get linesFrozenSuccess =>
+      'ජාත්‍යන්තර SIM රේඛා අත්හිටුවන ලද අතර නැවත පිරවීම් තාවකාලිකව නවත්වන ලදී!';
+
+  @override
+  String get linesResumedSuccess =>
+      'ජාත්‍යන්තර SIM රේඛා සහ නැවත පිරවීම් නැවත සක්‍රිය කරන ලදී!';
+
+  @override
+  String get alwaysProtectedBadge => 'සෑම විටම ආරක්ෂිතයි';
+
+  @override
+  String get detectedViaIp => 'IP මගින් හඳුනා ගන්නා ලදී';
 }

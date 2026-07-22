@@ -771,5 +771,17 @@
     "howItWorksTitle": "Davet Et & Kazan Nasıl Çalışır",
     "howItWorksStep1": "1. Benzersiz davet kodunuzu arkadaşlarınızla paylaşın.",
     "howItWorksStep2": "2. Davet edilen bir arkadaşınız SIM hattı abonesi olduğunda 1 puan kazanın.",
-    "howItWorksStep3": "3. İstediğiniz zaman 10 puanı $2.00 harcanabilir cüzdan kredisine dönüştürün!"
+    "howItWorksStep3": "3. İstediğiniz zaman $2.00 cüzdan kredisi için 10 puan kullanın!",
+    "geoTitle": "Seyahat ve Konum",
+    "geoSubtitle": "Otomatik ülke tespiti ve uluslararası SIM hattı koruması",
+    "currentCountryLabel": "Mevcut Konum",
+    "travelModeToggle": "Seyahat Modu",
+    "travelModeDescription": "Uluslararası hat korumasını yönetmek için uygulamayı açarken ülkeyi kontrol et",
+    "geoNotice": "Ülke, uygulama açıldığında IP sorgulaması ile kontrol edilir. Konum izni gerekmez.",
+    "freezeInternationalLines": "Uluslararası Hatları Dondur",
+    "resumeInternationalLines": "Uluslararası Hatları Devam Ettir",
+    "linesFrozenSuccess": "Uluslararası SIM hatları donduruldu ve zamanlanmış yenilemeler duraklatıldı!",
+    "linesResumedSuccess": "Uluslararası SIM hatları ve yenilemeler yeniden etkinleştirildi!",
+    "alwaysProtectedBadge": "Her Zaman Korumalı",
+    "detectedViaIp": "IP İle Tespit Edildi"
 }

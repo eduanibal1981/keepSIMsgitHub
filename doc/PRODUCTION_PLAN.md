@@ -953,24 +953,30 @@ Big session — acceptable to split UI (1–3) and server webhooks (4) into two.
 4. Notify on admin reply through C1 dispatcher (`category: support` — add to
    both category CHECK constraints and the seed list; see C2).
 
-## 🟠 C8 — Travel & geolocation: country-change → roaming advice / eSIM offer
+## 🟢 C8 — Travel & geolocation: country-change → roaming advice / eSIM offer [DONE 2026-07-22]
 
-**User decision:** foreground-only tracking is enough; the trigger that matters
-is "user entered a new country."
-
-1. Audit existing `geo_controller.dart` flow: on app open/resume, resolve
-   country (existing geolocation permission flow); compare to
-   `profiles.last_country` (add column if missing); on change, update it and
-   fire a `travel_roaming` notification (C1) with roaming advice + eSIM offer
-   deep link (to C9's browse screen).
-2. Interplay with B5: entering a country still triggers
-   `freezeAllInternationalLines()` minus `requires_protection_at_home` lines.
-3. Privacy: coordinates never stored — only ISO country code; disclose in
-   privacy policy (D3 session touches this); respect the `geo_fence_triggered`
-   toggle from C2 (the plan's `travel_roaming` name was superseded — see C2);
-   degrade gracefully when permission denied.
-4. No background location — keeps store review simple. Note the limitation
-   (detection happens on next app open) in the UI copy.
+**Implementation Record (2026-07-22):**
+- **Architecture Deviations & Key Audits:**
+  1. *IP-Based Detection via Edge Function (Zero Location Permissions):* Replaced device GPS with server-side IP lookup in `supabase/functions/detect-country`. Eliminates Play Store location permission UX and privacy declarations while ensuring privacy promises (coordinates are never collected).
+  2. *Fixed Cosmetic Freeze:* Fixed `freezeAllInternationalLines()` and `freezeLine()` in `geo_controller.dart` / `sim_lines_controller.dart`. Pausing lines now updates `sim_lines.status` AND deactivates `scheduled_topups.is_active` for all associated schedules so refill workers never debit frozen lines. Lines with `requiresProtectionAtHome` are still strictly preserved.
+  3. *Border Simulator:* Removed simulator console from release UI per owner confirmation (tested via VPN).
+- **Database Infrastructure (`supabase/migrations/20260725000000_c8_travel_geo.sql`):**
+  - Added `profiles.last_country` (ISO-2, nullable, CHECK 2-letter constraint).
+  - Added `GEO_FLAP_GUARD_HOURS` = `'1'` in `system_configs`.
+- **Edge Function (`supabase/functions/detect-country`):**
+  - Resolves IP via CDN headers (`cf-ipcountry`, `x-country-code`) or Geo-IP REST fallback.
+  - Enforces 1-hour flap-guard window; server-authors `geo_fence_triggered` (abroad, deep-linked to `/esim`) or `welcome_home_ready` (home, deep-linked to `/settings/geo`) notification.
+  - Deployed version 1 (ACTIVE).
+- **Client & UI (`geo_screen.dart`, `geo_controller.dart`):**
+  - Client calls `detect-country` on app open/resume when `userPreferences.travelModeEnabled` is active.
+  - honest release UI displaying current location, Travel Mode toggle, zero-permission IP notice, and international line freeze/unfreeze controls.
+  - Added ARB localized strings across all 9 supported app locales.
+- **Verification:**
+  - SQL test suite (`supabase/tests/c8_travel_geo_tests.sql`) executed live in `BEGIN..ROLLBACK`: ALL TESTS PASSED.
+  - PostgREST wallet balance for `a1-wallet-test@example.com` verified intact at $37.81.
+  - MCP `get_advisors`: 0 net-new security findings.
+  - `flutter analyze`: 0 errors. All 55 Flutter unit tests PASSED.
+  - `flutter build apk --debug`: Compiled successfully.
 
 ## ⚪ C9 — eSIM management (big — split if needed)
 

@@ -1893,4 +1893,45 @@ class AppLocalizationsUr extends AppLocalizations {
   @override
   String get howItWorksStep3 =>
       '3. کسی بھی وقت \$2.00 والٹ کریڈٹ کے لیے 10 پوائنٹس ریڈیم کریں!';
+
+  @override
+  String get geoTitle => 'سفر اور جیو لوکیشن';
+
+  @override
+  String get geoSubtitle =>
+      'خودکار ملک کی نشاندہی اور بین الاقوامی سم لائن کی تحفظ';
+
+  @override
+  String get currentCountryLabel => 'موجودہ مقام';
+
+  @override
+  String get travelModeToggle => 'ٹریول موڈ';
+
+  @override
+  String get travelModeDescription =>
+      'بین الاقوامی لائن کے تحفظ کو منظم کرنے کے لیے ایپ کھولتے وقت ملک چیک کریں';
+
+  @override
+  String get geoNotice =>
+      'ایپ کھولنے پر IP تلاش کے ذریعے ملک کی تصدیق کی جاتی ہے۔ لوکیشن کی اجازت درکار نہیں۔';
+
+  @override
+  String get freezeInternationalLines => 'بین الاقوامی لائنیں منجمد کریں';
+
+  @override
+  String get resumeInternationalLines => 'بین الاقوامی لائنیں دوبارہ فعال کریں';
+
+  @override
+  String get linesFrozenSuccess =>
+      'بین الاقوامی سم لائنیں منجمد ہو گئیں اور ری فلز کو روک دیا گیا!';
+
+  @override
+  String get linesResumedSuccess =>
+      'بین الاقوامی سم لائنیں اور ری فلز دوبارہ فعال ہو گئے!';
+
+  @override
+  String get alwaysProtectedBadge => 'ہمیشہ محفوظ';
+
+  @override
+  String get detectedViaIp => 'IP کے ذریعے نشاندہی کی گئی';
 }

@@ -695,5 +695,17 @@
     "howItWorksTitle": "كيف يعمل برنامج دعوة وكسب",
     "howItWorksStep1": "1. شارك رمز الدعوة الفريد الخاص بك مع الأصدقاء.",
     "howItWorksStep2": "2. اكسب نقطة واحدة عندما يشترك صديق مدعو في خط SIM.",
-    "howItWorksStep3": "3. استبدل 10 نقاط بـ $2.00 رصيد محفظة قابل للاستخدام في أي وقت!"
+    "howItWorksStep3": "3. استبدل 10 نقاط برصيد 2.00 دولار في المحفظة في أي وقت!",
+    "geoTitle": "السفر والموقع الجغرافي",
+    "geoSubtitle": "الكشف التلقائي عن الدولة وحماية خطوط SIM الدولية",
+    "currentCountryLabel": "الموقع الحالي",
+    "travelModeToggle": "وضع السفر",
+    "travelModeDescription": "التحقق من الدولة عند فتح التطبيق لإدارة حماية الخطوط الدولية",
+    "geoNotice": "يتم التحقق من الدولة عبر عنوان IP عند فتح التطبيق. لا توجد أذونات موقع مطلوبة.",
+    "freezeInternationalLines": "تجميد الخطوط الدولية",
+    "resumeInternationalLines": "استئناف الخطوط الدولية",
+    "linesFrozenSuccess": "تم تجميد خطوط SIM الدولية وإيقاف الشحن التلقائي المؤقت!",
+    "linesResumedSuccess": "تم إعادة تفعيل خطوط SIM الدولية والشحن التلقائي!",
+    "alwaysProtectedBadge": "محمي دائماً",
+    "detectedViaIp": "تم اكتشافه عبر IP"
 }

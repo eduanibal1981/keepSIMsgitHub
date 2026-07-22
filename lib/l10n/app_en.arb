@@ -913,5 +913,17 @@
     "howItWorksTitle": "How Refer & Earn Works",
     "howItWorksStep1": "1. Share your unique referral code with friends.",
     "howItWorksStep2": "2. Earn 1 point whenever a referred friend subscribes a SIM line.",
-    "howItWorksStep3": "3. Redeem 10 points for $2.00 spendable wallet credit anytime!"
+    "howItWorksStep3": "3. Redeem 10 points for $2.00 spendable wallet credit anytime!",
+    "geoTitle": "Travel & Geolocation",
+    "geoSubtitle": "Automatic country detection and international SIM line protection",
+    "currentCountryLabel": "Current Location",
+    "travelModeToggle": "Travel Mode",
+    "travelModeDescription": "Check country when opening the app to manage international line protection",
+    "geoNotice": "Country is checked via IP lookup when you open the app. No location permissions required.",
+    "freezeInternationalLines": "Freeze International Lines",
+    "resumeInternationalLines": "Resume International Lines",
+    "linesFrozenSuccess": "International SIM lines frozen and scheduled refills paused!",
+    "linesResumedSuccess": "International SIM lines and refills reactivated!",
+    "alwaysProtectedBadge": "Always Protected",
+    "detectedViaIp": "Detected via IP"
 }

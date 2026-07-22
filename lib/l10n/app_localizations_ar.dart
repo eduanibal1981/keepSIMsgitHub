@@ -1873,5 +1873,45 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get howItWorksStep3 =>
-      '3. استبدل 10 نقاط بـ \$2.00 رصيد محفظة قابل للاستخدام في أي وقت!';
+      '3. استبدل 10 نقاط برصيد 2.00 دولار في المحفظة في أي وقت!';
+
+  @override
+  String get geoTitle => 'السفر والموقع الجغرافي';
+
+  @override
+  String get geoSubtitle => 'الكشف التلقائي عن الدولة وحماية خطوط SIM الدولية';
+
+  @override
+  String get currentCountryLabel => 'الموقع الحالي';
+
+  @override
+  String get travelModeToggle => 'وضع السفر';
+
+  @override
+  String get travelModeDescription =>
+      'التحقق من الدولة عند فتح التطبيق لإدارة حماية الخطوط الدولية';
+
+  @override
+  String get geoNotice =>
+      'يتم التحقق من الدولة عبر عنوان IP عند فتح التطبيق. لا توجد أذونات موقع مطلوبة.';
+
+  @override
+  String get freezeInternationalLines => 'تجميد الخطوط الدولية';
+
+  @override
+  String get resumeInternationalLines => 'استئناف الخطوط الدولية';
+
+  @override
+  String get linesFrozenSuccess =>
+      'تم تجميد خطوط SIM الدولية وإيقاف الشحن التلقائي المؤقت!';
+
+  @override
+  String get linesResumedSuccess =>
+      'تم إعادة تفعيل خطوط SIM الدولية والشحن التلقائي!';
+
+  @override
+  String get alwaysProtectedBadge => 'محمي دائماً';
+
+  @override
+  String get detectedViaIp => 'تم اكتشافه عبر IP';
 }

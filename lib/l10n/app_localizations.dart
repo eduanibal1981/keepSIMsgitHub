@@ -3441,6 +3441,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'3. Redeem 10 points for \$2.00 spendable wallet credit anytime!'**
   String get howItWorksStep3;
+
+  /// No description provided for @geoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Travel & Geolocation'**
+  String get geoTitle;
+
+  /// No description provided for @geoSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic country detection and international SIM line protection'**
+  String get geoSubtitle;
+
+  /// No description provided for @currentCountryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Location'**
+  String get currentCountryLabel;
+
+  /// No description provided for @travelModeToggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Travel Mode'**
+  String get travelModeToggle;
+
+  /// No description provided for @travelModeDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Check country when opening the app to manage international line protection'**
+  String get travelModeDescription;
+
+  /// No description provided for @geoNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Country is checked via IP lookup when you open the app. No location permissions required.'**
+  String get geoNotice;
+
+  /// No description provided for @freezeInternationalLines.
+  ///
+  /// In en, this message translates to:
+  /// **'Freeze International Lines'**
+  String get freezeInternationalLines;
+
+  /// No description provided for @resumeInternationalLines.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume International Lines'**
+  String get resumeInternationalLines;
+
+  /// No description provided for @linesFrozenSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'International SIM lines frozen and scheduled refills paused!'**
+  String get linesFrozenSuccess;
+
+  /// No description provided for @linesResumedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'International SIM lines and refills reactivated!'**
+  String get linesResumedSuccess;
+
+  /// No description provided for @alwaysProtectedBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Always Protected'**
+  String get alwaysProtectedBadge;
+
+  /// No description provided for @detectedViaIp.
+  ///
+  /// In en, this message translates to:
+  /// **'Detected via IP'**
+  String get detectedViaIp;
 }
 
 class _AppLocalizationsDelegate

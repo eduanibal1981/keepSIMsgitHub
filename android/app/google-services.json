@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1679369602",
+    "project_id": "keepsimsfcm",
+    "storage_bucket": "keepsimsfcm.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1679369602:android:ce73dab00574ee067a1b9b",
+        "android_client_info": {
+          "package_name": "com.keep_sims"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCuKkV4EPOqGnOGfeaLgnxxaihNCIQrldg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

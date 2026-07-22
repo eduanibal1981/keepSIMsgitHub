@@ -1892,5 +1892,48 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String get howItWorksStep3 =>
-      '3. जुनसुकै बेला \$2.00 वालेट क्रेडिटको लागि 10 अंक साट्नुहोस्!';
+      '3. कुनै पनि समयमा \$2.00 वालेट क्रेडिटको लागि 10 अंकहरू रिडिम गर्नुहोस्!';
+
+  @override
+  String get geoTitle => 'यात्रा र जियोलोकेशन';
+
+  @override
+  String get geoSubtitle =>
+      'स्वचालित देश पहिचान र अन्तर्राष्ट्रिय सिम लाइन सुरक्षा';
+
+  @override
+  String get currentCountryLabel => 'हालको स्थान';
+
+  @override
+  String get travelModeToggle => 'यात्रा मोड';
+
+  @override
+  String get travelModeDescription =>
+      'अन्तर्राष्ट्रिय लाइन सुरक्षा प्रबन्ध गर्न एप खोल्दा देश जाँच गर्नुहोस्';
+
+  @override
+  String get geoNotice =>
+      'एप खोल्दा आईपी खोजी मार्फत देश जाँच गरिन्छ। कुनै स्थान अनुमति आवश्यक छैन।';
+
+  @override
+  String get freezeInternationalLines =>
+      'अन्तर्राष्ट्रिय लाइनहरू फ्रिज गर्नुहोस्';
+
+  @override
+  String get resumeInternationalLines =>
+      'अन्तर्राष्ट्रिय लाइनहरू पुनः सुरु गर्नुहोस्';
+
+  @override
+  String get linesFrozenSuccess =>
+      'अन्तर्राष्ट्रिय सिम लाइनहरू फ्रिज गरियो र रिफिलहरू रोकिए!';
+
+  @override
+  String get linesResumedSuccess =>
+      'अन्तर्राष्ट्रिय सिम लाइनहरू र रिफिलहरू पुनः सक्रिय गरियो!';
+
+  @override
+  String get alwaysProtectedBadge => 'सधैं सुरक्षित';
+
+  @override
+  String get detectedViaIp => 'आईपी मार्फत पहिचान गरिएको';
 }

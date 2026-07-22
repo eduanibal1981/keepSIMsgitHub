@@ -19,6 +19,7 @@ abstract class UserProfile with _$UserProfile {
     String? avatarUrl,
     String? phone,
     String? homeCountryCode,
+    @JsonKey(name: 'last_country') String? lastCountry,
     @Default('USD') String preferredCurrency,
     @Default(false) bool isPowerUser,
     @JsonKey(name: 'subscription_tier')

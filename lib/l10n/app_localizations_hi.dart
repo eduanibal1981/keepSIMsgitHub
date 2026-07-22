@@ -1890,5 +1890,47 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get howItWorksStep3 =>
-      '3. किसी भी समय \$2.00 वॉलेट क्रेडिट के लिए 10 अंक रिडीम करें!';
+      '3. कभी भी \$2.00 वॉलेट क्रेडिट के लिए 10 अंक रिडीम करें!';
+
+  @override
+  String get geoTitle => 'यात्रा और जियोलोकेशन';
+
+  @override
+  String get geoSubtitle =>
+      'स्वचालित देश का पता लगाना और अंतर्राष्ट्रीय सिम लाइन सुरक्षा';
+
+  @override
+  String get currentCountryLabel => 'वर्तमान स्थान';
+
+  @override
+  String get travelModeToggle => 'यात्रा मोड';
+
+  @override
+  String get travelModeDescription =>
+      'अंतर्राष्ट्रीय लाइन सुरक्षा प्रबंधित करने के लिए ऐप खोलते समय देश की जाँच करें';
+
+  @override
+  String get geoNotice =>
+      'ऐप खोलने पर आईपी लुकअप द्वारा देश की जाँच की जाती है। कोई लोकेशन अनुमति आवश्यक नहीं है।';
+
+  @override
+  String get freezeInternationalLines => 'अंतर्राष्ट्रीय लाइनों को फ्रीज करें';
+
+  @override
+  String get resumeInternationalLines =>
+      'अंतर्राष्ट्रीय लाइनों को फिर से शुरू करें';
+
+  @override
+  String get linesFrozenSuccess =>
+      'अंतर्राष्ट्रीय सिम लाइनें फ्रीज कर दी गईं और अनुसूचित रीफिल रोक दिए गए!';
+
+  @override
+  String get linesResumedSuccess =>
+      'अंतर्राष्ट्रीय सिम लाइनें और रीफिल फिर से सक्रिय!';
+
+  @override
+  String get alwaysProtectedBadge => 'हमेशा सुरक्षित';
+
+  @override
+  String get detectedViaIp => 'आईपी द्वारा पता लगाया गया';
 }

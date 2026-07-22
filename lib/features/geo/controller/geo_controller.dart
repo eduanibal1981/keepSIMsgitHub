@@ -1,7 +1,8 @@
+import 'dart:convert';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import 'package:keep_sims/features/notifications/presentation/controllers/notification_settings_controller.dart';
-import 'package:keep_sims/features/notifications/data/repositories/notifications_repository_impl.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
 import '../model/geo_state.dart';
 
@@ -9,14 +10,12 @@ part 'geo_controller.g.dart';
 
 @riverpod
 class GeoController extends _$GeoController {
-  String? _simulatedIso;
-  String? _simulatedCountry;
+  String? _detectedIso;
+  String? _detectedCountry;
   bool _showFreezePrompt = false;
   bool _showResumePrompt = false;
 
-  final List<String> _logs = [
-    '🛡️ Geolocation Shield active and running in background.',
-  ];
+  final List<String> _logs = [];
 
   @override
   GeoState build() {
@@ -24,6 +23,7 @@ class GeoController extends _$GeoController {
     final userPrefs = ref.watch(userPreferencesControllerProvider).value;
 
     final homeCountryCode = authProfile?.homeCountryCode ?? 'US';
+    final lastCountryCode = authProfile?.lastCountry;
     final travelMode = userPrefs?.travelModeEnabled ?? false;
 
     final countryNames = {
@@ -33,11 +33,18 @@ class GeoController extends _$GeoController {
       'SG': 'Singapore',
       'JP': 'Japan',
       'IN': 'India',
+      'DE': 'Germany',
+      'FR': 'France',
+      'EG': 'Egypt',
+      'LK': 'Sri Lanka',
+      'TR': 'Turkey',
+      'ES': 'Spain',
+      'NP': 'Nepal',
+      'BD': 'Bangladesh',
     };
 
-    final currentIso = _simulatedIso ?? homeCountryCode;
-    final currentCountry =
-        _simulatedCountry ?? (countryNames[currentIso] ?? 'Home Country');
+    final currentIso = _detectedIso ?? lastCountryCode ?? homeCountryCode;
+    final currentCountry = _detectedCountry ?? (countryNames[currentIso] ?? currentIso);
 
     final isHome = currentIso == homeCountryCode;
 
@@ -52,53 +59,45 @@ class GeoController extends _$GeoController {
     );
   }
 
-  /// Board simulated flight to target country triggers instant geofence crossing.
-  Future<void> simulateTravelTo(String isoCode, String countryName) async {
-    final authProfile = ref.read(authControllerProvider).value;
-    final homeCountryCode = authProfile?.homeCountryCode ?? 'US';
+  /// Triggers IP-based country detection via detect-country Edge Function on app open / resume.
+  Future<void> checkCurrentLocationOnAppOpen() async {
+    final userPrefs = ref.read(userPreferencesControllerProvider).value;
+    if (userPrefs?.travelModeEnabled != true) return;
 
-    _simulatedIso = isoCode;
-    _simulatedCountry = countryName;
+    try {
+      final response = await Supabase.instance.client.functions.invoke('detect-country');
+      if (response.status == 200 && response.data != null) {
+        final Map<String, dynamic> data = response.data is String
+            ? jsonDecode(response.data as String)
+            : (response.data as Map<String, dynamic>);
 
-    final isHome = isoCode == homeCountryCode;
+        final status = data['status'] as String?;
+        final detectedIso = data['detected_country'] as String?;
 
-    if (isHome) {
-      _showFreezePrompt = true;
-      _showResumePrompt = false;
-      _logs.add('🏡 Border Simulator: Landed in Home Country ($countryName).');
-      _logs.add(
-        '📢 Recommendation: Expats back home can freeze active international lines.',
-      );
+        if (detectedIso != null && detectedIso.isNotEmpty) {
+          _detectedIso = detectedIso;
+          _logs.add('📍 Location checked via IP: $detectedIso ($status)');
 
-      try {
-        await ref
-            .read(notificationsRepositoryProvider)
-            .simulateNotification(
-              'welcome_home_ready',
-              'Welcome Home! 🏡',
-              'Landed in $countryName. Freeze active international renewals to protect your wallet balance.',
-            );
-      } catch (_) {}
-    } else {
-      _showFreezePrompt = false;
-      _showResumePrompt = true;
-      _logs.add('✈️ Border Simulator: Departed to $countryName ($isoCode).');
-      _logs.add(
-        '📢 Recommendation: Boarding gates detected. Auto-resume renewals.',
-      );
+          final authProfile = ref.read(authControllerProvider).value;
+          final homeCountryCode = authProfile?.homeCountryCode ?? 'US';
 
-      try {
-        await ref
-            .read(notificationsRepositoryProvider)
-            .simulateNotification(
-              'geo_fence_triggered',
-              'Travel Detected! ✈️',
-              'Arrived in $countryName. Resume international lines to ensure uninterrupted coverage.',
-            );
-      } catch (_) {}
+          if (status == 'updated') {
+            if (detectedIso == homeCountryCode) {
+              _showFreezePrompt = true;
+              _showResumePrompt = false;
+            } else {
+              _showFreezePrompt = false;
+              _showResumePrompt = true;
+            }
+            ref.invalidate(authControllerProvider);
+          }
+
+          ref.invalidateSelf();
+        }
+      }
+    } catch (_) {
+      // Silent no-op on network / location check failure
     }
-
-    ref.invalidateSelf();
   }
 
   /// Toggles global travel mode switch.
@@ -109,10 +108,13 @@ class GeoController extends _$GeoController {
     await ref
         .read(userPreferencesControllerProvider.notifier)
         .toggleTravelMode(enabled);
+    if (enabled) {
+      await checkCurrentLocationOnAppOpen();
+    }
     ref.invalidateSelf();
   }
 
-  /// Performs bulk updates to freeze all international SIM lines.
+  /// Performs bulk updates to freeze all international SIM lines (fixing cosmetic freeze).
   Future<void> freezeAllInternationalLines() async {
     final lines = ref.read(simLinesControllerProvider).value ?? [];
     final countries = ref.read(supportedCountriesProvider).value ?? [];
@@ -126,8 +128,9 @@ class GeoController extends _$GeoController {
         (c) => c.id == line.countryId,
         orElse: () => countries.firstWhere(
           (c) => c.isoCode != homeCountryCode,
-        ), // fallback
+        ),
       );
+
       // Lines flagged requiresProtectionAtHome must never be auto-frozen —
       // a resident's dormant second SIM dies if its refills stop (B5).
       if (line.requiresProtectionAtHome) {
@@ -139,8 +142,8 @@ class GeoController extends _$GeoController {
       if (country.isoCode != homeCountryCode && line.status == 'active') {
         await ref
             .read(simLinesControllerProvider.notifier)
-            .updateSimLine(line.copyWith(status: 'paused'));
-        _logs.add('⏸️ Paused: Line ${line.phoneNumber} (${country.name}).');
+            .freezeLine(line.id, true);
+        _logs.add('⏸️ Frozen: Line ${line.phoneNumber} (${country.name}).');
       }
     }
 
@@ -166,7 +169,7 @@ class GeoController extends _$GeoController {
       if (country.isoCode != homeCountryCode && line.status == 'paused') {
         await ref
             .read(simLinesControllerProvider.notifier)
-            .updateSimLine(line.copyWith(status: 'active'));
+            .freezeLine(line.id, false);
         _logs.add('▶️ Resumed: Line ${line.phoneNumber} (${country.name}).');
       }
     }

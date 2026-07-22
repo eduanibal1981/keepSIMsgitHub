@@ -1883,4 +1883,45 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get howItWorksStep3 =>
       '3. Redeem 10 points for \$2.00 spendable wallet credit anytime!';
+
+  @override
+  String get geoTitle => 'Travel & Geolocation';
+
+  @override
+  String get geoSubtitle =>
+      'Automatic country detection and international SIM line protection';
+
+  @override
+  String get currentCountryLabel => 'Current Location';
+
+  @override
+  String get travelModeToggle => 'Travel Mode';
+
+  @override
+  String get travelModeDescription =>
+      'Check country when opening the app to manage international line protection';
+
+  @override
+  String get geoNotice =>
+      'Country is checked via IP lookup when you open the app. No location permissions required.';
+
+  @override
+  String get freezeInternationalLines => 'Freeze International Lines';
+
+  @override
+  String get resumeInternationalLines => 'Resume International Lines';
+
+  @override
+  String get linesFrozenSuccess =>
+      'International SIM lines frozen and scheduled refills paused!';
+
+  @override
+  String get linesResumedSuccess =>
+      'International SIM lines and refills reactivated!';
+
+  @override
+  String get alwaysProtectedBadge => 'Always Protected';
+
+  @override
+  String get detectedViaIp => 'Detected via IP';
 }

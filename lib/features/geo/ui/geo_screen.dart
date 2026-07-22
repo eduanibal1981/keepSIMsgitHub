@@ -5,10 +5,10 @@ import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import 'package:keep_sims/core/utils/build_context_extension.dart';
+import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
 import '../controller/geo_controller.dart';
 import '../model/geo_state.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
-import 'package:keep_sims/features/profile/presentation/widgets/subscription_upsell_sheet.dart';
 import 'package:keep_sims/l10n/app_localizations.dart';
 
 class GeoScreen extends ConsumerStatefulWidget {
@@ -29,6 +29,11 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
       vsync: this,
       duration: const Duration(seconds: 4),
     )..repeat();
+
+    // Trigger IP-based country check on screen load
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(geoControllerProvider.notifier).checkCurrentLocationOnAppOpen();
+    });
   }
 
   @override
@@ -42,6 +47,9 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
     final geoState = ref.watch(geoControllerProvider);
     final authProfile = ref.watch(authControllerProvider).value;
     final homeCountry = authProfile?.homeCountryCode ?? 'US';
+    final simLines = ref.watch(simLinesControllerProvider).value ?? [];
+    final supportedCountries = ref.watch(supportedCountriesProvider).value ?? [];
+    final l10n = AppLocalizations.of(context)!;
     final isDark = context.isDarkMode;
 
     return Scaffold(
@@ -61,7 +69,7 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
           },
         ),
         title: Text(
-          AppLocalizations.of(context)!.travelGeolocationTitle,
+          l10n.geoTitle,
           style: AppTextStyles.titleLarge.copyWith(
             color: context.onSurfaceColor,
             fontWeight: FontWeight.bold,
@@ -121,11 +129,11 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Section 1: Animated Radar Shield Hero
+                  // Section 1: Radar Shield Hero
                   _buildRadarShieldHero(geoState.travelModeEnabled),
                   const SizedBox(height: 25),
 
-                  // Section 2: Active Geo Location Banner
+                  // Section 2: Active Geo Location Card
                   _buildActiveGeoBanner(geoState, homeCountry),
                   const SizedBox(height: 20),
 
@@ -135,23 +143,27 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
                   if (geoState.promptFreeze || geoState.promptResume)
                     const SizedBox(height: 20),
 
-                  // Section 4: Travel Mode Settings Switch
+                  // Section 4: Travel Mode Master Switch
                   _buildTravelModeCard(geoState),
                   const SizedBox(height: 20),
 
-                  // Section 5: Border Crossing Simulator (Flight Boarding Gate)
-                  _buildSimulatorConsole(geoState, homeCountry),
+                  // Section 5: Zero-Permission IP Detection Banner
+                  _buildGeoNoticeCard(),
                   const SizedBox(height: 20),
 
-                  // Section 6: Real-time Diagnostics Terminal
-                  _buildDiagnosticsTerminal(geoState.logs),
+                  // Section 6: International Lines Management Card
+                  _buildInternationalLinesSection(
+                    simLines: simLines,
+                    supportedCountries: supportedCountries,
+                    homeCountryCode: homeCountry,
+                  ),
                   const SizedBox(height: 40),
                 ],
               ),
             ),
           ),
 
-          // Loader Overlay
+          // Processing Overlay
           if (geoState.isProcessing)
             Container(
               color: Colors.black.withValues(alpha: 0.6),
@@ -171,7 +183,6 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
       child: Stack(
         alignment: Alignment.center,
         children: [
-          // Radar Dotted Rings
           AnimatedBuilder(
             animation: _radarController,
             builder: (context, child) {
@@ -209,8 +220,6 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
               );
             },
           ),
-
-          // Core Hologram Node
           Container(
             width: 110,
             height: 110,
@@ -245,6 +254,7 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
   Widget _buildActiveGeoBanner(GeoState geoState, String homeCountry) {
     final bool isHome = geoState.currentIsoCode == homeCountry;
     final isDark = context.isDarkMode;
+    final l10n = AppLocalizations.of(context)!;
 
     return Container(
       width: double.infinity,
@@ -284,9 +294,7 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      isHome
-                          ? AppLocalizations.of(context)!.atHome
-                          : AppLocalizations.of(context)!.abroadTraveling,
+                      l10n.currentCountryLabel,
                       style: AppTextStyles.labelSmall.copyWith(
                         color: isHome
                             ? (isDark
@@ -318,7 +326,7 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                AppLocalizations.of(context)!.shieldProtection,
+                l10n.detectedViaIp,
                 style: AppTextStyles.bodyMedium.copyWith(
                   color: isDark
                       ? AppColors.textSecondaryDark
@@ -337,7 +345,7 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    AppLocalizations.of(context)!.fullyShielded,
+                    geoState.travelModeEnabled ? 'Active' : 'Standby',
                     style: AppTextStyles.labelLarge.copyWith(
                       color: context.onSurfaceColor,
                       fontWeight: FontWeight.bold,
@@ -354,6 +362,8 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
 
   Widget _buildFreezeRecommendationCard() {
     final isDark = context.isDarkMode;
+    final l10n = AppLocalizations.of(context)!;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -406,12 +416,17 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
                   ),
                   onPressed: () async {
                     await HapticHelper.mediumImpact();
-                    ref
+                    await ref
                         .read(geoControllerProvider.notifier)
                         .freezeAllInternationalLines();
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(l10n.linesFrozenSuccess)),
+                      );
+                    }
                   },
                   child: Text(
-                    'Freeze All Lines',
+                    l10n.freezeInternationalLines,
                     style: AppTextStyles.labelLarge.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -421,26 +436,13 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
               ),
               const SizedBox(width: 10),
               TextButton(
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 14,
-                  ),
-                ),
                 onPressed: () async {
                   await HapticHelper.lightTick();
                   ref
                       .read(geoControllerProvider.notifier)
                       .dismissFreezePrompt();
                 },
-                child: Text(
-                  'Dismiss',
-                  style: AppTextStyles.labelLarge.copyWith(
-                    color: isDark
-                        ? AppColors.textSecondaryDark
-                        : AppColors.textSecondaryLight,
-                  ),
-                ),
+                child: const Text('Dismiss'),
               ),
             ],
           ),
@@ -451,6 +453,8 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
 
   Widget _buildResumeRecommendationCard() {
     final isDark = context.isDarkMode;
+    final l10n = AppLocalizations.of(context)!;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -483,7 +487,7 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
           ),
           const SizedBox(height: 12),
           Text(
-            'You are traveling abroad. Please resume your paused international SIM renewals to ensure uninterrupted mobile network coverage.',
+            'You are traveling abroad. Resume your paused international SIM renewals to ensure uninterrupted mobile network coverage.',
             style: AppTextStyles.bodyMedium.copyWith(
               color: isDark
                   ? AppColors.textSecondaryDark
@@ -505,12 +509,17 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
                   ),
                   onPressed: () async {
                     await HapticHelper.mediumImpact();
-                    ref
+                    await ref
                         .read(geoControllerProvider.notifier)
                         .resumeAllInternationalLines();
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(l10n.linesResumedSuccess)),
+                      );
+                    }
                   },
                   child: Text(
-                    'Resume Renewals',
+                    l10n.resumeInternationalLines,
                     style: AppTextStyles.labelLarge.copyWith(
                       color: isDark ? Colors.black : Colors.white,
                       fontWeight: FontWeight.bold,
@@ -520,26 +529,13 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
               ),
               const SizedBox(width: 10),
               TextButton(
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 14,
-                  ),
-                ),
                 onPressed: () async {
                   await HapticHelper.lightTick();
                   ref
                       .read(geoControllerProvider.notifier)
                       .dismissResumePrompt();
                 },
-                child: Text(
-                  'Dismiss',
-                  style: AppTextStyles.labelLarge.copyWith(
-                    color: isDark
-                        ? AppColors.textSecondaryDark
-                        : AppColors.textSecondaryLight,
-                  ),
-                ),
+                child: const Text('Dismiss'),
               ),
             ],
           ),
@@ -550,6 +546,8 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
 
   Widget _buildTravelModeCard(GeoState geoState) {
     final isDark = context.isDarkMode;
+    final l10n = AppLocalizations.of(context)!;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -568,7 +566,7 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  AppLocalizations.of(context)!.globalTravelMode,
+                  l10n.travelModeToggle,
                   style: AppTextStyles.titleMedium.copyWith(
                     color: context.onSurfaceColor,
                     fontWeight: FontWeight.bold,
@@ -576,7 +574,7 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  AppLocalizations.of(context)!.globalTravelModeDesc,
+                  l10n.travelModeDescription,
                   style: AppTextStyles.bodySmall.copyWith(
                     color: isDark
                         ? AppColors.textSecondaryDark
@@ -597,8 +595,6 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
                 ? AppColors.darkBorder
                 : AppColors.lightBorder,
             onChanged: (val) async {
-              final user = ref.read(authControllerProvider).value;
-              // Feature unlocked for all users or handled by line-specific logic
               await HapticHelper.mediumImpact();
               ref.read(geoControllerProvider.notifier).toggleTravelMode(val);
             },
@@ -608,9 +604,63 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
     );
   }
 
-  Widget _buildSimulatorConsole(GeoState geoState, String homeCountry) {
-    const double buttonHeight = 46.0;
+  Widget _buildGeoNoticeCard() {
     final isDark = context.isDarkMode;
+    final l10n = AppLocalizations.of(context)!;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isDark
+            ? Colors.white.withValues(alpha: 0.04)
+            : Colors.black.withValues(alpha: 0.03),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.privacy_tip_outlined,
+            color: isDark
+                ? AppColors.textSecondaryDark
+                : AppColors.textSecondaryLight,
+            size: 20,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              l10n.geoNotice,
+              style: AppTextStyles.bodySmall.copyWith(
+                color: isDark
+                    ? AppColors.textSecondaryDark
+                    : AppColors.textSecondaryLight,
+                height: 1.3,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInternationalLinesSection({
+    required List<dynamic> simLines,
+    required List<dynamic> supportedCountries,
+    required String homeCountryCode,
+  }) {
+    final isDark = context.isDarkMode;
+    final l10n = AppLocalizations.of(context)!;
+
+    final intlLines = simLines.where((l) {
+      final country = supportedCountries.firstWhere(
+        (c) => c.id == l.countryId,
+        orElse: () => null,
+      );
+      return country == null || country.isoCode != homeCountryCode;
+    }).toList();
 
     return Container(
       width: double.infinity,
@@ -626,226 +676,164 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Icon(
-                Icons.flight_takeoff_rounded,
-                color: isDark ? AppColors.primaryLight : context.primaryColor,
-                size: 24,
-              ),
-              const SizedBox(width: 10),
               Text(
-                AppLocalizations.of(context)!.borderSimulatorTitle,
+                'International SIM Lines',
                 style: AppTextStyles.titleMedium.copyWith(
                   color: context.onSurfaceColor,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Text(
-            AppLocalizations.of(context)!.borderSimulatorDesc,
-            style: AppTextStyles.bodySmall.copyWith(
-              color: isDark
-                  ? AppColors.textSecondaryDark
-                  : AppColors.textSecondaryLight,
-            ),
-          ),
-          const SizedBox(height: 20),
-
-          // Flight terminal select options
-          Row(
-            children: [
-              Expanded(
-                child: _buildFlightTicket(
-                  flag: '🏡',
-                  label: AppLocalizations.of(context)!.flyHome,
-                  countryName: 'Home Country',
-                  isoCode: homeCountry,
-                  geoState: geoState,
-                  height: buttonHeight,
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: _buildFlightTicket(
-                  flag: '🇬🇧',
-                  label: AppLocalizations.of(context)!.london,
-                  countryName: 'United Kingdom',
-                  isoCode: 'GB',
-                  geoState: geoState,
-                  height: buttonHeight,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              Expanded(
-                child: _buildFlightTicket(
-                  flag: '🇦🇪',
-                  label: AppLocalizations.of(context)!.dubai,
-                  countryName: 'United Arab Emirates',
-                  isoCode: 'AE',
-                  geoState: geoState,
-                  height: buttonHeight,
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: _buildFlightTicket(
-                  flag: '🇸🇬',
-                  label: AppLocalizations.of(context)!.singapore,
-                  countryName: 'Singapore',
-                  isoCode: 'SG',
-                  geoState: geoState,
-                  height: buttonHeight,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFlightTicket({
-    required String flag,
-    required String label,
-    required String countryName,
-    required String isoCode,
-    required GeoState geoState,
-    required double height,
-  }) {
-    final bool isCurrent = geoState.currentIsoCode == isoCode;
-    final isDark = context.isDarkMode;
-
-    return SizedBox(
-      height: height,
-      child: OutlinedButton(
-        style: OutlinedButton.styleFrom(
-          backgroundColor: isCurrent
-              ? context.colorScheme.secondary.withValues(alpha: 0.08)
-              : Colors.transparent,
-          side: BorderSide(
-            color: isCurrent
-                ? context.colorScheme.secondary
-                : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
-            width: isCurrent ? 1.5 : 1.0,
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-        ),
-        onPressed: () async {
-          final user = ref.read(authControllerProvider).value;
-          // Feature unlocked
-          await HapticHelper.mediumImpact();
-          ref
-              .read(geoControllerProvider.notifier)
-              .simulateTravelTo(isoCode, countryName);
-        },
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(flag, style: const TextStyle(fontSize: 18)),
-            const SizedBox(width: 6),
-            Flexible(
-              child: Text(
-                label,
-                style: AppTextStyles.labelLarge.copyWith(
-                  color: isCurrent
-                      ? context.colorScheme.secondary
-                      : context.onSurfaceColor,
-                  fontWeight: isCurrent ? FontWeight.bold : FontWeight.normal,
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDiagnosticsTerminal(List<String> logs) {
-    final isDark = context.isDarkMode;
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: isDark ? Colors.black.withValues(alpha: 0.4) : const Color(0xFFEAEEF1),
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(
-          color: isDark
-              ? Colors.white.withValues(alpha: 0.05)
-              : AppColors.lightBorder,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                AppLocalizations.of(context)!.systemDiagnosticsLogs,
-                style: AppTextStyles.labelSmall.copyWith(
-                  color: isDark
-                      ? AppColors.secondary
-                      : AppColors.lightSecondary,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.5,
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color:
-                      (isDark ? AppColors.secondary : AppColors.lightSecondary)
-                          .withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  AppLocalizations.of(context)!.online,
-                  style: AppTextStyles.labelSmall.copyWith(
-                    color: isDark
-                        ? AppColors.secondary
-                        : AppColors.lightSecondary,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 8,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 15),
-          SizedBox(
-            height: 120,
-            child: ListView.builder(
-              physics: const BouncingScrollPhysics(),
-              itemCount: logs.length,
-              itemBuilder: (context, index) {
-                // Return bottom first to look like command terminal
-                final log = logs[logs.length - 1 - index];
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4.0),
-                  child: Text(
-                    log,
-                    style: TextStyle(
-                      fontFamily: 'Courier',
-                      fontSize: 12,
-                      color: isDark
-                          ? AppColors.textSecondaryDark
-                          : AppColors.textSecondaryLight,
+              Row(
+                children: [
+                  TextButton(
+                    onPressed: intlLines.isEmpty
+                        ? null
+                        : () async {
+                            await HapticHelper.mediumImpact();
+                            await ref
+                                .read(geoControllerProvider.notifier)
+                                .freezeAllInternationalLines();
+                          },
+                    child: Text(
+                      l10n.freezeInternationalLines,
+                      style: AppTextStyles.labelSmall.copyWith(
+                        color: context.primaryColor,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
+                  ),
+                  TextButton(
+                    onPressed: intlLines.isEmpty
+                        ? null
+                        : () async {
+                            await HapticHelper.mediumImpact();
+                            await ref
+                                .read(geoControllerProvider.notifier)
+                                .resumeAllInternationalLines();
+                          },
+                    child: Text(
+                      l10n.resumeInternationalLines,
+                      style: AppTextStyles.labelSmall.copyWith(
+                        color: context.colorScheme.secondary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          if (intlLines.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              child: Text(
+                'No international SIM lines registered.',
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: isDark
+                      ? AppColors.textSecondaryDark
+                      : AppColors.textSecondaryLight,
+                ),
+              ),
+            )
+          else
+            ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: intlLines.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 10),
+              itemBuilder: (context, index) {
+                final line = intlLines[index];
+                final isPaused = line.status == 'paused';
+                final isProtected = line.requiresProtectionAtHome;
+
+                return Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? Colors.black.withValues(alpha: 0.2)
+                        : Colors.grey.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        isPaused
+                            ? Icons.pause_circle_outline_rounded
+                            : Icons.check_circle_outline_rounded,
+                        color: isPaused
+                            ? Colors.orange
+                            : context.colorScheme.secondary,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              line.phoneNumber as String? ?? 'SIM Line',
+                              style: AppTextStyles.labelLarge.copyWith(
+                                color: context.onSurfaceColor,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              isPaused ? 'Status: Frozen' : 'Status: Active',
+                              style: AppTextStyles.bodySmall.copyWith(
+                                color: isPaused
+                                    ? Colors.orange
+                                    : (isDark
+                                          ? AppColors.textSecondaryDark
+                                          : AppColors.textSecondaryLight),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (isProtected)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: context.primaryColor.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            l10n.alwaysProtectedBadge,
+                            style: AppTextStyles.labelSmall.copyWith(
+                              color: context.primaryColor,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 10,
+                            ),
+                          ),
+                        )
+                      else
+                        IconButton(
+                          icon: Icon(
+                            isPaused
+                                ? Icons.play_arrow_rounded
+                                : Icons.pause_rounded,
+                            color: isPaused
+                                ? context.colorScheme.secondary
+                                : Colors.orange,
+                          ),
+                          onPressed: () async {
+                            await HapticHelper.lightTick();
+                            await ref
+                                .read(simLinesControllerProvider.notifier)
+                                .freezeLine(line.id as String, !isPaused);
+                          },
+                        ),
+                    ],
                   ),
                 );
               },
             ),
-          ),
         ],
       ),
     );

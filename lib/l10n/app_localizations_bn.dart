@@ -1891,5 +1891,46 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get howItWorksStep3 =>
-      '৩. যেকোনো সময় \$২.০০ খরচযোগ্য ওয়ালেট ক্রেডিটের জন্য ১০ পয়েন্ট রিডিম করুন!';
+      '3. যেকোনো সময় \$2.00 ওয়ালেট ক্রেডিটের জন্য 10 পয়েন্ট রিডিম করুন!';
+
+  @override
+  String get geoTitle => 'ভ্রমণ ও জিওলোকেশন';
+
+  @override
+  String get geoSubtitle =>
+      'স্বয়ংক্রিয় দেশ সনাক্তকরণ এবং আন্তর্জাতিক সিম লাইন সুরক্ষা';
+
+  @override
+  String get currentCountryLabel => 'বর্তমান অবস্থান';
+
+  @override
+  String get travelModeToggle => 'ভ্রমণ মোড';
+
+  @override
+  String get travelModeDescription =>
+      'আন্তর্জাতিক লাইন সুরক্ষা পরিচালনা করতে অ্যাপ খোলার সময় দেশ পরীক্ষা করুন';
+
+  @override
+  String get geoNotice =>
+      'অ্যাপ খোলার সময় আইপি অনুসন্ধানের মাধ্যমে দেশ পরীক্ষা করা হয়। কোনো অবস্থানের অনুমতি লাগবে না।';
+
+  @override
+  String get freezeInternationalLines => 'আন্তর্জাতিক লাইন ফ্রিজ করুন';
+
+  @override
+  String get resumeInternationalLines => 'আন্তর্জাতিক লাইন পুনরায় শুরু করুন';
+
+  @override
+  String get linesFrozenSuccess =>
+      'আন্তর্জাতিক সিম লাইন ফ্রিজ করা হয়েছে এবং রিফিল স্থগিত করা হয়েছে!';
+
+  @override
+  String get linesResumedSuccess =>
+      'আন্তর্জাতিক সিম লাইন এবং রিফিল পুনরায় সক্রিয় করা হয়েছে!';
+
+  @override
+  String get alwaysProtectedBadge => 'সর্বদা সুরক্ষিত';
+
+  @override
+  String get detectedViaIp => 'আইপি দ্বারা সনাক্ত করা হয়েছে';
 }

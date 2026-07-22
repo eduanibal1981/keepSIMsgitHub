@@ -361,7 +361,7 @@ class SimLinesController extends _$SimLinesController {
 
       updatedLine = await repo.updateSimLine(updatedLine);
 
-      await _applyProtectionPause(
+      await applyProtectionPause(
         simLineId,
         wasPaused: line.protectionPaused,
         pauseNow: pauseProtection,
@@ -397,7 +397,7 @@ class SimLinesController extends _$SimLinesController {
       );
       updatedLine = await repo.updateSimLine(updatedLine);
 
-      await _applyProtectionPause(
+      await applyProtectionPause(
         simLineId,
         wasPaused: line.protectionPaused,
         pauseNow: pauseProtection,
@@ -413,14 +413,48 @@ class SimLinesController extends _$SimLinesController {
     }
   }
 
+  /// Freezes or unfreezes a SIM line, updating sim_lines.status, protection_paused,
+  /// AND toggling scheduled_topups.is_active to ensure refill workers do not debit
+  /// paused lines (fixes cosmetic freeze - C8).
+  Future<void> freezeLine(String simLineId, bool freeze) async {
+    try {
+      final repo = ref.read(simLinesRepositoryProvider);
+      final previousList = state.value ?? [];
+      final line = previousList.firstWhere((l) => l.id == simLineId);
+
+      final newStatus = freeze ? 'paused' : 'active';
+      SimLine updatedLine = line.copyWith(
+        status: newStatus,
+        protectionPaused: freeze,
+      );
+      updatedLine = await repo.updateSimLine(updatedLine);
+
+      await applyProtectionPause(
+        simLineId,
+        wasPaused: line.protectionPaused,
+        pauseNow: freeze,
+        force: true,
+      );
+
+      state = AsyncData(
+        previousList
+            .map((item) => item.id == simLineId ? updatedLine : item)
+            .toList(),
+      );
+    } catch (e, st) {
+      state = AsyncError(e, st);
+    }
+  }
+
   /// Pauses or resumes the line's refill schedules when the protection pause
-  /// state actually changes (no-op otherwise).
-  Future<void> _applyProtectionPause(
+  /// state changes (or when forced by freeze/unfreeze).
+  Future<void> applyProtectionPause(
     String simLineId, {
     required bool wasPaused,
     required bool pauseNow,
+    bool force = false,
   }) async {
-    if (wasPaused == pauseNow) return;
+    if (!force && wasPaused == pauseNow) return;
 
     final schedules = ref.read(scheduledTopupControllerProvider).value ?? [];
     final lineSchedules = schedules

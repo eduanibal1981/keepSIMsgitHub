@@ -1894,5 +1894,46 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get howItWorksStep3 =>
-      '3. İstediğiniz zaman 10 puanı \$2.00 harcanabilir cüzdan kredisine dönüştürün!';
+      '3. İstediğiniz zaman \$2.00 cüzdan kredisi için 10 puan kullanın!';
+
+  @override
+  String get geoTitle => 'Seyahat ve Konum';
+
+  @override
+  String get geoSubtitle =>
+      'Otomatik ülke tespiti ve uluslararası SIM hattı koruması';
+
+  @override
+  String get currentCountryLabel => 'Mevcut Konum';
+
+  @override
+  String get travelModeToggle => 'Seyahat Modu';
+
+  @override
+  String get travelModeDescription =>
+      'Uluslararası hat korumasını yönetmek için uygulamayı açarken ülkeyi kontrol et';
+
+  @override
+  String get geoNotice =>
+      'Ülke, uygulama açıldığında IP sorgulaması ile kontrol edilir. Konum izni gerekmez.';
+
+  @override
+  String get freezeInternationalLines => 'Uluslararası Hatları Dondur';
+
+  @override
+  String get resumeInternationalLines => 'Uluslararası Hatları Devam Ettir';
+
+  @override
+  String get linesFrozenSuccess =>
+      'Uluslararası SIM hatları donduruldu ve zamanlanmış yenilemeler duraklatıldı!';
+
+  @override
+  String get linesResumedSuccess =>
+      'Uluslararası SIM hatları ve yenilemeler yeniden etkinleştirildi!';
+
+  @override
+  String get alwaysProtectedBadge => 'Her Zaman Korumalı';
+
+  @override
+  String get detectedViaIp => 'IP İle Tespit Edildi';
 }

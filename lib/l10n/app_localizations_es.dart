@@ -1914,5 +1914,46 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get howItWorksStep3 =>
-      '3. ¡Canjea 10 puntos por \$2.00 de crédito de billetera en cualquier momento!';
+      '3. ¡Canjea 10 puntos por \$2.00 de crédito en la billetera en cualquier momento!';
+
+  @override
+  String get geoTitle => 'Viajes y Geolocalización';
+
+  @override
+  String get geoSubtitle =>
+      'Detección automática de país y protección de líneas SIM internacionales';
+
+  @override
+  String get currentCountryLabel => 'Ubicación actual';
+
+  @override
+  String get travelModeToggle => 'Modo viaje';
+
+  @override
+  String get travelModeDescription =>
+      'Verifica el país al abrir la aplicación para gestionar la protección de líneas internacionales';
+
+  @override
+  String get geoNotice =>
+      'El país se verifica mediante búsqueda IP al abrir la aplicación. Sin permisos de ubicación.';
+
+  @override
+  String get freezeInternationalLines => 'Congelar líneas internacionales';
+
+  @override
+  String get resumeInternationalLines => 'Reanudar líneas internacionales';
+
+  @override
+  String get linesFrozenSuccess =>
+      '¡Líneas SIM internacionales congeladas y recargas programadas pausadas!';
+
+  @override
+  String get linesResumedSuccess =>
+      '¡Líneas SIM internacionales y recargas reactivadas!';
+
+  @override
+  String get alwaysProtectedBadge => 'Siempre protegida';
+
+  @override
+  String get detectedViaIp => 'Detectado por IP';
 }
