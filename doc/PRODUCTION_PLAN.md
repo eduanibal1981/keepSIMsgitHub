@@ -1025,6 +1025,7 @@ Big session — acceptable to split UI (1–3) and server webhooks (4) into two.
     - `user_esims` record verified with ICCID `8988210000000000001` and LPA string.
   - MCP `get_advisors`: 0 net-new security findings.
   - `flutter analyze`: 0 errors. All 55 Flutter unit tests PASSED.
+  - VM Key & Production Catalog Live Verification: `ESIM_GO_API_KEY` configured in VM `servers/.env`, `worker-esim-catalog` & `worker-esim-fulfillment` restarted under PM2 (`pm2 save`), `esim_offers_cache` populated with **50 real catalog offers** (verified live in DB).
 
 ---
 
@@ -1086,6 +1087,7 @@ New suggestion + REQUEST H leftovers:
    from C1 item 3) and optionally Telegram.
 4. Basic analytics events (screen views, recharge funnel) — Firebase Analytics,
    respecting the `promo`/consent flag.
+5. Stale-pending sweep on `esim_orders`: background reaper/cron auto-refunding user wallet after N hours if an order remains pending without worker pickup, raising a `system_alerts` row (prevents funds holding if fulfillment worker dies).
 
 ---
 
