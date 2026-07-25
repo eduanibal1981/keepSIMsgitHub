@@ -70,7 +70,7 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen> {
 
   Future<void> _initiateCheckout() async {
     // 1. Biometric / Passcode Auth Guard Gate
-    final authResult = await ref.read(paymentAuthGuardProvider.notifier).authenticate(
+    final authResult = await ref.read(paymentAuthGuardProvider).authenticate(
       reason: 'Authorize PayPal payment',
     );
     if (authResult == BiometricResult.cancelled || authResult == BiometricResult.failed) {
@@ -87,7 +87,7 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen> {
     try {
       final supabase = Supabase.instance.client;
       final walletState = ref.read(walletControllerProvider);
-      _initialWalletBalance = walletState.value?.balance ?? 0.0;
+      _initialWalletBalance = walletState.value?.wallet.balance ?? 0.0;
 
       final response = await supabase.functions.invoke(
         'create-paypal-order',
@@ -165,7 +165,7 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen> {
               .from('plan_payments')
               .select('id')
               .eq('user_id', user.id)
-              .eq('order_id', _orderId)
+              .eq('order_id', _orderId!)
               .maybeSingle();
 
           if (res != null) {

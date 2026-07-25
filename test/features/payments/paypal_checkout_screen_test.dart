@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:keep_sims/features/payments/presentation/screens/paypal_checkout_screen.dart';
+import 'package:keep_sims/l10n/app_localizations.dart';
 
 void main() {
   group('PayPalCheckoutScreen Unit Tests', () {
@@ -9,6 +10,8 @@ void main() {
       await widgetTester.pumpWidget(
         const ProviderScope(
           child: MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
             home: PayPalCheckoutScreen(
               initialAmount: 15.00,
               paymentReason: 'Manual Refill Top-up',
@@ -30,6 +33,8 @@ void main() {
       await widgetTester.pumpWidget(
         const ProviderScope(
           child: MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
             home: PayPalCheckoutScreen(
               initialAmount: 2.50,
               paymentReason: 'Annual Plan Renewal',
