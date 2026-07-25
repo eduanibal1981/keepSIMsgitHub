@@ -57,6 +57,38 @@ serve(async (req) => {
       );
     }
 
+    // 2. D2 Rate Limiting (bucket: paypal_capture, capacity: 5) (BLOCKER 2 & 3)
+    const { data: rateLimitResult, error: rateLimitErr } = await adminClient.rpc("consume_rate_limit", {
+      p_bucket: "paypal_capture",
+      p_key: user.id,
+      p_capacity: 5,
+      p_refill_per_minute: 5.0 / 60.0,
+    });
+
+    const rateLimitObj = Array.isArray(rateLimitResult) ? rateLimitResult[0] : rateLimitResult;
+
+    if (rateLimitErr) {
+      console.error("Rate limit check failed:", rateLimitErr);
+    } else if (rateLimitObj && rateLimitObj.allowed === false) {
+      const retryAfter = rateLimitObj.retry_after_seconds || 60;
+      return new Response(
+        JSON.stringify({
+          success: false,
+          code: "KS429",
+          error: `RATE_LIMITED:paypal_capture:${retryAfter}`,
+          retry_after: retryAfter,
+        }),
+        {
+          status: 429,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+            "Retry-After": String(retryAfter),
+          },
+        }
+      );
+    }
+
     const body = await req.json();
     const orderId = body.order_id;
 
@@ -67,14 +99,21 @@ serve(async (req) => {
       );
     }
 
-    // 2. Ownership Check via paypal_orders
+    // 3. Ownership & Existence Check via paypal_orders (BLOCKER 2: Hard 404 on missing, 403 on foreign)
     const { data: existingOrder } = await adminClient
       .from("paypal_orders")
       .select("*")
       .eq("order_id", orderId)
       .maybeSingle();
 
-    if (existingOrder && existingOrder.user_id !== user.id) {
+    if (!existingOrder) {
+      return new Response(
+        JSON.stringify({ success: false, error: "NOT_FOUND: Order not found in local records" }),
+        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (existingOrder.user_id !== user.id) {
       return new Response(
         JSON.stringify({ success: false, error: "FORBIDDEN: Order does not belong to caller" }),
         { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -82,14 +121,14 @@ serve(async (req) => {
     }
 
     // If order is already captured in paypal_orders, return idempotent success
-    if (existingOrder && existingOrder.status === "captured") {
+    if (existingOrder.status === "captured") {
       return new Response(
         JSON.stringify({ success: true, order_id: orderId, status: "captured", message: "ORDER_ALREADY_CAPTURED" }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // 3. Call PayPal REST API to Capture Order
+    // 4. Call PayPal REST API to Capture Order
     const paypalClientId = Deno.env.get("PAYPAL_CLIENT_ID")!;
     const paypalClientSecret = Deno.env.get("PAYPAL_CLIENT_SECRET")!;
     const paypalApiBase = Deno.env.get("PAYPAL_API_BASE") || "https://api-m.sandbox.paypal.com";
@@ -110,20 +149,34 @@ serve(async (req) => {
       resData = JSON.parse(resText);
     } catch (_) {}
 
-    const isAlreadyCaptured =
-      resText.includes("ORDER_ALREADY_CAPTURED") ||
-      resText.includes("ORDER_ALREADY_COMPLETED") ||
-      resData.name === "UNPROCESSABLE_ENTITY";
+    // Check for exact ORDER_ALREADY_CAPTURED issue
+    const issueCode = resData.details?.[0]?.issue || resData.name || "";
+    const isAlreadyCapturedIssue = issueCode === "ORDER_ALREADY_CAPTURED";
+    const isCompleted = captureRes.ok && resData.status === "COMPLETED";
 
-    if (!captureRes.ok && !isAlreadyCaptured) {
+    // BLOCKER 1 Fix: Success requires captureRes.ok && COMPLETED, or explicit ORDER_ALREADY_CAPTURED
+    if (!isCompleted && !isAlreadyCapturedIssue) {
       console.error(`PayPal capture failed for order ${orderId}:`, resText);
+
+      // Update status to failed (NEVER mark captured from an error branch)
+      await adminClient
+        .from("paypal_orders")
+        .update({ status: "failed" })
+        .eq("order_id", orderId);
+
+      const errDescription = resData.details?.[0]?.description || issueCode || `HTTP ${captureRes.status}`;
       return new Response(
-        JSON.stringify({ success: false, error: `PayPal capture failed (${captureRes.status}): ${resText}` }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({
+          success: false,
+          error: `PAYPAL_CAPTURE_FAILED:${issueCode}`,
+          description: errDescription,
+          raw: resData,
+        }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Update paypal_orders status
+    // Success path: Update paypal_orders status to captured
     await adminClient
       .from("paypal_orders")
       .update({

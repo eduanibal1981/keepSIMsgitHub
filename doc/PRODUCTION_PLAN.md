@@ -1156,24 +1156,21 @@ Session completed on 2026-07-25.
   - Cleaned `android/gradle.properties` to remove machine-specific `org.gradle.java.home`.
   - Successfully built obfuscated release bundle with split debug symbols: `build/app/outputs/bundle/release/app-release.aab` (44.6MB).
 - **Verification & Baseline:**
-  - Flutter test suite: **69/69 passing** (including new `paypal_checkout_screen_test.dart`).
-  - `flutter analyze`: **0 errors**.
-  - SQL test suites (`c3c`, `c3b2`, `b4`, `c3`, `c4`, `c5`, `d2`, `d3`) executed live and passed 100%.
+  - Flutter test suite: **71/71 passing** (including new `paypal_checkout_screen_test.dart`).
+  - `flutter analyze`: **0 errors / 0 warnings / 153 info issues**.
+  - SQL test suites (`c3c`, `c3b2`, `b4`, `c3`, `c4`, `c5`, `d2`, `d3`, `d4b`) executed live and passed 100% (c5 10/10, d4b 8/8).
+  - Migration `20260731000000_d4b_paypal_orders_and_quoting.sql` registered in `schema_migrations`.
   - `a1-wallet-test@example.com` balance verified intact at **$35.86**.
 
 ## 🟠 D5 — Observability: crash reporting, uptime, PM2 persistence
 
-New suggestion + REQUEST H leftovers:
-1. Crash reporting: Firebase Crashlytics (FCM already onboard from C1) or
-   Sentry for Flutter; wire `FlutterError.onError` + zone guard.
-2. VM: `pm2 startup` + `pm2 save` (a reboot currently kills all workers
-   silently); external uptime check (UptimeRobot/Better Stack) on a worker
-   heartbeat endpoint and on the Supabase Edge health.
-3. Route `system_alerts` inserts to the power user via C1 push (if not already
-   from C1 item 3) and optionally Telegram.
-4. Basic analytics events (screen views, recharge funnel) — Firebase Analytics,
-   respecting the `promo`/consent flag.
-5. Stale-pending sweep on `esim_orders`: background reaper/cron auto-refunding user wallet after N hours if an order remains pending without worker pickup, raising a `system_alerts` row (prevents funds holding if fulfillment worker dies).
+Top Priority Items:
+1. **Server-Enforced Plan Tier Updates (Eliminate Client-Stated `plan_type` Write):** Currently `create-paypal-order` quotes prices based on requested plan server-side, but `sim_lines.plan_type` is written by the client after payment. Update the webhook / capture trigger to apply `plan_type` server-side directly from the captured `paypal_orders`/`plan_payments` record so client tampering of plan tier is impossible.
+2. **Crash reporting:** Firebase Crashlytics (FCM already onboard from C1) or Sentry for Flutter; wire `FlutterError.onError` + zone guard.
+3. **VM Persistence:** `pm2 startup` + `pm2 save` (a reboot currently kills all workers silently); external uptime check (UptimeRobot/Better Stack) on a worker heartbeat endpoint and on the Supabase Edge health.
+4. **Push Alerts:** Route `system_alerts` inserts to the power user via C1 push (if not already from C1 item 3) and optionally Telegram.
+5. **Basic Analytics:** Screen views & recharge funnel using Firebase Analytics, respecting the `promo`/consent flag.
+6. **Stale-Pending Sweep:** Stale-pending sweep on `esim_orders`: background reaper/cron auto-refunding user wallet after N hours if an order remains pending without worker pickup, raising a `system_alerts` row (prevents funds holding if fulfillment worker dies).
 
 ---
 

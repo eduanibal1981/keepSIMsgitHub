@@ -59,7 +59,7 @@ serve(async (req) => {
 
     const userId = user.id;
 
-    // 2. D2 Rate Limiting: paypal_order bucket (10 requests / 60 minutes)
+    // 2. D2 Rate Limiting: paypal_order bucket (10 requests / 60 minutes) (BLOCKER 3 array fix)
     const { data: rateLimitResult, error: rateLimitErr } = await adminClient.rpc("consume_rate_limit", {
       p_bucket: "paypal_order",
       p_key: userId,
@@ -67,21 +67,25 @@ serve(async (req) => {
       p_refill_per_minute: 0.1667,
     });
 
+    const rateLimitObj = Array.isArray(rateLimitResult) ? rateLimitResult[0] : rateLimitResult;
+
     if (rateLimitErr) {
       console.error("Rate limit check failed:", rateLimitErr);
-    } else if (rateLimitResult && rateLimitResult.allowed === false) {
+    } else if (rateLimitObj && rateLimitObj.allowed === false) {
+      const retryAfter = rateLimitObj.retry_after_seconds || 60;
       return new Response(
         JSON.stringify({
           success: false,
-          error: `RATE_LIMITED:paypal_order:${rateLimitResult.retry_after_seconds || 60}`,
-          retry_after: rateLimitResult.retry_after_seconds || 60,
+          code: "KS429",
+          error: `RATE_LIMITED:paypal_order:${retryAfter}`,
+          retry_after: retryAfter,
         }),
         {
           status: 429,
           headers: {
             ...corsHeaders,
             "Content-Type": "application/json",
-            "Retry-After": String(rateLimitResult.retry_after_seconds || 60),
+            "Retry-After": String(retryAfter),
           },
         }
       );
@@ -216,7 +220,7 @@ serve(async (req) => {
       );
     }
 
-    // 5. Insert order into paypal_orders table (BLOCKER 2 order-of-record)
+    // 5. Insert order into paypal_orders table (BLOCKER 2: Insert failure is FATAL)
     const { error: insertOrderErr } = await adminClient.from("paypal_orders").insert({
       order_id: orderId,
       user_id: userId,
@@ -229,6 +233,10 @@ serve(async (req) => {
 
     if (insertOrderErr) {
       console.error("Failed to insert paypal_orders row:", insertOrderErr);
+      return new Response(
+        JSON.stringify({ success: false, error: `FAILED: Local order record creation failed (${insertOrderErr.message})` }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     return new Response(
