@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:keep_sims/core/utils/error_formatter.dart';
 import 'package:keep_sims/features/esim/data/repositories/esim_provider_factory.dart';
 import 'package:keep_sims/features/esim/domain/entities/esim_plan.dart';
 import 'package:keep_sims/features/esim/presentation/widgets/esim_order_status_modal.dart';
@@ -97,7 +98,7 @@ class _EsimCheckoutSheetState extends ConsumerState<EsimCheckoutSheet> {
       if (!mounted) return;
       setState(() {
         _isSubmitting = false;
-        _errorMessage = e.toString().replaceAll('Exception: ', '');
+        _errorMessage = RateLimitErrorFormatter.format(e, context);
       });
     }
   }

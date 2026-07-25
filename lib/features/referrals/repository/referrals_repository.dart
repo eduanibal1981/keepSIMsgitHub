@@ -106,10 +106,15 @@ class ReferralsRepository implements ReferralsContract {
         );
       }
 
-      await _client.rpc(
+      final res = await _client.rpc(
         'apply_referral',
         params: {'p_referred_id': userId, 'p_referral_code': referralCode},
       );
+
+      if (res is Map && res['success'] == false) {
+        final err = (res['error'] as String?) ?? 'Failed to apply referral code';
+        return Failure(AppFailure.validation(message: err));
+      }
 
       return const Success(null);
     } on PostgrestException catch (e) {

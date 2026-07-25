@@ -129,5 +129,24 @@ final biometricAuthServiceProvider = Provider<BiometricAuthService>((ref) {
 /// Riverpod provider for [PaymentAuthGuard] (kept alive across screens for grace period).
 final paymentAuthGuardProvider = Provider<PaymentAuthGuard>((ref) {
   final service = ref.watch(biometricAuthServiceProvider);
-  return PaymentAuthGuard(service);
+  final guard = PaymentAuthGuard(service);
+
+  final binding = WidgetsBinding.instance;
+  final observer = _PaymentAuthGuardLifecycleObserver(guard);
+  binding.addObserver(observer);
+  ref.onDispose(() => binding.removeObserver(observer));
+
+  return guard;
 });
+
+class _PaymentAuthGuardLifecycleObserver extends WidgetsBindingObserver {
+  final PaymentAuthGuard _guard;
+  _PaymentAuthGuardLifecycleObserver(this._guard);
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.detached) {
+      _guard.clearGraceWindow();
+    }
+  }
+}

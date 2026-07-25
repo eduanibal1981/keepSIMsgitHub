@@ -39,8 +39,7 @@ class _BiometricLockOverlayState extends ConsumerState<BiometricLockOverlay>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused ||
-        state == AppLifecycleState.inactive) {
+    if (state == AppLifecycleState.paused) {
       final lockEnabled =
           ref.read(biometricLockControllerProvider).value ?? false;
       if (lockEnabled) {

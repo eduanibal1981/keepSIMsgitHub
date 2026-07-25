@@ -28,7 +28,7 @@ class RateLimitErrorFormatter {
   static int? parseRateLimitSeconds(String errorStr) {
     // 1. Matches RATE_LIMITED:<bucket>:<seconds>
     final rateLimitedMatch = RegExp(
-      r'RATE_LIMITED:[a_zA-Z0-9_]+:(\d+)',
+      r'RATE_LIMITED:[a-zA-Z0-9_]+:(\d+)',
       caseSensitive: false,
     ).firstMatch(errorStr);
     if (rateLimitedMatch != null) {

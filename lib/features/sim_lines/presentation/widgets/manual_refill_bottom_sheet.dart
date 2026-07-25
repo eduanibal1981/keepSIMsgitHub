@@ -13,6 +13,7 @@ import 'package:keep_sims/features/sim_lines/presentation/providers/api_offers_p
 import 'package:keep_sims/core/providers/app_config_provider.dart';
 import 'package:keep_sims/features/sim_lines/domain/refill_pricing.dart';
 import 'package:keep_sims/core/services/biometric_auth_service.dart';
+import 'package:keep_sims/core/utils/error_formatter.dart';
 
 class ManualRefillBottomSheet extends ConsumerStatefulWidget {
   final SimLine simLine;
@@ -124,7 +125,7 @@ class _ManualRefillBottomSheetState
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text(e.toString()),
+                        content: Text(RateLimitErrorFormatter.format(e, context)),
                         backgroundColor: AppColors.error,
                       ),
                     );
@@ -171,7 +172,7 @@ class _ManualRefillBottomSheetState
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(e.toString().replaceAll('Exception: ', '')),
+          content: Text(RateLimitErrorFormatter.format(e, context)),
           backgroundColor: AppColors.error,
         ),
       );
