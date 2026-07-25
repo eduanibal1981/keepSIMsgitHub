@@ -2080,4 +2080,21 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get confirmDeleteButton => 'Confirmar eliminación';
+
+  @override
+  String get cancelAccountDeletion => 'Cancelar eliminación de cuenta';
+
+  @override
+  String get accountScheduledForDeletion =>
+      'Cuenta programada para eliminación';
+
+  @override
+  String deletionScheduledNotice(String date) {
+    return 'Su cuenta está congelada y programada para su eliminación permanente el $date.';
+  }
+
+  @override
+  String walletBalanceBlockedNotice(String balance) {
+    return 'El saldo de su billetera (\$$balance) supera el límite (\$1.00). Gástelo o contacte a soporte.';
+  }
 }

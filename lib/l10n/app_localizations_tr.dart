@@ -2062,4 +2062,20 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get confirmDeleteButton => 'Silmeyi Onayla';
+
+  @override
+  String get cancelAccountDeletion => 'Hesap Silmeyi İptal Et';
+
+  @override
+  String get accountScheduledForDeletion => 'Hesap Silinmek Üzere Planlandı';
+
+  @override
+  String deletionScheduledNotice(String date) {
+    return 'Hesabınız donduruldu ve $date tarihinde kalıcı olarak silinmek üzere planlandı.';
+  }
+
+  @override
+  String walletBalanceBlockedNotice(String balance) {
+    return 'Cüzdan bakiyeniz (\$$balance) sınırı (\$1.00) aşıyor. Lütfen harcayın veya destekle iletişime geçin.';
+  }
 }

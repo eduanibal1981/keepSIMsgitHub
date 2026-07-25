@@ -17,7 +17,7 @@ ON CONFLICT (id) DO NOTHING;
 -- Seed wallet for Referred B with $0.50 (dust)
 INSERT INTO public.wallets (id, user_id, balance) VALUES
   ('d3000000-0000-0000-0000-000000000010', 'd3000000-0000-0000-0000-000000000002', 0.50)
-ON CONFLICT (id) DO NOTHING;
+ON CONFLICT (user_id) DO UPDATE SET balance = 0.50;
 
 -- Seed referral points: Referrer A earned 1 point from Referred B's line
 INSERT INTO public.referrals (id, referrer_id, referred_user_id, code) VALUES

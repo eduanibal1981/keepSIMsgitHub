@@ -2057,5 +2057,21 @@ class AppLocalizationsUr extends AppLocalizations {
   }
 
   @override
-  String get confirmDeleteButton => 'حذف کی تصدیق کریں';
+  String get confirmDeleteButton => 'منسوخی کی تصدیق کریں';
+
+  @override
+  String get cancelAccountDeletion => 'کھاتہ منسوخی منسوخ کریں';
+
+  @override
+  String get accountScheduledForDeletion => 'کھاتہ منسوخ کرنے کا شیڈول ہے';
+
+  @override
+  String deletionScheduledNotice(String date) {
+    return 'آپ کا اکاؤنٹ منجمد کر دیا گیا ہے اور $date کو مستقل طور پر حذف کرنے کا شیڈول ہے۔';
+  }
+
+  @override
+  String walletBalanceBlockedNotice(String balance) {
+    return 'آپ کا والٹ بیلنس (\$$balance) حد (\$1.00) سے زیادہ ہے۔ برائے مہربانی اسے خرچ کریں یا سپورٹ سے رابطہ کریں۔';
+  }
 }

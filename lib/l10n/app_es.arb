@@ -821,5 +821,25 @@
     "dataRemaining": "Datos restantes",
     "archivedEsims": "eSIMs archivadas",
     "rateLimitExceeded": "Demasiadas solicitudes. Por favor espere {seconds} segundos antes de intentarlo de nuevo.",
-    "confirmDeleteButton": "Confirmar eliminación"
+    "confirmDeleteButton": "Confirmar eliminación",
+    "cancelAccountDeletion": "Cancelar eliminación de cuenta",
+    "accountScheduledForDeletion": "Cuenta programada para eliminación",
+    "deletionScheduledNotice": "Su cuenta está congelada y programada para su eliminación permanente el {date}.",
+    "@deletionScheduledNotice": {
+        "description": "Notice for scheduled deletion date",
+        "placeholders": {
+            "date": {
+                "type": "String"
+            }
+        }
+    },
+    "walletBalanceBlockedNotice": "El saldo de su billetera (${balance}) supera el límite ($1.00). Gástelo o contacte a soporte.",
+    "@walletBalanceBlockedNotice": {
+        "description": "Notice when balance exceeds dust limit",
+        "placeholders": {
+            "balance": {
+                "type": "String"
+            }
+        }
+    }
 }

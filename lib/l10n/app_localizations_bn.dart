@@ -2056,5 +2056,21 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
-  String get confirmDeleteButton => 'মুছে ফেলা নিশ্চিত করুন';
+  String get confirmDeleteButton => 'মোছা নিশ্চিত করুন';
+
+  @override
+  String get cancelAccountDeletion => 'অ্যাকাউন্ট মোছা বাতিল করুন';
+
+  @override
+  String get accountScheduledForDeletion => 'অ্যাকাউন্ট মোছার জন্য নির্ধারিত';
+
+  @override
+  String deletionScheduledNotice(String date) {
+    return 'আপনার অ্যাকাউন্ট হিমায়িত করা হয়েছে এবং $date তারিখে স্থায়ীভাবে মুছে ফেলার জন্য নির্ধারণ করা হয়েছে।';
+  }
+
+  @override
+  String walletBalanceBlockedNotice(String balance) {
+    return 'আপনার ওয়ালেট ব্যালেন্স (\$$balance) সীমা (\$1.00) ছাড়িয়েছে। দয়া করে এটি খরচ করুন অথবা সহায়তা যোগাযোগ করুন।';
+  }
 }

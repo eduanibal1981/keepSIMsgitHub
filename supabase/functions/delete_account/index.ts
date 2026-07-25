@@ -22,9 +22,13 @@ serve(async (req) => {
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
     const client = createClient(supabaseUrl, supabaseAnonKey, {
       global: { headers: { Authorization: authHeader } },
     });
+
+    const adminClient = createClient(supabaseUrl, supabaseServiceKey);
 
     const { data: { user }, error: userError } = await client.auth.getUser();
     if (userError || !user) {
@@ -32,6 +36,18 @@ serve(async (req) => {
         JSON.stringify({ success: false, error: "UNAUTHORIZED: Invalid user token" }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
+    }
+
+    // Freshness check: last_sign_in_at must be within 15 minutes
+    if (user.last_sign_in_at) {
+      const lastSignIn = new Date(user.last_sign_in_at).getTime();
+      const now = Date.now();
+      if (now - lastSignIn > 15 * 60 * 1000) {
+        return new Response(
+          JSON.stringify({ success: false, code: "REAUTH_REQUIRED", error: "Session expired. Please re-authenticate before requesting account deletion." }),
+          { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
     }
 
     let reason: string | null = null;
@@ -57,6 +73,15 @@ serve(async (req) => {
         JSON.stringify({ success: false, error: error.message }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
+    }
+
+    // Global session revocation on freeze
+    if (data && data.success) {
+      try {
+        await adminClient.auth.admin.signOut(user.id, "global");
+      } catch (_) {
+        // Ignore signout error if session already cleared
+      }
     }
 
     return new Response(

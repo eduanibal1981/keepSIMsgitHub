@@ -821,5 +821,25 @@
     "dataRemaining": "ඉතිරි දත්ත",
     "archivedEsims": "සංරක්ෂිත eSIM",
     "rateLimitExceeded": "අධික ඉල්ලීම් ගණනක්. නැවත උත්සාහ කිරීමට පෙර තත්පර {seconds} ක් රැඳී සිටින්න.",
-    "confirmDeleteButton": "මකා දැමීම තහවුරු කරන්න"
+    "confirmDeleteButton": "මැකීම තහවුරු කරන්න",
+    "cancelAccountDeletion": "ගිණුම මැකීම අවලංගු කරන්න",
+    "accountScheduledForDeletion": "ගිණුම මැකීමට නියමිතයි",
+    "deletionScheduledNotice": "ඔබගේ ගිණුම අත්හිටුවා ඇති අතර {date} දින ස්ථිරවම මැකීමට නියමිතයි.",
+    "@deletionScheduledNotice": {
+        "description": "Notice for scheduled deletion date",
+        "placeholders": {
+            "date": {
+                "type": "String"
+            }
+        }
+    },
+    "walletBalanceBlockedNotice": "ඔබගේ මුදල් පසුම්බි ශේෂය (${balance}) සීමාව ($1.00) ඉක්මවයි. කරුණාකර එය වියදම් කරන්න හෝ සහාය අමතන්න.",
+    "@walletBalanceBlockedNotice": {
+        "description": "Notice when balance exceeds dust limit",
+        "placeholders": {
+            "balance": {
+                "type": "String"
+            }
+        }
+    }
 }

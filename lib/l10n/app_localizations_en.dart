@@ -2048,4 +2048,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get confirmDeleteButton => 'Confirm Delete';
+
+  @override
+  String get cancelAccountDeletion => 'Cancel Account Deletion';
+
+  @override
+  String get accountScheduledForDeletion => 'Account Scheduled for Deletion';
+
+  @override
+  String deletionScheduledNotice(String date) {
+    return 'Your account is frozen and scheduled for permanent deletion on $date.';
+  }
+
+  @override
+  String walletBalanceBlockedNotice(String balance) {
+    return 'Your wallet balance (\$$balance) exceeds dust limit (\$1.00). Please spend it or contact support for payout.';
+  }
 }

@@ -971,5 +971,25 @@
             }
         }
     },
-    "confirmDeleteButton": "Confirm Delete"
+    "confirmDeleteButton": "Confirm Delete",
+    "cancelAccountDeletion": "Cancel Account Deletion",
+    "accountScheduledForDeletion": "Account Scheduled for Deletion",
+    "deletionScheduledNotice": "Your account is frozen and scheduled for permanent deletion on {date}.",
+    "@deletionScheduledNotice": {
+        "description": "Notice for scheduled deletion date",
+        "placeholders": {
+            "date": {
+                "type": "String"
+            }
+        }
+    },
+    "walletBalanceBlockedNotice": "Your wallet balance (${balance}) exceeds dust limit ($1.00). Please spend it or contact support for payout.",
+    "@walletBalanceBlockedNotice": {
+        "description": "Notice when balance exceeds dust limit",
+        "placeholders": {
+            "balance": {
+                "type": "String"
+            }
+        }
+    }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:keep_sims/core/services/biometric_auth_service.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/core/utils/build_context_extension.dart';
@@ -28,6 +29,7 @@ class _PrivacyScreenState extends ConsumerState<PrivacyScreen> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final privacyState = ref.watch(privacyControllerProvider);
+    final deletionRecordAsync = ref.watch(accountDeletionRecordProvider);
 
     return Scaffold(
       backgroundColor: context.scaffoldBackgroundColor,
@@ -62,7 +64,16 @@ class _PrivacyScreenState extends ConsumerState<PrivacyScreen> {
                 ),
                 _buildExportCard(context, isDark),
                 const SizedBox(height: 36),
-                _buildDangerZone(context, isDark),
+                deletionRecordAsync.when(
+                  data: (record) {
+                    if (record != null) {
+                      return _buildScheduledDeletionCard(context, record, isDark);
+                    }
+                    return _buildDangerZone(context, isDark);
+                  },
+                  loading: () => _buildDangerZone(context, isDark),
+                  error: (_, __) => _buildDangerZone(context, isDark),
+                ),
               ],
             ),
           );
@@ -226,15 +237,106 @@ class _PrivacyScreenState extends ConsumerState<PrivacyScreen> {
           try {
             await ref.read(privacyControllerProvider.notifier).exportData();
           } catch (e) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  AppLocalizations.of(context)!.exportFailed(e.toString()),
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    AppLocalizations.of(context)!.exportFailed(e.toString()),
+                  ),
                 ),
-              ),
-            );
+              );
+            }
           }
         },
+      ),
+    );
+  }
+
+  Widget _buildScheduledDeletionCard(
+    BuildContext context,
+    Map<String, dynamic> record,
+    bool isDark,
+  ) {
+    final purgeDateStr = record['scheduled_purge_at'] as String? ?? '';
+    final purgeDateFormatted = purgeDateStr.length >= 10
+        ? purgeDateStr.substring(0, 10)
+        : purgeDateStr;
+    final l = AppLocalizations.of(context)!;
+
+    return Container(
+      padding: const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: Colors.orangeAccent.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.orangeAccent.withValues(alpha: 0.4)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.hourglass_top_rounded, color: Colors.orangeAccent),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  l.accountScheduledForDeletion,
+                  style: AppTextStyles.titleMedium.copyWith(
+                    color: Colors.orangeAccent,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            l.deletionScheduledNotice(purgeDateFormatted),
+            style: AppTextStyles.bodySmall.copyWith(
+              color: isDark
+                  ? AppColors.textSecondaryDark
+                  : AppColors.textSecondaryLight,
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
+              onPressed: () async {
+                try {
+                  await ref
+                      .read(privacyControllerProvider.notifier)
+                      .cancelAccountDeletion();
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Account deletion request cancelled.'),
+                        backgroundColor: Color(0xFF10B981),
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(e.toString()),
+                        backgroundColor: Colors.redAccent,
+                      ),
+                    );
+                  }
+                }
+              },
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Colors.orangeAccent,
+                side: const BorderSide(color: Colors.orangeAccent),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: Text(l.cancelAccountDeletion),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -368,13 +470,24 @@ class _PrivacyScreenState extends ConsumerState<PrivacyScreen> {
   }
 
   Future<void> _performDeletion() async {
+    // 1. PaymentAuthGuard (Biometric / Passcode confirmation)
+    final authResult = await ref.read(paymentAuthGuardProvider.notifier).authenticate(
+      reason: 'Confirm account deletion',
+    );
+    if (authResult == BiometricResult.cancelled || authResult == BiometricResult.failed) {
+      return;
+    }
+
+    if (!mounted) return;
+
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (_) => const Center(child: CircularProgressIndicator()),
     );
+
     try {
-      await ref.read(privacyControllerProvider.notifier).deleteAccount();
+      await ref.read(privacyControllerProvider.notifier).deleteAccount(forfeitDust: true);
       if (mounted) {
         Navigator.pop(context); // pop loading
         context.go('/login');

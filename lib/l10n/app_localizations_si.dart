@@ -2060,5 +2060,21 @@ class AppLocalizationsSi extends AppLocalizations {
   }
 
   @override
-  String get confirmDeleteButton => 'මකා දැමීම තහවුරු කරන්න';
+  String get confirmDeleteButton => 'මැකීම තහවුරු කරන්න';
+
+  @override
+  String get cancelAccountDeletion => 'ගිණුම මැකීම අවලංගු කරන්න';
+
+  @override
+  String get accountScheduledForDeletion => 'ගිණුම මැකීමට නියමිතයි';
+
+  @override
+  String deletionScheduledNotice(String date) {
+    return 'ඔබගේ ගිණුම අත්හිටුවා ඇති අතර $date දින ස්ථිරවම මැකීමට නියමිතයි.';
+  }
+
+  @override
+  String walletBalanceBlockedNotice(String balance) {
+    return 'ඔබගේ මුදල් පසුම්බි ශේෂය (\$$balance) සීමාව (\$1.00) ඉක්මවයි. කරුණාකර එය වියදම් කරන්න හෝ සහාය අමතන්න.';
+  }
 }

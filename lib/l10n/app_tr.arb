@@ -821,5 +821,25 @@
     "dataRemaining": "Kalan Veri",
     "archivedEsims": "Arşivlenmiş eSIM'ler",
     "rateLimitExceeded": "Çok fazla istek. Lütfen tekrar denemeden önce {seconds} saniye bekleyin.",
-    "confirmDeleteButton": "Silmeyi Onayla"
+    "confirmDeleteButton": "Silmeyi Onayla",
+    "cancelAccountDeletion": "Hesap Silmeyi İptal Et",
+    "accountScheduledForDeletion": "Hesap Silinmek Üzere Planlandı",
+    "deletionScheduledNotice": "Hesabınız donduruldu ve {date} tarihinde kalıcı olarak silinmek üzere planlandı.",
+    "@deletionScheduledNotice": {
+        "description": "Notice for scheduled deletion date",
+        "placeholders": {
+            "date": {
+                "type": "String"
+            }
+        }
+    },
+    "walletBalanceBlockedNotice": "Cüzdan bakiyeniz (${balance}) sınırı ($1.00) aşıyor. Lütfen harcayın veya destekle iletişime geçin.",
+    "@walletBalanceBlockedNotice": {
+        "description": "Notice when balance exceeds dust limit",
+        "placeholders": {
+            "balance": {
+                "type": "String"
+            }
+        }
+    }
 }

@@ -2038,4 +2038,20 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get confirmDeleteButton => 'تأكيد الحذف';
+
+  @override
+  String get cancelAccountDeletion => 'إلغاء حذف الحساب';
+
+  @override
+  String get accountScheduledForDeletion => 'الحساب جدولت حذفه';
+
+  @override
+  String deletionScheduledNotice(String date) {
+    return 'حسابك مجمد ومجدول للحذف النهائي في $date.';
+  }
+
+  @override
+  String walletBalanceBlockedNotice(String balance) {
+    return 'رصيد محفظتك (\$$balance) يتجاوز الحد الأدنى (\$1.00). يرجى إنفاقه أو الاتصال بالدعم.';
+  }
 }

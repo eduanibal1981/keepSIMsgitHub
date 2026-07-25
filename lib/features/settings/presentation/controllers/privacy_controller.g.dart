@@ -9,6 +9,48 @@ part of 'privacy_controller.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
+@ProviderFor(accountDeletionRecord)
+final accountDeletionRecordProvider = AccountDeletionRecordProvider._();
+
+final class AccountDeletionRecordProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<Map<String, dynamic>?>,
+          Map<String, dynamic>?,
+          FutureOr<Map<String, dynamic>?>
+        >
+    with
+        $FutureModifier<Map<String, dynamic>?>,
+        $FutureProvider<Map<String, dynamic>?> {
+  AccountDeletionRecordProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'accountDeletionRecordProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$accountDeletionRecordHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<Map<String, dynamic>?> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<Map<String, dynamic>?> create(Ref ref) {
+    return accountDeletionRecord(ref);
+  }
+}
+
+String _$accountDeletionRecordHash() =>
+    r'77b874620403e91f41781ab2738dc9e660987f28';
+
 @ProviderFor(PrivacyController)
 final privacyControllerProvider = PrivacyControllerProvider._();
 
@@ -33,7 +75,7 @@ final class PrivacyControllerProvider
   PrivacyController create() => PrivacyController();
 }
 
-String _$privacyControllerHash() => r'c99e0e8209f9b9bf2c7a50a562bdd32eb1646032';
+String _$privacyControllerHash() => r'848ec0c96bf3b2cb82f73dca62e8c43881085417';
 
 abstract class _$PrivacyController extends $AsyncNotifier<bool> {
   FutureOr<bool> build();

@@ -2060,5 +2060,21 @@ class AppLocalizationsNe extends AppLocalizations {
   }
 
   @override
-  String get confirmDeleteButton => 'हटाउने पुष्टि गर्नुहोस्';
+  String get confirmDeleteButton => 'मेटाउन पुष्टि गर्नुहोस्';
+
+  @override
+  String get cancelAccountDeletion => 'खाता मेटाउने रद्द गर्नुहोस्';
+
+  @override
+  String get accountScheduledForDeletion => 'खाता मेटाउन तय गरिएको छ';
+
+  @override
+  String deletionScheduledNotice(String date) {
+    return 'तपाईंको खाता फ्रिज गरिएको छ र $date मा स्थायी रूपमा मेटाउने तालिका बनाइएको छ।';
+  }
+
+  @override
+  String walletBalanceBlockedNotice(String balance) {
+    return 'तपाईंको वालेट ब्यालेन्स (\$$balance) सीमा (\$1.00) भन्दा बढी छ। कृपया यसलाई खर्च गर्नुहोस् वा समर्थनमा सम्पर्क गर्नुहोस्।';
+  }
 }

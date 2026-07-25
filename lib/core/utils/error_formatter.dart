@@ -35,9 +35,9 @@ class RateLimitErrorFormatter {
       return int.tryParse(rateLimitedMatch.group(1)!);
     }
 
-    // 2. Matches "rate limit exceeded... <seconds>"
+    // 2. Matches "rate limit exceeded... <seconds>" or "COOLDOWN_ACTIVE... <seconds>"
     final rateLimitGeneralMatch = RegExp(
-      r'rate limit exceeded.*?(\d+)',
+      r'(?:rate limit exceeded|COOLDOWN_ACTIVE).*?\b(\d+)\b',
       caseSensitive: false,
     ).firstMatch(errorStr);
     if (rateLimitGeneralMatch != null) {

@@ -76,7 +76,7 @@ BEGIN
       (sim_line_id, user_id, amount, base_cost_usd, payment_gateway_code, currency, status, execution_type)
     VALUES (v_line, v_user, 5.00, 5.00, 'wallet', 'USD', 'routing', 'refill_instant');
   EXCEPTION WHEN others THEN
-    IF SQLERRM LIKE '%Rate limit exceeded%' THEN
+    IF SQLERRM LIKE '%COOLDOWN_ACTIVE%' OR SQLERRM LIKE '%Rate limit exceeded%' THEN
       v_ok := true;
     ELSE
       RAISE;

@@ -2059,4 +2059,20 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get confirmDeleteButton => 'हटाने की पुष्टि करें';
+
+  @override
+  String get cancelAccountDeletion => 'खाता हटाने को रद्द करें';
+
+  @override
+  String get accountScheduledForDeletion => 'खाता हटाने के लिए निर्धारित';
+
+  @override
+  String deletionScheduledNotice(String date) {
+    return 'आपका खाता फ्रीज कर दिया गया है और $date को स्थायी रूप से हटाने का समय निर्धारित है।';
+  }
+
+  @override
+  String walletBalanceBlockedNotice(String balance) {
+    return 'आपका वॉलेट बैलेंस (\$$balance) सीमा (\$1.00) से अधिक है। कृपया इसे खर्च करें या सहायता से संपर्क करें।';
+  }
 }

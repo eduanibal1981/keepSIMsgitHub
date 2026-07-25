@@ -821,5 +821,25 @@
     "dataRemaining": "बाँकी डेटा",
     "archivedEsims": "आर्काइभ गरिएका eSIM हरू",
     "rateLimitExceeded": "धेरै अनुरोधहरू। कृपया पुनः प्रयास गर्नु अघि {seconds} सेकेन्ड पर्खनुहोस्।",
-    "confirmDeleteButton": "हटाउने पुष्टि गर्नुहोस्"
+    "confirmDeleteButton": "मेटाउन पुष्टि गर्नुहोस्",
+    "cancelAccountDeletion": "खाता मेटाउने रद्द गर्नुहोस्",
+    "accountScheduledForDeletion": "खाता मेटाउन तय गरिएको छ",
+    "deletionScheduledNotice": "तपाईंको खाता फ्रिज गरिएको छ र {date} मा स्थायी रूपमा मेटाउने तालिका बनाइएको छ।",
+    "@deletionScheduledNotice": {
+        "description": "Notice for scheduled deletion date",
+        "placeholders": {
+            "date": {
+                "type": "String"
+            }
+        }
+    },
+    "walletBalanceBlockedNotice": "तपाईंको वालेट ब्यालेन्स (${balance}) सीमा ($1.00) भन्दा बढी छ। कृपया यसलाई खर्च गर्नुहोस् वा समर्थनमा सम्पर्क गर्नुहोस्।",
+    "@walletBalanceBlockedNotice": {
+        "description": "Notice when balance exceeds dust limit",
+        "placeholders": {
+            "balance": {
+                "type": "String"
+            }
+        }
+    }
 }

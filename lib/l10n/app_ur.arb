@@ -821,5 +821,25 @@
     "dataRemaining": "بقیہ ڈیٹا",
     "archivedEsims": "محفوظ شدہ eSIMs",
     "rateLimitExceeded": "بہت سی درخواستیں۔ دوبارہ کوشش کرنے سے پہلے براہ کرم {seconds} سیکنڈ انتظار کریں۔",
-    "confirmDeleteButton": "حذف کی تصدیق کریں"
+    "confirmDeleteButton": "منسوخی کی تصدیق کریں",
+    "cancelAccountDeletion": "کھاتہ منسوخی منسوخ کریں",
+    "accountScheduledForDeletion": "کھاتہ منسوخ کرنے کا شیڈول ہے",
+    "deletionScheduledNotice": "آپ کا اکاؤنٹ منجمد کر دیا گیا ہے اور {date} کو مستقل طور پر حذف کرنے کا شیڈول ہے۔",
+    "@deletionScheduledNotice": {
+        "description": "Notice for scheduled deletion date",
+        "placeholders": {
+            "date": {
+                "type": "String"
+            }
+        }
+    },
+    "walletBalanceBlockedNotice": "آپ کا والٹ بیلنس (${balance}) حد ($1.00) سے زیادہ ہے۔ برائے مہربانی اسے خرچ کریں یا سپورٹ سے رابطہ کریں۔",
+    "@walletBalanceBlockedNotice": {
+        "description": "Notice when balance exceeds dust limit",
+        "placeholders": {
+            "balance": {
+                "type": "String"
+            }
+        }
+    }
 }

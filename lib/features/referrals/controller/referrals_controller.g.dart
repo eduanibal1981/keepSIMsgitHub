@@ -34,7 +34,7 @@ final class ReferralsControllerProvider
 }
 
 String _$referralsControllerHash() =>
-    r'77abf18ecee9b34374d5c683c5039b7b2ac94e09';
+    r'4fde85f33cd69fceb4b9bdfc00d20a8f57c46998';
 
 abstract class _$ReferralsController extends $AsyncNotifier<ReferralSummary> {
   FutureOr<ReferralSummary> build();

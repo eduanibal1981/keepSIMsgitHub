@@ -821,5 +821,25 @@
     "dataRemaining": "অবশিষ্ট ডেটা",
     "archivedEsims": "আর্কাইভ করা eSIMসমূহ",
     "rateLimitExceeded": "অনেকগুলি অনুরোধ। আবার চেষ্টা করার আগে অনুগ্রহ করে {seconds} সেকেন্ড অপেক্ষা করুন।",
-    "confirmDeleteButton": "মুছে ফেলা নিশ্চিত করুন"
+    "confirmDeleteButton": "মোছা নিশ্চিত করুন",
+    "cancelAccountDeletion": "অ্যাকাউন্ট মোছা বাতিল করুন",
+    "accountScheduledForDeletion": "অ্যাকাউন্ট মোছার জন্য নির্ধারিত",
+    "deletionScheduledNotice": "আপনার অ্যাকাউন্ট হিমায়িত করা হয়েছে এবং {date} তারিখে স্থায়ীভাবে মুছে ফেলার জন্য নির্ধারণ করা হয়েছে।",
+    "@deletionScheduledNotice": {
+        "description": "Notice for scheduled deletion date",
+        "placeholders": {
+            "date": {
+                "type": "String"
+            }
+        }
+    },
+    "walletBalanceBlockedNotice": "আপনার ওয়ালেট ব্যালেন্স (${balance}) সীমা ($1.00) ছাড়িয়েছে। দয়া করে এটি খরচ করুন অথবা সহায়তা যোগাযোগ করুন।",
+    "@walletBalanceBlockedNotice": {
+        "description": "Notice when balance exceeds dust limit",
+        "placeholders": {
+            "balance": {
+                "type": "String"
+            }
+        }
+    }
 }

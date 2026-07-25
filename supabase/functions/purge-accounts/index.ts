@@ -16,14 +16,14 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const adminClient = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Verify Vault secret header or service_role authorization
+    // Verify Vault secret header
     const incomingSecret = req.headers.get("x-keep-sims-secret");
     const { data: secretData } = await adminClient.rpc("get_internal_secret", {
       p_name: "dispatch_shared_secret",
     });
 
     const expectedSecret = secretData || "";
-    if (expectedSecret && incomingSecret !== expectedSecret) {
+    if (!expectedSecret || incomingSecret !== expectedSecret) {
       return new Response(
         JSON.stringify({ success: false, error: "UNAUTHORIZED: Invalid secret header" }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -37,6 +37,20 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ success: false, error: "BAD_REQUEST: Missing user_id" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Refuse any user_id whose account_deletions.status <> 'purged'
+    const { data: deletionRecord } = await adminClient
+      .from("account_deletions")
+      .select("status")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (!deletionRecord || deletionRecord.status !== "purged") {
+      return new Response(
+        JSON.stringify({ success: false, error: "FORBIDDEN: Account status is not purged" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 

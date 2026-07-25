@@ -3741,6 +3741,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Confirm Delete'**
   String get confirmDeleteButton;
+
+  /// No description provided for @cancelAccountDeletion.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel Account Deletion'**
+  String get cancelAccountDeletion;
+
+  /// No description provided for @accountScheduledForDeletion.
+  ///
+  /// In en, this message translates to:
+  /// **'Account Scheduled for Deletion'**
+  String get accountScheduledForDeletion;
+
+  /// Notice for scheduled deletion date
+  ///
+  /// In en, this message translates to:
+  /// **'Your account is frozen and scheduled for permanent deletion on {date}.'**
+  String deletionScheduledNotice(String date);
+
+  /// Notice when balance exceeds dust limit
+  ///
+  /// In en, this message translates to:
+  /// **'Your wallet balance (\${balance}) exceeds dust limit (\$1.00). Please spend it or contact support for payout.'**
+  String walletBalanceBlockedNotice(String balance);
 }
 
 class _AppLocalizationsDelegate

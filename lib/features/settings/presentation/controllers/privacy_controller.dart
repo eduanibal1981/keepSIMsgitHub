@@ -14,12 +14,44 @@ import 'package:keep_sims/core/failure.dart';
 part 'privacy_controller.g.dart';
 
 @riverpod
+Future<Map<String, dynamic>?> accountDeletionRecord(Ref ref) async {
+  final supabase = Supabase.instance.client;
+  final userId = supabase.auth.currentUser?.id;
+  if (userId == null) return null;
+
+  try {
+    final res = await supabase
+        .from('account_deletions')
+        .select()
+        .eq('user_id', userId)
+        .filter('status', 'in', '("requested","frozen")')
+        .maybeSingle();
+
+    return res;
+  } catch (_) {
+    return null;
+  }
+}
+
+@riverpod
 class PrivacyController extends _$PrivacyController {
   static const String _kTrackingConsentKey = 'analytics_tracking_consent_enabled';
 
   @override
   FutureOr<bool> build() async {
     final prefs = await SharedPreferences.getInstance();
+    final supabase = Supabase.instance.client;
+    final userId = supabase.auth.currentUser?.id;
+    if (userId != null) {
+      try {
+        final res = await supabase.from('user_consents').select('analytics_consent').eq('user_id', userId).maybeSingle();
+        if (res != null && res['analytics_consent'] != null) {
+          final val = res['analytics_consent'] as bool;
+          await prefs.setBool(_kTrackingConsentKey, val);
+          return val;
+        }
+      } catch (_) {}
+    }
     // Default consent is FALSE per GDPR/privacy compliance
     return prefs.getBool(_kTrackingConsentKey) ?? false;
   }
@@ -34,14 +66,13 @@ class PrivacyController extends _$PrivacyController {
       final userId = supabase.auth.currentUser?.id;
       if (userId != null) {
         try {
-          await supabase.from('alert_settings').upsert({
+          await supabase.from('user_consents').upsert({
             'user_id': userId,
-            'category': 'analytics_consent',
-            'is_enabled': value,
+            'analytics_consent': value,
             'updated_at': DateTime.now().toIso8601String(),
-          }, onConflict: 'user_id, category');
+          });
         } catch (_) {
-          // Ignore if table schema differs
+          // Ignore schema fallback
         }
       }
 
@@ -92,6 +123,7 @@ class PrivacyController extends _$PrivacyController {
         final data = response.data as Map<String, dynamic>;
         if (data['success'] == true) {
           await ref.read(authControllerProvider.notifier).signOut();
+          ref.invalidate(accountDeletionRecordProvider);
           return data;
         } else {
           final err = data['error'] as String? ?? 'Failed to request account deletion.';
@@ -115,6 +147,7 @@ class PrivacyController extends _$PrivacyController {
       if (res is Map && res['success'] == false) {
         throw UserFriendlyException(res['error']?.toString() ?? 'Failed to cancel deletion');
       }
+      ref.invalidate(accountDeletionRecordProvider);
     } catch (e) {
       throw UserFriendlyException('Failed to cancel deletion: $e');
     }
