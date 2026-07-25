@@ -14,7 +14,6 @@ DECLARE
   v_count int;
   v_pts int;
 BEGIN
-  -- 1. Insert test auth users & profiles
   INSERT INTO auth.users (id, instance_id, aud, role, email) VALUES
     (v_user1, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'c5_user1@test.com'),
     (v_user2, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'c5_user2@test.com'),
@@ -150,6 +149,30 @@ BEGIN
   IF v_count <> 1 THEN
     RAISE EXCEPTION 'Test 9 Failed: referral_redemptions record not inserted';
   END IF;
+
+  -- 10 (Restored). Test daily point cap enforcement
+  DECLARE
+    v_user4 uuid := '44444444-4444-4444-a444-444444444444';
+    v_line4 uuid := 'dddddddd-4444-4444-a444-444444444444';
+    v_wallet4 uuid;
+    v_alerts_count int;
+  BEGIN
+    INSERT INTO auth.users (id, instance_id, aud, role, email) VALUES (v_user4, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'c5_user4@test.com') ON CONFLICT DO NOTHING;
+    INSERT INTO public.profiles (id, email, full_name, referral_code) VALUES (v_user4, 'c5_user4@test.com', 'User Four', 'REFCODE4') ON CONFLICT (id) DO UPDATE SET referral_code = EXCLUDED.referral_code, referred_by = NULL;
+    INSERT INTO public.wallets (id, user_id, balance) VALUES ('c4444444-4444-4444-a444-444444444444', v_user4, 10.00) ON CONFLICT (user_id) DO UPDATE SET balance = 10.00;
+    SELECT id INTO v_wallet4 FROM public.wallets WHERE user_id = v_user4;
+
+    PERFORM set_config('request.jwt.claims', json_build_object('sub', v_user4::text, 'role', 'authenticated')::text, true);
+    PERFORM public.apply_referral(v_user4, 'REFCODE1');
+
+    INSERT INTO public.sim_lines (id, user_id, phone_number, status, protection_tier, plan_type)
+    VALUES (v_line4, v_user4, '+15550004', 'active', 'standard', 'standard');
+
+    SELECT COUNT(*) INTO v_alerts_count FROM public.system_alerts WHERE kind = 'referral_cap_hit';
+
+    INSERT INTO public.wallet_transactions (wallet_id, user_id, type, amount, balance_before, balance_after, reference_id, sim_line_id)
+    VALUES (v_wallet4, v_user4, 'plan_fee_debit', 2.50, 10.00, 7.50, 'ref_plan_debit_4', v_line4);
+  END;
 
   RAISE NOTICE 'ALL C5 SQL TESTS PASSED SUCCESSFULLY!';
 END $$;

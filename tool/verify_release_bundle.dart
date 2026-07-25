@@ -16,6 +16,7 @@ const sourceDirectories = [
   'android',
   'ios',
   'assets',
+  'tool',
 ];
 
 const rootFilesToCheck = [
@@ -34,7 +35,7 @@ void main() {
 
     final files = dir.listSync(recursive: true).whereType<File>();
     for (final file in files) {
-      if (file.path.contains('.git') || file.path.contains('build/')) continue;
+      if (file.path.contains('.git') || file.path.contains('build/') || file.path.endsWith('verify_release_bundle.dart')) continue;
       violations += checkFileContent(file);
     }
   }
