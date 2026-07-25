@@ -471,7 +471,7 @@ class _PrivacyScreenState extends ConsumerState<PrivacyScreen> {
 
   Future<void> _performDeletion() async {
     // 1. PaymentAuthGuard (Biometric / Passcode confirmation)
-    final authResult = await ref.read(paymentAuthGuardProvider.notifier).authenticate(
+    final authResult = await ref.read(paymentAuthGuardProvider).confirmPayment(
       reason: 'Confirm account deletion',
     );
     if (authResult == BiometricResult.cancelled || authResult == BiometricResult.failed) {
