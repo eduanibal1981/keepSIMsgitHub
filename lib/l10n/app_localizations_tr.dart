@@ -2059,4 +2059,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String rateLimitExceeded(String seconds) {
     return 'Çok fazla istek. Lütfen tekrar denemeden önce $seconds saniye bekleyin.';
   }
+
+  @override
+  String get confirmDeleteButton => 'Silmeyi Onayla';
 }

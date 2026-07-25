@@ -744,5 +744,6 @@
     "buyAgain": "شراء مرة أخرى",
     "dataRemaining": "البيانات المتبقية",
     "archivedEsims": "الشرائح المؤرشفة",
-    "rateLimitExceeded": "طلبات كثيرة جداً. يرجى الانتظار {seconds} ثانية قبل المحاولة مرة أخرى."
+    "rateLimitExceeded": "طلبات كثيرة جداً. يرجى الانتظار {seconds} ثانية قبل المحاولة مرة أخرى.",
+    "confirmDeleteButton": "تأكيد الحذف"
 }

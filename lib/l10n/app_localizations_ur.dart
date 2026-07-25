@@ -2055,4 +2055,7 @@ class AppLocalizationsUr extends AppLocalizations {
   String rateLimitExceeded(String seconds) {
     return 'بہت سی درخواستیں۔ دوبارہ کوشش کرنے سے پہلے براہ کرم $seconds سیکنڈ انتظار کریں۔';
   }
+
+  @override
+  String get confirmDeleteButton => 'حذف کی تصدیق کریں';
 }

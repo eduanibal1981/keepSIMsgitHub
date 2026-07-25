@@ -2045,4 +2045,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String rateLimitExceeded(String seconds) {
     return 'Too many requests. Please wait $seconds seconds before trying again.';
   }
+
+  @override
+  String get confirmDeleteButton => 'Confirm Delete';
 }

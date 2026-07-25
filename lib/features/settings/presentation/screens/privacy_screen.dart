@@ -5,6 +5,7 @@ import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/core/utils/build_context_extension.dart';
 import 'package:keep_sims/features/settings/presentation/controllers/privacy_controller.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:keep_sims/l10n/app_localizations.dart';
 
 class PrivacyScreen extends ConsumerStatefulWidget {
@@ -115,15 +116,21 @@ class _PrivacyScreenState extends ConsumerState<PrivacyScreen> {
           ),
           const SizedBox(height: 12),
           TextButton(
-            onPressed: () {
-              // Usually opens a web view or external link
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    AppLocalizations.of(context)!.privacyPolicyLoaded,
-                  ),
-                ),
-              );
+            onPressed: () async {
+              final url = Uri.parse('https://keepsims.com/privacy');
+              if (await canLaunchUrl(url)) {
+                await launchUrl(url, mode: LaunchMode.externalApplication);
+              } else {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        AppLocalizations.of(context)!.privacyPolicyLoaded,
+                      ),
+                    ),
+                  );
+                }
+              }
             },
             style: TextButton.styleFrom(
               padding: EdgeInsets.zero,
@@ -348,9 +355,9 @@ class _PrivacyScreenState extends ConsumerState<PrivacyScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.redAccent,
                 ),
-                child: const Text(
-                  'Confirm Delete',
-                  style: TextStyle(color: Colors.white),
+                child: Text(
+                  AppLocalizations.of(context)!.confirmDeleteButton,
+                  style: const TextStyle(color: Colors.white),
                 ),
               );
             },

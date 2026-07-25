@@ -2054,4 +2054,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String rateLimitExceeded(String seconds) {
     return 'অনেকগুলি অনুরোধ। আবার চেষ্টা করার আগে অনুগ্রহ করে $seconds সেকেন্ড অপেক্ষা করুন।';
   }
+
+  @override
+  String get confirmDeleteButton => 'মুছে ফেলা নিশ্চিত করুন';
 }

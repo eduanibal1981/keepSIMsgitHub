@@ -820,5 +820,6 @@
     "buyAgain": "পুনরায় কিনুন",
     "dataRemaining": "অবশিষ্ট ডেটা",
     "archivedEsims": "আর্কাইভ করা eSIMসমূহ",
-    "rateLimitExceeded": "অনেকগুলি অনুরোধ। আবার চেষ্টা করার আগে অনুগ্রহ করে {seconds} সেকেন্ড অপেক্ষা করুন।"
+    "rateLimitExceeded": "অনেকগুলি অনুরোধ। আবার চেষ্টা করার আগে অনুগ্রহ করে {seconds} সেকেন্ড অপেক্ষা করুন।",
+    "confirmDeleteButton": "মুছে ফেলা নিশ্চিত করুন"
 }

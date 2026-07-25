@@ -3735,6 +3735,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Too many requests. Please wait {seconds} seconds before trying again.'**
   String rateLimitExceeded(String seconds);
+
+  /// No description provided for @confirmDeleteButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Delete'**
+  String get confirmDeleteButton;
 }
 
 class _AppLocalizationsDelegate

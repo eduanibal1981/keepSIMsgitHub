@@ -820,5 +820,6 @@
     "buyAgain": "Comprar de nuevo",
     "dataRemaining": "Datos restantes",
     "archivedEsims": "eSIMs archivadas",
-    "rateLimitExceeded": "Demasiadas solicitudes. Por favor espere {seconds} segundos antes de intentarlo de nuevo."
+    "rateLimitExceeded": "Demasiadas solicitudes. Por favor espere {seconds} segundos antes de intentarlo de nuevo.",
+    "confirmDeleteButton": "Confirmar eliminación"
 }

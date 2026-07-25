@@ -1103,18 +1103,40 @@ Big session — acceptable to split UI (1–3) and server webhooks (4) into two.
   - MCP `get_advisors`: 0 net-new security findings.
   - `a1-wallet-test@example.com` balance verified untouched at **$35.86**.
 
-## 🟠 D3 — Account deletion + privacy compliance (store requirement)
+## ✅ D3 — Account deletion + privacy compliance (done 2026-07-25)
 
-1. In-app "Delete account" (Settings → Account): re-auth, explain
-   consequences, then an Edge Function (service role) that cancels schedules,
-   zeroes/archives the wallet (decide with user: refund flow or forfeit-with-
-   consent), deletes user rows across all tables (write the cascade explicitly
-   — FK audit), deletes the auth user.
-2. Data export (GDPR-friendly, cheap once C6 exists): email a JSON of profile,
-   lines, transactions.
-3. Update privacy policy for: foreground location/country (C8), WhatsApp/SMS
-   phone-number processing (C4), and fill the Play Data Safety + App Store
-   privacy questionnaires accordingly.
+**Status:** ✅ **DONE (Soft-Delete Grace Period State Machine + Anonymised Financial Ledger + GDPR Export + Store Privacy Compliance)**
+
+**Implementation Record (2026-07-25):**
+- **State Machine Infrastructure (`20260729000000_d3_account_deletion.sql`):**
+  - Applied migration to live database `zwxswagokhgbuzrrbnhr`.
+  - Created `account_deletions` table with RLS (`select_own` policy) enforcing state machine: `requested` → `frozen` → `draining` → `drained` → `purged` → `auth_deleted` (and `cancelled`).
+  - Created `retired_referral_codes` table to tombstone referral codes upon deletion.
+  - Adjusted 8 Foreign Key constraints on financial & referral tables from `CASCADE` to `SET NULL` (`wallets`, `wallet_transactions`, `plan_payments`, `esim_orders`, `user_esims`, `topup_executions`, `referral_points`, `referrals`). Made `user_id` columns nullable across financial tables to support 7-year statutory tax compliance anonymisation without deleting accounting totals.
+  - Fixed C5 referral points bug: `referral_points.referred_user_id` and `referrer_id` now `ON DELETE SET NULL`, ensuring referrer's points balance remains intact and non-negative when a referred user is deleted.
+  - Created RPCs `request_account_deletion(p_reason, p_forfeit_dust)`, `cancel_account_deletion()`, `purge_deleted_accounts()`, and `export_user_data()`.
+  - Folded in D2 Drive-by #3 (updated `check_topup_rate_limit()` to key on `auth.uid()` when non-null so service_role C4 refills bypass user rate limit).
+  - Folded in D2 Drive-by #4 (scheduled `purge-deleted-accounts-hourly`, `check-rate-limit-health`, and `prune-rate-limit-data` via `cron.schedule()`).
+  - Folded in D2 Drive-by #7 (set `public = false` on `support_attachments` bucket).
+- **Edge Functions (`delete_account` & `purge-accounts`):**
+  - `delete_account`: Thin client Edge Function calling `request_account_deletion` RPC. Status: **ACTIVE**.
+  - `purge-accounts`: Admin-API Edge Function validating Vault secret `dispatch_shared_secret`, purging user attachments across `ticket-attachments` and `support_attachments` storage buckets, deleting auth user via `supabaseAdmin.auth.admin.deleteUser()`, and updating `account_deletions` row to `auth_deleted`. Status: **ACTIVE**.
+- **Client UI & Localizations:**
+  - Added `confirmDeleteButton` key across all 9 ARB locales (`app_en`, `app_ar`, `app_es`, `app_hi`, `app_tr`, `app_bn`, `app_ne`, `app_si`, `app_ur`) and re-generated l10n.
+  - Updated `privacy_controller.dart` for D3 export, deletion, and consent toggling (defaulting tracking consent to `false`).
+  - Updated `privacy_screen.dart` with localized confirm delete button and `url_launcher` link to `https://keepsims.com/privacy`.
+- **Store Compliance Artifacts (`doc/`):**
+  - [doc/PRIVACY_POLICY.md](file:///c:/Users/abdal/Work/KeepSIMs/keep_sims/doc/PRIVACY_POLICY.md)
+  - [doc/PLAY_DATA_SAFETY.md](file:///c:/Users/abdal/Work/KeepSIMs/keep_sims/doc/PLAY_DATA_SAFETY.md)
+  - [doc/APPLE_PRIVACY_NUTRITION_LABEL.md](file:///c:/Users/abdal/Work/KeepSIMs/keep_sims/doc/APPLE_PRIVACY_NUTRITION_LABEL.md)
+  - [doc/WEB_DELETION.html](file:///c:/Users/abdal/Work/KeepSIMs/keep_sims/doc/WEB_DELETION.html) & [doc/WEB_DELETION.md](file:///c:/Users/abdal/Work/KeepSIMs/keep_sims/doc/WEB_DELETION.md)
+  - [doc/OWNER_STORE_CHECKLIST.md](file:///c:/Users/abdal/Work/KeepSIMs/keep_sims/doc/OWNER_STORE_CHECKLIST.md)
+- **Tests & Verification:**
+  - Live SQL test suite `supabase/tests/d3_account_deletion_tests.sql` (7 assertions covering state transitions, cancel, blocked balance, drain safety, full purge & anonymisation, C5 points balance preservation, export JSON) executed and passed 100% via MCP `execute_sql`.
+  - Pre-existing SQL test suite `d2_rate_limiting_tests.sql` executed and passed 100%.
+  - `a1-wallet-test@example.com` balance verified intact at **$35.86**.
+  - MCP `get_advisors`: 0 net-new security findings.
+  - Flutter test suite: **67/67 tests passed**. `flutter analyze`: 0 errors.
 
 ## 🟠 D4 — Strip dev simulators from release builds (finish)
 

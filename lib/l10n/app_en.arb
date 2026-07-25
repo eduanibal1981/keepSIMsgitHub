@@ -970,5 +970,6 @@
                 "type": "String"
             }
         }
-    }
+    },
+    "confirmDeleteButton": "Confirm Delete"
 }

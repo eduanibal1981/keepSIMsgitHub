@@ -2058,4 +2058,7 @@ class AppLocalizationsSi extends AppLocalizations {
   String rateLimitExceeded(String seconds) {
     return 'අධික ඉල්ලීම් ගණනක්. නැවත උත්සාහ කිරීමට පෙර තත්පර $seconds ක් රැඳී සිටින්න.';
   }
+
+  @override
+  String get confirmDeleteButton => 'මකා දැමීම තහවුරු කරන්න';
 }

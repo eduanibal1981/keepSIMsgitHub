@@ -820,5 +820,6 @@
     "buyAgain": "Tekrar Satın Al",
     "dataRemaining": "Kalan Veri",
     "archivedEsims": "Arşivlenmiş eSIM'ler",
-    "rateLimitExceeded": "Çok fazla istek. Lütfen tekrar denemeden önce {seconds} saniye bekleyin."
+    "rateLimitExceeded": "Çok fazla istek. Lütfen tekrar denemeden önce {seconds} saniye bekleyin.",
+    "confirmDeleteButton": "Silmeyi Onayla"
 }

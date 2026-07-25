@@ -15,14 +15,13 @@ part 'privacy_controller.g.dart';
 
 @riverpod
 class PrivacyController extends _$PrivacyController {
-  static const String _kTrackingConsentKey =
-      'analytics_tracking_consent_enabled';
+  static const String _kTrackingConsentKey = 'analytics_tracking_consent_enabled';
 
   @override
   FutureOr<bool> build() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(_kTrackingConsentKey) ??
-        true; // Default true or false based on policy
+    // Default consent is FALSE per GDPR/privacy compliance
+    return prefs.getBool(_kTrackingConsentKey) ?? false;
   }
 
   Future<void> toggleTrackingConsent(bool value) async {
@@ -30,40 +29,48 @@ class PrivacyController extends _$PrivacyController {
     state = await AsyncValue.guard(() async {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool(_kTrackingConsentKey, value);
-      // In a real app, you would also toggle the analytics SDK here
-      // e.g., FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(value);
+
+      final supabase = Supabase.instance.client;
+      final userId = supabase.auth.currentUser?.id;
+      if (userId != null) {
+        try {
+          await supabase.from('alert_settings').upsert({
+            'user_id': userId,
+            'category': 'analytics_consent',
+            'is_enabled': value,
+            'updated_at': DateTime.now().toIso8601String(),
+          }, onConflict: 'user_id, category');
+        } catch (_) {
+          // Ignore if table schema differs
+        }
+      }
+
       return value;
     });
   }
 
   Future<void> exportData() async {
+    final supabase = Supabase.instance.client;
+    final userId = supabase.auth.currentUser?.id;
+    if (userId == null) {
+      throw const UserFriendlyException('User not authenticated.');
+    }
+
     try {
-      final user = ref.read(authControllerProvider).value;
-      if (user == null) throw const UserFriendlyException('User not authenticated.');
+      final response = await supabase.rpc('export_user_data');
+      final jsonString = const JsonEncoder.withIndent('  ').convert(response);
 
-      // In a comprehensive export, we would fetch all related tables.
-      // Here we export the current user profile as JSON.
-      final userData = {
-        'profile': user.toJson(),
-        'export_date': DateTime.now().toIso8601String(),
-        'tracking_consent': state.value,
-      };
-
-      final jsonString = const JsonEncoder.withIndent('  ').convert(userData);
-
-      // Write to a temporary file
       final directory = await getTemporaryDirectory();
-      final file = File('${directory.path}/keepsims_data_export.json');
+      final file = File('${directory.path}/keepsims_gdpr_data_export.json');
       await file.writeAsString(jsonString);
 
-      // Share the file
       await Share.shareXFiles([XFile(file.path, mimeType: 'application/json')]);
     } catch (e) {
       throw UserFriendlyException('Failed to export data: $e');
     }
   }
 
-  Future<void> deleteAccount() async {
+  Future<Map<String, dynamic>> deleteAccount({String? reason, bool forfeitDust = false}) async {
     final supabase = Supabase.instance.client;
     final user = supabase.auth.currentUser;
 
@@ -72,24 +79,44 @@ class PrivacyController extends _$PrivacyController {
     }
 
     try {
-      // Call the Supabase Edge Function to delete the account
       final response = await supabase.functions.invoke(
         'delete_account',
         method: HttpMethod.post,
+        body: {
+          'reason': reason,
+          'forfeit_dust': forfeitDust,
+        },
       );
 
-      if (response.status == 200 ||
-          response.status == 201 ||
-          response.status == 204) {
-        // Function succeeded. Sign out locally.
-        await ref.read(authControllerProvider.notifier).signOut();
+      if (response.status == 200 || response.status == 201) {
+        final data = response.data as Map<String, dynamic>;
+        if (data['success'] == true) {
+          await ref.read(authControllerProvider.notifier).signOut();
+          return data;
+        } else {
+          final err = data['error'] as String? ?? 'Failed to request account deletion.';
+          throw UserFriendlyException(err);
+        }
       } else {
-        throw const UserFriendlyException(
-          'Failed to delete account. Please contact support.',
-        );
+        final err = (response.data is Map && response.data['error'] != null)
+            ? response.data['error'].toString()
+            : 'Failed to delete account. Please contact support.';
+        throw UserFriendlyException(err);
       }
     } catch (e) {
-      throw UserFriendlyException('Error deleting account: $e');
+      throw UserFriendlyException(e.toString().replaceAll('Exception: ', ''));
+    }
+  }
+
+  Future<void> cancelAccountDeletion() async {
+    final supabase = Supabase.instance.client;
+    try {
+      final res = await supabase.rpc('cancel_account_deletion');
+      if (res is Map && res['success'] == false) {
+        throw UserFriendlyException(res['error']?.toString() ?? 'Failed to cancel deletion');
+      }
+    } catch (e) {
+      throw UserFriendlyException('Failed to cancel deletion: $e');
     }
   }
 }

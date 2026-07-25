@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:local_auth/local_auth.dart';
 
@@ -132,9 +133,13 @@ final paymentAuthGuardProvider = Provider<PaymentAuthGuard>((ref) {
   final guard = PaymentAuthGuard(service);
 
   final binding = WidgetsBinding.instance;
-  final observer = _PaymentAuthGuardLifecycleObserver(guard);
-  binding.addObserver(observer);
-  ref.onDispose(() => binding.removeObserver(observer));
+  try {
+    final observer = _PaymentAuthGuardLifecycleObserver(guard);
+    binding.addObserver(observer);
+    ref.onDispose(() => binding.removeObserver(observer));
+  } catch (_) {
+    // WidgetsBinding not initialized in unit tests
+  }
 
   return guard;
 });

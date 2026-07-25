@@ -820,5 +820,6 @@
     "buyAgain": "पुनः खरीदें",
     "dataRemaining": "शेष डेटा",
     "archivedEsims": "आर्काइव की गई eSIMs",
-    "rateLimitExceeded": "बहुत सारे अनुरोध। कृपया पुनः प्रयास करने से पहले {seconds} सेकंड प्रतीक्षा करें।"
+    "rateLimitExceeded": "बहुत सारे अनुरोध। कृपया पुनः प्रयास करने से पहले {seconds} सेकंड प्रतीक्षा करें।",
+    "confirmDeleteButton": "हटाने की पुष्टि करें"
 }
