@@ -5,18 +5,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 // our Twilio number; we reject the call before it connects (so the user is not
 // charged for a call) and treat the ring itself as the refill trigger.
 //
-// Shaped for a Twilio Voice webhook (application/x-www-form-urlencoded: From,
-// CallSid). Turns the call into a wallet-funded instant refill via
-// `ingest_offline_refill` (service_role only); the per-call cost of keeping the
-// Twilio number is passed to the wallet as OFFLINE_MISSED_CALL_FEE_USD.
-//
-// Security: verify_jwt disabled. Validated against X-Twilio-Signature when
-// TWILIO_AUTH_TOKEN is set; skipped with a warning otherwise. Set
-// PUBLIC_FUNCTION_URL if the reconstructed URL ever mismatches Twilio's.
-//
-// Required function secrets (once provisioned):
-//   TWILIO_AUTH_TOKEN    — Twilio account auth token (signature validation)
-//   PUBLIC_FUNCTION_URL  — optional exact webhook URL override
+// D2 IP Rate Limiter applied (60/1min per IP).
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -41,7 +30,6 @@ async function rpc(name: string, args: Record<string, unknown>) {
   return { ok: res.ok, status: res.status, body };
 }
 
-// Reject before connecting → the caller is not billed, the ring is the signal.
 const rejectTwiml = () =>
   new Response(`<?xml version="1.0" encoding="UTF-8"?><Response><Reject reason="busy"/></Response>`, {
     headers: { 'Content-Type': 'text/xml' },
@@ -77,6 +65,21 @@ function publicUrl(req: Request): string {
 serve(async (req: Request) => {
   if (req.method !== 'POST') return rejectTwiml();
 
+  // D2 IP rate limiter (webhook_ip bucket: 60/1min per IP)
+  const xForwardedFor = req.headers.get("x-forwarded-for");
+  const clientIp = xForwardedFor ? xForwardedFor.split(",")[0].trim() : req.headers.get("x-real-ip") || "unknown_ip";
+
+  const limitRes = await rpc('consume_rate_limit', {
+    p_bucket: 'webhook_ip',
+    p_key: clientIp,
+    p_capacity: 60,
+    p_refill_per_minute: 60.0,
+  });
+  if (limitRes.ok && Array.isArray(limitRes.body) && limitRes.body[0]?.allowed === false) {
+    const retryAfter = limitRes.body[0]?.retry_after_seconds ?? 60;
+    return new Response(JSON.stringify({ code: "rate_limited", bucket: "webhook_ip", retry_after: retryAfter }), { status: 429, headers: { 'Content-Type': 'application/json', 'Retry-After': String(retryAfter) } });
+  }
+
   const raw = await req.text();
   const form = new URLSearchParams(raw);
   const params: Record<string, string> = {};
@@ -87,7 +90,6 @@ serve(async (req: Request) => {
     const header = req.headers.get('x-twilio-signature') ?? '';
     if (!safeEqual(header, expected)) {
       console.error('twilio-voice-webhook: signature mismatch');
-      // Still reject the call, but do not queue a refill from an unverified hit.
       return rejectTwiml();
     }
   } else {
@@ -103,7 +105,7 @@ serve(async (req: Request) => {
       p_provider_msg_id: callSid,
       p_sender_phone: from,
       p_channel: 'missed_call',
-      p_amount_usd: null, // a call carries no amount → user's configured default
+      p_amount_usd: null,
       p_raw: params,
     });
     if (!ok) console.error(`ingest_offline_refill HTTP ${status}: ${JSON.stringify(out)}`);

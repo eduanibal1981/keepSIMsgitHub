@@ -5,24 +5,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 // message ("REFILL" or "REFILL 10"); Meta delivers it here and we turn it into
 // a real, wallet-funded instant refill via `ingest_offline_refill`.
 //
-// This is the OFFICIAL API (not the unofficial Baileys `server_baileys.js`),
-// because it is the only WhatsApp path we can bill for: the Cloud API charges
-// us per conversation, and that cost is passed to the user's wallet as the
-// per-channel `OFFLINE_WHATSAPP_MESSAGE_FEE_USD` (added by calculate_topup_fees).
-//
-// Security model: verify_jwt is disabled (Meta cannot send a Supabase JWT).
-//   • GET  — Meta's subscription handshake: echo hub.challenge when
-//            hub.verify_token matches WABA_VERIFY_TOKEN.
-//   • POST — verified against X-Hub-Signature-256 (HMAC-SHA256 of the raw body
-//            with WABA_APP_SECRET). If the secret is unset the check is skipped
-//            with a warning, so the function works before creds are provisioned.
-//
-// The client never writes topup_executions (C3b-2 lockdown). Only this function
-// (service_role) reaches ingest_offline_refill, which is service_role-only.
-//
-// Required function secrets (set once provisioned):
-//   WABA_VERIFY_TOKEN  — arbitrary string, also entered in the Meta dashboard
-//   WABA_APP_SECRET    — the Meta app secret, for payload signature checks
+// D2 IP Rate Limiter applied (60/1min per IP).
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -53,7 +36,6 @@ async function rpc(name: string, args: Record<string, unknown>) {
   return { ok: res.ok, status: res.status, body };
 }
 
-// HMAC-SHA256 hex, for X-Hub-Signature-256.
 async function hmacSha256Hex(secret: string, message: string): Promise<string> {
   const key = await crypto.subtle.importKey(
     'raw', new TextEncoder().encode(secret),
@@ -63,7 +45,6 @@ async function hmacSha256Hex(secret: string, message: string): Promise<string> {
   return Array.from(new Uint8Array(sig)).map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
-// Constant-time-ish compare (length-independent guard first).
 function safeEqual(a: string, b: string): boolean {
   if (a.length !== b.length) return false;
   let diff = 0;
@@ -71,9 +52,6 @@ function safeEqual(a: string, b: string): boolean {
   return diff === 0;
 }
 
-// A body like "REFILL 10" or "top up 5.5" carries an optional USD amount; bare
-// "REFILL" leaves it null so the user's configured default applies. Ignore
-// absurd values rather than trusting a fat-fingered SMS.
 function parseAmount(text: string | undefined): number | null {
   if (!text) return null;
   const m = text.match(/(\d+(?:\.\d{1,2})?)/);
@@ -85,7 +63,6 @@ function parseAmount(text: string | undefined): number | null {
 serve(async (req: Request) => {
   const url = new URL(req.url);
 
-  // ── Meta subscription handshake ──────────────────────────────────────────
   if (req.method === 'GET') {
     const mode = url.searchParams.get('hub.mode');
     const token = url.searchParams.get('hub.verify_token');
@@ -100,9 +77,23 @@ serve(async (req: Request) => {
     return json({ error: 'method_not_allowed' }, 405);
   }
 
+  // D2 IP rate limiter (webhook_ip bucket: 60/1min per IP)
+  const xForwardedFor = req.headers.get("x-forwarded-for");
+  const clientIp = xForwardedFor ? xForwardedFor.split(",")[0].trim() : req.headers.get("x-real-ip") || "unknown_ip";
+
+  const limitRes = await rpc('consume_rate_limit', {
+    p_bucket: 'webhook_ip',
+    p_key: clientIp,
+    p_capacity: 60,
+    p_refill_per_minute: 60.0,
+  });
+  if (limitRes.ok && Array.isArray(limitRes.body) && limitRes.body[0]?.allowed === false) {
+    const retryAfter = limitRes.body[0]?.retry_after_seconds ?? 60;
+    return json({ code: "rate_limited", bucket: "webhook_ip", retry_after: retryAfter }, 429);
+  }
+
   const raw = await req.text();
 
-  // Verify the payload signature when the app secret is configured.
   if (WABA_APP_SECRET) {
     const header = req.headers.get('x-hub-signature-256') ?? '';
     const expected = 'sha256=' + await hmacSha256Hex(WABA_APP_SECRET, raw);
@@ -124,8 +115,6 @@ serve(async (req: Request) => {
       const changes = Array.isArray(entry?.changes) ? entry.changes : [];
       for (const change of changes) {
         const value = change?.value ?? {};
-        // Only inbound user messages trigger refills. Delivery/read status
-        // callbacks (value.statuses) are acknowledged and ignored.
         const messages = Array.isArray(value?.messages) ? value.messages : [];
         for (const msg of messages) {
           if (msg?.type && msg.type !== 'text') continue;
@@ -147,11 +136,8 @@ serve(async (req: Request) => {
       }
     }
   } catch (e) {
-    // Never make Meta retry on our internal error — log and 200 so the event is
-    // not redelivered forever. Idempotency in the RPC protects against dupes.
     console.error('waba-webhook processing error:', e);
   }
 
-  // Meta only needs a 2xx to consider the event delivered.
   return json({ received: true, results }, 200);
 });

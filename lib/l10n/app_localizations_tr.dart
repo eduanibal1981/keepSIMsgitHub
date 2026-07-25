@@ -2054,4 +2054,9 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get archivedEsims => 'Arşivlenmiş eSIM\'ler';
+
+  @override
+  String rateLimitExceeded(String seconds) {
+    return 'Çok fazla istek. Lütfen tekrar denemeden önce $seconds saniye bekleyin.';
+  }
 }

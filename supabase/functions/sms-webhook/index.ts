@@ -6,18 +6,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 // (application/x-www-form-urlencoded: From, Body, MessageSid) but any provider
 // that posts those fields works.
 //
-// Turns the message into a wallet-funded instant refill via
-// `ingest_offline_refill` (service_role only). The per-message SMS gateway cost
-// is passed to the wallet as OFFLINE_SMS_MESSAGE_FEE_USD.
-//
-// Security: verify_jwt disabled. Validated against X-Twilio-Signature when
-// TWILIO_AUTH_TOKEN is set; skipped with a warning otherwise so it works before
-// provisioning. Twilio signs the EXACT public URL it requested — set
-// PUBLIC_FUNCTION_URL to that URL if the reconstructed one ever mismatches.
-//
-// Required function secrets (once provisioned):
-//   TWILIO_AUTH_TOKEN    — the Twilio account auth token (signature validation)
-//   PUBLIC_FUNCTION_URL  — optional exact webhook URL override
+// D2 IP Rate Limiter applied (60/1min per IP).
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -48,7 +37,6 @@ const twiml = (inner: string) =>
     status: 200,
   });
 
-// Twilio's request signature: base64( HMAC-SHA1( authToken, URL + sorted(k+v) ) ).
 async function twilioSignature(urlStr: string, params: Record<string, string>): Promise<string> {
   let data = urlStr;
   for (const k of Object.keys(params).sort()) data += k + params[k];
@@ -67,7 +55,6 @@ function safeEqual(a: string, b: string): boolean {
   return diff === 0;
 }
 
-// Reconstruct the public URL Twilio signed (proxy-aware), unless overridden.
 function publicUrl(req: Request): string {
   if (PUBLIC_FUNCTION_URL) return PUBLIC_FUNCTION_URL;
   const u = new URL(req.url);
@@ -86,6 +73,21 @@ function parseAmount(text: string | undefined): number | null {
 
 serve(async (req: Request) => {
   if (req.method !== 'POST') return twiml('');
+
+  // D2 IP rate limiter (webhook_ip bucket: 60/1min per IP)
+  const xForwardedFor = req.headers.get("x-forwarded-for");
+  const clientIp = xForwardedFor ? xForwardedFor.split(",")[0].trim() : req.headers.get("x-real-ip") || "unknown_ip";
+
+  const limitRes = await rpc('consume_rate_limit', {
+    p_bucket: 'webhook_ip',
+    p_key: clientIp,
+    p_capacity: 60,
+    p_refill_per_minute: 60.0,
+  });
+  if (limitRes.ok && Array.isArray(limitRes.body) && limitRes.body[0]?.allowed === false) {
+    const retryAfter = limitRes.body[0]?.retry_after_seconds ?? 60;
+    return new Response(JSON.stringify({ code: "rate_limited", bucket: "webhook_ip", retry_after: retryAfter }), { status: 429, headers: { 'Content-Type': 'application/json', 'Retry-After': String(retryAfter) } });
+  }
 
   const raw = await req.text();
   const form = new URLSearchParams(raw);
@@ -121,7 +123,5 @@ serve(async (req: Request) => {
     console.error('sms-webhook: missing From/MessageSid', params);
   }
 
-  // Empty TwiML: acknowledge without sending a (billable) auto-reply. The app
-  // confirms the outcome in-app on reconnect via the topup_executions stream.
   return twiml('');
 });

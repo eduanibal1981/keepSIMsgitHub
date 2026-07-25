@@ -819,5 +819,6 @@
     "showQrCode": "QR කේතය පෙන්වන්න",
     "buyAgain": "නැවත මිලදී ගන්න",
     "dataRemaining": "ඉතිරි දත්ත",
-    "archivedEsims": "සංරක්ෂිත eSIM"
+    "archivedEsims": "සංරක්ෂිත eSIM",
+    "rateLimitExceeded": "අධික ඉල්ලීම් ගණනක්. නැවත උත්සාහ කිරීමට පෙර තත්පර {seconds} ක් රැඳී සිටින්න."
 }

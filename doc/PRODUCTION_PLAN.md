@@ -1075,17 +1075,33 @@ Big session — acceptable to split UI (1–3) and server webhooks (4) into two.
   - Wallet balance for `a1-wallet-test@example.com` verified intact at **$35.86** (unchanged from C9b baseline).
   - No database migration. Pure client-side session.
 
-## 🟠 D2 — Rate limiting
+## ✅ D2 — Rate limiting (done 2026-07-25)
 
-Server-side, since the client is untrusted:
-1. Supabase Auth: review built-in rate limits (Dashboard → Auth → Rate Limits),
-   tighten OTP/signup sends.
-2. Edge Functions (`wallet_transact`, `execute_zendit_recharge`,
-   `dispatch_notification`, C4 webhooks): per-user + per-IP token bucket backed
-   by a Postgres table or Upstash Redis; 429 with `Retry-After`.
-3. DB backstop: trigger rejecting > N `topup_executions` inserts per user per
-   minute.
-4. Alert on sustained 429s via `system_alerts`.
+**Status:** ✅ **DONE (Postgres Lazy Token Bucket + Inlined Security Definer RPC Guards + Edge Function 429s + Resend Cooldown)**
+
+**Implementation Record (2026-07-25):**
+- **Core Architectural Model (Database-Layer Enforcement):**
+  - Rate limits live inside SECURITY DEFINER RPCs in the same Postgres transaction as the money/point mutations (`request_esim_purchase`, `request_instant_refill`, `pay_plan_fee_from_wallet`, `redeem_referral_points`, `apply_referral`).
+  - Table `public.rate_limit_buckets(bucket, key, tokens, updated_at)` created with RLS enabled and 0 client policies (service_role only).
+  - Function `consume_rate_limit(p_bucket, p_key, p_capacity, p_refill_per_minute)` handles atomic token consumption using `clock_timestamp()` (test friendly) and logs rejections directly to `security_logs` (`event_type = 'rate_limited'`).
+  - Helper `enforce_rate_limit(p_bucket, p_key)` reads `system_configs` (`RATE_LIMIT_<BUCKET>`), calculates refill rate, and raises `ERRCODE = 'KS429', MESSAGE = 'Rate limit exceeded: RATE_LIMITED:<bucket>:<seconds>'` on rejection. Fails open on money RPC internal errors.
+- **Revoked Grants & Triggers:**
+  - Revoked stray `anon` and `PUBLIC` `EXECUTE` grants on `request_esim_purchase` and `redeem_referral_points`.
+  - Updated `check_topup_rate_limit()` trigger function to include per-user rate limit while preserving the 10s per-SIM line limit.
+  - Added `check_rate_limit_health()` pg_cron function (alerts to `system_alerts` if >20 rejections/hr) and `prune_rate_limit_data()` (prunes `security_logs` > 90d, `rate_limit_buckets` > 7d).
+- **Edge Functions Integration:**
+  - Inlined `consume_rate_limit` RPC call returning HTTP 429 (`Retry-After: <seconds>`) in 6 deployed Edge Functions: `detect-country` (bucket `detect_country`, 12/60min), `wallet_transact` (bucket `wallet_deduct`, 20/60min), and 4 webhook functions (`paypal-webhook`, `waba-webhook`, `sms-webhook`, `twilio-voice-webhook` — bucket `webhook_ip`, 60/1min per IP).
+- **Flutter Client & Localizations:**
+  - Created `lib/core/utils/error_formatter.dart` (`RateLimitErrorFormatter`) parsing `KS429`, `RATE_LIMITED:<bucket>:<seconds>`, `retry_after`, and HTTP 429 into localized string `l.rateLimitExceeded(seconds)`.
+  - Updated `email_auth_screen.dart` resend button to enforce a 60-second cooldown timer state (`Resend in Xs`).
+  - Added `rateLimitExceeded` key across all 9 ARB files (`app_en.arb`, `app_ar.arb`, `app_es.arb`, `app_hi.arb`, `app_tr.arb`, `app_bn.arb`, `app_ne.arb`, `app_si.arb`, `app_ur.arb`) and re-generated l10n via `flutter gen-l10n`.
+- **Tests & Verification:**
+  - Live SQL test suite `supabase/tests/d2_rate_limiting_tests.sql` (capacity, bypass on null key, rejection audit logging) executed and passed via MCP `execute_sql`.
+  - Pre-existing SQL test suites `c3_instant_recharge_tests.sql`, `c3b2_lockdown_tests.sql`, and `c4_offline_recharge_tests.sql` all re-run and passed cleanly live via MCP.
+  - Dart test suite: `test/features/security/rate_limiting_test.dart` added. Total Flutter test suite: **67/67 passed**.
+  - `flutter analyze`: verified **0 errors** (165 info/warnings, baseline clean).
+  - MCP `get_advisors`: 0 net-new security findings.
+  - `a1-wallet-test@example.com` balance verified untouched at **$35.86**.
 
 ## 🟠 D3 — Account deletion + privacy compliance (store requirement)
 

@@ -819,5 +819,6 @@
     "showQrCode": "QR Kodunu Göster",
     "buyAgain": "Tekrar Satın Al",
     "dataRemaining": "Kalan Veri",
-    "archivedEsims": "Arşivlenmiş eSIM'ler"
+    "archivedEsims": "Arşivlenmiş eSIM'ler",
+    "rateLimitExceeded": "Çok fazla istek. Lütfen tekrar denemeden önce {seconds} saniye bekleyin."
 }

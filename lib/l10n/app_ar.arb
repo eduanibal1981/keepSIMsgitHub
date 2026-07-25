@@ -743,5 +743,6 @@
     "showQrCode": "عرض رمز الاستجابة السريعة",
     "buyAgain": "شراء مرة أخرى",
     "dataRemaining": "البيانات المتبقية",
-    "archivedEsims": "الشرائح المؤرشفة"
+    "archivedEsims": "الشرائح المؤرشفة",
+    "rateLimitExceeded": "طلبات كثيرة جداً. يرجى الانتظار {seconds} ثانية قبل المحاولة مرة أخرى."
 }

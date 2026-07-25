@@ -4,7 +4,7 @@
 // updates profiles.last_country, and inserts geo_fence_triggered / welcome_home_ready
 // notifications with an action_url (/esim or /settings/geo).
 //
-// Security: Requires valid user JWT (verify_jwt).
+// Security: Requires valid user JWT (verify_jwt). D2 Rate limited (12/60min).
 
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.8";
@@ -12,7 +12,6 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.8";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 
-// Map of common ISO-2 codes to English names for notifications
 const COUNTRY_NAMES: Record<string, string> = {
   US: "United States",
   GB: "United Kingdom",
@@ -34,7 +33,6 @@ function getCountryName(iso: string): string {
 }
 
 async function resolveCountryFromIp(req: Request): Promise<string> {
-  // 1. Probe CDN & platform geo headers
   const cfCountry = req.headers.get("cf-ipcountry");
   if (cfCountry && cfCountry.length === 2 && cfCountry.toUpperCase() !== "XX") {
     return cfCountry.toUpperCase();
@@ -45,15 +43,13 @@ async function resolveCountryFromIp(req: Request): Promise<string> {
     return xCountry.toUpperCase();
   }
 
-  // 2. Extract client IP from x-forwarded-for
   const xForwardedFor = req.headers.get("x-forwarded-for");
   const clientIp = xForwardedFor ? xForwardedFor.split(",")[0].trim() : req.headers.get("x-real-ip");
 
   if (!clientIp || clientIp === "127.0.0.1" || clientIp.startsWith("10.") || clientIp.startsWith("192.168.")) {
-    return "US"; // Default for local / dev calls
+    return "US";
   }
 
-  // 3. Fallback to Geo-IP REST API lookup
   try {
     const res = await fetch(`https://ipapi.co/${clientIp}/country/`, {
       headers: { "User-Agent": "KeepSIMs-Geo/1.0" },
@@ -87,7 +83,7 @@ serve(async (req: Request) => {
     if (!authHeader) {
       return new Response(JSON.stringify({ error: "Missing authorization header" }), {
         status: 401,
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
       });
     }
 
@@ -98,8 +94,31 @@ serve(async (req: Request) => {
     if (userError || !user) {
       return new Response(JSON.stringify({ error: "Not authenticated" }), {
         status: 401,
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
       });
+    }
+
+    // D2 Rate Limiter (detect_country bucket: 12/60min)
+    const { data: limitData, error: limitErr } = await supabase.rpc("consume_rate_limit", {
+      p_bucket: "detect_country",
+      p_key: user.id,
+      p_capacity: 12,
+      p_refill_per_minute: 12.0 / 60.0,
+    });
+
+    if (limitErr || !limitData || (Array.isArray(limitData) && limitData[0]?.allowed === false)) {
+      const retryAfter = (Array.isArray(limitData) && limitData[0]?.retry_after_seconds) ? limitData[0].retry_after_seconds : 60;
+      return new Response(
+        JSON.stringify({ code: "rate_limited", bucket: "detect_country", retry_after: retryAfter }),
+        {
+          status: 429,
+          headers: {
+            "Content-Type": "application/json",
+            "Retry-After": String(retryAfter),
+            "Access-Control-Allow-Origin": "*",
+          },
+        }
+      );
     }
 
     // Resolve country
@@ -115,14 +134,13 @@ serve(async (req: Request) => {
     if (profileError || !profile) {
       return new Response(JSON.stringify({ error: "Profile not found" }), {
         status: 404,
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
       });
     }
 
     const lastCountry = profile.last_country ? profile.last_country.toUpperCase() : null;
     const homeCountry = profile.home_country_code ? profile.home_country_code.toUpperCase() : "US";
 
-    // 1. Same country check
     if (lastCountry === detectedCountry) {
       return new Response(JSON.stringify({
         status: "noop",
@@ -131,11 +149,10 @@ serve(async (req: Request) => {
         reason: "same_country",
       }), {
         status: 200,
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
       });
     }
 
-    // 2. Fetch flap guard hours from system_configs
     let flapGuardHours = 1;
     const { data: configData } = await supabase
       .from("system_configs")
@@ -150,7 +167,6 @@ serve(async (req: Request) => {
       }
     }
 
-    // 3. Flap guard time check against recent notifications
     if (lastCountry !== null) {
       const cutoff = new Date(Date.now() - flapGuardHours * 60 * 60 * 1000).toISOString();
       const { data: recentNotifications } = await supabase
@@ -169,19 +185,17 @@ serve(async (req: Request) => {
           reason: "flap_guard",
         }), {
           status: 200,
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
         });
       }
     }
 
-    // 4. Update profile.last_country
     const nowIso = new Date().toISOString();
     await supabase
       .from("profiles")
       .update({ last_country: detectedCountry, updated_at: nowIso })
       .eq("id", user.id);
 
-    // 5. Build and insert notification
     const countryName = getCountryName(detectedCountry);
     const isHome = detectedCountry === homeCountry;
 
@@ -217,12 +231,12 @@ serve(async (req: Request) => {
       notification_id: insertedNotif?.id ?? null,
     }), {
       status: 200,
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
     });
   } catch (err) {
     return new Response(JSON.stringify({ error: String(err) }), {
       status: 500,
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
     });
   }
 });

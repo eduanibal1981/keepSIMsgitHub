@@ -59,8 +59,6 @@ async function fetchWallet(userId: string): Promise<any | null> {
   return rows[0] ?? null;
 }
 
-/// Get-or-create the wallet, preserving the app's existing welcome-credit
-/// behavior ($43.20 welcome + $2.00 referral = $45.20 starting balance).
 async function ensureWallet(userId: string): Promise<any> {
   let wallet = await fetchWallet(userId);
 
@@ -76,7 +74,6 @@ async function ensureWallet(userId: string): Promise<any> {
     wallet = (await insertRes.json())[0];
   }
 
-  // Seed the welcome ledger if it is empty, matching the wallet balance.
   const txRes = await fetch(
     `${SUPABASE_URL}/rest/v1/wallet_transactions?user_id=eq.${userId}&select=id&limit=1`,
     { headers: serviceHeaders },
@@ -132,12 +129,32 @@ serve(async (req) => {
       return jsonResponse({ success: true, wallet }, 200);
     }
 
-    // 'deposit' was removed in B3: the client chose its own credit amount,
-    // which is indistinguishable from minting money. Deposits are credited
-    // exclusively by the paypal-webhook function after PayPal confirms a
-    // capture.
     if (action !== 'deduct') {
       return jsonResponse({ success: false, errorMessage: `Unknown action: ${action}` }, 400);
+    }
+
+    // D2 Rate limit check (wallet_deduct bucket: 20/60min per user)
+    const limitRes = await rpc('consume_rate_limit', {
+      p_bucket: 'wallet_deduct',
+      p_key: userId,
+      p_capacity: 20,
+      p_refill_per_minute: 20.0 / 60.0,
+    });
+    if (limitRes.ok && Array.isArray(limitRes.body) && limitRes.body[0]?.allowed === false) {
+      const retryAfter = limitRes.body[0]?.retry_after_seconds ?? 60;
+      return new Response(
+        JSON.stringify({
+          success: false,
+          code: 'rate_limited',
+          bucket: 'wallet_deduct',
+          retry_after: retryAfter,
+          errorMessage: `RATE_LIMITED:wallet_deduct:${retryAfter}`,
+        }),
+        {
+          status: 429,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Retry-After': String(retryAfter) },
+        },
+      );
     }
 
     const value = Number(amount);

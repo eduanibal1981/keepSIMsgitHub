@@ -2053,4 +2053,9 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String get archivedEsims => 'आर्काइभ गरिएका eSIM हरू';
+
+  @override
+  String rateLimitExceeded(String seconds) {
+    return 'धेरै अनुरोधहरू। कृपया पुनः प्रयास गर्नु अघि $seconds सेकेन्ड पर्खनुहोस्।';
+  }
 }

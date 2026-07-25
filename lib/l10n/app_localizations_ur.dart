@@ -2050,4 +2050,9 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get archivedEsims => 'محفوظ شدہ eSIMs';
+
+  @override
+  String rateLimitExceeded(String seconds) {
+    return 'بہت سی درخواستیں۔ دوبارہ کوشش کرنے سے پہلے براہ کرم $seconds سیکنڈ انتظار کریں۔';
+  }
 }

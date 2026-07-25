@@ -3729,6 +3729,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Archived eSIMs'**
   String get archivedEsims;
+
+  /// Error message when rate limit is exceeded
+  ///
+  /// In en, this message translates to:
+  /// **'Too many requests. Please wait {seconds} seconds before trying again.'**
+  String rateLimitExceeded(String seconds);
 }
 
 class _AppLocalizationsDelegate

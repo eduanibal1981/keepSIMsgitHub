@@ -819,5 +819,6 @@
     "showQrCode": "QR কোড দেখান",
     "buyAgain": "পুনরায় কিনুন",
     "dataRemaining": "অবশিষ্ট ডেটা",
-    "archivedEsims": "আর্কাইভ করা eSIMসমূহ"
+    "archivedEsims": "আর্কাইভ করা eSIMসমূহ",
+    "rateLimitExceeded": "অনেকগুলি অনুরোধ। আবার চেষ্টা করার আগে অনুগ্রহ করে {seconds} সেকেন্ড অপেক্ষা করুন।"
 }

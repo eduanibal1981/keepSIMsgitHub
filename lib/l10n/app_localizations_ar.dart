@@ -2030,4 +2030,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get archivedEsims => 'الشرائح المؤرشفة';
+
+  @override
+  String rateLimitExceeded(String seconds) {
+    return 'طلبات كثيرة جداً. يرجى الانتظار $seconds ثانية قبل المحاولة مرة أخرى.';
+  }
 }

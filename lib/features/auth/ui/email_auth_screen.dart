@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -5,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/core/utils/build_context_extension.dart';
+import 'package:keep_sims/core/utils/error_formatter.dart';
 import 'package:keep_sims/core/router/app_router.dart';
 import '../controller/auth_controller.dart';
 
@@ -24,12 +26,39 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
   bool _isSignUp = false;
   bool _signUpSuccess = false;
 
+  Timer? _resendTimer;
+  int _resendCooldown = 0;
+
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
     _otpController.dispose();
+    _resendTimer?.cancel();
     super.dispose();
+  }
+
+  void _startResendCooldown([int seconds = 60]) {
+    setState(() {
+      _resendCooldown = seconds;
+    });
+    _resendTimer?.cancel();
+    _resendTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_resendCooldown <= 1) {
+        timer.cancel();
+        if (mounted) {
+          setState(() {
+            _resendCooldown = 0;
+          });
+        }
+      } else {
+        if (mounted) {
+          setState(() {
+            _resendCooldown--;
+          });
+        }
+      }
+    });
   }
 
   void _submit() {
@@ -65,12 +94,13 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
     final authState = ref.watch(authControllerProvider);
     final isDark = context.isDarkMode;
 
-    // Listen for errors and show snackbar
+    // Listen for errors and show snackbar using RateLimitErrorFormatter
     ref.listen(authControllerProvider, (prev, next) {
       if (next.hasError && !next.isLoading) {
+        final formatted = RateLimitErrorFormatter.format(next.error, context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(next.error.toString()),
+            content: Text(formatted),
             backgroundColor: AppColors.error,
           ),
         );
@@ -225,26 +255,29 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                           ),
                           const SizedBox(height: 16),
                           TextButton(
-                            onPressed: authState.isLoading
+                            onPressed: (authState.isLoading || _resendCooldown > 0)
                                 ? null
                                 : () {
+                                    _startResendCooldown(60);
                                     ref
                                         .read(authControllerProvider.notifier)
                                         .resendConfirmationEmail(
                                           _emailController.text.trim(),
                                         )
                                         .then((_) {
-                                          ScaffoldMessenger.of(
-                                            context,
-                                          ).showSnackBar(
-                                            const SnackBar(
-                                              content: Text(
-                                                'Verification email resent!',
+                                          if (mounted) {
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
+                                              const SnackBar(
+                                                content: Text(
+                                                  'Verification email resent!',
+                                                ),
+                                                backgroundColor:
+                                                    AppColors.success,
                                               ),
-                                              backgroundColor:
-                                                  AppColors.success,
-                                            ),
-                                          );
+                                            );
+                                          }
                                         });
                                   },
                             child: authState.isLoading
@@ -256,9 +289,13 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                                     ),
                                   )
                                 : Text(
-                                    'Resend Email',
+                                    _resendCooldown > 0
+                                        ? 'Resend in ${_resendCooldown}s'
+                                        : 'Resend Email',
                                     style: AppTextStyles.bodyLarge.copyWith(
-                                      color: AppColors.primary,
+                                      color: _resendCooldown > 0
+                                          ? AppColors.textSecondary
+                                          : AppColors.primary,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),

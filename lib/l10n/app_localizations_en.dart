@@ -2040,4 +2040,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get archivedEsims => 'Archived eSIMs';
+
+  @override
+  String rateLimitExceeded(String seconds) {
+    return 'Too many requests. Please wait $seconds seconds before trying again.';
+  }
 }

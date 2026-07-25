@@ -819,5 +819,6 @@
     "showQrCode": "کیو آر کوڈ دکھائیں",
     "buyAgain": "دوبارہ خریدیں",
     "dataRemaining": "بقیہ ڈیٹا",
-    "archivedEsims": "محفوظ شدہ eSIMs"
+    "archivedEsims": "محفوظ شدہ eSIMs",
+    "rateLimitExceeded": "بہت سی درخواستیں۔ دوبارہ کوشش کرنے سے پہلے براہ کرم {seconds} سیکنڈ انتظار کریں۔"
 }

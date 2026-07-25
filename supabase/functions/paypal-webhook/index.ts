@@ -9,11 +9,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 // /v1/notifications/verify-webhook-signature API using the transmission
 // headers, our webhook id, and the exact raw body. Anything that fails
 // verification is rejected with 400.
-//
-// Required function secrets:
-//   PAYPAL_CLIENT_ID / PAYPAL_CLIENT_SECRET  — REST app credentials
-//   PAYPAL_WEBHOOK_ID                        — id of this webhook registration
-//   PAYPAL_API_BASE                          — optional, defaults to sandbox
+// D2 IP Rate Limiter applied (60/1min per IP).
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -98,9 +94,6 @@ async function rpc(name: string, args: Record<string, unknown>): Promise<{ ok: b
   return { ok: res.ok, status: res.status, body };
 }
 
-// custom_id set at order creation: either the bare user uuid, or JSON
-// {"u": "<uuid>", "k": "<kind>", "l": "<sim_line_id>"} for future flows (direct-pay refill,
-// subscriptions).
 function parseCustomId(customId: string | undefined): { userId: string | null; kind: string; simLineId: string | null } {
   if (!customId) return { userId: null, kind: 'deposit', simLineId: null };
   try {
@@ -149,9 +142,6 @@ async function handleCaptureCompleted(event: any): Promise<Response> {
     return json({ received: true, credited: false, reason: 'no_custom_id' }, 200);
   }
 
-  // Plan charges (kind 'plan') are payments TO KeepSIMs, not wallet deposits.
-  // Before C3c every plan charge was tagged 'deposit', so the webhook credited
-  // the full charge back into the payer's wallet — paid plans were free.
   if (kind === 'plan') {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/plan_payments`, {
       method: 'POST',
@@ -184,14 +174,11 @@ async function handleCaptureCompleted(event: any): Promise<Response> {
       return json({ received: true, recorded: false, reason: 'already_recorded' }, 200);
     }
 
-    // Transient — 500 so PayPal retries rather than losing the record.
     console.error(`plan_payments insert failed for ${captureId}: ${body}`);
     return json({ received: true, recorded: false, error: body }, 500);
   }
 
   if (kind !== 'deposit') {
-    // Future flows (direct-pay refill) route here later; alert so nothing
-    // silently disappears until they are built.
     await systemAlert('paypal_unhandled_kind',
       `PayPal capture ${captureId} carries kind '${kind}', which has no handler yet. Not credited.`,
       { capture_id: captureId, order_id: orderId ?? null, kind, user_id: userId, gross });
@@ -228,7 +215,6 @@ async function handleCaptureCompleted(event: any): Promise<Response> {
     return json({ received: true, credited: false, reason: 'already_credited' }, 200);
   }
 
-  // 'Wallet not found' is permanent — alert and ack so PayPal stops retrying.
   if (message.includes('Wallet not found')) {
     await systemAlert('paypal_wallet_missing',
       `PayPal capture ${captureId} ($${gross}) for user ${userId} but no wallet exists.`,
@@ -236,7 +222,6 @@ async function handleCaptureCompleted(event: any): Promise<Response> {
     return json({ received: true, credited: false, reason: 'wallet_missing' }, 200);
   }
 
-  // Transient (DB down etc.) — 500 so PayPal retries the delivery.
   console.error(`credit_wallet_for_deposit failed for ${captureId}: ${message}`);
   return json({ received: true, credited: false, error: message }, 500);
 }
@@ -263,6 +248,27 @@ serve(async (req) => {
   }
 
   try {
+    // D2 IP rate limiter (webhook_ip bucket: 60/1min per client IP)
+    const xForwardedFor = req.headers.get("x-forwarded-for");
+    const clientIp = xForwardedFor ? xForwardedFor.split(",")[0].trim() : req.headers.get("x-real-ip") || "unknown_ip";
+
+    const limitRes = await rpc('consume_rate_limit', {
+      p_bucket: 'webhook_ip',
+      p_key: clientIp,
+      p_capacity: 60,
+      p_refill_per_minute: 60.0,
+    });
+    if (limitRes.ok && Array.isArray(limitRes.body) && limitRes.body[0]?.allowed === false) {
+      const retryAfter = limitRes.body[0]?.retry_after_seconds ?? 60;
+      return new Response(
+        JSON.stringify({ code: "rate_limited", bucket: "webhook_ip", retry_after: retryAfter }),
+        {
+          status: 429,
+          headers: { "Content-Type": "application/json", "Retry-After": String(retryAfter) },
+        }
+      );
+    }
+
     if (!PAYPAL_CLIENT_ID || !PAYPAL_CLIENT_SECRET || !PAYPAL_WEBHOOK_ID) {
       console.error('paypal-webhook secrets not configured (PAYPAL_CLIENT_ID/SECRET/WEBHOOK_ID)');
       return json({ error: 'webhook not configured' }, 500);
@@ -293,7 +299,6 @@ serve(async (req) => {
       return await handleFailureEvent(event);
     }
 
-    // All other events (webhook is registered for "All Events"): acknowledge.
     return json({ received: true, ignored: type }, 200);
   } catch (error: any) {
     console.error('paypal-webhook error:', error);

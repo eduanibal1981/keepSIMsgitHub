@@ -961,5 +961,14 @@
     "showQrCode": "Show QR Code",
     "buyAgain": "Buy Again",
     "dataRemaining": "Data Remaining",
-    "archivedEsims": "Archived eSIMs"
+    "archivedEsims": "Archived eSIMs",
+    "rateLimitExceeded": "Too many requests. Please wait {seconds} seconds before trying again.",
+    "@rateLimitExceeded": {
+        "description": "Error message when rate limit is exceeded",
+        "placeholders": {
+            "seconds": {
+                "type": "String"
+            }
+        }
+    }
 }

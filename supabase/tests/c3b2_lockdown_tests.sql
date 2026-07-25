@@ -295,6 +295,7 @@ declare
   v_moved integer;
 begin
   select id into v_line from sim_lines where user_id = auth.uid() limit 1;
+  delete from scheduled_topups where sim_line_id = v_line;
   insert into scheduled_topups
     (sim_line_id, user_id, amount, currency, frequency_days, next_execution_at,
      is_active, status, schedule_type)
@@ -401,6 +402,7 @@ begin
   select cr.* into v_rule from sim_lines sl
   join carrier_rules cr on cr.id = sl.carrier_rule_id where sl.id = v_line;
 
+  delete from scheduled_topups where sim_line_id = v_line and schedule_type = 'refill_mini';
   insert into scheduled_topups
     (sim_line_id, user_id, amount, currency, frequency_days, next_execution_at,
      is_active, status, schedule_type)
