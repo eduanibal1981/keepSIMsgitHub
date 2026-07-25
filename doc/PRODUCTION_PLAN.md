@@ -1069,7 +1069,7 @@ Big session — acceptable to split UI (1–3) and server webhooks (4) into two.
   - `test/features/security/payment_auth_guard_test.dart`: 5 unit tests (success, unavailable, cancelled, locked-out, 60s grace window).
   - `test/features/security/biometric_lock_overlay_test.dart`: Widget tests for lock-disabled and lock-enabled flows.
 - **Verification:**
-  - `flutter analyze`: 0 errors (184 infos, pre-existing baseline).
+  - `flutter analyze`: 0 errors (162 issues: 29 warnings + 133 infos — re-measured 2026-07-25; an earlier draft of this record said "184 infos", which was wrong. **162 is the baseline D2 inherits.**)
   - `flutter test`: **62/62 all tests passed** (including 12 new biometric tests).
   - `flutter build apk --debug`: Compiled successfully.
   - Wallet balance for `a1-wallet-test@example.com` verified intact at **$35.86** (unchanged from C9b baseline).
