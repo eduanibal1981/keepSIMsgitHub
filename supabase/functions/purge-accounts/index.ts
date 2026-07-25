@@ -70,55 +70,63 @@ serve(async (req) => {
       }
     }
 
-    // 2. Delete user_preferences (no FK, must delete manually)
-    await adminClient.from("user_preferences").delete().eq("user_id", userId);
+    // 2. Auth User Admin Deletion
+    // Primary method: standard Supabase Auth Admin API
+    const { error: deleteError } = await adminClient.auth.admin.deleteUser(userId);
+    let authDeleted = false;
 
-    // 3. Delete auth user via direct SQL (bypasses GoTrue "Database error loading user" bug)
-    // The service_role key allows SQL execution via the rpc endpoint.
-    const { error: deleteError } = await adminClient.rpc("delete_auth_user_by_id", {
-      p_user_id: userId,
-    });
+    if (!deleteError) {
+      authDeleted = true;
+    } else {
+      const status = (deleteError as any).status;
+      const msg = deleteError.message || "";
 
-    if (deleteError) {
-      console.error("delete_auth_user_by_id failed:", deleteError);
-      // Fall back to Auth Admin REST API
-      const deleteRes = await fetch(`${supabaseUrl}/auth/v1/admin/users/${userId}`, {
-        method: "DELETE",
-        headers: {
-          "apikey": supabaseServiceKey,
-          "Authorization": `Bearer ${supabaseServiceKey}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!deleteRes.ok && deleteRes.status !== 404) {
-        const errText = await deleteRes.text();
-        console.error("Auth admin REST fallback failed:", errText);
-        // Still mark as auth_deleted if user doesn't exist anymore
-        const { data: userCheck } = await adminClient.rpc("check_auth_user_exists", {
+      if (status === 404 || msg.includes("User not found")) {
+        authDeleted = true; // Idempotent success
+      } else {
+        console.warn("auth.admin.deleteUser failed, attempting guarded SQL RPC fallback:", deleteError);
+        // Fallback method: guarded SQL RPC (bypasses GoTrue 500 error on synthetic test users)
+        const { error: rpcError } = await adminClient.rpc("delete_auth_user_by_id", {
           p_user_id: userId,
         });
-        if (userCheck === true) {
-          return new Response(
-            JSON.stringify({ success: false, error: `Auth deletion failed: ${errText}` }),
-            { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-          );
+
+        if (!rpcError) {
+          authDeleted = true;
+        } else {
+          console.error("delete_auth_user_by_id fallback failed:", rpcError);
+          // Check if user still exists in auth.users
+          const { data: userExists } = await adminClient.rpc("check_auth_user_exists", {
+            p_user_id: userId,
+          });
+          if (userExists === false) {
+            authDeleted = true;
+          } else {
+            return new Response(
+              JSON.stringify({
+                success: false,
+                error: `Auth deletion failed: ${deleteError.message || rpcError.message}`,
+              }),
+              { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+            );
+          }
         }
       }
     }
 
-    // 4. Mark account_deletions row as auth_deleted
-    const { error: updateErr } = await adminClient
-      .from("account_deletions")
-      .update({
-        status: "auth_deleted",
-        auth_deleted_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      })
-      .eq("user_id", userId);
+    // 3. Mark account_deletions row as auth_deleted
+    if (authDeleted) {
+      const { error: updateErr } = await adminClient
+        .from("account_deletions")
+        .update({
+          status: "auth_deleted",
+          auth_deleted_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+        .eq("user_id", userId);
 
-    if (updateErr) {
-      console.error("Failed to update account_deletions:", updateErr);
+      if (updateErr) {
+        console.error("Failed to update account_deletions status to auth_deleted:", updateErr);
+      }
     }
 
     return new Response(
