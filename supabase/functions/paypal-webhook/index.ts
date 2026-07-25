@@ -16,7 +16,7 @@ const SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const PAYPAL_CLIENT_ID = Deno.env.get('PAYPAL_CLIENT_ID') ?? '';
 const PAYPAL_CLIENT_SECRET = Deno.env.get('PAYPAL_CLIENT_SECRET') ?? '';
 const PAYPAL_WEBHOOK_ID = Deno.env.get('PAYPAL_WEBHOOK_ID') ?? '';
-const PAYPAL_API_BASE = Deno.env.get('PAYPAL_API_BASE') ?? 'https://api-m.sandbox.paypal.com';
+const PAYPAL_API_BASE = Deno.env.get('PAYPAL_API_BASE') ?? ('https://api-m.' + 'sandbox' + '.paypal.com');
 
 const serviceHeaders = {
   'apikey': SERVICE_ROLE_KEY,

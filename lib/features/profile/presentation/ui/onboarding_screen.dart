@@ -18,7 +18,7 @@ import 'package:keep_sims/features/notifications/presentation/controllers/notifi
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
-import 'package:keep_sims/features/settings/presentation/screens/paypal_refill_simulator_screen.dart';
+import 'package:keep_sims/features/payments/presentation/screens/paypal_checkout_screen.dart';
 import 'package:keep_sims/core/services/biometric_auth_service.dart';
 import 'package:keep_sims/features/sim_lines/data/repositories/sim_lines_repository_impl.dart';
 import 'package:keep_sims/features/sim_lines/data/models/country_model.dart';

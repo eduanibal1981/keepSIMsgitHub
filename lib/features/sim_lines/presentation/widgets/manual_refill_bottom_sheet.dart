@@ -8,7 +8,7 @@ import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_
 import 'package:keep_sims/features/wallet/controller/wallet_controller.dart';
 import 'package:go_router/go_router.dart';
 import 'package:keep_sims/core/router/app_router.dart';
-import 'package:keep_sims/features/settings/presentation/screens/paypal_refill_simulator_screen.dart';
+import 'package:keep_sims/features/payments/presentation/screens/paypal_checkout_screen.dart';
 import 'package:keep_sims/features/sim_lines/presentation/providers/api_offers_providers.dart';
 import 'package:keep_sims/core/providers/app_config_provider.dart';
 import 'package:keep_sims/features/sim_lines/domain/refill_pricing.dart';

@@ -7,7 +7,6 @@ import 'package:keep_sims/features/notifications/presentation/controllers/notifi
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
 import 'package:keep_sims/whatsapp_service.dart';
-import 'package:keep_sims/features/settings/presentation/screens/paypal_simulator_screen.dart';
 
 class AlertSimulatorScreen extends ConsumerStatefulWidget {
   const AlertSimulatorScreen({super.key});
@@ -61,37 +60,6 @@ class _AlertSimulatorScreenState extends ConsumerState<AlertSimulatorScreen> {
             fontSize: 24,
           ),
         ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            child: TextButton.icon(
-              style: TextButton.styleFrom(
-                backgroundColor: const Color(0xFF003087).withValues(alpha: 0.08),
-                foregroundColor: const Color(0xFF0070BA),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  side: const BorderSide(color: Color(0xFF0070BA), width: 1),
-                ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-              ),
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => const PaypalSimulatorScreen(),
-                  ),
-                );
-              },
-              icon: const Icon(Icons.payment_rounded, size: 16),
-              label: const Text(
-                'PayPal Test',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-              ),
-            ),
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),

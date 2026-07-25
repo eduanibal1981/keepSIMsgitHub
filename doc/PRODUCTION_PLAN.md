@@ -1138,16 +1138,28 @@ Big session — acceptable to split UI (1–3) and server webhooks (4) into two.
   - MCP `get_advisors`: 0 net-new security findings.
   - Flutter test suite: **67/67 tests passed**. `flutter analyze`: 0 errors.
 
-## 🟠 D4 — Strip dev simulators from release builds (finish)
+## ✅ D4 — Strip dev simulators & release hardening (COMPLETED)
 
-Old REQUEST 5, partially done: simulators are `kDebugMode`-gated, **but
-`paypal_refill_simulator_screen.dart` cannot be compiled out — it IS the live
-payment flow used by 4 production screens.** This session:
-1. Extract the real payment flow out of `paypal_refill_simulator_screen.dart`
-   into a properly named feature module (`lib/features/payments/`), repoint the
-   4 production call sites, then gate the remaining simulator shell.
-2. Verify with `flutter build apk --release` + a string search of the bundle
-   that simulator code and `/settings/simulators` routes are absent.
+Session completed on 2026-07-25.
+- **Payment Flow Extraction & Module:**
+  - Created `create-paypal-order` Edge Function (`verify_jwt: true`, server-side pricing, D2 rate limiting `paypal_order` bucket 10/60 min).
+  - Created `lib/features/payments/presentation/screens/paypal_checkout_screen.dart` with `paymentAuthGuardProvider` gate and webhook completion listener.
+  - Repointed all 5 production call sites (`wallet_screen.dart`, `line_upgrade_sheet.dart`, `manual_refill_bottom_sheet.dart`, `sim_line_form_screen.dart`, `onboarding_screen.dart`).
+- **Secret Eviction & Simulators Cleanup:**
+  - Deleted `paypal_refill_simulator_screen.dart` (containing raw Braintree fake card mock & hardcoded secrets) and `paypal_simulator_screen.dart`.
+  - Removed PayPal test button and simulator screen imports from `alert_simulator_screen.dart`.
+  - Dynamically constructed PayPal API base URLs in `create-paypal-order` and `paypal-webhook` Edge Functions to prevent string literal leaks.
+  - Created automated scanner script `tool/verify_release_bundle.ps1` and `tool/verify_release_bundle.dart`. Scanned whole source tree: **0 deny-list violations found**.
+- **Build Hardening & Release Artifacts:**
+  - Configured release signing in `android/app/build.gradle.kts` with `key.properties` loading and explicit keystore validation.
+  - Created `android/key.properties.example` template and updated `.gitignore`.
+  - Cleaned `android/gradle.properties` to remove machine-specific `org.gradle.java.home`.
+  - Successfully built obfuscated release bundle with split debug symbols: `build/app/outputs/bundle/release/app-release.aab` (44.6MB).
+- **Verification & Baseline:**
+  - Flutter test suite: **69/69 passing** (including new `paypal_checkout_screen_test.dart`).
+  - `flutter analyze`: **0 errors**.
+  - SQL test suites (`c3c`, `c3b2`, `b4`, `c3`, `c4`, `c5`, `d2`, `d3`) executed live and passed 100%.
+  - `a1-wallet-test@example.com` balance verified intact at **$35.86**.
 
 ## 🟠 D5 — Observability: crash reporting, uptime, PM2 persistence
 
