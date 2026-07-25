@@ -14,7 +14,9 @@ serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const adminClient = createClient(supabaseUrl, supabaseServiceKey);
+    const adminClient = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
 
     // Verify Vault secret header
     const incomingSecret = req.headers.get("x-keep-sims-secret");
@@ -60,7 +62,7 @@ serve(async (req) => {
       try {
         const { data: files } = await adminClient.storage.from(bucketName).list(userId);
         if (files && files.length > 0) {
-          const filePaths = files.map((f) => `${userId}/${f.name}`);
+          const filePaths = files.map((f: any) => `${userId}/${f.name}`);
           await adminClient.storage.from(bucketName).remove(filePaths);
         }
       } catch (_) {
@@ -68,17 +70,45 @@ serve(async (req) => {
       }
     }
 
-    // 2. Auth User Admin Deletion
-    const { error: deleteError } = await adminClient.auth.admin.deleteUser(userId);
+    // 2. Delete user_preferences (no FK, must delete manually)
+    await adminClient.from("user_preferences").delete().eq("user_id", userId);
+
+    // 3. Delete auth user via direct SQL (bypasses GoTrue "Database error loading user" bug)
+    // The service_role key allows SQL execution via the rpc endpoint.
+    const { error: deleteError } = await adminClient.rpc("delete_auth_user_by_id", {
+      p_user_id: userId,
+    });
+
     if (deleteError) {
-      return new Response(
-        JSON.stringify({ success: false, error: deleteError.message }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      console.error("delete_auth_user_by_id failed:", deleteError);
+      // Fall back to Auth Admin REST API
+      const deleteRes = await fetch(`${supabaseUrl}/auth/v1/admin/users/${userId}`, {
+        method: "DELETE",
+        headers: {
+          "apikey": supabaseServiceKey,
+          "Authorization": `Bearer ${supabaseServiceKey}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!deleteRes.ok && deleteRes.status !== 404) {
+        const errText = await deleteRes.text();
+        console.error("Auth admin REST fallback failed:", errText);
+        // Still mark as auth_deleted if user doesn't exist anymore
+        const { data: userCheck } = await adminClient.rpc("check_auth_user_exists", {
+          p_user_id: userId,
+        });
+        if (userCheck === true) {
+          return new Response(
+            JSON.stringify({ success: false, error: `Auth deletion failed: ${errText}` }),
+            { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+      }
     }
 
-    // 3. Mark account_deletions row as auth_deleted
-    await adminClient
+    // 4. Mark account_deletions row as auth_deleted
+    const { error: updateErr } = await adminClient
       .from("account_deletions")
       .update({
         status: "auth_deleted",
@@ -86,6 +116,10 @@ serve(async (req) => {
         updated_at: new Date().toISOString(),
       })
       .eq("user_id", userId);
+
+    if (updateErr) {
+      console.error("Failed to update account_deletions:", updateErr);
+    }
 
     return new Response(
       JSON.stringify({ success: true, user_id: userId, status: "auth_deleted" }),
