@@ -294,7 +294,9 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                                         : 'Resend Email',
                                     style: AppTextStyles.bodyLarge.copyWith(
                                       color: _resendCooldown > 0
-                                          ? AppColors.textSecondary
+                                          ? (isDark
+                                              ? AppColors.textSecondaryDark
+                                              : AppColors.textSecondaryLight)
                                           : AppColors.primary,
                                       fontWeight: FontWeight.bold,
                                     ),
