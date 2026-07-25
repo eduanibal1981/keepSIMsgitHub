@@ -70,7 +70,7 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen> {
 
   Future<void> _initiateCheckout() async {
     // 1. Biometric / Passcode Auth Guard Gate
-    final authResult = await ref.read(paymentAuthGuardProvider).authenticate(
+    final authResult = await ref.read(paymentAuthGuardProvider).confirmPayment(
       reason: 'Authorize PayPal payment',
     );
     if (authResult == BiometricResult.cancelled || authResult == BiometricResult.failed) {
