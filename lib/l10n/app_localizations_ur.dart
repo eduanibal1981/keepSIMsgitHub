@@ -2074,4 +2074,37 @@ class AppLocalizationsUr extends AppLocalizations {
   String walletBalanceBlockedNotice(String balance) {
     return 'آپ کا والٹ بیلنس (\$$balance) حد (\$1.00) سے زیادہ ہے۔ برائے مہربانی اسے خرچ کریں یا سپورٹ سے رابطہ کریں۔';
   }
+
+  @override
+  String get payPalCheckoutTitle => 'PayPal چیک آؤٹ';
+
+  @override
+  String get payPalWalletTopUp => 'KeepSIMs والٹ ٹاپ اپ';
+
+  @override
+  String get payPalPaySecurely => 'PayPal کے ساتھ محفوظ ادائیگی کریں';
+
+  @override
+  String get payPalRedirectInfo =>
+      'ادائیگی کی توثیق کے لیے آپ کو PayPal پر بھیجا جائے گا۔';
+
+  @override
+  String get payPalCreatingOrder => 'محفوظ PayPal آرڈر بنایا جا رہا ہے...';
+
+  @override
+  String get payPalAwaitingConfirmation => 'PayPal کی تصدیق کا انتظار ہے...';
+
+  @override
+  String get payPalCompleteInBrowser =>
+      'براہ کرم کھلی ہوئی براؤزر ونڈو میں ادائیگی مکمل کریں۔';
+
+  @override
+  String get payPalPaymentConfirmed => 'ادائیگی کی تصدیق ہو گئی!';
+
+  @override
+  String get payPalPaymentFailed => 'ادائیگی ناکام ہو گئی یا منسوخ کر دی گئی۔';
+
+  @override
+  String get payPalForceCaptureButton =>
+      'میں نے PayPal پر ادائیگی مکمل کر لی ہے';
 }

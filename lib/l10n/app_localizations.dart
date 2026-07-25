@@ -3765,6 +3765,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your wallet balance (\${balance}) exceeds dust limit (\$1.00). Please spend it or contact support for payout.'**
   String walletBalanceBlockedNotice(String balance);
+
+  /// No description provided for @payPalCheckoutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'PayPal Checkout'**
+  String get payPalCheckoutTitle;
+
+  /// No description provided for @payPalWalletTopUp.
+  ///
+  /// In en, this message translates to:
+  /// **'KeepSIMs Wallet Top-up'**
+  String get payPalWalletTopUp;
+
+  /// No description provided for @payPalPaySecurely.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay Securely with PayPal'**
+  String get payPalPaySecurely;
+
+  /// No description provided for @payPalRedirectInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'You will be redirected to PayPal to authorize your payment.'**
+  String get payPalRedirectInfo;
+
+  /// No description provided for @payPalCreatingOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Creating secure PayPal order...'**
+  String get payPalCreatingOrder;
+
+  /// No description provided for @payPalAwaitingConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Awaiting PayPal Confirmation...'**
+  String get payPalAwaitingConfirmation;
+
+  /// No description provided for @payPalCompleteInBrowser.
+  ///
+  /// In en, this message translates to:
+  /// **'Please complete payment in the opened browser window.'**
+  String get payPalCompleteInBrowser;
+
+  /// No description provided for @payPalPaymentConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment Confirmed!'**
+  String get payPalPaymentConfirmed;
+
+  /// No description provided for @payPalPaymentFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment failed or was cancelled.'**
+  String get payPalPaymentFailed;
+
+  /// No description provided for @payPalForceCaptureButton.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'ve Completed Payment on PayPal'**
+  String get payPalForceCaptureButton;
 }
 
 class _AppLocalizationsDelegate

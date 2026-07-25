@@ -2077,4 +2077,36 @@ class AppLocalizationsSi extends AppLocalizations {
   String walletBalanceBlockedNotice(String balance) {
     return 'ඔබගේ මුදල් පසුම්බි ශේෂය (\$$balance) සීමාව (\$1.00) ඉක්මවයි. කරුණාකර එය වියදම් කරන්න හෝ සහාය අමතන්න.';
   }
+
+  @override
+  String get payPalCheckoutTitle => 'PayPal ගෙවීම';
+
+  @override
+  String get payPalWalletTopUp => 'KeepSIMs පසුම්බිය නැවත පිරවීම';
+
+  @override
+  String get payPalPaySecurely => 'PayPal හරහා ආරක්ෂිතව ගෙවන්න';
+
+  @override
+  String get payPalRedirectInfo =>
+      'ඔබගේ ගෙවීම අනුමත කිරීමට ඔබව PayPal වෙත යොමු කරනු ඇත.';
+
+  @override
+  String get payPalCreatingOrder => 'ආරක්ෂිත PayPal ඇණවුමක් සාදමින්...';
+
+  @override
+  String get payPalAwaitingConfirmation => 'PayPal තහවුරු කිරීම අපේක්ෂාවෙන්...';
+
+  @override
+  String get payPalCompleteInBrowser =>
+      'කරුණාකර විවෘත කළ බ්‍රවුසර් කවුළුවෙහි ගෙවීම සම්පූර්ණ කරන්න.';
+
+  @override
+  String get payPalPaymentConfirmed => 'ගෙවීම තහවුරු විය!';
+
+  @override
+  String get payPalPaymentFailed => 'ගෙවීම අසාර්ථක විය හෝ අවලංගු විය.';
+
+  @override
+  String get payPalForceCaptureButton => 'මම PayPal හි ගෙවීම සම්පූර්ණ කළෙමි';
 }

@@ -15,7 +15,7 @@ enum PayPalCheckoutStatus {
   idle,
   creatingOrder,
   awaitingApproval,
-  awaitingWebhook,
+  capturing,
   success,
   failed,
 }
@@ -24,8 +24,8 @@ class PayPalCheckoutScreen extends ConsumerStatefulWidget {
   final double? initialAmount;
   final String? paymentReason;
   final VoidCallback? onSuccess;
-  final bool depositToWallet;
   final String paymentKind;
+  final String? plan;
   final String? simLineId;
 
   const PayPalCheckoutScreen({
@@ -33,8 +33,8 @@ class PayPalCheckoutScreen extends ConsumerStatefulWidget {
     this.initialAmount,
     this.paymentReason,
     this.onSuccess,
-    this.depositToWallet = true,
     this.paymentKind = 'deposit',
+    this.plan,
     this.simLineId,
   });
 
@@ -42,42 +42,65 @@ class PayPalCheckoutScreen extends ConsumerStatefulWidget {
   ConsumerState<PayPalCheckoutScreen> createState() => _PayPalCheckoutScreenState();
 }
 
-// Alias for backwards compatibility across call sites
-typedef PaypalRefillSimulatorScreen = PayPalCheckoutScreen;
-
 class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen> {
   final TextEditingController _amountController = TextEditingController(text: '10.00');
+  double _selectedDepositAmount = 10.00;
   PayPalCheckoutStatus _status = PayPalCheckoutStatus.idle;
   String? _orderId;
   String? _approveUrl;
   String? _errorMessage;
-  Timer? _pollingTimer;
   double _initialWalletBalance = 0.0;
+  RealtimeChannel? _realtimeChannel;
+  bool _isCapturingManually = false;
+
+  static const List<double> _presetAmounts = [10.0, 20.0, 50.0, 100.0];
 
   @override
   void initState() {
     super.initState();
     final amt = widget.initialAmount ?? 10.0;
-    _amountController.text = amt.toStringAsFixed(2);
+    _selectedDepositAmount = amt < 1.00 ? 1.00 : amt;
+    _amountController.text = _selectedDepositAmount.toStringAsFixed(2);
   }
 
   @override
   void dispose() {
-    _pollingTimer?.cancel();
+    _realtimeChannel?.unsubscribe();
     _amountController.dispose();
     super.dispose();
   }
 
+  void _onAmountSelected(double amount) {
+    HapticHelper.lightTick();
+    setState(() {
+      _selectedDepositAmount = amount;
+      _amountController.text = amount.toStringAsFixed(2);
+    });
+  }
+
   Future<void> _initiateCheckout() async {
-    // 1. Biometric / Passcode Auth Guard Gate
+    // 1. Biometric / Passcode Auth Guard Gate (Defect #7 fix)
     final authResult = await ref.read(paymentAuthGuardProvider).confirmPayment(
       reason: 'Authorize PayPal payment',
     );
-    if (authResult == BiometricResult.cancelled || authResult == BiometricResult.failed) {
+
+    if (authResult != BiometricResult.success) {
+      if (mounted && authResult == BiometricResult.lockedOut) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context)?.biometricLockout ??
+                  'Biometric authentication locked due to too many failed attempts.',
+            ),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      }
       return;
     }
 
-    final amt = double.tryParse(_amountController.text) ?? (widget.initialAmount ?? 10.00);
+    final rawAmt = double.tryParse(_amountController.text) ?? _selectedDepositAmount;
+    final effectiveAmt = rawAmt < 1.00 ? 1.00 : rawAmt;
 
     setState(() {
       _status = PayPalCheckoutStatus.creatingOrder;
@@ -89,12 +112,14 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen> {
       final walletState = ref.read(walletControllerProvider);
       _initialWalletBalance = walletState.value?.wallet.balance ?? 0.0;
 
+      // Create Order on Server (Server-priced for plan, floor clamped for deposit)
       final response = await supabase.functions.invoke(
         'create-paypal-order',
         body: {
           'kind': widget.paymentKind,
+          'plan': widget.plan,
           'sim_line_id': widget.simLineId,
-          'amount_usd': amt,
+          'amount_usd': effectiveAmt,
         },
       );
 
@@ -106,18 +131,21 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen> {
       }
 
       final data = response.data as Map<String, dynamic>;
-      if (data['success'] != true || data['approve_url'] == null) {
+      if (data['success'] != true || data['approval_url'] == null) {
         throw Exception(data['error'] ?? 'Failed to generate PayPal approval link');
       }
 
       _orderId = data['order_id'];
-      _approveUrl = data['approve_url'];
+      _approveUrl = data['approval_url'];
 
       setState(() {
         _status = PayPalCheckoutStatus.awaitingApproval;
       });
 
-      // 2. Launch approve URL in external browser
+      // 2. Subscribe Realtime stream on paypal_orders table for this order_id (BLOCKER 2 Realtime Stream)
+      _subscribeToOrderRealtime(_orderId!);
+
+      // 3. Launch approve URL in external browser
       final uri = Uri.parse(_approveUrl!);
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
@@ -125,75 +153,88 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen> {
         throw Exception('Could not launch PayPal approval URL.');
       }
 
-      // 3. Start polling for webhook completion
-      _startPollingForCompletion();
-
     } catch (e) {
-      setState(() {
-        _status = PayPalCheckoutStatus.failed;
-        _errorMessage = e.toString().replaceAll('Exception: ', '');
-      });
+      if (mounted) {
+        setState(() {
+          _status = PayPalCheckoutStatus.failed;
+          _errorMessage = e.toString().replaceAll('Exception: ', '');
+        });
+      }
     }
   }
 
-  void _startPollingForCompletion() {
-    _status = PayPalCheckoutStatus.awaitingWebhook;
-    _pollingTimer?.cancel();
+  void _subscribeToOrderRealtime(String orderId) {
+    _realtimeChannel?.unsubscribe();
+    final supabase = Supabase.instance.client;
 
-    int secondsElapsed = 0;
-    _pollingTimer = Timer.periodic(const Duration(seconds: 3), (timer) async {
-      secondsElapsed += 3;
-      if (secondsElapsed > 180) { // 3 minute timeout
-        timer.cancel();
-        if (mounted) {
-          setState(() {
-            _status = PayPalCheckoutStatus.failed;
-            _errorMessage = 'Payment confirmation timed out. If you completed payment, your wallet will update shortly.';
-          });
-        }
-        return;
-      }
-
-      try {
-        final supabase = Supabase.instance.client;
-        final user = supabase.auth.currentUser;
-        if (user == null) return;
-
-        if (widget.paymentKind == 'plan') {
-          // Check plan_payments table for matching order_id
-          final res = await supabase
-              .from('plan_payments')
-              .select('id')
-              .eq('user_id', user.id)
-              .eq('order_id', _orderId!)
-              .maybeSingle();
-
-          if (res != null) {
-            _onPaymentSuccess();
-          }
-        } else {
-          // Check wallet balance or wallet_transactions
-          final walletRes = await supabase
-              .from('wallets')
-              .select('balance')
-              .eq('user_id', user.id)
-              .maybeSingle();
-
-          if (walletRes != null) {
-            final currentBal = (walletRes['balance'] as num).toDouble();
-            if (currentBal > _initialWalletBalance) {
+    _realtimeChannel = supabase
+        .channel('paypal_order_$orderId')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.update,
+          schema: 'public',
+          table: 'paypal_orders',
+          filter: PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: 'order_id',
+            value: orderId,
+          ),
+          callback: (payload) {
+            final newStatus = payload.newRecord['status'] as String?;
+            if (newStatus == 'captured') {
               _onPaymentSuccess();
+            } else if (newStatus == 'failed') {
+              if (mounted) {
+                setState(() {
+                  _status = PayPalCheckoutStatus.failed;
+                  _errorMessage = AppLocalizations.of(context)?.payPalPaymentFailed ??
+                      'Payment failed or was cancelled.';
+                });
+              }
             }
-          }
-        }
-      } catch (_) {
-        // Continue polling
-      }
+          },
+        )
+        .subscribe();
+  }
+
+  Future<void> _triggerManualCapture() async {
+    if (_orderId == null || _isCapturingManually) return;
+    HapticHelper.lightTick();
+
+    setState(() {
+      _isCapturingManually = true;
+      _status = PayPalCheckoutStatus.capturing;
     });
+
+    try {
+      final supabase = Supabase.instance.client;
+      final response = await supabase.functions.invoke(
+        'capture-paypal-order',
+        body: {
+          'order_id': _orderId,
+        },
+      );
+
+      if (response.status == 200 && response.data['success'] == true) {
+        _onPaymentSuccess();
+      } else {
+        final errText = (response.data is Map && response.data['error'] != null)
+            ? response.data['error'].toString()
+            : 'Capture failed (${response.status})';
+        throw Exception(errText);
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isCapturingManually = false;
+          _status = PayPalCheckoutStatus.awaitingApproval;
+          _errorMessage = e.toString().replaceAll('Exception: ', '');
+        });
+      }
+    }
   }
 
   void _onPaymentSuccess() {
-    _pollingTimer?.cancel();
+    _realtimeChannel?.unsubscribe();
     HapticHelper.mediumImpact();
     ref.invalidate(walletControllerProvider);
 
@@ -208,11 +249,17 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = context.isDarkMode;
+    final l10n = AppLocalizations.of(context)!;
+    final isDeposit = widget.paymentKind == 'deposit';
+
+    final rawAmt = double.tryParse(_amountController.text) ?? _selectedDepositAmount;
+    final hasRemainder = isDeposit && rawAmt > 0 && rawAmt < 1.00;
+    final remainderAmount = hasRemainder ? (1.00 - rawAmt) : 0.0;
 
     return Scaffold(
       backgroundColor: context.scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text('PayPal Checkout'),
+        title: Text(l10n.payPalCheckoutTitle),
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
@@ -222,9 +269,9 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen> {
           padding: const EdgeInsets.all(24.0),
           child: Column(
             children: [
-              const SizedBox(height: 20),
+              const SizedBox(height: 12),
               Container(
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: isDark ? AppColors.darkCard : AppColors.lightCard,
                   borderRadius: BorderRadius.circular(20),
@@ -234,29 +281,45 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen> {
                 ),
                 child: Column(
                   children: [
-                    const Icon(Icons.payment_rounded, size: 48, color: Color(0xFF003087)),
-                    const SizedBox(height: 16),
+                    const Icon(Icons.payment_rounded, size: 44, color: Color(0xFF003087)),
+                    const SizedBox(height: 12),
                     Text(
-                      widget.paymentReason ?? 'Wallet Top-up',
+                      widget.paymentReason ?? l10n.payPalWalletTopUp,
                       style: AppTextStyles.titleMedium.copyWith(
                         fontWeight: FontWeight.bold,
                         color: context.onSurfaceColor,
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    if (widget.initialAmount != null)
-                      Text(
-                        '\$${widget.initialAmount!.toStringAsFixed(2)}',
-                        style: AppTextStyles.headlineLarge.copyWith(
-                          color: const Color(0xFF0070BA),
-                          fontWeight: FontWeight.w800,
-                        ),
-                      )
-                    else
+                    const SizedBox(height: 12),
+                    if (isDeposit) ...[
+                      // Preset Amount Chips (Defect #1 fix)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: _presetAmounts.map((amt) {
+                          final isSelected = (_selectedDepositAmount - amt).abs() < 0.01;
+                          return ChoiceChip(
+                            label: Text('\$${amt.toInt()}'),
+                            selected: isSelected,
+                            onSelected: (_) => _onAmountSelected(amt),
+                            selectedColor: const Color(0xFF0070BA),
+                            labelStyle: TextStyle(
+                              color: isSelected ? Colors.white : context.onSurfaceColor,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                      const SizedBox(height: 12),
                       TextField(
                         controller: _amountController,
                         keyboardType: const TextInputType.numberWithOptions(decimal: true),
                         textAlign: TextAlign.center,
+                        onChanged: (val) {
+                          final parsed = double.tryParse(val);
+                          if (parsed != null) {
+                            setState(() => _selectedDepositAmount = parsed);
+                          }
+                        },
                         style: AppTextStyles.headlineLarge.copyWith(
                           color: const Color(0xFF0070BA),
                           fontWeight: FontWeight.w800,
@@ -266,11 +329,32 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen> {
                           border: InputBorder.none,
                         ),
                       ),
+                      if (hasRemainder)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            'Minimum PayPal charge is \$1.00 — \$${remainderAmount.toStringAsFixed(2)} remainder will stay in your wallet balance.',
+                            textAlign: TextAlign.center,
+                            style: AppTextStyles.bodySmall.copyWith(
+                              color: AppColors.warning,
+                            ),
+                          ),
+                        ),
+                    ] else ...[
+                      if (widget.initialAmount != null)
+                        Text(
+                          '\$${widget.initialAmount!.toStringAsFixed(2)}',
+                          style: AppTextStyles.headlineLarge.copyWith(
+                            color: const Color(0xFF0070BA),
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                    ],
                   ],
                 ),
               ),
-              const SizedBox(height: 32),
-              _buildStatusWidget(isDark),
+              const SizedBox(height: 24),
+              _buildStatusWidget(isDark, l10n),
               const Spacer(),
               if (_status == PayPalCheckoutStatus.idle || _status == PayPalCheckoutStatus.failed)
                 SizedBox(
@@ -287,15 +371,40 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen> {
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        Icon(Icons.lock_rounded, size: 20),
-                        SizedBox(width: 8),
+                      children: [
+                        const Icon(Icons.lock_rounded, size: 20),
+                        const SizedBox(width: 8),
                         Text(
-                          'Pay Securely with PayPal',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          l10n.payPalPaySecurely,
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
+                  ),
+                ),
+              if (_status == PayPalCheckoutStatus.awaitingApproval || _status == PayPalCheckoutStatus.capturing)
+                SizedBox(
+                  width: double.infinity,
+                  height: 54,
+                  child: OutlinedButton(
+                    onPressed: _isCapturingManually ? null : _triggerManualCapture,
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: const Color(0xFF0070BA),
+                      side: const BorderSide(color: Color(0xFF0070BA), width: 2),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    child: _isCapturingManually
+                        ? const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : Text(
+                            l10n.payPalForceCaptureButton,
+                            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                          ),
                   ),
                 ),
               if (_status == PayPalCheckoutStatus.success)
@@ -311,9 +420,9 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen> {
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),
-                    child: const Text(
-                      'Done',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    child: Text(
+                      l10n.biometricCancel,
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
@@ -324,11 +433,11 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen> {
     );
   }
 
-  Widget _buildStatusWidget(bool isDark) {
+  Widget _buildStatusWidget(bool isDark, AppLocalizations l10n) {
     switch (_status) {
       case PayPalCheckoutStatus.idle:
         return Text(
-          'You will be redirected to PayPal to authorize your payment.',
+          l10n.payPalRedirectInfo,
           textAlign: TextAlign.center,
           style: AppTextStyles.bodyMedium.copyWith(
             color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
@@ -336,25 +445,25 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen> {
         );
       case PayPalCheckoutStatus.creatingOrder:
         return Column(
-          children: const [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
-            Text('Creating secure PayPal order...'),
+          children: [
+            const CircularProgressIndicator(),
+            const SizedBox(height: 16),
+            Text(l10n.payPalCreatingOrder),
           ],
         );
       case PayPalCheckoutStatus.awaitingApproval:
-      case PayPalCheckoutStatus.awaitingWebhook:
+      case PayPalCheckoutStatus.capturing:
         return Column(
           children: [
             const CircularProgressIndicator(),
             const SizedBox(height: 16),
             Text(
-              'Awaiting PayPal Confirmation...',
+              l10n.payPalAwaitingConfirmation,
               style: AppTextStyles.titleMedium.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
-              'Please complete payment in the opened browser window.',
+              l10n.payPalCompleteInBrowser,
               textAlign: TextAlign.center,
               style: AppTextStyles.bodySmall.copyWith(
                 color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
@@ -364,12 +473,12 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen> {
         );
       case PayPalCheckoutStatus.success:
         return Column(
-          children: const [
-            Icon(Icons.check_circle_rounded, color: Color(0xFF10B981), size: 64),
-            SizedBox(height: 12),
+          children: [
+            const Icon(Icons.check_circle_rounded, color: Color(0xFF10B981), size: 64),
+            const SizedBox(height: 12),
             Text(
-              'Payment Confirmed!',
-              style: TextStyle(color: Color(0xFF10B981), fontSize: 20, fontWeight: FontWeight.bold),
+              l10n.payPalPaymentConfirmed,
+              style: const TextStyle(color: Color(0xFF10B981), fontSize: 20, fontWeight: FontWeight.bold),
             ),
           ],
         );
@@ -379,7 +488,7 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen> {
             const Icon(Icons.error_outline_rounded, color: Colors.redAccent, size: 48),
             const SizedBox(height: 12),
             Text(
-              _errorMessage ?? 'Payment failed or was cancelled.',
+              _errorMessage ?? l10n.payPalPaymentFailed,
               textAlign: TextAlign.center,
               style: const TextStyle(color: Colors.redAccent, fontSize: 14),
             ),

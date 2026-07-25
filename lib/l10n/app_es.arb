@@ -833,7 +833,17 @@
             }
         }
     },
-    "walletBalanceBlockedNotice": "El saldo de su billetera (${balance}) supera el límite ($1.00). Gástelo o contacte a soporte.",
+    "walletBalanceBlockedNotice": "Tu saldo (${balance}) supera el límite ($1.00). Por favor gastalo o contacta soporte.",
+    "payPalCheckoutTitle": "Pago con PayPal",
+    "payPalWalletTopUp": "Recarga de monedero KeepSIMs",
+    "payPalPaySecurely": "Pagar de forma segura con PayPal",
+    "payPalRedirectInfo": "Serás redirigido a PayPal para autorizar tu pago.",
+    "payPalCreatingOrder": "Creando pedido seguro de PayPal...",
+    "payPalAwaitingConfirmation": "Esperando confirmación de PayPal...",
+    "payPalCompleteInBrowser": "Por favor completa el pago en la ventana del navegador.",
+    "payPalPaymentConfirmed": "¡Pago confirmado!",
+    "payPalPaymentFailed": "El pago falló o fue cancelado.",
+    "payPalForceCaptureButton": "He completado el pago en PayPal",
     "@walletBalanceBlockedNotice": {
         "description": "Notice when balance exceeds dust limit",
         "placeholders": {

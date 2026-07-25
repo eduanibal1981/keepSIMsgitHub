@@ -1,9 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-// PayPal webhook receiver — the ONLY path that credits wallet deposits.
-// The client never credits itself: it creates/captures the PayPal order and
-// then waits for this webhook to land the money (B3, PRODUCTION_PLAN.md).
-//
+// PayPal webhook receiver — the ONLY path that credits wallet deposits or records plan payments.
 // Security model: verify_jwt is disabled (PayPal cannot send a Supabase JWT);
 // instead every event is verified against PayPal's
 // /v1/notifications/verify-webhook-signature API using the transmission
@@ -16,7 +13,7 @@ const SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const PAYPAL_CLIENT_ID = Deno.env.get('PAYPAL_CLIENT_ID') ?? '';
 const PAYPAL_CLIENT_SECRET = Deno.env.get('PAYPAL_CLIENT_SECRET') ?? '';
 const PAYPAL_WEBHOOK_ID = Deno.env.get('PAYPAL_WEBHOOK_ID') ?? '';
-const PAYPAL_API_BASE = Deno.env.get('PAYPAL_API_BASE') ?? ('https://api-m.' + 'sandbox' + '.paypal.com');
+const PAYPAL_API_BASE = Deno.env.get('PAYPAL_API_BASE') ?? 'https://api-m.sandbox.paypal.com';
 
 const serviceHeaders = {
   'apikey': SERVICE_ROLE_KEY,
@@ -110,6 +107,59 @@ function parseCustomId(customId: string | undefined): { userId: string | null; k
   return uuidRe.test(customId) ? { userId: customId, kind: 'deposit', simLineId: null } : { userId: null, kind: 'deposit', simLineId: null };
 }
 
+// BLOCKER 2 Approach A: Automatic server-side capture when user approves on PayPal
+async function handleCheckoutOrderApproved(event: any): Promise<Response> {
+  const resource = event.resource ?? {};
+  const orderId: string | undefined = resource.id;
+
+  if (!orderId) {
+    console.error("CHECKOUT.ORDER.APPROVED event missing resource.id");
+    return json({ received: true, captured: false, reason: "missing_order_id" }, 200);
+  }
+
+  console.log(`CHECKOUT.ORDER.APPROVED received for order ${orderId}. Executing server-side capture...`);
+
+  // Update status in paypal_orders table
+  await fetch(`${SUPABASE_URL}/rest/v1/paypal_orders?order_id=eq.${encodeURIComponent(orderId)}`, {
+    method: 'PATCH',
+    headers: serviceHeaders,
+    body: JSON.stringify({ status: 'approved' }),
+  });
+
+  // Call PayPal REST API to capture the order
+  const accessToken = await paypalAccessToken();
+  const captureRes = await fetch(`${PAYPAL_API_BASE}/v2/checkout/orders/${orderId}/capture`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+  });
+
+  const resText = await captureRes.text();
+  const isAlreadyCaptured =
+    resText.includes("ORDER_ALREADY_CAPTURED") ||
+    resText.includes("ORDER_ALREADY_COMPLETED");
+
+  if (!captureRes.ok && !isAlreadyCaptured) {
+    console.error(`Server-side PayPal capture failed for approved order ${orderId}:`, resText);
+    await systemAlert('paypal_server_capture_failed',
+      `Server-side capture failed for approved PayPal order ${orderId}.`,
+      { order_id: orderId, error: resText });
+
+    await fetch(`${SUPABASE_URL}/rest/v1/paypal_orders?order_id=eq.${encodeURIComponent(orderId)}`, {
+      method: 'PATCH',
+      headers: serviceHeaders,
+      body: JSON.stringify({ status: 'failed' }),
+    });
+
+    return json({ received: true, captured: false, error: resText }, 200);
+  }
+
+  console.log(`Server-side capture successfully initiated/completed for order ${orderId}`);
+  return json({ received: true, captured: true, order_id: orderId }, 200);
+}
+
 async function handleCaptureCompleted(event: any): Promise<Response> {
   const capture = event.resource ?? {};
   const captureId: string | undefined = capture.id;
@@ -142,6 +192,31 @@ async function handleCaptureCompleted(event: any): Promise<Response> {
     return json({ received: true, credited: false, reason: 'no_custom_id' }, 200);
   }
 
+  // BLOCKER 2 & C3b-1 doctrine: Assert captured gross equals stored order amount_usd in paypal_orders
+  if (orderId) {
+    const orderCheckRes = await fetch(`${SUPABASE_URL}/rest/v1/paypal_orders?order_id=eq.${encodeURIComponent(orderId)}`, {
+      method: 'GET',
+      headers: serviceHeaders,
+    });
+
+    if (orderCheckRes.ok) {
+      const orders = await orderCheckRes.json();
+      if (Array.isArray(orders) && orders.length > 0) {
+        const storedOrder = orders[0];
+        const storedAmount = Number(storedOrder.amount_usd);
+        if (Math.abs(gross - storedAmount) > 0.01) {
+          console.error(`Amount mismatch for order ${orderId}: captured $${gross} vs stored $${storedAmount}`);
+          await systemAlert('paypal_amount_mismatch',
+            `PayPal capture $${gross} does not match stored order amount $${storedAmount} for order ${orderId}`,
+            { order_id: orderId, capture_id: captureId, gross_captured: gross, stored_amount: storedAmount });
+          return json({ received: true, credited: false, reason: 'amount_mismatch' }, 200);
+        }
+      }
+    }
+  }
+
+  let processSuccess = false;
+
   if (kind === 'plan') {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/plan_payments`, {
       method: 'POST',
@@ -165,69 +240,85 @@ async function handleCaptureCompleted(event: any): Promise<Response> {
 
     if (res.ok) {
       console.log(`Recorded plan payment $${gross} from ${userId} (capture ${captureId})`);
-      return json({ received: true, recorded: true }, 200);
+      processSuccess = true;
+    } else {
+      const body = await res.text();
+      if (res.status === 409 || body.includes('duplicate key')) {
+        console.log(`Plan payment ${captureId} already recorded — webhook retry, ignoring.`);
+        processSuccess = true;
+      } else {
+        console.error(`plan_payments insert failed for ${captureId}: ${body}`);
+        return json({ received: true, recorded: false, error: body }, 500);
+      }
     }
+  } else if (kind === 'deposit') {
+    const result = await rpc('credit_wallet_for_deposit', {
+      p_user_id: userId,
+      p_amount: gross,
+      p_description: `PayPal deposit (order ${orderId ?? 'n/a'})`,
+      p_reference_id: `paypal_${captureId}`,
+      p_metadata: {
+        method: 'paypal',
+        paypal_capture_id: captureId,
+        paypal_order_id: orderId ?? null,
+        gross: gross,
+        paypal_fee: fee,
+        net: net,
+        currency: currency,
+        payer_email: event.resource?.payee?.email_address ?? null,
+        event_id: event.id,
+        event_time: event.create_time ?? null,
+      },
+    });
 
-    const body = await res.text();
-    if (res.status === 409 || body.includes('duplicate key')) {
-      console.log(`Plan payment ${captureId} already recorded — webhook retry, ignoring.`);
-      return json({ received: true, recorded: false, reason: 'already_recorded' }, 200);
+    if (result.ok) {
+      console.log(`Credited $${gross} to ${userId} for capture ${captureId} (txn ${result.body})`);
+      processSuccess = true;
+    } else {
+      const message: string = result.body?.message ?? JSON.stringify(result.body);
+      if (result.body?.code === '23505' || message.includes('duplicate key')) {
+        console.log(`Capture ${captureId} already credited — webhook retry, ignoring.`);
+        processSuccess = true;
+      } else if (message.includes('Wallet not found')) {
+        await systemAlert('paypal_wallet_missing',
+          `PayPal capture ${captureId} ($${gross}) for user ${userId} but no wallet exists.`,
+          { capture_id: captureId, user_id: userId, gross });
+        return json({ received: true, credited: false, reason: 'wallet_missing' }, 200);
+      } else {
+        console.error(`credit_wallet_for_deposit failed for ${captureId}: ${message}`);
+        return json({ received: true, credited: false, error: message }, 500);
+      }
     }
-
-    console.error(`plan_payments insert failed for ${captureId}: ${body}`);
-    return json({ received: true, recorded: false, error: body }, 500);
-  }
-
-  if (kind !== 'deposit') {
+  } else {
     await systemAlert('paypal_unhandled_kind',
       `PayPal capture ${captureId} carries kind '${kind}', which has no handler yet. Not credited.`,
       { capture_id: captureId, order_id: orderId ?? null, kind, user_id: userId, gross });
     return json({ received: true, credited: false, reason: 'unhandled_kind' }, 200);
   }
 
-  const result = await rpc('credit_wallet_for_deposit', {
-    p_user_id: userId,
-    p_amount: gross,
-    p_description: `PayPal deposit (order ${orderId ?? 'n/a'})`,
-    p_reference_id: `paypal_${captureId}`,
-    p_metadata: {
-      method: 'paypal',
-      paypal_capture_id: captureId,
-      paypal_order_id: orderId ?? null,
-      gross: gross,
-      paypal_fee: fee,
-      net: net,
-      currency: currency,
-      payer_email: event.resource?.payee?.email_address ?? null,
-      event_id: event.id,
-      event_time: event.create_time ?? null,
-    },
-  });
-
-  if (result.ok) {
-    console.log(`Credited $${gross} to ${userId} for capture ${captureId} (txn ${result.body})`);
-    return json({ received: true, credited: true }, 200);
+  // Update status in paypal_orders table to captured
+  if (orderId && processSuccess) {
+    await fetch(`${SUPABASE_URL}/rest/v1/paypal_orders?order_id=eq.${encodeURIComponent(orderId)}`, {
+      method: 'PATCH',
+      headers: serviceHeaders,
+      body: JSON.stringify({ status: 'captured', captured_at: new Date().toISOString() }),
+    });
   }
 
-  const message: string = result.body?.message ?? JSON.stringify(result.body);
-  if (result.body?.code === '23505' || message.includes('duplicate key')) {
-    console.log(`Capture ${captureId} already credited — webhook retry, ignoring.`);
-    return json({ received: true, credited: false, reason: 'already_credited' }, 200);
-  }
-
-  if (message.includes('Wallet not found')) {
-    await systemAlert('paypal_wallet_missing',
-      `PayPal capture ${captureId} ($${gross}) for user ${userId} but no wallet exists.`,
-      { capture_id: captureId, user_id: userId, gross });
-    return json({ received: true, credited: false, reason: 'wallet_missing' }, 200);
-  }
-
-  console.error(`credit_wallet_for_deposit failed for ${captureId}: ${message}`);
-  return json({ received: true, credited: false, error: message }, 500);
+  return json({ received: true, success: true }, 200);
 }
 
 async function handleFailureEvent(event: any): Promise<Response> {
   const r = event.resource ?? {};
+  const orderId = r.id || r.supplementary_data?.related_ids?.order_id;
+  if (orderId) {
+    await fetch(`${SUPABASE_URL}/rest/v1/paypal_orders?order_id=eq.${encodeURIComponent(orderId)}`, {
+      method: 'PATCH',
+      headers: serviceHeaders,
+      body: JSON.stringify({ status: 'failed' }),
+    });
+  }
+
   await systemAlert('paypal_payment_problem',
     `PayPal event ${event.event_type} for ${r.id ?? 'unknown resource'} — review in the PayPal dashboard.`,
     {
@@ -284,6 +375,10 @@ serve(async (req) => {
     const event = JSON.parse(rawBody);
     const type: string = event.event_type ?? '';
     console.log(`Verified PayPal event ${event.id}: ${type}`);
+
+    if (type === 'CHECKOUT.ORDER.APPROVED') {
+      return await handleCheckoutOrderApproved(event);
+    }
 
     if (type === 'PAYMENT.CAPTURE.COMPLETED') {
       return await handleCaptureCompleted(event);

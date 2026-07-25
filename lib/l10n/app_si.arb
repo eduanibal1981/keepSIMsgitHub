@@ -834,6 +834,16 @@
         }
     },
     "walletBalanceBlockedNotice": "ඔබගේ මුදල් පසුම්බි ශේෂය (${balance}) සීමාව ($1.00) ඉක්මවයි. කරුණාකර එය වියදම් කරන්න හෝ සහාය අමතන්න.",
+    "payPalCheckoutTitle": "PayPal ගෙවීම",
+    "payPalWalletTopUp": "KeepSIMs පසුම්බිය නැවත පිරවීම",
+    "payPalPaySecurely": "PayPal හරහා ආරක්ෂිතව ගෙවන්න",
+    "payPalRedirectInfo": "ඔබගේ ගෙවීම අනුමත කිරීමට ඔබව PayPal වෙත යොමු කරනු ඇත.",
+    "payPalCreatingOrder": "ආරක්ෂිත PayPal ඇණවුමක් සාදමින්...",
+    "payPalAwaitingConfirmation": "PayPal තහවුරු කිරීම අපේක්ෂාවෙන්...",
+    "payPalCompleteInBrowser": "කරුණාකර විවෘත කළ බ්‍රවුසර් කවුළුවෙහි ගෙවීම සම්පූර්ණ කරන්න.",
+    "payPalPaymentConfirmed": "ගෙවීම තහවුරු විය!",
+    "payPalPaymentFailed": "ගෙවීම අසාර්ථක විය හෝ අවලංගු විය.",
+    "payPalForceCaptureButton": "මම PayPal හි ගෙවීම සම්පූර්ණ කළෙමි",
     "@walletBalanceBlockedNotice": {
         "description": "Notice when balance exceeds dust limit",
         "placeholders": {

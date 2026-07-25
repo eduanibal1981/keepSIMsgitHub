@@ -833,7 +833,17 @@
             }
         }
     },
-    "walletBalanceBlockedNotice": "आपका वॉलेट बैलेंस (${balance}) सीमा ($1.00) से अधिक है। कृपया इसे खर्च करें या सहायता से संपर्क करें।",
+    "walletBalanceBlockedNotice": "आपका वॉलेट बैलेंस (${balance}) डस्ट सीमा ($1.00) से अधिक है। कृपया इसे खर्च करें या सहायता से संपर्क करें।",
+    "payPalCheckoutTitle": "PayPal चेकआउट",
+    "payPalWalletTopUp": "KeepSIMs वॉलेट टॉप-अप",
+    "payPalPaySecurely": "PayPal से सुरक्षित भुगतान करें",
+    "payPalRedirectInfo": "भुगतान अधिकृत करने के लिए आपको PayPal पर पुनः निर्देशित किया जाएगा।",
+    "payPalCreatingOrder": "सुरक्षित PayPal ऑर्डर बनाया जा रहा है...",
+    "payPalAwaitingConfirmation": "PayPal पुष्टि की प्रतीक्षा की जा रही है...",
+    "payPalCompleteInBrowser": "कृपया खोली गई ब्राउज़र विंडो में भुगतान पूरा करें।",
+    "payPalPaymentConfirmed": "भुगतान की पुष्टि हो गई!",
+    "payPalPaymentFailed": "भुगतान विफल रहा या रद्द कर दिया गया।",
+    "payPalForceCaptureButton": "मैंने PayPal पर भुगतान पूरा कर लिया है",
     "@walletBalanceBlockedNotice": {
         "description": "Notice when balance exceeds dust limit",
         "placeholders": {

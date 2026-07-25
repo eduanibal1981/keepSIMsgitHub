@@ -920,18 +920,16 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
     final authResult = await authGuard.confirmPayment(
       reason: 'Authenticate to add funds to wallet',
     );
-    if (authResult == BiometricResult.cancelled ||
-        authResult == BiometricResult.failed ||
-        authResult == BiometricResult.lockedOut) {
+    if (authResult != BiometricResult.success) {
       return;
     }
 
     if (!context.mounted) return;
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => const PaypalRefillSimulatorScreen(
-          initialAmount: 20.0,
+        builder: (context) => const PayPalCheckoutScreen(
           paymentReason: 'KeepSIMs Wallet Top-up',
+          paymentKind: 'deposit',
         ),
       ),
     );

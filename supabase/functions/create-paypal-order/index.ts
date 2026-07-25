@@ -6,23 +6,23 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const PAYPAL_CLIENT_ID = Deno.env.get("PAYPAL_CLIENT_ID") ?? "";
-const PAYPAL_CLIENT_SECRET = Deno.env.get("PAYPAL_CLIENT_SECRET") ?? "";
-const PAYPAL_API_BASE = Deno.env.get("PAYPAL_API_BASE") ?? ("https://api-m." + "sandbox" + ".paypal.com");
-
-async function getPayPalAccessToken(): Promise<string> {
-  const res = await fetch(`${PAYPAL_API_BASE}/v1/oauth2/token`, {
+async function getPayPalAccessToken(apiBase: string, clientId: string, clientSecret: string): Promise<string> {
+  const auth = btoa(`${clientId}:${clientSecret}`);
+  const response = await fetch(`${apiBase}/v1/oauth2/token`, {
     method: "POST",
     headers: {
-      "Authorization": `Basic ${btoa(`${PAYPAL_CLIENT_ID}:${PAYPAL_CLIENT_SECRET}`)}`,
+      "Authorization": `Basic ${auth}`,
       "Content-Type": "application/x-www-form-urlencoded",
     },
     body: "grant_type=client_credentials",
   });
-  if (!res.ok) {
-    throw new Error(`PayPal OAuth failed (${res.status}): ${await res.text()}`);
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Failed to obtain PayPal access token (${response.status}): ${errorText}`);
   }
-  const data = await res.json();
+
+  const data = await response.json();
   return data.access_token;
 }
 
@@ -32,6 +32,13 @@ serve(async (req) => {
   }
 
   try {
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const adminClient = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
+
+    // 1. JWT & Authentication Check
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
       return new Response(
@@ -40,134 +47,201 @@ serve(async (req) => {
       );
     }
 
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
-    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const token = authHeader.replace("Bearer ", "");
+    const { data: { user }, error: authError } = await adminClient.auth.getUser(token);
 
-    const client = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } },
-    });
-    const adminClient = createClient(supabaseUrl, supabaseServiceKey);
-
-    const { data: { user }, error: userError } = await client.auth.getUser();
-    if (userError || !user) {
+    if (authError || !user) {
       return new Response(
-        JSON.stringify({ success: false, error: "UNAUTHORIZED: Invalid user token" }),
+        JSON.stringify({ success: false, error: "UNAUTHORIZED: Invalid JWT token" }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Rate limiting: D2 bucket paypal_order (10 requests per 60 mins per user)
-    const { data: limitRes } = await adminClient.rpc("consume_rate_limit", {
+    const userId = user.id;
+
+    // 2. D2 Rate Limiting: paypal_order bucket (10 requests / 60 minutes)
+    const { data: rateLimitResult, error: rateLimitErr } = await adminClient.rpc("consume_rate_limit", {
       p_bucket: "paypal_order",
-      p_key: user.id,
+      p_key: userId,
       p_capacity: 10,
-      p_refill_per_minute: 10.0 / 60.0,
+      p_refill_per_minute: 0.1667,
     });
 
-    if (limitRes && Array.isArray(limitRes) && limitRes[0]?.allowed === false) {
-      const retryAfter = limitRes[0]?.retry_after_seconds ?? 3600;
+    if (rateLimitErr) {
+      console.error("Rate limit check failed:", rateLimitErr);
+    } else if (rateLimitResult && rateLimitResult.allowed === false) {
       return new Response(
-        JSON.stringify({ success: false, code: "KS429", error: `RATE_LIMITED:paypal_order:${retryAfter}`, retry_after: retryAfter }),
-        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json", "Retry-After": String(retryAfter) } }
+        JSON.stringify({
+          success: false,
+          error: `RATE_LIMITED:paypal_order:${rateLimitResult.retry_after_seconds || 60}`,
+          retry_after: rateLimitResult.retry_after_seconds || 60,
+        }),
+        {
+          status: 429,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+            "Retry-After": String(rateLimitResult.retry_after_seconds || 60),
+          },
+        }
       );
     }
 
     const body = await req.json();
-    const kind: string = body.kind ?? "deposit";
-    const simLineId: string | null = body.sim_line_id ?? null;
-    let amountUsd = 0.00;
+    const kind = body.kind || "deposit";
+    const plan = body.plan;
+    const simLineId = body.sim_line_id;
 
-    // Server-side pricing
+    let finalAmountUsd = 0;
+
     if (kind === "plan") {
-      let planFee = 2.50;
-      try {
-        const { data: configRow } = await adminClient
-          .from("system_configs")
-          .select("config_value")
-          .eq("config_key", "BASE_SERVICE_FEE_USD")
-          .maybeSingle();
-        if (configRow?.config_value) {
-          planFee = Number(configRow.config_value) || 2.50;
-        }
-      } catch (_) {
-        planFee = 2.50;
-      }
-      amountUsd = planFee;
-    } else if (kind === "deposit") {
-      const requestedAmt = Number(body.amount_usd);
-      if (!Number.isFinite(requestedAmt) || requestedAmt < 1.00 || requestedAmt > 500.00) {
+      if (!plan || (plan !== "standard" && plan !== "premium")) {
         return new Response(
-          JSON.stringify({ success: false, error: "BAD_REQUEST: Deposit amount must be between $1.00 and $500.00" }),
+          JSON.stringify({ success: false, error: "BAD_REQUEST: Invalid plan type" }),
           { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-      amountUsd = Math.round(requestedAmt * 100) / 100;
+
+      // Server-side plan quote (BLOCKER 1 fix: NEVER accept client amount for plans)
+      const { data: quotedPrice, error: quoteErr } = await adminClient.rpc("quote_plan_price", {
+        p_sim_line_id: simLineId || null,
+        p_plan: plan,
+        p_gateway: "paypal",
+      });
+
+      if (quoteErr || !quotedPrice) {
+        console.error("quote_plan_price failed:", quoteErr);
+        return new Response(
+          JSON.stringify({ success: false, error: "FAILED: Unable to calculate plan price" }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      finalAmountUsd = Number(quotedPrice);
     } else {
-      return new Response(
-        JSON.stringify({ success: false, error: `BAD_REQUEST: Unsupported payment kind '${kind}'` }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      // Deposit path
+      const requestedAmount = Number(body.amount_usd);
+
+      // Read min / max deposit bounds from system_configs
+      const { data: minConfig } = await adminClient
+        .from("system_configs")
+        .select("config_value")
+        .eq("config_key", "PAYPAL_MIN_DEPOSIT_USD")
+        .maybeSingle();
+
+      const { data: maxConfig } = await adminClient
+        .from("system_configs")
+        .select("config_value")
+        .eq("config_key", "PAYPAL_MAX_DEPOSIT_USD")
+        .maybeSingle();
+
+      const minDeposit = Number(minConfig?.config_value || 1.00);
+      const maxDeposit = Number(maxConfig?.config_value || 500.00);
+
+      if (isNaN(requestedAmount) || requestedAmount < minDeposit || requestedAmount > maxDeposit) {
+        return new Response(
+          JSON.stringify({
+            success: false,
+            error: `BAD_REQUEST: Deposit amount must be between $${minDeposit.toFixed(2)} and $${maxDeposit.toFixed(2)}`,
+          }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      finalAmountUsd = Number(requestedAmount.toFixed(2));
     }
 
-    if (!PAYPAL_CLIENT_ID || !PAYPAL_CLIENT_SECRET) {
-      return new Response(
-        JSON.stringify({ success: false, error: "INTERNAL_ERROR: PayPal credentials not configured" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
+    // 3. Obtain PayPal Access Token
+    const paypalClientId = Deno.env.get("PAYPAL_CLIENT_ID")!;
+    const paypalClientSecret = Deno.env.get("PAYPAL_CLIENT_SECRET")!;
+    const paypalApiBase = Deno.env.get("PAYPAL_API_BASE") || "https://api-m.sandbox.paypal.com";
 
-    const accessToken = await getPayPalAccessToken();
-    const customId = JSON.stringify({ u: user.id, k: kind, l: simLineId ?? "" });
+    const accessToken = await getPayPalAccessToken(paypalApiBase, paypalClientId, paypalClientSecret);
 
-    const orderRes = await fetch(`${PAYPAL_API_BASE}/v2/checkout/orders`, {
+    // 4. Create PayPal Order via PayPal REST API
+    const customIdObj: Record<string, any> = { u: userId, k: kind };
+    if (plan) customIdObj.p = plan;
+    if (simLineId) customIdObj.l = simLineId;
+
+    const returnUrl = Deno.env.get("PAYPAL_RETURN_URL") || "https://keepsims.com/paypal-return";
+    const cancelUrl = Deno.env.get("PAYPAL_CANCEL_URL") || "https://keepsims.com/paypal-cancel";
+
+    const paypalOrderReq = {
+      intent: "CAPTURE",
+      purchase_units: [
+        {
+          amount: {
+            currency_code: "USD",
+            value: finalAmountUsd.toFixed(2),
+          },
+          custom_id: JSON.stringify(customIdObj),
+          description: kind === "plan" ? `KeepSIMs ${plan} Plan` : "KeepSIMs Wallet Refill",
+        },
+      ],
+      application_context: {
+        brand_name: "KeepSIMs",
+        landing_page: "NO_PREFERENCE",
+        user_action: "PAY_NOW",
+        return_url: returnUrl,
+        cancel_url: cancelUrl,
+      },
+    };
+
+    const createRes = await fetch(`${paypalApiBase}/v2/checkout/orders`, {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${accessToken}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        intent: "CAPTURE",
-        purchase_units: [
-          {
-            amount: {
-              currency_code: "USD",
-              value: amountUsd.toFixed(2),
-            },
-            custom_id: customId,
-          },
-        ],
-        application_context: {
-          user_action: "PAY_NOW",
-          return_url: "https://keepsims.com/paypal-return",
-          cancel_url: "https://keepsims.com/paypal-cancel",
-        },
-      }),
+      body: JSON.stringify(paypalOrderReq),
     });
 
-    if (!orderRes.ok) {
-      const errText = await orderRes.text();
+    if (!createRes.ok) {
+      const errText = await createRes.text();
+      console.error("PayPal order creation failed:", errText);
       return new Response(
-        JSON.stringify({ success: false, error: `PayPal order creation failed: ${errText}` }),
+        JSON.stringify({ success: false, error: `PayPal order creation failed (${createRes.status}): ${errText}` }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    const orderData = await orderRes.json();
+    const orderData = await createRes.json();
     const orderId = orderData.id;
-    const approveLink = orderData.links?.find((l: any) => l.rel === "approve");
-    const approveUrl = approveLink?.href ?? "";
+    const approveLink = orderData.links?.find((l: any) => l.rel === "approve")?.href;
+
+    if (!orderId || !approveLink) {
+      return new Response(
+        JSON.stringify({ success: false, error: "FAILED: Missing approval link from PayPal" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // 5. Insert order into paypal_orders table (BLOCKER 2 order-of-record)
+    const { error: insertOrderErr } = await adminClient.from("paypal_orders").insert({
+      order_id: orderId,
+      user_id: userId,
+      kind: kind,
+      plan: plan || null,
+      sim_line_id: simLineId || null,
+      amount_usd: finalAmountUsd,
+      status: "created",
+    });
+
+    if (insertOrderErr) {
+      console.error("Failed to insert paypal_orders row:", insertOrderErr);
+    }
 
     return new Response(
       JSON.stringify({
         success: true,
         order_id: orderId,
-        approve_url: approveUrl,
-        amount_usd: amountUsd,
+        approval_url: approveLink,
+        amount_usd: finalAmountUsd,
       }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err: any) {
+    console.error("create-paypal-order internal error:", err);
     return new Response(
       JSON.stringify({ success: false, error: err.message || "Internal server error" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }

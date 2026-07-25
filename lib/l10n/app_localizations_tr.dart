@@ -2076,6 +2076,38 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String walletBalanceBlockedNotice(String balance) {
-    return 'Cüzdan bakiyeniz (\$$balance) sınırı (\$1.00) aşıyor. Lütfen harcayın veya destekle iletişime geçin.';
+    return 'Cüzdan bakiyeniz (\$$balance) limiti (\$1.00) aşıyor. Lütfen harcayın veya destekle iletişime geçin.';
   }
+
+  @override
+  String get payPalCheckoutTitle => 'PayPal Ödeme';
+
+  @override
+  String get payPalWalletTopUp => 'KeepSIMs Cüzdan Yüklemesi';
+
+  @override
+  String get payPalPaySecurely => 'PayPal ile Güvenli Öde';
+
+  @override
+  String get payPalRedirectInfo =>
+      'Ödemenizi onaylamak için PayPal\'a yönlendirileceksiniz.';
+
+  @override
+  String get payPalCreatingOrder => 'Güvenli PayPal siparişi oluşturuluyor...';
+
+  @override
+  String get payPalAwaitingConfirmation => 'PayPal Onayı Bekleniyor...';
+
+  @override
+  String get payPalCompleteInBrowser =>
+      'Lütfen açılan tarayıcı penceresinde ödemeyi tamamlayın.';
+
+  @override
+  String get payPalPaymentConfirmed => 'Ödeme Onaylandı!';
+
+  @override
+  String get payPalPaymentFailed => 'Ödeme başarısız oldu veya iptal edildi.';
+
+  @override
+  String get payPalForceCaptureButton => 'PayPal\'da Ödemeyi Tamamladım';
 }

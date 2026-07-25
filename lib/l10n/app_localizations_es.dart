@@ -2095,6 +2095,39 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String walletBalanceBlockedNotice(String balance) {
-    return 'El saldo de su billetera (\$$balance) supera el límite (\$1.00). Gástelo o contacte a soporte.';
+    return 'Tu saldo (\$$balance) supera el límite (\$1.00). Por favor gastalo o contacta soporte.';
   }
+
+  @override
+  String get payPalCheckoutTitle => 'Pago con PayPal';
+
+  @override
+  String get payPalWalletTopUp => 'Recarga de monedero KeepSIMs';
+
+  @override
+  String get payPalPaySecurely => 'Pagar de forma segura con PayPal';
+
+  @override
+  String get payPalRedirectInfo =>
+      'Serás redirigido a PayPal para autorizar tu pago.';
+
+  @override
+  String get payPalCreatingOrder => 'Creando pedido seguro de PayPal...';
+
+  @override
+  String get payPalAwaitingConfirmation =>
+      'Esperando confirmación de PayPal...';
+
+  @override
+  String get payPalCompleteInBrowser =>
+      'Por favor completa el pago en la ventana del navegador.';
+
+  @override
+  String get payPalPaymentConfirmed => '¡Pago confirmado!';
+
+  @override
+  String get payPalPaymentFailed => 'El pago falló o fue cancelado.';
+
+  @override
+  String get payPalForceCaptureButton => 'He completado el pago en PayPal';
 }

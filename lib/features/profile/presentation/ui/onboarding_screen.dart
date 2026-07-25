@@ -344,20 +344,18 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       final authResult = await authGuard.confirmPayment(
         reason: 'Authenticate to confirm plan payment',
       );
-      if (authResult == BiometricResult.cancelled ||
-          authResult == BiometricResult.failed ||
-          authResult == BiometricResult.lockedOut) {
+      if (authResult != BiometricResult.success) {
         return;
       }
 
       if (mounted) {
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) => PaypalRefillSimulatorScreen(
+            builder: (context) => PayPalCheckoutScreen(
               initialAmount: amountToCharge,
               paymentReason: 'Payment for $_selectedTier plan',
-              depositToWallet: false,
               paymentKind: 'plan',
+              plan: _selectedTier,
               onSuccess: () {
                 Navigator.of(context).pop();
                 commitSubmit();

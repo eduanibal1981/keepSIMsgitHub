@@ -991,5 +991,15 @@
                 "type": "String"
             }
         }
-    }
+    },
+    "payPalCheckoutTitle": "PayPal Checkout",
+    "payPalWalletTopUp": "KeepSIMs Wallet Top-up",
+    "payPalPaySecurely": "Pay Securely with PayPal",
+    "payPalRedirectInfo": "You will be redirected to PayPal to authorize your payment.",
+    "payPalCreatingOrder": "Creating secure PayPal order...",
+    "payPalAwaitingConfirmation": "Awaiting PayPal Confirmation...",
+    "payPalCompleteInBrowser": "Please complete payment in the opened browser window.",
+    "payPalPaymentConfirmed": "Payment Confirmed!",
+    "payPalPaymentFailed": "Payment failed or was cancelled.",
+    "payPalForceCaptureButton": "I've Completed Payment on PayPal"
 }

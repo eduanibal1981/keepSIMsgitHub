@@ -833,7 +833,17 @@
             }
         }
     },
-    "walletBalanceBlockedNotice": "আপনার ওয়ালেট ব্যালেন্স (${balance}) সীমা ($1.00) ছাড়িয়েছে। দয়া করে এটি খরচ করুন অথবা সহায়তা যোগাযোগ করুন।",
+    "walletBalanceBlockedNotice": "আপনার ওয়ালেট ব্যালেন্স (${balance}) সীমা ($1.00) ছাড়িয়েছে। অনুগ্রহ করে খরচ করুন বা সাপোর্টে যোগাযোগ করুন।",
+    "payPalCheckoutTitle": "PayPal চেকআউট",
+    "payPalWalletTopUp": "KeepSIMs ওয়ালেট টপ-আপ",
+    "payPalPaySecurely": "PayPal দিয়ে নিরাপদে পেমেন্ট করুন",
+    "payPalRedirectInfo": "পেমেন্ট অনুমোদন করতে আপনাকে PayPal-এ রিডাইরেক্ট করা হবে।",
+    "payPalCreatingOrder": "সুরক্ষিত PayPal অর্ডার তৈরি করা হচ্ছে...",
+    "payPalAwaitingConfirmation": "PayPal নিশ্চিতকরণের জন্য অপেক্ষা করা হচ্ছে...",
+    "payPalCompleteInBrowser": "অনুগ্রহ করে খোলা ব্রাউজার উইন্ডোতে পেমেন্ট সম্পন্ন করুন।",
+    "payPalPaymentConfirmed": "পেমেন্ট নিশ্চিত করা হয়েছে!",
+    "payPalPaymentFailed": "পেমেন্ট ব্যর্থ হয়েছে বা বাতিল করা হয়েছে।",
+    "payPalForceCaptureButton": "আমি PayPal-এ পেমেন্ট সম্পন্ন করেছি",
     "@walletBalanceBlockedNotice": {
         "description": "Notice when balance exceeds dust limit",
         "placeholders": {

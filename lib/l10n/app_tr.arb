@@ -833,7 +833,17 @@
             }
         }
     },
-    "walletBalanceBlockedNotice": "Cüzdan bakiyeniz (${balance}) sınırı ($1.00) aşıyor. Lütfen harcayın veya destekle iletişime geçin.",
+    "walletBalanceBlockedNotice": "Cüzdan bakiyeniz (${balance}) limiti ($1.00) aşıyor. Lütfen harcayın veya destekle iletişime geçin.",
+    "payPalCheckoutTitle": "PayPal Ödeme",
+    "payPalWalletTopUp": "KeepSIMs Cüzdan Yüklemesi",
+    "payPalPaySecurely": "PayPal ile Güvenli Öde",
+    "payPalRedirectInfo": "Ödemenizi onaylamak için PayPal'a yönlendirileceksiniz.",
+    "payPalCreatingOrder": "Güvenli PayPal siparişi oluşturuluyor...",
+    "payPalAwaitingConfirmation": "PayPal Onayı Bekleniyor...",
+    "payPalCompleteInBrowser": "Lütfen açılan tarayıcı penceresinde ödemeyi tamamlayın.",
+    "payPalPaymentConfirmed": "Ödeme Onaylandı!",
+    "payPalPaymentFailed": "Ödeme başarısız oldu veya iptal edildi.",
+    "payPalForceCaptureButton": "PayPal'da Ödemeyi Tamamladım",
     "@walletBalanceBlockedNotice": {
         "description": "Notice when balance exceeds dust limit",
         "placeholders": {

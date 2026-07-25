@@ -106,10 +106,10 @@ class _ManualRefillBottomSheetState
 
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) => PaypalRefillSimulatorScreen(
+            builder: (context) => PayPalCheckoutScreen(
               initialAmount: totalAmount,
               paymentReason: 'Manual Refill for ${widget.simLine.phoneNumber}',
-              depositToWallet: false,
+              paymentKind: 'deposit',
               onSuccess: () async {
                 try {
                   await ref

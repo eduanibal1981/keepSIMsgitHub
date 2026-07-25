@@ -2052,6 +2052,37 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String walletBalanceBlockedNotice(String balance) {
-    return 'رصيد محفظتك (\$$balance) يتجاوز الحد الأدنى (\$1.00). يرجى إنفاقه أو الاتصال بالدعم.';
+    return 'رصيد محفظتك (\$$balance) يتجاوز الحد المسموح (\$1.00). يرجى استخدامه أو التواصل مع الدعم.';
   }
+
+  @override
+  String get payPalCheckoutTitle => 'الدفع عبر PayPal';
+
+  @override
+  String get payPalWalletTopUp => 'شحن محفظة KeepSIMs';
+
+  @override
+  String get payPalPaySecurely => 'دفع آمن عبر PayPal';
+
+  @override
+  String get payPalRedirectInfo => 'سيتم تحويلك إلى PayPal لتفويض عملية الدفع.';
+
+  @override
+  String get payPalCreatingOrder => 'جاري إنشاء طلب PayPal آمن...';
+
+  @override
+  String get payPalAwaitingConfirmation => 'في انتظار تأكيد PayPal...';
+
+  @override
+  String get payPalCompleteInBrowser =>
+      'يرجى إكمال عملية الدفع في نافذة المتصفح المفتوحة.';
+
+  @override
+  String get payPalPaymentConfirmed => 'تم تأكيد الدفع بنجاح!';
+
+  @override
+  String get payPalPaymentFailed => 'فشلت عملية الدفع أو تم إلغاؤها.';
+
+  @override
+  String get payPalForceCaptureButton => 'لقد أكملت الدفع على PayPal';
 }

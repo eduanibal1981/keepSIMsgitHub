@@ -1350,9 +1350,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
         final authResult = await authGuard.confirmPayment(
           reason: 'Authenticate to confirm plan payment',
         );
-        if (authResult == BiometricResult.cancelled ||
-            authResult == BiometricResult.failed ||
-            authResult == BiometricResult.lockedOut) {
+        if (authResult != BiometricResult.success) {
           setState(() {
             _isSaving = false;
           });
@@ -1366,12 +1364,11 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
         if (mounted) {
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (context) => PaypalRefillSimulatorScreen(
+              builder: (context) => PayPalCheckoutScreen(
                 initialAmount: amountToCharge,
                 paymentReason: 'Payment for $selectedPlanType protection plan',
-                depositToWallet:
-                    false, // direct payment, don't deposit to wallet
                 paymentKind: 'plan',
+                plan: selectedPlanType,
                 simLineId: widget.id,
                 onSuccess: () {
                   Navigator.of(context).pop(); // pop Paypal screen

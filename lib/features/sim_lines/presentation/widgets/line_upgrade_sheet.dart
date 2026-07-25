@@ -361,9 +361,7 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
                             final authResult = await authGuard.confirmPayment(
                               reason: 'Authenticate to confirm plan upgrade',
                             );
-                            if (authResult == BiometricResult.cancelled ||
-                                authResult == BiometricResult.failed ||
-                                authResult == BiometricResult.lockedOut) {
+                            if (authResult != BiometricResult.success) {
                               return;
                             }
 
@@ -371,11 +369,11 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
                             // Navigate directly to PayPal payment
                             navigator.push(
                               MaterialPageRoute(
-                                builder: (context) => PaypalRefillSimulatorScreen(
+                                builder: (context) => PayPalCheckoutScreen(
                                   initialAmount: totalAmount,
                                   paymentReason: reason,
-                                  depositToWallet: false,
                                   paymentKind: 'plan',
+                                  plan: _selectedPlan,
                                   simLineId: widget.simLine.id,
                                   onSuccess: commitUpgrade,
                                 ),

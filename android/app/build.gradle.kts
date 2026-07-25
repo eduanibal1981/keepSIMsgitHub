@@ -67,10 +67,18 @@ android {
 
     buildTypes {
         release {
+            val allowDebugSigning = project.hasProperty("allowDebugSigning") && project.property("allowDebugSigning").toString() == "true"
             if (keystorePropertiesFile.exists() && signingConfigs.findByName("release") != null) {
                 signingConfig = signingConfigs.getByName("release")
-            } else {
+            } else if (allowDebugSigning) {
+                logger.warn("WARNING: Release build is using DEBUG signing key because -PallowDebugSigning=true was set.")
                 signingConfig = signingConfigs.getByName("debug")
+            } else {
+                throw GradleException(
+                    "RELEASE BUILD FAILED: key.properties is missing or invalid, and release signing key is required.\n" +
+                    "To build for Play Store production release, create key.properties with storeFile, storePassword, keyAlias, and keyPassword.\n" +
+                    "For local testing ONLY, pass -PallowDebugSigning=true."
+                )
             }
         }
     }

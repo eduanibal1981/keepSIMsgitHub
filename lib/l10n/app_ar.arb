@@ -757,7 +757,17 @@
             }
         }
     },
-    "walletBalanceBlockedNotice": "رصيد محفظتك (${balance}) يتجاوز الحد الأدنى ($1.00). يرجى إنفاقه أو الاتصال بالدعم.",
+    "walletBalanceBlockedNotice": "رصيد محفظتك (${balance}) يتجاوز الحد المسموح ($1.00). يرجى استخدامه أو التواصل مع الدعم.",
+    "payPalCheckoutTitle": "الدفع عبر PayPal",
+    "payPalWalletTopUp": "شحن محفظة KeepSIMs",
+    "payPalPaySecurely": "دفع آمن عبر PayPal",
+    "payPalRedirectInfo": "سيتم تحويلك إلى PayPal لتفويض عملية الدفع.",
+    "payPalCreatingOrder": "جاري إنشاء طلب PayPal آمن...",
+    "payPalAwaitingConfirmation": "في انتظار تأكيد PayPal...",
+    "payPalCompleteInBrowser": "يرجى إكمال عملية الدفع في نافذة المتصفح المفتوحة.",
+    "payPalPaymentConfirmed": "تم تأكيد الدفع بنجاح!",
+    "payPalPaymentFailed": "فشلت عملية الدفع أو تم إلغاؤها.",
+    "payPalForceCaptureButton": "لقد أكملت الدفع على PayPal",
     "@walletBalanceBlockedNotice": {
         "description": "Notice when balance exceeds dust limit",
         "placeholders": {

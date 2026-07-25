@@ -834,6 +834,16 @@
         }
     },
     "walletBalanceBlockedNotice": "آپ کا والٹ بیلنس (${balance}) حد ($1.00) سے زیادہ ہے۔ برائے مہربانی اسے خرچ کریں یا سپورٹ سے رابطہ کریں۔",
+    "payPalCheckoutTitle": "PayPal چیک آؤٹ",
+    "payPalWalletTopUp": "KeepSIMs والٹ ٹاپ اپ",
+    "payPalPaySecurely": "PayPal کے ساتھ محفوظ ادائیگی کریں",
+    "payPalRedirectInfo": "ادائیگی کی توثیق کے لیے آپ کو PayPal پر بھیجا جائے گا۔",
+    "payPalCreatingOrder": "محفوظ PayPal آرڈر بنایا جا رہا ہے...",
+    "payPalAwaitingConfirmation": "PayPal کی تصدیق کا انتظار ہے...",
+    "payPalCompleteInBrowser": "براہ کرم کھلی ہوئی براؤزر ونڈو میں ادائیگی مکمل کریں۔",
+    "payPalPaymentConfirmed": "ادائیگی کی تصدیق ہو گئی!",
+    "payPalPaymentFailed": "ادائیگی ناکام ہو گئی یا منسوخ کر دی گئی۔",
+    "payPalForceCaptureButton": "میں نے PayPal پر ادائیگی مکمل کر لی ہے",
     "@walletBalanceBlockedNotice": {
         "description": "Notice when balance exceeds dust limit",
         "placeholders": {

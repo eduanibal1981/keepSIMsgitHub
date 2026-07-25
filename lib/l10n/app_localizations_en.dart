@@ -2064,4 +2064,36 @@ class AppLocalizationsEn extends AppLocalizations {
   String walletBalanceBlockedNotice(String balance) {
     return 'Your wallet balance (\$$balance) exceeds dust limit (\$1.00). Please spend it or contact support for payout.';
   }
+
+  @override
+  String get payPalCheckoutTitle => 'PayPal Checkout';
+
+  @override
+  String get payPalWalletTopUp => 'KeepSIMs Wallet Top-up';
+
+  @override
+  String get payPalPaySecurely => 'Pay Securely with PayPal';
+
+  @override
+  String get payPalRedirectInfo =>
+      'You will be redirected to PayPal to authorize your payment.';
+
+  @override
+  String get payPalCreatingOrder => 'Creating secure PayPal order...';
+
+  @override
+  String get payPalAwaitingConfirmation => 'Awaiting PayPal Confirmation...';
+
+  @override
+  String get payPalCompleteInBrowser =>
+      'Please complete payment in the opened browser window.';
+
+  @override
+  String get payPalPaymentConfirmed => 'Payment Confirmed!';
+
+  @override
+  String get payPalPaymentFailed => 'Payment failed or was cancelled.';
+
+  @override
+  String get payPalForceCaptureButton => 'I\'ve Completed Payment on PayPal';
 }

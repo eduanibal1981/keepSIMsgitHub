@@ -2071,6 +2071,40 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String walletBalanceBlockedNotice(String balance) {
-    return 'আপনার ওয়ালেট ব্যালেন্স (\$$balance) সীমা (\$1.00) ছাড়িয়েছে। দয়া করে এটি খরচ করুন অথবা সহায়তা যোগাযোগ করুন।';
+    return 'আপনার ওয়ালেট ব্যালেন্স (\$$balance) সীমা (\$1.00) ছাড়িয়েছে। অনুগ্রহ করে খরচ করুন বা সাপোর্টে যোগাযোগ করুন।';
   }
+
+  @override
+  String get payPalCheckoutTitle => 'PayPal চেকআউট';
+
+  @override
+  String get payPalWalletTopUp => 'KeepSIMs ওয়ালেট টপ-আপ';
+
+  @override
+  String get payPalPaySecurely => 'PayPal দিয়ে নিরাপদে পেমেন্ট করুন';
+
+  @override
+  String get payPalRedirectInfo =>
+      'পেমেন্ট অনুমোদন করতে আপনাকে PayPal-এ রিডাইরেক্ট করা হবে।';
+
+  @override
+  String get payPalCreatingOrder => 'সুরক্ষিত PayPal অর্ডার তৈরি করা হচ্ছে...';
+
+  @override
+  String get payPalAwaitingConfirmation =>
+      'PayPal নিশ্চিতকরণের জন্য অপেক্ষা করা হচ্ছে...';
+
+  @override
+  String get payPalCompleteInBrowser =>
+      'অনুগ্রহ করে খোলা ব্রাউজার উইন্ডোতে পেমেন্ট সম্পন্ন করুন।';
+
+  @override
+  String get payPalPaymentConfirmed => 'পেমেন্ট নিশ্চিত করা হয়েছে!';
+
+  @override
+  String get payPalPaymentFailed =>
+      'পেমেন্ট ব্যর্থ হয়েছে বা বাতিল করা হয়েছে।';
+
+  @override
+  String get payPalForceCaptureButton => 'আমি PayPal-এ পেমেন্ট সম্পন্ন করেছি';
 }
