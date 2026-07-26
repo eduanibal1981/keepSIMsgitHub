@@ -28,6 +28,17 @@ void main() async {
   // Force semantics for TestSprite AI
   RendererBinding.instance.ensureSemantics();
 
+  // Global error handling hooks for app resilience
+  FlutterError.onError = (FlutterErrorDetails details) {
+    FlutterError.presentError(details);
+    debugPrint('Uncaught Flutter Error: ${details.exceptionAsString()}\n${details.stack}');
+  };
+
+  WidgetsBinding.instance.platformDispatcher.onError = (Object error, StackTrace stack) {
+    debugPrint('Uncaught Platform Error: $error\n$stack');
+    return true; // Error handled
+  };
+
   // Lock to portrait on mobile
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 

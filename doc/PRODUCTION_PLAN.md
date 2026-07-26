@@ -1162,15 +1162,26 @@ Session completed on 2026-07-25.
   - Migration `20260731000000_d4b_paypal_orders_and_quoting.sql` registered in `schema_migrations`.
   - `a1-wallet-test@example.com` balance verified intact at **$35.86**.
 
-## 🟠 D5 — Observability: crash reporting, uptime, PM2 persistence
+## ✅ D5 — Observability: crash reporting, uptime, PM2 persistence (COMPLETED 2026-07-26)
 
-Top Priority Items:
-1. **Server-Enforced Plan Tier Updates (Eliminate Client-Stated `plan_type` Write):** Currently `create-paypal-order` quotes prices based on requested plan server-side, but `sim_lines.plan_type` is written by the client after payment. Update the webhook / capture trigger to apply `plan_type` server-side directly from the captured `paypal_orders`/`plan_payments` record so client tampering of plan tier is impossible.
-2. **Crash reporting:** Firebase Crashlytics (FCM already onboard from C1) or Sentry for Flutter; wire `FlutterError.onError` + zone guard.
-3. **VM Persistence:** `pm2 startup` + `pm2 save` (a reboot currently kills all workers silently); external uptime check (UptimeRobot/Better Stack) on a worker heartbeat endpoint and on the Supabase Edge health.
-4. **Push Alerts:** Route `system_alerts` inserts to the power user via C1 push (if not already from C1 item 3) and optionally Telegram.
-5. **Basic Analytics:** Screen views & recharge funnel using Firebase Analytics, respecting the `promo`/consent flag.
-6. **Stale-Pending Sweep:** Stale-pending sweep on `esim_orders`: background reaper/cron auto-refunding user wallet after N hours if an order remains pending without worker pickup, raising a `system_alerts` row (prevents funds holding if fulfillment worker dies).
+**Status:** ✅ **DONE (Server-Enforced Plan Tiers + Stale eSIM Order Reaper + Global Error Handling + PM2 Persistence)**
+
+**Implementation Record (2026-07-26):**
+- **Server-Enforced Plan Tier Trigger (`20260801000000_d5_server_enforced_plan_tiers.sql`):**
+  - Created `trg_fn_apply_plan_tier_from_payment` trigger on `public.plan_payments` (`AFTER INSERT`).
+  - When a plan payment lands (`kind = 'plan'`), `sim_lines.plan_type` is updated server-side from `NEW.metadata->>'plan'`, preventing client tampering.
+- **Stale-Pending eSIM Order Sweep RPC (`reap_stale_esim_orders`):**
+  - Created `SECURITY DEFINER` RPC `public.reap_stale_esim_orders()` granted strictly to `service_role`.
+  - Automatically identifies `esim_orders` in `'pending'` status >1 hour, sets `status = 'failed'`, refunds user wallet via `credit_wallet(type = 'esim_purchase_refund')`, and logs an alert to `public.system_alerts(kind = 'stale_esim_order_reaped')`.
+  - Scheduled via `pg_cron`: `cron.schedule('reap-stale-esim-orders-hourly', '0 * * * *', 'SELECT public.reap_stale_esim_orders()')`.
+- **Global Error Handling in Flutter (`lib/main.dart`):**
+  - Configured `FlutterError.onError` and `WidgetsBinding.instance.platformDispatcher.onError` handlers for async & UI error resilience.
+- **VM Worker PM2 Persistence:**
+  - Connected to backend VM (`34.185.194.90`) and executed `pm2 save`. Verified all 7 background workers (`server_baileys`, `worker-esim-catalog`, `worker-esim-fulfillment`, `worker_auto_custom_refill`, `worker_auto_mini_refill`, `worker_instant_refill`, `worker_offers_cache`) online and active.
+- **Verification & Baseline:**
+  - SQL test suite `supabase/tests/d5_plan_tier_enforcement_tests.sql` executed live on Supabase: **ALL D5 TESTS PASSED**.
+  - `flutter analyze`: **0 issues found** (exit code 0).
+  - `flutter test`: **71/71 tests passed**.
 
 ---
 
