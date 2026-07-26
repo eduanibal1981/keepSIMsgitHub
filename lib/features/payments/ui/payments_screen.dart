@@ -1168,6 +1168,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
     if (errorMsg != null) {
       _showBanner(errorMsg, isError: true);
     } else {
+      if (!sheetContext.mounted) return;
       _showBanner(AppLocalizations.of(sheetContext)!.cardLinkedSuccessfully);
     }
   }
@@ -1177,6 +1178,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
     final err = await ref
         .read(paymentsControllerProvider.notifier)
         .setDefaultPaymentMethod(cardId);
+    if (!mounted) return;
     if (err != null) {
       _showBanner(err, isError: true);
     } else {
@@ -1234,6 +1236,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                 final err = await ref
                     .read(paymentsControllerProvider.notifier)
                     .deletePaymentMethod(cardId);
+                if (!mounted) return;
                 if (err != null) {
                   _showBanner(err, isError: true);
                 } else {
@@ -1272,6 +1275,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
           autoFundAmount: _autoFundAmount,
         );
 
+    if (!mounted) return;
     if (err != null) {
       _showBanner(err, isError: true);
     } else {

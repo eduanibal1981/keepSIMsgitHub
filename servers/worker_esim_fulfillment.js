@@ -108,6 +108,13 @@ async function processPendingOrders() {
         const { createClient } = require('@supabase/supabase-js');
         const supabase = createClient(supabaseUrl, supabaseKey);
 
+        // Upsert worker heartbeat
+        await supabase.from('system_configs').upsert({
+            config_key: 'WORKER_ESIM_FULFILLMENT_HEARTBEAT',
+            config_value: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+        }, { onConflict: 'config_key' }).catch(() => {});
+
         // Claim pending orders
         const { data: pendingOrders, error: fetchErr } = await supabase
             .from('esim_orders')

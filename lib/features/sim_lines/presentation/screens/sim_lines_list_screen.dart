@@ -470,6 +470,7 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
       buttonText: AppLocalizations.of(context)!.protectNewLine,
       onButtonPressed: () async {
         await HapticHelper.lightTick();
+        if (!context.mounted) return;
         _checkLineLimitAndAdd(context, myLinesCount);
       },
     );
@@ -483,6 +484,7 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
       buttonText: AppLocalizations.of(context)!.manageHousehold,
       onButtonPressed: () async {
         await HapticHelper.lightTick();
+        if (!context.mounted) return;
         context.push('/household');
       },
     );
@@ -565,6 +567,7 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
     return InkWell(
       onTap: () async {
         await HapticHelper.lightTick();
+        if (!context.mounted) return;
         _checkLineLimitAndAdd(context, myLinesCount);
       },
       borderRadius: BorderRadius.circular(20),

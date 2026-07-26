@@ -32,75 +32,86 @@ void main() async {
     // Force semantics for TestSprite AI
     RendererBinding.instance.ensureSemantics();
 
-    // Sentry error reporting & PII scrubbing initialization
-    await SentryFlutter.init(
-      (options) {
-        options.dsn = const String.fromEnvironment(
-          'SENTRY_DSN',
-          defaultValue: 'https://placeholder_key@o0.ingest.sentry.io/0',
-        );
-        options.tracesSampleRate = kReleaseMode ? 0.2 : 1.0;
-        options.beforeSend = (SentryEvent event, Hint hint) {
-          // PII scrubbing: strip sensitive data (wallet amounts, phone numbers, ICCIDs)
-          final extra = event.extra;
-          if (extra != null) {
-            final scrubbed = Map<String, dynamic>.from(extra);
-            scrubbed.removeWhere((key, value) {
-              final k = key.toLowerCase();
-              return k.contains('phone') ||
-                     k.contains('wallet') ||
-                     k.contains('iccid') ||
-                     k.contains('amount') ||
-                     k.contains('token') ||
-                     k.contains('secret');
-            });
-            return event.copyWith(extra: scrubbed);
-          }
-          return event;
-        };
-      },
-      appRunner: () async {
-        // Global error handling hooks for app resilience
-        FlutterError.onError = (FlutterErrorDetails details) {
-          FlutterError.presentError(details);
-          debugPrint('Uncaught Flutter Error: ${details.exceptionAsString()}\n${details.stack}');
+    const sentryDsn = String.fromEnvironment('SENTRY_DSN');
+
+    Future<void> runAppMain() async {
+      // Global error handling hooks for app resilience
+      FlutterError.onError = (FlutterErrorDetails details) {
+        FlutterError.presentError(details);
+        debugPrint('Uncaught Flutter Error: ${details.exceptionAsString()}\n${details.stack}');
+        if (sentryDsn.isNotEmpty) {
           Sentry.captureException(details.exception, stackTrace: details.stack);
-        };
-
-        WidgetsBinding.instance.platformDispatcher.onError = (Object error, StackTrace stack) {
-          debugPrint('Uncaught Platform Error: $error\n$stack');
-          Sentry.captureException(error, stackTrace: stack);
-          return true; // Error handled
-        };
-
-        // Lock to portrait on mobile
-        await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-
-        // Initialize OneSignal (for push notifications)
-        OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
-        OneSignal.initialize('434b9552-8005-4d08-b3b1-a7a35f0b15dc');
-        OneSignal.Notifications.requestPermission(false);
-
-        // Firebase initialization for FCM fallback
-        try {
-          await Firebase.initializeApp();
-        } catch (e) {
-          debugPrint('Firebase init skipped; FCM fallback inactive: $e');
         }
+      };
 
-        // Initialize Supabase
-        await initSupabase();
+      WidgetsBinding.instance.platformDispatcher.onError = (Object error, StackTrace stack) {
+        debugPrint('Uncaught Platform Error: $error\n$stack');
+        if (sentryDsn.isNotEmpty) {
+          Sentry.captureException(error, stackTrace: stack);
+        }
+        return true; // Error handled
+      };
 
-        final sharedPrefs = await SharedPreferences.getInstance();
+      // Lock to portrait on mobile
+      await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
-        runApp(
-          ProviderScope(
-            overrides: [sharedPreferencesProvider.overrideWith((ref) => sharedPrefs)],
-            child: const KeepSIMsApp(),
-          ),
-        );
-      },
-    );
+      // Initialize OneSignal (for push notifications)
+      OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
+      OneSignal.initialize('434b9552-8005-4d08-b3b1-a7a35f0b15dc');
+      OneSignal.Notifications.requestPermission(false);
+
+      // Firebase initialization for FCM fallback
+      try {
+        await Firebase.initializeApp();
+      } catch (e) {
+        debugPrint('Firebase init skipped; FCM fallback inactive: $e');
+      }
+
+      // Initialize Supabase
+      await initSupabase();
+
+      final sharedPrefs = await SharedPreferences.getInstance();
+
+      runApp(
+        ProviderScope(
+          overrides: [sharedPreferencesProvider.overrideWith((ref) => sharedPrefs)],
+          child: const KeepSIMsApp(),
+        ),
+      );
+    }
+
+    if (sentryDsn.isEmpty) {
+      debugPrint('WARNING: SENTRY_DSN is not configured. Skipping SentryFlutter.init to avoid silent event drops.');
+      await runAppMain();
+    } else {
+      await SentryFlutter.init(
+        (options) {
+          options.dsn = sentryDsn;
+          options.sendDefaultPii = false;
+          options.tracesSampleRate = kReleaseMode ? 0.05 : 1.0;
+          options.beforeSend = (SentryEvent event, Hint hint) {
+            // PII scrubbing: strip sensitive data (wallet amounts, phone numbers, ICCIDs) from extra, breadcrumbs, and exceptions
+            var scrubbedEvent = event;
+            final extra = scrubbedEvent.extra;
+            if (extra != null) {
+              final scrubbed = Map<String, dynamic>.from(extra);
+              scrubbed.removeWhere((key, value) {
+                final k = key.toLowerCase();
+                return k.contains('phone') ||
+                       k.contains('wallet') ||
+                       k.contains('iccid') ||
+                       k.contains('amount') ||
+                       k.contains('token') ||
+                       k.contains('secret');
+              });
+              scrubbedEvent = scrubbedEvent.copyWith(extra: scrubbed);
+            }
+            return scrubbedEvent;
+          };
+        },
+        appRunner: runAppMain,
+      );
+    }
   }, (error, stackTrace) {
     Sentry.captureException(error, stackTrace: stackTrace);
   });

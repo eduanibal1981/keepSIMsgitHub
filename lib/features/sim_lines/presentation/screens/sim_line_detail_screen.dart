@@ -2898,6 +2898,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
 
               final goRouter = GoRouter.of(context);
               final scaffoldMessenger = ScaffoldMessenger.of(context);
+              final l10n = AppLocalizations.of(context)!;
 
               // Instantly navigate back to the Home Page to prevent this screen
               // from rebuilding with a "SIM Line not found" error when the deletion completes.
@@ -2910,20 +2911,14 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
 
                 scaffoldMessenger.showSnackBar(
                   SnackBar(
-                    content: Text(
-                      AppLocalizations.of(context)!.simLineProtectionRemoved,
-                    ),
+                    content: Text(l10n.simLineProtectionRemoved),
                     backgroundColor: AppColors.success,
                   ),
                 );
               } catch (e) {
                 scaffoldMessenger.showSnackBar(
                   SnackBar(
-                    content: Text(
-                      AppLocalizations.of(
-                        context,
-                      )!.failedToDeleteSimLine(e.toString()),
-                    ),
+                    content: Text(l10n.failedToDeleteSimLine(e.toString())),
                     backgroundColor: AppColors.error,
                   ),
                 );
