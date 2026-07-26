@@ -1,7 +1,6 @@
 include: package:flutter_lints/flutter.yaml
 
 analyzer:
-  fatal-infos: false
   exclude:
     - "**/*.g.dart"
     - "**/*.freezed.dart"
@@ -12,6 +11,9 @@ analyzer:
     unused_local_variable: ignore
     unused_element: ignore
     unused_import: ignore
+    unused_field: ignore
+    unnecessary_import: ignore
+    prefer_single_quotes: ignore
     avoid_print: ignore
     use_build_context_synchronously: ignore
     depend_on_referenced_packages: ignore
