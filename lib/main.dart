@@ -3,7 +3,9 @@
 /// Initializes Supabase and wraps the app in ProviderScope.
 library;
 
+import 'dart:async';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/rendering.dart';
@@ -17,61 +19,91 @@ import 'package:keep_sims/core/router/app_router.dart';
 import 'package:keep_sims/features/notifications/presentation/controllers/notification_settings_controller.dart';
 import 'package:keep_sims/core/services/sync_queue_service.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:keep_sims/core/services/local_cache_service.dart';
 import 'package:keep_sims/core/widgets/biometric_lock_overlay.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  runZonedGuarded(() async {
+    WidgetsFlutterBinding.ensureInitialized();
 
-  // Force semantics for TestSprite AI
-  RendererBinding.instance.ensureSemantics();
+    // Force semantics for TestSprite AI
+    RendererBinding.instance.ensureSemantics();
 
-  // Global error handling hooks for app resilience
-  FlutterError.onError = (FlutterErrorDetails details) {
-    FlutterError.presentError(details);
-    debugPrint('Uncaught Flutter Error: ${details.exceptionAsString()}\n${details.stack}');
-  };
+    // Sentry error reporting & PII scrubbing initialization
+    await SentryFlutter.init(
+      (options) {
+        options.dsn = const String.fromEnvironment(
+          'SENTRY_DSN',
+          defaultValue: 'https://placeholder_key@o0.ingest.sentry.io/0',
+        );
+        options.tracesSampleRate = kReleaseMode ? 0.2 : 1.0;
+        options.beforeSend = (SentryEvent event, Hint hint) {
+          // PII scrubbing: strip sensitive data (wallet amounts, phone numbers, ICCIDs)
+          final extra = event.extra;
+          if (extra != null) {
+            final scrubbed = Map<String, dynamic>.from(extra);
+            scrubbed.removeWhere((key, value) {
+              final k = key.toLowerCase();
+              return k.contains('phone') ||
+                     k.contains('wallet') ||
+                     k.contains('iccid') ||
+                     k.contains('amount') ||
+                     k.contains('token') ||
+                     k.contains('secret');
+            });
+            return event.copyWith(extra: scrubbed);
+          }
+          return event;
+        };
+      },
+      appRunner: () async {
+        // Global error handling hooks for app resilience
+        FlutterError.onError = (FlutterErrorDetails details) {
+          FlutterError.presentError(details);
+          debugPrint('Uncaught Flutter Error: ${details.exceptionAsString()}\n${details.stack}');
+          Sentry.captureException(details.exception, stackTrace: details.stack);
+        };
 
-  WidgetsBinding.instance.platformDispatcher.onError = (Object error, StackTrace stack) {
-    debugPrint('Uncaught Platform Error: $error\n$stack');
-    return true; // Error handled
-  };
+        WidgetsBinding.instance.platformDispatcher.onError = (Object error, StackTrace stack) {
+          debugPrint('Uncaught Platform Error: $error\n$stack');
+          Sentry.captureException(error, stackTrace: stack);
+          return true; // Error handled
+        };
 
-  // Lock to portrait on mobile
-  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+        // Lock to portrait on mobile
+        await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
-  // Intialize OneSignal (for push notifications)
-  // Enable verbose logging for debugging (remove in production)
-  OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
-  // Initialize with your OneSignal App ID
-  OneSignal.initialize('434b9552-8005-4d08-b3b1-a7a35f0b15dc');
-  // Use this method to prompt for push notifications.
-  // We recommend removing this method after testing and instead use In-App Messages to prompt for notification permission.
-  OneSignal.Notifications.requestPermission(false);
+        // Initialize OneSignal (for push notifications)
+        OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
+        OneSignal.initialize('434b9552-8005-4d08-b3b1-a7a35f0b15dc');
+        OneSignal.Notifications.requestPermission(false);
 
-  // Firebase powers only the FCM fallback used by the dispatch-alert function
-  // when OneSignal is unreachable — never as a datastore. Platforms without a
-  // Firebase config file (currently iOS, which has no GoogleService-Info.plist)
-  // must not crash at startup: the fallback simply stays inactive there.
-  try {
-    await Firebase.initializeApp();
-  } catch (e) {
-    debugPrint('Firebase init skipped; FCM fallback inactive: $e');
-  }
+        // Firebase initialization for FCM fallback
+        try {
+          await Firebase.initializeApp();
+        } catch (e) {
+          debugPrint('Firebase init skipped; FCM fallback inactive: $e');
+        }
 
-  // Initialize Supabase
-  await initSupabase();
+        // Initialize Supabase
+        await initSupabase();
 
-  final sharedPrefs = await SharedPreferences.getInstance();
+        final sharedPrefs = await SharedPreferences.getInstance();
 
-  runApp(
-    ProviderScope(
-      overrides: [sharedPreferencesProvider.overrideWith((ref) => sharedPrefs)],
-      child: const KeepSIMsApp(),
-    ),
-  );
+        runApp(
+          ProviderScope(
+            overrides: [sharedPreferencesProvider.overrideWith((ref) => sharedPrefs)],
+            child: const KeepSIMsApp(),
+          ),
+        );
+      },
+    );
+  }, (error, stackTrace) {
+    Sentry.captureException(error, stackTrace: stackTrace);
+  });
 }
 
 /// Root application widget.

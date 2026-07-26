@@ -124,14 +124,15 @@ async function processPendingOrders() {
             console.log(`[worker_esim_fulfillment] Processing pending order ${order.id} for bundle ${order.bundle_name}...`);
             
             // Atomically mark order processing
-            const { error: markErr } = await supabase
+            const { data: claimedData, error: markErr } = await supabase
                 .from('esim_orders')
                 .update({ status: 'processing', updated_at: new Date().toISOString() })
                 .eq('id', order.id)
-                .eq('status', 'pending');
+                .eq('status', 'pending')
+                .select('id');
 
-            if (markErr) {
-                console.error(`[worker_esim_fulfillment] Failed to mark order ${order.id} processing: ${markErr.message}`);
+            if (markErr || !claimedData || claimedData.length === 0) {
+                console.log(`[worker_esim_fulfillment] Skip order ${order.id} (already claimed or status changed)`);
                 continue;
             }
 
