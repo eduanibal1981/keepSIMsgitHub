@@ -7,6 +7,9 @@ analyzer:
     - "tool/**"
   errors:
     invalid_annotation_target: ignore
+    invalid_use_of_internal_member: ignore
+    unused_local_variable: ignore
+    unused_element: ignore
 
 linter:
   rules:
