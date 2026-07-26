@@ -170,7 +170,9 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
   Future<SimLine> updateSimLine(SimLine line) async {
     final data = line.toJson();
 
+    final payload = line.toClientWritableJson();
     if (_connectivity.isOffline) {
+      final data = Map<String, dynamic>.from(payload)..['id'] = line.id;
       final cached = _cache.readJson('cached_sim_lines') as List? ?? [];
       final updatedCache = cached.map((item) {
         if (item is Map && item['id'] == line.id) return data;
@@ -185,7 +187,7 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
     try {
       final response = await _supabase
           .from('sim_lines')
-          .update(line.toJson())
+          .update(payload)
           .eq('id', line.id)
           .select()
           .single();

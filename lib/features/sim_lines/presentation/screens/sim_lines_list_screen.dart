@@ -20,6 +20,7 @@ import 'package:keep_sims/core/widgets/empty_state.dart';
 import 'package:keep_sims/core/widgets/error_state.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
 import 'package:keep_sims/features/profile/presentation/widgets/subscription_upsell_sheet.dart';
+import 'package:keep_sims/core/services/analytics_service.dart';
 
 import 'package:keep_sims/l10n/app_localizations.dart';
 
@@ -40,6 +41,9 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
   @override
   void initState() {
     super.initState();
+    Future.microtask(() {
+      ref.read(analyticsServiceProvider).logScreenView('sim_lines_list');
+    });
     _tabController = TabController(length: 1, vsync: this);
     _tabController.addListener(() {
       if (mounted) {

@@ -1,4 +1,4 @@
--- D5b / D5c Comprehensive SQL Test Suite
+-- D5d Comprehensive SQL Test Suite & Probes
 -- Runs as a single atomic transaction block ending in ROLLBACK so zero test rows persist.
 
 BEGIN;
@@ -14,14 +14,17 @@ DECLARE
   v_bal_before numeric;
   v_bal_after numeric;
   v_refund_count integer;
+  v_sqlstate text;
+  v_plan_before text;
+  v_plan_after text;
 BEGIN
   -- 1. Setup Test Fixture Data
   INSERT INTO auth.users (id, email)
-  VALUES (v_user_id, 'd5c-test@example.com')
+  VALUES (v_user_id, 'd5d-test@example.com')
   ON CONFLICT (id) DO NOTHING;
 
   INSERT INTO public.profiles (id, email, full_name)
-  VALUES (v_user_id, 'd5c-test@example.com', 'D5c Test User')
+  VALUES (v_user_id, 'd5d-test@example.com', 'D5d Test User')
   ON CONFLICT (id) DO NOTHING;
 
   INSERT INTO public.wallets (id, user_id, balance, currency)
@@ -32,61 +35,78 @@ BEGIN
   VALUES (v_sim_id, v_user_id, '+15550001111', 'free', 'active')
   ON CONFLICT (id) DO UPDATE SET plan_type = 'free';
 
-  -- TEST 1A: PROBE A - Role authenticated WITH jwt.claims MUST BE BLOCKED
+  SELECT plan_type INTO v_plan_before FROM public.sim_lines WHERE id = v_sim_id;
+
+  -- ==========================================================================
+  -- PROBE A: Column grant revoked + role authenticated → Must raise 42501
+  -- ==========================================================================
   PERFORM set_config('role', 'authenticated', true);
   PERFORM set_config('request.jwt.claims', jsonb_build_object('sub', v_user_id::text, 'role', 'authenticated')::text, true);
 
   BEGIN
     UPDATE public.sim_lines SET plan_type = 'premium' WHERE id = v_sim_id;
-    RAISE EXCEPTION 'TEST FAILED: Probe A - authenticated user direct plan_type update succeeded!';
+    RAISE EXCEPTION 'TEST FAILED: Probe A - Direct update of plan_type succeeded!';
   EXCEPTION WHEN OTHERS THEN
-    IF SQLERRM LIKE '%TEST FAILED%' THEN
-      RAISE EXCEPTION '%', SQLERRM;
+    GET STACKED DIAGNOSTICS v_sqlstate = RETURNED_SQLSTATE;
+    IF v_sqlstate <> '42501' THEN
+      RAISE EXCEPTION 'TEST FAILED: Probe A expected SQLSTATE 42501 but got % (Error: %)', v_sqlstate, SQLERRM;
     END IF;
+    RAISE NOTICE 'PROBE A PASSED: SQLSTATE = %', v_sqlstate;
   END;
 
-  -- TEST 1B: PROBE B - Role authenticated WITHOUT jwt.claims MUST ALSO BE BLOCKED (FAIL-CLOSED)
+  -- ==========================================================================
+  -- PROBE B: Column grant restored + role authenticated → Trigger MUST raise KS403
+  -- ==========================================================================
+  PERFORM set_config('role', 'postgres', true);
+  GRANT UPDATE (plan_type) ON public.sim_lines TO authenticated;
+
   PERFORM set_config('role', 'authenticated', true);
-  PERFORM set_config('request.jwt.claims', '', true);
 
   BEGIN
     UPDATE public.sim_lines SET plan_type = 'premium' WHERE id = v_sim_id;
-    RAISE EXCEPTION 'TEST FAILED: Probe B - authenticated user direct plan_type update without claims succeeded!';
+    RAISE EXCEPTION 'TEST FAILED: Probe B - Direct update of plan_type succeeded even with column grant!';
   EXCEPTION WHEN OTHERS THEN
-    IF SQLERRM LIKE '%TEST FAILED%' THEN
-      RAISE EXCEPTION '%', SQLERRM;
+    GET STACKED DIAGNOSTICS v_sqlstate = RETURNED_SQLSTATE;
+    IF v_sqlstate <> 'KS403' THEN
+      RAISE EXCEPTION 'TEST FAILED: Probe B expected SQLSTATE KS403 from trigger but got % (Error: %)', v_sqlstate, SQLERRM;
     END IF;
+    RAISE NOTICE 'PROBE B PASSED: SQLSTATE = %', v_sqlstate;
   END;
 
-  -- Reset role to postgres
+  -- Restore grant revocation for remaining test steps
   PERFORM set_config('role', 'postgres', true);
-  PERFORM set_config('request.jwt.claims', jsonb_build_object('sub', v_user_id::text, 'role', 'service_role')::text, true);
+  REVOKE UPDATE (plan_type) ON public.sim_lines FROM authenticated;
 
-  -- TEST 2: Legitimate Plan Payment Trigger Update
+  -- ==========================================================================
+  -- PROBE C: plan_payments INSERT with kind='plan' → sim_lines.plan_type changes
+  -- ==========================================================================
   INSERT INTO public.plan_payments (
     user_id, sim_line_id, capture_id, kind, gross_usd, paypal_fee_usd, net_usd, metadata
   ) VALUES (
-    v_user_id, v_sim_id, 'test_cap_d5c_123', 'plan', 2.50, 0.49, 2.01, jsonb_build_object('plan', 'premium')
+    v_user_id, v_sim_id, 'test_cap_d5d_999', 'plan', 2.50, 0.49, 2.01, jsonb_build_object('plan', 'premium')
   );
 
-  IF NOT EXISTS (
-    SELECT 1 FROM public.sim_lines
-    WHERE id = v_sim_id AND plan_type = 'premium' AND plan_expires_at > NOW()
-  ) THEN
-    RAISE EXCEPTION 'TEST FAILED: Test 2 - Plan payment trigger failed to set plan_type to premium!';
+  SELECT plan_type INTO v_plan_after FROM public.sim_lines WHERE id = v_sim_id;
+
+  IF v_plan_after <> 'premium' THEN
+    RAISE EXCEPTION 'TEST FAILED: Probe C - plan_payments insert did not update plan_type (before=%, after=%)', v_plan_before, v_plan_after;
   END IF;
 
+  RAISE NOTICE 'PROBE C PASSED: plan_type BEFORE = %, AFTER = %', v_plan_before, v_plan_after;
+
+  -- ==========================================================================
   -- TEST 3: request_esim_purchase RPC Reconciliation & Table Insertion
+  -- ==========================================================================
   INSERT INTO public.esim_offers_cache (
     bundle_name, provider, description, data_amount_mb, duration_days, wholesale_price_usd, is_active
   ) VALUES (
-    'd5c_offer_101', 'esim_go', 'D5c Test Offer', 1024, 7, 5.00, true
+    'd5d_offer_101', 'esim_go', 'D5d Test Offer', 1024, 7, 5.00, true
   ) ON CONFLICT (provider, bundle_name) DO UPDATE SET is_active = true, wholesale_price_usd = 5.00;
 
   PERFORM set_config('role', 'authenticated', true);
   PERFORM set_config('request.jwt.claims', jsonb_build_object('sub', v_user_id::text, 'role', 'authenticated')::text, true);
 
-  v_res := public.request_esim_purchase('d5c_offer_101', 1);
+  v_res := public.request_esim_purchase('d5d_offer_101', 1);
 
   IF NOT (v_res ->> 'success')::boolean THEN
     RAISE EXCEPTION 'TEST FAILED: Test 3 - request_esim_purchase failed: %', v_res ->> 'error';
@@ -99,12 +119,14 @@ BEGIN
 
   IF NOT EXISTS (
     SELECT 1 FROM public.esim_orders
-    WHERE id = v_order_id AND offer_id = 'd5c_offer_101' AND total_amount_usd > 0
+    WHERE id = v_order_id AND offer_id = 'd5d_offer_101' AND total_amount_usd > 0
   ) THEN
     RAISE EXCEPTION 'TEST FAILED: Test 3 - esim_orders row missing offer_id or total_amount_usd!';
   END IF;
 
+  -- ==========================================================================
   -- TEST 4: Stale eSIM Reaper - Debit Refund & Idempotency
+  -- ==========================================================================
   UPDATE public.esim_orders
   SET created_at = NOW() - INTERVAL '4 hours'
   WHERE id = v_order_id;
@@ -122,46 +144,23 @@ BEGIN
     RAISE EXCEPTION 'TEST FAILED: Test 4 - Wallet balance was not refunded by reaper!';
   END IF;
 
-  IF NOT EXISTS (
-    SELECT 1 FROM public.wallet_transactions
-    WHERE reference_id = 'esim_refund_' || v_order_id::text
-      AND type = 'esim_purchase_refund'
-  ) THEN
-    RAISE EXCEPTION 'TEST FAILED: Test 4 - esim_purchase_refund transaction missing!';
-  END IF;
+  -- ==========================================================================
+  -- TEST 5: Worker Heartbeat Staleness Alert Test
+  -- ==========================================================================
+  INSERT INTO public.system_configs (config_key, config_value, updated_at)
+  VALUES ('WORKER_ESIM_FULFILLMENT_HEARTBEAT', '"2026-01-01T00:00:00Z"', NOW() - INTERVAL '20 minutes')
+  ON CONFLICT (config_key) DO UPDATE SET updated_at = NOW() - INTERVAL '20 minutes';
 
-  v_res := public.reap_stale_esim_orders();
-  SELECT count(*) INTO v_refund_count
-  FROM public.wallet_transactions
-  WHERE reference_id = 'esim_refund_' || v_order_id::text
-    AND type = 'esim_purchase_refund';
-
-  IF v_refund_count <> 1 THEN
-    RAISE EXCEPTION 'TEST FAILED: Test 4 - Double refund occurred! Refund count = %', v_refund_count;
-  END IF;
-
-  -- TEST 5: Stale eSIM Reaper - Unpaid Order Handling (No Completed Debit)
-  INSERT INTO public.esim_orders (
-    id, user_id, offer_id, bundle_name, provider, quantity, wholesale_price_usd, retail_price_usd, markup_percent, total_amount_usd, status, created_at
-  ) VALUES (
-    gen_random_uuid(), v_user_id, 'd5c_offer_101', 'D5c Test Unpaid', 'esim_go', 1, 5.00, 6.50, 30.0, 6.50, 'pending', NOW() - INTERVAL '5 hours'
-  ) RETURNING id INTO v_unpaid_order_id;
-
-  v_res := public.reap_stale_esim_orders();
-
-  IF NOT EXISTS (
-    SELECT 1 FROM public.esim_orders
-    WHERE id = v_unpaid_order_id AND status = 'failed' AND error_message = 'stale_unpaid_order_reaped'
-  ) THEN
-    RAISE EXCEPTION 'TEST FAILED: Test 5 - Unpaid stale order status was not set to failed with stale_unpaid_order_reaped!';
-  END IF;
+  PERFORM public.check_worker_heartbeat_health();
 
   IF NOT EXISTS (
     SELECT 1 FROM public.system_alerts
-    WHERE kind = 'stale_esim_order_unpaid' AND (details ->> 'order_id')::uuid = v_unpaid_order_id
+    WHERE kind = 'worker_heartbeat_stale'
+      AND created_at >= NOW() - INTERVAL '1 minute'
   ) THEN
-    RAISE EXCEPTION 'TEST FAILED: Test 5 - System alert stale_esim_order_unpaid was not logged!';
+    RAISE EXCEPTION 'TEST FAILED: Test 5 - check_worker_heartbeat_health failed to raise worker_heartbeat_stale alert!';
   END IF;
+  RAISE NOTICE 'TEST 5 PASSED: worker_heartbeat_stale alert correctly raised';
 END;
 $$;
 

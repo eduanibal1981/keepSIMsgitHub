@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:keep_sims/core/services/analytics_service.dart';
 import 'package:keep_sims/core/services/biometric_auth_service.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
@@ -61,6 +62,12 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen> {
     final amt = widget.initialAmount ?? 10.0;
     _selectedDepositAmount = amt < 1.00 ? 1.00 : amt;
     _amountController.text = _selectedDepositAmount.toStringAsFixed(2);
+    Future.microtask(() {
+      ref.read(analyticsServiceProvider).logRechargeFunnelStep(
+            'checkout_started',
+            parameters: {'amount': _selectedDepositAmount},
+          );
+    });
   }
 
   @override

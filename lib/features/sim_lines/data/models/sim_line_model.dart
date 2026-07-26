@@ -46,3 +46,22 @@ abstract class SimLine with _$SimLine {
   factory SimLine.fromJson(Map<String, dynamic> json) =>
       _$SimLineFromJson(json);
 }
+
+extension SimLineWritablePayload on SimLine {
+  Map<String, dynamic> toClientWritableJson() {
+    return {
+      'phone_number': phoneNumber,
+      'nickname': nickname,
+      'avatar_icon': avatarIcon,
+      'status': status,
+      'country_id': countryId,
+      'carrier_id': carrierId,
+      'carrier_rule_id': carrierRuleId,
+      'household_id': householdId,
+      'is_home_mode': isHomeMode,
+      'protection_paused': protectionPaused,
+      'requires_protection_at_home': requiresProtectionAtHome,
+      'updated_at': DateTime.now().toIso8601String(),
+    };
+  }
+}
