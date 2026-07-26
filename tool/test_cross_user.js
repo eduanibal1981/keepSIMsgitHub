@@ -1,14 +1,24 @@
 const https = require('https');
 
+const SUPABASE_HOST = process.env.SUPABASE_HOST;
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
+const TEST_EMAIL_USER2 = process.env.TEST_EMAIL_USER2;
+const TEST_PASSWORD_USER2 = process.env.TEST_PASSWORD_USER2;
+const TARGET_ORDER_ID = process.env.TARGET_ORDER_ID;
+
+if (!SUPABASE_HOST || !SUPABASE_ANON_KEY || !TEST_EMAIL_USER2 || !TEST_PASSWORD_USER2 || !TARGET_ORDER_ID) {
+  throw new Error("Missing required environment variables: SUPABASE_HOST, SUPABASE_ANON_KEY, TEST_EMAIL_USER2, TEST_PASSWORD_USER2, TARGET_ORDER_ID");
+}
+
 async function login(email, password) {
   const postData = JSON.stringify({ email, password });
   const options = {
-    hostname: 'zwxswagokhgbuzrrbnhr.supabase.co',
+    hostname: SUPABASE_HOST,
     path: '/auth/v1/token?grant_type=password',
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3eHN3YWdva2hnYnV6cnJibmhyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwMDg3MDIsImV4cCI6MjA5NDU4NDcwMn0.JzzxxqQiKEka-VLbmPH1hdBXH4aML0AMhrqXloIZXt0',
+      'apikey': SUPABASE_ANON_KEY,
       'Content-Length': Buffer.byteLength(postData)
     }
   };
@@ -28,7 +38,7 @@ async function login(email, password) {
 async function postRequest(path, token, bodyObj) {
   const postData = JSON.stringify(bodyObj);
   const options = {
-    hostname: 'zwxswagokhgbuzrrbnhr.supabase.co',
+    hostname: SUPABASE_HOST,
     path,
     method: 'POST',
     headers: {
@@ -51,11 +61,9 @@ async function postRequest(path, token, bodyObj) {
 }
 
 async function main() {
-  // Login as user2 (c5_user2@test.com)
-  const tokenUser2 = await login('c5_user2@test.com', 'A1TestPass!2026');
+  const tokenUser2 = await login(TEST_EMAIL_USER2, TEST_PASSWORD_USER2);
 
-  // Attempt capture on a1 user's order 1SY147872Y509180F
-  const crossRes = await postRequest('/functions/v1/capture-paypal-order', tokenUser2, { order_id: '1SY147872Y509180F' });
+  const crossRes = await postRequest('/functions/v1/capture-paypal-order', tokenUser2, { order_id: TARGET_ORDER_ID });
   console.log('CROSS_USER_CAPTURE_RES:', crossRes.status, crossRes.data);
 }
 

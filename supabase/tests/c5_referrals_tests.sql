@@ -172,6 +172,15 @@ BEGIN
 
     INSERT INTO public.wallet_transactions (wallet_id, user_id, type, amount, balance_before, balance_after, reference_id, sim_line_id)
     VALUES (v_wallet4, v_user4, 'plan_fee_debit', 2.50, 10.00, 7.50, 'ref_plan_debit_4', v_line4);
+    SELECT COUNT(*) INTO v_count FROM public.system_alerts WHERE kind = 'referral_cap_hit';
+    IF v_count <= v_alerts_count THEN
+      RAISE EXCEPTION 'Test 10 Failed: daily cap hit did not write to system_alerts';
+    END IF;
+
+    SELECT COALESCE(SUM(points), 0) INTO v_pts FROM public.referral_points WHERE referrer_id = v_user1;
+    IF v_pts <> 10 THEN
+      RAISE EXCEPTION 'Test 10 Failed: point was awarded despite daily cap (expected 10, got %)', v_pts;
+    END IF;
   END;
 
   RAISE NOTICE 'ALL C5 SQL TESTS PASSED SUCCESSFULLY!';

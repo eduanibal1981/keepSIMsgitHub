@@ -1,20 +1,30 @@
 const https = require('https');
 
+const SUPABASE_HOST = process.env.SUPABASE_HOST;
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
+const TEST_EMAIL = process.env.TEST_EMAIL;
+const TEST_PASSWORD = process.env.TEST_PASSWORD;
+const TARGET_ORDER_ID = process.env.TARGET_ORDER_ID;
+
+if (!SUPABASE_HOST || !SUPABASE_ANON_KEY || !TEST_EMAIL || !TEST_PASSWORD || !TARGET_ORDER_ID) {
+  throw new Error("Missing required environment variables: SUPABASE_HOST, SUPABASE_ANON_KEY, TEST_EMAIL, TEST_PASSWORD, TARGET_ORDER_ID");
+}
+
 async function run() {
-  const postData = JSON.stringify({ email: 'a1-wallet-test@example.com', password: 'A1TestPass!2026' });
+  const postData = JSON.stringify({ email: TEST_EMAIL, password: TEST_PASSWORD });
   const req = https.request({
-    hostname: 'zwxswagokhgbuzrrbnhr.supabase.co',
+    hostname: SUPABASE_HOST,
     path: '/auth/v1/token?grant_type=password',
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3eHN3YWdva2hnYnV6cnJibmhyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwMDg3MDIsImV4cCI6MjA5NDU4NDcwMn0.JzzxxqQiKEka-VLbmPH1hdBXH4aML0AMhrqXloIZXt0', 'Content-Length': Buffer.byteLength(postData) }
+    headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY, 'Content-Length': Buffer.byteLength(postData) }
   }, (res) => {
     let body = '';
     res.on('data', c => body += c);
     res.on('end', () => {
       const token = JSON.parse(body).access_token;
-      const captureBody = JSON.stringify({ order_id: '14C05589R65806517' });
+      const captureBody = JSON.stringify({ order_id: TARGET_ORDER_ID });
       const capReq = https.request({
-        hostname: 'zwxswagokhgbuzrrbnhr.supabase.co',
+        hostname: SUPABASE_HOST,
         path: '/functions/v1/capture-paypal-order',
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token, 'Content-Length': Buffer.byteLength(captureBody) }

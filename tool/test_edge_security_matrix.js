@@ -1,9 +1,13 @@
 const https = require('https');
 
-const SUPABASE_HOST = process.env.SUPABASE_HOST || 'zwxswagokhgbuzrrbnhr.supabase.co';
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3eHN3YWdva2hnYnV6cnJibmhyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwMDg3MDIsImV4cCI6MjA5NDU4NDcwMn0.JzzxxqQiKEka-VLbmPH1hdBXH4aML0AMhrqXloIZXt0';
-const TEST_EMAIL = process.env.TEST_EMAIL || 'a1-wallet-test@example.com';
-const TEST_PASSWORD = process.env.TEST_PASSWORD || 'A1TestPass!2026';
+const SUPABASE_HOST = process.env.SUPABASE_HOST;
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
+const TEST_EMAIL = process.env.TEST_EMAIL;
+const TEST_PASSWORD = process.env.TEST_PASSWORD;
+
+if (!SUPABASE_HOST || !SUPABASE_ANON_KEY || !TEST_EMAIL || !TEST_PASSWORD) {
+  throw new Error("Missing required environment variables: SUPABASE_HOST, SUPABASE_ANON_KEY, TEST_EMAIL, TEST_PASSWORD");
+}
 
 async function login(email, password) {
   const postData = JSON.stringify({ email, password });
