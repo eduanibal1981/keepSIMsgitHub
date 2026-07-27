@@ -168,8 +168,6 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
 
   @override
   Future<SimLine> updateSimLine(SimLine line) async {
-    final data = line.toJson();
-
     final payload = line.toClientWritableJson();
     if (_connectivity.isOffline) {
       final data = Map<String, dynamic>.from(payload)..['id'] = line.id;

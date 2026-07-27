@@ -48,5 +48,23 @@ void main() {
       expect(payload.containsKey('created_at'), isFalse);
       expect(payload.containsKey('user_id'), isFalse);
     });
+
+    test('offline sync queue update payload strips id before PostgREST .update()', () {
+      final line = SimLine(
+        id: 'b2222222-2222-2222-2222-222222222222',
+        userId: 'a1111111-1111-1111-1111-111111111111',
+        phoneNumber: '+15550001111',
+        nickname: 'Offline Queued Update',
+      );
+
+      final queuedPayload = Map<String, dynamic>.from(line.toClientWritableJson())..['id'] = line.id;
+      final lineId = queuedPayload['id'] as String;
+      final updateBody = Map<String, dynamic>.from(queuedPayload)..remove('id');
+
+      expect(lineId, equals('b2222222-2222-2222-2222-222222222222'));
+      expect(updateBody.containsKey('id'), isFalse);
+      expect(updateBody.containsKey('nickname'), isTrue);
+      expect(updateBody.containsKey('plan_type'), isFalse);
+    });
   });
 }

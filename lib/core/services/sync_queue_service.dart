@@ -94,10 +94,17 @@ class SyncQueue extends _$SyncQueue {
     for (final op in ops) {
       try {
         if (op.type == 'sim_line_add') {
-          await client.from('sim_lines').upsert(op.payload);
+          final addPayload = Map<String, dynamic>.from(op.payload);
+          if (addPayload['id'] != null &&
+              (addPayload['id'].toString().startsWith('offline_') ||
+                  !_isValidUuid(addPayload['id'].toString()))) {
+            addPayload.remove('id');
+          }
+          await client.from('sim_lines').upsert(addPayload);
         } else if (op.type == 'sim_line_update') {
           final lineId = op.payload['id'] as String;
-          await client.from('sim_lines').update(op.payload).eq('id', lineId);
+          final updatePayload = Map<String, dynamic>.from(op.payload)..remove('id');
+          await client.from('sim_lines').update(updatePayload).eq('id', lineId);
         } else if (op.type == 'sim_line_delete') {
           final lineId = op.payload['id'] as String;
           await client.from('sim_lines').delete().eq('id', lineId);
@@ -120,4 +127,10 @@ class SyncQueue extends _$SyncQueue {
       }
     }
   }
+
+  static final RegExp _uuidRegex = RegExp(
+    r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$',
+  );
+
+  bool _isValidUuid(String val) => _uuidRegex.hasMatch(val);
 }

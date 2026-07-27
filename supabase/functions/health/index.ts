@@ -16,7 +16,8 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const { data: dbCheck, error: dbErr } = await supabase
+    // 1. Check Database connectivity
+    const { error: dbErr } = await supabase
       .from("system_configs")
       .select("config_key")
       .limit(1);
@@ -25,15 +26,45 @@ serve(async (req) => {
       throw new Error(`DB health check failed: ${dbErr.message}`);
     }
 
+    // 2. Check Worker Heartbeat freshness
+    const { data: hbRow } = await supabase
+      .from("system_configs")
+      .select("updated_at")
+      .eq("config_key", "WORKER_ESIM_FULFILLMENT_HEARTBEAT")
+      .maybeSingle();
+
+    let workerStatus = "unknown";
+    let isStale = true;
+    let staleMinutes = -1;
+
+    if (hbRow && hbRow.updated_at) {
+      const lastSeen = new Date(hbRow.updated_at).getTime();
+      const now = new Date().getTime();
+      staleMinutes = Math.round((now - lastSeen) / 60000);
+      if (staleMinutes <= 15) {
+        workerStatus = "online";
+        isStale = false;
+      } else {
+        workerStatus = "stale";
+      }
+    } else {
+      workerStatus = "missing";
+    }
+
+    const isHealthy = !isStale && workerStatus === "online";
+    const httpStatus = isHealthy ? 200 : 503;
+
     return new Response(
       JSON.stringify({
-        status: "healthy",
+        status: isHealthy ? "healthy" : "degraded",
         database: "online",
+        worker: workerStatus,
+        stale_minutes: staleMinutes,
         timestamp: new Date().toISOString(),
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 200,
+        status: httpStatus,
       }
     );
   } catch (err: any) {
