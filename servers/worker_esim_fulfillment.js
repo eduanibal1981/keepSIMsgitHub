@@ -99,6 +99,21 @@ async function callEsimGoOrderApi(order, isValidate = false) {
 
 let isProcessingFulfillment = false;
 
+async function sendWorkerHeartbeat(supabase) {
+    try {
+        const { error } = await supabase.from('system_configs').upsert({
+            config_key: 'WORKER_ESIM_FULFILLMENT_HEARTBEAT',
+            config_value: JSON.stringify(new Date().toISOString()),
+            updated_at: new Date().toISOString()
+        }, { onConflict: 'config_key' });
+        if (error) {
+            console.error('[Worker Heartbeat Error]:', error.message);
+        }
+    } catch (err) {
+        console.error('[Worker Heartbeat Exception]:', err.message);
+    }
+}
+
 async function processPendingOrders() {
     if (isProcessingFulfillment) return;
     if (!supabaseUrl || !supabaseKey) return;
@@ -108,12 +123,8 @@ async function processPendingOrders() {
         const { createClient } = require('@supabase/supabase-js');
         const supabase = createClient(supabaseUrl, supabaseKey);
 
-        // Upsert worker heartbeat
-        await supabase.from('system_configs').upsert({
-            config_key: 'WORKER_ESIM_FULFILLMENT_HEARTBEAT',
-            config_value: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-        }, { onConflict: 'config_key' }).catch(() => {});
+        // Send worker heartbeat unconditionally on every main loop iteration
+        await sendWorkerHeartbeat(supabase);
 
         // Claim pending orders
         const { data: pendingOrders, error: fetchErr } = await supabase
@@ -124,6 +135,7 @@ async function processPendingOrders() {
             .limit(10);
 
         if (fetchErr || !pendingOrders || pendingOrders.length === 0) {
+            isProcessingFulfillment = false;
             return;
         }
 
