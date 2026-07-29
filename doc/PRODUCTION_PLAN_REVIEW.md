@@ -12,6 +12,26 @@ residue, it is labelled **CONFIRMED-BY-GRANT** or **UNVERIFIED**, never "done".
 Baseline re-measured this session: `flutter analyze` → **134 issues, 0 errors** (101.9 s),
 working tree clean at `ce2a844`, 69,750 lines of hand-written Dart, 9 locales, 8 PM2 workers.
 
+> ## ✅ STATUS UPDATE — 2026-07-29 · Phase F0 (the grant lockdown) is COMPLETE
+> **All six 🔴 findings in §1 are closed and pushed. There are no known live security holes.**
+>
+> | | closed by | commit |
+> |---|---|---|
+> | F-1 wallet minting | `20260801040000` | `3acec84` |
+> | F-2 wallet draining | `20260801050000` + `20260801060000` | `7bb72a0` |
+> | F-3 · F-4 · F-5 · F-6 · F0.6 | `20260801070000` … `20260801100000` | `2e4039e` |
+>
+> Two further live holes were found *while verifying* F-4 and F-6 and are fixed in the same
+> commit — neither was in this review (see the 🆕 blocks in §1). One item in this document was
+> **wrong** and is corrected in place: see *"F0.3 — partly a mistake"* under §5.
+>
+> Current advisor count: **29**, down from 47. Reported honestly — it is not zero and was never
+> going to be; the residue is enumerated in `doc/RLS_MATRIX.md` as accepted exceptions.
+> Baselines now: `flutter test` **76/76**, `flutter analyze` **134**, a1 wallet **$35.86**.
+>
+> **Still needs the owner:** enable HaveIBeenPwned leaked-password protection
+> (Dashboard → Auth → Passwords). No API or SQL toggle exists. See §7 item 11.
+
 ---
 
 ## 0. Executive verdict
@@ -29,6 +49,14 @@ Two things are nevertheless true:
    by **`authenticated`**, both `SECURITY DEFINER`, both taking `p_user_id` and `p_amount` as
    arguments with **no caller check whatsoever**. Proven live below. This outranks everything
    else in this document.
+
+   > **✅ CLOSED 2026-07-29.** Both, plus the four other grant findings, plus two holes this
+   > review missed. The diagnosis above was correct and its root cause — *"swept tables, never
+   > sweept functions"* — turned out to describe a whole class, not two functions: **12** RPCs
+   > were anon-callable and **five** client-facing tables still carried the default
+   > `GRANT ALL`. The class is now closed by assertion, not by inspection:
+   > `supabase/tests/f0_grant_matrix_tests.sql` fails the build if any `SECURITY DEFINER`
+   > function in `public` is callable by `anon`/`PUBLIC` or is not on an explicit allow-list.
 
 2. **The four headline objectives are coded but barely *operating*.** Notifications, offline
    refill and eSIM fulfilment are all "shipped" in the plan: **18 of the last 31 push
@@ -94,7 +122,8 @@ still open; `42501` means it is fixed.
 >   `worker_instant_refill.js:270`, `worker_esim_fulfillment.js:241` (both service_role) and
 >   `reap_stale_esim_orders()` (SECURITY DEFINER, no JWT claims). Both shapes covered by the tests.
 >
-> **F-2 through F-6 below are still open** — this session closed F-1 only.
+> ~~**F-2 through F-6 below are still open** — this session closed F-1 only.~~
+> **Superseded 2026-07-29: F-2 through F-6 are now closed too. See each section.**
 
 ### F-2 · Anyone holding the public anon key can drain any wallet — **PROVEN LIVE**
 
@@ -163,6 +192,21 @@ window — the damage is bounded to "an attacker controls *when* the hourly job 
 runs" plus a free unauthenticated compute loop (it iterates all `frozen`/`draining` rows and
 calls the Admin API per row). It must still be `service_role`-only.
 
+> **✅ RESOLVED 2026-07-29** — migration `20260801070000_f3_f4_rpc_grant_lockdown.sql`.
+>
+> * **Reproduced first**, exactly as described: anon `POST /rest/v1/rpc/purge_deleted_accounts`
+>   → `HTTP 200`. After the fix, `42501 permission denied for function purge_deleted_accounts`
+>   (HTTP 401).
+> * **Layer 1** — `REVOKE ALL … FROM PUBLIC, anon, authenticated` + `GRANT … TO service_role`.
+> * **Layer 2** — the F-1 guard shape (reject any JWT whose role is not `service_role`). This is
+>   the right shape here because the only caller is `cron.job` 10, which runs with no JWT at
+>   all; nothing in `lib/`, `servers/` or `supabase/functions/` calls it. Verified by grep.
+> * **Layer 2 proven on its own** (grant restored inside a rolled-back txn, top-level statement,
+>   `SET LOCAL ROLE authenticated`): `KS403 purge_deleted_accounts is not callable by role
+>   authenticated`. Malformed claims → `22P02` raised at the claims cast on line 14, i.e.
+>   **before** the deletion state machine runs — fail-closed.
+> * Regression test: `supabase/tests/f3_f4_rpc_grant_tests.sql` (Part A T1/T3, Part B P4/P6).
+
 ### F-4 · `consume_rate_limit` / `enforce_rate_limit` are callable by `anon` with an arbitrary key — **PROVEN LIVE**
 
 ```bash
@@ -176,6 +220,114 @@ money path — D2's own rate limiter turned into a denial-of-service weapon. Als
 and equally wrong: `prune_rate_limit_data()`, `check_rate_limit_health()`, `export_user_data()`,
 `is_power_user()`, `apply_referral()`, `request_account_deletion()`, `cancel_account_deletion()`,
 `redeem_referral_points()`, `trg_fn_award_referral_points()`.
+
+> **✅ RESOLVED 2026-07-29** — migrations `20260801070000_f3_f4_rpc_grant_lockdown.sql` and
+> `20260801100000_f4b_is_power_user_security_invoker.sql`.
+>
+> **All 12 reproduced first.** Anon over HTTP: `consume_rate_limit` →
+> `[{"allowed":true,...}]`; `enforce_rate_limit` → `KS429 RATE_LIMITED:…:360` (i.e. it ran and
+> drained the bucket); `prune_rate_limit_data` / `check_rate_limit_health` → `204`;
+> `export_user_data` / `cancel_account_deletion` / `redeem_referral_points` /
+> `request_account_deletion` → `200 {"error":"UNAUTHORIZED"}` (executed, self-blocked);
+> `is_power_user` → `false`; `apply_referral` → **`{"success": true}`**. After the fix all
+> eleven REST-reachable ones return `42501`.
+>
+> ⚠️ **Four of this review's own probe payloads were wrong** and would have read as "already
+> blocked": `is_power_user`, `apply_referral`, `request_account_deletion` and
+> `trg_fn_award_referral_points` return **`PGRST202`** for the parameter names used above —
+> that is *schema-cache miss on bad param names*, not a permission denial. The real signatures
+> are `is_power_user(user_id)`, `apply_referral(p_referral_code, p_referred_id)`,
+> `request_account_deletion(p_forfeit_dust, p_reason)`. Re-derive from `pg_proc` before
+> concluding anything from a probe.
+>
+> **Guard shapes — the trap here was worse than F-2's.**
+> * `enforce_rate_limit` is called from inside six user-facing money RPCs and has **no**
+>   legitimate top-level caller. `consume_rate_limit` is called nested from `apply_referral`
+>   and `enforce_rate_limit`, **and top-level as `service_role` by five Edge Functions**
+>   (`create-paypal-order:63`, `capture-paypal-order:61`, `detect-country:102`,
+>   `paypal-webhook:346`, `sms-webhook:81` — all verified to use `SUPABASE_SERVICE_ROLE_KEY`).
+>   So the guard is the F-2 call-depth check **plus** a `service_role` escape hatch: allow
+>   `service_role` at any depth, allow anyone nested, refuse only a non-`service_role` JWT at
+>   the top frame. A depth-only guard would have broken all five Edge Functions.
+> * 🔴 **`enforce_rate_limit` ends in `EXCEPTION … WHEN OTHERS THEN RAISE NOTICE`.** That
+>   catch-all silently swallows a `KS403` raised by its own guard *and* any `KS403` bubbling up
+>   out of `consume_rate_limit` beneath it — leaving the guard as dead code **and disabling
+>   rate limiting entirely**, failing open on every money path. It needs an explicit
+>   `WHEN SQLSTATE 'KS403' THEN RAISE;` next to the existing KS429 branch. **General rule:
+>   check for a catch-all handler before adding a guard to an existing function.**
+> * `purge_deleted_accounts`, `prune_rate_limit_data`, `check_rate_limit_health` → F-1 shape
+>   (cron-only). `trg_fn_award_referral_points` → `service_role` only; Postgres additionally
+>   refuses a direct call to a trigger function with `0A000`.
+>
+> **Layer 2 proven on its own** (grant restored in a rolled-back txn, top-level statements):
+> `consume_rate_limit` → `KS403` as both `authenticated` and `anon`; `enforce_rate_limit` →
+> `KS403` **(which also proves the KS403 branch beats the `WHEN OTHERS`)**;
+> `prune_rate_limit_data` / `check_rate_limit_health` → `KS403`. Legitimate paths re-verified:
+> nested plan fee debits a1 `35.86 → 33.36`, and `service_role` top-level `consume` still
+> returns `allowed:true`.
+>
+> Regression test: `supabase/tests/f3_f4_rpc_grant_tests.sql`, **9/9** + six Part-B probes.
+
+> ### 🆕 F-4a · `apply_referral()` was an unauthenticated write to **any** user's profile
+> **Not in this review. Found while verifying F-4, proven live, fixed in the same migration.**
+>
+> The ownership check read:
+>
+> ```sql
+> IF auth.uid() IS NOT NULL AND auth.uid() <> p_referred_id THEN ... UNAUTHORIZED
+> ```
+>
+> As `anon`, `auth.uid()` is NULL, so the whole predicate is false and the check is skipped —
+> leaving `p_referred_id`, *the account being modified*, entirely caller-chosen. Proven in a
+> rolled-back transaction against a real user who had no referrer:
+>
+> ```
+> victim referred_by BEFORE   <null>
+> anon apply_referral RESULT  {"success": true}
+> victim referred_by AFTER    SS2A150D18        referrals rows 0 -> 1
+> ```
+>
+> **This is a money path, not just data tampering.** `trg_fn_award_referral_points` awards the
+> referrer a point whenever a referred user pays a plan fee, and `redeem_referral_points`
+> converts 10 points into **$2.00 of real wallet credit** via `credit_wallet_for_deposit`. An
+> unauthenticated attacker could attach every existing user to their own referral code and farm
+> it (capped at 10 points/day by `REFERRAL_DAILY_POINT_CAP`, so ~$2/day — bounded, but real and
+> requiring no account).
+>
+> Fixed to `IF auth.uid() IS NULL OR auth.uid() <> p_referred_id`. Pinned by T7.
+>
+> **Worth generalising:** an `IS NOT NULL AND …` ownership guard is a no-op for anon. Any
+> SECURITY DEFINER function on the authenticated allow-list should be read for this shape.
+
+> ### ⚠️ F0.3 correction — revoking `anon` from `is_power_user` was a **mistake**, and reverted
+> This document's F0.3 lists `is_power_user` among the six RPCs that should "lose `anon`".
+> Doing that **broke anonymous reads of `sim_lines`**:
+>
+> ```
+> SET LOCAL ROLE anon; SELECT count(*) FROM public.sim_lines;
+> -> ERROR 42501 permission denied for function is_power_user
+> ```
+>
+> The `sim_lines` policy *"Allow power users full access on sim_lines"* is defined
+> `FOR ALL TO public`, so it is evaluated for `anon` as well, and its `USING` clause calls
+> `is_power_user(auth.uid())`. **RLS policy expressions execute as the querying role**, so
+> without `EXECUTE` the entire `SELECT` errors instead of returning zero rows — an expired
+> token mid-request would surface as a hard `42501` rather than an empty list. (`profiles` and
+> `scheduled_topups` were unaffected: their `is_power_user`-bearing policies are scoped
+> `TO authenticated`.)
+>
+> `doc/RLS_MATRIX.md` had already flagged this — *"Required: used in RLS policies evaluated as
+> `anon`"* — and was right about the requirement, though it framed the function as a necessary
+> exception. It is not: `is_power_user` never needed definer rights. Its whole body reads the
+> **caller's own** JWT claim and it ignores its `user_id` argument, so it is not a lookup
+> oracle. Migration `20260801100000` makes it `SECURITY INVOKER` and re-grants `anon`.
+>
+> Net effect: anon reads work again, **and** it leaves the SECURITY DEFINER perimeter — so the
+> "zero anon-callable `SECURITY DEFINER` functions" result is honest rather than a carve-out.
+> Pinned by T9, which asserts *both* halves (still INVOKER, still anon-callable).
+>
+> **Lesson for future lockdowns: check `pg_policies` for functions referenced in `USING` /
+> `WITH CHECK` before revoking `anon` from anything.**
 
 ### F-5 · A4's acceptance criterion ("advisor security findings = 0") was never met
 
@@ -198,6 +350,44 @@ assumption is not audited anywhere. The 5 INFO rows (`esim_offers_cache`,
 correct. The two ERRORs are the deliberate markup-isolation views and need a written exception
 in `doc/RLS_MATRIX.md`, not a fix.
 
+> **✅ RESOLVED 2026-07-29** — migration `20260801080000_f5_process_due_notifications_search_path.sql`
+> plus the exception table now written into `doc/RLS_MATRIX.md`.
+>
+> **The counts in the table above were stale.** Measured live at the start of this session:
+> `anon_security_definer_function_executable` was **12**, not 13, and
+> `authenticated_security_definer_function_executable` was **25**, not 27. Total 47 lints.
+>
+> | lint | level | before | after | note |
+> |---|---|---|---|---|
+> | `anon_security_definer_function_executable` | WARN | 12 | **0** | F-3/F-4 |
+> | `function_search_path_mutable` | WARN | 1 | **0** | `SET search_path TO ''`; body was already fully `public.`-qualified, so behaviour is unchanged |
+> | `authenticated_security_definer_function_executable` | WARN | 25 | **20** | the 5 that became service_role-only |
+> | `security_definer_view` | ERROR | 2 | **2** | accepted exception |
+> | `rls_enabled_no_policy` | INFO | 5 | **5** | accepted exception |
+> | `extension_in_public` (`pg_net`) | WARN | 1 | **1** | accepted exception |
+> | `auth_leaked_password_protection` | WARN | 1 | **1** | 👤 **owner** |
+> | **total** | | **47** | **29** | |
+>
+> **It is not zero, and this review was right that it never should have been.** A4's original
+> "advisor findings = 0" criterion is what let F-1 through — the lint *was* raised and read as
+> noise. The replacement criterion this document proposed (§2, Phase A) is what now holds, and
+> it is enforced mechanically by `supabase/tests/f0_grant_matrix_tests.sql` rather than by
+> counting lints.
+>
+> Accepted exceptions, each with its reason recorded in `doc/RLS_MATRIX.md`:
+> * **2 × `security_definer_view`** (`esim_offers`, `zendit_offers_cache`) — deliberate markup
+>   isolation. They exist so a client can read retail prices without reading the wholesale cost
+>   columns behind them; `security_invoker = on` would expose supplier margin. **Do not "fix".**
+> * **5 × `rls_enabled_no_policy`** — deliberate deny-all tables. RLS on with zero policies *is*
+>   the intended service-role-only posture; adding a policy would weaken them.
+> * **20 × `authenticated_security_definer_function_executable`** — the self-scoped app RPCs.
+>   Each gates on `auth.uid()` internally, and the set is now pinned by an explicit allow-list,
+>   so a new one cannot appear unnoticed.
+> * **`pg_net` in public** — Supabase-managed, and `purge_deleted_accounts()` calls
+>   `net.http_post`. Relocating it is a schema change, not a security fix; deliberately not
+>   bundled into a security lockdown.
+> * **`auth_leaked_password_protection`** — 👤 **owner task**, see §7.
+
 ### F-6 · Default `GRANT ALL` was never stripped — RLS is a single point of failure
 
 `anon` and `authenticated` hold `INSERT, UPDATE, DELETE, TRUNCATE` at table level on
@@ -207,6 +397,83 @@ policies, so writes are denied). That is one `DROP POLICY` away from a breach, a
 inconsistent with the column-level lockdown D5d built for `sim_lines.plan_type`. `TRUNCATE`
 is not RLS-filtered at all; it is unreachable over PostgREST today, which is the only reason
 this is 🟠 and not 🔴.
+
+> **✅ RESOLVED 2026-07-29** — migration `20260801090000_f6_table_grant_lockdown.sql`.
+>
+> **Correction to the finding:** `sim_lines` was already partly right — D5d had column-scoped
+> its UPDATE to 13 columns, so there was no table-level UPDATE on it for `anon`/`authenticated`.
+> Everything else in the finding verified exactly as written.
+>
+> Grants re-derived from what the live policies actually permit:
+>
+> | table | anon | authenticated | rationale |
+> |---|---|---|---|
+> | `profiles` | SELECT | SELECT, INSERT, column-scoped UPDATE | no DELETE policy exists |
+> | `sim_lines` | SELECT | SELECT, INSERT, DELETE, column-scoped UPDATE (D5d) | full policy set |
+> | `scheduled_topups` | SELECT | SELECT, INSERT, UPDATE, DELETE | single ALL policy |
+> | `esim_orders` | SELECT | SELECT | **zero** non-SELECT policies |
+> | `user_esims` | SELECT | SELECT | **zero** non-SELECT policies |
+>
+> `TRUNCATE`, `REFERENCES` and `TRIGGER` revoked from both roles on all five. SELECT is left to
+> `anon` deliberately: every policy requires `auth.uid()`, so anon already reads nothing, and
+> revoking it would be churn for no gain.
+>
+> **The finding under-stated the risk. This was not "one `DROP POLICY` away" — it was already
+> exploitable**, see 🆕 F-6a below.
+>
+> **The D5c risk this review flagged was real and was hit.** `ProfileRepository.updateProfile`
+> sent `profile.toJson()` — the full model, including every column revoked here — so shipping
+> the lockdown alone would have broken profile editing with `42501`, exactly as D5c broke SIM
+> line editing. `UserProfile.toClientWritableJson()` was added
+> (`lib/features/auth/model/auth_model.dart`), mirroring `SimLine`'s. **Every real write path
+> was exercised before and after**: `updateSimLine`, `addSimLine`, `deleteSimLine`, scheduled
+> top-up create/delete, `updateProfile` — all pass; the old full-model payload correctly now
+> returns `42501`. Regression test `supabase/tests/f6_table_grant_tests.sql`, **12/12**, plus 3
+> new Dart tests (`test/features/profile/update_profile_test.dart`).
+
+> ### 🆕 F-6a · Any signed-in user could make themselves a power user — **PROVEN LIVE**
+> **Not in this review. Found while verifying F-6.** This is the reason F-6 deserved 🔴.
+>
+> `protect_is_power_user()` — the trigger whose entire job is to stop a client setting
+> `profiles.is_power_user` — opened with:
+>
+> ```sql
+> IF current_user IN ('postgres', 'supabase_admin') OR ... THEN RETURN NEW;
+> ```
+>
+> It is `SECURITY DEFINER`, so `current_user` is the function **owner** — always `postgres`.
+> The guard returned `NEW` for every caller and **had never once fired since it shipped.** This
+> is the identical defect D5c shipped and D5d fixed for the plan-tier trigger; it is the fourth
+> occurrence of "`current_user` inside `SECURITY DEFINER`" in this project.
+>
+> Proven as `SET LOCAL ROLE authenticated` with a real JWT, rolled back:
+>
+> ```
+> a1 profiles.is_power_user           false -> true
+> a1 auth.users raw_app_meta_data     false -> true    (sync_power_user_claim propagates it)
+> privilege_escalation_attempt rows   0                (the trigger never ran)
+> ```
+>
+> `sync_power_user_claim()` copies the column into `auth.users.raw_app_meta_data`, so after the
+> next token refresh the user's JWT satisfies `is_power_user(auth.uid())` — which the
+> *"Allow power users full access on sim_lines"* policy honours (**read/write on every user's
+> SIM lines**) and *"Users can view own or household profiles"* honours (**read every
+> profile**). Table-level UPDATE on `profiles` is what made it reachable, which is why it sits
+> inside F-6.
+>
+> Fixed in two layers, per the F-1/F-2 convention:
+> * **Layer 1** — `is_power_user`, `is_suspended` and `subscription_tier` are not in
+>   `authenticated`'s column-level UPDATE grant → `42501`.
+> * **Layer 2** — the trigger keys on the request JWT role instead of `current_user`.
+>   **Kept `SECURITY DEFINER` on purpose**: D5d's "make it `SECURITY INVOKER`" fix works for the
+>   plan-tier trigger but would break here, because `security_logs` has RLS enabled with zero
+>   policies — an invoker trigger could not write its own audit row and would abort the
+>   statement with `42501` instead of silently reverting.
+>
+> Layer 2 proven alone (column grant restored in a rolled-back txn, so only the trigger can
+> act): value reverted to `false`, JWT claim untouched, and `privilege_escalation_attempt`
+> went `0 → 1`. `service_role` can still promote (admin path intact). Pinned by T4/T12 and
+> Part B of `f6_table_grant_tests.sql`.
 
 ---
 
@@ -219,7 +486,7 @@ this is 🟠 and not 🔴.
 | A1 wallet revoke | ✅ table layer | Verified live: `wallets` / `wallet_transactions` grant only `SELECT` to `anon`/`authenticated`. **But** the RPC layer was never swept — see F-1/F-2. The *stated objective* ("balance changes only through server-side calls") is currently false. |
 | A2 rotation | ❌ owner | Still outstanding: Supabase legacy JWT secret, Zendit sandbox key, and the **PayPal sandbox client secret that is in git history** (`paypal_refill_simulator_screen.dart` was deleted in D4 — deletion does not remove it from history). |
 | A3 backend in git | 🟡 | `servers/*.js` (8 workers) are now committed **inside the Flutter repo**. Nobody has verified the VM runs *that* code — there is no deploy step, so repo and VM can silently diverge. Add a parity check (see F6). |
-| A4 advisor sweep | ❌ | See F-5. `doc/RLS_MATRIX.md` exists but predates C7/C8/C9/D3 tables. |
+| A4 advisor sweep | ✅ **2026-07-29** | Redone under the replacement criterion below. Advisors 47 → 29; the residue is documented, not counted away. `doc/RLS_MATRIX.md` rewritten with the Phase F matrix + an accepted-exceptions table, and the A4-era notes in it corrected. |
 
 **Modification to the plan:** A4's acceptance criterion should change from "advisor findings
 = 0" to *"every `SECURITY DEFINER` function is in one of three buckets — `service_role`-only,
@@ -413,7 +680,12 @@ against a server row that may be newer).
 Same conventions as `PRODUCTION_PLAN.md`: self-contained, acceptance criteria stated, hand one
 at a time. 🔴 blocking · 🟠 important · 🟢 nice · ⚪ later.
 
-### 🔴 F0 — RPC grant lockdown + a grant matrix that stays locked
+### ✅ F0 — RPC grant lockdown + a grant matrix that stays locked — **COMPLETE 2026-07-29**
+
+> **All six items below are done.** Migrations `20260801040000` … `20260801100000`, commits
+> `3acec84`, `7bb72a0`, `2e4039e` (all verified on `origin/main` with `git ls-remote`).
+> Acceptance met in full — see the per-item notes. One item (F0.3) was **partly wrong** and is
+> annotated as such rather than silently amended.
 
 1. `REVOKE ALL ON FUNCTION` … `FROM PUBLIC, anon, authenticated` for: both
    `debit_wallet_for_topup` overloads, `credit_wallet_for_refund`, `credit_wallet`,
@@ -425,30 +697,71 @@ at a time. 🔴 blocking · 🟠 important · 🟢 nice · ⚪ later.
    ✅ both `debit_wallet_for_topup` overloads — migration `20260801050000`, and the 5-arg one
    is **dropped** by `20260801060000`; it had no callers and was actively breaking PostgREST
    overload resolution for the two that exist, see F-2.
-   Still open: `credit_wallet`, `purge_deleted_accounts`, `prune_rate_limit_data`,
-   `check_rate_limit_health`, `consume_rate_limit`, `enforce_rate_limit`,
-   `trg_fn_award_referral_points`.)*
+   ✅ `purge_deleted_accounts`, `prune_rate_limit_data`, `check_rate_limit_health`,
+   `consume_rate_limit`, `enforce_rate_limit`, `trg_fn_award_referral_points` — migration
+   `20260801070000`.
+   ⚠️ `credit_wallet` **needed no change**: it was already `{postgres, service_role}` when
+   measured live on 2026-07-29. Listing it here was precautionary, not evidence-backed.
+   **F0.1 is now complete.**)*
 2. Add an in-body `auth.uid()` guard to `credit_wallet_for_refund` as defence in depth
    (`IF auth.uid() IS NOT NULL AND auth.uid() <> p_user_id THEN RAISE`), so a future
    re-grant is not instantly fatal. Same for the debit.
    *(✅ done for `credit_wallet_for_refund`, but **not with this predicate** — it does not
    stop the exploit, which credits the attacker's own wallet. Shipped guard keys on the
-   `request.jwt.claims` role instead; use that shape for the debit too.)*
+   `request.jwt.claims` role instead; use that shape for the debit too.
+   ✅ **F0.2 complete** — the debit got the call-depth variant in `20260801050000`, and every
+   function locked down in `20260801070000` carries an in-body guard as well. Three distinct
+   shapes were needed, and picking the wrong one either ships dead code or breaks production:
+   **cron-only → reject any non-`service_role` JWT; nested-caller → plpgsql call depth, with a
+   `service_role` escape hatch if it also has top-level callers; self-scoped → require
+   `auth.uid()` and self-ownership**.)*
 3. Revoke `anon` EXECUTE on the self-scoped RPCs that must stay `authenticated`:
    `export_user_data`, `apply_referral`, `request_account_deletion`,
    `cancel_account_deletion`, `redeem_referral_points`, `is_power_user`.
+   *(✅ **F0.3 complete for five of six** — migration `20260801070000`.
+   ❌ **`is_power_user` was a mistake and is reverted.** Revoking `anon` broke
+   `anon SELECT sim_lines` with `42501`, because the *"Allow power users full access"* policy is
+   `FOR ALL TO public` and calls it, and RLS policy expressions run as the querying role.
+   Migration `20260801100000` makes it `SECURITY INVOKER` — it only reads the caller's own JWT
+   and never needed definer rights — and re-grants `anon`. Full write-up in §1 under
+   *"F0.3 correction"*. Also fixed here: `apply_referral`'s ownership check was a no-op for
+   anon, see 🆕 F-4a.)*
 4. Strip default table privileges: `REVOKE INSERT, UPDATE, DELETE, TRUNCATE ON` `profiles`,
    `sim_lines`, `scheduled_topups`, `esim_orders`, `user_esims` `FROM anon` and re-grant only
    what RLS actually needs to `authenticated` (column-scoped where D5d already set the pattern).
+   *(✅ **F0.4 complete** — migration `20260801090000`. Also revoked `REFERENCES`/`TRIGGER`
+   (unused, and `TRIGGER` on a client-reachable table is an escalation primitive), and dropped
+   all writes on `esim_orders`/`user_esims`, which have zero non-SELECT policies. Required the
+   companion Dart change `UserProfile.toClientWritableJson()` — without it the lockdown breaks
+   profile editing exactly as D5c broke SIM line editing. Closed 🆕 F-6a en route.)*
 5. Fix `process_due_notifications` search_path; document the 2 `security_definer_view` ERRORs
    as accepted exceptions in `doc/RLS_MATRIX.md`; enable HaveIBeenPwned in Auth settings.
+   *(✅ search_path — migration `20260801080000`. ✅ exceptions written into
+   `doc/RLS_MATRIX.md`, covering the 2 view ERRORs, the 5 deny-all INFOs, the 20 remaining
+   authenticated RPCs and `pg_net`. Advisors 47 → **29**, reported honestly.
+   👤 **HaveIBeenPwned is NOT done — it is an owner task**, Dashboard → Auth → Passwords. There
+   is no API or SQL toggle, so no agent can do it. Listed in §7.)*
 6. **Ship a regression test** — `supabase/tests/f0_grant_matrix_tests.sql` asserting, for every
    `SECURITY DEFINER` function in `public`, that its ACL is either service_role-only or on an
    explicit allow-list. This is the artifact that stops F-1 recurring.
+   *(✅ **F0.6 complete**, 6/6. Six assertions: no anon-callable definer fn; no `PUBLIC`
+   EXECUTE; no NULL `proacl` (a NULL ACL *is* EXECUTE-to-PUBLIC, which catches a brand-new
+   unguarded function); every authenticated-callable fn is allow-listed; **and the reverse** —
+   every allow-listed fn is still callable, which catches a lockdown that went too far, the
+   D5c failure mode; `service_role` can execute everything, so workers and cron cannot be
+   silently broken. Companion suites `f3_f4_rpc_grant_tests.sql` 9/9 and
+   `f6_table_grant_tests.sql` 12/12.)*
 
 **Acceptance:** the F-1 curl with a real user JWT returns `42501`; the F-2 anon curl returns
 `42501`; `purge_deleted_accounts` as anon returns 401/403; the grant-matrix test passes; a real
 refill and a real refund still work end-to-end (a1 fixture wallet must end at **$35.86**).
+
+> **✅ Acceptance met, 2026-07-29.** F-1 and F-2 curls → `42501`. `purge_deleted_accounts` as
+> anon → `42501` / **HTTP 401**. All 11 REST-reachable locked RPCs → `42501`. Grant-matrix test
+> **6/6**. Money paths re-verified live: nested plan-fee debit `35.86 → 33.36`, `service_role`
+> top-level `consume_rate_limit` still allowed, all five app write paths pass before and after.
+> a1 wallet **$35.86**, **165** transactions, **zero residue**. `flutter test` **76/76**
+> (73 + 3 new), `flutter analyze` **134** (baseline held).
 
 ### 🔴 F1 — Make notifications actually arrive (and prove it)
 
@@ -655,12 +968,41 @@ Ordered by what unblocks the most work:
 9. **Delete** the `execute_zendit_recharge` Edge Function in the dashboard (410 tombstone; the
    MCP has no delete tool).
 10. Decide on **eSIM supplier #2** (#11) — the business step behind F5, with the longest lead time.
+11. 🆕 **Enable HaveIBeenPwned leaked-password protection** — Dashboard → Authentication →
+    Passwords → enable the compromised-password check. *Added 2026-07-29: this is the only
+    part of F0 that could not be completed, because there is no API or SQL toggle for it — it
+    exists solely in the dashboard. It is the last remaining `security` advisor WARN that is
+    actionable at all; everything else in that list is a documented accepted exception.
+    Two minutes of clicking.*
 
 ---
 
 ## 8. Recommended next session
 
-**F0.** It is the only item where the cost of waiting is unbounded: F-1 and F-2 are live,
+~~**F0.** It is the only item where the cost of waiting is unbounded: F-1 and F-2 are live,
 exploitable with credentials that ship inside the APK, and every day the app is installed
 anywhere is a day someone can mint or drain balance. Everything else in this document can wait
-a week; that cannot.
+a week; that cannot.~~
+
+> **✅ F0 was done on 2026-07-29 across three sessions** (`3acec84`, `7bb72a0`, `2e4039e`).
+> Six findings closed, plus two more found during verification. **No known live security holes
+> remain.**
+>
+> **The next session should be F1 — make notifications actually arrive.** With the money paths
+> secured, delivery is now the top blocker: 18 of the last 31 push dispatches reached nobody,
+> `device_push_tokens` holds 1 row for 8 users, and email has never executed once. It is also
+> the item most entangled with owner provisioning (Resend key + domain), so starting it early
+> surfaces those dependencies while there is still time to act on them.
+>
+> **Two things to carry into any future security work here** — both cost a cycle this session:
+> 1. **Check for an exception catch-all before adding a guard.** `enforce_rate_limit` ends in
+>    `WHEN OTHERS THEN RAISE NOTICE`, which would have swallowed the new guard *and* disabled
+>    rate limiting, silently and fail-open.
+> 2. **Check `pg_policies` before revoking `anon` EXECUTE from anything.** RLS policy
+>    expressions run as the querying role, so a revoke can turn an empty result set into a hard
+>    `42501`. That is what made F0.3's `is_power_user` item wrong.
+>
+> And the recurring one, now four occurrences deep (D5c, D5d, F-6a, and the F-1 guard review):
+> **`current_user` is the function owner inside `SECURITY DEFINER`.** Any guard written against
+> it is dead code. Guard on `request.jwt.claims`, and prove it with the grant temporarily
+> restored so only the guard can be what blocks.
