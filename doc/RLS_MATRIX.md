@@ -134,6 +134,8 @@ stopping writes. Re-derived from what the live policies actually permit:
 | `scheduled_topups` | SELECT | SELECT, INSERT, UPDATE, DELETE | single ALL policy |
 | `esim_orders` | SELECT | SELECT | **zero** non-SELECT policies; written by `request_esim_purchase` + the fulfilment worker |
 | `user_esims` | SELECT | SELECT | as above |
+| `sim_line_usage_forecast` | — | SELECT | 🆕 G1 (`20260802000000`). Derived data: read-own + household counterpart, **no** client write path at all. Written only by `refresh_usage_forecasts()`. Probed live: signed-in user saw 6 of 10 rows, `UPDATE` → `42501`, `anon SELECT` → `42501`. |
+| `esim_usage_samples` | — | — | 🆕 G1. Deny-all internal telemetry (RLS on, zero policies), same posture as `offline_refill_events`. |
 
 `TRUNCATE`, `REFERENCES` and `TRIGGER` are revoked from `anon` and
 `authenticated` on all five. `TRUNCATE` is not RLS-filtered at all, and
@@ -155,13 +157,22 @@ by `apply_referral()`).
 
 Live `get_advisors(security)`: **29 findings**, down from 47. `anon`
 SECURITY DEFINER warnings went 12 → **0**; `function_search_path_mutable` 1 → 0;
-`authenticated` SECURITY DEFINER warnings 25 → 20. The remainder are deliberate:
+`authenticated` SECURITY DEFINER warnings 25 → 20.
+
+*Re-measured 2026-07-29 after G1: still **29**. The mix shifted by one in each
+direction — `is_power_user` left the `authenticated` SECURITY DEFINER list
+(20 → 19) once `20260801100000` made it `SECURITY INVOKER`, and G1's deny-all
+`esim_usage_samples` joined the `rls_enabled_no_policy` list (5 → 6). G1's four
+new functions are all `service_role`-only and add nothing; the grant matrix test
+was re-run against them: **6/6 PASSED**.*
+
+The remainder are deliberate:
 
 | Finding | Level | n | Why it stays |
 |---|---|---|---|
 | `security_definer_view` — `esim_offers`, `zendit_offers_cache` | ERROR | 2 | **Deliberate markup isolation.** These views exist so a client can read retail prices without reading the wholesale cost columns behind them. `security_invoker = on` would expose supplier margin. Do not "fix". |
-| `rls_enabled_no_policy` — `esim_offers_cache`, `offline_refill_events`, `rate_limit_buckets`, `retired_referral_codes`, `security_logs` | INFO | 5 | **Deliberate deny-all.** RLS on with zero policies *is* the intended service-role-only posture. Adding a policy would weaken them. |
-| `authenticated_security_definer_function_executable` | WARN | 20 | The self-scoped app RPCs. Each gates on `auth.uid()` internally; the set is pinned by the allow-list in `f0_grant_matrix_tests.sql`, so a new one cannot appear silently. |
+| `rls_enabled_no_policy` — `esim_offers_cache`, `offline_refill_events`, `rate_limit_buckets`, `retired_referral_codes`, `security_logs`, `esim_usage_samples` | INFO | 6 | **Deliberate deny-all.** RLS on with zero policies *is* the intended service-role-only posture. Adding a policy would weaken them. (`esim_usage_samples` added by G1, 2026-07-29.) |
+| `authenticated_security_definer_function_executable` | WARN | 19 | The self-scoped app RPCs. Each gates on `auth.uid()` internally; the set is pinned by the allow-list in `f0_grant_matrix_tests.sql`, so a new one cannot appear silently. |
 | `extension_in_public` — `pg_net` | WARN | 1 | Supabase-managed, and `purge_deleted_accounts()` calls `net.http_post`. Relocating it is a schema change, not a security fix. |
 | `auth_leaked_password_protection` | WARN | 1 | **Owner action:** Dashboard → Auth → Passwords → enable the HaveIBeenPwned check. No API or SQL toggle exists. |
 

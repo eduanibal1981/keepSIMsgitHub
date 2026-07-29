@@ -23,6 +23,8 @@ import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_
 import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
 import 'package:keep_sims/features/wallet/controller/wallet_controller.dart';
 import 'package:keep_sims/features/sim_lines/presentation/providers/api_offers_providers.dart';
+import 'package:keep_sims/features/sim_lines/data/models/usage_forecast_model.dart';
+import 'package:keep_sims/features/sim_lines/presentation/providers/usage_forecast_provider.dart';
 
 class ScheduledTopupSheet extends ConsumerStatefulWidget {
   final String simLineId;
@@ -52,6 +54,13 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
 
   Map<String, dynamic>? _selectedOffer;
   int? _rangeValue;
+
+  /// G1: the forecast proposes a frequency and an offer, but only until the
+  /// user expresses an opinion. Once they tap a chip or a package, their choice
+  /// wins for the rest of the sheet's life.
+  bool _userPickedFrequency = false;
+  bool _appliedSuggestedFrequency = false;
+  bool _appliedSuggestedOffer = false;
   double _rangeFinalPriceUsd = 0.0;
   double _rangeBaseCostUsd = 0.0;
   double _rangeAppFee = 0.0;
@@ -108,6 +117,15 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
     final String labelPrefix = isNotifyMode
         ? 'Auto-Notify'
         : 'Custom Auto-Refill';
+
+    // G1: what the nightly forecast proposes for this line, if anything.
+    final UsageForecast? forecast = ref
+        .watch(usageForecastForLineProvider(widget.simLineId))
+        .value;
+    final int? suggestedFrequency = forecast?.suggestedChipFor(
+      isPremium: isPremium,
+    );
+    _maybeApplySuggestedFrequency(suggestedFrequency, isEditMode: isEditMode);
 
     DateTime calculatedNextExecution;
     if (isEditMode &&
@@ -533,7 +551,13 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                     if (rangeOfferIdx != -1) {
                       return _buildRangeUI(offers[rangeOfferIdx]);
                     }
-                    
+
+                    _maybeApplySuggestedOffer(
+                      offers,
+                      forecast?.suggestedOfferId,
+                      isEditMode: isEditMode,
+                    );
+
                     return ConstrainedBox(
                       constraints: BoxConstraints(
                         maxHeight: MediaQuery.of(context).size.height * 0.4,
@@ -645,6 +669,7 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
               children: (isPremium ? [0, 7, 14, 30, 85] : [0, 7, 14, 30, 90])
                   .map((freq) {
                     final isSelected = _frequencyDays == freq;
+                    final isSuggested = suggestedFrequency == freq;
                     String freqLabel = '$freq Days';
                     if (freq == 0) freqLabel = '1 Hour';
                     if (freq == 30) freqLabel = 'Monthly';
@@ -653,7 +678,10 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                     }
 
                     return InkWell(
-                      onTap: () => setState(() => _frequencyDays = freq),
+                      onTap: () => setState(() {
+                        _frequencyDays = freq;
+                        _userPickedFrequency = true;
+                      }),
                       borderRadius: BorderRadius.circular(12),
                       child: Container(
                         padding: const EdgeInsets.symmetric(
@@ -668,27 +696,55 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                           border: Border.all(
                             color: isSelected
                                 ? AppColors.primary
+                                : isSuggested
+                                ? AppColors.success.withValues(alpha: 0.6)
                                 : context.dividerColor,
                             width: 1.5,
                           ),
                         ),
-                        child: Text(
-                          freqLabel,
-                          style: TextStyle(
-                            color: isSelected
-                                ? context.onSurfaceColor
-                                : context.onSurfaceColor.withValues(alpha: 0.6),
-                            fontWeight: isSelected
-                                ? FontWeight.bold
-                                : FontWeight.normal,
-                            fontSize: 13,
-                          ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              freqLabel,
+                              style: TextStyle(
+                                color: isSelected
+                                    ? context.onSurfaceColor
+                                    : context.onSurfaceColor.withValues(
+                                        alpha: 0.6,
+                                      ),
+                                fontWeight: isSelected
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
+                                fontSize: 13,
+                              ),
+                            ),
+                            if (isSuggested) ...[
+                              const SizedBox(width: 6),
+                              const Icon(
+                                Icons.auto_awesome_rounded,
+                                color: AppColors.success,
+                                size: 13,
+                              ),
+                            ],
+                          ],
                         ),
                       ),
                     );
                   })
                   .toList(),
             ),
+            if (suggestedFrequency != null) ...[
+              const SizedBox(height: 10),
+              Text(
+                forecast!.isMeasured
+                    ? 'Suggested from this line\'s own refill history.'
+                    : 'Suggested from this carrier\'s validity window.',
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: AppColors.success.withValues(alpha: 0.9),
+                ),
+              ),
+            ],
             const SizedBox(height: 24),
 
             // Next Execution Date estimation
@@ -1025,6 +1081,62 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
     } finally {
       if (mounted) setState(() => _isDeleting = false);
     }
+  }
+
+  /// G1: adopt the forecast's frequency as the starting point for a NEW
+  /// schedule, replacing the old blanket default of 85/30 days that had nothing
+  /// to do with this particular line.
+  ///
+  /// Applied once, never on an edit (that would silently rewrite a schedule the
+  /// user already chose), and never after the user has touched a chip.
+  void _maybeApplySuggestedFrequency(
+    int? suggested, {
+    required bool isEditMode,
+  }) {
+    if (suggested == null ||
+        isEditMode ||
+        _userPickedFrequency ||
+        _appliedSuggestedFrequency ||
+        suggested == _frequencyDays) {
+      return;
+    }
+    _appliedSuggestedFrequency = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) setState(() => _frequencyDays = suggested);
+    });
+  }
+
+  /// G1: preselect the package the line was last successfully refilled with.
+  /// Only fills an empty selection — it never overrides a user's pick, and it
+  /// no-ops when the suggested offer is no longer in the catalog.
+  void _maybeApplySuggestedOffer(
+    List<Map<String, dynamic>> offers,
+    String? suggestedOfferId, {
+    required bool isEditMode,
+  }) {
+    if (suggestedOfferId == null ||
+        isEditMode ||
+        _selectedOffer != null ||
+        _appliedSuggestedOffer) {
+      return;
+    }
+    final match = offers.cast<Map<String, dynamic>?>().firstWhere(
+      (o) => o?['offerId']?.toString() == suggestedOfferId,
+      orElse: () => null,
+    );
+    if (match == null) return;
+
+    _appliedSuggestedOffer = true;
+    final double baseCost = (match['baseCostUsd'] as num).toDouble();
+    final double total = _quote(baseCost).total;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        setState(() {
+          _selectedOffer = match;
+          _amount = total;
+        });
+      }
+    });
   }
 
   /// The configured app fee. Was hardcoded at 5% here while the manual sheet and

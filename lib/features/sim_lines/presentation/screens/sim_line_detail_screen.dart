@@ -26,6 +26,7 @@ import 'package:keep_sims/core/router/app_router.dart';
 import 'package:keep_sims/features/household/presentation/controllers/household_controller.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/line_upgrade_sheet.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/premium_refill_config_sheet.dart';
+import 'package:keep_sims/features/sim_lines/presentation/widgets/depletion_forecast_card.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SimLineDetailScreen extends ConsumerStatefulWidget {
@@ -264,6 +265,15 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                       ),
                       if (score < 30 && !line.protectionPaused)
                         const SizedBox(height: 20),
+
+                      // 1b. Depletion forecast (G1) — when this line is
+                      // predicted to run out, and the schedule that fits it.
+                      // Renders nothing when no forecast row exists yet.
+                      DepletionForecastCard(
+                        line: line,
+                        isPremium: isPremium,
+                        existingRefillSchedule: fallbackRefillSchedule,
+                      ),
 
                       // 2. Protection Layers configuration (renamed from AutoRefillSection)
                       _buildProtectionLayersSection(context, detailState),

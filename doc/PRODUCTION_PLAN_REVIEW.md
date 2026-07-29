@@ -880,13 +880,104 @@ E3 (local rails), E5 (fleet), E6 (helpdesk bridge).
 Ordered by value-per-effort for this specific codebase. Each says what already exists, because
 most of these are 60% built already.
 
+> **Progress:** #1 built 2026-07-29 (see below). Next unbuilt feature is **#2, price-drop /
+> best-offer watch**. This list is independent of the Phase F plan in § 5 — F1
+> (notifications actually arriving) is still the higher-priority item overall, and #2 depends
+> on it, since a price-drop alert nobody receives is worth nothing.
+
 **1 · Depletion forecasting → smarter auto-custom refills** · *high value, medium effort*
-You store `topup_executions` history and (for eSIMs) usage polls. Fit a trivial per-line
+~~You store `topup_executions` history and (for eSIMs) usage polls. Fit a trivial per-line
 consumption rate (7/30-day rolling mean of data used ÷ days) and use it to (a) predict the
 expiry/depletion date, (b) propose the auto-custom schedule instead of asking the user to
 invent one, (c) fire `line_critical` earlier. Implementation: a `sim_line_usage_forecast`
 materialised view + a nightly cron; the UI already has a health score to hang it on. No new
-credentials.
+credentials.~~
+
+> ### ✅ BUILT 2026-07-29 — migration `20260802000000_g1_depletion_forecasting.sql`
+>
+> All three outcomes shipped and proven on live data. No new credentials, no owner action,
+> nothing left inert.
+>
+> **What exists now**
+>
+> | Object | What it is |
+> |---|---|
+> | `sim_line_usage_forecast` | one row per active SIM line **or** eSIM: prediction, method, confidence, and the suggested schedule. Read-own + household; **no client write path**. |
+> | `esim_usage_samples` | daily `data_remaining_mb` reading per eSIM. Deny-all telemetry. |
+> | `snapshot_esim_usage()` | records today's reading. |
+> | `compute_usage_forecasts()` | the fit. |
+> | `emit_forecast_depletion_alerts()` | outcome (c). |
+> | `refresh_usage_forecasts()` | cron entry point → **`cron.job` 20, `20 2 * * *`, active**. |
+> | Flutter | `UsageForecast` model + provider, `DepletionForecastCard` on the line detail screen, and a suggested-schedule prefill in `ScheduledTopupSheet`. |
+>
+> **Two deliberate departures from the sketch above.** Both are written up in the migration
+> header; in short:
+> 1. **A table, not a materialised view.** Postgres does not support RLS on a matview, so
+>    `sim_line_usage_forecast` as a matview would be either world-readable through PostgREST
+>    or need a `SECURITY DEFINER` view in front of it — the exact shape F0 spent three
+>    sessions deleting. A table takes an ordinary read-own policy and adds nothing to the
+>    perimeter. Same refresh cost.
+> 2. **The job samples eSIM usage itself.** The fulfilment worker already polls
+>    `data_remaining_mb` but keeps no history, and the VM is owner-gated (§ 5 of
+>    PROJECT_TOPOLOGY). The nightly job records the reading it finds instead, so the burn
+>    rate needs two nights but zero deploys.
+>
+> **The forecast is honest about what it knows.** `method` is one of `topup_history` /
+> `esim_usage` (fitted from the line's own behaviour) or `carrier_rule` / `default`
+> (fallback), and `confidence` grades it. The card badges these as **MEASURED** vs
+> **ESTIMATE**, and the sheet says which one it is suggesting from. A default-90-days guess
+> is never dressed up as a measurement.
+>
+> **Two real defects the live data caught, both fixed before shipping:**
+> * **Retry storms poisoned the fit.** One line has five test top-ups minutes apart; the
+>   first version fitted a **0.40-day** refill cycle from them, concluded the line was
+>   already dead, and proposed weekly refills for a 30-day carrier window. Gaps below
+>   `system_configs.FORECAST_MIN_CYCLE_DAYS` (3) are now ignored — a sub-3-day gap is a
+>   retry, not a cadence. That line now correctly falls back to its carrier rule.
+> * **The schedule suggestion snapped on the wrong number.** The chip labels are not the
+>   execution days: `RefillScheduleMath.safetyAdjustedDelayDays` maps 90→85, 30→28, 14→13.
+>   Keying the snap on labels sent a measured 28-day cycle to the 14-day chip — double the
+>   refill spend for no extra protection. Thresholds are now the execution days.
+>
+> **Proof (live, `zwxswagokhgbuzrrbnhr`):**
+> * `refresh_usage_forecasts()` → `{"esim_samples":1,"forecasts":10,"alerts":0}`. 10 of 10
+>   active lines have a forecast row; 0 alerts is correct, the nearest depletion is 17 days
+>   out against a 7-day lead.
+> * Both fitted paths proven in a rolled-back transaction, since live data exercises neither:
+>   four synthetic refills 28 days apart → `topup_history`, `high`, `28.00` days, $4.00
+>   suggestion; an eSIM at 1024→524 MB over 10 days → `esim_usage`, **50.00 MB/day**,
+>   depletion in 11 days.
+> * Alerting proven the same way with the lead widened to 20 days: **2** `line_critical`
+>   notifications with real bodies ("B1 test Zong PK runs out in 17 days (around Aug 15). A
+>   top-up of about $0.50 keeps it active."), an immediate re-run emitted **0** (dedup), and
+>   a third in-window line was correctly suppressed because an active auto-refill already
+>   executes before its predicted depletion. All rolled back; residue re-checked at zero.
+> * Security probed as a real role, not as `postgres`: signed-in user sees **6 of 10** rows
+>   (own only), `UPDATE` → `42501`, `anon SELECT` → `42501`, `esim_usage_samples` →
+>   `42501`. `f0_grant_matrix_tests.sql` re-run with the four new functions: **6/6 PASSED**.
+>   Advisors unchanged at **29**.
+> * `flutter analyze` **134** (baseline, 0 errors, none in the new files);
+>   `flutter test` **85/85** (76 baseline + 9 new in
+>   `test/features/sim_lines/usage_forecast_test.dart`).
+>
+> **Nothing is required of the owner for this feature.** It runs tonight at 02:20 UTC.
+>
+> **Two caveats, stated plainly:**
+> * Every live forecast today reads `carrier_rule`, because the database holds **zero**
+>   completed top-ups spaced more than 3 days apart. The `topup_history` path is proven but
+>   unexercised in production until real refills accumulate. This is a data-maturity limit,
+>   not a code gap.
+> * The card and sheet strings are hardcoded English, matching the surrounding code in
+>   `scheduled_topup_sheet.dart` (which is also unlocalised). Folding them into ARB belongs
+>   with suggestion **#12**, the localisation QA pass.
+>
+> **🐛 Unrelated drift found while registering this migration:**
+> `20260801100000_f4b_is_power_user_security_invoker.sql` has **no matching row** in
+> `supabase_migrations.schema_migrations` — F0 left it stamped `20260729064937`, which sorts
+> before the `20260801*` migrations it follows. A `supabase db push` would try to re-run it.
+> G1's own four MCP-stamped rows were collapsed into a single `20260802000000` row matching
+> its filename; f4b's was left alone rather than silently rewriting another session's record.
+> One-row fix, worth doing before the next replay.
 
 **2 · Price-drop / best-offer watch** · *high value, low effort*
 `provider_offers_cache` (783 offers) and `esim_offers_cache` refresh continuously and you keep
