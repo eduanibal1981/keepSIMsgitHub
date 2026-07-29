@@ -971,13 +971,29 @@ credentials.~~
 >   `scheduled_topup_sheet.dart` (which is also unlocalised). Folding them into ARB belongs
 >   with suggestion **#12**, the localisation QA pass.
 >
-> **🐛 Unrelated drift found while registering this migration:**
-> `20260801100000_f4b_is_power_user_security_invoker.sql` has **no matching row** in
-> `supabase_migrations.schema_migrations` — F0 left it stamped `20260729064937`, which sorts
-> before the `20260801*` migrations it follows. A `supabase db push` would try to re-run it.
-> G1's own four MCP-stamped rows were collapsed into a single `20260802000000` row matching
-> its filename; f4b's was left alone rather than silently rewriting another session's record.
-> One-row fix, worth doing before the next replay.
+> **🐛 Unrelated drift found while registering this migration — FIXED.**
+> `20260801100000_f4b_is_power_user_security_invoker.sql` had **no matching row** in
+> `supabase_migrations.schema_migrations`: F0 left it stamped `20260729064937`, which sorts
+> *before* the `20260801*` migrations it follows, so a `supabase db push` would have tried to
+> re-run it. Re-stamped to `20260801100000` (owner-approved). G1's own four MCP-stamped rows
+> were likewise collapsed into a single `20260802000000` row. The registry now matches every
+> repo filename from F1 through G1:
+>
+> ```
+> 20260801040000 f1_credit_wallet_refund_grant_lockdown
+> 20260801050000 f2_debit_wallet_grant_lockdown
+> 20260801060000 f2b_drop_ambiguous_debit_overload
+> 20260801070000 f3_f4_rpc_grant_lockdown
+> 20260801080000 f5_process_due_notifications_search_path
+> 20260801090000 f6_table_grant_lockdown
+> 20260801100000 f4b_is_power_user_security_invoker
+> 20260802000000 g1_depletion_forecasting
+> ```
+>
+> **This is the fifth migration drift this project has hit.** `apply_migration` stamps
+> *today's* date while the repo uses future-dated round timestamps, so the two disagree by
+> construction on every single migration. Check `list_migrations` against the filenames after
+> every `apply_migration` — it is a one-row `UPDATE`, and only expensive once it is a replay.
 
 **2 · Price-drop / best-offer watch** · *high value, low effort*
 `provider_offers_cache` (783 offers) and `esim_offers_cache` refresh continuously and you keep
