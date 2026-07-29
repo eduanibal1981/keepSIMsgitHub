@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  SIM Shield — widget metadata (G4).
+
+  updatePeriodMillis is 6 hours, not the 30-minute floor: the only thing that
+  changes without the app running is the day countdown, which the provider
+  re-derives from an absolute timestamp at render time. Waking the device more
+  often would cost battery to redraw identical pixels.
+-->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:initialLayout="@layout/keepsims_widget"
+    android:previewLayout="@layout/keepsims_widget"
+    android:previewImage="@mipmap/launcher_icon"
+    android:description="@string/ks_widget_description"
+    android:minWidth="180dp"
+    android:minHeight="110dp"
+    android:minResizeWidth="110dp"
+    android:minResizeHeight="110dp"
+    android:targetCellWidth="3"
+    android:targetCellHeight="2"
+    android:resizeMode="horizontal|vertical"
+    android:widgetCategory="home_screen"
+    android:updatePeriodMillis="21600000" />

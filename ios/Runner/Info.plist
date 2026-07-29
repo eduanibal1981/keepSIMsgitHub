@@ -90,5 +90,8 @@
 	</dict>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Biometric authentication is used to secure your wallet transactions and protect app access.</string>
+	<!-- G4: required before ActivityKit will start a Live Activity at all. -->
+	<key>NSSupportsLiveActivities</key>
+	<true/>
 </dict>
 </plist>

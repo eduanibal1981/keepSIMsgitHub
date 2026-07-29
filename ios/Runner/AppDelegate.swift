@@ -11,6 +11,8 @@ import CoreTelephony
     // Register eSIM platform channel on the root FlutterViewController
     if let controller = window?.rootViewController as? FlutterViewController {
       setupEsimChannel(controller: controller)
+      // G4: Lock Screen / Dynamic Island live activity for data remaining.
+      LiveActivityBridge.register(controller: controller)
     }
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }

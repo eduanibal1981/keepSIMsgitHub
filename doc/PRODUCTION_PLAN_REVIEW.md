@@ -868,6 +868,16 @@ the "Baqa" bullet at `sim_lines_list_screen.dart:653`. Re-run
 `tool/verify_release_bundle.ps1`. Then Play + App Store submission against
 `doc/OWNER_STORE_CHECKLIST.md`.
 
+> **🆕 2026-07-29 — this was blocked outright and nobody knew.** Building feature #4
+> required an actual APK, and `flutter build apk` had been failing on
+> `:sentry_flutter:compileDebugKotlin` (Kotlin 2.2 refuses that plugin's hardcoded
+> `languageVersion = "1.6"`). Fixed in `android/build.gradle.kts`; the write-up is under
+> feature #4 in § 6. **The lesson belongs in F6's CI item:** every acceptance number this
+> document tracks — analyze, tests, advisors — was green while the app could not be
+> packaged at all. A CI job that does nothing but `flutter build apk --debug` on push
+> would have caught it the day the toolchain moved. Also note the 44.6 MB baseline now
+> includes `androidx.glance`, pulled in transitively by `home_widget`.
+
 ### ⚪ F8 — E-phase, resequenced
 
 `E1` (Zendit + PayPal live) only after F0–F3. Then E2 (Reloadly failover), E4 (OTP tier),
@@ -880,13 +890,19 @@ E3 (local rails), E5 (fleet), E6 (helpdesk bridge).
 Ordered by value-per-effort for this specific codebase. Each says what already exists, because
 most of these are 60% built already.
 
-> **Progress:** #1, #2 and #3 all built 2026-07-29 (see below). Next unbuilt feature is **#4,
-> the home-screen widget**. This list is independent of the Phase F plan in § 5 — F1
-> (notifications actually arriving) is still the higher-priority item overall, and #2
-> demonstrated why: its alerts are correct, consent-gated and proven, and they will still
-> reach nobody until the push path works. #3 is the first of the three that is genuinely
-> whole without F1, because its value lands in the recipient's balance rather than in a
-> notification.
+> **Progress:** #1, #2, #3 and #4 all built 2026-07-29 (see below), though **#4 is
+> Android-only until the owner does the Xcode work** in § 7 item 12. Next unbuilt feature
+> is **#5, the "roam or eSIM?" calculator**. This list is independent of the Phase F plan
+> in § 5 — F1 (notifications actually arriving) is still the higher-priority item overall,
+> and #2 demonstrated why: its alerts are correct, consent-gated and proven, and they will
+> still reach nobody until the push path works. #3 and #4 are the two that are genuinely
+> whole without F1, because their value lands in the recipient's balance and on the home
+> screen rather than in a notification.
+>
+> **A note on what #4 turned up.** Building it required an actual APK, and there was no
+> actual APK: the Android build had been broken by toolchain drift in a dependency, which
+> means **F7 and the store submission were blocked and nobody knew**. Features that force
+> a real artifact to be produced are worth more than their feature value.
 
 **1 · Depletion forecasting → smarter auto-custom refills** · *high value, medium effort*
 ~~You store `topup_executions` history and (for eSIMs) usage polls. Fit a trivial per-line
@@ -1320,8 +1336,122 @@ fit with the household feature.~~
 > default `GRANT ALL` (incl. `TRUNCATE`) for `anon` and `authenticated`.
 
 **4 · Home-screen widget + iOS Live Activity for data remaining** · *high perceived value*
-Android `home_widget` + Glance, iOS WidgetKit. Feed it from the offline cache so it renders
-with no network. This is the feature travellers screenshot, and it costs no backend work.
+~~Android `home_widget` + Glance, iOS WidgetKit. Feed it from the offline cache so it renders
+with no network. This is the feature travellers screenshot, and it costs no backend work.~~
+
+> ### 🟡 BUILT 2026-07-29 — Android shipped and proven on a device; iOS written but **not compiled**
+>
+> "Costs no backend work" was right: **zero migrations, zero Edge Functions, zero new
+> credentials, nothing added to the security perimeter.** The Android half is done and
+> was verified rendering live data on an emulator. The iOS half is source-complete and
+> unverifiable from this workstation — there is no Mac, no Xcode and no Apple Developer
+> account, so the widget-extension target does not exist in `Runner.xcodeproj` and not
+> one line of the Swift has been through a compiler. **That half is an owner task**, and
+> it is stated as such everywhere it appears rather than counted as delivered.
+>
+> **What exists now**
+>
+> | Object | What it is |
+> |---|---|
+> | `widget_snapshot.dart` | Pure Dart. Picks the subject closest to dying across SIM lines *and* eSIMs, formats it, and encodes one JSON payload. No plugin, no Riverpod, no Supabase — so every selection and formatting rule is unit-testable. |
+> | `home_widget_publisher.dart` | The only file that touches the `home_widget` plugin. Best-effort throughout: a launcher failure must never reach the app. |
+> | `home_widget_sync.dart` | Mounted once from the app root. Watches the same providers the dashboard does, republishes only when the payload actually changed, and routes widget taps back into the app. |
+> | `usageForecastsProvider` | **New** (G1's table, all rows, disk-cached). The per-line provider was a live read for one screen; the widget needs the whole set to survive a cold offline start. |
+> | `KeepSimsWidgetProvider.kt` + layout/drawables/`appwidget-provider` XML | The Android widget. RemoteViews, one responsive provider, 6-hour update period. |
+> | `ios/KeepSimsWidget/*.swift`, `ios/Shared/KeepSimsActivityAttributes.swift`, `ios/Runner/LiveActivityBridge.swift` | WidgetKit widget + ActivityKit Live Activity + the MethodChannel that drives it. **Uncompiled.** |
+> | `live_activity_service.dart` + `LiveActivityPinButton` | Dart bridge, and the one-tap "Pin to Lock Screen" that is the only way an activity ever starts. Renders nothing on any platform that cannot show one, Android included. |
+>
+> **Four deliberate departures from the sketch.**
+> 1. **RemoteViews, not Glance.** Glance needs the Compose compiler plugin in the app
+>    module — a build-system change on a project whose Android build was, as it turns
+>    out, already broken (see below). RemoteViews needs nothing, weighs nothing, and
+>    renders the same tile. Worth knowing for **F7**: `home_widget` declares
+>    `androidx.glance:glance-appwidget:1.1.1` itself, so **Glance ships in the APK either
+>    way** — verified, `androidx/glance/appwidget` is present in three dex files. Writing
+>    the widget in Glance would have cost build risk for no size saving.
+> 2. **"Data remaining" means two different things, and the widget says which.** Only
+>    eSIMs have a data metric; a physical SIM line has no megabyte count anywhere in this
+>    product. Lines therefore count down *validity* — which is the thing KeepSIMs actually
+>    protects — sourced from G1's `predicted_depletion_at`, falling back to
+>    `validity_expires_at`, then `next_topup_due`. A line with none of the three renders
+>    "— / no expiry known" instead of a fabricated zero.
+> 3. **The countdown is re-derived natively, not baked in.** The payload carries an
+>    absolute `depletes_at_ms`, and Kotlin/Swift recompute the day count at render time.
+>    This is the difference between a widget that is right for a week with the app closed
+>    and one that quietly goes stale — the exact case the feature exists for. Megabytes
+>    are explicitly *not* recomputed (`metric_is_countdown: false`): they cannot move
+>    without a sync, and the "updated Xd ago" line is what admits that.
+> 4. **Nothing sensitive is on it.** No wallet balance, no ICCID, and phone numbers are
+>    masked to `•••• 4567` — a nickname if one exists, otherwise the last four digits. The
+>    payload lands in a store the launcher can read and is rendered on a screen anyone
+>    standing nearby can see. Signing out publishes an empty payload, so the previous
+>    account's lines do not stay legible on the device. This is asserted by a test, not
+>    just by intent.
+>
+> **Proof — Android, on a real Android 16 emulator, rendering the live database:**
+> * `flutter build apk --debug` **succeeds**; `aapt2` confirms the receiver
+>   (`com.keep_sims.KeepSimsWidgetProvider`, `exported=false`), all 20 widget resources,
+>   and `KeepSimsWidgetProvider` in `classes16.dex`.
+> * `dumpsys appwidget` shows the system parsed the provider XML:
+>   `updatePeriodMillis=21600000 resizeMode=3 widgetCategory=1 initialLayout=#7f0c0274` —
+>   matching the compiled `layout/keepsims_widget` id exactly.
+> * **Rendered on the home screen with real rows for user `e5a56433…`**: headline
+>   *"B1 test Zong PK · **17** days left · Estimated"* in amber, then *"B1 test Etisalat
+>   EG — 19 days left"* and *"Zain KSA Test Line — 22 days left"* in cyan. Those are the
+>   live `sim_line_usage_forecast` values (17/19/23-at-02:20-UTC), and the colours are the
+>   thresholds working: ≤21 days amber, above it cyan.
+> * **The app publishes it itself.** With the shared store deleted and the app launched
+>   cold, `HomeWidgetPreferences.xml` came back containing
+>   `{"schema":1,"signed_in":false,…,"empty_message":"Sign in to see your SIMs","subjects":[]}` —
+>   written by Dart, read by Kotlin, rendered by the launcher. The signed-out tile was
+>   screenshotted showing exactly that string.
+> * **The native re-derivation is proven by contradiction.** A payload was seeded whose
+>   *baked* text still said `"metric":"17","metric_label":"days left"` and
+>   `"severity":"ok"`, but whose timestamps said 3 days, 1 day and −2 days. With the app
+>   process **not running**, the widget rendered **"3 days left"**, **"1 day left"** and
+>   **"0 expired"** — the last one with a red dot, because an elapsed countdown forces
+>   critical regardless of what was published.
+> * **The eSIM path**: a 25% bundle rendered *"512 MB · data left"* with the cyan bar
+>   filled to a quarter and the subtitle *"eSIM · 5 days left"* composed natively — and
+>   the megabytes were **not** recomputed even though a timestamp was present, which is
+>   the rule.
+> * **The tap works**: `ActivityTaskManager: START … act=es.antonborri.home_widget.action.LAUNCH
+>   dat=keepsims://widget/… cmp=com.keep_sims/.MainActivity`.
+> * `flutter analyze` **134** (baseline, 0 errors, none in the new files);
+>   `flutter test` **139/139** (116 baseline + 23 new in
+>   `test/features/home_widget/widget_snapshot_test.dart`).
+>
+> **🐛 The Android app did not build at all, and that is now fixed.**
+> Before any of this, `flutter build apk` failed on **`:sentry_flutter:compileDebugKotlin`**:
+> the plugin (8.14.2) hardcodes `languageVersion = "1.6"` in its own `android/build.gradle`,
+> and the Kotlin 2.2.20 pinned in `settings.gradle.kts` refuses outright — *"Language
+> version 1.6 is no longer supported"*. Isolated to that module (`./gradlew
+> :sentry_flutter:compileDebugKotlin` fails on its own, with no `:app` source involved),
+> so it is toolchain drift, not this feature. `android/build.gradle.kts` now raises the
+> language floor to 1.8 for any subproject below it. **This blocked every APK and every
+> AAB, so it blocked F7 and the store submission entirely** — and nothing in the repo
+> recorded it, which suggests no Android artifact has been built here in a while.
+>
+> **🔎 Found while building this, deliberately not fixed here.**
+> **`getUserEsims()` reads five column names the `user_esims` table does not have.** The
+> repository maps `lpa_activation_code`, `qr_code_url`, `esim_order_id`, `first_activated_at`
+> and `last_synced_at`; the table (and the worker that writes it) uses `lpa_string`,
+> `smdp_address`/`matching_id`, `order_id` and `last_usage_check`. Every one silently
+> defaults — so **`UserEsim.lpaActivationCode` is `''` for every row in production**, which
+> means the eSIM QR code and the manual SM-DP+/matching-id install details are rendered
+> from nothing (`smdpAddress` falls back to a hardcoded `rsp.esim-go.com`, `matchingId`
+> falls back to the ICCID). This is a delivery bug in the product's eSIM path, not a widget
+> bug, and it belongs with **F5** or with F4's item 5. G4 works around it by keying its
+> "is this eSIM worth showing" test on `status` alone. Also still open from G2/G3:
+> `alert_settings` retains the default `GRANT ALL`, and `wallets.total_deposited` is wrong
+> for six of eight users.
+>
+> **⚠️ What is NOT done, stated plainly.** The iOS half is **written, not working**. The
+> Swift compiles in nobody's Xcode yet; `Runner.xcodeproj` has no widget-extension target,
+> no App Group capability, and `ios/Runner/Runner.entitlements` is a new file the project
+> does not reference. Live Activities additionally need iOS 16.1+ and a real device. The
+> owner steps are item 12 of § 7. Until they are done, **the App Store build has no widget
+> and no Live Activity**, and this feature should be described as Android-only.
 
 **5 · "Roam or eSIM?" calculator** · *medium value, low effort*
 C8 already detects the country via IP with zero permissions. Add the roaming tariff for the
@@ -1393,6 +1523,31 @@ Ordered by what unblocks the most work:
     exists solely in the dashboard. It is the last remaining `security` advisor WARN that is
     actionable at all; everything else in that list is a documented accepted exception.
     Two minutes of clicking.*
+12. 🆕 **Wire the iOS widget extension in Xcode** (feature #4). *Added 2026-07-29. Needs a
+    Mac and the Apple Developer account from item 2, so it could not be done in-session.
+    The Swift is written and sitting in the repo; this is wiring, not authoring. In Xcode,
+    on `ios/Runner.xcworkspace`:*
+    1. **File → New → Target → Widget Extension**, name it exactly **`KeepSimsWidget`**,
+       untick "Include Configuration Intent", tick "Include Live Activity". Set its
+       deployment target to **iOS 16.1**. Delete the placeholder `.swift` files Xcode
+       generates and the `Info.plist` it creates — the repo already has both.
+    2. **Add the existing files** to the new target: everything in `ios/KeepSimsWidget/`,
+       and set the target's `Info.plist` to `ios/KeepSimsWidget/Info.plist` and its
+       `CODE_SIGN_ENTITLEMENTS` to `ios/KeepSimsWidget/KeepSimsWidget.entitlements`.
+    3. **Add `ios/Shared/KeepSimsActivityAttributes.swift` to BOTH targets** — Runner *and*
+       KeepSimsWidget, one file with two checkboxes in the File Inspector. ActivityKit
+       matches activities by that type; two copies in two modules are two different types
+       and the Live Activity will silently never appear.
+    4. **Add `ios/Runner/LiveActivityBridge.swift` to the Runner target.**
+    5. **App Groups capability on both targets**, group id exactly
+       **`group.com.keep_sims.widget`**. Point Runner's `CODE_SIGN_ENTITLEMENTS` at
+       `ios/Runner/Runner.entitlements` (the file exists; the project does not reference it
+       yet). Without this the extension reads an empty `UserDefaults` and the widget shows
+       its placeholder forever — this is the single most likely thing to get wrong.
+    6. **Build, and expect to fix compile errors.** None of this Swift has ever seen a
+       compiler. Then on a real iPhone: add the widget to the home screen, and tap "Pin to
+       Lock Screen" on a SIM line detail screen to check the Live Activity.
+    *Everything else about feature #4 already works on Android and needs nothing from you.*
 
 ---
 

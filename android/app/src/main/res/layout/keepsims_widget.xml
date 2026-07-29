@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  SIM Shield — home-screen widget layout (G4).
+
+  One responsive layout rather than a small/medium pair: KeepSimsWidgetProvider
+  hides `ks_rows` on a tile too small to read them, which keeps a single
+  provider class (and so a single `updateWidget` call) driving every size.
+
+  RemoteViews only supports a fixed set of view classes — the severity dot is
+  an ImageView tinted with setColorFilter rather than a plain <View>, which the
+  widget host would refuse to inflate.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ks_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/keepsims_widget_bg"
+    android:padding="@dimen/ks_widget_padding">
+
+    <!-- Header: brand on the left, how stale the numbers are on the right. -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:baselineAligned="false">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/ks_widget_label"
+            android:textColor="#BCC9CD"
+            android:textSize="11sp"
+            android:letterSpacing="0.12"
+            android:maxLines="1"
+            android:ellipsize="end" />
+
+        <TextView
+            android:id="@+id/ks_updated"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#6E797E"
+            android:textSize="11sp"
+            android:maxLines="1" />
+    </LinearLayout>
+
+    <!-- The headline subject. -->
+    <LinearLayout
+        android:id="@+id/ks_primary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="6dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:id="@+id/ks_dot"
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:layout_marginEnd="6dp"
+                android:src="@drawable/keepsims_widget_dot"
+                android:contentDescription="@null" />
+
+            <TextView
+                android:id="@+id/ks_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="#FFFFFF"
+                android:textSize="13sp"
+                android:maxLines="1"
+                android:ellipsize="end" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="2dp">
+
+            <TextView
+                android:id="@+id/ks_metric"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#4CD7F6"
+                android:textSize="32sp"
+                android:maxLines="1"
+                android:includeFontPadding="false" />
+
+            <TextView
+                android:id="@+id/ks_metric_label"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="6dp"
+                android:layout_marginBottom="4dp"
+                android:layout_gravity="bottom"
+                android:textColor="#DCE3F0"
+                android:textSize="12sp"
+                android:maxLines="1"
+                android:ellipsize="end" />
+        </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/ks_progress"
+            style="@android:style/Widget.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="5dp"
+            android:layout_marginTop="4dp"
+            android:max="100"
+            android:progressDrawable="@drawable/keepsims_widget_progress" />
+
+        <TextView
+            android:id="@+id/ks_subtitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="#BCC9CD"
+            android:textSize="11sp"
+            android:maxLines="1"
+            android:ellipsize="end" />
+    </LinearLayout>
+
+    <!-- Runners-up. Hidden on tiles with no room; see showExtraRows(). -->
+    <LinearLayout
+        android:id="@+id/ks_rows"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="8dp"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:id="@+id/ks_row_1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingTop="3dp"
+            android:paddingBottom="3dp">
+
+            <ImageView
+                android:id="@+id/ks_row_1_dot"
+                android:layout_width="6dp"
+                android:layout_height="6dp"
+                android:layout_marginEnd="6dp"
+                android:src="@drawable/keepsims_widget_dot"
+                android:contentDescription="@null" />
+
+            <TextView
+                android:id="@+id/ks_row_1_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="#DCE3F0"
+                android:textSize="12sp"
+                android:maxLines="1"
+                android:ellipsize="end" />
+
+            <TextView
+                android:id="@+id/ks_row_1_metric"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:textColor="#BCC9CD"
+                android:textSize="12sp"
+                android:maxLines="1" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ks_row_2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingTop="3dp"
+            android:paddingBottom="3dp">
+
+            <ImageView
+                android:id="@+id/ks_row_2_dot"
+                android:layout_width="6dp"
+                android:layout_height="6dp"
+                android:layout_marginEnd="6dp"
+                android:src="@drawable/keepsims_widget_dot"
+                android:contentDescription="@null" />
+
+            <TextView
+                android:id="@+id/ks_row_2_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="#DCE3F0"
+                android:textSize="12sp"
+                android:maxLines="1"
+                android:ellipsize="end" />
+
+            <TextView
+                android:id="@+id/ks_row_2_metric"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:textColor="#BCC9CD"
+                android:textSize="12sp"
+                android:maxLines="1" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Shown instead of ks_primary: signed out, nothing to protect yet, or a
+         payload this build does not understand. -->
+    <TextView
+        android:id="@+id/ks_empty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:textColor="#DCE3F0"
+        android:textSize="13sp"
+        android:maxLines="3"
+        android:visibility="gone" />
+</LinearLayout>

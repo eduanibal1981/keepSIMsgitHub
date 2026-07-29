@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  SIM Shield — home-screen widget resources (G4).
+
+  The day words live here rather than in Kotlin so the localisation QA pass
+  (suggestion #12) has one place to translate them. They must stay in step with
+  `countdownLabel` / `countdownPhrase` in `widget_snapshot.dart`, which produce
+  the same strings for the payload's fallback text.
+-->
+<resources>
+    <string name="ks_widget_label">KEEPSIMS</string>
+    <string name="ks_widget_provider_label">KeepSIMs</string>
+    <string name="ks_widget_description">Data and validity left on your SIMs, without opening the app.</string>
+
+    <string name="ks_widget_open_app">Open KeepSIMs to set this up</string>
+    <string name="ks_widget_signed_out">Sign in to see your SIMs</string>
+
+    <string name="ks_widget_expired">expired</string>
+    <string name="ks_widget_day_left">day left</string>
+    <string name="ks_widget_days_left">days left</string>
+    <string name="ks_widget_day">day</string>
+    <string name="ks_widget_days">days</string>
+    <!-- e.g. "17 days left" -->
+    <string name="ks_widget_phrase_left">%1$d %2$s left</string>
+
+    <string name="ks_widget_just_now">just now</string>
+    <string name="ks_widget_updated_minutes">%1$dm ago</string>
+    <string name="ks_widget_updated_hours">%1$dh ago</string>
+    <string name="ks_widget_updated_days">%1$dd ago</string>
+
+    <dimen name="ks_widget_radius">20dp</dimen>
+    <dimen name="ks_widget_padding">14dp</dimen>
+</resources>

@@ -18,6 +18,7 @@ import 'package:keep_sims/core/theme/app_theme.dart';
 import 'package:keep_sims/core/router/app_router.dart';
 import 'package:keep_sims/features/notifications/presentation/controllers/notification_settings_controller.dart';
 import 'package:keep_sims/core/services/sync_queue_service.dart';
+import 'package:keep_sims/features/home_widget/presentation/home_widget_sync.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
@@ -125,6 +126,9 @@ class KeepSIMsApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // Warm up offline sync queue & connectivity monitoring at app launch
     ref.watch(syncQueueProvider);
+
+    // Keep the home-screen widgets fed, and route taps on them (G4).
+    ref.watch(homeWidgetSyncProvider);
 
     final router = ref.watch(appRouterProvider);
     final prefsState = ref.watch(userPreferencesControllerProvider);

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- G4: shared container the app writes the widget payload into. Must match
+	     KeepSimsWidget.entitlements and `kIosAppGroupId` in Dart.
+
+	     NOTE: this file is not referenced by Runner.xcodeproj yet — set
+	     CODE_SIGN_ENTITLEMENTS for the Runner target in Xcode, or add the App
+	     Group capability, which creates the reference for you. See the G4
+	     write-up in doc/PRODUCTION_PLAN_REVIEW.md. -->
+	<key>com.apple.security.application-groups</key>
+	<array>
+		<string>group.com.keep_sims.widget</string>
+	</array>
+</dict>
+</plist>

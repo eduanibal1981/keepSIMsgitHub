@@ -112,3 +112,73 @@ final class UsageForecastForLineFamily extends $Family
   @override
   String toString() => r'usageForecastForLineProvider';
 }
+
+/// Every forecast row the user can see, cached to disk (G4).
+///
+/// The per-line provider above is a live read for one screen; this one exists
+/// because the home-screen widget needs the whole set, and needs it to survive
+/// a cold offline start — the countdown it renders on a plane comes from here.
+///
+/// Cached rather than fetched-or-nothing: a forecast is regenerated nightly and
+/// is about validity windows measured in weeks, so yesterday's copy is a good
+/// answer and a blank widget is not.
+
+@ProviderFor(usageForecasts)
+final usageForecastsProvider = UsageForecastsProvider._();
+
+/// Every forecast row the user can see, cached to disk (G4).
+///
+/// The per-line provider above is a live read for one screen; this one exists
+/// because the home-screen widget needs the whole set, and needs it to survive
+/// a cold offline start — the countdown it renders on a plane comes from here.
+///
+/// Cached rather than fetched-or-nothing: a forecast is regenerated nightly and
+/// is about validity windows measured in weeks, so yesterday's copy is a good
+/// answer and a blank widget is not.
+
+final class UsageForecastsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<UsageForecast>>,
+          List<UsageForecast>,
+          FutureOr<List<UsageForecast>>
+        >
+    with
+        $FutureModifier<List<UsageForecast>>,
+        $FutureProvider<List<UsageForecast>> {
+  /// Every forecast row the user can see, cached to disk (G4).
+  ///
+  /// The per-line provider above is a live read for one screen; this one exists
+  /// because the home-screen widget needs the whole set, and needs it to survive
+  /// a cold offline start — the countdown it renders on a plane comes from here.
+  ///
+  /// Cached rather than fetched-or-nothing: a forecast is regenerated nightly and
+  /// is about validity windows measured in weeks, so yesterday's copy is a good
+  /// answer and a blank widget is not.
+  UsageForecastsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'usageForecastsProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$usageForecastsHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<UsageForecast>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<UsageForecast>> create(Ref ref) {
+    return usageForecasts(ref);
+  }
+}
+
+String _$usageForecastsHash() => r'd0947edd2e6282a0eee9e53717dd0080259ceada';

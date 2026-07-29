@@ -57,6 +57,9 @@ dependencies:
   firebase_core: ^4.12.1
   firebase_messaging: ^16.4.3
   sentry_flutter: ^8.13.0
+  # Home-screen widget bridge (G4). Only the shared key/value store + the
+  # "widget was tapped" stream; the rendering is native on both platforms.
+  home_widget: ^0.9.3
 
 dev_dependencies:
   flutter_test:

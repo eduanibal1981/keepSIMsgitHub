@@ -27,6 +27,8 @@ import 'package:keep_sims/features/household/presentation/controllers/household_
 import 'package:keep_sims/features/sim_lines/presentation/widgets/line_upgrade_sheet.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/premium_refill_config_sheet.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/depletion_forecast_card.dart';
+import 'package:keep_sims/features/sim_lines/presentation/providers/usage_forecast_provider.dart';
+import 'package:keep_sims/features/home_widget/presentation/live_activity_pin_button.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SimLineDetailScreen extends ConsumerStatefulWidget {
@@ -273,6 +275,16 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                         line: line,
                         isPremium: isPremium,
                         existingRefillSchedule: fallbackRefillSchedule,
+                      ),
+
+                      // 1c. Pin this line's countdown to the iOS Lock Screen
+                      // (G4). Invisible on every platform that cannot show a
+                      // Live Activity, Android included.
+                      LiveActivityPinButton(
+                        line: line,
+                        forecast: ref
+                            .watch(usageForecastForLineProvider(line.id))
+                            .value,
                       ),
 
                       // 2. Protection Layers configuration (renamed from AutoRefillSection)
