@@ -41,10 +41,22 @@ Edge Functions).
 **Service-role only** (clients get `permission denied` / function hidden):
 `apply_referral`, `bind_telegram_bot`, `check_refill_pipeline_health`,
 `claim_due_executions`, `claim_instant_executions`, `credit_wallet`,
-`credit_wallet_for_refund`, `debit_wallet_for_topup`, `deduct_wallet_atomic`,
+`credit_wallet_for_refund`¹, `debit_wallet_for_topup`², `deduct_wallet_atomic`,
 `refund_wallet_atomic`, `reap_stuck_executions`, `update_execution_failed`,
 `update_execution_status`, `process_due_notifications`,
 `schedule_delayed_notification`.
+
+> ¹ **This line was aspirational, not true, between D5b and 2026-07-29.**
+> `20260801010000_d5b_…` re-granted `EXECUTE` on `credit_wallet_for_refund` to
+> `authenticated` — review finding **F-1**, an unlimited wallet-minting hole. Closed by
+> `20260801040000_f1_credit_wallet_refund_grant_lockdown.sql` (revoke + an in-body
+> `request.jwt.claims` role guard raising `KS403`), and now held by
+> `supabase/tests/f1_wallet_refund_grant_tests.sql` so the doc and the ACL cannot drift
+> apart again silently.
+>
+> ² **Still false as of 2026-07-29** — the 6-arg overload
+> `debit_wallet_for_topup(uuid,uuid,numeric,text,text,text)` is `EXECUTE` to **PUBLIC**
+> (anon included). Review finding **F-2**, open. Only the 5-arg overload is service-role only.
 
 **Authenticated only** (anon revoked in A4): `calculate_health_score`,
 `calculate_topup_fees`, `get_current_context`, `get_wallet_forecast`,
