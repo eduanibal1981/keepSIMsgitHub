@@ -35,3 +35,28 @@ abstract class UserProfile with _$UserProfile {
   factory UserProfile.fromJson(Map<String, dynamic> json) =>
       _$UserProfileFromJson(json);
 }
+
+/// The subset of `profiles` a signed-in client is allowed to write.
+///
+/// `toJson()` serialises the whole row, including columns the server owns:
+/// `is_power_user` (privilege), `is_suspended` (moderation), `subscription_tier`
+/// (entitlement), `referral_code` / `referred_by` (set only by
+/// `apply_referral()`), plus the immutable `id`, `email` and `created_at`.
+/// Those columns were revoked from `authenticated` by migration
+/// `20260801090000_f6_table_grant_lockdown`, so sending the full model now
+/// fails with 42501 — the same breakage the D5d column lockdown caused for SIM
+/// line editing. Send this instead on UPDATE.
+extension UserProfileWritablePayload on UserProfile {
+  Map<String, dynamic> toClientWritableJson() {
+    return {
+      'full_name': fullName,
+      'avatar_url': avatarUrl,
+      'phone': phone,
+      'home_country_code': homeCountryCode,
+      'last_country': lastCountry,
+      'preferred_currency': preferredCurrency,
+      'onboarding_completed': onboardingCompleted,
+      'updated_at': DateTime.now().toIso8601String(),
+    };
+  }
+}

@@ -41,7 +41,7 @@ class ProfileRepository implements ProfileContract {
     try {
       final response = await _client
           .from('profiles')
-          .update(profile.toJson())
+          .update(profile.toClientWritableJson())
           .eq('id', profile.id)
           .select()
           .single();

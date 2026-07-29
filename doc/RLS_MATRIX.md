@@ -107,12 +107,82 @@ All flagged functions now have `search_path` pinned (`'public'` or `''`).
   - Objects remain publicly fetchable by exact URL (bucket is public);
     revisit in C7 (private bucket + signed URLs) if attachments are sensitive.
 
-## Documented exceptions (remaining advisor findings)
+---
 
-| Finding | Level | Status |
-|---|---|---|
-| `security_logs` RLS enabled, no policy | INFO | Intentional: deny-all for clients, service-role writes |
-| `pg_net` extension in public schema | WARN | Cannot fix: pg_net 0.20.0 does not support `SET SCHEMA` (platform limitation) |
-| `is_power_user` executable by anon | WARN | Required: used in RLS policies evaluated as `anon` |
-| 6 × SECURITY DEFINER RPCs executable by authenticated | WARN | Intentional app RPCs; ownership enforced inside the function (see above) |
-| Leaked password protection disabled | WARN | **User action:** Dashboard → Auth → Passwords → enable HaveIBeenPwned check (no API/SQL toggle) |
+# Phase F grant lockdown — updated 2026-07-29
+
+Sessions F1–F6 rebuilt the privilege layer after the A4 audit above was found to
+have swept tables but never functions. Four live holes came out of that gap
+(F-1 wallet minting, F-2 wallet draining, F-3 free unauthenticated compute, F-4
+rate-limit DoS + an unauthenticated write to any user's profile), plus two
+found while verifying them. Migrations `20260801040000` … `20260801100000`.
+
+**The rule now enforced by `supabase/tests/f0_grant_matrix_tests.sql`:** every
+`SECURITY DEFINER` function in `public` is either `service_role`-only or on an
+explicit allow-list. Nothing is callable by `anon` or `PUBLIC`. Run that test
+before believing any table below.
+
+## Client-facing table privileges (F-6, migration `20260801090000`)
+
+Table-level `GRANT ALL` was never stripped after A4, so RLS was the *only* thing
+stopping writes. Re-derived from what the live policies actually permit:
+
+| Table | anon | authenticated | why |
+|---|---|---|---|
+| `profiles` | SELECT | SELECT, INSERT, **column-scoped UPDATE** | no DELETE policy exists |
+| `sim_lines` | SELECT | SELECT, INSERT, DELETE, **column-scoped UPDATE** (13 cols, D5d) | full policy set |
+| `scheduled_topups` | SELECT | SELECT, INSERT, UPDATE, DELETE | single ALL policy |
+| `esim_orders` | SELECT | SELECT | **zero** non-SELECT policies; written by `request_esim_purchase` + the fulfilment worker |
+| `user_esims` | SELECT | SELECT | as above |
+
+`TRUNCATE`, `REFERENCES` and `TRIGGER` are revoked from `anon` and
+`authenticated` on all five. `TRUNCATE` is not RLS-filtered at all, and
+`TRIGGER` on a client-reachable table is an escalation primitive.
+
+`profiles` columns **not** granted to `authenticated`: `id`, `email`,
+`created_at` (immutable); `is_power_user`, `is_suspended` (privilege /
+moderation); `subscription_tier` (entitlement, set by
+`trg_fn_apply_plan_tier_from_payment`); `referral_code`, `referred_by` (set only
+by `apply_referral()`).
+
+> ⚠️ Column-scoping `profiles.UPDATE` required an app change — `updateProfile`
+> sent the full model. `UserProfile.toClientWritableJson()` is the client-side
+> half; changing one without the other breaks profile editing with `42501`
+> (this is what D5c did to SIM line editing). Same coupling as
+> `SimLine.toClientWritableJson()`.
+
+## Accepted exceptions (verified 2026-07-29, will NOT be "fixed")
+
+Live `get_advisors(security)`: **29 findings**, down from 47. `anon`
+SECURITY DEFINER warnings went 12 → **0**; `function_search_path_mutable` 1 → 0;
+`authenticated` SECURITY DEFINER warnings 25 → 20. The remainder are deliberate:
+
+| Finding | Level | n | Why it stays |
+|---|---|---|---|
+| `security_definer_view` — `esim_offers`, `zendit_offers_cache` | ERROR | 2 | **Deliberate markup isolation.** These views exist so a client can read retail prices without reading the wholesale cost columns behind them. `security_invoker = on` would expose supplier margin. Do not "fix". |
+| `rls_enabled_no_policy` — `esim_offers_cache`, `offline_refill_events`, `rate_limit_buckets`, `retired_referral_codes`, `security_logs` | INFO | 5 | **Deliberate deny-all.** RLS on with zero policies *is* the intended service-role-only posture. Adding a policy would weaken them. |
+| `authenticated_security_definer_function_executable` | WARN | 20 | The self-scoped app RPCs. Each gates on `auth.uid()` internally; the set is pinned by the allow-list in `f0_grant_matrix_tests.sql`, so a new one cannot appear silently. |
+| `extension_in_public` — `pg_net` | WARN | 1 | Supabase-managed, and `purge_deleted_accounts()` calls `net.http_post`. Relocating it is a schema change, not a security fix. |
+| `auth_leaked_password_protection` | WARN | 1 | **Owner action:** Dashboard → Auth → Passwords → enable the HaveIBeenPwned check. No API or SQL toggle exists. |
+
+## Corrections to the A4-era notes above
+
+* ~~"`is_power_user` executable by anon — Required: used in RLS policies
+  evaluated as `anon`"~~ — the *requirement* was real and this session verified
+  it the hard way: revoking `anon` made `anon SELECT sim_lines` fail with
+  `42501`, because the `"Allow power users full access on sim_lines"` policy is
+  `FOR ALL TO public` and its `USING` clause calls the function, and RLS policy
+  expressions run as the querying role. But the framing was wrong — it never
+  needed `SECURITY DEFINER`. Migration `20260801100000` made it
+  `SECURITY INVOKER` (it only reads the caller's own JWT and ignores its
+  `user_id` argument) and re-granted `anon`. It is therefore no longer part of
+  the SECURITY DEFINER perimeter, and the "0 anon-callable" count above is
+  honest rather than a carve-out.
+* "6 × SECURITY DEFINER RPCs executable by authenticated" was already stale — it
+  is 20, enumerated in the allow-list.
+* `protect_is_power_user()` was **dead code** from the day it shipped: it is
+  `SECURITY DEFINER` and gated on `current_user IN ('postgres','supabase_admin')`,
+  and under `SECURITY DEFINER` `current_user` is always the owner. A signed-in
+  user could set their own `is_power_user`, which `sync_power_user_claim()`
+  copies into `auth.users.raw_app_meta_data` and thence into their JWT. Fixed in
+  `20260801090000` by keying on the request JWT role instead.
