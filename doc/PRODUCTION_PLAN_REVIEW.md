@@ -880,10 +880,11 @@ E3 (local rails), E5 (fleet), E6 (helpdesk bridge).
 Ordered by value-per-effort for this specific codebase. Each says what already exists, because
 most of these are 60% built already.
 
-> **Progress:** #1 built 2026-07-29 (see below). Next unbuilt feature is **#2, price-drop /
-> best-offer watch**. This list is independent of the Phase F plan in § 5 — F1
-> (notifications actually arriving) is still the higher-priority item overall, and #2 depends
-> on it, since a price-drop alert nobody receives is worth nothing.
+> **Progress:** #1 and #2 both built 2026-07-29 (see below). Next unbuilt feature is **#3, gift
+> / send credit**. This list is independent of the Phase F plan in § 5 — F1 (notifications
+> actually arriving) is still the higher-priority item overall, and #2 now demonstrates why:
+> its alerts are correct, consent-gated and proven, and they will still reach nobody until the
+> push path works.
 
 **1 · Depletion forecasting → smarter auto-custom refills** · *high value, medium effort*
 ~~You store `topup_executions` history and (for eSIMs) usage polls. Fit a trivial per-line
@@ -996,10 +997,161 @@ credentials.~~
 > every `apply_migration` — it is a one-row `UPDATE`, and only expensive once it is a replay.
 
 **2 · Price-drop / best-offer watch** · *high value, low effort*
-`provider_offers_cache` (783 offers) and `esim_offers_cache` refresh continuously and you keep
+~~`provider_offers_cache` (783 offers) and `esim_offers_cache` refresh continuously and you keep
 history nowhere. Add an `offer_price_history` table written by the two catalog workers, and a
 `promo`-category notification when a watched country/carrier's best $/GB drops >10%. `promo` is
-already the consent-gated category from C2, so the compliance work is done.
+already the consent-gated category from C2, so the compliance work is done.~~
+
+> ### ✅ BUILT 2026-07-29 — migration `20260803000000_g2_offer_price_watch.sql`
+>
+> Both halves shipped and proven on live data. No new credentials.
+> **One thing is required of a user before any alert can arrive — see the last
+> section.**
+>
+> **What exists now**
+>
+> | Object | What it is |
+> |---|---|
+> | `offer_price_history` | append-only price log for **both** catalogs. Deny-all — it holds eSIM wholesale. |
+> | Four triggers | two per cache table (INSERT + a price-guarded UPDATE) — this is what actually writes the history. |
+> | `offer_price_watches` | per-user watch list. Read/write-own, but only `is_active` + `threshold_percent` are the client's. |
+> | `offer_watch_metrics(days)` | current vs baseline for every watchable subject. |
+> | `sync_auto_price_watches()` | keeps `origin='auto'` rows in step with the user's SIM lines. |
+> | `detect_offer_price_drops()` | the `promo` notification. |
+> | `prune_offer_price_history()` | 180-day retention that never orphans an offer. |
+> | `refresh_offer_price_watch()` | cron entry point → **`cron.job` 21, `40 2 * * *`, active**. |
+> | Flutter | `OfferPriceWatch` model + providers, `PriceWatchScreen` at `/esim/price-watch`, a watch bell on the eSIM plans screen, and an entry tile under the `promo` toggle in notification settings. |
+>
+> **Four deliberate departures from the sketch above**, all written up in the
+> migration header:
+>
+> 1. **Triggers, not the two workers.** Both catalog workers live on the
+>    owner-gated VM (§ 5 of PROJECT_TOPOLOGY) — the same wall G1 hit. A row
+>    trigger on each cache table captures every write regardless of who made it,
+>    needs no deploy, and cannot drift from the worker code. The UPDATE triggers
+>    carry a `WHEN` clause on the price columns, which matters: the offers worker
+>    rewrites `refreshed_at` on all 783 rows every 10 minutes, so without it the
+>    table would gain ~113k rows a day of pure noise.
+> 2. **"$/GB" only applies to one of the two catalogs.** eSIM bundles carry
+>    `data_amount_mb`, so best $/GB per country is exactly right. Top-ups do
+>    not: `provider_offers_cache` holds airtime denominations with no data
+>    amount, and `send_min`/`send_max` are NULL on every FIXED offer, so there is
+>    not even a local face value to divide by. A $/GB there would be a fabricated
+>    number. **Top-ups are tracked per offer instead** — "a top-up that cost
+>    $1.11 now costs $0.67" — which is the honest comparable and, unlike a
+>    country-level minimum, does not fire merely because a cheaper denomination
+>    appeared. `metric_kind` says which of the two any row is.
+> 3. **Watches are seeded from the user's own SIM lines.** A watchlist nobody
+>    fills in is worth nothing — on this database that would be 0 rows against 10
+>    active lines. `sync_auto_price_watches()` created **10** on the first run,
+>    one per (country, carrier) a user actually holds a line on. eSIM watches
+>    stay explicit: a destination someone browsed is a signal, one they already
+>    bought is not.
+> 4. **Consent is checked before the row is written, not only before dispatch.**
+>    C2's `trg_fn_dispatch_notification` already gates promo *fan-out* on
+>    explicit opt-in, so the push/email compliance really was done — but it still
+>    writes the `notifications` row, which would put marketing in the in-app list
+>    of users who never consented. `detect_offer_price_drops()` requires an
+>    enabled `alert_settings` row before inserting anything.
+>
+> **The baseline is honest about how far back it can see.** For each offer it is
+> the last price recorded at or before the 30-day cutoff, falling back to that
+> offer's first-ever sighting when it is younger than the window. The migration
+> seeds one row per offer (833) so a baseline exists from night one instead of
+> night thirty-one. eSIM baselines apply *today's* markup to a historical
+> wholesale price on purpose: that measures supplier movement, so raising
+> `ESIM_MARKUP_PERCENT` cannot look like a price drop, and lowering it cannot
+> market our own margin back to the user as one.
+>
+> **Two real defects the live data caught, both fixed before shipping:**
+> * **`to_char(…, 'FM…9')` renders "1." and "5.".** FM strips the trailing zero
+>   and leaves a bare decimal point, so the first eSIM body read *"Cheapest right
+>   now: 1. GB for 7 days"* and any whole-number percentage would have read
+>   *"5.% less"*. `0` after the point forces the digit.
+> * **The bundle label contradicted the price beside it.** Rendering 1000 MB as
+>   "1.0 GB" next to a $/GB computed from 1024 reads as an arithmetic error
+>   ($1.11 for "1.0 GB" but "$1.14/GB"). The label now follows
+>   `EsimPlan.formattedData` exactly — MB below 1024, GB above, integer when it
+>   divides evenly — so the notification matches the plan card the user is
+>   looking at.
+>
+> **Proof (live, `zwxswagokhgbuzrrbnhr`):**
+> * `refresh_offer_price_watch()` → `{"watches_synced":10,"alerts":0,"history_pruned":0}`.
+>   833 history rows seeded (783 top-up + 50 eSIM); 8 of the 10 watches are
+>   priced, the other 2 (`KW/STC`, `OM/Omantel`) are real lines whose pair has no
+>   cached offers — the UI says so rather than showing `$0.00`. **0 alerts is
+>   correct**: every baseline was recorded minutes earlier, so nothing has moved
+>   yet.
+> * **The trigger guard proven, not assumed** (rolled back): a `refreshed_at`-only
+>   rewrite — literally what the worker does every 10 minutes — appended **0**
+>   rows; a real price change appended **1**; a new offer appended **1**.
+> * **Top-up path** (rolled back): cheapest Zong PK offer cut 40% → `39.64%`,
+>   **1** notification, *"Zong top-ups in Pakistan just got cheaper / A top-up
+>   that cost $1.11 now costs $0.67 — 39.6% less than 30 days ago."*,
+>   `delivered_via = {push}` (C2's dispatcher accepted it), immediate re-run
+>   emitted **0** (cooldown).
+> * **eSIM path** (rolled back): DE bundle cut 30% → best $/GB `1.6282 → 1.1366`,
+>   **1** notification, *"Best price for Germany is now $1.14/GB, down 30.2% from
+>   $1.63/GB. Cheapest right now: 1000 MB for 7 days at $1.11."*
+> * **Thresholds proven in both directions:** a 5% cut emitted **0**; exactly
+>   −10% emitted **1**; a per-watch `threshold_percent` of 45 suppressed the
+>   39.64% top-up drop.
+> * **Consent gating proven:** with promo off the detector returned 0 **and wrote
+>   0 notification rows**; flipping the same row on produced the alert.
+> * Security probed as a real role, not as `postgres`:
+>   `supabase/tests/g2_price_watch_tests.sql` **14/14 PASSED** — signed-in user
+>   sees 4 of 10 watches (own only), writing `last_alert_at`/`last_best_usd` →
+>   `42501`, `SELECT offer_price_history` → `42501`,
+>   `detect_offer_price_drops()` → `42501`, a watch for another user blocked,
+>   `origin` not client-insertable. `f0_grant_matrix_tests.sql` re-run: **6/6
+>   PASSED**. Advisors **29 → 30**, the one addition being `offer_price_history`
+>   under `rls_enabled_no_policy` (INFO) — the intended deny-all. No new WARN or
+>   ERROR.
+> * Residue re-checked at zero: prices restored, 0 promo notifications, 0 probe
+>   rows, 10 watches all `origin='auto'`.
+> * `flutter analyze` **134** (baseline, 0 errors); `flutter test` **98/98**
+>   (85 baseline + 13 new in `test/features/price_watch/offer_price_watch_test.dart`).
+>
+> **⚠️ One thing is required before a single alert arrives — and it is a user
+> action, not an owner one.** `alert_settings` shows **0 of 8 users** have
+> enabled `promo`. That is correct behaviour (C2 makes it opt-in for app-store
+> compliance) and it is why the count above is 0 rather than a number. The
+> tracking runs regardless; delivery does not. The app now makes this one tap:
+> `PriceWatchScreen` leads with *"Price alerts are switched off"* and a **Turn on
+> price alerts** button that flips the row, and notification settings has an
+> entry tile directly under the Offers & Promotions toggle explaining what it
+> delivers. Nothing here needs the owner's console.
+>
+> **Three caveats, stated plainly:**
+> * **A price-drop alert still depends on F1.** With promo on, delivery uses the
+>   same push path that reached nobody in 18 of the last 31 dispatches. The
+>   in-app notification list works today; push does not, and that is F1's job,
+>   exactly as this list predicted when it said #2 depends on it.
+> * **`esim_offers_cache` holds 50 bundles covering ~50 countries, and France is
+>   not one of them** — which is the country `EsimPlansScreen` defaults to. So
+>   the bell on a fresh install creates a watch that will read "no offers cached
+>   for this one yet" until the catalog worker pulls a fuller `/catalogue`. The
+>   watch is correct; the catalog is thin. Not fixed here.
+> * Screen strings are hardcoded English, matching the surrounding eSIM screens.
+>   Folding them into ARB belongs with suggestion **#12**.
+>
+> **🐛 The migration drift hit again, sixth occurrence — FIXED.** `apply_migration`
+> stamped this one `20260729124132` (today's clock), which sorts *before* every
+> `20260801*`/`20260802*` migration it follows, so a `supabase db push` would
+> have tried to replay the whole F-and-G series. Re-stamped to `20260803000000`;
+> the registry again matches every repo filename from F1 through G2. **This is
+> not intermittent — it happens on every single `apply_migration` call**, because
+> the tool stamps the clock while this repo uses future-dated round timestamps.
+> Diff `list_migrations` against `ls supabase/migrations` after every one.
+>
+> **🔎 Found while building this, deliberately not fixed here.**
+> `alert_settings` still carries the full default `GRANT ALL` for **both** `anon`
+> and `authenticated`, `TRUNCATE` included. F6 stripped exactly this from five
+> tables and simply did not list this one. `TRUNCATE` is not RLS-filtered, and
+> because `trg_fn_dispatch_notification` treats a *missing* row as enabled for
+> every category except `promo`, truncating it is a **mass unmute**, not just
+> data loss. Fixing it needs F6's full "prove every client write path still
+> works" pass — that is its own change, not a line in a feature migration.
 
 **3 · Gift / send credit to another user** · *high value, low effort*
 One `SECURITY DEFINER` RPC (`transfer_wallet_credit(p_recipient_email, p_amount)`) doing a debit

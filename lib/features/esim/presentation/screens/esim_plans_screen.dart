@@ -3,6 +3,8 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:keep_sims/core/router/app_router.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/core/utils/build_context_extension.dart';
@@ -11,6 +13,7 @@ import 'package:keep_sims/core/services/esim_capability_service.dart';
 import 'package:keep_sims/features/esim/domain/entities/esim_plan.dart';
 import 'package:keep_sims/features/esim/presentation/controllers/esim_plans_controller.dart';
 import 'package:keep_sims/features/esim/presentation/widgets/esim_checkout_sheet.dart';
+import 'package:keep_sims/features/price_watch/presentation/providers/price_watch_provider.dart';
 import 'package:keep_sims/l10n/app_localizations.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -148,6 +151,7 @@ class _EsimPlansScreenState extends ConsumerState<EsimPlansScreen>
           onPressed: () => Navigator.of(context).pop(),
         ),
         actions: [
+          _buildPriceWatchAction(context, ref),
           IconButton(
             icon: Icon(Icons.refresh_rounded, color: context.onSurfaceColor),
             onPressed: () => ref
@@ -240,6 +244,66 @@ class _EsimPlansScreenState extends ConsumerState<EsimPlansScreen>
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  // ── Price watch bell for the selected destination (G2) ────────
+  //
+  // A filled bell means an `offer_price_watches` row exists for this country,
+  // so the nightly job will alert on the best $/GB dropping. Long-press opens
+  // the full list. The icon is silent while the query is in flight rather than
+  // guessing a state and flipping under the user's finger.
+  Widget _buildPriceWatchAction(BuildContext context, WidgetRef ref) {
+    final watchAsync =
+        ref.watch(esimWatchForCountryProvider(_selectedCountryCode));
+    final watch = watchAsync.value;
+    final isWatching = watch != null && watch.isActive;
+
+    // IconButton has no onLongPress, hence the wrapper.
+    return GestureDetector(
+      onLongPress: () => context.push(AppRoutes.esimPriceWatch),
+      child: IconButton(
+        tooltip: isWatching
+            ? 'Watching $_selectedCountryCode prices'
+            : 'Watch $_selectedCountryCode prices',
+        icon: Icon(
+          isWatching
+              ? Icons.notifications_active_rounded
+              : Icons.notifications_none_rounded,
+          color: isWatching ? AppColors.primary : context.onSurfaceColor,
+        ),
+        onPressed: watchAsync.isLoading
+            ? null
+            : () async {
+                await HapticHelper.lightTick();
+                final controller =
+                    ref.read(priceWatchControllerProvider.notifier);
+
+                if (watch == null) {
+                  await controller.watchEsimCountry(_selectedCountryCode);
+                } else {
+                  // The row is kept and flipped rather than deleted, so a
+                  // per-watch threshold the user set survives a mistaken tap.
+                  await controller.setActive(watch.id, !watch.isActive);
+                }
+
+                if (!context.mounted) return;
+                final nowWatching = watch == null || !watch.isActive;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    duration: const Duration(seconds: 4),
+                    content: Text(nowWatching
+                        ? 'Watching $_selectedCountryName — we will tell you '
+                            'if the best price drops.'
+                        : 'Stopped watching $_selectedCountryName.'),
+                    action: SnackBarAction(
+                      label: 'View all',
+                      onPressed: () => context.push(AppRoutes.esimPriceWatch),
+                    ),
+                  ),
+                );
+              },
       ),
     );
   }

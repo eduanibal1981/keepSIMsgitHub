@@ -136,6 +136,8 @@ stopping writes. Re-derived from what the live policies actually permit:
 | `user_esims` | SELECT | SELECT | as above |
 | `sim_line_usage_forecast` | — | SELECT | 🆕 G1 (`20260802000000`). Derived data: read-own + household counterpart, **no** client write path at all. Written only by `refresh_usage_forecasts()`. Probed live: signed-in user saw 6 of 10 rows, `UPDATE` → `42501`, `anon SELECT` → `42501`. |
 | `esim_usage_samples` | — | — | 🆕 G1. Deny-all internal telemetry (RLS on, zero policies), same posture as `offline_refill_events`. |
+| `offer_price_watches` | — | SELECT, DELETE, **column-scoped INSERT** (6 cols), **column-scoped UPDATE** (`is_active`, `threshold_percent`) | 🆕 G2 (`20260803000000`). Full read-own/write-own policy set, but only two columns are the user's to change: everything named `last_*` is bookkeeping the nightly job writes, and `origin` is withheld so a client cannot forge an `auto` row that `sync_auto_price_watches()` would then manage. Probed live as a real `authenticated` role: read-own saw 4 of 10 rows, writing `last_alert_at`/`last_best_usd` → `42501`, a watch for another user → blocked. |
+| `offer_price_history` | — | — | 🆕 G2. Deny-all internal telemetry. **This one is not optional:** it stores `esim_offers_cache.wholesale_price_usd`, so a read grant here would undo the markup isolation the `esim_offers` view exists to provide. Every number that reaches a client (`offer_price_watches.last_best_usd`, the notification body) has `ESIM_MARKUP_PERCENT` already applied. |
 
 `TRUNCATE`, `REFERENCES` and `TRIGGER` are revoked from `anon` and
 `authenticated` on all five. `TRUNCATE` is not RLS-filtered at all, and
@@ -166,12 +168,28 @@ direction — `is_power_user` left the `authenticated` SECURITY DEFINER list
 new functions are all `service_role`-only and add nothing; the grant matrix test
 was re-run against them: **6/6 PASSED**.*
 
+*Re-measured 2026-07-29 after G2: **30**. The single addition is
+`offer_price_history` joining `rls_enabled_no_policy` (6 → 7) — the intended
+deny-all shape, and the row above says why it is mandatory rather than merely
+tidy here. **No new WARN or ERROR.** G2's seven new functions (five callable,
+two trigger functions) are all `service_role`-only; grant matrix re-run:
+**6/6 PASSED**, plus `supabase/tests/g2_price_watch_tests.sql` **14/14 PASSED**.*
+
+> 🔎 **Found while building G2, not fixed by it:** `alert_settings` still
+> carries the full Supabase default `GRANT ALL` for **both** `anon` and
+> `authenticated` — including `TRUNCATE`, which is not RLS-filtered. F6 stripped
+> exactly this from five tables and did not include this one. Since
+> `trg_fn_dispatch_notification` treats a *missing* row as enabled for every
+> category except `promo`, truncating it is a mass unmute, not just data loss.
+> Fixing it is its own change (it needs the same "prove the app still works"
+> pass F6 did), not a line in a feature migration.
+
 The remainder are deliberate:
 
 | Finding | Level | n | Why it stays |
 |---|---|---|---|
 | `security_definer_view` — `esim_offers`, `zendit_offers_cache` | ERROR | 2 | **Deliberate markup isolation.** These views exist so a client can read retail prices without reading the wholesale cost columns behind them. `security_invoker = on` would expose supplier margin. Do not "fix". |
-| `rls_enabled_no_policy` — `esim_offers_cache`, `offline_refill_events`, `rate_limit_buckets`, `retired_referral_codes`, `security_logs`, `esim_usage_samples` | INFO | 6 | **Deliberate deny-all.** RLS on with zero policies *is* the intended service-role-only posture. Adding a policy would weaken them. (`esim_usage_samples` added by G1, 2026-07-29.) |
+| `rls_enabled_no_policy` — `esim_offers_cache`, `offline_refill_events`, `rate_limit_buckets`, `retired_referral_codes`, `security_logs`, `esim_usage_samples`, `offer_price_history` | INFO | 7 | **Deliberate deny-all.** RLS on with zero policies *is* the intended service-role-only posture. Adding a policy would weaken them. (`esim_usage_samples` added by G1, `offer_price_history` by G2, both 2026-07-29.) |
 | `authenticated_security_definer_function_executable` | WARN | 19 | The self-scoped app RPCs. Each gates on `auth.uid()` internally; the set is pinned by the allow-list in `f0_grant_matrix_tests.sql`, so a new one cannot appear silently. |
 | `extension_in_public` — `pg_net` | WARN | 1 | Supabase-managed, and `purge_deleted_accounts()` calls `net.http_post`. Relocating it is a schema change, not a security fix. |
 | `auth_leaked_password_protection` | WARN | 1 | **Owner action:** Dashboard → Auth → Passwords → enable the HaveIBeenPwned check. No API or SQL toggle exists. |

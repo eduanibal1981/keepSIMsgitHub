@@ -35,6 +35,7 @@ import 'package:keep_sims/features/support/presentation/screens/create_ticket_sc
 import 'package:keep_sims/features/support/presentation/screens/ticket_detail_screen.dart';
 import 'package:keep_sims/features/esim/presentation/screens/esim_screen.dart';
 import 'package:keep_sims/features/esim/presentation/screens/esim_plans_screen.dart';
+import 'package:keep_sims/features/price_watch/presentation/screens/price_watch_screen.dart';
 
 part 'app_router.g.dart';
 
@@ -63,6 +64,7 @@ abstract final class AppRoutes {
   static const String support = '/support';
   static const String esim = '/esim';
   static const String esimPlans = '/esim/plans';
+  static const String esimPriceWatch = '/esim/price-watch';
 }
 
 @riverpod
@@ -297,6 +299,11 @@ RouterConfig<Object> appRouter(Ref ref) {
                 path: 'plans',
                 name: 'esimPlans',
                 builder: (context, state) => const EsimPlansScreen(),
+              ),
+              GoRoute(
+                path: 'price-watch',
+                name: 'esimPriceWatch',
+                builder: (context, state) => const PriceWatchScreen(),
               ),
             ],
           ),

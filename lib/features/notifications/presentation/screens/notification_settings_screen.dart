@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:keep_sims/core/router/app_router.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/features/notifications/data/models/alert_setting_model.dart';
@@ -281,8 +283,55 @@ class NotificationSettingsScreen extends ConsumerWidget {
                 ),
               ),
             ),
+
+            // What the `promo` toggle above actually delivers today (G2).
+            // Without this the category reads as abstract "marketing", and the
+            // price watches are the only thing that currently uses it.
+            _buildSectionHeader(context, 'Price watch'),
+            _buildPriceWatchEntry(context),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildPriceWatchEntry(BuildContext context) {
+    final isDark = context.isDarkMode;
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkSurface : AppColors.lightCard,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+        ),
+      ),
+      child: ListTile(
+        onTap: () => context.push(AppRoutes.esimPriceWatch),
+        leading: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF59E0B).withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: const Icon(Icons.trending_down_rounded,
+              color: Color(0xFFF59E0B), size: 20),
+        ),
+        title: Text(
+          'Countries and carriers you watch',
+          style: AppTextStyles.bodyMedium.copyWith(
+            color: context.onSurfaceColor,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        subtitle: Text(
+          'Price drops are sent under Offers & Promotions above.',
+          style: AppTextStyles.caption.copyWith(
+            color: context.onSurfaceColor.withValues(alpha: 0.6),
+          ),
+        ),
+        trailing: Icon(Icons.chevron_right_rounded,
+            color: context.onSurfaceColor.withValues(alpha: 0.4)),
       ),
     );
   }
