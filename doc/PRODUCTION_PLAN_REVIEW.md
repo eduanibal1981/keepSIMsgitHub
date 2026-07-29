@@ -880,11 +880,13 @@ E3 (local rails), E5 (fleet), E6 (helpdesk bridge).
 Ordered by value-per-effort for this specific codebase. Each says what already exists, because
 most of these are 60% built already.
 
-> **Progress:** #1 and #2 both built 2026-07-29 (see below). Next unbuilt feature is **#3, gift
-> / send credit**. This list is independent of the Phase F plan in § 5 — F1 (notifications
-> actually arriving) is still the higher-priority item overall, and #2 now demonstrates why:
-> its alerts are correct, consent-gated and proven, and they will still reach nobody until the
-> push path works.
+> **Progress:** #1, #2 and #3 all built 2026-07-29 (see below). Next unbuilt feature is **#4,
+> the home-screen widget**. This list is independent of the Phase F plan in § 5 — F1
+> (notifications actually arriving) is still the higher-priority item overall, and #2
+> demonstrated why: its alerts are correct, consent-gated and proven, and they will still
+> reach nobody until the push path works. #3 is the first of the three that is genuinely
+> whole without F1, because its value lands in the recipient's balance rather than in a
+> notification.
 
 **1 · Depletion forecasting → smarter auto-custom refills** · *high value, medium effort*
 ~~You store `topup_executions` history and (for eSIMs) usage polls. Fit a trivial per-line
@@ -1154,10 +1156,168 @@ already the consent-gated category from C2, so the compliance work is done.~~
 > works" pass — that is its own change, not a line in a feature migration.
 
 **3 · Gift / send credit to another user** · *high value, low effort*
-One `SECURITY DEFINER` RPC (`transfer_wallet_credit(p_recipient_email, p_amount)`) doing a debit
+~~One `SECURITY DEFINER` RPC (`transfer_wallet_credit(p_recipient_email, p_amount)`) doing a debit
 + credit in one transaction with a shared `reference_id`, reusing the existing atomic helpers —
 after F0 locks them down. Strong referral flywheel for the expat/family use case, and a natural
-fit with the household feature.
+fit with the household feature.~~
+
+> ### ✅ BUILT 2026-07-29 — migration `20260804000000_g3_gift_wallet_credit.sql`
+>
+> Shipped and proven on live data. No new credentials, **no owner action, and —
+> unlike G2 — no user action either**: it works the moment the app ships.
+>
+> **What exists now**
+>
+> | Object | What it is |
+> |---|---|
+> | `transfer_wallet_credit(email, amount, ref, note)` | the whole feature. One `SECURITY DEFINER` RPC, `authenticated`-callable, debit + credit in one transaction under one shared `reference_id`. |
+> | `gift_sent` / `gift_received` | two new `wallet_transactions` types, added to the type CHECK. Both halves carry a `metadata.gift` block naming the counterparty and the note. |
+> | 2 partial unique indexes | `uq_wallet_txns_gift_sent_ref` / `…_received_ref`. The pre-check is the convenience; these are what make a double-submit impossible under a race. |
+> | 4 `system_configs` rows | `GIFT_MIN_USD` 1.00, `GIFT_MAX_USD` 100.00, `GIFT_DAILY_MAX_USD` 250.00, `RATE_LIMIT_GIFT_CREDIT` 5/60. Read at call time — retuning is an `UPDATE`, not a migration. |
+> | Flutter | `GiftTransferResult` + a `WalletTransactionGift` extension, `WalletContract.sendGift`, a **Send Credit** action on the wallet screen, `GiftCreditSheet` behind the same biometric guard as a deposit, and gift rendering in the ledger. |
+>
+> **Three deliberate departures from the sketch above**, all written up in the
+> migration header:
+>
+> 1. **The credit half is inline; only the debit half reuses a helper.** The
+>    sketch says "reusing the existing atomic helpers", and the debit does
+>    exactly that — `debit_wallet_for_topup` carries F2's *call-depth* guard, so
+>    a nested call passes, the same way `pay_plan_fee_from_wallet` already works.
+>    The credit cannot: F1 gave `credit_wallet_for_refund` an **absolute** guard
+>    that raises KS403 whenever `request.jwt.claims` names any role but
+>    `service_role`, at any depth. **Probed on the live database before writing a
+>    line of this** — a `SECURITY DEFINER` wrapper calling it under an
+>    `authenticated` JWT returned *"BLOCKED [KS403] credit_wallet_for_refund is
+>    not callable by role authenticated"*. Following the sketch literally would
+>    have meant relaxing the strictest guard on the one function that mints
+>    balance from nothing — reopening F-1 to save fifteen lines. Inlining instead
+>    means **there is still no function reachable from an authenticated JWT that
+>    credits a wallet without first debiting another one in the same
+>    transaction.**
+> 2. **A gift is not a refund, so it is not booked as one.** Even with the guard
+>    relaxed, `credit_wallet_for_refund` runs
+>    `total_spent = GREATEST(0, total_spent - amount)` — it reverses a spend,
+>    because that is what a refund is. Crediting a gift through it would erase
+>    lifetime spend the recipient really incurred, and two friends passing $20
+>    back and forth would drive both counters to zero. A gift is an inflow: the
+>    recipient's `total_deposited` rises, exactly as `credit_wallet_for_deposit`
+>    does it.
+> 3. **Only real money is giftable.** "Strong referral flywheel" cuts both ways —
+>    the frictionless version is also a promo-credit laundromat (register *n*
+>    accounts, collect *n* signup bonuses, funnel them into one wallet). The
+>    transferable amount is capped at `LEAST(balance, deposits + gifts_received −
+>    gifts_sent)`, computed **from the ledger**. Not from `wallets.total_deposited`:
+>    that counter reads **0.00 for six of the eight users** who demonstrably have
+>    `deposit` rows, so a rule keyed on it would lock three quarters of the user
+>    base out of a feature they are entitled to. The ledger cannot drift — it is
+>    what the balance is made of.
+>
+> **The enumeration surface is the recipient lookup, and only the recipient
+> lookup.** This RPC is the one place in the app where an arbitrary email can be
+> tested against the user table, so the 5/hour limiter is consumed on the line
+> immediately before it — never earlier. Failed lookups land in `security_logs`
+> with the address SHA-256'd. Suspended accounts and accounts with an open
+> deletion request are refused on **both** sides: D3's pipeline freezes then
+> drains a leaving user's wallet, so gifting into one burns the money and
+> gifting out of one is the drain D3 exists to prevent.
+>
+> **Two real defects the live probes caught, both fixed before shipping:**
+> * **The limiter was in the wrong place.** The first version consumed a token at
+>   the top of the function, so a mistyped *amount* cost one of five recipient
+>   lookups. The probe run locked the sender out after five typos — visible as
+>   three consecutive rejections coming back "Too many transfers just now"
+>   instead of "The smallest gift is $1.00". Everything above the lookup is about
+>   the caller or the caller's own money and reveals nothing, so the limiter
+>   moved down. The enumeration bound is identical; the UX is not. Proven: four
+>   local rejections now leave **0** rows in `rate_limit_buckets`.
+> * **A tautological assertion in the test suite.** T12 read
+>   `x < x - 7.50 + 7.50`, which is `x < x` — it could never fail. It now
+>   captures `total_deposited`/`total_spent` before the transfer and asserts the
+>   exact ±7.50 delta, which is what makes departure 2 above a tested claim
+>   rather than a comment.
+>
+> **Proof (live, `zwxswagokhgbuzrrbnhr`, every transaction rolled back):**
+> * **Happy path**: $12.34 from an $85.20 wallet → sender `85.20 → 72.86`,
+>   recipient `35.86 → 48.20`, **sum of all balances unchanged**. One
+>   `reference_id` on both halves; ledger rows *"Gift to
+>   a1-wallet-test@example.com"* / *"Gift from Speakhealth"*; both `metadata.gift`
+>   blocks correct; recipient notification *"You received $12.34 / Speakhealth
+>   sent you $12.34 of KeepSIMs credit. \"Happy birthday!\""* with
+>   `delivered_via = {push}` — C1's dispatcher accepted it.
+> * **Idempotency**: replaying the reference id returned `already_sent: true` and
+>   left **1** `gift_sent` + **1** `gift_received` row, balance unmoved. The
+>   indexes proven separately: a hand-inserted second row of either type on the
+>   same ref → **23505**.
+> * **Every rejection path**, each with its own code: self-gift, unknown
+>   recipient (+ 1 `security_logs` row), malformed email, zero and negative
+>   amounts, below minimum, above maximum, anon caller, suspended sender,
+>   suspended recipient, sender with a frozen deletion request, recipient with an
+>   open one.
+> * **Giftable rule proven at the boundary**: with deposits reduced to exactly
+>   $4.00, **$4.00 sends and $4.01 does not**; the next $1.00 is refused with
+>   *"Available to send: $0.00"*; an all-promo balance sends nothing; and a
+>   **received** gift *is* re-giftable by a user with no deposits of their own —
+>   which is what makes the household case work, one person funding and the
+>   credit moving on through the family.
+> * **Daily cap proven in both directions**: under a $10 cap, $6.00 sent, a
+>   second $6.00 refused with *"Sent in the last 24 hours: $6.00"*, then $4.00
+>   landing exactly on the cap accepted.
+> * **Rate limit**: 5 lookups leave 3.00 tokens after 2, and the 6th returns
+>   `KS429`; the four purely-local rejections consume nothing.
+> * `supabase/tests/g3_gift_credit_tests.sql` **18/18 PASSED**, probed as a real
+>   `authenticated` role. `f0_grant_matrix_tests.sql` re-run **6/6 PASSED** —
+>   `transfer_wallet_credit` is now an explicit allow-list entry there, which is
+>   the deliberate act that file asks for, and its own auth checks are the
+>   allow-list's required companion tests (T5/T15/T16/T17).
+> * Residue re-checked at zero: 0 gift rows, 0 probe deposits, 0 gift
+>   `security_logs`, 0 rate-limit buckets, 0 `account_deletions`, 0 suspended
+>   profiles, `GIFT_DAILY_MAX_USD` back at 250.00, a1 still **$35.86**, all
+>   balances summing to **$417.46**.
+> * `flutter analyze` **134** (baseline, 0 errors, none in the new files);
+>   `flutter test` **116/116** (98 baseline + 18 new in
+>   `test/features/wallet/gift_credit_test.dart`). Advisors **30 → 31**, the one
+>   addition being `transfer_wallet_credit` under
+>   `authenticated_security_definer_function_executable` (WARN) — the same class
+>   the other nineteen allow-listed RPCs already carry, and the point of the
+>   feature. No new ERROR.
+>
+> **Nothing is required of the owner or of any user.** The three limits are
+> `system_configs` rows the owner can retune live if 5/hour or $100/transfer
+> proves wrong.
+>
+> **Three caveats, stated plainly:**
+> * **The in-app notification works today; push is still F1's problem.** Unlike
+>   G2, this does not need an opt-in — `wallet_credit` is a C1 default-ON
+>   category, so the row is written and dispatched for every user. Whether the
+>   push actually *lands* is the same F1 gap that affected 18 of the last 31
+>   dispatches. The recipient sees the money and the notification in the app
+>   regardless; the ledger is the receipt.
+> * **The household quick-picks are unexercised.** `household_members` has **0
+>   rows** on this database, so the chips that pre-fill a member's address render
+>   nothing today. The code degrades to an ordinary email field and costs ~20
+>   lines; it is correct but unproven against real data.
+> * Sheet and ledger strings are hardcoded English, matching the surrounding
+>   wallet screen. Folding them into ARB belongs with suggestion **#12**.
+>
+> **🐛 The migration drift hit again, seventh occurrence — FIXED.**
+> `apply_migration` stamped this one `20260729131926`, which again sorts *before*
+> every `20260801*`–`20260803*` migration it follows. Re-stamped to
+> `20260804000000`. The registry matches every repo filename F1 → G3. This is not
+> intermittent and it is not going to stop: the tool stamps the wall clock while
+> this repo uses future-dated round timestamps, so **they disagree on every
+> single call**. Diff `list_migrations` against `ls supabase/migrations`
+> afterwards, every time.
+>
+> **🔎 Found while building this, deliberately not fixed here.**
+> **`wallets.total_deposited` is wrong for six of eight users** — it reads
+> `0.00` against ledgers holding $43.20–$243.20 of `deposit` rows, because those
+> credits were written without going through `credit_wallet_for_deposit` (which
+> is the only path that increments it). `total_spent` is off the same way. G3
+> works around it by deriving everything from the ledger, so nothing here depends
+> on the counters — but anything that *does* trust them is reading fiction, and a
+> backfill plus a reconciliation check belongs with F6's ops pass, not in a
+> feature migration. Also still open from G2: `alert_settings` retains the
+> default `GRANT ALL` (incl. `TRUNCATE`) for `anon` and `authenticated`.
 
 **4 · Home-screen widget + iOS Live Activity for data remaining** · *high perceived value*
 Android `home_widget` + Glance, iOS WidgetKit. Feed it from the offline cache so it renders

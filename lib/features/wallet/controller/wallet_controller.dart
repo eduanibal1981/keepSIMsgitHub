@@ -10,6 +10,7 @@ import 'package:keep_sims/core/providers.dart';
 import 'package:keep_sims/core/result.dart';
 import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import '../model/wallet_model.dart';
+import '../model/gift_transfer_model.dart';
 import 'package:keep_sims/core/services/biometric_auth_service.dart';
 
 part 'wallet_controller.g.dart';
@@ -125,6 +126,56 @@ class WalletController extends _$WalletController {
             f.message.contains('Insufficient funds')) {
           return false;
         }
+        throw Exception(f.message);
+    }
+  }
+
+  /// Sends wallet credit to another KeepSIMs account.
+  ///
+  /// Gated behind the same biometric confirm as a deposit — this moves real
+  /// money out of the wallet and, unlike a top-up, it moves it to someone else.
+  /// Returns null when the user backs out of that prompt, so the caller can
+  /// distinguish "cancelled" from "refused".
+  ///
+  /// A refusal comes back as a [GiftTransferResult] with `success == false` and
+  /// a message written to be shown as-is; only a failure to reach the server
+  /// throws.
+  Future<GiftTransferResult?> sendGift({
+    required String recipientEmail,
+    required double amount,
+    String? note,
+  }) async {
+    final current = state.value;
+    if (current == null) return null;
+
+    final authGuard = ref.read(paymentAuthGuardProvider);
+    final authResult = await authGuard.confirmPayment(
+      reason: 'Authenticate to send wallet credit',
+    );
+    if (authResult != BiometricResult.success) {
+      return null;
+    }
+
+    state = AsyncData(current.copyWith(isSubmitting: true));
+
+    final repo = ref.read(walletRepositoryProvider);
+    final result = await repo.sendGift(
+      recipientEmail: recipientEmail,
+      amount: amount,
+      note: note,
+    );
+
+    switch (result) {
+      case Success(data: final transfer):
+        if (transfer.success) {
+          // Both balances and both ledgers changed; re-read rather than patch.
+          ref.invalidateSelf();
+        } else {
+          state = AsyncData(current.copyWith(isSubmitting: false));
+        }
+        return transfer;
+      case Failure(error: final f):
+        state = AsyncData(current.copyWith(isSubmitting: false));
         throw Exception(f.message);
     }
   }

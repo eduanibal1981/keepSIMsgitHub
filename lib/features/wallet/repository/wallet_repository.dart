@@ -10,6 +10,7 @@ import 'package:keep_sims/core/services/connectivity_service.dart';
 import 'package:keep_sims/core/services/local_cache_service.dart';
 import '../contract/wallet_contract.dart';
 import '../model/wallet_model.dart';
+import '../model/gift_transfer_model.dart';
 
 class WalletRepository implements WalletContract {
   final SupabaseClient _client;
@@ -315,6 +316,70 @@ class WalletRepository implements WalletContract {
           ),
         );
       }
+      return Failure(AppFailure.server(message: e.message));
+    } catch (e) {
+      return Failure(AppFailure.unknown(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Result<GiftTransferResult>> sendGift({
+    required String recipientEmail,
+    required double amount,
+    String? note,
+    String? referenceId,
+  }) async {
+    if (_connectivity.isOffline) {
+      return const Failure(
+        AppFailure.server(
+          message: 'Sending credit requires an active internet connection.',
+        ),
+      );
+    }
+
+    try {
+      final userId = _client.auth.currentUser?.id;
+      if (userId == null) {
+        return const Failure(
+          AppFailure.auth(message: 'No authenticated user.'),
+        );
+      }
+
+      // Stable per attempt: if the response is lost to a dropped connection and
+      // the user taps Send again, the server recognises this id and reports the
+      // original transfer instead of making a second one. Same shape as
+      // payPlanFee's `planfee_` reference.
+      final reference =
+          referenceId ??
+          'gift_${userId.substring(0, 8)}_${DateTime.now().microsecondsSinceEpoch}';
+
+      final response = await _client.rpc(
+        'transfer_wallet_credit',
+        params: {
+          'p_recipient_email': recipientEmail,
+          'p_amount': amount,
+          'p_reference_id': reference,
+          'p_note': note,
+        },
+      );
+
+      if (response is! Map<String, dynamic>) {
+        return const Failure(
+          AppFailure.server(message: 'Unexpected response from wallet service.'),
+        );
+      }
+
+      final result = GiftTransferResult.fromJson(response);
+
+      // A completed transfer changes both the balance and the ledger the
+      // offline cache is holding.
+      if (result.success) {
+        await _cache.remove('cached_wallet');
+        await _cache.remove('cached_wallet_transactions');
+      }
+
+      return Success(result);
+    } on PostgrestException catch (e) {
       return Failure(AppFailure.server(message: e.message));
     } catch (e) {
       return Failure(AppFailure.unknown(message: e.toString()));

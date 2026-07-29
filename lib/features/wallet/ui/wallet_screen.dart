@@ -13,6 +13,8 @@ import 'package:keep_sims/core/utils/build_context_extension.dart';
 import 'package:keep_sims/core/services/connectivity_service.dart';
 import '../controller/wallet_controller.dart';
 import '../model/wallet_model.dart';
+import '../model/gift_transfer_model.dart';
+import 'gift_credit_sheet.dart';
 import 'package:keep_sims/core/widgets/shimmer_loading.dart';
 import 'package:keep_sims/core/widgets/error_state.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
@@ -486,7 +488,32 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
             ),
           ),
         ),
-        const SizedBox(width: 16),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Opacity(
+            opacity: isOffline ? 0.5 : 1.0,
+            child: _buildActionButton(
+              icon: Icons.card_giftcard_rounded,
+              label: 'Send Credit',
+              color: context.isDarkMode
+                  ? AppColors.primaryLight
+                  : AppColors.lightPrimary,
+              onTap: isOffline
+                  ? () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'Sending credit requires an active internet connection.',
+                          ),
+                          backgroundColor: AppColors.error,
+                        ),
+                      );
+                    }
+                  : () => _showGiftSheet(context),
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
         Expanded(
           child: _buildActionButton(
             icon: Icons.history_edu_rounded,
@@ -504,6 +531,18 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  // ── Send Credit ──────────────────────────────────────────────
+  // The sheet drives `transfer_wallet_credit` and confirms in place; the
+  // biometric prompt lives in the controller, on the same guard as a deposit.
+  void _showGiftSheet(BuildContext context) {
+    showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => const GiftCreditSheet(),
     );
   }
 
@@ -727,9 +766,22 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
       typeColor = isDark ? AppColors.success : AppColors.lightSuccess;
       typeIcon = Icons.stars_rounded;
       sign = '+';
+    } else if (tx.isGiftReceived) {
+      typeColor = isDark ? AppColors.success : AppColors.lightSuccess;
+      typeIcon = Icons.card_giftcard_rounded;
+      sign = '+';
+    } else if (tx.isGiftSent) {
+      // Money out, like any debit — but its own icon, because "Gift to Sara"
+      // sitting under a top-up icon reads as a charge the user did not make.
+      typeColor = isDark ? AppColors.primaryLight : AppColors.lightPrimary;
+      typeIcon = Icons.card_giftcard_rounded;
+      sign = '-';
     }
 
-    final hasReceipt = tx.metadata != null && tx.metadata!.isNotEmpty;
+    // A gift's metadata is the counterparty block, not a PayPal receipt.
+    final hasReceipt =
+        !tx.isGift && tx.metadata != null && tx.metadata!.isNotEmpty;
+    final giftNote = tx.giftNote;
 
     return GestureDetector(
       onTap: hasReceipt ? () => _showReceiptSheet(tx) : null,
@@ -784,6 +836,20 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                           : AppColors.textTertiaryLight,
                     ),
                   ),
+                  if (giftNote != null && giftNote.isNotEmpty) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      '"$giftNote"',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.caption.copyWith(
+                        color: isDark
+                            ? AppColors.textSecondaryDark
+                            : AppColors.textSecondaryLight,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),

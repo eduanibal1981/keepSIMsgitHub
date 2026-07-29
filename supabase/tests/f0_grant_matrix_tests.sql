@@ -26,7 +26,8 @@
 -- HOW TO RUN — as ONE execute_sql call. MCP makes each call its own
 -- transaction, so a split file never pairs BEGIN with ROLLBACK.
 -- ============================================================================
--- Last run 2026-07-29: 6/6 PASSED, 0 violations.
+-- Last run 2026-07-29 (after G3 added transfer_wallet_credit): 6/6 PASSED,
+-- 0 violations.
 -- ============================================================================
 
 BEGIN;
@@ -59,6 +60,14 @@ DECLARE
     'reschedule_mini_refill(uuid,timestamp with time zone)',
     'reset_mini_refill_to_default(uuid)',
     'retry_topup_execution(uuid)',
+    -- G3. The only allow-list entry that moves money BETWEEN users, so it is
+    -- the one to re-read hardest. Sender is auth.uid() and there is no sender
+    -- parameter; the recipient is resolved by email behind a rate limit; only
+    -- ledger-derived deposits and received gifts are transferable. Its own
+    -- checks are asserted in supabase/tests/g3_gift_credit_tests.sql (T5, T15,
+    -- T16, T17) — an allow-list entry without a tested internal check is
+    -- exactly what F-4's apply_referral was.
+    'transfer_wallet_credit(text,numeric,text,text)',
     'update_mini_refill_dates(uuid,jsonb)'
   ];
   v_bad text;
