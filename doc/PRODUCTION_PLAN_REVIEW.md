@@ -115,6 +115,46 @@ Note this is the **6-argument overload**. The 5-argument one is correctly `servi
 which is exactly how it slipped through: someone revoked the old signature and the new one
 inherited the default `GRANT EXECUTE TO PUBLIC`.
 
+> **✅ RESOLVED 2026-07-29** — migrations `20260801050000_f2_debit_wallet_grant_lockdown.sql`
+> and `20260801060000_f2b_drop_ambiguous_debit_overload.sql` (both registered, both sorting
+> after the D5b work that created the overload).
+>
+> * **Reproduced first.** With only the anon key: `P0001 "Debit amount must be positive, got -1"`,
+>   HTTP 400 — raised from inside the body, so permission had passed. After the fix, every
+>   payload shape returns `42501 permission denied for function debit_wallet_for_topup`.
+> * **Layer 1** — `REVOKE ALL … FROM PUBLIC, anon, authenticated`, `GRANT EXECUTE … TO service_role`.
+> * **Layer 2** — in-body guard, but **not** the same shape as F-1's. This function is called
+>   from *inside* `request_esim_purchase` and `pay_plan_fee_from_wallet`, which signed-in users
+>   invoke directly; `request.jwt.claims` still reads `role=authenticated` in those nested
+>   calls, so F-1's "reject any non-service_role JWT" would have broken every eSIM purchase and
+>   plan-fee payment. The discriminator used is **plpgsql call depth** (`GET DIAGNOSTICS PG_CONTEXT`):
+>   a PostgREST RPC is always the top frame, an internal call never is.
+> * **Layer 2 proven on its own** (grant restored inside a rolled-back txn, real `SET LOCAL ROLE`,
+>   top-level statement): authenticated → `KS403`; anon → `KS403`; malformed claims → `22P02`
+>   at the claims cast, i.e. fail-closed before any balance is touched.
+> * Regression test `supabase/tests/f2_debit_wallet_grant_tests.sql` — Part A 7/7 including a
+>   real nested debit (a1 `35.86 → 33.36 → 35.86`, rolled back), Part B the three direct-call
+>   probes. **Part B cannot live inside a `DO` block**: a `DO` block is itself a frame, so an
+>   in-block "direct call" probe passes vacuously. Found the hard way.
+>
+> **🔴 Second, unrelated defect found while fixing this — the overload had already broken both
+> money paths.** PostgREST resolves an RPC overload from the request body's keys, on signature
+> alone (it does *not* filter candidates by `EXECUTE` privilege — confirmed live). Neither real
+> caller sends `p_txn_type`, so neither payload could be resolved:
+>
+> ```
+> worker_instant_refill.js:161        5 keys -> HTTP 300 PGRST203 "Could not choose the best candidate function"
+> supabase/functions/wallet_transact  4 keys -> HTTP 300 PGRST203
+> ```
+>
+> The 6-arg overload was created **live via execute_sql during D5b on 2026-07-26** and never
+> existed as a migration file (the fifth such drift). The last successful refill was
+> **2026-07-21**, which is why nobody had hit it — the next real instant refill would have
+> failed at the debit step. Dropping the 5-arg overload (F0 item 1, now evidence-backed rather
+> than precautionary) resolves both callers to the single remaining function, where
+> `p_txn_type` defaults to `topup_debit` — byte-identical to what the 5-arg wrote. No worker or
+> Edge Function code change was needed.
+
 ### F-3 · `purge_deleted_accounts()` is callable by `anon` — **PROVEN LIVE** (`HTTP 200`)
 
 D3's purge state machine can be advanced on demand by an unauthenticated caller. The body
@@ -381,8 +421,13 @@ at a time. 🔴 blocking · 🟠 important · 🟢 nice · ⚪ later.
    `consume_rate_limit`, `enforce_rate_limit`, `trg_fn_award_referral_points`. Grant each to
    `service_role` only. **Drop the 5-arg `debit_wallet_for_topup` overload** if unused — two
    signatures is how the grant drifted.
-   *(`credit_wallet_for_refund` ✅ done 2026-07-29, migration `20260801040000` — see F-1.
-   The rest of the list is still open.)*
+   *(✅ `credit_wallet_for_refund` — migration `20260801040000`, see F-1.
+   ✅ both `debit_wallet_for_topup` overloads — migration `20260801050000`, and the 5-arg one
+   is **dropped** by `20260801060000`; it had no callers and was actively breaking PostgREST
+   overload resolution for the two that exist, see F-2.
+   Still open: `credit_wallet`, `purge_deleted_accounts`, `prune_rate_limit_data`,
+   `check_rate_limit_health`, `consume_rate_limit`, `enforce_rate_limit`,
+   `trg_fn_award_referral_points`.)*
 2. Add an in-body `auth.uid()` guard to `credit_wallet_for_refund` as defence in depth
    (`IF auth.uid() IS NOT NULL AND auth.uid() <> p_user_id THEN RAISE`), so a future
    re-grant is not instantly fatal. Same for the debit.

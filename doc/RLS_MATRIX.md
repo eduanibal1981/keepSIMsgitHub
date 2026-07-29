@@ -54,9 +54,14 @@ Edge Functions).
 > `supabase/tests/f1_wallet_refund_grant_tests.sql` so the doc and the ACL cannot drift
 > apart again silently.
 >
-> ² **Still false as of 2026-07-29** — the 6-arg overload
-> `debit_wallet_for_topup(uuid,uuid,numeric,text,text,text)` is `EXECUTE` to **PUBLIC**
-> (anon included). Review finding **F-2**, open. Only the 5-arg overload is service-role only.
+> ² **Was false between D5b and 2026-07-29.** The 6-arg overload
+> `debit_wallet_for_topup(uuid,uuid,numeric,text,text,text)` was `EXECUTE` to **PUBLIC** (anon
+> included) — review finding **F-2**, a drain-any-wallet hole, since the anon key ships in the
+> APK. Closed by `20260801050000_f2_debit_wallet_grant_lockdown.sql` (revoke + a call-depth
+> guard raising `KS403` on any direct client call, while still permitting the nested calls from
+> `request_esim_purchase` / `pay_plan_fee_from_wallet`). The redundant 5-arg overload was
+> dropped by `20260801060000` — **`debit_wallet_for_topup` now has exactly one signature**, and
+> `supabase/tests/f2_debit_wallet_grant_tests.sql` pins that.
 
 **Authenticated only** (anon revoked in A4): `calculate_health_score`,
 `calculate_topup_fees`, `get_current_context`, `get_wallet_forecast`,

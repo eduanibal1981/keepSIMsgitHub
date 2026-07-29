@@ -1,0 +1,46 @@
+-- ============================================================================
+-- F2b: drop the 5-arg debit_wallet_for_topup overload
+--
+-- This completes F0 item 1 ("Drop the 5-arg debit_wallet_for_topup overload if
+-- unused — two signatures is how the grant drifted"). It is a separate migration
+-- from 20260801050000 because that one was already applied and registered; this
+-- lands the second half with its own evidence.
+--
+-- ---------------------------------------------------------------------------
+-- The overload was not just a drift risk — it had already broken both money paths
+-- ---------------------------------------------------------------------------
+-- PostgREST resolves an RPC overload from the JSON body's keys, and it does this on
+-- signature alone (it does not filter candidates by EXECUTE privilege — confirmed
+-- live: a caller holding EXECUTE on neither overload still gets the ambiguity error,
+-- not a permission error). Neither real caller sends p_txn_type, so neither payload
+-- can be resolved:
+--
+--   worker_instant_refill.js:161   sends 5 keys  -> HTTP 300 PGRST203
+--     "Could not choose the best candidate function between:
+--      debit_wallet_for_topup(...p_reference_id => text),
+--      debit_wallet_for_topup(...p_reference_id => text, p_txn_type => text)"
+--   supabase/functions/wallet_transact/index.ts:169  sends 4 keys -> same PGRST203
+--
+-- Both were verified live on 2026-07-29, before this migration. The 6-arg overload
+-- was created live (via execute_sql, never as a migration file — the fifth such
+-- drift) during D5b on 2026-07-26; the last successful refill was 2026-07-21, which
+-- is why nobody had hit it yet. The next real instant refill would have failed at
+-- the debit step.
+--
+-- ---------------------------------------------------------------------------
+-- Why dropping the 5-arg one is the safe direction
+-- ---------------------------------------------------------------------------
+-- Nothing calls it. Both in-database callers pass all six arguments:
+--   pay_plan_fee_from_wallet  -> ..., p_reference_id, 'plan_fee_debit'
+--   request_esim_purchase     -> ..., p_txn_type => 'esim_purchase_debit'
+-- and the two PostgREST callers above send fewer keys, so once only one candidate
+-- exists they resolve to it and p_txn_type falls back to its 'topup_debit' default —
+-- byte-identical to what the 5-arg overload wrote. supabase/tests/b4_money_path_tests.sql
+-- calls it with 5 positional args, which likewise resolves to the survivor.
+--
+-- After this, public.debit_wallet_for_topup has exactly ONE signature. The F-2
+-- regression test pins that count, so a future overload cannot silently
+-- reintroduce either the ambiguity or the PUBLIC grant.
+-- ============================================================================
+
+DROP FUNCTION IF EXISTS public.debit_wallet_for_topup(UUID, UUID, NUMERIC, TEXT, TEXT);
