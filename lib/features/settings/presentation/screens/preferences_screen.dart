@@ -8,6 +8,8 @@ import 'package:keep_sims/features/notifications/presentation/controllers/notifi
 import 'package:keep_sims/features/notifications/data/models/user_preferences_model.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
 import 'package:keep_sims/core/providers/locale_provider.dart';
+import 'package:keep_sims/core/fx/fx_context.dart';
+import 'package:keep_sims/core/fx/fx_provider.dart';
 import 'package:keep_sims/l10n/app_localizations.dart';
 
 import 'package:keep_sims/core/services/biometric_lock_controller.dart';
@@ -572,6 +574,10 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
 
                     // Interactive Dropdown Card for Languages
                     _buildLanguageCard(context, prefs.language),
+                    const SizedBox(height: 12),
+
+                    // Display currency (G11)
+                    _buildCurrencyCard(context),
                     const SizedBox(height: 28),
 
                     Text(
@@ -806,6 +812,261 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  // ── Display currency (G11) ──────────────────────────────────────────
+  //
+  // Display only. The subtitle says so in every state, because the one thing
+  // this card must never imply is that it changes what the user is charged.
+  Widget _buildCurrencyCard(BuildContext context) {
+    final fxState = ref.watch(fxControllerProvider);
+    final fx = fxState.asData?.value ?? const FxContext();
+
+    final String subtitle;
+    if (fx.isFallingBack) {
+      // The user picked something and is not getting it. Say which and why
+      // rather than quietly showing dollars and looking broken.
+      subtitle = switch (fx.fallbackReason) {
+        'stale' =>
+          'No fresh ${fx.requestedCurrency} rate — showing US Dollars for now',
+        'disabled' => 'Currency conversion is temporarily switched off',
+        _ => '${fx.requestedCurrency} is not available — showing US Dollars',
+      };
+    } else if (fx.convertsMoney) {
+      subtitle = 'Prices show an approximate ${fx.currency} value · '
+          'charges are always in USD';
+    } else {
+      subtitle = 'Show an approximate home-currency value beside every price';
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        color: context.cardColor.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: context.onSurfaceColor.withValues(alpha: 0.06),
+        ),
+      ),
+      child: ListTile(
+        onTap: fxState.isLoading
+            ? null
+            : () async {
+                await HapticHelper.lightTick();
+                if (!context.mounted) return;
+                _showCurrencySelector(context, fx);
+              },
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        leading: Container(
+          width: 44,
+          height: 44,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: const Color(0xFFF59E0B).withValues(alpha: 0.1),
+          ),
+          child: const Center(
+            child: Icon(Icons.payments_rounded, color: Color(0xFFF59E0B)),
+          ),
+        ),
+        title: Text(
+          'Display Currency',
+          style: AppTextStyles.bodyMedium.copyWith(
+            color: context.onSurfaceColor,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        subtitle: Text(
+          subtitle,
+          style: AppTextStyles.bodySmall.copyWith(
+            color: fx.isFallingBack
+                ? const Color(0xFFF59E0B)
+                : context.onSurfaceColor.withValues(alpha: 0.6),
+          ),
+        ),
+        trailing: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: context.onSurfaceColor.withValues(alpha: 0.05),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                fx.requestedCurrency,
+                style: TextStyle(
+                  color: context.onSurfaceColor,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                ),
+              ),
+              const SizedBox(width: 4),
+              Icon(
+                Icons.keyboard_arrow_down_rounded,
+                color: context.onSurfaceColor.withValues(alpha: 0.6),
+                size: 16,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showCurrencySelector(BuildContext context, FxContext fx) {
+    // The server hands back the list along with the rate, so the picker can
+    // never offer a currency the formatter cannot render. If the RPC failed we
+    // have nothing truthful to offer beyond dollars.
+    final options = fx.available.isNotEmpty
+        ? fx.available
+        : const [
+            FxCurrencyOption(code: 'USD', name: 'US Dollar', symbol: r'$'),
+          ];
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) {
+        return Container(
+          padding: const EdgeInsets.all(24.0),
+          decoration: BoxDecoration(
+            color: sheetContext.scaffoldBackgroundColor,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+            border: Border.all(
+              color: sheetContext.onSurfaceColor.withValues(alpha: 0.08),
+              width: 1.5,
+            ),
+          ),
+          child: SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Display Currency',
+                  style: AppTextStyles.titleLarge.copyWith(
+                    color: sheetContext.onSurfaceColor,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(
+                      Icons.info_outline_rounded,
+                      size: 16,
+                      color: sheetContext.onSurfaceColor.withValues(alpha: 0.5),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Your wallet, top-ups and every charge stay in US '
+                        'Dollars. This only adds an approximate value beside '
+                        'each price.',
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: sheetContext.onSurfaceColor.withValues(
+                            alpha: 0.6,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Flexible(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: options.map((opt) {
+                        final isSelected = opt.code == fx.requestedCurrency;
+                        return InkWell(
+                          onTap: () async {
+                            await HapticHelper.mediumImpact();
+                            final ok = await ref
+                                .read(fxControllerProvider.notifier)
+                                .setDisplayCurrency(opt.code);
+                            if (!sheetContext.mounted) return;
+                            Navigator.pop(sheetContext);
+                            if (ok) {
+                              await HapticHelper.successFeedback();
+                            } else if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Could not save your currency. Try again.',
+                                  ),
+                                ),
+                              );
+                            }
+                          },
+                          borderRadius: BorderRadius.circular(16),
+                          child: Container(
+                            margin: const EdgeInsets.symmetric(vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 14,
+                            ),
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? sheetContext.onSurfaceColor.withValues(
+                                      alpha: 0.05,
+                                    )
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: isSelected
+                                    ? const Color(
+                                        0xFF6366F1,
+                                      ).withValues(alpha: 0.3)
+                                    : Colors.transparent,
+                                width: 1,
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                SizedBox(
+                                  width: 44,
+                                  child: Text(
+                                    opt.symbol,
+                                    style: AppTextStyles.bodyLarge.copyWith(
+                                      color: sheetContext.onSurfaceColor,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    '${opt.name} (${opt.code})',
+                                    style: AppTextStyles.bodyMedium.copyWith(
+                                      color: sheetContext.onSurfaceColor,
+                                      fontWeight: isSelected
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
+                                    ),
+                                  ),
+                                ),
+                                if (isSelected)
+                                  const Icon(
+                                    Icons.check_circle_rounded,
+                                    color: Color(0xFF6366F1),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 

@@ -10,6 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/core/utils/build_context_extension.dart';
+import 'package:keep_sims/core/fx/money.dart';
 import 'package:keep_sims/core/services/connectivity_service.dart';
 import '../controller/wallet_controller.dart';
 import '../model/wallet_model.dart';
@@ -390,6 +391,18 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                           ),
                         ),
                       ],
+                    ),
+                  ),
+
+                  // G11 — the same balance in the user's own currency. Renders
+                  // nothing at all for a USD user, so the card is unchanged for
+                  // everyone who has not chosen otherwise. The dollar figure
+                  // above stays the balance; this is only an aid to reading it.
+                  ApproxLocalText(
+                    balance,
+                    style: AppTextStyles.labelLarge.copyWith(
+                      color: Colors.white.withValues(alpha: 0.75),
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                   const SizedBox(height: 8),

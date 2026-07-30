@@ -8,6 +8,7 @@ import 'package:keep_sims/core/router/app_router.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/core/utils/build_context_extension.dart';
+import 'package:keep_sims/core/fx/money.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
 import 'package:keep_sims/core/services/esim_capability_service.dart';
 import 'package:keep_sims/features/esim/domain/entities/esim_plan.dart';
@@ -699,6 +700,14 @@ class _EsimPlansScreenState extends ConsumerState<EsimPlansScreen>
                           color: context.onSurfaceColor,
                           fontWeight: FontWeight.bold,
                         ),
+                      ),
+                      // G11 — the headline price in the buyer's own currency.
+                      // Only the total is converted, not the per-GB unit: two
+                      // approximations stacked read as a quoted price rather
+                      // than a rough guide.
+                      ApproxLocalText(
+                        plan.priceUsd,
+                        textAlign: TextAlign.end,
                       ),
                       if (plan.pricePerGb > 0)
                         Text(

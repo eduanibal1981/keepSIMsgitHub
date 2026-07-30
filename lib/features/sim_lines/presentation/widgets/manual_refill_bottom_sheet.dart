@@ -14,6 +14,7 @@ import 'package:keep_sims/core/providers/app_config_provider.dart';
 import 'package:keep_sims/features/sim_lines/domain/refill_pricing.dart';
 import 'package:keep_sims/core/services/biometric_auth_service.dart';
 import 'package:keep_sims/core/utils/error_formatter.dart';
+import 'package:keep_sims/core/fx/money.dart';
 
 class ManualRefillBottomSheet extends ConsumerStatefulWidget {
   final SimLine simLine;
@@ -565,6 +566,13 @@ class _ManualRefillBottomSheetState
                                       ],
                                     ),
                                     const SizedBox(height: 8),
+                                    // G11 — the all-in price in the user's own
+                                    // currency. It converts `finalPrice`, the
+                                    // charged total, and not the fee breakdown
+                                    // below: converting each component invites
+                                    // adding them up and finding they do not
+                                    // reconcile, because each is rounded.
+                                    ApproxLocalText(finalPrice),
                                     Text(
                                       'Base: \$${baseCost.toStringAsFixed(2)} | Fees: \$${gatewayFee.toStringAsFixed(2)} | App: \$${appFee.toStringAsFixed(2)}',
                                       style: AppTextStyles.labelSmall.copyWith(
@@ -733,6 +741,7 @@ class _ManualRefillBottomSheetState
               }
             },
           ),
+          if (_rangeValue != null) ApproxLocalText(_rangeFinalPriceUsd),
           if (_rangeValue != null)
             Padding(
               padding: const EdgeInsets.only(top: 8),

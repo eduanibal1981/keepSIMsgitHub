@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:keep_sims/core/utils/error_formatter.dart';
+import 'package:keep_sims/core/fx/money.dart';
 import 'package:keep_sims/features/esim/data/repositories/esim_provider_factory.dart';
 import 'package:keep_sims/features/esim/domain/entities/esim_plan.dart';
 import 'package:keep_sims/features/esim/presentation/widgets/esim_order_status_modal.dart';
@@ -173,12 +174,27 @@ class _EsimCheckoutSheetState extends ConsumerState<EsimCheckoutSheet> {
                         ),
                       ),
                     ),
-                    Text(
-                      '\$${widget.plan.priceUsd.toStringAsFixed(2)}',
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.teal,
-                      ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          '\$${widget.plan.priceUsd.toStringAsFixed(2)}',
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.teal,
+                          ),
+                        ),
+                        // G11. Note what is deliberately NOT converted in this
+                        // sheet: the wallet-balance breakdown below and the
+                        // "Confirm & Pay $x" button. The user is charged
+                        // dollars against a dollar balance, and a local figure
+                        // on the commit control would put the app's number and
+                        // their card statement in disagreement.
+                        ApproxLocalText(
+                          widget.plan.priceUsd,
+                          textAlign: TextAlign.end,
+                        ),
+                      ],
                     ),
                   ],
                 ),

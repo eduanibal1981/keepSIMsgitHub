@@ -9,6 +9,7 @@ import 'package:keep_sims/core/services/device_identity_service.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/core/utils/build_context_extension.dart';
+import 'package:keep_sims/core/fx/money.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
 import 'package:keep_sims/features/wallet/controller/wallet_controller.dart';
 import 'package:keep_sims/l10n/app_localizations.dart';
@@ -348,6 +349,14 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen> {
                           border: InputBorder.none,
                         ),
                       ),
+                      // G11 — what this deposit is worth in the user's own
+                      // money. The field itself stays in dollars: accepting
+                      // local input would mean dividing it back into USD, and
+                      // that rounding lands inside the money path.
+                      ApproxLocalText(
+                        _selectedDepositAmount,
+                        textAlign: TextAlign.center,
+                      ),
                       if (hasRemainder)
                         Padding(
                           padding: const EdgeInsets.only(top: 8.0),
@@ -360,7 +369,7 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen> {
                           ),
                         ),
                     ] else ...[
-                      if (widget.initialAmount != null)
+                      if (widget.initialAmount != null) ...[
                         Text(
                           '\$${widget.initialAmount!.toStringAsFixed(2)}',
                           style: AppTextStyles.headlineLarge.copyWith(
@@ -368,6 +377,11 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen> {
                             fontWeight: FontWeight.w800,
                           ),
                         ),
+                        ApproxLocalText(
+                          widget.initialAmount!,
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
                     ],
                   ],
                 ),

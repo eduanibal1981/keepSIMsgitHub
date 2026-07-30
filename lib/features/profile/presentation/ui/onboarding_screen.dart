@@ -73,13 +73,26 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     {'code': 'PK', 'name': 'Pakistan', 'flag': '🇵🇰'},
   ];
 
+  // Must stay in step with the `fx_rates` catalogue (G11): a code with no rate
+  // row silently falls back to USD, which reads as the picker ignoring you.
+  // The four rupee/taka corridors below were missing while the country picker
+  // above has listed India, Philippines, Pakistan and Nepal all along — and
+  // this feature exists for exactly those users.
   final List<Map<String, String>> _currencies = [
     {'code': 'USD', 'name': 'US Dollar (\$)'},
     {'code': 'EUR', 'name': 'Euro (€)'},
     {'code': 'GBP', 'name': 'British Pound (£)'},
     {'code': 'SAR', 'name': 'Saudi Riyal (SR)'},
-    {'code': 'EGP', 'name': 'Egyptian Pound (EGP)'},
+    {'code': 'EGP', 'name': 'Egyptian Pound (E£)'},
     {'code': 'AED', 'name': 'UAE Dirham (AED)'},
+    {'code': 'JOD', 'name': 'Jordanian Dinar (JD)'},
+    {'code': 'INR', 'name': 'Indian Rupee (₹)'},
+    {'code': 'PKR', 'name': 'Pakistani Rupee (Rs)'},
+    {'code': 'PHP', 'name': 'Philippine Peso (₱)'},
+    {'code': 'BDT', 'name': 'Bangladeshi Taka (৳)'},
+    {'code': 'LKR', 'name': 'Sri Lankan Rupee (Rs)'},
+    {'code': 'NPR', 'name': 'Nepalese Rupee (Rs)'},
+    {'code': 'TRY', 'name': 'Turkish Lira (₺)'},
   ];
 
   @override

@@ -2348,6 +2348,105 @@ Everything is USD internally (correct). Add a display-only FX layer (`profiles.d
 + a daily rates row in `system_configs`) — expats price things in home currency and this
 measurably lifts conversion.
 
+> ## ✅ BUILT 2026-07-30 — migrations `20260810000000_g11_fx_display_layer.sql` and `20260810010000_g11b_fx_refresh_engine.sql`; `refresh-fx-rates` v1 deployed
+>
+> The premise "everything is USD internally (correct)" held exactly, and that
+> is the whole reason this was cheap. **Two of the brief's three nouns did
+> not survive contact with the database**, and neither changed the design:
+>
+> * **`profiles.display_currency` did not need adding — `preferred_currency`
+>   has been there since the first migration**, `authenticated` already held
+>   column UPDATE on it (F6 kept it in the allow-list), and the onboarding
+>   screen has been writing it for months. Adding a second column would have
+>   created two that disagree. All 8 live profiles read `'USD'` because that is
+>   the dropdown default and **nothing downstream had ever read the column** —
+>   the missing piece was never the preference, it was any rate to apply to it.
+> * **Rates are a table, not a `system_configs` row.** `config_value` is an
+>   untyped varchar, so the suggested "daily rates row" would have put money-
+>   adjacent numbers in free text where a fat-fingered `50.5` → `505` multiplies
+>   every displayed price by ten with nothing to stop it. `system_configs` keeps
+>   the *policy* knobs (`FX_DISPLAY_ENABLED`, `FX_MAX_AGE_HOURS`,
+>   `FX_MAX_MOVE_PERCENT`, `FX_LAST_REFRESH_AT`), which is what it is good at.
+>
+> ### What exists now
+>
+> | Object | What it is |
+> |---|---|
+> | `fx_rates` | 14 currencies, `numeric(20,8)` + CHECKs. `authenticated` SELECT only; no write policy for anyone. |
+> | `get_fx_display_context()` | The one call the client makes. Rate, symbol, digits, staleness verdict and the picker list. |
+> | `refresh_fx_rates(jsonb, timestamptz, text)` | Applies a batch, one subtransaction per currency, returns a full report. `service_role` only. |
+> | `tr_fx_rate_sanity` | Move-band circuit breaker (25%). |
+> | `kick_fx_refresh()` + cron job 23 | 03:10 UTC daily, via the Vault shared secret. |
+> | `refresh-fx-rates` (Edge Fn v1) | Fetches open.er-api.com. Validates before trusting a number. |
+> | `lib/core/fx/` | `FxContext`, `FxController`, `Money.approxLocal`, `ApproxLocalText`. |
+>
+> ### Six things not to re-derive
+>
+> 1. **Nothing here may ever touch money, and the code enforces that by
+>    omission.** There is deliberately **no local→USD helper anywhere**. The
+>    RPC returns a *rate*, never a converted amount. The moment an input is
+>    entered in EGP and divided back into dollars, rounding drift is inside the
+>    money path and a $10.00 deposit becomes $9.99.
+> 2. **Staleness is decided server-side and its fallback is USD.** Past
+>    `FX_MAX_AGE_HOURS` (72) the RPC stops returning the currency at all and
+>    answers `USD` / rate 1 / `fallback_reason`. A client deciding this would
+>    disagree with the server whenever its clock was wrong. **This is the bug a
+>    single pass misses** — the naive layer keeps rendering a three-week-old
+>    rate as though it were today's, which is worse than not having the feature.
+> 3. **A placeholder must NOT be defended by the circuit breaker.** Both halves
+>    of this were load-bearing and are now *proven by real data*: TRY's seed was
+>    34 and the first live quote 47.43, a **39.5% move**, so the band would have
+>    refused it — and a refused UPDATE leaves `rate_source = 'seed'`, so
+>    tomorrow's run would be refused identically, **forever**. Separately, the
+>    provider stamps its payload ~00:02 UTC, *older* than the migration's own
+>    seed timestamp, so a plain "never move the clock backwards" test skips
+>    every currency on the first run. Both need the `'seed'` exemption.
+> 4. **The feed may update currencies, never add them.** `refresh_fx_rates`
+>    iterates over `fx_rates`, not over the payload — `display_name`, `symbol`
+>    and `decimal_digits` are curated, and open.er-api.com alone would otherwise
+>    inject ~160 rows into the picker overnight.
+> 5. **No SECURITY DEFINER anywhere in G11** (tested for, case 1.5). After F4b's
+>    four dead `current_user`-inside-DEFINER guards, the privilege boundary here
+>    is a grant, which cannot rot into a no-op.
+> 6. **plpgsql RAISE has no printf conversions**, and `'%%%'` parses as
+>    literal-percent-then-argument — the opposite of the intended "42%". Spell
+>    it `pct`.
+>
+> ### Fixed en route
+>
+> **`lib/core/utils/currency_formatter.dart` was a loaded gun**: a
+> `CurrencyFormatter.format()` that relabelled a USD amount with any currency's
+> symbol *without converting it*, so `format(12.50, currencyCode: 'EGP')`
+> rendered "E£12.50". It was dead code — zero call sites — but it is exactly
+> what a future session reaching for "make prices show EGP" would have found
+> and wired up. Deleted and replaced by `Money`.
+>
+> **The onboarding currency dropdown offered 6 currencies** (USD/EUR/GBP/SAR/
+> EGP/AED) while the country picker beside it has always listed India,
+> Philippines, Pakistan and Jordan, and the app ships `tr`/`si`/`ne`/`bn`
+> locales. The exact remittance corridors this feature is for had no currency to
+> pick. Now 14, matching `fx_rates`.
+>
+> ### Proven
+>
+> 26/26 SQL cases (`supabase/tests/g11_fx_display_tests.sql`), 17/17 new Dart
+> tests. Baselines now **flutter test 223/223**, analyze **134**, advisors
+> **43** (all unchanged — the new table has an RLS policy and adds no DEFINER
+> function). The refresh was run end-to-end against the live endpoint: all 13
+> placeholders replaced with real quotes, and a second run correctly changed
+> nothing. Pegs came back exactly as `carrier_roaming_rates` has them (AED
+> 3.6725, SAR 3.75, JOD 0.709), which is a useful cross-check on both tables.
+>
+> ### Not done
+>
+> **0 of 8 users have a non-USD currency**, so in production this renders
+> nothing for anybody until someone opens Settings → Preferences and picks one.
+> Only 6 money surfaces are wired (wallet balance, eSIM plan list, eSIM
+> checkout, PayPal deposit, and both refill sheets) out of ~88 `$x.xx` sites —
+> the rest still show plain dollars, which is correct but plainer. The
+> currency-picker strings are hardcoded English like the rest of G6/G7, so they
+> are in scope for item #12 below.
+
 **12 · Localisation QA pass** · *low effort, real risk reduction*
 9 locales × ~10 features have been added incrementally by different sessions. Nobody has run a
 pseudo-locale/RTL screenshot pass. One session with `flutter run --locale ar` over the 12 main
