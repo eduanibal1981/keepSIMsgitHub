@@ -2109,4 +2109,67 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String get payPalForceCaptureButton => 'I\'ve Completed Payment on PayPal';
+
+  @override
+  String get yourDevices => 'Your devices';
+
+  @override
+  String get manageDevicesDesc =>
+      'See where you are signed in and sign out a device';
+
+  @override
+  String get devicesExplainer =>
+      'These are the app installations signed in to your account. Signing one out stops notifications reaching it and asks it to sign in again.';
+
+  @override
+  String get devicesEmpty =>
+      'No devices recorded yet. This one will appear the next time you sign in.';
+
+  @override
+  String get devicesLoadFailed =>
+      'Could not load your devices. Please try again.';
+
+  @override
+  String get devicesUnknownPlatform => 'Unknown device';
+
+  @override
+  String get devicesThisDevice => 'This device';
+
+  @override
+  String get devicesSignedOut => 'Signed out';
+
+  @override
+  String get devicesSignOut => 'Sign out';
+
+  @override
+  String get devicesSignOutTitle => 'Sign out this device?';
+
+  @override
+  String get devicesSignOutBody =>
+      'It will stop receiving notifications and will need to sign in again. Your data is not deleted.';
+
+  @override
+  String get devicesJustNow => 'active just now';
+
+  @override
+  String devicesHoursAgo(int hours) {
+    return '${hours}h ago';
+  }
+
+  @override
+  String devicesDaysAgo(int days) {
+    return '${days}d ago';
+  }
+
+  @override
+  String devicesMetaLine(String shortId, String version, String lastSeen) {
+    return '…$shortId · v$version · $lastSeen';
+  }
+
+  @override
+  String get deviceBlockedTitle => 'Payment stopped';
+
+  @override
+  String get deviceBlockedMessage =>
+      'A security check on this device stopped this payment. If this is a mistake, contact support and we will sort it out.';
 }

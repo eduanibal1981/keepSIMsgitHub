@@ -2085,4 +2085,66 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get payPalForceCaptureButton => 'لقد أكملت الدفع على PayPal';
+
+  @override
+  String get yourDevices => 'أجهزتك';
+
+  @override
+  String get manageDevicesDesc =>
+      'اطّلع على الأجهزة التي سجّلت الدخول منها وسجّل خروج أي جهاز';
+
+  @override
+  String get devicesExplainer =>
+      'هذه هي نسخ التطبيق المسجّل دخولها إلى حسابك. تسجيل خروج أي جهاز يوقف وصول الإشعارات إليه ويطلب منه تسجيل الدخول من جديد.';
+
+  @override
+  String get devicesEmpty =>
+      'لا توجد أجهزة مسجّلة بعد. سيظهر هذا الجهاز عند تسجيل الدخول في المرة القادمة.';
+
+  @override
+  String get devicesLoadFailed => 'تعذّر تحميل أجهزتك. يرجى المحاولة مرة أخرى.';
+
+  @override
+  String get devicesUnknownPlatform => 'جهاز غير معروف';
+
+  @override
+  String get devicesThisDevice => 'هذا الجهاز';
+
+  @override
+  String get devicesSignedOut => 'تم تسجيل الخروج';
+
+  @override
+  String get devicesSignOut => 'تسجيل الخروج';
+
+  @override
+  String get devicesSignOutTitle => 'تسجيل خروج هذا الجهاز؟';
+
+  @override
+  String get devicesSignOutBody =>
+      'سيتوقف عن استقبال الإشعارات وسيحتاج إلى تسجيل الدخول مجددًا. لن تُحذف بياناتك.';
+
+  @override
+  String get devicesJustNow => 'نشط الآن';
+
+  @override
+  String devicesHoursAgo(int hours) {
+    return 'منذ $hours ساعة';
+  }
+
+  @override
+  String devicesDaysAgo(int days) {
+    return 'منذ $days يوم';
+  }
+
+  @override
+  String devicesMetaLine(String shortId, String version, String lastSeen) {
+    return '…$shortId · v$version · $lastSeen';
+  }
+
+  @override
+  String get deviceBlockedTitle => 'تم إيقاف الدفعة';
+
+  @override
+  String get deviceBlockedMessage =>
+      'أوقف فحص أمني على هذا الجهاز هذه الدفعة. إذا كان ذلك خطأ، تواصل مع الدعم وسنعالج الأمر.';
 }

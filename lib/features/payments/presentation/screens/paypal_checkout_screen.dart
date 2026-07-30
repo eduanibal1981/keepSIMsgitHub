@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:keep_sims/core/services/analytics_service.dart';
 import 'package:keep_sims/core/services/biometric_auth_service.dart';
+import 'package:keep_sims/core/services/device_identity_service.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/core/utils/build_context_extension.dart';
@@ -120,13 +121,20 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen> {
       _initialWalletBalance = walletState.value?.wallet.balance ?? 0.0;
 
       // Create Order on Server (Server-priced for plan, floor clamped for deposit)
+      // G10: device_id + platform ride in the body (not a header) so no CORS
+      // preflight change is needed on mobile, and the function assesses device
+      // risk before it ever asks PayPal for an order.
+      final identity = ref.read(deviceIdentityServiceProvider);
       final response = await supabase.functions.invoke(
         'create-paypal-order',
+        headers: await identity.appCheckHeaders(),
         body: {
           'kind': widget.paymentKind,
           'plan': widget.plan,
           'sim_line_id': widget.simLineId,
           'amount_usd': effectiveAmt,
+          'device_id': await identity.deviceId(),
+          'platform': identity.platform,
         },
       );
 
@@ -214,10 +222,14 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen> {
 
     try {
       final supabase = Supabase.instance.client;
+      final identity = ref.read(deviceIdentityServiceProvider);
       final response = await supabase.functions.invoke(
         'capture-paypal-order',
+        headers: await identity.appCheckHeaders(),
         body: {
           'order_id': _orderId,
+          'device_id': await identity.deviceId(),
+          'platform': identity.platform,
         },
       );
 

@@ -1,4 +1,5 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:keep_sims/core/services/device_identity_service.dart';
 import 'package:keep_sims/features/esim/domain/entities/esim_order.dart';
 import 'package:keep_sims/features/esim/domain/entities/esim_plan.dart';
 import 'package:keep_sims/features/esim/domain/entities/user_esim.dart';
@@ -70,6 +71,11 @@ class EsimGoRepositoryImpl implements EsimRepository {
       final res = await _supabase.rpc('request_esim_purchase', params: {
         'p_offer_id': offerId,
         'p_quantity': quantity,
+        // G10: device binding. Refusals come back as
+        // {success:false, code:'DEVICE_BLOCKED'} in the same jsonb envelope.
+        'p_device_id': await DeviceIdentityService(
+          supabase: _supabase,
+        ).deviceId(),
       });
       return res as String;
     } on PostgrestException catch (e) {

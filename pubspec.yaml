@@ -60,6 +60,7 @@ dependencies:
   # Home-screen widget bridge (G4). Only the shared key/value store + the
   # "widget was tapped" stream; the rendering is native on both platforms.
   home_widget: ^0.9.3
+  firebase_app_check: ^0.4.5+2
 
 dev_dependencies:
   flutter_test:

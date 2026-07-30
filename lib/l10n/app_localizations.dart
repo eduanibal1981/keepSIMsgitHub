@@ -3825,6 +3825,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'I\'ve Completed Payment on PayPal'**
   String get payPalForceCaptureButton;
+
+  /// No description provided for @yourDevices.
+  ///
+  /// In en, this message translates to:
+  /// **'Your devices'**
+  String get yourDevices;
+
+  /// No description provided for @manageDevicesDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'See where you are signed in and sign out a device'**
+  String get manageDevicesDesc;
+
+  /// No description provided for @devicesExplainer.
+  ///
+  /// In en, this message translates to:
+  /// **'These are the app installations signed in to your account. Signing one out stops notifications reaching it and asks it to sign in again.'**
+  String get devicesExplainer;
+
+  /// No description provided for @devicesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No devices recorded yet. This one will appear the next time you sign in.'**
+  String get devicesEmpty;
+
+  /// No description provided for @devicesLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load your devices. Please try again.'**
+  String get devicesLoadFailed;
+
+  /// No description provided for @devicesUnknownPlatform.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown device'**
+  String get devicesUnknownPlatform;
+
+  /// No description provided for @devicesThisDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'This device'**
+  String get devicesThisDevice;
+
+  /// No description provided for @devicesSignedOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed out'**
+  String get devicesSignedOut;
+
+  /// No description provided for @devicesSignOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out'**
+  String get devicesSignOut;
+
+  /// No description provided for @devicesSignOutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out this device?'**
+  String get devicesSignOutTitle;
+
+  /// No description provided for @devicesSignOutBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It will stop receiving notifications and will need to sign in again. Your data is not deleted.'**
+  String get devicesSignOutBody;
+
+  /// No description provided for @devicesJustNow.
+  ///
+  /// In en, this message translates to:
+  /// **'active just now'**
+  String get devicesJustNow;
+
+  /// Relative last-seen time in hours
+  ///
+  /// In en, this message translates to:
+  /// **'{hours}h ago'**
+  String devicesHoursAgo(int hours);
+
+  /// Relative last-seen time in days
+  ///
+  /// In en, this message translates to:
+  /// **'{days}d ago'**
+  String devicesDaysAgo(int days);
+
+  /// Secondary line on a device tile: short id, app version, last seen
+  ///
+  /// In en, this message translates to:
+  /// **'…{shortId} · v{version} · {lastSeen}'**
+  String devicesMetaLine(String shortId, String version, String lastSeen);
+
+  /// No description provided for @deviceBlockedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment stopped'**
+  String get deviceBlockedTitle;
+
+  /// No description provided for @deviceBlockedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'A security check on this device stopped this payment. If this is a mistake, contact support and we will sort it out.'**
+  String get deviceBlockedMessage;
 }
 
 class _AppLocalizationsDelegate

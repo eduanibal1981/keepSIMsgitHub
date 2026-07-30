@@ -775,5 +775,49 @@
                 "type": "String"
             }
         }
+    },
+    "yourDevices": "أجهزتك",
+    "manageDevicesDesc": "اطّلع على الأجهزة التي سجّلت الدخول منها وسجّل خروج أي جهاز",
+    "devicesExplainer": "هذه هي نسخ التطبيق المسجّل دخولها إلى حسابك. تسجيل خروج أي جهاز يوقف وصول الإشعارات إليه ويطلب منه تسجيل الدخول من جديد.",
+    "devicesEmpty": "لا توجد أجهزة مسجّلة بعد. سيظهر هذا الجهاز عند تسجيل الدخول في المرة القادمة.",
+    "devicesLoadFailed": "تعذّر تحميل أجهزتك. يرجى المحاولة مرة أخرى.",
+    "devicesUnknownPlatform": "جهاز غير معروف",
+    "devicesThisDevice": "هذا الجهاز",
+    "devicesSignedOut": "تم تسجيل الخروج",
+    "devicesSignOut": "تسجيل الخروج",
+    "devicesSignOutTitle": "تسجيل خروج هذا الجهاز؟",
+    "devicesSignOutBody": "سيتوقف عن استقبال الإشعارات وسيحتاج إلى تسجيل الدخول مجددًا. لن تُحذف بياناتك.",
+    "devicesJustNow": "نشط الآن",
+    "deviceBlockedTitle": "تم إيقاف الدفعة",
+    "deviceBlockedMessage": "أوقف فحص أمني على هذا الجهاز هذه الدفعة. إذا كان ذلك خطأ، تواصل مع الدعم وسنعالج الأمر.",
+    "devicesHoursAgo": "منذ {hours} ساعة",
+    "@devicesHoursAgo": {
+            "placeholders": {
+                    "hours": {
+                            "type": "int"
+                    }
+            }
+    },
+    "devicesDaysAgo": "منذ {days} يوم",
+    "@devicesDaysAgo": {
+            "placeholders": {
+                    "days": {
+                            "type": "int"
+                    }
+            }
+    },
+    "devicesMetaLine": "…{shortId} · v{version} · {lastSeen}",
+    "@devicesMetaLine": {
+            "placeholders": {
+                    "shortId": {
+                            "type": "String"
+                    },
+                    "version": {
+                            "type": "String"
+                    },
+                    "lastSeen": {
+                            "type": "String"
+                    }
+            }
     }
 }

@@ -1001,5 +1001,52 @@
     "payPalCompleteInBrowser": "Please complete payment in the opened browser window.",
     "payPalPaymentConfirmed": "Payment Confirmed!",
     "payPalPaymentFailed": "Payment failed or was cancelled.",
-    "payPalForceCaptureButton": "I've Completed Payment on PayPal"
+    "payPalForceCaptureButton": "I've Completed Payment on PayPal",
+    "yourDevices": "Your devices",
+    "manageDevicesDesc": "See where you are signed in and sign out a device",
+    "devicesExplainer": "These are the app installations signed in to your account. Signing one out stops notifications reaching it and asks it to sign in again.",
+    "devicesEmpty": "No devices recorded yet. This one will appear the next time you sign in.",
+    "devicesLoadFailed": "Could not load your devices. Please try again.",
+    "devicesUnknownPlatform": "Unknown device",
+    "devicesThisDevice": "This device",
+    "devicesSignedOut": "Signed out",
+    "devicesSignOut": "Sign out",
+    "devicesSignOutTitle": "Sign out this device?",
+    "devicesSignOutBody": "It will stop receiving notifications and will need to sign in again. Your data is not deleted.",
+    "devicesJustNow": "active just now",
+    "devicesHoursAgo": "{hours}h ago",
+    "@devicesHoursAgo": {
+        "description": "Relative last-seen time in hours",
+        "placeholders": {
+            "hours": {
+                "type": "int"
+            }
+        }
+    },
+    "devicesDaysAgo": "{days}d ago",
+    "@devicesDaysAgo": {
+        "description": "Relative last-seen time in days",
+        "placeholders": {
+            "days": {
+                "type": "int"
+            }
+        }
+    },
+    "devicesMetaLine": "…{shortId} · v{version} · {lastSeen}",
+    "@devicesMetaLine": {
+        "description": "Secondary line on a device tile: short id, app version, last seen",
+        "placeholders": {
+            "shortId": {
+                "type": "String"
+            },
+            "version": {
+                "type": "String"
+            },
+            "lastSeen": {
+                "type": "String"
+            }
+        }
+    },
+    "deviceBlockedTitle": "Payment stopped",
+    "deviceBlockedMessage": "A security check on this device stopped this payment. If this is a mistake, contact support and we will sort it out."
 }

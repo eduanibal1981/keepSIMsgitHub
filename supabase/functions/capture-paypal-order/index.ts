@@ -1,9 +1,11 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { APP_CHECK_HEADER, verifyAppCheckToken } from "./app_check.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type, x-firebase-appcheck, x-keepsims-device",
 };
 
 async function getPayPalAccessToken(apiBase: string, clientId: string, clientSecret: string): Promise<string> {
@@ -91,6 +93,43 @@ serve(async (req) => {
 
     const body = await req.json();
     const orderId = body.order_id;
+
+    // ── G10: App Check only ──────────────────────────────────────────────────
+    // No device-risk assessment here on purpose. Capture carries no amount and
+    // no new spending decision — the order it captures was already assessed at
+    // creation time, and re-scoring the same money twice would double every
+    // deposit in the velocity counters. Attestation, on the other hand, is worth
+    // checking on every authenticated money call.
+    const deviceId: string | null =
+      (typeof body.device_id === "string" ? body.device_id : null) ??
+      req.headers.get("x-keepsims-device");
+    const platform: string | null =
+      (typeof body.platform === "string" ? body.platform.toLowerCase() : null);
+
+    const appCheck = await verifyAppCheckToken(req.headers.get(APP_CHECK_HEADER));
+    await adminClient.rpc("log_app_check_result", {
+      p_user_id: user.id,
+      p_outcome: appCheck.outcome,
+      p_device_id: deviceId,
+      p_platform: platform,
+      p_detail: appCheck.detail ?? null,
+    });
+
+    if (appCheck.outcome !== "pass") {
+      const { data: mustEnforce } = await adminClient.rpc("app_check_should_enforce", {
+        p_platform: platform,
+      });
+      if (mustEnforce === true) {
+        return new Response(
+          JSON.stringify({
+            success: false,
+            code: "APP_CHECK_FAILED",
+            error: "This app installation could not be verified. Please update KeepSIMs from the Play Store and try again.",
+          }),
+          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+    }
 
     if (!orderId) {
       return new Response(

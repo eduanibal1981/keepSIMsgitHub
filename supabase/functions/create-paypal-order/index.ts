@@ -1,9 +1,14 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { APP_CHECK_HEADER, verifyAppCheckToken } from "./app_check.ts";
 
+// G10: the two new headers must be listed here or a browser preflight strips
+// them before they ever reach this function. Mobile has no preflight, but the
+// Flutter web target (feature #8) would break silently without this.
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type, x-firebase-appcheck, x-keepsims-device",
 };
 
 async function getPayPalAccessToken(apiBase: string, clientId: string, clientSecret: string): Promise<string> {
@@ -96,6 +101,41 @@ serve(async (req) => {
     const plan = body.plan;
     const simLineId = body.sim_line_id;
 
+    // ── G10: device identity + App Check ─────────────────────────────────────
+    // Both are claims from the client. The device id is scored, never trusted;
+    // the App Check token is cryptographically verified before it counts for
+    // anything, and enforcement is a database flag rather than a deploy.
+    const deviceId: string | null =
+      (typeof body.device_id === "string" ? body.device_id : null) ??
+      req.headers.get("x-keepsims-device");
+    const platform: string | null =
+      (typeof body.platform === "string" ? body.platform.toLowerCase() : null);
+
+    const appCheck = await verifyAppCheckToken(req.headers.get(APP_CHECK_HEADER));
+    await adminClient.rpc("log_app_check_result", {
+      p_user_id: userId,
+      p_outcome: appCheck.outcome,
+      p_device_id: deviceId,
+      p_platform: platform,
+      p_detail: appCheck.detail ?? null,
+    });
+
+    if (appCheck.outcome !== "pass") {
+      const { data: mustEnforce } = await adminClient.rpc("app_check_should_enforce", {
+        p_platform: platform,
+      });
+      if (mustEnforce === true) {
+        return new Response(
+          JSON.stringify({
+            success: false,
+            code: "APP_CHECK_FAILED",
+            error: "This app installation could not be verified. Please update KeepSIMs from the Play Store and try again.",
+          }),
+          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+    }
+
     let finalAmountUsd = 0;
 
     if (kind === "plan") {
@@ -153,6 +193,46 @@ serve(async (req) => {
       }
 
       finalAmountUsd = Number(requestedAmount.toFixed(2));
+    }
+
+    // ── G10: device risk, last checkpoint before an order exists at PayPal ───
+    // Assessed here rather than at capture time because this is the only point
+    // in the deposit pipeline where a device is present at all: capture is a
+    // client call with no amount context and paypal-webhook is PayPal talking to
+    // us. The returned event id is stitched to the PayPal order id below, which
+    // is what lets `device_velocity` count failed captures per device later.
+    let deviceEventId: string | null = null;
+    {
+      const { data: guard, error: guardErr } = await adminClient.rpc("guard_money_action", {
+        p_action: "deposit_order",
+        p_amount_usd: finalAmountUsd,
+        p_device_id: deviceId,
+        p_reference_id: null,
+        p_user_id: userId,
+      });
+
+      if (guardErr) {
+        // A broken guard must not become a way to take money without one.
+        console.error("guard_money_action failed:", guardErr);
+        return new Response(
+          JSON.stringify({ success: false, error: "FAILED: risk check unavailable, please try again" }),
+          { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+
+      deviceEventId = guard?.event_id ?? null;
+
+      if (guard?.blocked === true) {
+        return new Response(
+          JSON.stringify({
+            success: false,
+            code: "DEVICE_BLOCKED",
+            reason: guard?.reason ?? null,
+            error: "This payment was stopped by a security check on this device. Contact support if this is a mistake.",
+          }),
+          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
     }
 
     // 3. Obtain PayPal Access Token
@@ -237,6 +317,17 @@ serve(async (req) => {
         JSON.stringify({ success: false, error: `FAILED: Local order record creation failed (${insertOrderErr.message})` }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
+    }
+
+    // G10: bind the attempt to the order. Write-once server side, and
+    // best-effort here: losing the link costs one velocity signal, and failing
+    // the deposit over it would be a worse trade.
+    if (deviceEventId) {
+      const { error: attachErr } = await adminClient.rpc("attach_device_money_reference", {
+        p_event_id: deviceEventId,
+        p_reference_id: orderId,
+      });
+      if (attachErr) console.error("attach_device_money_reference failed:", attachErr);
     }
 
     return new Response(

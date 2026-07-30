@@ -23,6 +23,7 @@ import 'package:keep_sims/features/notifications/presentation/screens/notificati
 import 'package:keep_sims/features/notifications/presentation/screens/notification_settings_screen.dart';
 import 'package:keep_sims/features/settings/presentation/screens/settings_screen.dart';
 import 'package:keep_sims/features/settings/presentation/screens/preferences_screen.dart';
+import 'package:keep_sims/features/settings/presentation/screens/devices_screen.dart';
 import 'package:keep_sims/features/settings/presentation/screens/privacy_screen.dart';
 import 'package:keep_sims/features/household/presentation/screens/household_screen.dart';
 import 'package:keep_sims/features/referrals/ui/referrals_screen.dart';
@@ -59,6 +60,7 @@ abstract final class AppRoutes {
   static const String geo = '/settings/geo';
   static const String preferences = '/settings/preferences';
   static const String privacy = '/settings/privacy';
+  static const String devices = '/settings/devices';
   static const String offlineRefill = '/settings/offline-recharge';
   static const String simulators = '/settings/simulators';
   static const String tests = '/settings/tests';
@@ -261,6 +263,11 @@ RouterConfig<Object> appRouter(Ref ref) {
                 path: 'privacy',
                 name: 'settingsPrivacy',
                 builder: (context, state) => const PrivacyScreen(),
+              ),
+              GoRoute(
+                path: 'devices',
+                name: 'settingsDevices',
+                builder: (context, state) => const DevicesScreen(),
               ),
 
               GoRoute(

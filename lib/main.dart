@@ -4,6 +4,7 @@
 library;
 
 import 'dart:async';
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -64,6 +65,30 @@ void main() async {
       // Firebase initialization for FCM fallback
       try {
         await Firebase.initializeApp();
+
+        // G10: Firebase App Check. Android/Play Integrity only — iOS has no
+        // GoogleService-Info.plist in this repo (§ 7 owner item 2), so
+        // DeviceCheck cannot be configured and activating it there would only
+        // produce errors. Debug provider in debug builds so an emulator can
+        // still exercise the path; a debug token is NOT attestation and the
+        // server knows it, because it verifies every token against Google's
+        // JWKS rather than trusting the header's presence.
+        //
+        // Until the owner registers this app in the Firebase App Check console
+        // (§ 7), activation throws or yields no token, the header is simply
+        // absent, and the Edge Functions record `missing` and carry on —
+        // APP_CHECK_ENFORCE ships false precisely so that is harmless.
+        if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+          try {
+            await FirebaseAppCheck.instance.activate(
+              providerAndroid: kDebugMode
+                  ? const AndroidDebugProvider()
+                  : const AndroidPlayIntegrityProvider(),
+            );
+          } catch (e) {
+            debugPrint('App Check not active (not registered yet?): $e');
+          }
+        }
       } catch (e) {
         debugPrint('Firebase init skipped; FCM fallback inactive: $e');
       }

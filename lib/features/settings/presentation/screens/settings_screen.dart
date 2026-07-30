@@ -309,6 +309,19 @@ class SettingsScreen extends ConsumerWidget {
                 routePath: '/settings/privacy',
                 isComingSoon: false,
               ),
+              const SizedBox(height: 16),
+
+              // G10: device binding — where you are signed in, and how to stop
+              // being signed in somewhere you are not.
+              _buildMenuCard(
+                context: context,
+                icon: Icons.devices_rounded,
+                iconColor: const Color(0xFF22C55E),
+                title: AppLocalizations.of(context)!.yourDevices,
+                subtitle: AppLocalizations.of(context)!.manageDevicesDesc,
+                routePath: '/settings/devices',
+                isComingSoon: false,
+              ),
 
               if (kDebugMode && user != null && user.isPowerUser) ...[
                 const SizedBox(height: 16),

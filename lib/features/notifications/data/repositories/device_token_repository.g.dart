@@ -55,4 +55,4 @@ final class DeviceTokenRepositoryProvider
 }
 
 String _$deviceTokenRepositoryHash() =>
-    r'4449d8b5117bee2b49d343fed4dd0a1b8c54398b';
+    r'f5aa5b735e1628bb2f25cfed1fa8602a122a8609';

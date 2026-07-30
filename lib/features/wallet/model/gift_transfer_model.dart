@@ -36,6 +36,12 @@ abstract final class GiftErrorCode {
 
   /// Too many recipient lookups in the last hour.
   static const String rateLimited = 'KS429';
+
+  /// G10: the device risk model refused this transfer. The reason lives in the
+  /// `reason` field and in `security_logs`, never in the message shown to the
+  /// user — telling somebody which threshold they crossed tells an attacker
+  /// the same thing.
+  static const String deviceBlocked = 'DEVICE_BLOCKED';
 }
 
 /// The parsed result of one `transfer_wallet_credit` call.

@@ -1,13 +1,12 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+import 'package:keep_sims/core/services/device_identity_service.dart';
 
 part 'device_token_repository.g.dart';
 
@@ -24,12 +23,18 @@ part 'device_token_repository.g.dart';
 /// fallback messages carry a `notification` payload, so Android renders them
 /// from the system tray without routing through a Dart handler.
 class DeviceTokenRepository {
-  DeviceTokenRepository({required SupabaseClient supabase})
-    : _supabase = supabase;
+  DeviceTokenRepository({
+    required SupabaseClient supabase,
+    DeviceIdentityService? deviceIdentity,
+  }) : _supabase = supabase,
+       _identity = deviceIdentity ?? DeviceIdentityService(supabase: supabase);
 
   final SupabaseClient _supabase;
 
-  static const _deviceIdKey = 'keepsims_device_id';
+  /// G10 extracted the device id into a shared service. Same SharedPreferences
+  /// key, same 32-hex format — the id an install already has is unchanged.
+  final DeviceIdentityService _identity;
+
   bool _observerAttached = false;
   StreamSubscription<String>? _fcmRefreshSub;
 
@@ -39,6 +44,11 @@ class DeviceTokenRepository {
   /// or a rotated FCM token — are captured.
   Future<void> registerCurrentDevice(String userId) async {
     await _upsert(userId);
+
+    // G10: the same install, recorded in the money-facing registry. Separate
+    // from the push row because that one gets nulled on sign-out and an
+    // anti-fraud registry must not forget a device the moment it signs out.
+    await _identity.touch();
 
     if (!_observerAttached) {
       _observerAttached = true;
@@ -76,7 +86,7 @@ class DeviceTokenRepository {
   /// longer targeted. Best-effort; keeps the row for history.
   Future<void> unregisterCurrentDevice(String userId) async {
     try {
-      final deviceId = await _deviceId();
+      final deviceId = await _identity.deviceId();
       await _supabase
           .from('device_push_tokens')
           .update({
@@ -93,11 +103,11 @@ class DeviceTokenRepository {
 
   Future<void> _upsert(String userId) async {
     try {
-      final deviceId = await _deviceId();
+      final deviceId = await _identity.deviceId();
       final payload = <String, dynamic>{
         'user_id': userId,
         'device_id': deviceId,
-        'platform': _platform,
+        'platform': _identity.platform,
         'onesignal_player_id': OneSignal.User.pushSubscription.id,
         'updated_at': DateTime.now().toUtc().toIso8601String(),
       };
@@ -118,39 +128,14 @@ class DeviceTokenRepository {
   void dispose() {
     _fcmRefreshSub?.cancel();
   }
-
-  /// A stable per-install id, persisted locally, used as the upsert key so a
-  /// changing OneSignal id updates one row instead of creating duplicates.
-  Future<String> _deviceId() async {
-    final prefs = await SharedPreferences.getInstance();
-    var id = prefs.getString(_deviceIdKey);
-    if (id == null || id.isEmpty) {
-      final rnd = Random.secure();
-      id = List<int>.generate(
-        16,
-        (_) => rnd.nextInt(256),
-      ).map((b) => b.toRadixString(16).padLeft(2, '0')).join();
-      await prefs.setString(_deviceIdKey, id);
-    }
-    return id;
-  }
-
-  String get _platform {
-    if (kIsWeb) return 'web';
-    switch (defaultTargetPlatform) {
-      case TargetPlatform.android:
-        return 'android';
-      case TargetPlatform.iOS:
-        return 'ios';
-      default:
-        return defaultTargetPlatform.name;
-    }
-  }
 }
 
 @riverpod
 DeviceTokenRepository deviceTokenRepository(Ref ref) {
-  final repo = DeviceTokenRepository(supabase: Supabase.instance.client);
+  final repo = DeviceTokenRepository(
+    supabase: Supabase.instance.client,
+    deviceIdentity: ref.watch(deviceIdentityServiceProvider),
+  );
   ref.onDispose(repo.dispose);
   return repo;
 }

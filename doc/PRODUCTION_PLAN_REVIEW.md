@@ -890,7 +890,15 @@ E3 (local rails), E5 (fleet), E6 (helpdesk bridge).
 Ordered by value-per-effort for this specific codebase. Each says what already exists, because
 most of these are 60% built already.
 
-> **Progress:** #1, #2, #3 and #4 all built 2026-07-29 (see below), though **#4 is
+> **Progress (2026-07-30):** #1–#7, #9 and #10 are built. **#8 (web dashboard) was skipped
+> at the owner's request and is still open**, and #4 is Android-only until the owner does the
+> Xcode work in § 7 item 12. Next unbuilt features are **#8**, **#11 multi-currency display**
+> and **#12 the localisation QA pass** — and #12 is now the largest accumulated debt in this
+> list: nine locales fall back to English for everything G1–G10 added.
+>
+> *Historical note, kept because it is still true of the process:*
+>
+> > **Progress:** #1, #2, #3 and #4 all built 2026-07-29 (see below), though **#4 is
 > Android-only until the owner does the Xcode work** in § 7 item 12. Next unbuilt feature
 > is **#5, the "roam or eSIM?" calculator**. This list is independent of the Phase F plan
 > in § 5 — F1 (notifications actually arriving) is still the higher-priority item overall,
@@ -2004,6 +2012,337 @@ Once real money flows: bind wallet top-ups to a device id, flag >N cards/account
 and add Firebase App Check on the Edge Functions. `security_logs` and `rate_limit_buckets` are
 already there to build on.
 
+> ## ✅ BUILT 2026-07-30 — migrations `20260809000000_g10` … `…040000_g10e`; `create-paypal-order` v5 and `capture-paypal-order` v3 deployed
+>
+> All five phases shipped. The premise held this time — `security_logs` and
+> `rate_limit_buckets` really were the right things to build on, and the device
+> id really did already exist. Two details of the brief's ground truth were
+> wrong and are corrected below, but neither changed the design.
+>
+> ### What exists now
+>
+> | Object | What it is |
+> |---|---|
+> | `user_devices` | one row per (account, app install): platform, app version, `trust_state`, `attested_at`, `revoked_at`. PK `(user_id, device_id)` **plus a non-unique index on `device_id` alone** — one handset under many accounts is the signal, not a violation. Deny-all. |
+> | `device_money_events` | append-only: every money attempt that reached a guarded RPC, with `assessed_decision` (what the model said) and `enforced` (whether it blocked). The source of every velocity count. Deny-all. |
+> | `device_risk_allowlist` | per-user exemption, `reason NOT NULL`, optional `expires_at`. Deny-all. |
+> | `normalize_device_id()` | `IMMUTABLE`, and enforced as a **CHECK constraint** so no writer — service_role included — can put attacker text in the column. |
+> | `device_velocity(device, hours)` | the counters, callable by hand: "what does the model see for this device?" |
+> | `assess_device_risk(user, device, action, amount)` | → `(allow \| challenge \| deny, reason, score, detail)`; writes one `security_logs` row per non-clean assessment. |
+> | `guard_money_action(...)` | the single call a money path makes: touch, assess, record, return. |
+> | `report_device_block(...)` | puts back the audit row that a *raised* refusal rolls back (see below). |
+> | `device_risk_shadow_report(days)` / `app_check_summary(days)` | what the owner reads before turning anything on. |
+> | `touch_user_device` / `my_devices` / `revoke_my_device` / `label_my_device` | the client surface. |
+> | Edge Functions | `create-paypal-order` v5 verifies App Check **and** assesses device risk before it asks PayPal for an order; `capture-paypal-order` v3 verifies App Check only. |
+> | Flutter | `DeviceIdentityService`, device id on all four money RPCs + both Edge calls, `firebase_app_check`, a **Your devices** screen at `/settings/devices`. |
+>
+> ### Nine decisions worth not re-deriving
+>
+> 1. **The device id was already there, and is not a UUID in secure storage.**
+>    The brief said `flutter_secure_storage` and a UUID; it is **`SharedPreferences`**
+>    under `keepsims_device_id`, holding 16 `Random.secure()` bytes as 32 hex
+>    characters, written by `DeviceTokenRepository` since the push work. G10
+>    *extracts* that generator into `DeviceIdentityService` — same key, same
+>    format, so every existing install keeps the id the server already knows.
+>    Change the key and you split every device in the database in two. A test
+>    asserts the key string and asserts the format against the server's regex.
+> 2. **`user_devices` is not `device_push_tokens`.** The push row is a delivery
+>    address that gets nulled on sign-out. An anti-fraud registry that forgets a
+>    device the moment its owner signs out is worthless, so this is its own
+>    table.
+> 3. **The four money RPCs were DROPped and recreated, not `CREATE OR REPLACE`d.**
+>    Adding a parameter *overloads* rather than replaces, and two overloads is
+>    `PGRST203` — the exact failure that silently broke both refill paths between
+>    D5b and F2b. `p_device_id text DEFAULT NULL` is last in every signature, so
+>    a shipped APK that knows nothing about it still resolves to the same
+>    function.
+> 4. **The guard sits after all validation and immediately before money moves.**
+>    Not at the top: an attacker probing SIM line ids would otherwise fill
+>    `device_money_events` with attempts that were never payments, and the
+>    velocity counts would measure their probing instead of their spending.
+>    Consequence: the idempotent early returns (`already_sent`, `already_paid`)
+>    are *before* the guard, so a network retry replays the original answer and
+>    does not log a second attempt.
+> 5. **Each RPC refuses in its own existing dialect.** `request_instant_refill`
+>    raises (new SQLSTATE **KS451**, no collision with KS402/KS403/KS429); the
+>    other three return `{success:false, code:'DEVICE_BLOCKED'}`; the Edge
+>    Function returns HTTP 403. Three shapes is not inconsistency, it is three
+>    contracts left alone — which is what makes the regression proof possible.
+> 6. **Nothing raises from inside `enforce_rate_limit`'s call tree.**
+>    `guard_money_action` returns jsonb and the *caller* raises. `enforce_rate_limit`
+>    ends in `WHEN OTHERS THEN RAISE NOTICE` and re-raises only KS429/KS403, so
+>    anything thrown beneath it is swallowed and fails open on a money path.
+> 7. **The score escalates with distance over a line, not with the number of
+>    lines crossed.** One over the account cap is 40 (challenge); three over is
+>    80 (deny). A single breach cannot deny unless it is far over, so the first
+>    honest edge case is flagged, not refused.
+> 8. **A missing device id costs 25 points, not zero.** An old build sends none,
+>    so it must not be fatal; a script also sends none, so it must not be free.
+>    Same for a brand-new device on a high-value deposit: it *scores*, and
+>    deliberately cannot deny on its own — treating unknown devices as guilty
+>    blocks every new customer's first deposit, and treating them as clean makes
+>    rotating your device id cheaper than reusing it. That is the classic hole.
+> 9. **The thresholds are hidden from clients.** `system_configs` is SELECTable
+>    by every authenticated user (`USING (true …)`). Publishing "we deny at 4
+>    accounts per device" to the people the control exists to stop is
+>    self-defeating, so a **RESTRICTIVE** policy subtracts `DEVICE_RISK_%` from
+>    that read without editing the existing permissive policies. Proven below.
+>
+> ### 🔴 The one thing that did not work, and what was done about it
+>
+> **A raised refusal rolls back its own audit row.** `request_instant_refill`
+> refuses by RAISING, which aborts the transaction — and takes the
+> `device_money_events` row and the `security_logs` row with it. This is not a
+> hypothesis: the enforcement proof blocked all four paths and landed **3**
+> event rows and **3** log rows, not four. The missing one is the refill.
+>
+> There is no autonomous-transaction escape here. `dblink` and `pg_background`
+> are not installed; `pg_net` is, but its outbound queue is an ordinary table
+> and rolls back too; `cron.schedule` writes `cron.job`, likewise. **Nothing
+> written inside an aborting transaction can be made to survive it.**
+>
+> So `report_device_block()` re-runs the assessment in a fresh transaction, and
+> the Flutter repository calls it from the `catch` that already handles KS451.
+> Stated precisely: enforcement never depended on the client and still does not;
+> the reason cannot be forged, because the function takes no reason argument and
+> recomputes it server-side; a real user who hits a false positive leaves a
+> record, which is the case § 4 of the brief cares about; and an attacker
+> running a script can simply not call it — they are still blocked, and their
+> ramp up to the threshold was logged the whole way by `device_risk_flag` and
+> `device_risk_challenge`, which fire on paths that commit. Replays carry
+> `reference_id = 'device_block_replay'` so no analysis counts them as attempts.
+>
+> The honest alternative was to make `request_instant_refill` return jsonb like
+> its three siblings. That is a breaking change to a shipped money RPC — every
+> installed APK does `return executionId as String` — and belongs behind a
+> forced app update, not inside a feature whose whole regression story is "the
+> ordinary path is unchanged".
+>
+> ### Proven live, in rolled-back transactions against the real database
+>
+> **The model.** Each row prints the counters `device_velocity` saw next to the
+> decision, so the numbers are not taken on trust:
+>
+> | Scenario | accounts | cards | deposits | fails | → decision | reason | score |
+> |---|---|---|---|---|---|---|---|
+> | new user, new device, $10 | 1 | 0 | 0 | 0 | **allow** | clean | 0 |
+> | new device, $400 deposit | 1 | 0 | 0 | 0 | **allow** | new_device_high_value | 25 |
+> | 5 accounts on one handset | 5 | 0 | 0 | 0 | **challenge** | accounts_on_device | 40 |
+> | 7 accounts on one handset | 7 | 0 | 0 | 0 | **deny** | accounts_on_device | 80 |
+> | no device id at all | – | – | – | – | **allow** | missing_device_id | 25 |
+> | `x' OR 1=1 --` as a device id | – | – | – | – | **allow** | missing_device_id | 25 |
+> | 4 cards across 2 accounts (cap 3) | 2 | 5 | 0 | 0 | **challenge** | cards_on_device | 60 |
+> | 6 cards across 2 accounts | 2 | 7 | 0 | 0 | **deny** | cards_on_device | 100 |
+> | 11 deposit attempts / 24h (cap 8) | 2 | 0 | 11 | 0 | **challenge** | deposit_count | 60 |
+> | …plus > $600 in the window | 2 | 0 | 12 | 0 | **deny** | deposit_count,deposit_total | 105 |
+> | 5 failed captures (cap 4) | 2 | 0 | 0 | 5 | **allow** | failed_captures | 35 |
+> | 8 failed captures | 2 | 0 | 0 | 8 | **deny** | failed_captures | 80 |
+> | one row on the handset `trust_state='blocked'` | 2 | 0 | 0 | 0 | **deny** | device_blocked | 100 |
+> | every row `trust_state='trusted'` | 7 | – | – | – | **allow** | device_trusted | 0 |
+> | allowlisted user on a blocked handset | 8 | – | – | – | **allow** | allowlisted | 0 |
+> | `DEVICE_RISK_ENABLED='false'` | 2 | 0 | 0 | 8 | **allow** | risk_disabled | 0 |
+>
+> **Enforcement, over the real RPCs, as the signed-in user
+> `8a07a25b-…`, with `DEVICE_RISK_ENFORCE` flipped to true inside the
+> transaction:**
+>
+> ```
+> 1 request_instant_refill    SQLSTATE=KS451  MESSAGE=DEVICE_BLOCKED:accounts_on_device
+> 2 transfer_wallet_credit    success=false code=DEVICE_BLOCKED reason=accounts_on_device
+>                             | sender balance 70.40 -> 70.40
+> 3 request_esim_purchase     success=false code=DEVICE_BLOCKED reason=accounts_on_device
+> 4 pay_plan_fee_from_wallet  success=false code=DEVICE_BLOCKED reason=accounts_on_device
+> 5 topup_executions created  0
+> 6 esim_orders created       0
+> 7 device_money_events       3 rows, 3 with enforced=true
+> 8 security_logs             3 rows, types: device_risk_deny
+> ```
+>
+> Row 7 is the finding above, in the raw output. After the Flutter catch path's
+> `report_device_block`, the refill's record is back:
+> `1 row(s); reference_id=device_block_replay decision=deny enforced=true reason=accounts_on_device`.
+>
+> **The regression proof matters more, and it passes.** As the same
+> authenticated user, with the shipped config (`enforce=false`):
+>
+> * the **old four-argument call** — exactly what an installed APK sends —
+>   resolves and returns an execution id: `faa9c859-167e-4ab2-b291-9e9696e6bca2`;
+> * the **new five-argument call** produces
+>   `status=routing type=refill_instant amount=4.64 base=4.5 offer=ORANGE_EG_4.5-I gw=wallet cur=USD`
+>   — `routing` proves `route_topup_execution()` still fires, and `4.64` vs
+>   `4.50` proves `tr_calculate_topup_fees` still fires. Both pre-G10 behaviours,
+>   untouched;
+> * the device event alongside it is
+>   `action=instant_refill usd=4.50 decision=allow enforced=f reason=clean score=0`,
+>   and **`security_logs` gained 0 rows** — a clean assessment writes nothing.
+>
+> **`security_logs` vocabulary**, one row per non-clean assessment, with the
+> breach codes as a stable array in `metadata.reasons` and the counters beside
+> them, so support answers "why was I blocked?" from a single row:
+>
+> ```
+> device_risk_flag       "Device risk allow (new_device_high_value) on instant_refill"   reasons=["new_device_high_value"]  score=25
+> device_risk_challenge  "Device risk challenge (accounts_on_device) on esim_purchase"   reasons=["accounts_on_device"]     score=60  accounts_on_device=6
+> device_risk_deny       "Device risk deny (accounts_on_device) on plan_fee"             reasons=["accounts_on_device"]     score=100 accounts_on_device=8
+> ```
+>
+> **App Check, verified against Google's live JWKS**, running the deployed
+> `app_check.ts` unmodified under Node's WebCrypto (`node appcheck_proof.ts`,
+> the file diffed byte-for-byte against the deployed source first):
+>
+> ```
+> Google JWKS is live: 5 key(s), kty=RSA, alg=RS256, kid=00yavg
+>
+> no header at all                             missing
+> not a JWT                                    invalid  {"reason":"not_a_jwt"}
+> alg:"none" (alg confusion)                   invalid  {"reason":"bad_alg","alg":"none"}
+> alg:HS256 (symmetric downgrade)              invalid  {"reason":"bad_alg","alg":"HS256"}
+> RS256 + unknown kid                          invalid  {"reason":"unknown_kid"}
+> RS256 + Google kid, junk signature           invalid  {"reason":"bad_signature"}
+> attacker-signed, perfect claims              invalid  {"reason":"bad_signature"}
+> [key trusted] valid token                    pass
+> [key trusted] wrong iss                      invalid  {"reason":"bad_iss"}
+> [key trusted] wrong aud                      invalid  {"reason":"bad_aud"}
+> [key trusted] expired 10 min ago             invalid  {"reason":"expired"}
+> [key trusted] no exp claim                   invalid  {"reason":"expired","exp":null}
+> [key trusted] iat 10 min in future           invalid  {"reason":"issued_in_future"}
+> [key trusted] 30s clock skew tolerated       pass
+> [key trusted] payload tampered post-sign     invalid  {"reason":"bad_signature"}
+> JWKS unreachable                             error    {"reason":"verification_error"}
+> ```
+>
+> The last line is the one that matters operationally: "we could not tell" is
+> `error`, never `invalid`, so a Google outage can never be mistaken for an
+> attack. Both deployed functions were smoke-tested over HTTPS (they boot, reach
+> their own auth check, and answer `401 UNAUTHORIZED: Invalid JWT token`), and
+> the new CORS header list is live:
+> `access-control-allow-headers: authorization, x-client-info, apikey, content-type, x-firebase-appcheck, x-keepsims-device`.
+>
+> **Grants, over the real REST API with the publishable key from
+> `lib/core/supabase_client.dart`.** Every internal function answers `401` /
+> `42501` — `guard_money_action`, `assess_device_risk`, `device_velocity`,
+> `device_risk_config`, `device_risk_shadow_report`, `log_app_check_result`,
+> `app_check_should_enforce`, `attach_device_money_reference` — and so do the
+> four authenticated-only ones when called by `anon` (`touch_user_device`,
+> `my_devices`, `revoke_my_device`, `report_device_block`). A deliberately
+> misspelled name returns `404 PGRST202` instead, which is how you know
+> PostgREST resolved every real signature including its argument names, rather
+> than failing to find them. All four new/hardened tables answer `42501` to
+> `GET`, `POST` and `DELETE`.
+>
+> **The thresholds are genuinely hidden.** Impersonating a signed-in user in
+> SQL: 52 of 66 config rows visible, `DEVICE_RISK_*` → `<nothing — hidden>`,
+> while `GIFT_MAX_USD`, `RESCUE_ENABLED` and `PAYPAL_MAX_DEPOSIT_USD` still read
+> normally. The 14 rows exist; a client cannot see them.
+>
+> **Residue: none.** Every proof ran inside `BEGIN … ROLLBACK`. Afterwards
+> `user_devices`, `device_money_events`, `device_risk_allowlist` and
+> `security_logs` are all at **0 rows**, and `paypal_orders` (28),
+> `topup_executions` (26) and `payment_methods` (2) are exactly where they
+> started.
+>
+> ### The numbers, so the owner can argue with them
+>
+> Every threshold is a guess — no device id has ever been bound to a payment in
+> this database. They are chosen so no honest user meets one by accident, and
+> they live in `system_configs` so they can be retuned without a deploy.
+>
+> | Key | Default | Why that number |
+> |---|---|---|
+> | `DEVICE_RISK_ENABLED` | `true` | scoring and logging; the global brake |
+> | `DEVICE_RISK_ENFORCE` | **`false`** | nothing is refused until the owner has read `device_risk_shadow_report()` |
+> | `DEVICE_RISK_WINDOW_HOURS` | `24` | deposits only; accounts and cards are lifetime |
+> | `DEVICE_RISK_MAX_ACCOUNTS` | `4` | a family sharing a tablet is 2–3; a shop demo device is more |
+> | `DEVICE_RISK_MAX_CARDS` | `3` | distinct instruments across *all* accounts on the handset |
+> | `DEVICE_RISK_MAX_DEPOSITS` | `8` | `RATE_LIMIT_PAYPAL_ORDER` is already 10/60min per user |
+> | `DEVICE_RISK_MAX_DEPOSIT_USD` | `600` | above `PAYPAL_MAX_DEPOSIT_USD` (500), so one legal maximum deposit never trips it |
+> | `DEVICE_RISK_MAX_FAILED_CAPTURES` | `4` | card testing's most direct fingerprint |
+> | `DEVICE_RISK_NEW_DEVICE_MAX_USD` | `150` | a first deposit above this scores 25; it never denies alone |
+> | `DEVICE_RISK_CHALLENGE_SCORE` / `DENY_SCORE` | `40` / `80` | one breach flags, a far-over breach or two breaches deny |
+> | `DEVICE_RISK_MISSING_DEVICE_SCORE` | `25` | not fatal, not free |
+> | `APP_CHECK_ENFORCE` | **`false`** | Android only, and only after the console work in § 7 |
+>
+> ### ⚠️ What is NOT done, stated plainly
+>
+> * **Nothing has ever been blocked, because nothing is enforcing.**
+>   `DEVICE_RISK_ENFORCE` and `APP_CHECK_ENFORCE` both ship `false`. Turning
+>   them on is § 7 item 16, deliberately, and it should follow a week of
+>   `device_risk_shadow_report()`.
+> * **"More than N cards per device" is unexercised and will stay that way.**
+>   `payment_methods` holds **2 rows** and PayPal stores no cards here at all,
+>   so this counter reads 0 in production today. It is built, it is proven
+>   against synthetic rows in a rolled-back transaction, and it is currently
+>   decorative. Said plainly rather than demonstrated with a staged fixture.
+> * **Failed-capture velocity is retrospectively blind.** The device-linked half
+>   can only see PayPal orders created after G10, and all 28 existing rows have
+>   no device. The accounts-on-device half covers that, and the model takes the
+>   greater of the two — but a device's first assessment inherits history rather
+>   than owning it.
+> * **App Check produces no tokens yet.** The client plugin is in
+>   (`firebase_app_check ^0.4.5+2`, Play Integrity in release / debug provider
+>   in debug), but until the owner registers the Android app in the Firebase
+>   App Check console (§ 7 item 16) `activate()` yields nothing, the header is
+>   absent, and every call records `missing`. That is why it ships
+>   non-enforcing: switching it on while `missing` is the majority outcome
+>   would lock out every user on an older build.
+> * **iOS gets no attestation at all**, and cannot until the Apple Developer
+>   account exists (§ 7 item 2). `app_check_should_enforce(platform)` refuses to
+>   enforce for any platform not listed in `APP_CHECK_ENFORCE_PLATFORMS`
+>   (default `android`), so flipping one flag cannot lock out every iPhone.
+> * **`user_devices.attested_at` is written but not scored.** With enforcement
+>   off the column is sparse, and scoring a sparse column would punish the
+>   devices that behaved. It becomes a signal after App Check is real.
+> * **A device id is still only a claim.** Someone who knows another user's
+>   device id could register themselves on it and inflate that handset's
+>   account count. It is a 128-bit random value that never leaves the device
+>   except inside authenticated requests, and `trust_state='trusted'` plus the
+>   allowlist are the remedies — but it is a property of the design, not an
+>   oversight.
+> * **The refill guard sees the pre-fee amount.** It runs before the insert, so
+>   it assesses `base_cost_usd` ($4.50), not the charged `amount` ($4.64) that
+>   `tr_calculate_topup_fees` produces. Immaterial today — refills feed no
+>   monetary threshold, only deposits do — but worth knowing before adding one.
+> * **Nine locales fall back to English** for the 17 new strings; Arabic is
+>   translated. Same gap feature #12 exists to close.
+>
+> ### 🔎 Also found, deliberately fixed or reported
+>
+> * **`security_logs` carried the default `GRANT ALL` to `anon` and
+>   `authenticated`** — one of the 32 tables F6 missed — with RLS on and zero
+>   policies. Latent rather than live (RLS blocks every verb PostgREST can
+>   reach, and TRUNCATE is not reachable through it), but this is now the table
+>   that answers "why was I blocked?", so it has been revoked and re-granted to
+>   `service_role` only. **31 tables to go.**
+> * **`transfer_wallet_credit` was already a second writer to `security_logs`**
+>   (`gift_recipient_not_found`), contradicting the brief's "the only writer is
+>   `protect_is_power_user()`". It has never fired, which is why the table still
+>   reads 0 rows.
+> * **Migration registry drift, occurrence ten** — with a new cause. The MCP
+>   `execute_sql` wraps a whole batch in one transaction, so a re-stamp
+>   `UPDATE` issued in the same call as a `BEGIN … ROLLBACK` proof **is rolled
+>   back with the proof**. `g10d` was stamped `20260730052033` until it was
+>   re-issued on its own. Registry and repo filenames now match for all five
+>   G10 migrations. *Always re-stamp in a call that contains nothing else.*
+> * Still open from earlier: G1's `suggested_amount_usd` below carrier minimums
+>   (G7), the per-line refill cooldown (G6), 31 tables with default `GRANT ALL`
+>   (G5), `getUserEsims()`'s phantom columns (G4), and no phone capture flow at
+>   all (G9).
+>
+> ### Baselines
+>
+> `flutter test` **190 → 206** (16 new; the id format is asserted against the
+> server's regex verbatim, because if those two ever disagree every honest user
+> silently scores as `missing_device_id`). `flutter analyze` **134**, unchanged.
+> Advisors **35 → 43**, every addition intended and named: three new deny-all
+> tables joining `rls_enabled_no_policy` (`user_devices`,
+> `device_money_events`, `device_risk_allowlist`) and five new
+> authenticated-callable `SECURITY DEFINER` functions (`touch_user_device`,
+> `my_devices`, `revoke_my_device`, `label_my_device`, `report_device_block`) —
+> the same shape as G6's `household_spend_summary()`, and the reason the tables
+> can stay deny-all. **A release APK was built after adding
+> `firebase_app_check`**, because G4's lesson was that a dependency can break
+> the Android build silently: `√ Built build\app\outputs\flutter-apk\app-debug.apk`.
+
 **11 · Multi-currency display** · *medium value, low effort*
 Everything is USD internally (correct). Add a display-only FX layer (`profiles.display_currency`
 + a daily rates row in `system_configs`) — expats price things in home currency and this
@@ -2143,6 +2482,51 @@ Ordered by what unblocks the most work:
     `sim_lines.phone_number` instead, which is populated — but the proper fix
     is a capture-and-verify flow (field + OTP + `phone_verified_at`), and that
     is a feature someone has to schedule, not a secret you can paste in.*
+16. 🆕 **Register Android for Firebase App Check, then decide when to enforce**
+    (feature #10). *Added 2026-07-30. The server half is deployed and verifies
+    every token against Google's JWKS; the app ships the plugin. What is
+    missing is the console registration, which nobody but the account owner can
+    do.*
+    * **Play Integrity** — [console.firebase.google.com](https://console.firebase.google.com)
+      → project `1679369602` → **Build ▸ App Check** → the Android app
+      (`com.keepsims…`) → **Register** → provider **Play Integrity**. Requires
+      the app to exist in Play Console and the Play Integrity API to be enabled
+      in the linked Google Cloud project.
+    * **Debug token, if you want to test on an emulator first** — run a debug
+      build, copy the `DebugAppCheckProvider` token it prints to logcat, and
+      paste it under **App Check ▸ Manage debug tokens**. A debug token is not
+      attestation; the server treats it as a valid signature from Google and
+      nothing more.
+    * **iOS is blocked on item 2** (Apple Developer account →
+      `GoogleService-Info.plist` → DeviceCheck/App Attest). Until then iOS
+      records `missing`, which is harmless: `APP_CHECK_ENFORCE_PLATFORMS`
+      defaults to `android` only.
+
+    *Then, and only then, the two switches. Read the evidence first:*
+    ```sql
+    SELECT * FROM public.app_check_summary(7);          -- pass vs missing vs invalid
+    SELECT * FROM public.device_risk_shadow_report(7);  -- rows with enforced=false
+                                                        -- and assessed_decision='deny'
+                                                        -- are who WOULD have been blocked
+    ```
+    *If that second query lists real customers, retune before enforcing:*
+    ```sql
+    UPDATE public.system_configs SET config_value = '6'
+     WHERE config_key = 'DEVICE_RISK_MAX_ACCOUNTS';     -- e.g. loosen
+    UPDATE public.system_configs SET config_value = 'true'
+     WHERE config_key = 'DEVICE_RISK_ENFORCE';          -- the switch that refuses money
+    UPDATE public.system_configs SET config_value = 'true'
+     WHERE config_key = 'APP_CHECK_ENFORCE';            -- only once "missing" is rare
+    ```
+    *Setting `DEVICE_RISK_ENABLED = 'false'` stops the model dead at any time.
+    For one customer who is wrongly caught, the 3am fix is a single row:*
+    ```sql
+    INSERT INTO public.device_risk_allowlist (user_id, reason)
+    VALUES ('<user id>', 'ticket 1234 — confirmed legitimate shared tablet');
+    ```
+    *All thirteen `DEVICE_RISK_*` keys are listed with their reasoning in the
+    feature #10 block in § 6. They are deliberately **not** readable by the app,
+    so the Supabase dashboard (service_role) is where you edit them.*
 
 ---
 

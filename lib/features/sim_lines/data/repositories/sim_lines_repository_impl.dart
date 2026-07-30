@@ -11,6 +11,7 @@ import 'package:keep_sims/features/sim_lines/data/models/payment_method_model.da
 import 'package:keep_sims/features/sim_lines/domain/repositories/sim_lines_repository.dart';
 import 'package:keep_sims/features/sim_lines/data/datasources/twilio_verification_service.dart';
 import 'package:keep_sims/core/services/connectivity_service.dart';
+import 'package:keep_sims/core/services/device_identity_service.dart';
 import 'package:keep_sims/core/services/local_cache_service.dart';
 import 'package:keep_sims/core/services/sync_queue_service.dart';
 
@@ -22,15 +23,22 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
   final ConnectivityService _connectivity;
   final SyncQueue _syncQueue;
 
+  /// G10 device binding. Optional so existing construction sites and tests keep
+  /// compiling; it defaults to the real one, never to a no-op.
+  final DeviceIdentityService _deviceIdentity;
+
   SimLinesRepositoryImpl({
     required SupabaseClient supabase,
     required LocalCacheService cache,
     required ConnectivityService connectivity,
     required SyncQueue syncQueue,
+    DeviceIdentityService? deviceIdentity,
   }) : _supabase = supabase,
        _cache = cache,
        _connectivity = connectivity,
-       _syncQueue = syncQueue;
+       _syncQueue = syncQueue,
+       _deviceIdentity =
+           deviceIdentity ?? DeviceIdentityService(supabase: supabase);
 
   @override
   Future<List<SimLine>> getSimLines() async {
@@ -592,6 +600,9 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
           'p_offer_id': offerId,
           'p_payment_gateway_code': paymentGatewayCode,
           'p_amount_usd': amountUsd,
+          // G10: a claim, scored server-side. Null (an older build) is treated
+          // as more suspicious than a known device, never as clean.
+          'p_device_id': await _deviceIdentity.deviceId(),
         },
       );
 
@@ -600,6 +611,16 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
 
       return executionId as String;
     } on PostgrestException catch (e) {
+      // G10 (KS451): this refusal is raised, so the server's own audit row was
+      // rolled back with the transaction. Put it back before rethrowing — see
+      // the header of 20260809030000_g10d_durable_block_audit.sql.
+      if (e.code == 'KS451') {
+        await _deviceIdentity.reportBlock(
+          action: 'instant_refill',
+          amountUsd: amountUsd ?? displayBaseUsd,
+        );
+        throw Exception('DEVICE_BLOCKED');
+      }
       throw Exception('Failed to request refill: ${e.message}');
     }
   }

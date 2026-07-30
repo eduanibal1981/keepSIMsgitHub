@@ -7,6 +7,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:keep_sims/core/failure.dart';
 import 'package:keep_sims/core/result.dart';
 import 'package:keep_sims/core/services/connectivity_service.dart';
+import 'package:keep_sims/core/services/device_identity_service.dart';
 import 'package:keep_sims/core/services/local_cache_service.dart';
 import '../contract/wallet_contract.dart';
 import '../model/wallet_model.dart';
@@ -17,7 +18,16 @@ class WalletRepository implements WalletContract {
   final LocalCacheService _cache;
   final ConnectivityService _connectivity;
 
-  WalletRepository(this._client, this._cache, this._connectivity);
+  /// G10 device binding.
+  final DeviceIdentityService _deviceIdentity;
+
+  WalletRepository(
+    this._client,
+    this._cache,
+    this._connectivity, [
+    DeviceIdentityService? deviceIdentity,
+  ]) : _deviceIdentity =
+           deviceIdentity ?? DeviceIdentityService(supabase: _client);
 
   /// All wallet mutations go through the `wallet_transact` Edge Function;
   /// clients have no INSERT/UPDATE grants on wallets or wallet_transactions.
@@ -304,6 +314,7 @@ class WalletRepository implements WalletContract {
         params: {
           'p_reference_id': referenceId,
           'p_sim_line_id': simLineId,
+          'p_device_id': await _deviceIdentity.deviceId(),
         },
       );
 
@@ -360,6 +371,7 @@ class WalletRepository implements WalletContract {
           'p_amount': amount,
           'p_reference_id': reference,
           'p_note': note,
+          'p_device_id': await _deviceIdentity.deviceId(),
         },
       );
 
