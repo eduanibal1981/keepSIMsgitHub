@@ -1875,6 +1875,130 @@ The C4 inbound plumbing already resolves sender → user. Add a `BAL` keyword th
 wallet + line status over the same channel. Cheap, and it makes the offline mode feel alive
 rather than fire-and-forget.
 
+> ## ✅ BUILT 2026-07-30 — migrations `20260808000000_g9`, `…010000_g9b`, `…020000_g9c`; `sms-webhook` v3 and `waba-webhook` v3 deployed
+>
+> `BAL` works, and the offline channel now talks back. But two of the premise's
+> three clauses turned out to be wrong, and the fixes are the bigger part of
+> this change.
+>
+> ### 🔴 "The C4 inbound plumbing already resolves sender → user." It never could.
+>
+> `ingest_offline_refill()` matched the sender against **`profiles.phone`
+> only** — and `profiles.phone` is **NULL for all 8 users**, because nothing in
+> the Flutter app ever writes it. The column is in `AuthModel` on the read side
+> and nowhere else. Every inbound message that had ever arrived would have been
+> rejected `unknown_sender`. § 5 blames the zero `offline_refill_events` on
+> provisioning; the deeper reason is that the resolver had nothing to match
+> against, and would still have had nothing the day Twilio went live.
+>
+> `resolve_sender_user()` now tries `profiles.phone` (exact, then last-9) and
+> then **`sim_lines.phone_number`** (exact, then last-9). That column *is*
+> populated — all 10 live lines, all plausible international numbers, and no
+> number claimed by two users, so the "exactly one match or refuse" rule holds.
+> G9c repoints `ingest_offline_refill` at the same function, because a channel
+> where `BAL` resolves you and `REFILL` does not is worse than one that does
+> neither.
+>
+> ### 🔴 Every inbound message used to queue a $10 top-up
+>
+> Both webhooks passed the body straight to `ingest_offline_refill`, which read
+> it only through `parseAmount()` — a regex for the first number. No keyword
+> check existed anywhere in the path. So "hi", "who is this", **"STOP"** and
+> indeed "BAL" all returned NULL from that regex, fell through to
+> `offline_refill_settings.default_refill_amount`, and **queued a $10 refill**.
+>
+> This is not hypothetical: the one user with a populated
+> `offline_refill_settings` row has `is_enabled = true`, a target line and a
+> $10 default. Texting "hi" from their own SIM number would have spent $10.
+>
+> `handle_inbound_command()` now classifies first. Only `REFILL` (with or
+> without an amount) or a bare amount spends money — which is exactly what the
+> app has always documented (`app_en.arb`: *Send REFILL 5, REFILL 10 or
+> REFILL 25*), so the documented contract is untouched. And **STOP now stops**,
+> which is the one thing a messaging channel is never allowed to get wrong.
+>
+> ### Four decisions worth not re-deriving
+>
+> 1. **The whole conversation lives in the database.** `handle_inbound_command`
+>    classifies, acts, logs and returns the reply text; the webhooks just carry
+>    it. That is what stops SMS and WhatsApp drifting into two dialects, and it
+>    makes the wording testable in SQL instead of only in Deno.
+> 2. **An unknown sender gets silence.** Replying would turn the number into an
+>    oracle for "is this phone a KeepSIMs user?" and bill us for an SMS to a
+>    stranger. Logged, not answered.
+> 3. **The reply is deliberately thin** — wallet total, up to three lines with
+>    days remaining, nicknames or a `****1020` mask. Never a full number, an
+>    ICCID or a transaction, because SMS is plaintext and caller ID is
+>    spoofable. `BAL` is gated on the same `is_enabled` consent that governs
+>    spending: we do not discuss someone's money over a channel they have not
+>    switched on.
+> 4. **The reply rides back in the TwiML response** — no outbound API, no new
+>    credentials, no per-message cost beyond the reply itself.
+>
+> ### Proven live, over the deployed HTTP endpoint
+>
+> Real `POST`s to `https://…/functions/v1/sms-webhook`, from a real registered
+> SIM number:
+>
+> | Sent | Got back |
+> |---|---|
+> | `hi` | `200` + *"KeepSIMs commands: BAL for your balance, REFILL or REFILL 10 to top up, STOP to switch these off."* |
+> | `BAL` | `200` + *"KeepSIMs / Wallet: $70.40 / ****1020: 18 days left / ****1090: 30 days left / ****9888: 30 days left / +3 more / Reply REFILL to top up."* |
+> | `BAL` from an unregistered number | `200` + **empty TwiML** — silence |
+>
+> **`topup_executions` created by all three: zero.** Before G9 the first one
+> alone would have queued $10. Test rows were deleted afterwards;
+> `offline_command_log` is back to 0.
+>
+> In rolled-back transactions: the classifier is correct on all 28 shapes tried
+> (including `BALLOON` → help, and `please top up my sim` → help, since neither
+> *starts* with a keyword); a Twilio retry of the same `MessageSid` replays the
+> identical reply rather than re-running the command; `STOP` flips
+> `is_enabled` false and a following `BAL` answers `channel_disabled` with no
+> financial data; and the refill path still queues correctly — `REFILL 5` → $5,
+> bare `REFILL` → the $10 default clamped to the offer's $6.23 ceiling, bare
+> `7` → the same clamp, all three stamped `refill_channel = 'sms'`.
+>
+> All four new functions are `service_role`-only: `anon` and `authenticated`
+> both `false` on every one. Baselines: `flutter test` **190/190** and
+> `flutter analyze` **134**, both unchanged — G9 touches no Dart. Advisors
+> **34 → 35**, the single addition being `offline_command_log` joining
+> `rls_enabled_no_policy`, which is the intended deny-all shape for a table
+> holding raw sender phone numbers.
+>
+> ### ⚠️ What is NOT done, stated plainly
+>
+> * **No SMS has ever actually arrived**, because Twilio and WABA are still
+>   unprovisioned (§ 7 owner item 1). Everything above is proved by posting the
+>   provider's own payload shape at the real endpoint, not by a phone.
+> * **WhatsApp classifies but cannot reply.** SMS answers for free in the TwiML
+>   response; WhatsApp needs an outbound Graph API call, and
+>   `WABA_ACCESS_TOKEN` / `WABA_PHONE_NUMBER_ID` do not exist. The code is
+>   written and gated on their presence; until then a WhatsApp `BAL` is
+>   classified correctly (so it does not spend money) and its reply is recorded
+>   in `offline_command_log` and dropped. Two secrets, listed in § 7 item 15.
+> * **Caller ID is not identity.** The whole channel trusts the sender's number.
+>   Mitigated by the single-match rule, the opt-in, the thin reply and the
+>   10/60min per-sender limit — but the real fix is an OTP-verified number at
+>   capture time, and that does not exist because **the capture does not exist
+>   either**. See below.
+> * **Keywords are English plus two Arabic words** (`رصيد`, `شحن`). The other
+>   seven supported locales fall back to English. A real gap for feature #12.
+>
+> ### 🔎 Also found, deliberately not fixed here
+>
+> **Nothing in the app collects the user's own phone number.** `profiles.phone`
+> is read by `AuthModel` and written by nobody; the onboarding screen's
+> `config['phone']` is a *carrier gateway* number, not the user's. Until there
+> is a capture-and-verify flow, sender resolution rests entirely on the
+> `sim_lines.phone_number` fallback this change added — which works, but means
+> a user who has not registered the handset they are texting from cannot use
+> the channel at all. That flow is its own feature: a field, an OTP round trip,
+> and a `phone_verified_at` column. Still open from earlier: G1's
+> `suggested_amount_usd` below carrier minimums (G7), the per-line refill
+> cooldown (G6), 32 tables with default `GRANT ALL` (G5), `getUserEsims()`'s
+> phantom columns (G4).
+
 **10 · Device binding + velocity anti-fraud** · *defensive, medium effort*
 Once real money flows: bind wallet top-ups to a device id, flag >N cards/accounts per device,
 and add Firebase App Check on the Edge Functions. `security_logs` and `rate_limit_buckets` are
@@ -2002,6 +2126,23 @@ Ordered by what unblocks the most work:
     mile still depends on the Zendit production key (§ 3.2 item 9) — until that
     is in place a rescue will create the execution and then fail at the
     supplier, refunding via the D5b reaper.*
+15. 🆕 **Two WhatsApp secrets, so the offline channel can reply** (feature #9).
+    *Added 2026-07-30. SMS already answers with no extra credentials — the reply
+    rides back in the TwiML response. WhatsApp needs an outbound Graph API call:*
+    * `WABA_ACCESS_TOKEN` — a permanent System User token with `whatsapp_business_messaging`
+    * `WABA_PHONE_NUMBER_ID` — the numeric id of the sending number, from
+      Meta Business Manager → WhatsApp → API Setup
+    *Both go in Edge Function secrets alongside the `WABA_APP_SECRET` and
+    `WABA_VERIFY_TOKEN` slots from item 1. Until they exist, a WhatsApp `BAL`
+    is classified correctly — it will not spend money — and its reply is
+    recorded in `offline_command_log` and dropped. Nothing breaks; the user
+    just gets no answer on that channel.*
+    *Related, and bigger: **nothing in the app asks the user for their own
+    phone number.** `profiles.phone` is NULL for all 8 users and is never
+    written. G9 works around it by resolving senders against
+    `sim_lines.phone_number` instead, which is populated — but the proper fix
+    is a capture-and-verify flow (field + OTP + `phone_verified_at`), and that
+    is a feature someone has to schedule, not a secret you can paste in.*
 
 ---
 

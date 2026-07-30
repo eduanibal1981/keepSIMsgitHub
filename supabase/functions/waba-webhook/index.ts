@@ -1,9 +1,12 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 // WhatsApp Business (Cloud) API webhook — the paid-tier offline-recharge path
-// (C4, PRODUCTION_PLAN.md). A user whose phone is offline sends us a WhatsApp
-// message ("REFILL" or "REFILL 10"); Meta delivers it here and we turn it into
-// a real, wallet-funded instant refill via `ingest_offline_refill`.
+// (C4, PRODUCTION_PLAN.md), plus the G9 command router. A user whose phone is
+// offline sends us a WhatsApp message; Meta delivers it here.
+//
+// G9: the body is CLASSIFIED before anything happens. Until G9 every inbound
+// message went straight to `ingest_offline_refill` and queued a top-up whatever
+// it said — "hi" included.
 //
 // D2 IP Rate Limiter applied (60/1min per IP).
 
@@ -11,6 +14,48 @@ const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const WABA_VERIFY_TOKEN = Deno.env.get('WABA_VERIFY_TOKEN') ?? '';
 const WABA_APP_SECRET = Deno.env.get('WABA_APP_SECRET') ?? '';
+
+// G9 reply path. Unlike SMS — where the answer rides back in the TwiML response
+// for free — WhatsApp needs an outbound Graph API call, which needs its own
+// credentials. Neither is set today, so the classifier runs either way (which is
+// what stops "BAL" queueing a $10 refill) but the reply is logged and skipped
+// until these exist. Every un-sent reply is still recorded in
+// `offline_command_log`, so the backlog is visible rather than lost.
+const WABA_ACCESS_TOKEN = Deno.env.get('WABA_ACCESS_TOKEN') ?? '';
+const WABA_PHONE_NUMBER_ID = Deno.env.get('WABA_PHONE_NUMBER_ID') ?? '';
+
+async function sendWhatsAppText(to: string, body: string): Promise<boolean> {
+  if (!WABA_ACCESS_TOKEN || !WABA_PHONE_NUMBER_ID) {
+    console.warn('waba-webhook: WABA_ACCESS_TOKEN/WABA_PHONE_NUMBER_ID unset — reply not sent');
+    return false;
+  }
+  try {
+    const res = await fetch(
+      `https://graph.facebook.com/v20.0/${WABA_PHONE_NUMBER_ID}/messages`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${WABA_ACCESS_TOKEN}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messaging_product: 'whatsapp',
+          to,
+          type: 'text',
+          text: { body },
+        }),
+      },
+    );
+    if (!res.ok) {
+      console.error(`waba send failed HTTP ${res.status}: ${await res.text()}`);
+      return false;
+    }
+    return true;
+  } catch (e) {
+    console.error('waba send threw:', e);
+    return false;
+  }
+}
 
 const serviceHeaders = {
   'apikey': SERVICE_ROLE_KEY,
@@ -52,13 +97,9 @@ function safeEqual(a: string, b: string): boolean {
   return diff === 0;
 }
 
-function parseAmount(text: string | undefined): number | null {
-  if (!text) return null;
-  const m = text.match(/(\d+(?:\.\d{1,2})?)/);
-  if (!m) return null;
-  const n = Number(m[1]);
-  return Number.isFinite(n) && n > 0 && n <= 500 ? n : null;
-}
+// G9 removed the local parseAmount(): amount extraction moved into
+// handle_inbound_command() so SMS and WhatsApp cannot disagree about what
+// "REFILL 5" means.
 
 serve(async (req: Request) => {
   const url = new URL(req.url);
@@ -122,15 +163,28 @@ serve(async (req: Request) => {
           const msgId: string | undefined = msg?.id;
           const bodyText: string | undefined = msg?.text?.body;
           if (!from || !msgId) continue;
-          const { ok, status, body } = await rpc('ingest_offline_refill', {
+
+          // G9: classify before acting. Until G9 every inbound message went
+          // straight to ingest_offline_refill and queued a top-up, whatever it
+          // said.
+          const { ok, status, body } = await rpc('handle_inbound_command', {
             p_provider: 'whatsapp',
             p_provider_msg_id: msgId,
             p_sender_phone: '+' + from.replace(/\D/g, ''),
             p_channel: 'whatsapp',
-            p_amount_usd: parseAmount(bodyText),
+            p_body: bodyText ?? '',
             p_raw: msg,
           });
-          if (!ok) console.error(`ingest_offline_refill HTTP ${status}: ${JSON.stringify(body)}`);
+          if (!ok) {
+            console.error(`handle_inbound_command HTTP ${status}: ${JSON.stringify(body)}`);
+            results.push(body);
+            continue;
+          }
+
+          const reply = (body as Record<string, unknown> | null)?.['reply_text'];
+          if (typeof reply === 'string' && reply.length > 0) {
+            await sendWhatsAppText(from, reply);
+          }
           results.push(body);
         }
       }

@@ -1,12 +1,23 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-// Inbound SMS webhook — offline-recharge fallback #2 (C4). When the user has no
-// data (so WhatsApp can't send) but the cellular network is up, they text
-// "REFILL" to our SMS number. Shaped for a Twilio Messaging webhook
+// Inbound SMS webhook — offline-recharge fallback #2 (C4), plus the G9 command
+// router. When the user has no data (so WhatsApp can't send) but the cellular
+// network is up, they text us. Shaped for a Twilio Messaging webhook
 // (application/x-www-form-urlencoded: From, Body, MessageSid) but any provider
 // that posts those fields works.
 //
-// D2 IP Rate Limiter applied (60/1min per IP).
+// G9: the body is now CLASSIFIED before anything happens. Until G9 this handler
+// passed every inbound message straight to `ingest_offline_refill`, which read
+// the body only through a regex for the first number — so "hi", "stop" and
+// "BAL" all fell through to the user's default_refill_amount and queued a $10
+// top-up. `handle_inbound_command` decides what was asked for, does it, and
+// returns the text to reply with; only REFILL or a bare amount spends money.
+//
+// The reply rides back in the TwiML response, which costs nothing extra and
+// needs no outbound credentials — Twilio sends whatever <Message> we return.
+//
+// D2 IP Rate Limiter applied (60/1min per IP); G9 adds a 10/60min per-sender
+// limit inside the database.
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -63,12 +74,15 @@ function publicUrl(req: Request): string {
   return `${proto}://${host}${u.pathname}${u.search}`;
 }
 
-function parseAmount(text: string | undefined): number | null {
-  if (!text) return null;
-  const m = text.match(/(\d+(?:\.\d{1,2})?)/);
-  if (!m) return null;
-  const n = Number(m[1]);
-  return Number.isFinite(n) && n > 0 && n <= 500 ? n : null;
+// XML-escape the reply. The body is server-authored, but it interpolates a
+// user-chosen SIM nickname, so it is not trusted to be XML-safe.
+function xmlEscape(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
 }
 
 serve(async (req: Request) => {
@@ -109,18 +123,31 @@ serve(async (req: Request) => {
   const body = params['Body'];
   const msgId = params['MessageSid'] || params['SmsSid'];
 
-  if (from && msgId) {
-    const { ok, status, body: out } = await rpc('ingest_offline_refill', {
-      p_provider: 'sms',
-      p_provider_msg_id: msgId,
-      p_sender_phone: from,
-      p_channel: 'sms',
-      p_amount_usd: parseAmount(body),
-      p_raw: params,
-    });
-    if (!ok) console.error(`ingest_offline_refill HTTP ${status}: ${JSON.stringify(out)}`);
-  } else {
+  if (!from || !msgId) {
     console.error('sms-webhook: missing From/MessageSid', params);
+    return twiml('');
+  }
+
+  const { ok, status, body: out } = await rpc('handle_inbound_command', {
+    p_provider: 'sms',
+    p_provider_msg_id: msgId,
+    p_sender_phone: from,
+    p_channel: 'sms',
+    p_body: body ?? '',
+    p_raw: params,
+  });
+
+  if (!ok) {
+    console.error(`handle_inbound_command HTTP ${status}: ${JSON.stringify(out)}`);
+    return twiml('');
+  }
+
+  // An unknown sender, or one over the per-sender limit, returns no reply text
+  // on purpose: answering would turn this number into an oracle for "is this
+  // phone a KeepSIMs user?" and bill us for an SMS to a stranger.
+  const reply = (out as Record<string, unknown> | null)?.['reply_text'];
+  if (typeof reply === 'string' && reply.length > 0) {
+    return twiml(`<Message>${xmlEscape(reply)}</Message>`);
   }
 
   return twiml('');
