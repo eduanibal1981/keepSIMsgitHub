@@ -1741,6 +1741,130 @@ emits it. Rule: if a line is `n` days from expiry **and** the user is unreachabl
 the minimum viable top-up from the wallet automatically, opt-in per line. This is literally the
 product's promise ("SIM Shield") and is currently manual.
 
+> ## ✅ BUILT 2026-07-30 — migrations `20260807000000_g7_auto_rescue_topup.sql` and `20260807010000_g7b_auto_rescue_engine.sql`
+>
+> `rescue_topup_triggered` has been in the canon since 2026-07-22 with nothing
+> emitting it. It emits now. `sim_line_rescue_policy` holds the per-line opt-in,
+> `run_auto_rescue()` is the engine, `cron.job` **22** runs it hourly at **:50**
+> (clear of G1's 02:20 forecast refresh, so a rescue always reads a settled
+> forecast), and a `SimInsuranceCard` on the SIM line detail screen is the
+> switch. Baselines: `flutter test` **190/190** (178 + 12 new), `flutter
+> analyze` **134** (baseline), advisors **33 → 34**.
+>
+> ### ⚠️ This is the first thing in the product that spends a user's money with nobody watching
+>
+> The guard list is the feature. A line is rescued only when **all twelve** hold:
+> `RESCUE_ENABLED` is true · the line has `max_usd > 0` · it is `active` and not
+> `protection_paused` · the owner is not suspended · G1's forecast says
+> `days_remaining <= lead_days` · a warning was written ≥ `RESCUE_GRACE_HOURS`
+> ago · the user has not topped up since it · nothing is already in flight · the
+> forecast names a live, < 24h-stale offer · no rescue inside
+> `RESCUE_COOLDOWN_DAYS` · the **post-fee** charged amount is within `max_usd` ·
+> the wallet covers it. Anything short of twelve returns a `skipped` row naming
+> the reason.
+>
+> ### Four decisions worth not re-deriving
+>
+> 1. **"Unreachable" could not mean what the review meant.** Keying off "we
+>    warned them and it did not land" is unusable here: `line_critical` has
+>    fired **zero** times in this database's history, `line_entering_grace`
+>    exactly once (2026-07-09, with no `sim_line_id`), and F1 is still open — 18
+>    of the last 31 push dispatches reached nobody. That definition would make
+>    the feature either permanently inert or universally trigger-happy. So the
+>    rescue runs its **own** two-phase clock: it writes the warning itself, waits
+>    24 hours, then acts. The user is always warned before money moves, and the
+>    in-app row is written regardless of whether push works — the part F1 cannot
+>    break.
+> 2. **The cap is the permission, again** — `max_usd NOT NULL DEFAULT 0`, and 0
+>    means not insured. Same idiom as G6, same reason.
+> 3. **It spends through the existing pipeline, not around it.** The rescue
+>    inserts a `refill_instant` execution; `route_topup_execution()` flips it to
+>    `routing` and `worker_instant_refill.js` claims it. No worker change — the
+>    fourth feature in a row to route around the owner-gated VM — and it
+>    inherits the offer-tampering check, the wallet debit, the refund reaper and
+>    the `topup_success` notification for free.
+> 4. **The policy lives in its own table, not on `sim_lines`.** That table's
+>    column-level UPDATE grant has broken client writes twice already (D5c, D5e).
+>
+> ### 🐛 One bug, found by running the lifecycle twice instead of once
+>
+> A rescue clears `last_warned_at`, and G1's forecast does not refresh until
+> 02:20 — so on the very next hourly run the line still read "1 day left, no
+> warning on record" and the **warn phase fired again**, promising a top-up in
+> 24 hours that the cooldown would then refuse. No double spend (proven: exactly
+> one execution), but a misleading notification an hour after the problem was
+> already solved. The cooldown check now sits **above** the warn phase rather
+> than below it. A single-pass test would never have caught this.
+>
+> ### Proven live
+>
+> First, the safety proof that matters most: **a real, non-dry run against
+> production data right now returns 0 rows and spends nothing**, because no line
+> is insured.
+>
+> Then the full lifecycle in rolled-back transactions, on the real Vodafone EG
+> line of user `8a07a25b…` ($70.40 wallet), insured at $5:
+>
+> | Step | Result |
+> |---|---|
+> | 20 days left | not considered |
+> | 4 days left | **warned**, `line_critical` written, grace clock starts |
+> | run again | `skipped — warned; 4 days left, rescue at 2` |
+> | 1 day left | `skipped — inside the 24-hour grace window` |
+> | grace expired | **rescued** — bought `VODAFONE_EG_OPEN`, charged **$0.26** of a $5.00 limit |
+> | next two runs | `skipped — rescued already within 20 days`, **silent** |
+>
+> Exactly **one** execution (`routing / refill_instant`, `offer_value=800`), one
+> `rescue_topup_triggered` activity row, and two notifications — the
+> `line_critical` warning and the `system` receipt. The $0.26 is the honest
+> minimum: G1 suggested $0.20, the offer's floor is $0.25, and
+> `tr_calculate_topup_fees` added a cent.
+>
+> Every refusal path was proved individually: cheapest top-up over the limit ·
+> wallet cannot cover it · a refill already in flight · line paused · owner
+> suspended · insurance switched off · `RESCUE_ENABLED=false` · dry run decides
+> `rescued` and creates **0** executions. And the grants: `anon` and
+> `authenticated` both get `42501` on `run_auto_rescue()` and on writing
+> `sim_line_rescue_policy` directly; `anon` gets `42501` on
+> `set_line_rescue_policy()`; arming someone else's line returns `NOT_FOUND`.
+> The `KS403` second-layer guard fired for real during testing when a stale
+> `authenticated` JWT claim was still set — which is exactly its job.
+>
+> ### ⚠️ What is NOT done, stated plainly
+>
+> * **Nobody is insured.** `sim_line_rescue_policy` has 0 rows, so the cron runs
+>   hourly and does nothing until someone flips the switch. Correct, and
+>   unexercised in anger.
+> * **It has never completed end to end**, because the last mile is the VM
+>   worker. G7 creates the execution and proves the row; whether `Zendit`
+>   actually delivers the top-up is the same unproven path every other refill
+>   uses (§ 3.2 item 9 — production key still outstanding).
+> * **Two of the ten live lines cannot be rescued at all**: Omantel and STC
+>   Kuwait have `suggested_offer_id = NULL` in the forecast, so they return
+>   `no top-up offer known for this line`. That is G1's catalogue coverage, not
+>   a G7 bug, but it means "SIM insurance" is unavailable for those carriers.
+> * **`RESCUE_ENABLED` defaults to `true`.** The per-line opt-in is the real
+>   gate and defaults to off, so nothing can fire — but if you would rather the
+>   whole subsystem be dark until you have watched one rescue yourself, set it
+>   to `false` (owner item 14 in § 7).
+> * **The forecast is the only clock.** `sim_lines.validity_expires_at` is NULL
+>   on all ten live lines, so `days_remaining` from G1 is the sole input. A wrong
+>   forecast is a wrong rescue; G1's confidence is `medium` and its method
+>   `carrier_rule` on every current line.
+> * Strings are hardcoded English, matching G2/G4/G5/G6.
+>
+> ### 🔎 Also found, deliberately not fixed here
+>
+> Some `suggested_amount_usd` values G1 produces are below what the carrier will
+> actually sell — $0.20 against a $0.25 floor on Vodafone EG, and $0.26/$0.39/
+> $0.50 elsewhere. G7 clamps up to the offer's `price_min_usd`, so the rescue is
+> right, but anywhere else that reads `suggested_amount_usd` directly is
+> quoting a price that cannot be bought. Worth a pass over G1's suggestion
+> arithmetic. Still open from earlier features: the per-line (not per-user)
+> refill cooldown (G6), 32 tables with default `GRANT ALL` (G5),
+> `getUserEsims()`'s five phantom columns (G4), and `wallets.total_deposited`
+> wrong for six of eight users (G3).
+
 **8 · Web dashboard (Flutter Web) for support + admin** · *medium value, medium effort*
 The admin app is a separate, non-versioned Flutter project edited in place. Folding a
 role-gated web target into this repo gives you ticket replies (C7 currently requires the
@@ -1859,6 +1983,25 @@ Ordered by what unblocks the most work:
        carrier before you travel", with a link to the carrier's own page).
        If your market has rules about comparative claims, this is the string to
        run past someone.
+14. 🆕 **Decide whether auto-rescue should stay dark until you have watched one**
+    (feature #7). *Added 2026-07-30. Not blocking — nothing can fire today,
+    because `sim_line_rescue_policy` has 0 rows and a line is only insured once
+    its owner sets a dollar ceiling. But `RESCUE_ENABLED` defaults to `true`,
+    and this is the first automation in the product that spends a user's money
+    with no human in the loop. If you would rather it stay inert until you have
+    armed one of your own lines and watched a rescue land end to end:*
+    ```sql
+    UPDATE public.system_configs SET config_value = 'false' WHERE config_key = 'RESCUE_ENABLED';
+    ```
+    *To see what it would do without spending anything, at any time:*
+    ```sql
+    SELECT * FROM public.run_auto_rescue(true);   -- dry run, zero side effects
+    ```
+    *The other three knobs are `RESCUE_GRACE_HOURS` (24), `RESCUE_COOLDOWN_DAYS`
+    (20) and `RESCUE_MAX_PER_RUN` (25), all in `system_configs`. Note the last
+    mile still depends on the Zendit production key (§ 3.2 item 9) — until that
+    is in place a rescue will create the execution and then fail at the
+    supplier, refunding via the D5b reaper.*
 
 ---
 

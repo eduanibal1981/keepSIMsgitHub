@@ -27,6 +27,7 @@ import 'package:keep_sims/features/household/presentation/controllers/household_
 import 'package:keep_sims/features/sim_lines/presentation/widgets/line_upgrade_sheet.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/premium_refill_config_sheet.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/depletion_forecast_card.dart';
+import 'package:keep_sims/features/sim_lines/presentation/widgets/sim_insurance_card.dart';
 import 'package:keep_sims/features/sim_lines/presentation/providers/usage_forecast_provider.dart';
 import 'package:keep_sims/features/home_widget/presentation/live_activity_pin_button.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -286,6 +287,11 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                             .watch(usageForecastForLineProvider(line.id))
                             .value,
                       ),
+
+                      // 1d. SIM insurance (G7) — opt in and we top this line
+                      // up automatically rather than let it lapse. Off unless
+                      // the owner sets a dollar ceiling; hidden while paused.
+                      SimInsuranceCard(line: line),
 
                       // 2. Protection Layers configuration (renamed from AutoRefillSection)
                       _buildProtectionLayersSection(context, detailState),
