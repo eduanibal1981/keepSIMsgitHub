@@ -151,6 +151,15 @@ class _EsimPlansScreenState extends ConsumerState<EsimPlansScreen>
           onPressed: () => Navigator.of(context).pop(),
         ),
         actions: [
+          // G5. Carries the country the user is browsing, not their detected
+          // one — someone planning a trip is comparing against *that* corridor.
+          IconButton(
+            tooltip: 'Roam or eSIM? — compare with your carrier',
+            icon: Icon(Icons.calculate_outlined, color: context.onSurfaceColor),
+            onPressed: () => context.push(
+              '${AppRoutes.esimRoamCalculator}?country=$_selectedCountryCode',
+            ),
+          ),
           _buildPriceWatchAction(context, ref),
           IconButton(
             icon: Icon(Icons.refresh_rounded, color: context.onSurfaceColor),

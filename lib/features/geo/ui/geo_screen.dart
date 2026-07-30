@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:keep_sims/core/router/app_router.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/features/auth/controller/auth_controller.dart';
@@ -136,6 +137,13 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
                   // Section 2: Active Geo Location Card
                   _buildActiveGeoBanner(geoState, homeCountry),
                   const SizedBox(height: 20),
+
+                  // Section 2b (G5): "Roam or eSIM?" — only away from home,
+                  // which is the only place the comparison means anything.
+                  if (geoState.currentIsoCode != homeCountry) ...[
+                    _buildRoamCalculatorCard(geoState),
+                    const SizedBox(height: 20),
+                  ],
 
                   // Section 3: Smart Prompts (Freeze & Resume recommendations)
                   if (geoState.promptFreeze) _buildFreezeRecommendationCard(),
@@ -356,6 +364,81 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  /// G5. The geo trigger already knows the user is abroad; this is the step
+  /// that turns that into a number they can act on. The country is passed
+  /// explicitly so the calculator opens on the detected destination rather than
+  /// re-reading `profiles.last_country`, which lags a freshly detected hop.
+  Widget _buildRoamCalculatorCard(GeoState geoState) {
+    final isDark = context.isDarkMode;
+
+    return InkWell(
+      borderRadius: BorderRadius.circular(20),
+      onTap: () {
+        HapticHelper.lightTick();
+        context.push(
+          '${AppRoutes.esimRoamCalculator}?country=${geoState.currentIsoCode}',
+        );
+      },
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.darkCard : AppColors.lightCard,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: context.colorScheme.secondary.withValues(alpha: 0.4),
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: context.colorScheme.secondary.withValues(alpha: 0.15),
+              ),
+              child: Icon(
+                Icons.calculate_rounded,
+                color: context.colorScheme.secondary,
+                size: 26,
+              ),
+            ),
+            const SizedBox(width: 15),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Roam or eSIM?',
+                    style: AppTextStyles.titleMedium.copyWith(
+                      color: context.onSurfaceColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'See what your own carrier charges to roam in '
+                    '${geoState.currentCountry}, next to an eSIM.',
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: isDark
+                          ? AppColors.textSecondaryDark
+                          : AppColors.textSecondaryLight,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.arrow_forward_ios_rounded,
+              size: 16,
+              color: context.onSurfaceColor.withValues(alpha: 0.4),
+            ),
+          ],
+        ),
       ),
     );
   }

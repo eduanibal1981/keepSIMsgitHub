@@ -50,7 +50,7 @@ final class HomeWidgetSyncProvider
   }
 }
 
-String _$homeWidgetSyncHash() => r'e585089e0ef918c006ce0e459daf47fc092007ce';
+String _$homeWidgetSyncHash() => r'abc3ba2163cf848a9facf5cb5183b4a62fc5e156';
 
 /// Returns the payload most recently handed to the platform, or null when
 /// nothing has been published (unsupported platform, or the plugin refused).

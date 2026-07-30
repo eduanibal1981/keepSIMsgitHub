@@ -36,6 +36,7 @@ import 'package:keep_sims/features/support/presentation/screens/ticket_detail_sc
 import 'package:keep_sims/features/esim/presentation/screens/esim_screen.dart';
 import 'package:keep_sims/features/esim/presentation/screens/esim_plans_screen.dart';
 import 'package:keep_sims/features/price_watch/presentation/screens/price_watch_screen.dart';
+import 'package:keep_sims/features/roam_calculator/presentation/screens/roam_calculator_screen.dart';
 
 part 'app_router.g.dart';
 
@@ -65,6 +66,7 @@ abstract final class AppRoutes {
   static const String esim = '/esim';
   static const String esimPlans = '/esim/plans';
   static const String esimPriceWatch = '/esim/price-watch';
+  static const String esimRoamCalculator = '/esim/roam-calculator';
 }
 
 @riverpod
@@ -304,6 +306,15 @@ RouterConfig<Object> appRouter(Ref ref) {
                 path: 'price-watch',
                 name: 'esimPriceWatch',
                 builder: (context, state) => const PriceWatchScreen(),
+              ),
+              // G5. `country` is optional: the screen falls back to whatever
+              // C8 last detected, which is the case the geo trigger produces.
+              GoRoute(
+                path: 'roam-calculator',
+                name: 'esimRoamCalculator',
+                builder: (context, state) => RoamCalculatorScreen(
+                  initialCountryCode: state.uri.queryParameters['country'],
+                ),
               ),
             ],
           ),

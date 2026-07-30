@@ -1459,6 +1459,133 @@ user's home carrier (a small `carrier_roaming_rates` table, seeded for your top 
 and show "3 days roaming ≈ $42 vs this 5 GB eSIM $11". Converts the geo trigger you already
 fire into a purchase.
 
+> ## ✅ BUILT 2026-07-30 — migrations `20260805000000_g5_roam_or_esim_calculator.sql` and `20260805010000_g5b_catalog_view_write_grant_lockdown.sql`
+>
+> **What shipped.** `carrier_roaming_rates` (16 published products, 6 carriers),
+> two `SECURITY INVOKER` RPCs — `roam_or_esim_quote()` and
+> `my_roaming_carriers()` — and a Flutter calculator at
+> `/esim/roam-calculator?country=XX`, reachable from the geo screen (only when
+> away from home) and from a new action on the eSIM plans screen. Baselines:
+> `flutter test` **160/160** (139 + 21 new in
+> `test/features/roam_calculator/roam_quote_test.dart`), `flutter analyze`
+> **134** (baseline, 0 errors), advisors **31** (unchanged).
+>
+> ### Five design decisions worth not re-deriving
+>
+> 1. **One row is one purchasable product, not one corridor.** Carriers don't
+>    sell "a roaming rate", they sell a shelf. Zong alone publishes four Saudi
+>    Arabia bundles. Keying on `(carrier, destination, product)` lets the quote
+>    pick the cheapest pack that actually covers the trip, which is what a
+>    person does.
+> 2. **`destination_country_code = '*'` is a real value.** Gulf and US carriers
+>    sell one worldwide day pass (du AED 35/day, AT&T $12/day); South Asian
+>    carriers sell per-destination packs (Jazz PK→AE). Four wildcard rows are
+>    what turn 16 products into **89 priced corridors** — the review asked for 20.
+> 3. **A day pass is a pack with `bundle_days = 1`.** No separate shape.
+>    `bundle_data_mb IS NULL` means the pass publishes no cap of its own (AT&T
+>    re-uses the domestic allowance), so only the day count drives the multiplier.
+> 4. **No USD figure is ever typed.** `bundle_price_usd` is a `GENERATED` column
+>    over `local_price / fx_rate_to_usd`. What is stored is the carrier's own
+>    currency and price next to the FX rate and the date it was taken. Refreshing
+>    FX is one UPDATE; nobody can quietly edit a dollar amount.
+> 5. **Nothing here is `SECURITY DEFINER`, and that was the point.** The quote
+>    runs as the caller: RLS on `sim_lines` is what stops you being quoted on
+>    someone else's carrier, and retail pricing comes from the `esim_offers`
+>    view, so the function never sees `wholesale_price_usd`. That sidesteps the
+>    `current_user`-inside-DEFINER trap this project has shipped four times
+>    (D5c, D5d, F4b, F1) and is why the advisor count did not move.
+>
+> ### Proven live
+>
+> All in rolled-back transactions against real users, with hand-computed
+> expected values that matched to the cent:
+>
+> | Case | Roaming | eSIM | Verdict |
+> |---|---|---|---|
+> | user `e5a56433…` → **AE**, 7 d / 1 GB | Zong *UAE IR Bundle (2 GB / 7 d)* **$7.19** | 1 GB / 7 d **$2.94** | `esim_cheaper`, saves **$4.25** |
+> | user `8a07a25b…` → **DE**, 5 d / 3 GB | Orange Egypt *auto-roaming 1 GB* × 3 **$20.79** | 3 × 1 GB / 7 d **$4.77** | `esim_cheaper`, saves **$16.02** |
+> | → **SA**, 10 d / 2 GB | Zong *1 GB / 90 d* × 2 **$7.18** | — | `no_esim` |
+> | → **BD**, 7 d / 1 GB | — | **$4.58** | `no_roaming_rate` |
+> | → **AE**, 30 d / 10 GB | Zong × 5 **$35.95** | 3 × 1 GB **$8.82** | `esim_partial` — no saving claimed |
+> | → **TR**, and → **PK** on a PK SIM | — | — | `no_data` |
+>
+> That last row is a correctness detail worth keeping: a carrier based **in** the
+> destination is excluded, because using your Pakistani SIM in Pakistan is not
+> roaming. Grants were probed too — `anon` gets `42501` on both RPCs and on the
+> table; `authenticated` gets `SELECT` and `42501` on INSERT/UPDATE/DELETE/TRUNCATE.
+>
+> **And over the real REST API**, which is where this project has been burned
+> before: a deliberately misspelled function returns `404 PGRST202`, while the
+> **exact parameter set the Dart provider sends** (`p_country_code`, `p_days`,
+> `p_data_mb`, and an explicit `p_carrier_id: null`) returns `401 42501` — so
+> PostgREST resolves the signature and only the grant stops `anon`. The
+> authenticated REST leg was proved at SQL level with role + JWT-claim
+> impersonation, not with a real user's token; that is the one gap in the proof.
+>
+> ### 🔴 Found while building this, and fixed: anon could delete the entire catalogue
+>
+> `esim_offers` and `zendit_offers_cache` are read-only presentation views that
+> are deliberately **not** `security_invoker` — that is what keeps
+> `wholesale_price_usd` away from clients. But both still carried the database's
+> default `GRANT ALL` to `anon` and `authenticated`, nobody having swept views
+> when F6 swept tables. A simple view over one table is auto-updatable, so
+> `DELETE` on it is a real PostgREST verb, and because the view runs as its owner
+> (`postgres`) the RLS on the cache tables never applied.
+>
+> Proven as `anon`: `DELETE FROM esim_offers` → **50 of 50** bundles gone;
+> `DELETE FROM zendit_offers_cache` → **780 of 783** offers gone. With nothing
+> but the publishable key that ships inside the APK. The eSIM half isn't even
+> self-healing the way the 10-minute top-up refresh is — `esim_offers_cache` is
+> rewritten every 6 hours, so the store would simply be empty until then.
+>
+> **G5b** revokes every write verb on all four public views and re-grants only
+> `SELECT`. Re-probed over REST with the shipped anon key: both DELETEs now
+> `401 42501`, `GET /rest/v1/esim_offers` still `200` with retail prices intact.
+> `security_invoker` was deliberately left alone — flipping it would close the
+> bypass but break the reads *and* undo the markup isolation; removing the write
+> verb closes it without touching either.
+>
+> ### ⚠️ What is NOT done, stated plainly
+>
+> * **The seeded tariffs are published prices, not confirmed ones.** Every row
+>   has `is_estimate = true` and `verified_at = NULL`, carries its `source_url`,
+>   and the UI footer says so with the date. This screen's call to action is
+>   "buy our eSIM", so an unqualified competitor price on it would be marketing
+>   dressed as information. **Owner item 13 in § 7** is the verification pass.
+> * **Only 6 of 50 carriers have any tariff at all** — Zong, Jazz, du, stc,
+>   AT&T, Orange Egypt. The other 44 got nothing rather than a plausible-looking
+>   invention; searching for Vodafone Egypt, Zain KSA, Omantel and STC Kuwait
+>   turned up no outbound roaming price that could be attributed to a page.
+>   Those users get `no_roaming_rate`, which the UI states out loud.
+> * **The eSIM catalogue cannot produce the review's own example.** All 50
+>   bundles are 1 GB / 7 days and they cover **4 of the 21 supported countries**
+>   (AE, BD, BH, DE) — the fetch is alphabetically truncated at A–D. There is no
+>   5 GB bundle to put next to "$42 of roaming", so the quote reports
+>   `esim_partial` instead of scaling one up into an imaginary 5 GB. **The
+>   single highest-leverage thing that would make this feature better is fixing
+>   the catalogue fetch, not adding tariffs.**
+> * **Quantity is capped at 3** because `request_esim_purchase` caps it at 3, and
+>   the checkout sheet has no quantity control at all — so a quote needing more
+>   than one bundle routes to the plans screen instead of to a sheet that would
+>   silently buy a third of the trip.
+> * **Strings are hardcoded English**, matching G2 and G4. This adds to
+>   feature #12's backlog.
+>
+> ### 🔎 Also found, deliberately not fixed here
+>
+> **32 public tables still carry the default `GRANT ALL` for `anon` and
+> `authenticated`** — including `wallets`, `wallet_transactions`,
+> `notifications`, `system_configs`, `carriers`, `countries`. G2's
+> `alert_settings` note was one instance of a much wider gap; F6 stripped five
+> tables. Measured non-destructively with `has_table_privilege`. Unlike the view
+> hole above, this one is **latent, not live**: the only privilege in that set
+> RLS does not gate is `TRUNCATE`, and PostgREST has no TRUNCATE verb.
+> `DELETE`/`UPDATE`/`INSERT` remain RLS-gated (re-probed on `carriers`: 0 rows).
+> It deserves its own sweep with the same "prove the app still works" pass F6
+> did, not a line in a feature migration. Also still open: `getUserEsims()` reads
+> five columns `user_esims` does not have (G4), and `wallets.total_deposited` is
+> wrong for six of eight users (G3).
+
 **6 · Family / fleet shared wallet with spend limits** · *high value, medium effort*
 `household_members` with roles already exists. Add per-member monthly caps enforced inside the
 same RPCs that already enforce rate limits, and a consolidated view. This is E5 made concrete
@@ -1548,6 +1675,46 @@ Ordered by what unblocks the most work:
        compiler. Then on a real iPhone: add the widget to the home screen, and tap "Pin to
        Lock Screen" on a SIM line detail screen to check the Live Activity.
     *Everything else about feature #4 already works on Android and needs nothing from you.*
+13. 🆕 **Verify the seeded roaming tariffs, and decide the disclosure wording**
+    (feature #5). *Added 2026-07-30. Two parts, and only the first is strictly
+    blocking:*
+    1. **Verify.** All 16 seeded rows are prices read off a carrier's own public
+       page and **never confirmed with the carrier**, so every one has
+       `is_estimate = true` and `verified_at = NULL`. Open each row's
+       `source_url`, check the number, then:
+       ```sql
+       UPDATE public.carrier_roaming_rates
+          SET verified_at = CURRENT_DATE, is_estimate = false
+        WHERE product_code = 'zong_ae_2gb_7d';
+       ```
+       The UI drops the "estimate only" caveat automatically for any row where
+       `is_estimate` is false. Note Zong's and Jazz's figures are quoted
+       **+ tax** on their own pages, and the seeded number does not add it.
+    2. **Extend.** 44 of 50 carriers have no tariff at all — most importantly
+       Vodafone Egypt, Etisalat Egypt, Zain KSA, Mobily, Etisalat (e&), Omantel
+       and STC Kuwait, all of which real users hold lines on. None of them
+       publishes an outbound roaming data price that could be sourced from a
+       page. Anything you can get from a bill or a retail visit is worth more
+       than anything findable online. Store the carrier's own currency and price
+       and the FX rate — the USD column is generated from them:
+       ```sql
+       INSERT INTO public.carrier_roaming_rates
+         (carrier_id, destination_country_code, product_code, product_name,
+          bundle_data_mb, bundle_days, local_currency, local_price,
+          fx_rate_to_usd, fx_rate_as_of, source_note, verified_at, is_estimate)
+       SELECT ca.id, '*', 'vfeg_roam_1gb_7d', 'Roaming 1 GB / 7 days',
+              1000, 7, 'EGP', 500.00, 50.50, CURRENT_DATE,
+              'Read off the in-app roaming menu', CURRENT_DATE, false
+         FROM public.carriers ca
+         JOIN public.countries co ON co.id = ca.country_id
+        WHERE co.iso_code = 'EG' AND ca.name = 'Vodafone Egypt';
+       ```
+    3. **A business call, not a technical one:** the screen names third-party
+       carriers and prices them next to a product you sell. The current wording
+       is deliberately conservative ("Roaming estimate only… confirm with your
+       carrier before you travel", with a link to the carrier's own page).
+       If your market has rules about comparative claims, this is the string to
+       run past someone.
 
 ---
 

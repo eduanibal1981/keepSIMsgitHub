@@ -96,6 +96,38 @@ All flagged functions now have `search_path` pinned (`'public'` or `''`).
 - `sim_line_details_view`: switched to `security_invoker = on` (A4) — was
   SECURITY DEFINER (advisor ERROR). Not referenced by the Flutter app.
 
+> 🔴 **Superseded 2026-07-30 by G5b (`20260805010000`).** The note above tracked
+> `security_invoker` and missed the other half: *who is allowed to write through
+> the view*. All four public views still carried the default `GRANT ALL` for
+> `anon` and `authenticated`, and a simple view over one table is auto-updatable,
+> so `DELETE` on it is a real PostgREST verb. On the two views that are
+> deliberately **not** `security_invoker` — `esim_offers` and
+> `zendit_offers_cache` — the statement therefore ran as the view owner
+> (`postgres`) and RLS on the cache tables never applied.
+>
+> Proven live in rolled-back transactions: as `anon`, `DELETE FROM esim_offers`
+> removed **50 of 50** eSIM bundles and `DELETE FROM zendit_offers_cache`
+> removed **780 of 783** top-up offers. That is the entire purchasable
+> catalogue, deletable by anyone holding the publishable key that ships inside
+> the APK.
+>
+> G5b revokes `INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER` on all
+> four views and re-grants only `SELECT`. `security_invoker` is deliberately
+> left alone — flipping it would close the RLS bypass but break the catalogue
+> reads (neither `anon` nor `authenticated` has a SELECT policy on the cache
+> tables) *and* undo the markup isolation. Removing the write verb is the change
+> that closes the hole without touching either.
+>
+> Re-verified over the real REST API with the shipped anon key:
+> `DELETE /rest/v1/esim_offers` → **401 `42501`**,
+> `DELETE /rest/v1/zendit_offers_cache` → **401 `42501`**,
+> `GET /rest/v1/esim_offers` → **200** with retail prices intact.
+
+- `carrier_roaming_rates` (G5, a table not a view, listed here for the pair):
+  `SELECT` to `authenticated` only, one read-all policy `USING (is_active)`,
+  no write policy. Published carrier tariffs — not user data, and no wholesale
+  cost — so a shared read is the correct shape. Writes are `service_role` only.
+
 ## Storage
 
 - Bucket `support_attachments` (public=true, 0 objects at audit time):
@@ -183,6 +215,28 @@ two trigger functions) are all `service_role`-only; grant matrix re-run:
 > category except `promo`, truncating it is a mass unmute, not just data loss.
 > Fixing it is its own change (it needs the same "prove the app still works"
 > pass F6 did), not a line in a feature migration.
+
+*Re-measured 2026-07-30 after G5 + G5b: **31**, unchanged from G3. G5 adds
+nothing to any list, which was a design goal rather than luck: its table has RLS
+**with** a policy (so no `rls_enabled_no_policy`), and both of its functions are
+`SECURITY INVOKER` (so no `authenticated_security_definer_function_executable`).
+The two `security_definer_view` ERRORs below still stand — they are still the
+deliberate markup isolation — but as of G5b they are no longer **writable** by
+anyone but `service_role`, which is what made them dangerous.*
+
+> 🔎 **Still open from G2, and now known to be much wider than one table.**
+> The `alert_settings` note above is one instance of a general gap: **32 public
+> tables** still hold the default `GRANT ALL` for both `anon` and
+> `authenticated`, including `wallets`, `wallet_transactions`, `notifications`,
+> `system_configs`, `carriers` and `countries`. F6 stripped five.
+>
+> Measured non-destructively 2026-07-30 with `has_table_privilege`. The one
+> privilege in that set RLS does **not** gate is `TRUNCATE` — but PostgREST has
+> no TRUNCATE verb, so unlike the view hole G5b closed there is no reachable
+> exploit today. It is a latent gap, not a live one, and the honest priority is
+> "next grant sweep", not "emergency". `DELETE`/`UPDATE`/`INSERT` on those
+> tables remain RLS-gated and were re-probed as `authenticated` on `carriers`:
+> 0 rows affected.
 
 The remainder are deliberate:
 
