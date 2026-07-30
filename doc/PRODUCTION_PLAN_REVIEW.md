@@ -1591,6 +1591,150 @@ fire into a purchase.
 same RPCs that already enforce rate limits, and a consolidated view. This is E5 made concrete
 and is the highest-ARPU segment for a SIM-protection product.
 
+> ## ✅ BUILT 2026-07-30 — migrations `20260806000000_g6_household_spend_limits.sql` and `20260806010000_g6b_household_spend_enforcement.sql`
+>
+> ### ⚠️ The premise above was wrong, and it changed the shape of the work
+>
+> "`household_members` with roles already exists. Add per-member monthly caps"
+> assumes the shared wallet exists and only needs limiting. **It did not.** A
+> `manager` could already *trigger* a refill on the owner's line — but
+> `request_instant_refill` booked `topup_executions.user_id = auth.uid()`, and
+> `worker_instant_refill.js` debits exactly that user. The member paid from
+> their own wallet. Capping how much of the owner's money a member may spend
+> caps nothing while the owner's money is unreachable.
+>
+> So G6 is two things: it makes the wallet genuinely shared, **and** it makes
+> that sharing safe. The cap is not bolted onto sharing; it is what makes
+> sharing shippable.
+>
+> ### Six decisions worth not re-deriving
+>
+> 1. **The cap IS the permission.** No `can_spend` boolean beside a
+>    `monthly_cap_usd` — two knobs meaning one thing drift apart. One column,
+>    `NOT NULL DEFAULT 0.00`, and **0 means may not spend**. Every existing
+>    manager keeps paying their own way until an owner types a number. There is
+>    deliberately no way to say "unlimited".
+> 2. **The payer is booked on the execution; the actor sits beside it.**
+>    `topup_executions.user_id` becomes the payer, new `acting_user_id` records
+>    who pressed the button. That is what lets the owner's wallet fund the
+>    refill **without touching `worker_instant_refill.js`**, which lives on the
+>    owner-gated VM and cannot ship from here — the same wall G1 and G2 hit. The
+>    existing *"Users can view household shared topup executions"* policy
+>    already keys on `user_id` being the owner, so the member does not lose
+>    sight of what they created.
+> 3. **Spend is derived, never counted.** No `spent_this_month` column. G3 found
+>    `wallets.total_deposited` reads 0.00 for six of eight users with real
+>    deposits, because a counter is only as good as every path that remembers to
+>    bump it. Month-to-date spend comes from `wallet_transactions` stamped
+>    `metadata->>'spent_by'`, net of refunds matched on `reference_id`.
+> 4. **In-flight executions count against the cap.** Checking only committed
+>    ledger rows would let a member queue twenty refills that each pass and then
+>    all debit. Reservation accounting, keyed on the *absence* of a ledger row
+>    rather than on status, so it cannot double-count.
+> 5. **Enforced twice, and the second one is the real one** — at request time
+>    for a fast, legible refusal, and inside `debit_wallet_for_topup`, the only
+>    place money actually moves.
+> 6. **The cap exception is never raised inside `enforce_rate_limit`.** That
+>    function ends in `WHEN OTHERS THEN RAISE NOTICE` and re-raises only KS429
+>    and KS403 — a cap violation raised under it would be swallowed and fail
+>    **open** on a money path. This is § 8's own F0 lesson, and it applied.
+>
+> ### 🐛 Two bugs in this feature, caught by proving it rather than by writing it
+>
+> Both would have made the cap silently useless, and neither was visible in the
+> code:
+>
+> * **`route_topup_execution()` rewrites a new `refill_instant` from `pending`
+>   to `routing` in a BEFORE INSERT trigger.** The first draft counted in-flight
+>   executions as `status IN ('pending','processing')` — so it counted **nothing**
+>   and queue-stacking sailed through. Found by inserting one and reading the
+>   row back. Now lists all four non-terminal statuses, and filters to
+>   `payment_gateway_code = 'wallet'` because a card-funded refill never touches
+>   the owner's balance and must not eat their cap.
+> * **`tr_calculate_topup_fees` adds the app fee in another BEFORE INSERT
+>   trigger, and the worker debits `amount`, not `base_cost_usd`.** A $2.50
+>   offer is charged **$2.58**. Checking the offer price would have let every
+>   refill overrun the cap by its fee. The cap is now checked *after* the INSERT,
+>   on the post-trigger `amount` returned by `RETURNING`; the `RAISE` unwinds the
+>   insert with it, same statement, same transaction, nothing left behind.
+>
+> A third was caught by Postgres itself: the first `CREATE OR REPLACE` dropped
+> the parameter defaults (`p_description`, `p_reference_id`, `p_txn_type`) and
+> failed with `42P13`. The worker calls `debit_wallet_for_topup` with five named
+> arguments and never passes `p_txn_type`, and PostgREST resolves RPCs by
+> parameter name — silently dropping those defaults would have broken every
+> wallet-funded refill in the product.
+>
+> ### Proven live, in rolled-back transactions against real users
+>
+> Owner `8a07a25b…` ($70.40 wallet, Vodafone EG line), member `e5a56433…`
+> ($35.86), cap $6.00/month, $3.00/refill:
+>
+> | # | Case | Result |
+> |---|---|---|
+> | 1–2 | member refills the owner's line twice at $2.50 | booked `payer=owner acting=member`, **$2.58** each after the fee |
+> | 3 | a third $1.25 refill | `KS402 HOUSEHOLD_CAP:OVER_MONTHLY_CAP:6.00:5.16:0.84` — **queue-stacking blocked** |
+> | 4 | a $3.15 refill | `OVER_PER_TXN_CAP` |
+> | 9–11 | the worker's exact five-argument debit | **owner $70.40 → $67.82; member untouched at $35.86** |
+> | 12 | the ledger row | `user=owner`, `metadata={"spent_by":"e5a56433…","spent_for_owner":"8a07a25b…","household":true}` |
+> | 13 | spend after the debit | `committed=2.58 in_flight=0.00` — no double count |
+> | 14 | owner cuts the cap to $1 *after* queueing, then the worker debits | `KS402 OVER_MONTHLY_CAP` — **layer 2 holds** |
+>
+> **Regression proofs, which matter more than the feature ones.** An owner
+> refilling their own line books `acting=NULL` and its debit writes
+> `metadata={}` — the G6 block is inert. A manager the owner has **not** funded
+> refills the owner's line and **pays from their own wallet**, `acting=NULL`:
+> byte-for-byte the pre-G6 behaviour. The F-2 guard still refuses a direct
+> `authenticated` call to `debit_wallet_for_topup` (`42501`), and the three
+> internal functions (`household_spend_mtd`, `household_spend_check`,
+> `resolve_household_payer`) are `service_role`-only — `42501` for both `anon`
+> and `authenticated`. `anon` is refused on all three client RPCs.
+>
+> The owner's consolidated view and the member's own-allowance view both render
+> against seeded data; funding a `viewer` is refused with `ROLE_REQUIRED`, a
+> per-refill cap above the monthly cap with `INVALID_PER_TXN_CAP`, and a member
+> trying to set a cap in someone else's household gets `NOT_FOUND` (RLS, not a
+> hand-rolled check).
+>
+> Baselines: `flutter test` **178/178** (160 + 18 new in
+> `test/features/household/household_spend_test.dart`), `flutter analyze`
+> **134** (baseline), advisors **31 → 33** — both additions are
+> `household_spend_summary` and `my_household_allowances` joining the documented
+> `authenticated_security_definer_function_executable` list, which is the
+> intended shape for a self-scoped read surface.
+>
+> ### ⚠️ What is NOT done, stated plainly
+>
+> * **Nobody is using this.** `household_members` has **0 rows** on the live
+>   database, so every proof above is against seeded fixtures rolled back
+>   afterwards. The feature is correct and unexercised, exactly as G3's
+>   household quick-picks were.
+> * **eSIM purchases are deliberately not chargeable to a household wallet.** An
+>   eSIM is delivered to and installed by the buyer, `user_esims` binds it to
+>   them, and an `esim_orders` row has no SIM line to resolve an owner from.
+>   `request_esim_purchase` is untouched. A fleet manager buying eSIMs for staff
+>   is a real case and it is **not** covered here.
+> * **Scheduled/automatic refills are not redirected.** Only
+>   `request_instant_refill` resolves a payer. A `scheduled_topups` row still
+>   belongs to, and is paid by, the line owner — which is correct today, but
+>   means "the household funds this line" is a manual act, not a standing one.
+> * **The month is a UTC calendar month** with no timezone preference and no
+>   proration. A cap set on the 28th gives a full month's headroom for three
+>   days and then resets.
+> * **Strings are hardcoded English**, matching G2/G4/G5. Adds to feature #12.
+>
+> ### 🔎 Also found, deliberately not fixed here
+>
+> `check_topup_rate_limit()` enforces a 10-second per-SIM-line cooldown by
+> scanning `topup_executions` for *any* `refill_instant` on that line, ignoring
+> who requested it. In a household, one member's refill therefore blocks another
+> member's for ten seconds on the same line. Harmless at today's volumes and
+> arguably correct as a duplicate-press guard, but it is a per-line lock being
+> used as a per-user one, and it will read as a bug the first time two people
+> share a fleet line. Still open from earlier features: 32 tables carrying the
+> default `GRANT ALL` (G5), `getUserEsims()` reading five non-existent columns
+> (G4), and `wallets.total_deposited` wrong for six of eight users (G3).
+
 **7 · Auto-rescue top-up ("SIM insurance")** · *high value, low effort*
 The event name `rescue_topup_triggered` is already in the C6 activity-log canon but nothing
 emits it. Rule: if a line is `n` days from expiry **and** the user is unreachable/offline, spend

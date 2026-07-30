@@ -238,6 +238,28 @@ anyone but `service_role`, which is what made them dangerous.*
 > tables remain RLS-gated and were re-probed as `authenticated` on `carriers`:
 > 0 rows affected.
 
+*Re-measured 2026-07-30 after G6 + G6b: **33**. The two additions are
+`household_spend_summary()` and `my_household_allowances()` joining
+`authenticated_security_definer_function_executable` (20 → 22). Both are
+`SECURITY DEFINER` on purpose — they read the household owner's wallet ledger,
+which the caller may not read directly — and both are scoped to `auth.uid()`
+with **no user-id argument**, so there is nothing to forge. G6's three genuinely
+internal functions (`household_spend_mtd`, `household_spend_check`,
+`resolve_household_payer`) are `service_role`-only and add nothing; probed as
+both `anon` and `authenticated`: `42501`. `set_household_member_cap` is
+`SECURITY INVOKER` and leans on the existing owner policy, so it adds nothing
+either.*
+
+> ⚠️ **`debit_wallet_for_topup` was modified by G6b** — the most sensitive
+> function in the product. F-2's guard is reproduced character for character: a
+> call-**depth** test, not a JWT-role test, because `request_esim_purchase` and
+> `pay_plan_fee_from_wallet` call it nested and a role-only guard breaks both.
+> Re-probed after the change: a direct `authenticated` call is `42501` at the
+> grant layer, and neither `anon` nor `authenticated` holds EXECUTE. The G6
+> addition is inert unless the reference names a `topup_executions` row whose
+> `acting_user_id` is set and differs from the payer — proven by debiting an
+> ordinary self-funded refill and reading back `metadata = {}`.
+
 The remainder are deliberate:
 
 | Finding | Level | n | Why it stays |

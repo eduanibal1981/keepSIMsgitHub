@@ -8,7 +8,9 @@ import 'package:keep_sims/core/widgets/error_state.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
 import 'package:keep_sims/core/utils/build_context_extension.dart';
 import '../controllers/household_controller.dart';
+import '../providers/household_spend_provider.dart';
 import '../../data/models/household_member_model.dart';
+import '../../data/models/household_spend_model.dart';
 
 class HouseholdScreen extends ConsumerStatefulWidget {
   const HouseholdScreen({super.key});
@@ -89,7 +91,12 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
           children: [
             _buildMyFamilyTab(state.members),
             _buildReceivedTab(state.invitations),
-            _buildJoinedTab(state.memberships),
+            Column(
+              children: [
+                _buildAllowanceBanner(),
+                Expanded(child: _buildJoinedTab(state.memberships)),
+              ],
+            ),
           ],
         ),
         loading: () => const SIMLinesShimmer(),
@@ -150,7 +157,10 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
               width: 1.0,
             ),
           ),
-          child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
             children: [
               // Avatar representation
               CircleAvatar(
@@ -270,8 +280,190 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
               ),
             ],
           ),
+              // G6: the wallet-sharing half of the row.
+              _buildSpendFooter(member),
+            ],
+          ),
         );
       },
+    );
+  }
+
+  // ── G6: per-member spend cap + month-to-date usage ──────────────────
+  //
+  // `monthly_cap_usd = 0` is the default on every membership and means "may
+  // NOT spend my wallet" — not "no limit". The copy has to make that
+  // unambiguous, because the failure mode of getting it backwards is a
+  // stranger spending the owner's balance.
+  Widget _buildSpendFooter(HouseholdMember member) {
+    final isDark = context.isDarkMode;
+    final summaryAsync = ref.watch(householdSpendSummaryProvider);
+
+    final HouseholdSpendRow? row = summaryAsync.value
+        ?.where((r) => r.memberRowId == member.id)
+        .firstOrNull;
+
+    if (row == null) return const SizedBox.shrink();
+
+    final bool canFund = row.canBeFunded;
+    final Color accent = row.isExhausted
+        ? AppColors.warning
+        : (row.isFunded ? AppColors.success : AppColors.info);
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Divider(
+            height: 1,
+            color: isDark ? Colors.white.withValues(alpha: 0.06) : AppColors.lightBorder,
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  row.isFunded
+                      ? 'Spends my wallet · \$${row.spentMtdUsd.toStringAsFixed(2)} of '
+                          '\$${row.monthlyCapUsd.toStringAsFixed(2)} this month'
+                      : (canFund
+                          ? 'Pays with their own wallet'
+                          : 'Managers only — a viewer cannot spend your wallet'),
+                  style: AppTextStyles.caption.copyWith(
+                    color: isDark
+                        ? AppColors.textSecondaryDark
+                        : AppColors.textSecondaryLight,
+                  ),
+                ),
+              ),
+              TextButton(
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  minimumSize: const Size(0, 32),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                onPressed: canFund ? () => _showCapDialog(member, row) : null,
+                child: Text(row.isFunded ? 'Change limit' : 'Set a limit'),
+              ),
+            ],
+          ),
+          if (row.isFunded) ...[
+            const SizedBox(height: 8),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: LinearProgressIndicator(
+                value: row.usedFraction,
+                minHeight: 6,
+                backgroundColor: accent.withValues(alpha: 0.15),
+                valueColor: AlwaysStoppedAnimation<Color>(accent),
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              // In-flight is called out separately because it is money that has
+              // not left the wallet yet but is already spoken for — the owner
+              // will otherwise read the balance and the cap and find they
+              // disagree.
+              row.inFlightUsd > 0
+                  ? '\$${row.remainingUsd.toStringAsFixed(2)} left · '
+                      '\$${row.inFlightUsd.toStringAsFixed(2)} queued, not yet charged'
+                  : '\$${row.remainingUsd.toStringAsFixed(2)} left this month',
+              style: AppTextStyles.caption.copyWith(color: accent),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  void _showCapDialog(HouseholdMember member, HouseholdSpendRow row) {
+    final monthlyCtl = TextEditingController(
+      text: row.monthlyCapUsd > 0 ? row.monthlyCapUsd.toStringAsFixed(2) : '',
+    );
+    final perTxnCtl = TextEditingController(
+      text: row.perTxnCapUsd != null ? row.perTxnCapUsd!.toStringAsFixed(2) : '',
+    );
+
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text('Spending limit for ${row.displayName}'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'How much of YOUR wallet they may spend on your SIM lines each '
+              'calendar month. Set 0 to switch it off — they will go back to '
+              'paying with their own wallet.',
+              style: AppTextStyles.bodySmall.copyWith(
+                color: context.onSurfaceColor.withValues(alpha: 0.7),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: monthlyCtl,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              decoration: const InputDecoration(
+                labelText: 'Monthly limit (USD)',
+                prefixText: '\$ ',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: perTxnCtl,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              decoration: const InputDecoration(
+                labelText: 'Max per refill (optional)',
+                prefixText: '\$ ',
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () async {
+              final monthly = double.tryParse(monthlyCtl.text.trim()) ?? 0.0;
+              final perTxn = perTxnCtl.text.trim().isEmpty
+                  ? null
+                  : double.tryParse(perTxnCtl.text.trim());
+
+              Navigator.of(dialogContext).pop();
+              await HapticHelper.lightTick();
+
+              final result = await ref
+                  .read(householdCapControllerProvider.notifier)
+                  .setCap(
+                    memberRowId: member.id,
+                    monthlyCapUsd: monthly,
+                    perTxnCapUsd: perTxn,
+                  );
+
+              if (!mounted) return;
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    result.success
+                        ? (monthly > 0
+                            ? '${row.displayName} can now spend up to '
+                                '\$${monthly.toStringAsFixed(2)} of your wallet a month.'
+                            : '${row.displayName} pays with their own wallet again.')
+                        : (result.message ?? 'Could not update the limit.'),
+                  ),
+                ),
+              );
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -405,6 +597,76 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
   }
 
   // ── Tab 3: Joined Households (Households I've joined) ──────────────
+  // G6: the member's side. A member cannot read the owner's wallet or ledger
+  // — RLS is right about that — so without this banner they would discover
+  // their spending limit only by hitting it mid-refill.
+  Widget _buildAllowanceBanner() {
+    final allowances = ref.watch(myHouseholdAllowancesProvider).value;
+    if (allowances == null) return const SizedBox.shrink();
+
+    final funded = allowances.where((a) => a.isFunded).toList(growable: false);
+    if (funded.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      children: funded.map((a) {
+        final Color accent =
+            a.remainingUsd <= 0 ? AppColors.warning : AppColors.success;
+        return Container(
+          margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: accent.withValues(alpha: 0.10),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: accent.withValues(alpha: 0.35)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.account_balance_wallet_outlined,
+                      size: 18, color: accent),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      '${a.ownerLabel} funds your refills',
+                      style: AppTextStyles.titleMedium.copyWith(
+                        color: context.onSurfaceColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: LinearProgressIndicator(
+                  value: a.usedFraction,
+                  minHeight: 6,
+                  backgroundColor: accent.withValues(alpha: 0.15),
+                  valueColor: AlwaysStoppedAnimation<Color>(accent),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                a.remainingUsd <= 0
+                    ? 'You have used the whole \$${a.monthlyCapUsd.toStringAsFixed(2)} '
+                        'for this month. Refills on their lines will be refused '
+                        'until it resets.'
+                    : '\$${a.remainingUsd.toStringAsFixed(2)} of '
+                        '\$${a.monthlyCapUsd.toStringAsFixed(2)} left this month'
+                        '${a.perTxnCapUsd != null ? ' · max \$${a.perTxnCapUsd!.toStringAsFixed(2)} per refill' : ''}',
+                style: AppTextStyles.caption.copyWith(color: accent),
+              ),
+            ],
+          ),
+        );
+      }).toList(growable: false),
+    );
+  }
+
   Widget _buildJoinedTab(List<HouseholdMember> memberships) {
     final isDark = context.isDarkMode;
     if (memberships.isEmpty) {
