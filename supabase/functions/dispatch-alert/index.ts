@@ -367,7 +367,7 @@ serve(async (req: Request) => {
                 Authorization: `Bearer ${resendKey}`,
               },
               body: JSON.stringify({
-                from: "SIM Shield <alerts@keep-sims.com>",
+                from: "SIM Shield <alerts@keepsims.com>",
                 to: emailAddress,
                 subject: isFallbackTriggered ? `[Fallback Alert] ${title}` : title,
                 html: `<div style="font-family:sans-serif;padding:30px;background-color:#0d0e12;color:#ffffff;border-radius:16px;max-width:600px;margin:0 auto;border:1px solid #1f222e;">

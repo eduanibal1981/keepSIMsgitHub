@@ -65,8 +65,8 @@ class DashboardSimLineCard extends ConsumerWidget {
         }
       },
       child: GlassCard(
-        margin: const EdgeInsets.only(bottom: 16),
-        padding: const EdgeInsets.all(20),
+        margin: EdgeInsets.zero,
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
         isActive: true,
         activeColor: glowColor,
         child: Column(
@@ -262,7 +262,7 @@ class DashboardSimLineCard extends ConsumerWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
 
             // SIM Nickname
             Row(
@@ -384,7 +384,7 @@ class DashboardSimLineCard extends ConsumerWidget {
                 letterSpacing: 1.1,
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 12),
 
             // Divider
             Divider(
@@ -392,7 +392,7 @@ class DashboardSimLineCard extends ConsumerWidget {
               thickness: 1,
               height: 1,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
 
             // Auto-Notify Toggle
             Row(
@@ -474,7 +474,7 @@ class DashboardSimLineCard extends ConsumerWidget {
                       ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
 
             // Auto-Refill Toggle
             Row(
@@ -591,7 +591,7 @@ class DashboardSimLineCard extends ConsumerWidget {
 
             // Recharge Now (C3) — the same instant-refill sheet the line detail
             // screen opens, surfaced one tap from the dashboard.
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             GestureDetector(
               onTap: () async {
                 await HapticHelper.lightTick();

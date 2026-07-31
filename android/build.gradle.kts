@@ -16,11 +16,12 @@ val newBuildDir: Directory =
 rootProject.layout.buildDirectory.value(newBuildDir)
 
 subprojects {
-    val newSubprojectBuildDir: Directory = newBuildDir.dir(project.name)
-    project.layout.buildDirectory.value(newSubprojectBuildDir)
-}
-subprojects {
-    project.evaluationDependsOn(":app")
+    val rootDrive = rootProject.projectDir.path.substringBefore(":")
+    val subDrive = project.projectDir.path.substringBefore(":")
+    if (rootDrive.equals(subDrive, ignoreCase = true)) {
+        val newSubprojectBuildDir: Directory = newBuildDir.dir(project.name)
+        project.layout.buildDirectory.value(newSubprojectBuildDir)
+    }
 }
 
 // Raise the Kotlin language floor for plugin modules we do not own.
@@ -28,24 +29,47 @@ subprojects {
 // `sentry_flutter` (8.14.2) hardcodes `languageVersion = "1.6"` in its own
 // `android/build.gradle`. Kotlin 2.2 — the version pinned in settings.gradle.kts
 // — refuses outright: "Language version 1.6 is no longer supported". That fails
-// `:sentry_flutter:compileDebugKotlin` and with it *every* Android build,
-// debug and release alike, in a module this repo cannot edit.
+// `:sentry_flutter:compileDebugKotlin` and with it *every* Android build, debug
+// and release alike, in a module this repo cannot edit.
 //
-// Bumping the floor here is the smallest fix that does not fork the plugin or
-// pin the whole project back to an old Kotlin. Only versions *below* 1.8 are
-// touched, so a plugin that has already moved on keeps its own setting.
+// Two properties of this bump are deliberate and load-bearing:
+//
+//  1. It runs inside `afterEvaluate`, so the `configureEach` hook is registered
+//     *after* the plugin's own `kotlinOptions { languageVersion = "1.6" }` has
+//     been copied onto its compile tasks. Registering during root evaluation
+//     loses that race on some plugins and the 1.6 pin survives untouched.
+//
+//  2. It only ever raises — a module already at or above the floor keeps its own
+//     setting. Force-setting every subproject to an exact version instead would
+//     drag `:app` and any Kotlin-2.x plugin *backwards* onto a language version
+//     that Kotlin already reports as deprecated, turning a fix for one stale
+//     plugin into a slow build break for every up-to-date one.
+//
+// The floor is 1.9 rather than 1.8 because Kotlin 2.2 already warns that 1.8 is
+// deprecated; 1.9 is the oldest language version it still accepts cleanly.
+//
+// This block MUST stay above the `evaluationDependsOn(":app")` block below. That
+// call evaluates `:app` on the spot, and registering `afterEvaluate` on a project
+// that has already been evaluated is a hard Gradle error:
+// "Cannot run Project.afterEvaluate(Action) when the project is already evaluated."
 subprojects {
-    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-        val floor = org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_1_8
-        compilerOptions {
-            if (languageVersion.orNull?.let { it < floor } == true) {
-                languageVersion.set(floor)
-            }
-            if (apiVersion.orNull?.let { it < floor } == true) {
-                apiVersion.set(floor)
+    afterEvaluate {
+        tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+            val floor = org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_1_9
+            compilerOptions {
+                if (languageVersion.orNull?.let { it < floor } == true) {
+                    languageVersion.set(floor)
+                }
+                if (apiVersion.orNull?.let { it < floor } == true) {
+                    apiVersion.set(floor)
+                }
             }
         }
     }
+}
+
+subprojects {
+    project.evaluationDependsOn(":app")
 }
 
 tasks.register<Delete>("clean") {

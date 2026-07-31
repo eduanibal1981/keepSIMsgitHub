@@ -1,4 +1,3 @@
-import java.io.FileInputStream
 import java.util.Properties
 
 plugins {
@@ -9,19 +8,46 @@ plugins {
     id("com.google.gms.google-services")
 }
 
-val keystoreProperties = Properties()
 val keystorePropertiesFile = rootProject.file("key.properties")
+val keystoreProperties = Properties()
 if (keystorePropertiesFile.exists()) {
-    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+    keystorePropertiesFile.inputStream().use { keystoreProperties.load(it) }
 }
+
+// `storeFile` is resolved against android/ first and android/app/ second, so a
+// key.properties written on one machine keeps working on the other regardless of
+// which directory its relative path was written against. Absolute paths are
+// returned unchanged by `file()`, so they are unaffected.
+val releaseStoreFile: File? =
+    keystoreProperties.getProperty("storeFile")?.takeIf { it.isNotBlank() }?.let { path ->
+        listOf(rootProject.file(path), project.file(path)).firstOrNull { it.exists() }
+    }
+
+// Why the release key is unusable, or null when it is usable. Nothing is thrown
+// here: see the release-artifact guard at the bottom of this file.
+val releaseKeystoreProblem: String? =
+    if (!keystorePropertiesFile.exists()) {
+        "android/key.properties does not exist"
+    } else {
+        val missing =
+            listOf("storeFile", "storePassword", "keyAlias", "keyPassword")
+                .filter { keystoreProperties.getProperty(it).isNullOrBlank() }
+        when {
+            missing.isNotEmpty() ->
+                "android/key.properties is missing ${missing.joinToString(", ")}"
+            releaseStoreFile == null ->
+                "the keystore '${keystoreProperties.getProperty("storeFile")}' named in " +
+                    "android/key.properties was not found"
+            else -> null
+        }
+    }
+
+val allowDebugSigning = project.findProperty("allowDebugSigning")?.toString() == "true"
 
 android {
     namespace = "com.keep_sims"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
-    
-    // FORCE GRADLE TO USE MODERN BUILD TOOLS
-    buildToolsVersion = "35.0.0" 
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -41,44 +67,36 @@ android {
     }
 
     signingConfigs {
-        if (keystorePropertiesFile.exists()) {
+        // Only created when the key is actually usable, so `findByName("release")`
+        // is a reliable "can we sign a shippable build?" test.
+        if (releaseKeystoreProblem == null) {
             create("release") {
-                val storeFileProp = keystoreProperties.getProperty("storeFile")
-                val storePasswordProp = keystoreProperties.getProperty("storePassword")
-                val keyAliasProp = keystoreProperties.getProperty("keyAlias")
-                val keyPasswordProp = keystoreProperties.getProperty("keyPassword")
-
-                if (storeFileProp != null && storePasswordProp != null && keyAliasProp != null && keyPasswordProp != null) {
-                    val sFile = file(storeFileProp)
-                    if (sFile.exists()) {
-                        storeFile = sFile
-                        storePassword = storePasswordProp
-                        keyAlias = keyAliasProp
-                        keyPassword = keyPasswordProp
-                    } else {
-                        throw GradleException("Release keystore file '$storeFileProp' specified in key.properties does not exist.")
-                    }
-                } else {
-                    throw GradleException("key.properties is incomplete or missing required properties.")
-                }
+                storeFile = releaseStoreFile
+                storePassword = keystoreProperties.getProperty("storePassword")
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
             }
         }
     }
 
     buildTypes {
         release {
-            val allowDebugSigning = project.hasProperty("allowDebugSigning") && project.property("allowDebugSigning").toString() == "true"
-            if (keystorePropertiesFile.exists() && signingConfigs.findByName("release") != null) {
-                signingConfig = signingConfigs.getByName("release")
-            } else if (allowDebugSigning) {
-                logger.warn("WARNING: Release build is using DEBUG signing key because -PallowDebugSigning=true was set.")
-                signingConfig = signingConfigs.getByName("debug")
-            } else {
-                throw GradleException(
-                    "RELEASE BUILD FAILED: key.properties is missing or invalid, and release signing key is required.\n" +
-                    "To build for Play Store production release, create key.properties with storeFile, storePassword, keyAlias, and keyPassword.\n" +
-                    "For local testing ONLY, pass -PallowDebugSigning=true."
-                )
+            when {
+                releaseKeystoreProblem == null ->
+                    signingConfig = signingConfigs.getByName("release")
+
+                allowDebugSigning -> {
+                    logger.warn(
+                        "WARNING: signing the release build with the DEBUG key because " +
+                            "-PallowDebugSigning=true was set ($releaseKeystoreProblem). " +
+                            "This artifact cannot be uploaded to Play.",
+                    )
+                    signingConfig = signingConfigs.getByName("debug")
+                }
+
+                // Otherwise leave the variant unsigned on purpose and let the guard
+                // below stop the build with a readable message.
+                else -> Unit
             }
         }
     }
@@ -89,6 +107,45 @@ flutter {
 }
 
 dependencies {
-  implementation(platform("com.google.firebase:firebase-bom:34.16.0"))
-  implementation("com.google.firebase:firebase-analytics")
+    implementation(platform("com.google.firebase:firebase-bom:34.16.0"))
+    implementation("com.google.firebase:firebase-analytics")
+}
+
+// Fail the build when a release artifact is requested without a usable upload key
+// — but only then.
+//
+// Throwing at configuration time (the original behaviour) fires while *every*
+// task graph is being built, so `flutter build apk` (debug), `flutter run`, IDE
+// Gradle sync and even `gradlew tasks` all died on any machine without a
+// key.properties, which is every machine here until the upload keystore exists.
+//
+// Hooking the release packaging tasks keeps all of that working while still making
+// it impossible to ship a wrongly-signed build: the release variant is left
+// *unsigned* above rather than quietly falling back to the debug key, so even a
+// task name that slipped past this list would produce a visibly unsigned artifact
+// instead of an installable one signed with a throwaway key.
+if (releaseKeystoreProblem != null && !allowDebugSigning) {
+    // `preReleaseBuild` runs before the release variant compiles anything, so the
+    // failure lands in seconds instead of after a full Kotlin/Dart build; the
+    // packaging tasks are listed too so a graph that somehow skips it still stops.
+    val releaseArtifactTasks =
+        setOf(
+            "preReleaseBuild",
+            "assembleRelease",
+            "bundleRelease",
+            "packageRelease",
+            "packageReleaseBundle",
+        )
+    tasks.matching { it.name in releaseArtifactTasks }.configureEach {
+        doFirst {
+            throw GradleException(
+                "RELEASE BUILD FAILED: $releaseKeystoreProblem, so this build has no " +
+                    "release signing key.\n" +
+                    "For a Play Store release, create android/key.properties with " +
+                    "storeFile, storePassword, keyAlias and keyPassword.\n" +
+                    "For local testing ONLY, pass -PallowDebugSigning=true " +
+                    "(flutter: --android-project-arg=allowDebugSigning=true).",
+            )
+        }
+    }
 }
