@@ -34,7 +34,10 @@ void main() async {
     // Force semantics for TestSprite AI
     RendererBinding.instance.ensureSemantics();
 
-    const sentryDsn = String.fromEnvironment('SENTRY_DSN');
+    const sentryDsn = String.fromEnvironment(
+      'SENTRY_DSN',
+      defaultValue: 'https://f28e8212c19fe8c11273864b68642156@o4511843465494528.ingest.de.sentry.io/4511843492560976',
+    );
 
     Future<void> runAppMain() async {
       // Global error handling hooks for app resilience

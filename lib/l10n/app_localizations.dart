@@ -3927,6 +3927,414 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'A security check on this device stopped this payment. If this is a mistake, contact support and we will sort it out.'**
   String get deviceBlockedMessage;
+
+  /// No description provided for @householdTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Household & Family'**
+  String get householdTitle;
+
+  /// No description provided for @householdTabMyFamily.
+  ///
+  /// In en, this message translates to:
+  /// **'My family'**
+  String get householdTabMyFamily;
+
+  /// No description provided for @householdTabReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'Invitations'**
+  String get householdTabReceived;
+
+  /// No description provided for @householdTabJoined.
+  ///
+  /// In en, this message translates to:
+  /// **'Joined'**
+  String get householdTabJoined;
+
+  /// No description provided for @householdInviteMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite member'**
+  String get householdInviteMember;
+
+  /// No description provided for @householdEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No family members yet'**
+  String get householdEmptyTitle;
+
+  /// No description provided for @householdEmptyDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite someone by email to share your prepaid SIM lines and renewals with them.'**
+  String get householdEmptyDesc;
+
+  /// No description provided for @householdStatusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'PENDING'**
+  String get householdStatusPending;
+
+  /// No description provided for @householdStatusAccepted.
+  ///
+  /// In en, this message translates to:
+  /// **'ACTIVE'**
+  String get householdStatusAccepted;
+
+  /// No description provided for @householdPendingHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for them to accept'**
+  String get householdPendingHint;
+
+  /// No description provided for @householdRoleViewer.
+  ///
+  /// In en, this message translates to:
+  /// **'Viewer'**
+  String get householdRoleViewer;
+
+  /// No description provided for @householdRoleManager.
+  ///
+  /// In en, this message translates to:
+  /// **'Manager'**
+  String get householdRoleManager;
+
+  /// No description provided for @householdRoleViewerHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Can see your lines'**
+  String get householdRoleViewerHint;
+
+  /// No description provided for @householdRoleManagerHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Can see and top up your lines'**
+  String get householdRoleManagerHint;
+
+  /// No description provided for @householdManagerWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'A manager can top up your lines. They only spend your wallet if you set them a limit.'**
+  String get householdManagerWarning;
+
+  /// No description provided for @householdSpendsMyWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Spends my wallet · {spent} of {cap} this month'**
+  String householdSpendsMyWallet(String spent, String cap);
+
+  /// No description provided for @householdPaysOwnWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Pays with their own wallet'**
+  String get householdPaysOwnWallet;
+
+  /// No description provided for @householdManagersOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Managers only — a viewer cannot spend your wallet'**
+  String get householdManagersOnly;
+
+  /// No description provided for @householdChangeLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Change limit'**
+  String get householdChangeLimit;
+
+  /// No description provided for @householdSetLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Set a limit'**
+  String get householdSetLimit;
+
+  /// No description provided for @householdRemainingQueued.
+  ///
+  /// In en, this message translates to:
+  /// **'{remaining} left · {queued} queued, not yet charged'**
+  String householdRemainingQueued(String remaining, String queued);
+
+  /// No description provided for @householdRemainingThisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'{remaining} left this month'**
+  String householdRemainingThisMonth(String remaining);
+
+  /// No description provided for @householdSpendingLimitFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Spending limit for {name}'**
+  String householdSpendingLimitFor(String name);
+
+  /// No description provided for @householdSpendingLimitDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'How much of YOUR wallet they may spend on your SIM lines each calendar month. Set 0 to switch it off — they will go back to paying with their own wallet.'**
+  String get householdSpendingLimitDesc;
+
+  /// No description provided for @householdMonthlyLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly limit (USD)'**
+  String get householdMonthlyLimit;
+
+  /// No description provided for @householdMaxPerRefill.
+  ///
+  /// In en, this message translates to:
+  /// **'Max per refill (optional)'**
+  String get householdMaxPerRefill;
+
+  /// No description provided for @householdSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get householdSave;
+
+  /// No description provided for @householdLimitSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} can now spend up to {cap} of your wallet a month.'**
+  String householdLimitSaved(String name, String cap);
+
+  /// No description provided for @householdLimitCleared.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} pays with their own wallet again.'**
+  String householdLimitCleared(String name);
+
+  /// No description provided for @householdLimitFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not update the limit.'**
+  String get householdLimitFailed;
+
+  /// No description provided for @householdNoInvitesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No invitations'**
+  String get householdNoInvitesTitle;
+
+  /// No description provided for @householdNoInvitesDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'When someone invites you to their household, it will show up here.'**
+  String get householdNoInvitesDesc;
+
+  /// No description provided for @householdFamilyAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Family account'**
+  String get householdFamilyAccount;
+
+  /// No description provided for @householdInvitedYouViewer.
+  ///
+  /// In en, this message translates to:
+  /// **'Invited you to view their SIM lines'**
+  String get householdInvitedYouViewer;
+
+  /// No description provided for @householdInvitedYouManager.
+  ///
+  /// In en, this message translates to:
+  /// **'Invited you to view and top up their SIM lines'**
+  String get householdInvitedYouManager;
+
+  /// No description provided for @householdAccept.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept'**
+  String get householdAccept;
+
+  /// No description provided for @householdDecline.
+  ///
+  /// In en, this message translates to:
+  /// **'Decline'**
+  String get householdDecline;
+
+  /// No description provided for @householdNotJoinedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You have not joined a household'**
+  String get householdNotJoinedTitle;
+
+  /// No description provided for @householdNotJoinedDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Invitations you receive appear under the Invitations tab.'**
+  String get householdNotJoinedDesc;
+
+  /// No description provided for @householdSharedHousehold.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared household'**
+  String get householdSharedHousehold;
+
+  /// No description provided for @householdRoleManagerFull.
+  ///
+  /// In en, this message translates to:
+  /// **'MANAGER · CAN TOP UP'**
+  String get householdRoleManagerFull;
+
+  /// No description provided for @householdRoleViewerFull.
+  ///
+  /// In en, this message translates to:
+  /// **'VIEWER · READ-ONLY'**
+  String get householdRoleViewerFull;
+
+  /// No description provided for @householdLeave.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave'**
+  String get householdLeave;
+
+  /// No description provided for @householdOwnerFunds.
+  ///
+  /// In en, this message translates to:
+  /// **'{owner} funds your refills'**
+  String householdOwnerFunds(String owner);
+
+  /// No description provided for @householdAllowanceExhausted.
+  ///
+  /// In en, this message translates to:
+  /// **'You have used the whole {cap} for this month. Refills on their lines will be refused until it resets.'**
+  String householdAllowanceExhausted(String cap);
+
+  /// No description provided for @householdAllowanceRemaining.
+  ///
+  /// In en, this message translates to:
+  /// **'{remaining} of {cap} left this month'**
+  String householdAllowanceRemaining(String remaining, String cap);
+
+  /// No description provided for @householdAllowancePerTxn.
+  ///
+  /// In en, this message translates to:
+  /// **' · max {perTxn} per refill'**
+  String householdAllowancePerTxn(String perTxn);
+
+  /// No description provided for @householdInviteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite a family member'**
+  String get householdInviteTitle;
+
+  /// No description provided for @householdInviteDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'They get the invitation inside the app. Once they accept, your SIM lines and theirs appear together.'**
+  String get householdInviteDesc;
+
+  /// No description provided for @householdEmailLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Email address'**
+  String get householdEmailLabel;
+
+  /// No description provided for @householdAccessLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'What may they do?'**
+  String get householdAccessLevel;
+
+  /// No description provided for @householdSendInvite.
+  ///
+  /// In en, this message translates to:
+  /// **'Send invite'**
+  String get householdSendInvite;
+
+  /// No description provided for @householdInvalidEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid email address'**
+  String get householdInvalidEmail;
+
+  /// No description provided for @householdInviteSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Invitation sent to {email}'**
+  String householdInviteSent(String email);
+
+  /// No description provided for @householdInviteSentNoAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Invitation sent to {email}. They will see it as soon as they register.'**
+  String householdInviteSentNoAccount(String email);
+
+  /// No description provided for @householdInviteAccepted.
+  ///
+  /// In en, this message translates to:
+  /// **'You joined the household'**
+  String get householdInviteAccepted;
+
+  /// No description provided for @householdInviteDeclined.
+  ///
+  /// In en, this message translates to:
+  /// **'Invitation declined'**
+  String get householdInviteDeclined;
+
+  /// No description provided for @householdRemoveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove family member'**
+  String get householdRemoveTitle;
+
+  /// No description provided for @householdRemoveConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} will immediately lose access to your SIM lines, along with any spending limit you set.'**
+  String householdRemoveConfirm(String name);
+
+  /// No description provided for @householdRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} was removed from your household'**
+  String householdRemoved(String name);
+
+  /// No description provided for @householdLeaveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave household'**
+  String get householdLeaveTitle;
+
+  /// No description provided for @householdLeaveConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'You will lose access to the SIM lines shared by {owner}.'**
+  String householdLeaveConfirm(String owner);
+
+  /// No description provided for @householdLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'You left the household'**
+  String get householdLeft;
+
+  /// No description provided for @householdActionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'That did not work. Please try again.'**
+  String get householdActionFailed;
+
+  /// No description provided for @householdOwnerLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'You (owner)'**
+  String get householdOwnerLabel;
+
+  /// No description provided for @householdSettingsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Share your SIM lines with family, set spending limits'**
+  String get householdSettingsSubtitle;
+
+  /// No description provided for @householdStatusDeclined.
+  ///
+  /// In en, this message translates to:
+  /// **'DECLINED'**
+  String get householdStatusDeclined;
+
+  /// No description provided for @householdDeclinedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'They declined. Remove them to invite again.'**
+  String get householdDeclinedHint;
 }
 
 class _AppLocalizationsDelegate

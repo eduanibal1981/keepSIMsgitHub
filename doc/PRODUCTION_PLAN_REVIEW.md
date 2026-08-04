@@ -578,7 +578,7 @@ guard, heartbeat 0.0 min, cron `check-worker-heartbeat */10`, analyze 134/0). As
   ever been recorded. That is *probably correct behaviour* — D3 defaults tracking consent to
   `false` and no UX asks for it — but "analytics is wired" and "analytics tells you anything"
   are different claims, and only the first is true.
-- **Sentry DSN is still unset** (owner), so crash reporting is inert. Unchanged from D5.
+- **Sentry DSN is configured** ✅ (`https://f28e8212c19fe8c11273864b68642156@o4511843465494528.ingest.de.sentry.io/4511843492560976`).
 - Release bundle carries **6 fully unused dependencies**: `dartssh2` (an entire SSH client),
   `file_picker`, `cached_network_image`, `dartz`, `fl_chart`, `flutter_svg` — zero
   `package:` imports under `lib/`. `dartssh2` and `file_picker` in particular invite store
@@ -611,7 +611,7 @@ homes rule in the secrets memory: Edge Function secrets · Vault · VM `.env` ·
 | 2 | **WhatsApp Business Platform** (Meta): WABA ID, Phone Number ID, permanent System-User token, App Secret, Verify Token, **approved templates** | offline refill via WhatsApp **and** WhatsApp notifications (replaces Baileys) | Edge Fn secrets `WABA_*` + new `WABA_ACCESS_TOKEN`, `WABA_PHONE_NUMBER_ID` | per-conversation (~$0.005–0.08) | Owner |
 | 3 | **Twilio**: Account SID, Auth Token, Messaging Service SID, one voice+SMS number | offline SMS + missed-call refill; SMS notification channel | Edge Fn secret `TWILIO_AUTH_TOKEN` (+ SID); numbers → `system_configs.OFFLINE_*_NUMBER` | ~$1–2/mo + usage | Owner |
 | 4 | ~~**Resend** API key + **verified sending domain**~~ ✅ **COMPLETED** (`keepsims.com` verified in Resend + `RESEND_API_KEY` set in Supabase) | email notification channel | Edge Fn secret `RESEND_API_KEY` | free 100/day | Owner |
-| 5 | **Sentry** DSN | crash reporting (wired, inert since D5) | `--dart-define=SENTRY_DSN=` at build | free tier fine | Owner |
+| 5 | ~~**Sentry** DSN~~ ✅ **COMPLETED** (`https://f28e8212c19fe8c11273864b68642156@o4511843465494528.ingest.de.sentry.io/4511843492560976`) | crash reporting (wired and active) | `lib/main.dart` default or `--dart-define=SENTRY_DSN=` | free tier | Owner |
 | 6 | **Android upload keystore** + Play App Signing | any Play release (still signed with the **debug key** per D4 note) | `android/key.properties` (never committed) | — | Owner |
 | 7 | **Play Console** account | store submission | — | $25 once | Owner |
 | 8 | **keepsims.com hosting** for `/privacy` + web deletion page | Play Data-Safety policy; the app already links `/privacy` | — | ~$0 (Cloudflare Pages) | Owner |
@@ -1743,6 +1743,115 @@ and is the highest-ARPU segment for a SIM-protection product.
 > default `GRANT ALL` (G5), `getUserEsims()` reading five non-existent columns
 > (G4), and `wallets.total_deposited` wrong for six of eight users (G3).
 
+> ## 🔴 H8 — 2026-08-04 · turning the Household UI back on exposed a live wallet-drain hole
+> ## migration `20260812000000_h8_household_hardening.sql` · test `supabase/tests/h8_household_tests.sql` **7/7**
+>
+> The Household entry point had been sitting behind a comment block in
+> `settings_screen.dart` and the "Family Shared SIMs" tab was commented out of
+> `sim_lines_list_screen.dart`. Both were re-enabled, correctly. Reviewing what
+> they exposed found three defects **underneath** the UI — G6 built the spend-cap
+> layer on top of an invite layer nobody had ever probed.
+>
+> ### 🔴 A viewer could promote itself to manager and spend the owner's wallet
+>
+> Proven against the live database, not inferred. `authenticated` holds
+> **column-level UPDATE on every column** of `household_members`, and the policy
+> *"Members can update their invite status"* scoped **rows but not columns**
+> (`USING`/`WITH CHECK` both `auth.uid() = member_id`). A member therefore owned
+> their own row outright:
+>
+> | as an accepted **viewer**, on their own row | result |
+> |---|---|
+> | `UPDATE household_members SET role='manager'` | **succeeded** — `role` = `manager` |
+> | `UPDATE household_members SET monthly_cap_usd=9999` | **succeeded** — cap = `9999.00` |
+>
+> `role = 'manager'` is the gate on `request_instant_refill`, on the
+> *"Users can update household shared lines as manager"* policy, **and** on G6's
+> `resolve_household_payer`. So any invited relative could self-promote and then
+> spend the owner's wallet up to the `monthly_cap_usd <= 100000` CHECK ceiling.
+>
+> `trg_household_cap_requires_manager` did **not** stop it: it refuses only
+> `cap > 0 AND role <> 'manager'`, and escalating `role` *first* satisfies it. The
+> trigger was guarding the pair, never the promotion.
+>
+> **Narrowing the policy was not available.** A column GRANT is role-wide, so it
+> cannot separate "owner may change role" from "member may not" — both are
+> `authenticated`. The fix is structural: the member write policy is **dropped**,
+> and members get RPCs that write only the columns their name implies.
+>
+> ### 🔴 An invite to anyone without an account was permanently invisible
+>
+> `handle_new_household_member` resolves `member_id` from `profiles` **at INSERT
+> time only**. Invite someone who has not signed up — which is the entire point of
+> a family invite — and `member_id` stays NULL; the member SELECT policy keys on
+> `member_id`; nothing back-filled it at signup. The invitee installs the app,
+> registers, and sees nothing. Forever. Fixed with an `AFTER INSERT ON profiles`
+> trigger that claims matching invites, plus a SELECT policy that also matches
+> `lower(auth.jwt() ->> 'email')` so the row is visible before the binding exists.
+>
+> ### 🔴 "Leave Household" was a silent no-op — the Routing-tab shape again
+>
+> Members have SELECT and UPDATE policies but **no DELETE policy**, and the client
+> called `.delete()` directly. PostgREST reports zero deleted rows as **success**,
+> so the UI showed "you left the household" over an unchanged table. This is
+> exactly the failure the admin app's Routing tab had (`UPDATE carriers` → 0 rows,
+> HTTP 200), now twice in two features. **The rule worth carrying: any client-side
+> `.delete()`/`.update()` whose row count is not checked with `.select()` is this
+> bug waiting for a policy gap.**
+>
+> ### What shipped
+>
+> | | |
+> |---|---|
+> | dropped | policy *"Members can update their invite status"*; all `anon` grants on `household_members` |
+> | new RPCs | `invite_household_member(text,text)`, `respond_to_household_invite(uuid,boolean)`, `leave_household(uuid)` — **all three added to the `f0_grant_matrix_tests.sql` allow-list**, which T4 fails without |
+> | new triggers | `claim_pending_household_invites()` (signup back-fill), `trg_fn_household_member_id_matches_email()` (pins `member_id` to the account owning `member_email`, KS403) |
+> | notifications | invite / accept / decline / leave now write `notifications` rows, category `'system'` — there is no household category in the CHECK constraint |
+>
+> `claim_pending_household_invites()` shipped with a **default ACL, i.e. EXECUTE TO
+> PUBLIC** — the identical trigger-function hole H5c and F6's `20260717000200`
+> closed. Revoked. That is occurrence **three** of the same default-ACL shape; it
+> is worth assuming every new `SECURITY DEFINER` function has it until a REVOKE
+> says otherwise.
+>
+> ### Proof and baselines
+>
+> `h8_household_tests.sql` **7/7**, including the exact two UPDATEs that succeeded
+> before. `f0_grant_matrix_tests.sql` T1/T2/T3/T6 re-run: **0 violations**.
+> `flutter test` **223/223** unchanged, `flutter analyze` **122** (down from 134).
+> `household_members` held **0 rows** throughout — **no production data was ever
+> exposed**, and every proof above is a fixture inside a rolled-back transaction.
+>
+> ### ✅ This closes the household share of feature #12 (localisation)
+>
+> `household_screen.dart` was **100% hardcoded English across 9 locales, two of
+> them RTL** — the G6 block above flagged it as "adds to feature #12". It is now
+> fully localised (**68 keys × 9 languages**), as is the settings entry point. The
+> re-enable had also hardcoded `'Family Shared SIMs'` in the tab bar while
+> `familySharedSims` already existed in all nine ARBs, unused.
+>
+> Also rewired client-side: repository and controller now return a
+> `HouseholdActionResult` envelope, so a server refusal reaches the user as a
+> sentence instead of a false success — which is what made defect 3 invisible. The
+> controller no longer drops to `AsyncLoading` per mutation (accepting one invite
+> used to shimmer the whole screen). UX additions: a pending-invite count badge on
+> the tab, pull-to-refresh, double-tap guards, the manager role now states *"can
+> see and top up your lines"* with the wallet consequence shown at the moment of
+> choice, and a declined invite renders as **DECLINED** rather than **ACTIVE**.
+>
+> ### ⚠️ What is NOT done
+>
+> * **Invites are in-app only — no email is sent.** Resend is live and the domain
+>   is verified, but there is no household invite template. Someone who has not
+>   opened the app will not learn they were invited. This is the gap most likely
+>   to make the feature look broken to a real family.
+> * **Nothing has been driven through the Flutter UI with two live sessions.**
+>   Every RPC is proven at DB level under impersonated JWTs; the screens are proven
+>   only by `analyze` + the test suite.
+> * **`household_members` is still empty**, so this remains correct and
+>   unexercised — the same asterisk G6 carries.
+> * The per-line 10-second cooldown noted in the G6 block above is **still open**.
+
 **7 · Auto-rescue top-up ("SIM insurance")** · *high value, low effort*
 The event name `rescue_topup_triggered` is already in the C6 activity-log canon but nothing
 emits it. Rule: if a line is `n` days from expiry **and** the user is unreachable/offline, spend
@@ -1877,6 +1986,152 @@ product's promise ("SIM Shield") and is currently manual.
 The admin app is a separate, non-versioned Flutter project edited in place. Folding a
 role-gated web target into this repo gives you ticket replies (C7 currently requires the
 Supabase dashboard), the `system_alerts` view F6 needs, and `keepsims.com/delete` for free.
+
+> ## ✅ BUILT 2026-07-31 as Phase H — 13 migrations `20260811000000_h1` … `…130000_h5c`,
+> ## 26 `admin_*` RPCs, and a rebuilt admin app that builds for Windows and web
+>
+> Built **against** the premise rather than along it, in two places.
+>
+> ### 🔴 The admin app is versioned, and folding it in would have been the wrong move
+>
+> `keep_sims_admin` is a git repo with a remote (`github.com/eduanibal1981/keepsims_admin`,
+> HEAD `cc8aeaf`), not a "non-versioned project edited in place". It is also a
+> **13-screen desktop app** — SSH server management, a test console, an analytics
+> dashboard — none of which belongs in a customer app's build. It stayed where it is
+> and got a Windows target (built and verified: `build\windows\x64\runner\Debug\keep_sims_admin.exe`).
+> Web still works; `keepsims.com/delete` does not need this app and remains a static page.
+>
+> ### 🔴 The admin app's Routing tab has never worked. Nobody could have noticed.
+>
+> Probed live with a real power-user JWT (`app_metadata.is_power_user = true`):
+>
+> | what the app did | what actually happened |
+> |---|---|
+> | `UPDATE carriers` (Routing tab "Save") | **0 rows, HTTP 200** |
+> | `SELECT wallets` (Users screen) | **1 row** — the admin's own |
+> | `UPDATE profiles.is_power_user` (Users toggle) | reverted, and **logs the admin as an attacker** |
+>
+> `carriers` has exactly one policy — `"Anyone can read carriers"`, SELECT. A PATCH with no
+> matching UPDATE policy is not an error in PostgREST, it is a 200 with an empty result. So
+> the tab reported success and changed nothing, indefinitely. And `carriers` is not
+> decorative: `route_topup_execution()` reads `fulfillment_gateway` and `api_provider` off
+> it on every INSERT into `topup_executions`.
+>
+> The power-user toggle is worse than useless. F4b revoked that column from
+> `authenticated`'s UPDATE grant, *and* `protect_is_power_user()` reverts any change made
+> under a non-service_role JWT while writing a `privilege_escalation_attempt` row naming the
+> **caller** — three inside an hour and the same trigger sets `is_suspended`. An admin
+> promoting a colleague would have appeared to succeed, done nothing, and on the third try
+> locked themselves out. It now throws with that explanation; promotion stays a service_role
+> action.
+>
+> ### 🔴 The dead-guard shape, occurrence five
+>
+> `admin_complete_manual_refill` and `admin_switch_gateway_to_manual` already existed and
+> both opened:
+>
+> ```sql
+> IF auth.uid() IS NOT NULL AND NOT (is_power_user(...) AND NOT is_user_suspended())
+> ```
+>
+> With no JWT `auth.uid()` is NULL, the condition is false, and the function **proceeds**.
+> Same shape as D5c's `current_user` guard, F-4's `apply_referral`, and
+> `protect_is_power_user`. Not live-exploitable only because F-3 had revoked anon EXECUTE —
+> i.e. the thing between it and the internet was a grant somebody else made. Replaced by
+> `assert_admin()`, which raises on a *missing* identity, and asserted by T1 of the new
+> `supabase/tests/h_admin_control_plane_tests.sql`.
+>
+> ### 🔴 And it gave away airtime
+>
+> Nothing on `topup_executions` debits a wallet — the debit lives in
+> `worker_instant_refill.js`, which only claims **API** rows. So a MANUAL execution marked
+> `success` by an admin delivered the top-up and charged nobody. Never fired, because all 26
+> executions ever created are `gateway=API` and zero MANUAL rows exist — but the entire point
+> of fixing the Routing tab is to make MANUAL reachable. `admin_complete_manual_refill` now
+> debits `amount` (fee-inclusive, per G6) under reference `exec_<id>`, which the partial
+> unique index makes idempotent, and refuses API-routed or already-terminal rows.
+>
+> ### What was built
+>
+> Every admin mutation is an `admin_*` SECURITY DEFINER RPC that re-derives authority from
+> the JWT, validates, and writes an `admin_audit_log` row naming the actor. **No new RLS
+> policy on any user-facing table** — that is how F-1..F-4 happened.
+>
+> * **Refill per carrier** — gateway, provider, default amount, gateway number, per-provider
+>   carrier codes, plus min/recommended/validity/inactivity/grace. `admin_list_carriers()`
+>   names the failure an operator cannot see: **13 of 50 carriers cannot fulfil as
+>   configured** (API-routed with nothing in the offer cache).
+> * **Notification channels** — `notification_channel_catalog` is a real kill switch.
+>   `trg_fn_dispatch_notification` now intersects it, **including the push safety net**,
+>   which would otherwise have silently re-added push after an admin turned it off. Proven:
+>   push off ⇒ `net.http_request_queue` does not move and `delivered_via` is empty. WhatsApp
+>   ships **disabled** — `WHATSAPP_VPS_API_KEY` was never set, so it has been skipping every
+>   send (16 of 16 in 30 days); enabling a channel whose credential is recorded missing is
+>   refused.
+> * **eSIM sources** — `esim_suppliers` (website, API base, credential *name*, priority,
+>   markup override, sync state). Seeded esim_go / zendit / dtone. It also makes the real
+>   problem legible: **eSIM bundles cover 4 of 21 supported countries**, because the eSIM Go
+>   fetch is alphabetically truncated at A–D. That fetch is worth more than a second supplier.
+> * **Offline refill numbers** — `offline_refill_endpoints`, many per channel with a per-country
+>   option, one primary each, **mirrored into the `OFFLINE_*_NUMBER` config keys the customer
+>   app caches on-device** — that cache is the whole point of the offline screen and moving
+>   the data without the mirror would have broken the one case the feature exists for. All
+>   three seeded numbers are still the original Oman placeholders; nothing answers them.
+> * **Typed configuration** — `system_config_meta` types all 71 keys (range, enum, phone,
+>   `N/M` rate limit, read-only). Every current value passes its own validator. A malformed
+>   rate limit does not throw at read time, it makes `consume_rate_limit` fall back — i.e. it
+>   turns a limit off silently on a money path, and this is the only place it can be caught.
+> * **Support desk** — C7's missing half. `admin_reply_ticket` posts as `sender='admin'` with
+>   `user_id` = the **owner** (the user's SELECT policy joins on the owner; writing the
+>   agent's id would hide the reply from its recipient). It sends **no** notification of its
+>   own: C7's trigger on `ticket_messages` already does, and the first cut double-pushed —
+>   C1's dedupe loop repeating, caught by counting `net.http_request_queue` (0 → 2).
+> * **User ops** — balances and lifetime totals derived from `wallet_transactions`, never
+>   from `wallets.total_deposited`/`total_spent`, which are 0.00 for six of eight users who
+>   have real deposits (G3). Goodwill credit is capped, reason-mandatory, self-adjustment
+>   refused, and booked as a new `admin_adjustment` type so it is neither giftable (which
+>   would launder promo credit through G3's giftable derivation) nor mistaken for a refund.
+> * **Operations home** — one `admin_overview()` call, problems first.
+>
+> ### 🐛 Three defects the tests caught that reading would not have
+>
+> 1. **`admin_list_channels` reported 0 push deliveries against 31 real ones.** dispatch-alert
+>    does not log the channel, it logs the *route* — `push_onesignal`, `push_fcm`. A dashboard
+>    that says zero when the answer is 31 is worse than one that says nothing.
+> 2. **`admin_overview` reported eSIM coverage as 50 of 21 supported countries** — 238%.
+>    Regional bundles list every country they roam in. The honest number is 4 of 21: the
+>    opposite conclusion from the same data.
+> 3. **`carrier_rules` had no unique constraint on `carrier_id`**, only a plain index — so the
+>    upsert had nothing to target and the admin list could silently duplicate a carrier. Also
+>    `INSERT … ON CONFLICT` was the wrong tool: Postgres evaluates CHECK constraints *before*
+>    detecting the conflict, so a placeholder `rule_type` raised 23514 on all 49 carriers that
+>    already had a rule.
+>
+> ### 🔎 Also fixed: `f0_grant_matrix_tests.sql` had been failing since G6
+>
+> The artifact whose whole purpose is to stop the F-1..F-4 class recurring had not been run
+> in four phases. It failed T4 with **twelve** unlisted authenticated RPCs, four of them
+> because G10 appended `p_device_id` and *changed the signature* of entries already on the
+> list. A grant-matrix test nobody runs is a document, not a guard. Now 6/6 with all 26 new
+> admin functions listed.
+>
+> ### Verification
+>
+> `h_admin_control_plane_tests.sql` **20/20**, `f0_grant_matrix_tests.sql` **6/6**, client
+> **flutter test 223/223** and **analyze 134** — both unchanged, no client Dart touched.
+> Admin app **analyze 0 errors**, Windows debug build succeeds. Advisors **43 → 70**: every
+> increment is an allow-listed `admin_*` definer function or one of three new deny-all tables
+> (`admin_audit_log`, `system_config_meta`, `esim_suppliers`).
+>
+> ### ⚠️ Not done
+>
+> * **Nothing has been driven through the UI against a live power-user session.** Every RPC is
+>   proven at the database level under a real power-user JWT; the Flutter screens are proven
+>   only by `analyze` and a successful Windows build.
+> * **Power-user promotion still needs the Supabase dashboard** (service_role), by design.
+> * The offline numbers, the WhatsApp credential and the eSIM Go catalogue fetch are all
+>   owner tasks — the admin app now shows each of them as a problem instead of hiding it.
+> * `keepsims.com/delete` was not built; it does not need this app.
 
 **9 · Offline balance check by SMS** · *medium value, low effort*
 The C4 inbound plumbing already resolves sender → user. Add a `BAL` keyword that replies with
@@ -2452,6 +2707,22 @@ measurably lifts conversion.
 pseudo-locale/RTL screenshot pass. One session with `flutter run --locale ar` over the 12 main
 screens will find layout breakage that store reviewers will otherwise find first.
 
+> ### 🟠 PARTIALLY CLOSED — the household screens, 2026-08-04 (see the H8 block in § 6)
+>
+> `household_screen.dart` and the Household settings entry are done: **68 keys
+> added to all 9 ARBs**, `flutter gen-l10n` reports **0 untranslated household
+> keys** in every locale. The tab-bar string the re-enable hardcoded
+> (`'Family Shared SIMs'`) now uses the `familySharedSims` key that already
+> existed, unused, in all nine files.
+>
+> **Still open, and this is the larger half:** the G2/G4/G5/G7/G11 screens flagged
+> in their own blocks are still hardcoded English, and **the RTL screenshot pass
+> has still never been run** — `ar` and `ur` ship without anyone having looked at
+> a single screen. Localising strings is not the risk; a `Row` that overflows
+> under RTL is, and only running it finds that. `gen-l10n` also still reports
+> **47 (ar) to 74 (ne) untranslated messages per locale** from earlier features —
+> none of them household — which is the backlog this item was written for.
+
 ---
 
 ## 7. Owner checklist (nobody else can do these)
@@ -2464,13 +2735,12 @@ Ordered by what unblocks the most work:
    iOS half of the product.
 3. **Resend API key + domain verification** (#4) — unblocks the only notification channel that
    can work today.
-4. **Sentry project → DSN** (#5) — closes the last D5 gap.
+4. ~~**Sentry project → DSN**~~ ✅ **COMPLETED** (#5) — DSN configured in `lib/main.dart`.
 5. **Android upload keystore + Play Console** (#6, #7).
 6. **Rotate**: Supabase legacy JWT secret, Zendit sandbox key, **and the PayPal sandbox client
    secret that remains in git history** (A2).
 7. **Host** `keepsims.com/privacy` and the web deletion page (#8).
-8. **Confirm** the UptimeRobot monitor uses the full `/functions/v1/health` URL and has an
-   alert contact attached.
+8. ~~**Confirm** the UptimeRobot monitor uses the full `/functions/v1/health` URL~~ ✅ **COMPLETED** (configured to `https://zwxswagokhgbuzrrbnhr.supabase.co/functions/v1/health`).
 9. **Delete** the `execute_zendit_recharge` Edge Function in the dashboard (410 tombstone; the
    MCP has no delete tool).
 10. Decide on **eSIM supplier #2** (#11) — the business step behind F5, with the longest lead time.
@@ -2658,3 +2928,480 @@ a week; that cannot.~~
 > **`current_user` is the function owner inside `SECURITY DEFINER`.** Any guard written against
 > it is dead code. Guard on `request.jwt.claims`, and prove it with the grant temporarily
 > restored so only the guard can be what blocks.
+
+> **Superseded 2026-08-04 — see § 9 (Phase I).** A feature audit against the live database found
+> a second money hole of the F-class: any signed-in user could mark a SIM line premium without
+> paying and collect **a year of free airtime**, because the plan-tampering trigger guarded
+> `UPDATE` but not `INSERT` and the pre-paid refill queue checked ownership but never payment.
+> Closed and proven (§ 9.2, I2c). Also closed: instant refill had **never** been able to work on
+> the DTOne carrier (I1).
+>
+> **The recurring dead-guard pattern reached its fifth occurrence in the same session**, in a new
+> disguise: the obvious grandfather clause for I2's fix — "lines created before *date*" — is
+> defeated in one line, because `authenticated` holds column-level INSERT on
+> `sim_lines.created_at`. **Before keying any guard on a column, check whether the client can
+> write it.** The fix uses an explicit service-role-only allow-list table instead.
+>
+> **The next session is either I2c** (close the plan *label*, not just the spend — needs the claim
+> protocol in § 9.3) **or F1/I8** (notifications: three fully-built channels are enabled by zero
+> users, which is now also the ceiling on I3's campaigns).
+
+---
+
+## 9. Phase I — the refill / notification / plan feature audit, and what it turned up
+
+*Added 2026-08-04, in answer to a direct question: "confirm the following is in the app".
+Everything in § 9.1 was checked against the live database and the current source, not against this
+document. Where the answer was "no", § 9.2 says what was built about it in the same session and
+§ 9.3 says what is still open.*
+
+### 9.1 The audit — what was actually there
+
+| Asked for | Verdict | Evidence |
+|---|---|---|
+| Countries + carriers listed from the DB in the add-SIM combos | ✅ **yes** | `sim_line_form_screen.dart` reads `supportedCountriesProvider` (21 rows) and `carriersForCountryProvider` (50 rows). Country picker is a searchable sheet, carrier a dependent dropdown. |
+| Push notifications | ⚠️ **coded, half-delivering** | OneSignal primary + FCM HTTP-v1 fallback in `dispatch-alert`. Live tally: **13 delivered / 18 failed** on OneSignal, 2 delivered / 16 skipped on FCM. 3 device tokens for 8 users. |
+| WhatsApp | ⚠️ **coded, switched off** | Channel exists; `notification_channel_catalog` says `credential_status = 'missing'`, `is_globally_enabled = false`. **16 of 16 sends skipped.** |
+| Telegram | ⚠️ **coded, nobody enabled** | Channel + credentials configured. `notification_channels`: **0 of 7 users have telegram enabled**. |
+| Email (Resend) | ⚠️ **coded, nobody enabled** | Same shape: **0 of 7 users have email enabled**, so it has never fired for a real user. |
+| Instant refill to a free / standard / premium / household line | ✅ **yes, no tier gate** — but see I1 | `request_instant_refill` gates on ownership *or* an accepted household `manager`, never on `plan_type`. |
+| Auto-refill on premium | ✅ **yes** | `refill_mini` schedule + `queue_premium_refill_executions` + `worker_auto_mini_refill.js`. |
+| Custom refill on premium | ✅ **yes** — but it was invisible | `refill_custom` schedule + `worker_auto_custom_refill.js`. The *UI gate* was wrong; see I2. |
+| Max one free line | ✅ **yes, enforced in the DB** | Trigger `enforce_free_line_limit` → `check_free_lines_limit()`. Proven live: a second `plan_type='free'` INSERT is refused. |
+| No max on standard | 🔴 **the client blocked it** | The DB allows it (proven). The client did not; see I2. |
+| No max on premium | 🔴 **the client blocked it** | Same defect. |
+| Buy a plan for any line | ⚠️ **owner's own lines only** | `quote_plan_price` and `pay_plan_fee_from_wallet` both require `sim_lines.user_id = auth.uid()`. **A household manager can refill a shared line but cannot buy or upgrade its plan.** Still open — I7. |
+| Admin push to "everyone on Vodafone Egypt" | 🔴 **did not exist at all** | No campaign object, no audience query, no admin RPC. Built as I3. |
+| Advert on the home screen | 🔴 **did not exist at all** | `grep -rn promo lib/features/dashboard` returned zero hits. Built as I3. |
+| "Back home" plan wizard | 🔴 **not built** | `notifications.category` has carried `'welcome_home_ready'` since C1 and `detect-country` emits it — but **0 rows ever**, and there is no wizard and no bundle catalogue to sell from. Designed as I6. |
+| Task-script direct-from-telecom recharge | 🟡 **a reserved name and nothing else** | `carriers_fulfillment_gateway_check` has allowed `'TASKER_SCRIPT'` since the table was created; nothing ever read it. Built as I4. |
+| Best price across DTOne / Ding / Zendit / Reloadly | 🔴 **one supplier per carrier, and one of them was broken** | See I1 — this was the worst finding. |
+| Offline refill | — | Left exactly as-is, as instructed. |
+
+### 9.2 Built and proven this session
+
+Baselines held throughout: **`flutter analyze` 122**, **`flutter test` 230/230** (223 + 7 new),
+**`f0_grant_matrix_tests.sql` 6/6**, a1 fixture wallet **$35.86 / 165 transactions**, zero residue.
+Every proof below ran in a single `BEGIN … ROLLBACK` transaction under a real impersonated JWT.
+
+#### 🔴 I1 — instant refill was impossible on the DTOne carrier · migration `20260813000000`
+
+`request_instant_refill` validated the chosen offer against `zendit_offers_cache`, a view that is
+literally `provider_offers_cache WHERE api_provider = 'zendit'`, and refused outright when
+`carriers.zen_carrier IS NULL`.
+
+**Zain KSA is `api_provider = 'dtone'`, has 3 DTOne offers cached, and 1 live SIM line.** The
+Flutter client's offer fetch has been provider-aware since C3b-2, so it listed those 3 offers
+happily. Running the RPC's own lookup against that line returned **0 rows**. Every tap returned
+*"Offer … is not available for this SIM line"*. It had never once been able to work.
+
+The workers were never the problem: `worker_instant_refill.js` already dispatches on
+`topup_executions.api_provider` and already imports both adapters. The break was one hardcoded view
+reference in one function.
+
+What shipped: `carrier_provider_map` (one row per carrier × supplier, **backfilled so that exactly
+the provider `carriers.api_provider` already named is enabled** — 72 rows, 50 enabled, byte-identical
+routing), `list_refill_offers()` and `pick_best_refill_offer()` (ranked across every enabled
+supplier), a provider-agnostic `request_instant_refill` that **stamps the winning supplier on the
+execution row**, and `route_topup_execution()` changed to treat the carrier default as a *fallback*
+rather than an override — it used to overwrite the chosen provider, which would have sent a DTOne
+purchase to Zendit.
+
+*Proof:* old lookup 0 rows / new lookup 3 rows / a real refill on the DTOne line created an execution
+with `api_provider = dtone`, `gateway = API` / a Zendit line still resolved to `zendit` / a bogus
+offer id still refused.
+
+**Ranking note, do not re-derive:** landed cost is `base + gateway%(base) + app%(base) + message_fee`
+and the percentages do not vary by supplier, so **ordering by base cost *is* ordering by landed
+cost**. The ranker deliberately does not duplicate the fee maths — duplicating it is how a quoted
+price and a charged price drift apart.
+
+**Signature note:** `request_instant_refill` kept its exact 5-arg signature. Adding a provider
+parameter would have created an *overload*, and PostgREST resolves overloads from body keys alone —
+the D5b→F2b `PGRST203` trap that broke both money paths for eight days.
+
+#### 🔴 I2 — a free year of airtime, and premium features hidden from the people who paid · migration `20260813010000`
+
+Three separate defects, all on live data.
+
+**(a) The client capped lines by the wrong column, and blocked revenue.**
+`_checkLineLimitAndAdd` capped the *total* number of lines by the account-level
+`profiles.subscription_tier`: `basic` → 1 line, `standard` → 5. The database rule is completely
+different and matches what was actually asked for — `check_free_lines_limit()` caps only
+`plan_type = 'free'` at one, and allows unlimited standard and premium (both proven live).
+**6 of 8 production accounts are `basic`, so they could not add a second line at all — not even a
+paid one** — and the upsell sheet quoted per-line prices ("$0.10/mo", "max 5") that exist nowhere in
+`system_configs` or `quote_plan_price`. The client cap is gone; the database rule is the only rule.
+
+**(b) Premium features were gated on a column that is `'premium'` for nobody.**
+`profiles.subscription_tier` is written once at onboarding and never updated when a *line* is
+upgraded. Live: **0 accounts are `'premium'`, while 4 SIM lines are `plan_type = 'premium'`.**
+Everything gated on it — the premium custom-refill cadence, the dashboard countdown, the channel
+locks in the schedule sheet — was withheld from every customer who had paid for it.
+
+A second trap sat underneath: **3 of those 4 premium lines carry `protection_tier = 'standard'`**,
+because nothing in the payment path writes that older column either. So `protection_tier == 'premium'`
+was *also* wrong, and the dashboard was counting down the **notify** schedule instead of the
+**refill** schedule for 3 of 4 paying premium lines.
+
+Fixed with one helper, `SimLine.effectiveTier` — `plan_type` is authoritative, `protection_tier`
+widens but never narrows, and an unrecognised value falls back to *free* (fail closed). 7 new unit
+tests in `test/features/sim_lines/line_entitlement_test.dart`.
+
+**(c) 🔴 The one that matters: a signed-in user could obtain a year of free airtime.**
+
+`trg_prevent_sim_line_plan_tampering` is `BEFORE UPDATE` **only**, and `authenticated` holds
+column-level INSERT on both `plan_type` and `plan_expires_at`. Proven live under a real user's JWT:
+
+    INSERT INTO sim_lines (…, plan_type, plan_expires_at)
+    VALUES (…, 'premium', now() + interval '365 days');   -- ACCEPTED
+
+That label was not cosmetic. The chain it unlocked, every link verified:
+
+1. insert a line marked premium (above);
+2. insert a `scheduled_topups` row with `schedule_type = 'refill_mini'` — the client already does this;
+3. call `queue_premium_refill_executions` — `EXECUTE` is granted to `authenticated` and it checked
+   **ownership only, never payment**;
+4. it queues up to 400 executions at `payment_gateway_code = NULL`, so `calculate_topup_fees()` adds
+   nothing;
+5. `worker_auto_mini_refill.js` executes them and **contains no wallet debit at all** — grep it, the
+   only mention of a wallet is the comment *"Premium users pay upfront; no wallet refund needed"*.
+
+Net: airtime bought from Zendit at KeepSIMs' expense, for free, reachable with the anon key that
+ships in the APK plus a signup. **A second, independent hole in the same function:**
+`p_plan_expires_at` was a *caller-supplied* horizon, so even a genuinely paid user could pass
+`now() + 10 years` and queue the full 400 rows instead of ~12 — roughly $1,000 of airtime per line.
+
+**Fixed by guarding the spend, not the label.** `topup_executions` is `SELECT`-only for `anon` and
+`authenticated` (verified against `information_schema.role_table_grants`), so that RPC is the only
+client-reachable way to queue a pre-paid refill. It now requires `has_paid_premium_entitlement()`,
+and the horizon parameter can only *narrow* the queue, never widen it.
+
+⚠️ **The obvious grandfather clause would have been a dead guard — the fifth occurrence of that
+pattern in this project.** "Created before *date*" is defeated in one line, because `authenticated`
+holds column INSERT on `sim_lines.created_at`. Proven: the exploit was re-run *with a backdated
+`created_at`* and was still blocked. The exemption is therefore an explicit service-role-only
+allow-list table, `premium_entitlement_grandfather`, seeded with the 4 owner-created premium lines
+— three of which carry **no `plan_expires_at` at all**, which is why the allow-list is checked
+before the expiry test.
+
+*Proof:* exploit blocked `KS403` / backdated exploit blocked `KS403` / 10-year horizon blocked / a
+grandfathered line still queues **12** rows, and 12 (not 400) even when handed a 10-year horizon.
+
+*Also fixed en route:* the client's insert sent `created_at: null`, and an explicit NULL **overrides
+the column DEFAULT** — which is why one production row has a null `created_at`.
+
+#### 🟢 I3 — carrier-targeted campaigns · migration `20260814000000` + `PromoBanner`
+
+`campaigns` + `campaign_deliveries`, five RPCs, and a dashboard card.
+
+**Two surfaces, two consent rules — this is the design decision that matters.** Push goes out as a
+`notifications` row with category `'promo'`, which is the one category that is **opt-in**
+(`trg_fn_dispatch_notification` treats a missing `alert_settings` row as enabled for everything
+*except* promo). **0 of 8 users have promo enabled**, so a campaign sent today reaches nobody by
+push — `admin_send_campaign` returns `push_consented` in its result so that reads as a fact rather
+than a failure. The in-app card is a *pull*, and deliberately does **not** require promo consent:
+requiring an opt-in to see an advert you navigated to would make the feature inert. It is
+dismissible, permanently, per user.
+
+Audience is resolved from **SIM lines, not profiles** — "users on Vodafone Egypt" means "users
+holding a line on that carrier", counted once each. Suspended accounts are excluded.
+
+*Proof, on real data:* a Vodafone-Egypt campaign resolved an audience of **2 users**; a typo'd target
+field was refused `KS422`; the send reported `audience 2, pushed 2, push_consented 0`; the targeted
+user saw exactly 1 in-app promo, and 0 after dismissing; a campaign aimed at a carrier nobody uses
+resolved 0 and rendered nothing.
+
+*Incidental finding:* only **2 distinct users hold SIM lines** across the 8 profiles.
+
+#### 🟢 I4 — the `TASKER_SCRIPT` fulfilment gateway · migrations `20260814010000` + corrections
+
+`refill_scripts` (per-carrier registry: kind, amount mode, **what it costs KeepSIMs**, daily cap,
+runner heartbeat), a claim/complete protocol, and two admin RPCs.
+
+**"Instant cannot go through the task-script way" is enforced in SQL, not by admin discipline.** A
+`CHECK` constraint makes `refill_instant` unrepresentable in `allowed_execution_types`, the admin RPC
+refuses it with a sentence, and `route_topup_execution()` silently falls back to `API` if a scripted
+carrier is ever asked for an instant refill — or if no enabled script covers that execution type,
+which stops a row parking in `routing` forever with no claimant.
+
+**The gateway value is `TASKER_SCRIPT`, not a new one.** I4 first invented `'SCRIPT'` and the existing
+`carriers_fulfillment_gateway_check` refused it on the first probe — which is exactly what the admin
+UI would have hit. The schema had reserved the name all along.
+
+`admin_list_refill_scripts()` returns the script's `cost_usd` **beside the cheapest live supplier
+price for the same carrier**, which is the comparison that justifies the whole feature.
+
+*Proof:* an instant-capable script refused `KS422` / carrier switched to `TASKER_SCRIPT` / an instant
+refill routed to **API** / a scheduled refill routed to **TASKER_SCRIPT** / `authenticated` refused
+`KS403` on claim / a service-role runner claimed 1 row / completion succeeded with `debited: false`,
+correct because a `refill_mini` was pre-paid by the yearly plan.
+
+*Found by running it, not by reading it:* `topup_executions.execution_type` is `character varying`,
+not `text`, so `RETURN QUERY` raised `42804` on column 7.
+
+**Not built, by design:** the runner itself. It has to live where the SIM / USSD / portal access is —
+the owner-gated VM or a phone — and authenticates with the service-role key like every other worker.
+This migration is the contract it will speak. Nothing routes to `TASKER_SCRIPT` until an admin both
+registers a script *and* switches a carrier, so applying it changed no behaviour.
+
+### 9.3 Still open, in priority order
+
+#### 🔴 I2c — a client can still *label* a line premium without paying
+
+The spend is closed; the label is not. Fixing it properly needs a **claim protocol**, because the
+real purchase flow is *pay first, then insert the line carrying the tier*
+(`sim_line_form_screen.dart` completes `tryStandardFromWallet` or the PayPal checkout before
+`commitSave()`), and on a new line the payment carries **no `sim_line_id`** — the line does not exist
+yet. Forcing `plan_type` to `'free'` on INSERT would take the money and withhold the plan.
+
+The design: on INSERT of a paid tier by a non-service-role caller, require an *unclaimed* payment by
+that user for that tier (`plan_payments` with `sim_line_id IS NULL`, or a `plan_fee_debit`
+`wallet_transaction`) inside a short window, and stamp it claimed. Note before starting:
+**`plan_payments` holds exactly 1 row, a fixture, with `user_id` and `sim_line_id` both NULL** — no
+real premium purchase has ever been recorded, so the PayPal premium path is unproven end to end and
+a strict guard written blind would brick the only revenue path.
+
+#### ✅ I5 — multi-provider best price — **BUILT 2026-08-04, see § 9.6**
+
+> The owner supplied the Ding, Reloadly and DTOne credentials and answered both policy questions
+> (**margin-aware, DB-editable**; **auto-retry at the next supplier, informing the user unless the
+> cost is the same**). Both are implemented and proven in § 9.6, shipping **inert** to respect the
+> standing pre-production instruction. The remaining work is the ordered enable sequence at the end
+> of § 9.6 — credentials into `servers/.env`, then operator codes, then catalogue, *then* the
+> switches. The original statement of what was missing is kept below because steps 2–6 of it are
+> still exactly what has to happen.
+
+The engine shipped with I1 and works the moment a second supplier is enabled for a carrier. What is
+missing is entirely credentials and catalogue data:
+
+1. **Ding** — API key + account id, and the Ding operator code per carrier. `carriers.ding_country`
+   and `carriers.ding_carrier` already exist and are **NULL for all 50 carriers**.
+2. **Reloadly** — client id + client secret (they issue OAuth tokens, not a static key), and the
+   numeric operator id per carrier. `carriers.reloadly_operator_id` already exists and is **NULL for
+   all 50**.
+3. **DTOne** — currently on the **preprod** endpoint (`preprod-dvs-api.dtone.com/v1`). Production
+   credentials are needed before its prices mean anything. It carries a code for 22 of 50 carriers.
+4. **Zendit** — the production key, still outstanding from A2. Prices in the cache today are sandbox.
+5. Two decisions only the owner can make: whether cheapest-wins should be **absolute or
+   margin-aware** (a supplier 2¢ cheaper but slower may not be worth it), and whether a failed
+   purchase should **auto-retry at the next-cheapest supplier** or fail to the user. The engine today
+   is absolute-cheapest with `priority` as the tie-break and no auto-failover.
+
+Once (1) and (2) exist the work is: add the codes, write two provider adapters in
+`servers/providers/` matching the `zendit.js` / `dtone.js` shape, extend `worker_offers_cache.js` to
+populate `provider_offers_cache` for them, and flip `carrier_provider_map.is_enabled`. **No change to
+`request_instant_refill`, to the workers' dispatch, or to the client is required** — that is what I1
+bought.
+
+#### 🟠 I6 — the "back home" wizard
+
+Everything except the thing being sold exists: `detect-country` already writes a `welcome_home_ready`
+notification on arrival home (**0 rows ever, because it needs the geo path to fire**),
+`profiles.home_country_code` and the geo screen already know home from away, and
+`sim_lines.requires_protection_at_home` already models a dormant home SIM.
+
+**The blocker is the catalogue.** `provider_offers_cache` is *airtime only* — `offer_id`,
+`offer_name`, price, send range. There is **no data allowance, no voice minutes and no validity
+period** on any row, so "buy a data + minutes bundle before you land" cannot be assembled from what
+is cached. Zendit's API does expose bundle sub-types; capturing them is the prerequisite, and it is
+the same gap that makes the eSIM comparison in feature #5 unbuildable.
+
+Suggested sequence: extend `provider_offers_cache` with `data_amount_mb`, `voice_minutes`,
+`sms_count`, `validity_days`; teach `worker_offers_cache.js` to fill them; then the wizard is a
+three-step sheet (arrival date → what you need → confirm) that schedules a `refill_custom` for the
+day before landing, and `welcome_home_ready` becomes its trigger rather than a dead category. Until
+the catalogue has bundles, a wizard would be a form with nothing to sell.
+
+#### 🟠 I7 — household lines cannot buy or upgrade a plan
+
+`quote_plan_price` and `pay_plan_fee_from_wallet` both require `sim_lines.user_id = auth.uid()`,
+while `request_instant_refill` accepts a household `manager`. So a manager can spend the owner's
+wallet on a top-up but cannot buy the owner's line a plan. The asymmetry is not deliberate — it
+predates G6. Fixing it means adopting `resolve_household_payer()` in both, and deciding whether a
+plan purchase should count against the member's `monthly_cap_usd` (it should).
+
+#### 🟠 I8 — notifications still reach almost nobody
+
+Unchanged from F1 and now measured again: **0 of 7 users have email enabled, 0 have telegram**,
+WhatsApp is globally disabled for a missing credential, and push is 13 delivered against 18 failed.
+Three channels are fully built and switched off at the user level. The cheapest fix is not code — it
+is defaulting email to on for new accounts and backfilling existing `alert_settings`, which F1
+already specifies. **I3's campaigns inherit this ceiling**, which is precisely why the in-app promo
+surface exists.
+
+### 9.4 Smaller findings, recorded so they are not re-derived
+
+* **`sim_lines.status` DEFAULT `'unverified'` violates `sim_lines_status_check`**, which allows only
+  `active / paused / expired / grace_period / deactivated`. Any INSERT that omits `status` fails
+  `23514`. The client always sends one, so nothing is broken today — but the default is a trap.
+* **`carriers` already carries columns for all four suppliers** (`zen_*`, `dt_*`, `ding_*`,
+  `reloadly_operator_id`) plus `api_provider` and `fulfillment_gateway`. The schema anticipated this
+  work; only Zendit and DTOne were ever wired.
+* **13 of 50 carriers are API-routed with nothing in the offer cache** (unchanged from Phase H) —
+  Omantel and STC Kuwait among them, both with live SIM lines. Those users cannot instant-refill
+  either, for a different reason than the DTOne bug: there is simply no catalogue.
+* **The admin repo has moved** to `C:\Users\abdal\Work\KeepSIMs\keep_sims_admin`; `PROJECT_TOPOLOGY.md`
+  still says `G:\KeepSIMs\keep_sims_admin`, which no longer exists. `keep_sims_daemon` beside it is an
+  empty `dart create` skeleton, not a runner.
+* **Advisors are 85**: 64 authenticated-callable `SECURITY DEFINER` functions (every one on the F0
+  allow-list, asserted by T4), 19 deny-all tables, 2 markup-isolation view ERRORs. Same accepted-
+  exception shape as Phase H, now also covering `carrier_provider_map`, `campaigns`,
+  `campaign_deliveries`, `refill_scripts` and `premium_entitlement_grandfather`.
+* **`apply_migration` did not register any of the four Phase I migrations in `schema_migrations`** —
+  a new variant of the long-running drift problem. Each was re-stamped by hand at its repo filename
+  version, in a call containing nothing else.
+
+### 9.5 Additions to the owner checklist (§ 7)
+
+13. ~~**Ding credentials**~~ ✅ **SUPPLIED 2026-08-04.** Now: put `DING_API_KEY` into
+    `servers/.env` **on the VM** (agent-inaccessible), then populate `carriers.ding_carrier` /
+    `ding_country` — still NULL for all 50. ⚠️ The key supplied is marked **Live** and was pasted
+    into a chat transcript; **rotate it** once the wiring is proven. It is not in the repo.
+14. ~~**Reloadly credentials**~~ ✅ **SUPPLIED 2026-08-04.** Now: `RELOADLY_CLIENT_ID` +
+    `RELOADLY_CLIENT_SECRET` into `servers/.env`, then populate
+    `carriers.reloadly_operator_id` — still NULL for all 50.
+15. 🆕 **DTOne production credentials** — the key supplied is explicitly **pre-production**, so its
+    cached prices are not real prices. `supplier_policy` carries a 5% risk premium on DTOne purely
+    because of this; drop it to 0 when production credentials land. Today's single DTOne carrier
+    (Zain KSA) remains untrustworthy for billing until then.
+16. ~~**Decide the best-price policy**~~ ✅ **DECIDED 2026-08-04** — margin-aware, DB-editable;
+    auto-retry at the next supplier, informing the user unless the cost is the same. Implemented in
+    § 9.6. The knobs are `supplier_policy` + the seven `SUPPLIER_*` rows in `system_configs`.
+17. 🆕 **Decide where the task-script runner lives.** I4's contract is ready, but the runner needs the
+    device that can dial the USSD or drive the carrier app. That placement is an owner decision and it
+    is the last piece before scripted recharges can run.
+
+### 9.6 I5 built — margin-aware supplier selection + failover · migration `20260815000000`
+
+*Added 2026-08-04, after the owner supplied the Ding / Reloadly / DTOne credentials and answered
+the two policy questions from § 9.3.*
+
+**Everything here ships inert.** The owner's standing instruction is to stay pre-production until
+the app is confirmed to cover what users need, so: `SUPPLIER_RETRY_ENABLED = false`,
+`supplier_policy.is_globally_enabled = false` for ding and reloadly, and the two new adapters are
+unreachable until a credential exists in `servers/.env`. Applying I5 changed **no** routing
+decision — proven below.
+
+#### The two decisions, as implemented
+
+> *"margin-aware, but I need it to be fixable so I can change it from the database"*
+
+Selection has two DB-editable layers and no hardcoded preference:
+
+1. **Effective cost** — `base × (1 + risk_premium_percent/100) + flat_penalty_usd`, per supplier,
+   in the new `supplier_policy` table. This prices a cheap-but-flaky supplier honestly against a
+   dearer reliable one. It is a *comparison* figure only: the user always pays `base_cost_usd`
+   plus the usual fees, whichever supplier wins.
+2. **A switching threshold** — the carrier's incumbent supplier keeps the business unless a
+   challenger beats it by **both** `SUPPLIER_SWITCH_MIN_SAVING_USD` (0.05) **and**
+   `SUPPLIER_SWITCH_MIN_SAVING_PERCENT` (2.0). Requiring both is deliberate: an absolute floor
+   alone lets a trivial saving win on a large top-up, and a percentage alone lets a trivial saving
+   win on a tiny one. `SUPPLIER_SELECTION_MODE = 'cheapest'` bypasses layer 2 entirely.
+
+> *"a failed purchase auto-retries at the next supplier — yes, but inform the user unless it is
+> the same cost"*
+
+`topup_executions.attempted_providers` records who has been tried; a trigger on the transition to
+`failed` calls `retry_execution_at_next_supplier()`, which picks the next-best supplier *excluding*
+everything already attempted and writes a fresh execution. The user is notified **only** when the
+new price differs by more than `SUPPLIER_RETRY_SAME_COST_TOLERANCE_USD` (\$0.01) — "same cost" is a
+band, not an equality, because a notification for a \$0.0000001 difference trains people to ignore
+the real ones. Permanent failures are never retried: `SUPPLIER_RETRY_SKIP_REASONS` is a
+config-editable pattern list (`insufficient`, `invalid number`, `suspended`, …) so support can add
+one at 3am without a deploy.
+
+#### Proof (live, all rolled back)
+
+Selection, using a synthetic second supplier on Vodafone Egypt:
+
+| Case | Result |
+|---|---|
+| DTOne-only line (I1 regression) | still refills, `provider = dtone` |
+| Challenger 1¢ cheaper | **zendit** · `saving_below_threshold` — no churn |
+| Challenger 30% cheaper | **ding** · `challenger_beat_threshold` |
+| Same 30% price, +60% risk premium | **zendit** · `incumbent_is_cheapest` — the DB knob flips it |
+| `SUPPLIER_SELECTION_MODE = 'cheapest'`, 1¢ | **ding** · `cheapest` |
+| Failover excluding zendit | **ding** · `no_incumbent` |
+
+Failover:
+
+| Case | Result |
+|---|---|
+| `SUPPLIER_RETRY_ENABLED = false` (shipped default) | **0** retries |
+| Cost differs by \$0.50 | retry at ding, `attempted_providers = {zendit,ding}`, **+1** user notification |
+| Same cost | retry happens, **0** notifications |
+| `failure_reason = 'Invalid number for this operator'` | **0** retries |
+| Retry itself fails | chain stops at 2 executions — no loop |
+| Failover `system_alerts` raised | **0** — nothing silently swallowed |
+
+#### 🐛 Two defects only running caught
+
+**(a) An off-by-one in I1's `trg_fn_sync_carrier_default_provider` disabled the whole threshold.**
+It adopted a newly-enabled mapping as `carriers.api_provider` when that was "the only enabled
+mapping", counted with `count(*) = 1`. On a `BEFORE INSERT` the new row is not yet in the table, so
+a carrier that already had exactly one supplier counted 1 and the trigger fired — **silently making
+the supplier you were only just adding the incumbent**. Every comparison then returned
+`incumbent_is_cheapest`, i.e. the margin-aware threshold was switched off by the act of creating
+something to switch to. Fixed to "no *other* enabled mapping", which behaves identically on INSERT
+and UPDATE.
+
+**(b) The 10-second anti-spam cooldown blocked every failover retry.**
+`check_topup_rate_limit` refuses a second `refill_instant` on the same line inside 10 seconds, and a
+retry is inserted microseconds after the original fails. So **every** retry raised `COOLDOWN_ACTIVE`,
+which the failover trigger's catch-all swallowed into `system_alerts` — the feature would have
+shipped looking installed and doing nothing. The cooldown now exempts rows with `retry_of IS NOT
+NULL`, and a retry does not start a fresh cooldown for the user either. **The exemption is keyed on
+`retry_of`, not on the caller's role**, because a role check would also exempt the workers' own
+inserts, which should still be cooled down. `retry_of` cannot be forged: `topup_executions` is
+`SELECT`-only for anon and authenticated.
+
+#### Adapters: `servers/providers/ding.js` and `servers/providers/reloadly.js`
+
+Both match the existing `fetchCatalog` / `purchase` / `pollStatus` contract with an injectable
+`fetchImpl`, both carry adopt-on-retry idempotency (`DistributorRef` for Ding, `customIdentifier`
+for Reloadly, mirroring `z_<id>` and `external_id`), and `worker_offers_cache.js` now builds its
+refresh list from **`carrier_provider_map` instead of `carriers.api_provider`** — that single-valued
+column is why only one supplier per carrier could ever be cached, regardless of credentials.
+
+Three things worth knowing before enabling either:
+
+* **Reloadly is the odd one out**: it is the only one of the four that does *not* take a static key.
+  It issues short-lived OAuth bearer tokens, so its adapter carries a token cache the others do not
+  need. Its sandbox is a **different host**, and the `audience` in the token request must match the
+  host you then call — mismatching them yields a token that 401s on everything, which reads like a
+  bad credential and is not.
+* **Reloadly models an operator, not a product list**, so one operator expands into several cache
+  rows. Offer ids are synthesised as `rl_<operatorId>_<amount>` and parsed back at purchase time.
+* **Neither adapter has a fallback catalogue.** DTOne has one because it is on a preprod endpoint;
+  inventing Ding or Reloadly prices would put fictional money in front of a user. An empty list is
+  the honest answer, and `request_instant_refill` already refuses an offer it cannot find.
+
+⚠️ **Both adapters are written against the published API shapes and have never been run against
+them.** Diff a real `GetProducts` / `operators/countries/{iso}` response against
+`normalizeDingProduct` / `normalizeReloadlyOperator` before enabling the supplier. This is not
+pessimism: the Zendit catalogue fallback was broken **four separate ways** at B1 (ISO-2 country,
+subTypes, priceType, minor units) for exactly this reason. Normalisation is unit-smoke-tested for
+both FIXED and RANGE shapes and `offerCacheRow` accepts all four providers.
+
+#### What is still needed to switch Ding or Reloadly on
+
+The credentials exist now, but a supplier with no catalogue ranks as infinitely cheap *by absence*,
+so the order matters:
+
+1. Put the credentials in **`servers/.env` on the VM** — `DING_API_KEY`, `RELOADLY_CLIENT_ID`,
+   `RELOADLY_CLIENT_SECRET`. They belong nowhere else: not in the repo (git history is forever —
+   the PayPal sandbox secret is still in this one's), not in the app, not in Vault (which is for
+   secrets DB functions read).
+2. Populate the operator codes: `carriers.ding_carrier` / `ding_country` and
+   `carriers.reloadly_operator_id` are **NULL for all 50 carriers**. Ding's `GetProviders` and
+   Reloadly's `/operators/countries/{iso}` are the sources.
+3. Add the `carrier_provider_map` rows (`is_enabled = false` at first).
+4. Let `worker_offers_cache` run and confirm `provider_offers_cache` has rows for the new supplier.
+5. **Only then** flip `supplier_policy.is_globally_enabled` and the per-carrier `is_enabled`.
+6. Set each supplier's `risk_premium_percent` from measured reliability rather than from the
+   placeholder — DTOne currently carries 5% purely because it is on preprod.
+
+**Owner note:** the Ding key supplied was marked **Live**. It was pasted in plaintext into a chat
+transcript and should be rotated once the wiring is proven. It is not, and must not be, in this
+repo.

@@ -35,5 +35,13 @@ abstract class SimLinesRepository {
   Future<void> confirmLineVerification(String simLineId);
   Future<void> cancelCall(String callSid);
   Future<List<Map<String, dynamic>>> fetchZenditOffers(String countryId, String carrierId);
+
+  /// I1: every offer this line can actually buy, across every enabled supplier,
+  /// ranked cheapest-first by the same rule `request_instant_refill` uses to
+  /// resolve the purchase. Prefer this over [fetchZenditOffers] wherever a SIM
+  /// line id is in hand — [fetchZenditOffers] resolves only the carrier's
+  /// single default supplier and is kept for the add-line flow, which has a
+  /// country and carrier but no line yet.
+  Future<List<Map<String, dynamic>>> fetchLineRefillOffers(String simLineId);
   Future<List<PaymentMethod>> getPaymentMethods();
 }

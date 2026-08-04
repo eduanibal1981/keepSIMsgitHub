@@ -467,13 +467,10 @@ class _ManualRefillBottomSheetState
                 ),
               )
             else
+              // I1: line-scoped so every enabled supplier is listed and the
+              // ranking matches what request_instant_refill will re-apply.
               ref
-                  .watch(
-                    apiOffersProvider(
-                      widget.simLine.countryId!,
-                      widget.simLine.carrierId!,
-                    ),
-                  )
+                  .watch(lineRefillOffersProvider(widget.simLine.id))
                   .when(
                     data: (offers) {
                       if (offers.isEmpty) {

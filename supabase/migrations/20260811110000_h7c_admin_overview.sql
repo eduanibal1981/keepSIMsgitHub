@@ -1,0 +1,24 @@
+-- ============================================================================
+-- H7c — admin_overview(): one call that answers "is the product working right
+-- now".
+--
+-- This migration's body was superseded WITHIN the same phase by
+-- 20260811120000_h7d, which is where the function is defined. Both are kept as
+-- separate files because both are stamped in schema_migrations and collapsing
+-- them would put the repo out of step with the registry — the drift this
+-- project has hit ten times.
+--
+-- What h7d fixed, and why it is worth recording rather than editing away:
+-- this version reported `esim_countries` as the count of distinct country codes
+-- appearing in any bundle. That is 50, against 21 supported countries, which
+-- reads as 238% coverage. Regional bundles list every country they roam in,
+-- most of which the product does not sell in. The number worth showing is how
+-- many of OUR countries a customer can actually buy an eSIM for. That is 4 of
+-- 21 — the opposite conclusion from the same data.
+--
+-- A metric that is confidently wrong is worse than no metric, and this one was
+-- only caught by reading the output next to a number that was already known.
+-- ============================================================================
+
+-- Intentionally empty: see 20260811120000_h7d_reply_dedupe_and_overview_fix.sql.
+SELECT 1;

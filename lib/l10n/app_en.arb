@@ -1048,5 +1048,190 @@
         }
     },
     "deviceBlockedTitle": "Payment stopped",
-    "deviceBlockedMessage": "A security check on this device stopped this payment. If this is a mistake, contact support and we will sort it out."
+    "deviceBlockedMessage": "A security check on this device stopped this payment. If this is a mistake, contact support and we will sort it out.",
+    "householdTitle": "Household & Family",
+    "householdTabMyFamily": "My family",
+    "householdTabReceived": "Invitations",
+    "householdTabJoined": "Joined",
+    "householdInviteMember": "Invite member",
+    "householdEmptyTitle": "No family members yet",
+    "householdEmptyDesc": "Invite someone by email to share your prepaid SIM lines and renewals with them.",
+    "householdStatusPending": "PENDING",
+    "householdStatusAccepted": "ACTIVE",
+    "householdPendingHint": "Waiting for them to accept",
+    "householdRoleViewer": "Viewer",
+    "householdRoleManager": "Manager",
+    "householdRoleViewerHint": "Can see your lines",
+    "householdRoleManagerHint": "Can see and top up your lines",
+    "householdManagerWarning": "A manager can top up your lines. They only spend your wallet if you set them a limit.",
+    "householdSpendsMyWallet": "Spends my wallet · {spent} of {cap} this month",
+    "@householdSpendsMyWallet": {
+        "placeholders": {
+            "spent": {
+                "type": "String"
+            },
+            "cap": {
+                "type": "String"
+            }
+        }
+    },
+    "householdPaysOwnWallet": "Pays with their own wallet",
+    "householdManagersOnly": "Managers only — a viewer cannot spend your wallet",
+    "householdChangeLimit": "Change limit",
+    "householdSetLimit": "Set a limit",
+    "householdRemainingQueued": "{remaining} left · {queued} queued, not yet charged",
+    "@householdRemainingQueued": {
+        "placeholders": {
+            "remaining": {
+                "type": "String"
+            },
+            "queued": {
+                "type": "String"
+            }
+        }
+    },
+    "householdRemainingThisMonth": "{remaining} left this month",
+    "@householdRemainingThisMonth": {
+        "placeholders": {
+            "remaining": {
+                "type": "String"
+            }
+        }
+    },
+    "householdSpendingLimitFor": "Spending limit for {name}",
+    "@householdSpendingLimitFor": {
+        "placeholders": {
+            "name": {
+                "type": "String"
+            }
+        }
+    },
+    "householdSpendingLimitDesc": "How much of YOUR wallet they may spend on your SIM lines each calendar month. Set 0 to switch it off — they will go back to paying with their own wallet.",
+    "householdMonthlyLimit": "Monthly limit (USD)",
+    "householdMaxPerRefill": "Max per refill (optional)",
+    "householdSave": "Save",
+    "householdLimitSaved": "{name} can now spend up to {cap} of your wallet a month.",
+    "@householdLimitSaved": {
+        "placeholders": {
+            "name": {
+                "type": "String"
+            },
+            "cap": {
+                "type": "String"
+            }
+        }
+    },
+    "householdLimitCleared": "{name} pays with their own wallet again.",
+    "@householdLimitCleared": {
+        "placeholders": {
+            "name": {
+                "type": "String"
+            }
+        }
+    },
+    "householdLimitFailed": "Could not update the limit.",
+    "householdNoInvitesTitle": "No invitations",
+    "householdNoInvitesDesc": "When someone invites you to their household, it will show up here.",
+    "householdFamilyAccount": "Family account",
+    "householdInvitedYouViewer": "Invited you to view their SIM lines",
+    "householdInvitedYouManager": "Invited you to view and top up their SIM lines",
+    "householdAccept": "Accept",
+    "householdDecline": "Decline",
+    "householdNotJoinedTitle": "You have not joined a household",
+    "householdNotJoinedDesc": "Invitations you receive appear under the Invitations tab.",
+    "householdSharedHousehold": "Shared household",
+    "householdRoleManagerFull": "MANAGER · CAN TOP UP",
+    "householdRoleViewerFull": "VIEWER · READ-ONLY",
+    "householdLeave": "Leave",
+    "householdOwnerFunds": "{owner} funds your refills",
+    "@householdOwnerFunds": {
+        "placeholders": {
+            "owner": {
+                "type": "String"
+            }
+        }
+    },
+    "householdAllowanceExhausted": "You have used the whole {cap} for this month. Refills on their lines will be refused until it resets.",
+    "@householdAllowanceExhausted": {
+        "placeholders": {
+            "cap": {
+                "type": "String"
+            }
+        }
+    },
+    "householdAllowanceRemaining": "{remaining} of {cap} left this month",
+    "@householdAllowanceRemaining": {
+        "placeholders": {
+            "remaining": {
+                "type": "String"
+            },
+            "cap": {
+                "type": "String"
+            }
+        }
+    },
+    "householdAllowancePerTxn": " · max {perTxn} per refill",
+    "@householdAllowancePerTxn": {
+        "placeholders": {
+            "perTxn": {
+                "type": "String"
+            }
+        }
+    },
+    "householdInviteTitle": "Invite a family member",
+    "householdInviteDesc": "They get the invitation inside the app. Once they accept, your SIM lines and theirs appear together.",
+    "householdEmailLabel": "Email address",
+    "householdAccessLevel": "What may they do?",
+    "householdSendInvite": "Send invite",
+    "householdInvalidEmail": "Please enter a valid email address",
+    "householdInviteSent": "Invitation sent to {email}",
+    "@householdInviteSent": {
+        "placeholders": {
+            "email": {
+                "type": "String"
+            }
+        }
+    },
+    "householdInviteSentNoAccount": "Invitation sent to {email}. They will see it as soon as they register.",
+    "@householdInviteSentNoAccount": {
+        "placeholders": {
+            "email": {
+                "type": "String"
+            }
+        }
+    },
+    "householdInviteAccepted": "You joined the household",
+    "householdInviteDeclined": "Invitation declined",
+    "householdRemoveTitle": "Remove family member",
+    "householdRemoveConfirm": "{name} will immediately lose access to your SIM lines, along with any spending limit you set.",
+    "@householdRemoveConfirm": {
+        "placeholders": {
+            "name": {
+                "type": "String"
+            }
+        }
+    },
+    "householdRemoved": "{name} was removed from your household",
+    "@householdRemoved": {
+        "placeholders": {
+            "name": {
+                "type": "String"
+            }
+        }
+    },
+    "householdLeaveTitle": "Leave household",
+    "householdLeaveConfirm": "You will lose access to the SIM lines shared by {owner}.",
+    "@householdLeaveConfirm": {
+        "placeholders": {
+            "owner": {
+                "type": "String"
+            }
+        }
+    },
+    "householdLeft": "You left the household",
+    "householdActionFailed": "That did not work. Please try again.",
+    "householdOwnerLabel": "You (owner)",
+    "householdSettingsSubtitle": "Share your SIM lines with family, set spending limits",
+    "householdStatusDeclined": "DECLINED",
+    "householdDeclinedHint": "They declined. Remove them to invite again."
 }

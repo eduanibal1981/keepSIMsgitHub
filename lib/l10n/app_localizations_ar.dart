@@ -2147,4 +2147,248 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get deviceBlockedMessage =>
       'أوقف فحص أمني على هذا الجهاز هذه الدفعة. إذا كان ذلك خطأ، تواصل مع الدعم وسنعالج الأمر.';
+
+  @override
+  String get householdTitle => 'الأسرة والعائلة';
+
+  @override
+  String get householdTabMyFamily => 'عائلتي';
+
+  @override
+  String get householdTabReceived => 'الدعوات';
+
+  @override
+  String get householdTabJoined => 'انضممت إليها';
+
+  @override
+  String get householdInviteMember => 'دعوة فرد';
+
+  @override
+  String get householdEmptyTitle => 'لا يوجد أفراد بعد';
+
+  @override
+  String get householdEmptyDesc =>
+      'ادعُ شخصًا عبر البريد الإلكتروني لمشاركة خطوط الشرائح المدفوعة مسبقًا وتجديداتها معه.';
+
+  @override
+  String get householdStatusPending => 'قيد الانتظار';
+
+  @override
+  String get householdStatusAccepted => 'نشط';
+
+  @override
+  String get householdPendingHint => 'في انتظار قبولهم';
+
+  @override
+  String get householdRoleViewer => 'مشاهدة';
+
+  @override
+  String get householdRoleManager => 'إدارة';
+
+  @override
+  String get householdRoleViewerHint => 'يمكنه رؤية خطوطك';
+
+  @override
+  String get householdRoleManagerHint => 'يمكنه رؤية خطوطك وشحنها';
+
+  @override
+  String get householdManagerWarning =>
+      'يمكن للمدير شحن خطوطك. ولن ينفق من محفظتك إلا إذا حددت له حدًا.';
+
+  @override
+  String householdSpendsMyWallet(String spent, String cap) {
+    return 'ينفق من محفظتي · $spent من $cap هذا الشهر';
+  }
+
+  @override
+  String get householdPaysOwnWallet => 'يدفع من محفظته الخاصة';
+
+  @override
+  String get householdManagersOnly =>
+      'للمديرين فقط — لا يمكن للمشاهد الإنفاق من محفظتك';
+
+  @override
+  String get householdChangeLimit => 'تغيير الحد';
+
+  @override
+  String get householdSetLimit => 'تحديد حد';
+
+  @override
+  String householdRemainingQueued(String remaining, String queued) {
+    return 'متبقٍ $remaining · $queued في الانتظار ولم تُخصم بعد';
+  }
+
+  @override
+  String householdRemainingThisMonth(String remaining) {
+    return 'متبقٍ $remaining هذا الشهر';
+  }
+
+  @override
+  String householdSpendingLimitFor(String name) {
+    return 'حد الإنفاق لـ $name';
+  }
+
+  @override
+  String get householdSpendingLimitDesc =>
+      'المبلغ الذي يمكنه إنفاقه من محفظتك أنت على خطوطك كل شهر ميلادي. اضبطه على 0 لإيقافه — وسيعود للدفع من محفظته الخاصة.';
+
+  @override
+  String get householdMonthlyLimit => 'الحد الشهري (دولار)';
+
+  @override
+  String get householdMaxPerRefill => 'الحد الأقصى لكل شحنة (اختياري)';
+
+  @override
+  String get householdSave => 'حفظ';
+
+  @override
+  String householdLimitSaved(String name, String cap) {
+    return 'يمكن لـ $name الآن إنفاق ما يصل إلى $cap من محفظتك شهريًا.';
+  }
+
+  @override
+  String householdLimitCleared(String name) {
+    return 'عاد $name للدفع من محفظته الخاصة.';
+  }
+
+  @override
+  String get householdLimitFailed => 'تعذّر تحديث الحد.';
+
+  @override
+  String get householdNoInvitesTitle => 'لا توجد دعوات';
+
+  @override
+  String get householdNoInvitesDesc =>
+      'عندما يدعوك أحد إلى أسرته، ستظهر الدعوة هنا.';
+
+  @override
+  String get householdFamilyAccount => 'حساب عائلي';
+
+  @override
+  String get householdInvitedYouViewer => 'دعاك لعرض خطوط شرائحه';
+
+  @override
+  String get householdInvitedYouManager => 'دعاك لعرض خطوط شرائحه وشحنها';
+
+  @override
+  String get householdAccept => 'قبول';
+
+  @override
+  String get householdDecline => 'رفض';
+
+  @override
+  String get householdNotJoinedTitle => 'لم تنضم إلى أي أسرة';
+
+  @override
+  String get householdNotJoinedDesc =>
+      'تظهر الدعوات التي تصلك في تبويب الدعوات.';
+
+  @override
+  String get householdSharedHousehold => 'أسرة مشتركة';
+
+  @override
+  String get householdRoleManagerFull => 'مدير · يمكنه الشحن';
+
+  @override
+  String get householdRoleViewerFull => 'مشاهد · قراءة فقط';
+
+  @override
+  String get householdLeave => 'مغادرة';
+
+  @override
+  String householdOwnerFunds(String owner) {
+    return '$owner يموّل عمليات الشحن الخاصة بك';
+  }
+
+  @override
+  String householdAllowanceExhausted(String cap) {
+    return 'لقد استخدمت كامل مبلغ $cap لهذا الشهر. سيتم رفض عمليات الشحن على خطوطهم حتى إعادة التعيين.';
+  }
+
+  @override
+  String householdAllowanceRemaining(String remaining, String cap) {
+    return 'متبقٍ $remaining من $cap هذا الشهر';
+  }
+
+  @override
+  String householdAllowancePerTxn(String perTxn) {
+    return ' · بحد أقصى $perTxn لكل شحنة';
+  }
+
+  @override
+  String get householdInviteTitle => 'دعوة فرد من العائلة';
+
+  @override
+  String get householdInviteDesc =>
+      'ستصلهم الدعوة داخل التطبيق. وبمجرد القبول، ستظهر خطوطك وخطوطهم معًا.';
+
+  @override
+  String get householdEmailLabel => 'البريد الإلكتروني';
+
+  @override
+  String get householdAccessLevel => 'ما الذي يُسمح له بفعله؟';
+
+  @override
+  String get householdSendInvite => 'إرسال الدعوة';
+
+  @override
+  String get householdInvalidEmail => 'يرجى إدخال بريد إلكتروني صحيح';
+
+  @override
+  String householdInviteSent(String email) {
+    return 'أُرسلت الدعوة إلى $email';
+  }
+
+  @override
+  String householdInviteSentNoAccount(String email) {
+    return 'أُرسلت الدعوة إلى $email. سيرونها فور تسجيلهم.';
+  }
+
+  @override
+  String get householdInviteAccepted => 'لقد انضممت إلى الأسرة';
+
+  @override
+  String get householdInviteDeclined => 'تم رفض الدعوة';
+
+  @override
+  String get householdRemoveTitle => 'إزالة فرد من العائلة';
+
+  @override
+  String householdRemoveConfirm(String name) {
+    return 'سيفقد $name فورًا الوصول إلى خطوطك، مع أي حد إنفاق قمت بتعيينه.';
+  }
+
+  @override
+  String householdRemoved(String name) {
+    return 'تمت إزالة $name من أسرتك';
+  }
+
+  @override
+  String get householdLeaveTitle => 'مغادرة الأسرة';
+
+  @override
+  String householdLeaveConfirm(String owner) {
+    return 'ستفقد الوصول إلى الخطوط التي يشاركها $owner.';
+  }
+
+  @override
+  String get householdLeft => 'لقد غادرت الأسرة';
+
+  @override
+  String get householdActionFailed =>
+      'لم تنجح العملية. يرجى المحاولة مرة أخرى.';
+
+  @override
+  String get householdOwnerLabel => 'أنت (المالك)';
+
+  @override
+  String get householdSettingsSubtitle =>
+      'شارك خطوطك مع العائلة وحدّد حدود الإنفاق';
+
+  @override
+  String get householdStatusDeclined => 'مرفوضة';
+
+  @override
+  String get householdDeclinedHint =>
+      'لقد رفضوا الدعوة. أزلهم لإرسال دعوة جديدة.';
 }

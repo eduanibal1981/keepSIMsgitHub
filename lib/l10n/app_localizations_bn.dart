@@ -2170,4 +2170,250 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get deviceBlockedMessage =>
       'A security check on this device stopped this payment. If this is a mistake, contact support and we will sort it out.';
+
+  @override
+  String get householdTitle => 'পরিবার ও স্বজন';
+
+  @override
+  String get householdTabMyFamily => 'আমার পরিবার';
+
+  @override
+  String get householdTabReceived => 'আমন্ত্রণ';
+
+  @override
+  String get householdTabJoined => 'যুক্ত হয়েছি';
+
+  @override
+  String get householdInviteMember => 'সদস্য আমন্ত্রণ';
+
+  @override
+  String get householdEmptyTitle => 'এখনও কোনো সদস্য নেই';
+
+  @override
+  String get householdEmptyDesc =>
+      'ইমেইলের মাধ্যমে কাউকে আমন্ত্রণ জানিয়ে আপনার প্রিপেইড সিম লাইন ও রিনিউয়াল শেয়ার করুন।';
+
+  @override
+  String get householdStatusPending => 'অপেক্ষমাণ';
+
+  @override
+  String get householdStatusAccepted => 'সক্রিয়';
+
+  @override
+  String get householdPendingHint => 'তাদের গ্রহণের অপেক্ষায়';
+
+  @override
+  String get householdRoleViewer => 'দর্শক';
+
+  @override
+  String get householdRoleManager => 'ব্যবস্থাপক';
+
+  @override
+  String get householdRoleViewerHint => 'আপনার লাইন দেখতে পারবে';
+
+  @override
+  String get householdRoleManagerHint =>
+      'আপনার লাইন দেখতে ও রিচার্জ করতে পারবে';
+
+  @override
+  String get householdManagerWarning =>
+      'ব্যবস্থাপক আপনার লাইন রিচার্জ করতে পারে। আপনি সীমা নির্ধারণ করলেই কেবল আপনার ওয়ালেট থেকে খরচ হবে।';
+
+  @override
+  String householdSpendsMyWallet(String spent, String cap) {
+    return 'আমার ওয়ালেট থেকে খরচ · এ মাসে $cap-এর মধ্যে $spent';
+  }
+
+  @override
+  String get householdPaysOwnWallet => 'নিজের ওয়ালেট থেকে পরিশোধ করে';
+
+  @override
+  String get householdManagersOnly =>
+      'শুধু ব্যবস্থাপকের জন্য — দর্শক আপনার ওয়ালেট খরচ করতে পারে না';
+
+  @override
+  String get householdChangeLimit => 'সীমা পরিবর্তন';
+
+  @override
+  String get householdSetLimit => 'সীমা নির্ধারণ';
+
+  @override
+  String householdRemainingQueued(String remaining, String queued) {
+    return '$remaining বাকি · $queued সারিতে, এখনও কাটা হয়নি';
+  }
+
+  @override
+  String householdRemainingThisMonth(String remaining) {
+    return 'এ মাসে $remaining বাকি';
+  }
+
+  @override
+  String householdSpendingLimitFor(String name) {
+    return '$name-এর ব্যয়সীমা';
+  }
+
+  @override
+  String get householdSpendingLimitDesc =>
+      'প্রতি ক্যালেন্ডার মাসে আপনার লাইনে তারা আপনার ওয়ালেট থেকে কত খরচ করতে পারবে। বন্ধ করতে 0 দিন — তখন তারা নিজের ওয়ালেট থেকে দেবে।';
+
+  @override
+  String get householdMonthlyLimit => 'মাসিক সীমা (USD)';
+
+  @override
+  String get householdMaxPerRefill => 'প্রতি রিচার্জে সর্বোচ্চ (ঐচ্ছিক)';
+
+  @override
+  String get householdSave => 'সংরক্ষণ';
+
+  @override
+  String householdLimitSaved(String name, String cap) {
+    return '$name এখন মাসে আপনার ওয়ালেট থেকে $cap পর্যন্ত খরচ করতে পারবে।';
+  }
+
+  @override
+  String householdLimitCleared(String name) {
+    return '$name আবার নিজের ওয়ালেট থেকে পরিশোধ করবে।';
+  }
+
+  @override
+  String get householdLimitFailed => 'সীমা হালনাগাদ করা যায়নি।';
+
+  @override
+  String get householdNoInvitesTitle => 'কোনো আমন্ত্রণ নেই';
+
+  @override
+  String get householdNoInvitesDesc =>
+      'কেউ আপনাকে তার পরিবারে আমন্ত্রণ জানালে তা এখানে দেখা যাবে।';
+
+  @override
+  String get householdFamilyAccount => 'পারিবারিক অ্যাকাউন্ট';
+
+  @override
+  String get householdInvitedYouViewer =>
+      'তাদের সিম লাইন দেখতে আপনাকে আমন্ত্রণ জানিয়েছে';
+
+  @override
+  String get householdInvitedYouManager =>
+      'তাদের সিম লাইন দেখতে ও রিচার্জ করতে আপনাকে আমন্ত্রণ জানিয়েছে';
+
+  @override
+  String get householdAccept => 'গ্রহণ';
+
+  @override
+  String get householdDecline => 'প্রত্যাখ্যান';
+
+  @override
+  String get householdNotJoinedTitle => 'আপনি কোনো পরিবারে যুক্ত হননি';
+
+  @override
+  String get householdNotJoinedDesc =>
+      'আপনি যে আমন্ত্রণ পাবেন তা আমন্ত্রণ ট্যাবে দেখা যাবে।';
+
+  @override
+  String get householdSharedHousehold => 'শেয়ার করা পরিবার';
+
+  @override
+  String get householdRoleManagerFull => 'ব্যবস্থাপক · রিচার্জ করতে পারে';
+
+  @override
+  String get householdRoleViewerFull => 'দর্শক · শুধু দেখা';
+
+  @override
+  String get householdLeave => 'ত্যাগ করুন';
+
+  @override
+  String householdOwnerFunds(String owner) {
+    return '$owner আপনার রিচার্জের খরচ বহন করেন';
+  }
+
+  @override
+  String householdAllowanceExhausted(String cap) {
+    return 'এ মাসের পুরো $cap আপনি ব্যবহার করে ফেলেছেন। রিসেট না হওয়া পর্যন্ত তাদের লাইনে রিচার্জ বাতিল হবে।';
+  }
+
+  @override
+  String householdAllowanceRemaining(String remaining, String cap) {
+    return 'এ মাসে $cap-এর মধ্যে $remaining বাকি';
+  }
+
+  @override
+  String householdAllowancePerTxn(String perTxn) {
+    return ' · প্রতি রিচার্জে সর্বোচ্চ $perTxn';
+  }
+
+  @override
+  String get householdInviteTitle => 'পরিবারের সদস্যকে আমন্ত্রণ';
+
+  @override
+  String get householdInviteDesc =>
+      'তারা অ্যাপের ভেতরেই আমন্ত্রণ পাবে। গ্রহণ করলে আপনার ও তাদের সিম লাইন একসাথে দেখা যাবে।';
+
+  @override
+  String get householdEmailLabel => 'ইমেইল ঠিকানা';
+
+  @override
+  String get householdAccessLevel => 'তারা কী করতে পারবে?';
+
+  @override
+  String get householdSendInvite => 'আমন্ত্রণ পাঠান';
+
+  @override
+  String get householdInvalidEmail => 'সঠিক ইমেইল ঠিকানা দিন';
+
+  @override
+  String householdInviteSent(String email) {
+    return '$email-এ আমন্ত্রণ পাঠানো হয়েছে';
+  }
+
+  @override
+  String householdInviteSentNoAccount(String email) {
+    return '$email-এ আমন্ত্রণ পাঠানো হয়েছে। নিবন্ধন করলেই তারা দেখতে পাবে।';
+  }
+
+  @override
+  String get householdInviteAccepted => 'আপনি পরিবারে যুক্ত হয়েছেন';
+
+  @override
+  String get householdInviteDeclined => 'আমন্ত্রণ প্রত্যাখ্যান করা হয়েছে';
+
+  @override
+  String get householdRemoveTitle => 'পরিবারের সদস্য সরান';
+
+  @override
+  String householdRemoveConfirm(String name) {
+    return '$name সঙ্গে সঙ্গে আপনার সিম লাইনে প্রবেশাধিকার এবং নির্ধারিত ব্যয়সীমা হারাবে।';
+  }
+
+  @override
+  String householdRemoved(String name) {
+    return '$name-কে আপনার পরিবার থেকে সরানো হয়েছে';
+  }
+
+  @override
+  String get householdLeaveTitle => 'পরিবার ত্যাগ করুন';
+
+  @override
+  String householdLeaveConfirm(String owner) {
+    return '$owner-এর শেয়ার করা সিম লাইনে আপনার প্রবেশাধিকার থাকবে না।';
+  }
+
+  @override
+  String get householdLeft => 'আপনি পরিবার ত্যাগ করেছেন';
+
+  @override
+  String get householdActionFailed => 'কাজটি হয়নি। আবার চেষ্টা করুন।';
+
+  @override
+  String get householdOwnerLabel => 'আপনি (মালিক)';
+
+  @override
+  String get householdSettingsSubtitle =>
+      'পরিবারের সাথে সিম লাইন শেয়ার করুন, ব্যয়সীমা নির্ধারণ করুন';
+
+  @override
+  String get householdStatusDeclined => 'প্রত্যাখ্যাত';
+
+  @override
+  String get householdDeclinedHint =>
+      'তারা প্রত্যাখ্যান করেছে। আবার আমন্ত্রণ জানাতে সরিয়ে দিন।';
 }

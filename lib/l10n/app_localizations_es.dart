@@ -2193,4 +2193,248 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get deviceBlockedMessage =>
       'A security check on this device stopped this payment. If this is a mistake, contact support and we will sort it out.';
+
+  @override
+  String get householdTitle => 'Hogar y familia';
+
+  @override
+  String get householdTabMyFamily => 'Mi familia';
+
+  @override
+  String get householdTabReceived => 'Invitaciones';
+
+  @override
+  String get householdTabJoined => 'Unido';
+
+  @override
+  String get householdInviteMember => 'Invitar miembro';
+
+  @override
+  String get householdEmptyTitle => 'Aún no hay miembros';
+
+  @override
+  String get householdEmptyDesc =>
+      'Invita a alguien por correo para compartir tus líneas SIM prepago y sus renovaciones.';
+
+  @override
+  String get householdStatusPending => 'PENDIENTE';
+
+  @override
+  String get householdStatusAccepted => 'ACTIVO';
+
+  @override
+  String get householdPendingHint => 'Esperando que acepte';
+
+  @override
+  String get householdRoleViewer => 'Observador';
+
+  @override
+  String get householdRoleManager => 'Gestor';
+
+  @override
+  String get householdRoleViewerHint => 'Puede ver tus líneas';
+
+  @override
+  String get householdRoleManagerHint => 'Puede ver y recargar tus líneas';
+
+  @override
+  String get householdManagerWarning =>
+      'Un gestor puede recargar tus líneas. Solo gastará de tu monedero si le pones un límite.';
+
+  @override
+  String householdSpendsMyWallet(String spent, String cap) {
+    return 'Gasta de mi monedero · $spent de $cap este mes';
+  }
+
+  @override
+  String get householdPaysOwnWallet => 'Paga con su propio monedero';
+
+  @override
+  String get householdManagersOnly =>
+      'Solo gestores: un observador no puede gastar de tu monedero';
+
+  @override
+  String get householdChangeLimit => 'Cambiar límite';
+
+  @override
+  String get householdSetLimit => 'Poner un límite';
+
+  @override
+  String householdRemainingQueued(String remaining, String queued) {
+    return 'Quedan $remaining · $queued en cola, aún sin cobrar';
+  }
+
+  @override
+  String householdRemainingThisMonth(String remaining) {
+    return 'Quedan $remaining este mes';
+  }
+
+  @override
+  String householdSpendingLimitFor(String name) {
+    return 'Límite de gasto para $name';
+  }
+
+  @override
+  String get householdSpendingLimitDesc =>
+      'Cuánto de TU monedero puede gastar en tus líneas SIM cada mes natural. Pon 0 para desactivarlo: volverá a pagar con su propio monedero.';
+
+  @override
+  String get householdMonthlyLimit => 'Límite mensual (USD)';
+
+  @override
+  String get householdMaxPerRefill => 'Máximo por recarga (opcional)';
+
+  @override
+  String get householdSave => 'Guardar';
+
+  @override
+  String householdLimitSaved(String name, String cap) {
+    return '$name ya puede gastar hasta $cap de tu monedero al mes.';
+  }
+
+  @override
+  String householdLimitCleared(String name) {
+    return '$name vuelve a pagar con su propio monedero.';
+  }
+
+  @override
+  String get householdLimitFailed => 'No se pudo actualizar el límite.';
+
+  @override
+  String get householdNoInvitesTitle => 'Sin invitaciones';
+
+  @override
+  String get householdNoInvitesDesc =>
+      'Cuando alguien te invite a su hogar, aparecerá aquí.';
+
+  @override
+  String get householdFamilyAccount => 'Cuenta familiar';
+
+  @override
+  String get householdInvitedYouViewer => 'Te invitó a ver sus líneas SIM';
+
+  @override
+  String get householdInvitedYouManager =>
+      'Te invitó a ver y recargar sus líneas SIM';
+
+  @override
+  String get householdAccept => 'Aceptar';
+
+  @override
+  String get householdDecline => 'Rechazar';
+
+  @override
+  String get householdNotJoinedTitle => 'No te has unido a ningún hogar';
+
+  @override
+  String get householdNotJoinedDesc =>
+      'Las invitaciones que recibas aparecen en la pestaña Invitaciones.';
+
+  @override
+  String get householdSharedHousehold => 'Hogar compartido';
+
+  @override
+  String get householdRoleManagerFull => 'GESTOR · PUEDE RECARGAR';
+
+  @override
+  String get householdRoleViewerFull => 'OBSERVADOR · SOLO LECTURA';
+
+  @override
+  String get householdLeave => 'Salir';
+
+  @override
+  String householdOwnerFunds(String owner) {
+    return '$owner financia tus recargas';
+  }
+
+  @override
+  String householdAllowanceExhausted(String cap) {
+    return 'Has usado todo el $cap de este mes. Las recargas en sus líneas se rechazarán hasta que se reinicie.';
+  }
+
+  @override
+  String householdAllowanceRemaining(String remaining, String cap) {
+    return 'Quedan $remaining de $cap este mes';
+  }
+
+  @override
+  String householdAllowancePerTxn(String perTxn) {
+    return ' · máx. $perTxn por recarga';
+  }
+
+  @override
+  String get householdInviteTitle => 'Invitar a un familiar';
+
+  @override
+  String get householdInviteDesc =>
+      'Recibirán la invitación dentro de la app. Cuando la acepten, tus líneas SIM y las suyas aparecerán juntas.';
+
+  @override
+  String get householdEmailLabel => 'Correo electrónico';
+
+  @override
+  String get householdAccessLevel => '¿Qué puede hacer?';
+
+  @override
+  String get householdSendInvite => 'Enviar invitación';
+
+  @override
+  String get householdInvalidEmail => 'Introduce un correo electrónico válido';
+
+  @override
+  String householdInviteSent(String email) {
+    return 'Invitación enviada a $email';
+  }
+
+  @override
+  String householdInviteSentNoAccount(String email) {
+    return 'Invitación enviada a $email. La verán en cuanto se registren.';
+  }
+
+  @override
+  String get householdInviteAccepted => 'Te has unido al hogar';
+
+  @override
+  String get householdInviteDeclined => 'Invitación rechazada';
+
+  @override
+  String get householdRemoveTitle => 'Quitar familiar';
+
+  @override
+  String householdRemoveConfirm(String name) {
+    return '$name perderá de inmediato el acceso a tus líneas SIM, junto con cualquier límite de gasto que hayas puesto.';
+  }
+
+  @override
+  String householdRemoved(String name) {
+    return '$name fue eliminado de tu hogar';
+  }
+
+  @override
+  String get householdLeaveTitle => 'Salir del hogar';
+
+  @override
+  String householdLeaveConfirm(String owner) {
+    return 'Perderás el acceso a las líneas SIM compartidas por $owner.';
+  }
+
+  @override
+  String get householdLeft => 'Has salido del hogar';
+
+  @override
+  String get householdActionFailed => 'No funcionó. Inténtalo de nuevo.';
+
+  @override
+  String get householdOwnerLabel => 'Tú (propietario)';
+
+  @override
+  String get householdSettingsSubtitle =>
+      'Comparte tus líneas SIM con la familia y fija límites de gasto';
+
+  @override
+  String get householdStatusDeclined => 'RECHAZADA';
+
+  @override
+  String get householdDeclinedHint =>
+      'La rechazó. Quítalo para volver a invitarlo.';
 }

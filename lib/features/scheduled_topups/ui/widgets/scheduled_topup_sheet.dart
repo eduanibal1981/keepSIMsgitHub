@@ -67,6 +67,21 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
   
   final TextEditingController _amountController = TextEditingController();
 
+  /// I2: does *this* line carry the premium plan?
+  ///
+  /// Reads `SimLine.effectiveTier` (`plan_type`, widened by `protection_tier`),
+  /// never `profiles.subscription_tier` — that account column is written once at
+  /// onboarding and is `'premium'` for no account in production, while four
+  /// lines have been paid up to premium.
+  bool _lineIsPremium() {
+    final lines = ref.read(simLinesControllerProvider).value ?? const <SimLine>[];
+    final line = lines.cast<SimLine?>().firstWhere(
+          (l) => l?.id == widget.simLineId,
+          orElse: () => null,
+        );
+    return line?.isPremiumPlan ?? false;
+  }
+
   @override
   void dispose() {
     _amountController.dispose();
@@ -75,10 +90,11 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
   @override
   void initState() {
     super.initState();
-    final user = ref.read(authControllerProvider).value;
-    // Use default logic or feature-specific logic
-    final globalTier = user?.subscriptionTier ?? 'standard';
-    final bool isPremium = globalTier == 'premium';
+    // I2: entitlement is a property of THIS LINE, not of the account.
+    // `profiles.subscription_tier` is 'premium' for zero accounts while four
+    // lines are `plan_type='premium'`, so gating on it hid the premium
+    // custom-refill cadence from every customer who had paid for it.
+    final bool isPremium = _lineIsPremium();
     final bool isNotifyMode = widget.configMode == 'notify';
 
     if (widget.existingSchedule != null) {
@@ -103,16 +119,14 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
   @override
   Widget build(BuildContext context) {
     final bool isEditMode = widget.existingSchedule != null;
-    final user = ref.watch(authControllerProvider).value;
     final walletState = ref.watch(walletControllerProvider).value;
     final simLines = ref.watch(simLinesControllerProvider).value ?? [];
     final currentLine = simLines.cast<SimLine?>().firstWhere(
       (l) => l?.id == widget.simLineId,
       orElse: () => null,
     );
-    // Handled by SIM line or globally
-    final globalTier = user?.subscriptionTier ?? 'standard';
-    final bool isPremium = globalTier == 'premium';
+    // I2: per-line entitlement — see _lineIsPremium().
+    final bool isPremium = currentLine?.isPremiumPlan ?? _lineIsPremium();
     final bool isNotifyMode = widget.configMode == 'notify';
     final String labelPrefix = isNotifyMode
         ? 'Auto-Notify'
@@ -353,13 +367,15 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                                 break;
                             }
 
-                            final bool isLineBasic =
-                                currentLine?.protectionTier.toLowerCase() ==
-                                'basic';
+                            // I2: one rule, read off the line. The old pair
+                            // asked `protection_tier == 'basic'` AND
+                            // `subscription_tier == 'basic'`; the second is
+                            // account-level and true for 6 of 8 users, so a
+                            // paid line still showed its channels locked.
                             final bool isUnavailable =
-                                type != 'push' && isLineBasic;
-                            final bool isLocked =
-                                type != 'push' && globalTier == 'basic';
+                                type != 'push' &&
+                                !(currentLine?.isPaidPlan ?? false);
+                            final bool isLocked = isUnavailable;
 
                             return ListTile(
                               dense: true,
@@ -533,7 +549,9 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                   ),
                 )
               else
-                ref.watch(apiOffersProvider(currentLine!.countryId!, currentLine.carrierId!)).when(
+                // I1: line-scoped so every enabled supplier is listed and the
+                // ranking matches what the purchase RPC will re-apply.
+                ref.watch(lineRefillOffersProvider(widget.simLineId)).when(
                   data: (offers) {
                     if (offers.isEmpty) {
                       return const Padding(

@@ -14,6 +14,16 @@ const dtoneApiKey = process.env.DTONE_API_KEY;
 const dtoneApiSecret = process.env.DTONE_API_SECRET;
 const dtoneBaseUrl = process.env.DTONE_BASE_URL || 'https://preprod-dvs-api.dtone.com/v1';
 
+// I5: suppliers three and four. Both are absent from .env until the owner adds
+// them, and refreshPair() returns 0 rather than throwing when a key is missing —
+// so this worker keeps refreshing Zendit and DTOne exactly as before.
+const dingApiKey = process.env.DING_API_KEY;
+const dingBaseUrl = process.env.DING_BASE_URL || 'https://api.dingconnect.com/api/V1';
+
+const reloadlyClientId = process.env.RELOADLY_CLIENT_ID;
+const reloadlyClientSecret = process.env.RELOADLY_CLIENT_SECRET;
+const reloadlyBaseUrl = process.env.RELOADLY_BASE_URL || 'https://topups.reloadly.com';
+
 if (!supabaseUrl || !supabaseKey) {
     console.error('Error: SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set in servers/.env');
     process.exit(1);
@@ -36,46 +46,89 @@ const fetchDtoneCatalog = createCatalogFetcher({
     ttlMs: 1,
 });
 
-async function catalogPairs() {
-    const { data, error } = await supabase
-        .from('carriers')
-        .select('zen_carrier, dt_carrier, api_provider, countries!inner(iso_code)')
-        .eq('is_supported', true);
+const fetchDingCatalog = createCatalogFetcher({
+    provider: 'ding',
+    baseUrl: dingBaseUrl,
+    apiKey: dingApiKey,
+    ttlMs: 1,
+});
 
-    if (error) throw new Error(`Failed to list carriers: ${error.message}`);
+const fetchReloadlyCatalog = createCatalogFetcher({
+    provider: 'reloadly',
+    baseUrl: reloadlyBaseUrl,
+    clientId: reloadlyClientId,
+    clientSecret: reloadlyClientSecret,
+    ttlMs: 1,
+});
+
+// I5: the pair list now comes from `carrier_provider_map`, not from the
+// single-valued `carriers.api_provider`.
+//
+// That column can only ever name ONE supplier per carrier, so this worker could
+// only ever cache one — which is why enabling a second supplier used to be
+// impossible no matter what credentials existed. The map holds one row per
+// (carrier, supplier) and `is_enabled` is the switch; `supplier_policy` adds a
+// global kill switch on top, and BOTH must be on for a pair to be refreshed.
+//
+// Consequence worth knowing: a supplier that is enabled but whose credentials
+// are missing contributes zero rows (refreshPair returns 0), so the cache simply
+// stays empty for it rather than the worker dying.
+async function catalogPairs() {
+    const { data: policy, error: policyError } = await supabase
+        .from('supplier_policy')
+        .select('provider')
+        .eq('is_globally_enabled', true);
+
+    if (policyError) throw new Error(`Failed to read supplier_policy: ${policyError.message}`);
+    const liveProviders = new Set((policy || []).map(p => p.provider));
+
+    const { data, error } = await supabase
+        .from('carrier_provider_map')
+        .select('provider, provider_country_code, provider_carrier_code, carriers!inner(is_supported)')
+        .eq('is_enabled', true);
+
+    if (error) throw new Error(`Failed to list carrier_provider_map: ${error.message}`);
 
     const seen = new Set();
     const pairs = [];
 
     for (const row of data) {
-        const iso = row.countries.iso_code;
-        const provider = (row.api_provider || 'zendit').toLowerCase();
-        
-        if (provider === 'dtone' && row.dt_carrier && iso) {
-            const key = `dtone|${iso}|${row.dt_carrier}`;
-            if (!seen.has(key)) {
-                seen.add(key);
-                pairs.push({ apiProvider: 'dtone', countryCode: iso, carrierCode: row.dt_carrier });
-            }
-        } else if (provider === 'zendit' && row.zen_carrier && iso) {
-            const key = `zendit|${iso}|${row.zen_carrier}`;
-            if (!seen.has(key)) {
-                seen.add(key);
-                pairs.push({ apiProvider: 'zendit', countryCode: iso, carrierCode: row.zen_carrier });
-            }
-        }
+        if (!row.carriers?.is_supported) continue;
+        if (!liveProviders.has(row.provider)) continue;
+        if (!row.provider_country_code || !row.provider_carrier_code) continue;
+
+        const key = `${row.provider}|${row.provider_country_code}|${row.provider_carrier_code}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        pairs.push({
+            apiProvider: row.provider,
+            countryCode: row.provider_country_code,
+            carrierCode: row.provider_carrier_code,
+        });
     }
     return pairs;
 }
 
 async function refreshPair({ apiProvider, countryCode, carrierCode }) {
     let offers = [];
-    if (apiProvider === 'dtone') {
-        if (!dtoneApiKey || !dtoneApiSecret) return 0;
-        offers = await fetchDtoneCatalog(countryCode, carrierCode);
-    } else {
-        if (!zenditApiSecret) return 0;
-        offers = await fetchZenditCatalog(countryCode, carrierCode);
+    // A missing credential returns 0, never throws: one unconfigured supplier
+    // must not stop the others refreshing.
+    switch (apiProvider) {
+        case 'dtone':
+            if (!dtoneApiKey || !dtoneApiSecret) return 0;
+            offers = await fetchDtoneCatalog(countryCode, carrierCode);
+            break;
+        case 'ding':
+            if (!dingApiKey) return 0;
+            offers = await fetchDingCatalog(countryCode, carrierCode);
+            break;
+        case 'reloadly':
+            if (!reloadlyClientId || !reloadlyClientSecret) return 0;
+            offers = await fetchReloadlyCatalog(countryCode, carrierCode);
+            break;
+        default:
+            if (!zenditApiSecret) return 0;
+            offers = await fetchZenditCatalog(countryCode, carrierCode);
     }
 
     const rows = offers

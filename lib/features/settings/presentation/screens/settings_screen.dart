@@ -232,16 +232,15 @@ class SettingsScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 16),
 
-              // Household feature temporarily hidden
-              // _buildMenuCard(
-              //   context: context,
-              //   icon: Icons.people_outline_rounded,
-              //   iconColor: const Color(0xFF3B82F6),
-              //   title: 'Household & Family',
-              //   subtitle: 'Manage family members, invitations & shared lines',
-              //   routePath: '/settings/household',
-              // ),
-              // const SizedBox(height: 16),
+              _buildMenuCard(
+                context: context,
+                icon: Icons.people_outline_rounded,
+                iconColor: const Color(0xFF3B82F6),
+                title: AppLocalizations.of(context)!.householdTitle,
+                subtitle: AppLocalizations.of(context)!.householdSettingsSubtitle,
+                routePath: '/settings/household',
+              ),
+              const SizedBox(height: 16),
               _buildMenuCard(
                 context: context,
                 icon: Icons.notifications_none_rounded,

@@ -27,6 +27,7 @@ import 'package:keep_sims/l10n/app_localizations.dart';
 import 'package:keep_sims/core/providers/locale_provider.dart';
 import 'package:keep_sims/features/notifications/presentation/controllers/notification_settings_controller.dart';
 import 'package:keep_sims/core/services/esim_capability_service.dart';
+import 'package:keep_sims/features/dashboard/presentation/widgets/promo_banner.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -187,6 +188,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               // ── "At a Glance" Glassmorphic Hero Card ──────────────────
               _buildHeroCard(context, profile.preferredCurrency, data, profile),
               const SizedBox(height: 28),
+
+              // ── I3: carrier-targeted offer, if one is live for this user ──
+              // Renders nothing when there is no campaign, so it costs an
+              // ordinary dashboard one SizedBox.
+              const PromoBanner(),
 
               // ── Protected SIM Line Health Cards ─────────────────────
               _buildHealthSection(context, ref, profile.id),

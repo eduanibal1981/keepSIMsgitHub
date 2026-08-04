@@ -11,6 +11,15 @@ HouseholdRepository householdRepository(Ref ref) {
   return HouseholdRepositoryImpl(supabase: Supabase.instance.client);
 }
 
+/// H8 note on why the writes here are RPCs and not table calls.
+///
+/// `household_members` grants `authenticated` column-level UPDATE on every
+/// column, and the old member policy scoped rows but not columns — so a member
+/// owned their own row and could set `role='manager'`, which is the gate on
+/// spending the OWNER's wallet. The member-side write policies are gone now;
+/// accept/decline/leave have no direct path to the table by design. Invites go
+/// through an RPC too, because the duplicate check was a client-side race and
+/// because the invitee needs a notification row they alone can read.
 class HouseholdRepositoryImpl implements HouseholdRepository {
   final SupabaseClient _supabase;
 
@@ -18,7 +27,6 @@ class HouseholdRepositoryImpl implements HouseholdRepository {
     : _supabase = supabase;
 
   String? get _currentUserId => _supabase.auth.currentUser?.id;
-  String? get _currentUserEmail => _supabase.auth.currentUser?.email;
 
   @override
   Future<List<HouseholdMember>> getHouseholdMembers() async {
@@ -32,8 +40,7 @@ class HouseholdRepositoryImpl implements HouseholdRepository {
           .eq('owner_id', userId)
           .order('created_at', ascending: false);
 
-      final data = response as List;
-      return data.map((json) {
+      return (response as List).map((json) {
         final profile = json['profiles'] as Map<String, dynamic>?;
         return HouseholdMember.fromJson({
           ...json,
@@ -46,21 +53,28 @@ class HouseholdRepositoryImpl implements HouseholdRepository {
     }
   }
 
+  /// Invitations addressed to me.
+  ///
+  /// Deliberately NOT filtered on `member_email` any more. The row is visible
+  /// when it matches `member_id` OR the JWT email, and an invite sent before
+  /// the invitee registered only ever matches on email — filtering client-side
+  /// on a locally-held email string is how that case got lost before. RLS is
+  /// the filter; the only thing to exclude here is my own outgoing invites,
+  /// which the owner policy also makes visible to me.
   @override
   Future<List<HouseholdMember>> getHouseholdInvitations() async {
-    final email = _currentUserEmail;
-    if (email == null) return [];
+    final userId = _currentUserId;
+    if (userId == null) return [];
 
     try {
       final response = await _supabase
           .from('household_members')
           .select('*, profiles:owner_id(full_name)')
-          .eq('member_email', email.toLowerCase())
           .eq('invite_status', 'pending')
+          .neq('owner_id', userId)
           .order('invited_at', ascending: false);
 
-      final data = response as List;
-      return data.map((json) {
+      return (response as List).map((json) {
         final ownerProfile = json['profiles'] as Map<String, dynamic>?;
         return HouseholdMember.fromJson({
           ...json,
@@ -85,8 +99,7 @@ class HouseholdRepositoryImpl implements HouseholdRepository {
           .eq('invite_status', 'accepted')
           .order('created_at', ascending: false);
 
-      final data = response as List;
-      return data.map((json) {
+      return (response as List).map((json) {
         final ownerProfile = json['profiles'] as Map<String, dynamic>?;
         return HouseholdMember.fromJson({
           ...json,
@@ -99,81 +112,56 @@ class HouseholdRepositoryImpl implements HouseholdRepository {
   }
 
   @override
-  Future<HouseholdMember> inviteMember(String email, String role) async {
-    final userId = _currentUserId;
-    if (userId == null) throw Exception('User not authenticated');
+  Future<HouseholdActionResult> inviteMember(String email, String role) =>
+      _rpc('invite_household_member', {
+        'p_email': email.trim(),
+        'p_role': role,
+      });
 
-    if (email.toLowerCase().trim() == _currentUserEmail?.toLowerCase().trim()) {
-      throw Exception('You cannot invite yourself to your own household');
-    }
+  @override
+  Future<HouseholdActionResult> respondToInvite(String inviteId, bool accept) =>
+      _rpc('respond_to_household_invite', {
+        'p_invite_id': inviteId,
+        'p_accept': accept,
+      });
 
+  @override
+  Future<HouseholdActionResult> leaveHousehold(String id) =>
+      _rpc('leave_household', {'p_membership_id': id});
+
+  /// Owner-side removal. Still a direct DELETE — the owner policy is correctly
+  /// scoped — but `.select()` is what turns "RLS matched nothing" into a
+  /// reportable failure instead of a success toast over an unchanged table.
+  @override
+  Future<HouseholdActionResult> removeMember(String id) async {
     try {
-      // Check if already invited or member
-      final checkResponse = await _supabase
+      final rows = await _supabase
           .from('household_members')
-          .select()
-          .eq('owner_id', userId)
-          .eq('member_email', email.toLowerCase().trim());
+          .delete()
+          .eq('id', id)
+          .select('id');
 
-      if ((checkResponse as List).isNotEmpty) {
-        throw Exception(
-          'An invitation or membership already exists for this email',
+      if ((rows as List).isEmpty) {
+        return HouseholdActionResult.failure(
+          'That member is no longer in your household.',
+          code: 'NOT_FOUND',
         );
       }
-
-      final insertResponse = await _supabase
-          .from('household_members')
-          .insert({
-            'owner_id': userId,
-            'member_email': email.toLowerCase().trim(),
-            'role': role,
-            'invite_status': 'pending',
-            'invited_at': DateTime.now().toIso8601String(),
-          })
-          .select('*, profiles:member_id(full_name, avatar_url)')
-          .single();
-
-      final profile = insertResponse['profiles'] as Map<String, dynamic>?;
-      return HouseholdMember.fromJson({
-        ...insertResponse,
-        'member_name': profile?['full_name'],
-        'member_avatar': profile?['avatar_url'],
-      });
+      return const HouseholdActionResult(success: true);
     } on PostgrestException catch (e) {
-      throw Exception('Failed to invite member: ${e.message}');
+      return HouseholdActionResult.failure(e.message, code: 'DB_ERROR');
     }
   }
 
-  @override
-  Future<void> respondToInvite(String inviteId, bool accept) async {
+  Future<HouseholdActionResult> _rpc(
+    String fn,
+    Map<String, dynamic> params,
+  ) async {
     try {
-      await _supabase
-          .from('household_members')
-          .update({
-            'invite_status': accept ? 'accepted' : 'declined',
-            'accepted_at': accept ? DateTime.now().toIso8601String() : null,
-          })
-          .eq('id', inviteId);
+      final res = await _supabase.rpc(fn, params: params);
+      return HouseholdActionResult.fromRpc(res);
     } on PostgrestException catch (e) {
-      throw Exception('Failed to respond to invitation: ${e.message}');
-    }
-  }
-
-  @override
-  Future<void> removeMember(String id) async {
-    try {
-      await _supabase.from('household_members').delete().eq('id', id);
-    } on PostgrestException catch (e) {
-      throw Exception('Failed to remove household member: ${e.message}');
-    }
-  }
-
-  @override
-  Future<void> leaveHousehold(String id) async {
-    try {
-      await _supabase.from('household_members').delete().eq('id', id);
-    } on PostgrestException catch (e) {
-      throw Exception('Failed to leave household: ${e.message}');
+      return HouseholdActionResult.failure(e.message, code: 'DB_ERROR');
     }
   }
 }

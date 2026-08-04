@@ -187,8 +187,11 @@ class DashboardController extends _$DashboardController {
     SimLine? nextDueLine;
     DateTime? nextDueLineDate;
 
-    bool isPremiumUser =
-        profile?.subscriptionTier == 'premium' || profile?.isPowerUser == true;
+    // I2: `profiles.subscription_tier` is 'premium' for zero accounts while four
+    // SIM lines are `plan_type='premium'` — the tier is bought PER LINE and
+    // nothing writes it back to the profile. Keep the power-user override (it is
+    // a staff flag), but entitlement is decided per line below.
+    bool isPremiumUser = profile?.isPowerUser == true;
 
     for (final line in ownedLines) {
       final lineSchedules = schedules
@@ -203,8 +206,11 @@ class DashboardController extends _$DashboardController {
           .where((s) => s.scheduleType == 'notify')
           .firstOrNull;
 
-      bool isPremiumLine =
-          line.protectionTier.toLowerCase() == 'premium' || isPremiumUser;
+      // I2: was `line.protectionTier == 'premium'`, which is false for 3 of the
+      // 4 paid premium lines — so the dashboard counted down the *notify*
+      // schedule instead of the *refill* schedule for customers who had paid
+      // for automated refills.
+      bool isPremiumLine = line.isPremiumPlan || isPremiumUser;
 
       final DateTime? targetDate = isPremiumLine
           ? refillSchedule?.nextExecutionAt

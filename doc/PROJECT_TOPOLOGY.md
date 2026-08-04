@@ -46,8 +46,10 @@ SQL, all in one repo.
 `test_*.js`, `*.py`, `keep_sims.rar`, the `KeepSIMs_*Dashboard*.html/png` mockups,
 `admin_dashboard.html`. These are historical scratch files, not part of the build.
 
-**Sibling repo, separate folder:** `G:\KeepSIMs\keep_sims_admin` (admin Flutter app,
-`github.com/eduanibal1981/keepsims_admin`).
+**Sibling repo, separate folder:** `C:\Users\abdal\Work\KeepSIMs\keep_sims_admin` (admin Flutter
+app, `github.com/eduanibal1981/keepsims_admin`). *Moved off `G:\` — corrected 2026-08-04; the old
+`G:\KeepSIMs` path no longer exists.* `keep_sims_daemon` beside it is an empty `dart create`
+skeleton, **not** a worker or a task-script runner.
 
 ---
 

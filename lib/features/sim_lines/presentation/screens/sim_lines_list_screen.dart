@@ -19,7 +19,6 @@ import 'package:keep_sims/core/widgets/shimmer_loading.dart';
 import 'package:keep_sims/core/widgets/empty_state.dart';
 import 'package:keep_sims/core/widgets/error_state.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
-import 'package:keep_sims/features/profile/presentation/widgets/subscription_upsell_sheet.dart';
 import 'package:keep_sims/core/services/analytics_service.dart';
 
 import 'package:keep_sims/l10n/app_localizations.dart';
@@ -44,7 +43,7 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
     Future.microtask(() {
       ref.read(analyticsServiceProvider).logScreenView('sim_lines_list');
     });
-    _tabController = TabController(length: 1, vsync: this);
+    _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(() {
       if (mounted) {
         setState(() {
@@ -408,7 +407,10 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
               icon: const Icon(Icons.person, size: 20),
               text: AppLocalizations.of(context)!.mySimCards,
             ),
-            // Tab(icon: Icon(Icons.people, size: 20), text: 'Family Shared SIMs'),
+            Tab(
+              icon: const Icon(Icons.people, size: 20),
+              text: AppLocalizations.of(context)!.familySharedSims,
+            ),
           ],
         ),
       ),
@@ -436,17 +438,17 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
                           isShared: false,
                         ),
 
-                  // Tab 2: Family Shared SIMs (Hidden)
-                  // sharedLines.isEmpty
-                  //     ? _buildSharedEmptyState(context)
-                  //     : _buildLinesList(
-                  //         context,
-                  //         sharedLines,
-                  //         countriesState.value ?? [],
-                  //         currentUserId,
-                  //         householdState,
-                  //         isShared: true,
-                  //       ),
+                  // Tab 2: Family Shared SIMs
+                  sharedLines.isEmpty
+                      ? _buildSharedEmptyState(context)
+                      : _buildLinesList(
+                          context,
+                          sharedLines,
+                          countriesState.value ?? [],
+                          currentUserId,
+                          householdState,
+                          isShared: true,
+                        ),
                 ],
               ),
               _buildBulkActionsConsole(myLines),
@@ -619,43 +621,22 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
     );
   }
 
+  /// I2: the only line cap in this product is **one free line per account**.
+  ///
+  /// This method used to cap the *total* number of lines by the account-level
+  /// `profiles.subscription_tier`: `basic` → 1 line, `standard` → 5 lines. That
+  /// contradicted the actual rule enforced by the database
+  /// (`check_free_lines_limit()`, which caps only `plan_type = 'free'`), and it
+  /// was a hard block on revenue: 6 of 8 production accounts are `basic`, so
+  /// they could not add a *paid* second line at all, and the sheet quoted
+  /// per-line prices ("\$0.10/mo", "max 5") that exist nowhere in
+  /// `system_configs` or `quote_plan_price`.
+  ///
+  /// The free cap is not enforced here on purpose: the add form disables the
+  /// Free tier when one already exists, and the database refuses a second one
+  /// regardless. Duplicating the rule in a third place is how the three copies
+  /// drifted apart in the first place.
   void _checkLineLimitAndAdd(BuildContext context, int myLinesCount) {
-    final user = ref.read(authControllerProvider).value;
-    final tier = user?.subscriptionTier ?? 'standard';
-
-    if (tier == 'basic' && myLinesCount >= 1) {
-      SubscriptionUpsellSheet.show(
-        context: context,
-        title: 'Free Plan Limit Reached 🚨',
-        description:
-            'Under the Free Plan, you can protect up to 1 SIM line. Upgrade to the Starter Plan to keep more active numbers protected!',
-        requiredPlan: 'Starter Plan',
-        highlights: [
-          'Includes 2 SIM lines in base (\$2.40/yr)',
-          'Extra lines: \$0.10/mo (\$1.20/yr) each (max 5)',
-          'Unlock WhatsApp, Telegram & Email notifications',
-          'Enable Travel & Home automated validity modes',
-        ],
-      );
-      return;
-    } else if (tier == 'standard' && myLinesCount >= 5) {
-      SubscriptionUpsellSheet.show(
-        context: context,
-        title: 'Starter Plan Limit Reached 🚨',
-        description:
-            'You have reached the 5 SIM card limit for the Starter Plan. Upgrade to Premium for unlimited active protection shields!',
-        requiredPlan: 'Premium',
-        highlights: [
-          'Includes 2 SIM lines in base (\$4.80/yr)',
-          'Extra lines: \$0.20/mo (\$2.40/yr) each (unlimited)',
-          'Unlock 100% automated in-app balance top-ups',
-          'Smart Geolocation deactivation freeze shields',
-          'Baqa local calls + data operator detection',
-        ],
-      );
-      return;
-    }
-
     context.push('/sim-lines/add');
   }
 }

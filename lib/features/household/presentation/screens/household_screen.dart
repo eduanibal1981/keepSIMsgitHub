@@ -7,10 +7,18 @@ import 'package:keep_sims/core/widgets/empty_state.dart';
 import 'package:keep_sims/core/widgets/error_state.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
 import 'package:keep_sims/core/utils/build_context_extension.dart';
+import 'package:keep_sims/l10n/app_localizations.dart';
 import '../controllers/household_controller.dart';
 import '../providers/household_spend_provider.dart';
 import '../../data/models/household_member_model.dart';
 import '../../data/models/household_spend_model.dart';
+import '../../domain/repositories/household_repository.dart';
+
+const _kIndigo = Color(0xFF6366F1);
+const _kBlue = Color(0xFF3B82F6);
+const _kPurple = Color(0xFFA855F7);
+const _kAmber = Color(0xFFF59E0B);
+const _kGreen = Color(0xFF10B981);
 
 class HouseholdScreen extends ConsumerStatefulWidget {
   const HouseholdScreen({super.key});
@@ -22,6 +30,11 @@ class HouseholdScreen extends ConsumerStatefulWidget {
 class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
     with SingleTickerProviderStateMixin {
   late final TabController _tabController;
+
+  /// Guards every mutation. Without it a double-tap on Accept fires the RPC
+  /// twice; the second call returns NOT_FOUND and the user sees a failure
+  /// message for something that actually worked.
+  bool _busy = false;
 
   @override
   void initState() {
@@ -40,25 +53,67 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
     super.dispose();
   }
 
+  AppLocalizations get _l => AppLocalizations.of(context)!;
+
+  String _money(double v) => '\$${v.toStringAsFixed(2)}';
+
+  /// Runs a mutation and reports the outcome.
+  ///
+  /// The repository returns an envelope rather than throwing, so a refusal
+  /// carries a sentence from the server. That matters most for the cases the
+  /// old code reported as success — a member's `leave` used to delete zero rows
+  /// and still show "left the household".
+  Future<void> _run(
+    Future<HouseholdActionResult> Function() action, {
+    required String successMessage,
+  }) async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    try {
+      final result = await action();
+      if (!mounted) return;
+      if (result.success) {
+        await HapticHelper.successFeedback();
+      } else {
+        await HapticHelper.mediumImpact();
+      }
+      if (!mounted) return;
+      _toast(
+        result.success
+            ? successMessage
+            : (result.message ?? _l.householdActionFailed),
+        isError: !result.success,
+      );
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  void _toast(String message, {bool isError = false}) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(message),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: isError ? AppColors.warning : null,
+        ),
+      );
+  }
+
   @override
   Widget build(BuildContext context) {
     final stateAsync = ref.watch(householdControllerProvider);
     final isDark = context.isDarkMode;
+    final pendingCount = stateAsync.value?.invitations.length ?? 0;
 
     return Scaffold(
       backgroundColor: context.scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_rounded, color: context.onSurfaceColor),
-          onPressed: () async {
-            await HapticHelper.lightTick();
-            Navigator.pop(context);
-          },
-        ),
         title: Text(
-          'Household Sharing',
+          _l.householdTitle,
           style: AppTextStyles.headlineMedium.copyWith(
             color: context.onSurfaceColor,
             fontWeight: FontWeight.bold,
@@ -66,7 +121,7 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
         ),
         bottom: TabBar(
           controller: _tabController,
-          indicatorColor: const Color(0xFF6366F1),
+          indicatorColor: _kIndigo,
           labelColor: context.onSurfaceColor,
           unselectedLabelColor: isDark
               ? AppColors.textSecondaryDark
@@ -78,24 +133,35 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
           dividerColor: isDark
               ? Colors.white.withValues(alpha: 0.05)
               : AppColors.lightBorder.withValues(alpha: 0.3),
-          tabs: const [
-            Tab(text: 'My Family'),
-            Tab(text: 'Received'),
-            Tab(text: 'Joined'),
+          tabs: [
+            Tab(text: _l.householdTabMyFamily),
+            // An invitation the invitee never notices is the same as no
+            // invitation, so the count rides on the tab itself.
+            Tab(
+              child: _TabLabelWithBadge(
+                label: _l.householdTabReceived,
+                count: pendingCount,
+              ),
+            ),
+            Tab(text: _l.householdTabJoined),
           ],
         ),
       ),
       body: stateAsync.when(
+        skipLoadingOnRefresh: true,
         data: (state) => TabBarView(
           controller: _tabController,
           children: [
-            _buildMyFamilyTab(state.members),
-            _buildReceivedTab(state.invitations),
-            Column(
-              children: [
-                _buildAllowanceBanner(),
-                Expanded(child: _buildJoinedTab(state.memberships)),
-              ],
+            _refreshable(_buildMyFamilyTab(state.members)),
+            _refreshable(_buildReceivedTab(state.invitations)),
+            _refreshable(
+              ListView(
+                padding: EdgeInsets.zero,
+                children: [
+                  _buildAllowanceBanner(),
+                  _buildJoinedList(state.memberships),
+                ],
+              ),
             ),
           ],
         ),
@@ -109,89 +175,98 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {
-          await HapticHelper.lightTick();
-          _showInviteDialog(context);
-        },
-        backgroundColor: const Color(0xFF6366F1),
-        icon: const Icon(Icons.add_rounded, color: Colors.white),
-        label: const Text(
-          'Invite Member',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        onPressed: _busy
+            ? null
+            : () async {
+                await HapticHelper.lightTick();
+                if (!mounted) return;
+                _showInviteDialog();
+              },
+        backgroundColor: _busy ? Colors.grey : _kIndigo,
+        icon: const Icon(Icons.person_add_alt_1_rounded, color: Colors.white),
+        label: Text(
+          _l.householdInviteMember,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
     );
   }
 
-  // ── Tab 1: My Family (Members I invited) ───────────────────────────
+  Widget _refreshable(Widget child) => RefreshIndicator(
+    onRefresh: () => ref.read(householdControllerProvider.notifier).refresh(),
+    child: child,
+  );
+
+  // ── Tab 1: My Family (people I invited) ────────────────────────────
   Widget _buildMyFamilyTab(List<HouseholdMember> members) {
-    final isDark = context.isDarkMode;
     if (members.isEmpty) {
-      return _buildEmptyState(
-        icon: Icons.people_outline_rounded,
-        title: 'Your Household is Empty',
-        description:
-            'Invite family members by email to share your prepaid SIM lines and renewals.',
+      return _scrollableEmpty(
+        EmptyStateView(
+          icon: Icons.people_outline_rounded,
+          title: _l.householdEmptyTitle,
+          description: _l.householdEmptyDesc,
+          buttonText: _l.householdInviteMember,
+          onButtonPressed: _busy ? null : () => _showInviteDialog(),
+        ),
       );
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
       itemCount: members.length,
-      itemBuilder: (context, index) {
-        final member = members[index];
-        final isPending = member.inviteStatus == 'pending';
+      itemBuilder: (context, index) => _memberCard(members[index]),
+    );
+  }
 
-        return Container(
-          margin: const EdgeInsets.only(bottom: 14.0),
-          padding: const EdgeInsets.all(16.0),
-          decoration: BoxDecoration(
-            color: isDark
-                ? AppColors.darkCard.withValues(alpha: 0.4)
-                : AppColors.lightCard,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: isDark
-                  ? Colors.white.withValues(alpha: 0.06)
-                  : AppColors.lightBorder,
-              width: 1.0,
-            ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _memberCard(HouseholdMember member) {
+    final isDark = context.isDarkMode;
+    // A declined invite stays in the table — the owner has to be told that,
+    // otherwise it reads as an active member who simply never appears.
+    final isPending = member.inviteStatus == 'pending';
+    final isDeclined = member.inviteStatus == 'declined';
+    final isMuted = isPending || isDeclined;
+    final name = member.memberName?.trim().isNotEmpty == true
+        ? member.memberName!
+        : member.memberEmail;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 14.0),
+      padding: const EdgeInsets.all(16.0),
+      decoration: _cardDecoration(isDark),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              Row(
-            children: [
-              // Avatar representation
               CircleAvatar(
                 radius: 24,
-                backgroundColor: isPending
+                backgroundColor: isMuted
                     ? (isDark
                           ? Colors.white.withValues(alpha: 0.06)
                           : Colors.black.withValues(alpha: 0.04))
-                    : const Color(0xFF6366F1).withValues(alpha: 0.1),
+                    : _kIndigo.withValues(alpha: 0.1),
                 child: Text(
-                  (member.memberName ?? member.memberEmail)
-                      .substring(0, 1)
-                      .toUpperCase(),
+                  name.characters.first.toUpperCase(),
                   style: TextStyle(
-                    color: isPending
+                    color: isMuted
                         ? (isDark
                               ? AppColors.textSecondaryDark
                               : AppColors.textSecondaryLight)
-                        : const Color(0xFF6366F1),
+                        : _kIndigo,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
               const SizedBox(width: 16),
-              // Details
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      member.memberName ?? member.memberEmail,
+                      name,
                       style: AppTextStyles.titleMedium.copyWith(
                         color: context.onSurfaceColor,
                         fontWeight: FontWeight.w600,
@@ -199,7 +274,7 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
-                    if (member.memberName != null) ...[
+                    if (member.memberName?.trim().isNotEmpty == true) ...[
                       const SizedBox(height: 2),
                       Text(
                         member.memberEmail,
@@ -212,80 +287,64 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                       ),
                     ],
                     const SizedBox(height: 6),
-                    // Badges
-                    Row(
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 6,
                       children: [
-                        // Status Badge
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 3,
-                          ),
-                          decoration: BoxDecoration(
-                            color: isPending
-                                ? const Color(0xFFF59E0B).withValues(alpha: 0.1)
-                                : const Color(0xFF10B981).withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            isPending ? 'PENDING' : 'ACCEPTED',
-                            style: TextStyle(
-                              color: isPending
-                                  ? const Color(0xFFF59E0B)
-                                  : const Color(0xFF10B981),
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                        _pill(
+                          isPending
+                              ? _l.householdStatusPending
+                              : (isDeclined
+                                    ? _l.householdStatusDeclined
+                                    : _l.householdStatusAccepted),
+                          isPending
+                              ? _kAmber
+                              : (isDeclined ? Colors.redAccent : _kGreen),
                         ),
-                        const SizedBox(width: 8),
-                        // Role Badge
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 3,
-                          ),
-                          decoration: BoxDecoration(
-                            color: member.role == 'manager'
-                                ? const Color(0xFFA855F7).withValues(alpha: 0.1)
-                                : const Color(0xFF3B82F6).withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            member.role.toUpperCase(),
-                            style: TextStyle(
-                              color: member.role == 'manager'
-                                  ? const Color(0xFFA855F7)
-                                  : const Color(0xFF3B82F6),
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                        _pill(
+                          member.role == 'manager'
+                              ? _l.householdRoleManager
+                              : _l.householdRoleViewer,
+                          member.role == 'manager' ? _kPurple : _kBlue,
                         ),
                       ],
                     ),
+                    if (isMuted) ...[
+                      const SizedBox(height: 6),
+                      Text(
+                        isPending
+                            ? _l.householdPendingHint
+                            : _l.householdDeclinedHint,
+                        style: AppTextStyles.caption.copyWith(
+                          color: isDark
+                              ? AppColors.textSecondaryDark
+                              : AppColors.textSecondaryLight,
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
-              // Action buttons (Revoke or Remove)
               IconButton(
+                tooltip: _l.householdRemoveTitle,
                 icon: const Icon(
-                  Icons.delete_outline_rounded,
+                  Icons.person_remove_outlined,
                   color: Colors.redAccent,
                 ),
-                onPressed: () async {
-                  await HapticHelper.lightTick();
-                  _confirmRemove(context, member);
-                },
+                onPressed: _busy
+                    ? null
+                    : () async {
+                        await HapticHelper.lightTick();
+                        if (!mounted) return;
+                        _confirmRemove(member, name);
+                      },
               ),
             ],
           ),
-              // G6: the wallet-sharing half of the row.
-              _buildSpendFooter(member),
-            ],
-          ),
-        );
-      },
+          // G6: the wallet-sharing half of the row.
+          _buildSpendFooter(member),
+        ],
+      ),
     );
   }
 
@@ -317,7 +376,9 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
         children: [
           Divider(
             height: 1,
-            color: isDark ? Colors.white.withValues(alpha: 0.06) : AppColors.lightBorder,
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.06)
+                : AppColors.lightBorder,
           ),
           const SizedBox(height: 12),
           Row(
@@ -325,11 +386,13 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
               Expanded(
                 child: Text(
                   row.isFunded
-                      ? 'Spends my wallet · \$${row.spentMtdUsd.toStringAsFixed(2)} of '
-                          '\$${row.monthlyCapUsd.toStringAsFixed(2)} this month'
+                      ? _l.householdSpendsMyWallet(
+                          _money(row.spentMtdUsd),
+                          _money(row.monthlyCapUsd),
+                        )
                       : (canFund
-                          ? 'Pays with their own wallet'
-                          : 'Managers only — a viewer cannot spend your wallet'),
+                            ? _l.householdPaysOwnWallet
+                            : _l.householdManagersOnly),
                   style: AppTextStyles.caption.copyWith(
                     color: isDark
                         ? AppColors.textSecondaryDark
@@ -343,8 +406,12 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                   minimumSize: const Size(0, 32),
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
-                onPressed: canFund ? () => _showCapDialog(member, row) : null,
-                child: Text(row.isFunded ? 'Change limit' : 'Set a limit'),
+                onPressed: canFund && !_busy
+                    ? () => _showCapDialog(member, row)
+                    : null,
+                child: Text(
+                  row.isFunded ? _l.householdChangeLimit : _l.householdSetLimit,
+                ),
               ),
             ],
           ),
@@ -366,9 +433,11 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
               // will otherwise read the balance and the cap and find they
               // disagree.
               row.inFlightUsd > 0
-                  ? '\$${row.remainingUsd.toStringAsFixed(2)} left · '
-                      '\$${row.inFlightUsd.toStringAsFixed(2)} queued, not yet charged'
-                  : '\$${row.remainingUsd.toStringAsFixed(2)} left this month',
+                  ? _l.householdRemainingQueued(
+                      _money(row.remainingUsd),
+                      _money(row.inFlightUsd),
+                    )
+                  : _l.householdRemainingThisMonth(_money(row.remainingUsd)),
               style: AppTextStyles.caption.copyWith(color: accent),
             ),
           ],
@@ -388,45 +457,49 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
     showDialog<void>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text('Spending limit for ${row.displayName}'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'How much of YOUR wallet they may spend on your SIM lines each '
-              'calendar month. Set 0 to switch it off — they will go back to '
-              'paying with their own wallet.',
-              style: AppTextStyles.bodySmall.copyWith(
-                color: context.onSurfaceColor.withValues(alpha: 0.7),
+        title: Text(_l.householdSpendingLimitFor(row.displayName)),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                _l.householdSpendingLimitDesc,
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: context.onSurfaceColor.withValues(alpha: 0.7),
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: monthlyCtl,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              decoration: const InputDecoration(
-                labelText: 'Monthly limit (USD)',
-                prefixText: '\$ ',
-                border: OutlineInputBorder(),
+              const SizedBox(height: 16),
+              TextField(
+                controller: monthlyCtl,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                decoration: InputDecoration(
+                  labelText: _l.householdMonthlyLimit,
+                  prefixText: '\$ ',
+                  border: const OutlineInputBorder(),
+                ),
               ),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: perTxnCtl,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              decoration: const InputDecoration(
-                labelText: 'Max per refill (optional)',
-                prefixText: '\$ ',
-                border: OutlineInputBorder(),
+              const SizedBox(height: 12),
+              TextField(
+                controller: perTxnCtl,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                decoration: InputDecoration(
+                  labelText: _l.householdMaxPerRefill,
+                  prefixText: '\$ ',
+                  border: const OutlineInputBorder(),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('Cancel'),
+            child: Text(_l.cancel),
           ),
           FilledButton(
             onPressed: () async {
@@ -447,59 +520,49 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                   );
 
               if (!mounted) return;
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    result.success
-                        ? (monthly > 0
-                            ? '${row.displayName} can now spend up to '
-                                '\$${monthly.toStringAsFixed(2)} of your wallet a month.'
-                            : '${row.displayName} pays with their own wallet again.')
-                        : (result.message ?? 'Could not update the limit.'),
-                  ),
-                ),
+              _toast(
+                result.success
+                    ? (monthly > 0
+                          ? _l.householdLimitSaved(
+                              row.displayName,
+                              _money(monthly),
+                            )
+                          : _l.householdLimitCleared(row.displayName))
+                    : (result.message ?? _l.householdLimitFailed),
+                isError: !result.success,
               );
             },
-            child: const Text('Save'),
+            child: Text(_l.householdSave),
           ),
         ],
       ),
     );
   }
 
-  // ── Tab 2: Received Invites (Invites sent to me) ───────────────────
+  // ── Tab 2: Invitations sent to me ──────────────────────────────────
   Widget _buildReceivedTab(List<HouseholdMember> invitations) {
     final isDark = context.isDarkMode;
     if (invitations.isEmpty) {
-      return _buildEmptyState(
-        icon: Icons.mail_outline_rounded,
-        title: 'No Invitations',
-        description:
-            'You do not have any pending household invitations at this time.',
+      return _scrollableEmpty(
+        EmptyStateView(
+          icon: Icons.mail_outline_rounded,
+          title: _l.householdNoInvitesTitle,
+          description: _l.householdNoInvitesDesc,
+        ),
       );
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
       itemCount: invitations.length,
       itemBuilder: (context, index) {
         final invite = invitations[index];
+        final isManager = invite.role == 'manager';
 
         return Container(
           margin: const EdgeInsets.only(bottom: 14.0),
           padding: const EdgeInsets.all(18.0),
-          decoration: BoxDecoration(
-            color: isDark
-                ? AppColors.darkCard.withValues(alpha: 0.4)
-                : AppColors.lightCard,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: isDark
-                  ? Colors.white.withValues(alpha: 0.06)
-                  : AppColors.lightBorder,
-              width: 1.0,
-            ),
-          ),
+          decoration: _cardDecoration(isDark),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -507,11 +570,8 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                 children: [
                   CircleAvatar(
                     radius: 22,
-                    backgroundColor: const Color(0xFF3B82F6).withValues(alpha: 0.1),
-                    child: const Icon(
-                      Icons.house_rounded,
-                      color: Color(0xFF3B82F6),
-                    ),
+                    backgroundColor: _kBlue.withValues(alpha: 0.1),
+                    child: const Icon(Icons.house_rounded, color: _kBlue),
                   ),
                   const SizedBox(width: 14),
                   Expanded(
@@ -519,7 +579,9 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          invite.ownerName ?? 'Family Account',
+                          invite.ownerName?.trim().isNotEmpty == true
+                              ? invite.ownerName!
+                              : _l.householdFamilyAccount,
                           style: AppTextStyles.titleMedium.copyWith(
                             color: context.onSurfaceColor,
                             fontWeight: FontWeight.bold,
@@ -528,7 +590,9 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          'Invited you as a ${invite.role.toUpperCase()}',
+                          isManager
+                              ? _l.householdInvitedYouManager
+                              : _l.householdInvitedYouViewer,
                           style: AppTextStyles.caption.copyWith(
                             color: isDark
                                 ? AppColors.textSecondaryDark
@@ -545,10 +609,14 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                 children: [
                   Expanded(
                     child: TextButton(
-                      onPressed: () async {
-                        await HapticHelper.mediumImpact();
-                        _handleRespond(invite.id, false);
-                      },
+                      onPressed: _busy
+                          ? null
+                          : () => _run(
+                              () => ref
+                                  .read(householdControllerProvider.notifier)
+                                  .declineInvite(invite.id),
+                              successMessage: _l.householdInviteDeclined,
+                            ),
                       style: TextButton.styleFrom(
                         backgroundColor: isDark
                             ? Colors.white.withValues(alpha: 0.06)
@@ -559,7 +627,7 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                         ),
                       ),
                       child: Text(
-                        'Decline',
+                        _l.householdDecline,
                         style: TextStyle(color: context.onSurfaceColor),
                       ),
                     ),
@@ -567,20 +635,24 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                   const SizedBox(width: 12),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () async {
-                        await HapticHelper.mediumImpact();
-                        _handleRespond(invite.id, true);
-                      },
+                      onPressed: _busy
+                          ? null
+                          : () => _run(
+                              () => ref
+                                  .read(householdControllerProvider.notifier)
+                                  .acceptInvite(invite.id),
+                              successMessage: _l.householdInviteAccepted,
+                            ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF6366F1),
+                        backgroundColor: _kIndigo,
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text(
-                        'Accept',
-                        style: TextStyle(
+                      child: Text(
+                        _l.householdAccept,
+                        style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                         ),
@@ -596,7 +668,7 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
     );
   }
 
-  // ── Tab 3: Joined Households (Households I've joined) ──────────────
+  // ── Tab 3: Households I have joined ────────────────────────────────
   // G6: the member's side. A member cannot read the owner's wallet or ledger
   // — RLS is right about that — so without this banner they would discover
   // their spending limit only by hitting it mid-refill.
@@ -609,8 +681,9 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
 
     return Column(
       children: funded.map((a) {
-        final Color accent =
-            a.remainingUsd <= 0 ? AppColors.warning : AppColors.success;
+        final Color accent = a.remainingUsd <= 0
+            ? AppColors.warning
+            : AppColors.success;
         return Container(
           margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
           padding: const EdgeInsets.all(16),
@@ -624,12 +697,15 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
             children: [
               Row(
                 children: [
-                  Icon(Icons.account_balance_wallet_outlined,
-                      size: 18, color: accent),
+                  Icon(
+                    Icons.account_balance_wallet_outlined,
+                    size: 18,
+                    color: accent,
+                  ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      '${a.ownerLabel} funds your refills',
+                      _l.householdOwnerFunds(a.ownerLabel),
                       style: AppTextStyles.titleMedium.copyWith(
                         color: context.onSurfaceColor,
                         fontWeight: FontWeight.bold,
@@ -652,12 +728,16 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
               const SizedBox(height: 8),
               Text(
                 a.remainingUsd <= 0
-                    ? 'You have used the whole \$${a.monthlyCapUsd.toStringAsFixed(2)} '
-                        'for this month. Refills on their lines will be refused '
-                        'until it resets.'
-                    : '\$${a.remainingUsd.toStringAsFixed(2)} of '
-                        '\$${a.monthlyCapUsd.toStringAsFixed(2)} left this month'
-                        '${a.perTxnCapUsd != null ? ' · max \$${a.perTxnCapUsd!.toStringAsFixed(2)} per refill' : ''}',
+                    ? _l.householdAllowanceExhausted(_money(a.monthlyCapUsd))
+                    : _l.householdAllowanceRemaining(
+                            _money(a.remainingUsd),
+                            _money(a.monthlyCapUsd),
+                          ) +
+                          (a.perTxnCapUsd != null
+                              ? _l.householdAllowancePerTxn(
+                                  _money(a.perTxnCapUsd!),
+                                )
+                              : ''),
                 style: AppTextStyles.caption.copyWith(color: accent),
               ),
             ],
@@ -667,47 +747,40 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
     );
   }
 
-  Widget _buildJoinedTab(List<HouseholdMember> memberships) {
+  Widget _buildJoinedList(List<HouseholdMember> memberships) {
     final isDark = context.isDarkMode;
     if (memberships.isEmpty) {
-      return _buildEmptyState(
-        icon: Icons.vpn_key_outlined,
-        title: 'Not Joined in Family Accounts',
-        description:
-            'You have not joined any family households. Received invitations will appear under the tab.',
+      return SizedBox(
+        height: MediaQuery.sizeOf(context).height * 0.6,
+        child: EmptyStateView(
+          icon: Icons.vpn_key_outlined,
+          title: _l.householdNotJoinedTitle,
+          description: _l.householdNotJoinedDesc,
+        ),
       );
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.all(16.0),
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
       itemCount: memberships.length,
       itemBuilder: (context, index) {
         final membership = memberships[index];
+        final ownerLabel = membership.ownerName?.trim().isNotEmpty == true
+            ? membership.ownerName!
+            : _l.householdSharedHousehold;
 
         return Container(
           margin: const EdgeInsets.only(bottom: 14.0),
           padding: const EdgeInsets.all(16.0),
-          decoration: BoxDecoration(
-            color: isDark
-                ? AppColors.darkCard.withValues(alpha: 0.4)
-                : AppColors.lightCard,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: isDark
-                  ? Colors.white.withValues(alpha: 0.06)
-                  : AppColors.lightBorder,
-              width: 1.0,
-            ),
-          ),
+          decoration: _cardDecoration(isDark),
           child: Row(
             children: [
               CircleAvatar(
                 radius: 22,
-                backgroundColor: const Color(0xFF10B981).withValues(alpha: 0.1),
-                child: const Icon(
-                  Icons.lock_open_rounded,
-                  color: Color(0xFF10B981),
-                ),
+                backgroundColor: _kGreen.withValues(alpha: 0.1),
+                child: const Icon(Icons.lock_open_rounded, color: _kGreen),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -715,7 +788,7 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      membership.ownerName ?? 'Shared Household',
+                      ownerLabel,
                       style: AppTextStyles.headlineSmall.copyWith(
                         color: context.onSurfaceColor,
                         fontWeight: FontWeight.bold,
@@ -723,45 +796,31 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 3,
-                      ),
-                      decoration: BoxDecoration(
-                        color: membership.role == 'manager'
-                            ? const Color(0xFFA855F7).withValues(alpha: 0.1)
-                            : const Color(0xFF3B82F6).withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        membership.role == 'manager'
-                            ? 'MANAGER (READ/WRITE)'
-                            : 'VIEWER (READ-ONLY)',
-                        style: TextStyle(
-                          color: membership.role == 'manager'
-                              ? const Color(0xFFA855F7)
-                              : const Color(0xFF3B82F6),
-                          fontSize: 9,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                    _pill(
+                      membership.role == 'manager'
+                          ? _l.householdRoleManagerFull
+                          : _l.householdRoleViewerFull,
+                      membership.role == 'manager' ? _kPurple : _kBlue,
+                      fontSize: 9,
                     ),
                   ],
                 ),
               ),
               TextButton(
-                onPressed: () async {
-                  await HapticHelper.lightTick();
-                  _confirmLeave(context, membership);
-                },
+                onPressed: _busy
+                    ? null
+                    : () async {
+                        await HapticHelper.lightTick();
+                        if (!mounted) return;
+                        _confirmLeave(membership, ownerLabel);
+                      },
                 style: TextButton.styleFrom(
                   foregroundColor: Colors.redAccent,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                child: const Text('Leave'),
+                child: Text(_l.householdLeave),
               ),
             ],
           ),
@@ -770,16 +829,16 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
     );
   }
 
-  // ── Invite Dialog ──────────────────────────────────────────────────
-  void _showInviteDialog(BuildContext context) {
+  // ── Invite dialog ──────────────────────────────────────────────────
+  void _showInviteDialog() {
     final emailController = TextEditingController();
     String selectedRole = 'viewer';
     final isDark = context.isDarkMode;
 
-    showDialog(
+    showDialog<void>(
       context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setModalState) => AlertDialog(
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (dialogContext, setModalState) => AlertDialog(
           backgroundColor: isDark ? AppColors.darkCard : AppColors.lightCard,
           surfaceTintColor: Colors.transparent,
           shape: RoundedRectangleBorder(
@@ -789,199 +848,138 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                 : const BorderSide(color: AppColors.lightBorder),
           ),
           title: Text(
-            'Invite Family Member',
+            _l.householdInviteTitle,
             style: AppTextStyles.headlineMedium.copyWith(
               color: context.onSurfaceColor,
               fontWeight: FontWeight.bold,
             ),
           ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Enter email below to invite them to view or manage your shared SIM lines.',
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: isDark
-                      ? AppColors.textSecondaryDark
-                      : AppColors.textSecondaryLight,
-                ),
-              ),
-              const SizedBox(height: 20),
-              TextField(
-                controller: emailController,
-                style: TextStyle(color: context.onSurfaceColor),
-                decoration: InputDecoration(
-                  labelText: 'Email Address',
-                  labelStyle: TextStyle(
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _l.householdInviteDesc,
+                  style: AppTextStyles.bodyMedium.copyWith(
                     color: isDark
                         ? AppColors.textSecondaryDark
                         : AppColors.textSecondaryLight,
                   ),
-                  filled: true,
-                  fillColor: isDark
-                      ? Colors.white.withValues(alpha: 0.04)
-                      : Colors.black.withValues(alpha: 0.03),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide(
+                ),
+                const SizedBox(height: 20),
+                TextField(
+                  controller: emailController,
+                  autofocus: true,
+                  style: TextStyle(color: context.onSurfaceColor),
+                  keyboardType: TextInputType.emailAddress,
+                  autocorrect: false,
+                  textCapitalization: TextCapitalization.none,
+                  decoration: InputDecoration(
+                    labelText: _l.householdEmailLabel,
+                    labelStyle: TextStyle(
                       color: isDark
-                          ? Colors.white.withValues(alpha: 0.08)
-                          : AppColors.lightBorder,
+                          ? AppColors.textSecondaryDark
+                          : AppColors.textSecondaryLight,
                     ),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide(
-                      color: isDark
-                          ? Colors.white.withValues(alpha: 0.08)
-                          : AppColors.lightBorder,
+                    filled: true,
+                    fillColor: isDark
+                        ? Colors.white.withValues(alpha: 0.04)
+                        : Colors.black.withValues(alpha: 0.03),
+                    border: _inviteBorder(isDark),
+                    enabledBorder: _inviteBorder(isDark),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: _kIndigo),
                     ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(color: Color(0xFF6366F1)),
                   ),
                 ),
-                keyboardType: TextInputType.emailAddress,
-              ),
-              const SizedBox(height: 24),
-              Text(
-                'Access Permissions',
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: context.onSurfaceColor,
-                  fontWeight: FontWeight.bold,
+                const SizedBox(height: 24),
+                Text(
+                  _l.householdAccessLevel,
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: context.onSurfaceColor,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 10),
-              // Role selection row
-              Row(
-                children: [
-                  Expanded(
-                    child: InkWell(
-                      onTap: () async {
-                        await HapticHelper.lightTick();
-                        setModalState(() => selectedRole = 'viewer');
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        decoration: BoxDecoration(
-                          color: selectedRole == 'viewer'
-                              ? const Color(0xFF3B82F6).withValues(alpha: 0.12)
-                              : (isDark
-                                    ? Colors.white.withValues(alpha: 0.03)
-                                    : Colors.black.withValues(alpha: 0.02)),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: selectedRole == 'viewer'
-                                ? const Color(0xFF3B82F6)
-                                : (isDark
-                                      ? Colors.white.withValues(alpha: 0.06)
-                                      : AppColors.lightBorder),
-                          ),
-                        ),
-                        child: Column(
-                          children: [
-                            Icon(
-                              Icons.visibility_rounded,
-                              color: selectedRole == 'viewer'
-                                  ? const Color(0xFF3B82F6)
-                                  : (isDark
-                                        ? AppColors.textSecondaryDark
-                                        : AppColors.textSecondaryLight),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              'Viewer',
-                              style: TextStyle(
-                                color: context.onSurfaceColor,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              'Read-only',
-                              style: TextStyle(
-                                color: isDark
-                                    ? AppColors.textSecondaryDark
-                                    : AppColors.textSecondaryLight,
-                                fontSize: 10,
-                              ),
-                            ),
-                          ],
-                        ),
+                const SizedBox(height: 10),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(
+                      child: _roleCard(
+                        selected: selectedRole == 'viewer',
+                        color: _kBlue,
+                        icon: Icons.visibility_rounded,
+                        title: _l.householdRoleViewer,
+                        hint: _l.householdRoleViewerHint,
+                        onTap: () async {
+                          await HapticHelper.lightTick();
+                          setModalState(() => selectedRole = 'viewer');
+                        },
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: InkWell(
-                      onTap: () async {
-                        await HapticHelper.lightTick();
-                        setModalState(() => selectedRole = 'manager');
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        decoration: BoxDecoration(
-                          color: selectedRole == 'manager'
-                              ? const Color(0xFFA855F7).withValues(alpha: 0.12)
-                              : (isDark
-                                    ? Colors.white.withValues(alpha: 0.03)
-                                    : Colors.black.withValues(alpha: 0.02)),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: selectedRole == 'manager'
-                                ? const Color(0xFFA855F7)
-                                : (isDark
-                                      ? Colors.white.withValues(alpha: 0.06)
-                                      : AppColors.lightBorder),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: _roleCard(
+                        selected: selectedRole == 'manager',
+                        color: _kPurple,
+                        icon: Icons.manage_accounts_rounded,
+                        title: _l.householdRoleManager,
+                        hint: _l.householdRoleManagerHint,
+                        onTap: () async {
+                          await HapticHelper.lightTick();
+                          setModalState(() => selectedRole = 'manager');
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                // Handing someone the manager role is the decision with money
+                // attached, so the consequence is stated at the moment of choice
+                // rather than left in the spend-limit screen they may never open.
+                if (selectedRole == 'manager') ...[
+                  const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: _kPurple.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Icon(
+                          Icons.info_outline_rounded,
+                          size: 16,
+                          color: _kPurple,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            _l.householdManagerWarning,
+                            style: AppTextStyles.caption.copyWith(
+                              color: context.onSurfaceColor.withValues(
+                                alpha: 0.8,
+                              ),
+                            ),
                           ),
                         ),
-                        child: Column(
-                          children: [
-                            Icon(
-                              Icons.manage_accounts_rounded,
-                              color: selectedRole == 'manager'
-                                  ? const Color(0xFFA855F7)
-                                  : (isDark
-                                        ? AppColors.textSecondaryDark
-                                        : AppColors.textSecondaryLight),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              'Manager',
-                              style: TextStyle(
-                                color: context.onSurfaceColor,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              'Read/Write',
-                              style: TextStyle(
-                                color: isDark
-                                    ? AppColors.textSecondaryDark
-                                    : AppColors.textSecondaryLight,
-                                fontSize: 10,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                      ],
                     ),
                   ),
                 ],
-              ),
-            ],
+              ],
+            ),
           ),
           actions: [
             TextButton(
               onPressed: () async {
                 await HapticHelper.lightTick();
-                Navigator.pop(context);
+                if (dialogContext.mounted) Navigator.pop(dialogContext);
               },
               child: Text(
-                'Cancel',
+                _l.cancel,
                 style: TextStyle(
                   color: isDark ? Colors.white70 : AppColors.textSecondaryLight,
                 ),
@@ -992,26 +990,24 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                 final email = emailController.text.trim();
                 if (email.isEmpty || !email.contains('@')) {
                   await HapticHelper.mediumImpact();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Please enter a valid email address'),
-                    ),
-                  );
+                  if (!mounted) return;
+                  _toast(_l.householdInvalidEmail, isError: true);
                   return;
                 }
                 await HapticHelper.mediumImpact();
-                Navigator.pop(context);
-                _handleSendInvite(email, selectedRole);
+                if (dialogContext.mounted) Navigator.pop(dialogContext);
+                if (!mounted) return;
+                await _sendInvite(email, selectedRole);
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF6366F1),
+                backgroundColor: _kIndigo,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text(
-                'Send Invite',
-                style: TextStyle(
+              child: Text(
+                _l.householdSendInvite,
+                style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
@@ -1023,65 +1019,73 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
     );
   }
 
-  // ── Operations Trigger Helpers ─────────────────────────────────────
-  void _handleSendInvite(String email, String role) async {
+  /// Invite has its own runner because the success copy depends on whether the
+  /// invitee already has an account: with one they get a notification now,
+  /// without one nothing visibly happens until they register, and an owner who
+  /// is not told that will assume the invite failed.
+  Future<void> _sendInvite(String email, String role) async {
+    if (_busy) return;
+    setState(() => _busy = true);
     try {
-      await ref
+      final result = await ref
           .read(householdControllerProvider.notifier)
           .sendInvite(email, role);
-      await HapticHelper.successFeedback();
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Successfully sent invitation to $email')),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.toString().replaceAll('Exception:', '').trim()),
-          ),
-        );
-      }
-    }
-  }
-
-  void _handleRespond(String inviteId, bool accept) async {
-    try {
-      await HapticHelper.mediumImpact();
-      if (accept) {
-        await ref
-            .read(householdControllerProvider.notifier)
-            .acceptInvite(inviteId);
+      if (!mounted) return;
+      if (result.success) {
         await HapticHelper.successFeedback();
       } else {
-        await ref
-            .read(householdControllerProvider.notifier)
-            .declineInvite(inviteId);
+        await HapticHelper.mediumImpact();
       }
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              accept ? 'Invitation accepted!' : 'Invitation declined',
-            ),
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(e.toString())));
-      }
+      if (!mounted) return;
+      _toast(
+        result.success
+            ? _l.householdInviteSent(email)
+            : (result.message ?? _l.householdActionFailed),
+        isError: !result.success,
+      );
+    } finally {
+      if (mounted) setState(() => _busy = false);
     }
   }
 
-  void _confirmRemove(BuildContext context, HouseholdMember member) {
+  void _confirmRemove(HouseholdMember member, String name) {
+    _confirmDestructive(
+      title: _l.householdRemoveTitle,
+      body: _l.householdRemoveConfirm(name),
+      confirmLabel: _l.remove,
+      onConfirm: () => _run(
+        () => ref
+            .read(householdControllerProvider.notifier)
+            .removeMember(member.id),
+        successMessage: _l.householdRemoved(name),
+      ),
+    );
+  }
+
+  void _confirmLeave(HouseholdMember membership, String ownerLabel) {
+    _confirmDestructive(
+      title: _l.householdLeaveTitle,
+      body: _l.householdLeaveConfirm(ownerLabel),
+      confirmLabel: _l.householdLeave,
+      onConfirm: () => _run(
+        () => ref
+            .read(householdControllerProvider.notifier)
+            .leaveHousehold(membership.id),
+        successMessage: _l.householdLeft,
+      ),
+    );
+  }
+
+  void _confirmDestructive({
+    required String title,
+    required String body,
+    required String confirmLabel,
+    required Future<void> Function() onConfirm,
+  }) {
     final isDark = context.isDarkMode;
-    showDialog(
+    showDialog<void>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         backgroundColor: isDark ? AppColors.darkCard : AppColors.lightCard,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
@@ -1090,12 +1094,9 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
               ? BorderSide.none
               : const BorderSide(color: AppColors.lightBorder),
         ),
-        title: Text(
-          'Remove Family Member',
-          style: TextStyle(color: context.onSurfaceColor),
-        ),
+        title: Text(title, style: TextStyle(color: context.onSurfaceColor)),
         content: Text(
-          'Are you sure you want to revoke access/remove ${member.memberEmail} from your household?',
+          body,
           style: TextStyle(
             color: isDark
                 ? AppColors.textSecondaryDark
@@ -1106,10 +1107,10 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
           TextButton(
             onPressed: () async {
               await HapticHelper.lightTick();
-              Navigator.pop(context);
+              if (dialogContext.mounted) Navigator.pop(dialogContext);
             },
             child: Text(
-              'Cancel',
+              _l.cancel,
               style: TextStyle(
                 color: isDark ? Colors.white70 : AppColors.textSecondaryLight,
               ),
@@ -1118,81 +1119,165 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
           ElevatedButton(
             onPressed: () async {
               await HapticHelper.mediumImpact();
-              Navigator.pop(context);
-              await ref
-                  .read(householdControllerProvider.notifier)
-                  .removeMember(member.id);
-              await HapticHelper.successFeedback();
+              if (dialogContext.mounted) Navigator.pop(dialogContext);
+              await onConfirm();
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
-            child: const Text('Remove', style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _confirmLeave(BuildContext context, HouseholdMember membership) {
-    final isDark = context.isDarkMode;
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: isDark ? AppColors.darkCard : AppColors.lightCard,
-        surfaceTintColor: Colors.transparent,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: isDark
-              ? BorderSide.none
-              : const BorderSide(color: AppColors.lightBorder),
-        ),
-        title: Text(
-          'Leave Household',
-          style: TextStyle(color: context.onSurfaceColor),
-        ),
-        content: Text(
-          'Are you sure you want to leave the household shared by ${membership.ownerName ?? 'Family Owner'}? You will lose all access to their shared lines.',
-          style: TextStyle(
-            color: isDark
-                ? AppColors.textSecondaryDark
-                : AppColors.textSecondaryLight,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () async {
-              await HapticHelper.lightTick();
-              Navigator.pop(context);
-            },
             child: Text(
-              'Cancel',
-              style: TextStyle(
-                color: isDark ? Colors.white70 : AppColors.textSecondaryLight,
-              ),
+              confirmLabel,
+              style: const TextStyle(color: Colors.white),
             ),
           ),
-          ElevatedButton(
-            onPressed: () async {
-              await HapticHelper.mediumImpact();
-              Navigator.pop(context);
-              await ref
-                  .read(householdControllerProvider.notifier)
-                  .leaveHousehold(membership.id);
-              await HapticHelper.successFeedback();
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
-            child: const Text('Leave', style: TextStyle(color: Colors.white)),
-          ),
         ],
       ),
     );
   }
 
-  // ── Helper: Empty state ────────────────────────────────────────────
-  Widget _buildEmptyState({
+  // ── Small shared pieces ────────────────────────────────────────────
+  BoxDecoration _cardDecoration(bool isDark) => BoxDecoration(
+    color: isDark ? AppColors.darkCard.withValues(alpha: 0.4) : AppColors.lightCard,
+    borderRadius: BorderRadius.circular(20),
+    border: Border.all(
+      color: isDark ? Colors.white.withValues(alpha: 0.06) : AppColors.lightBorder,
+      width: 1.0,
+    ),
+  );
+
+  OutlineInputBorder _inviteBorder(bool isDark) => OutlineInputBorder(
+    borderRadius: BorderRadius.circular(14),
+    borderSide: BorderSide(
+      color: isDark ? Colors.white.withValues(alpha: 0.08) : AppColors.lightBorder,
+    ),
+  );
+
+  Widget _pill(String text, Color color, {double fontSize = 10}) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+    decoration: BoxDecoration(
+      color: color.withValues(alpha: 0.1),
+      borderRadius: BorderRadius.circular(8),
+    ),
+    child: Text(
+      text,
+      style: TextStyle(
+        color: color,
+        fontSize: fontSize,
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+  );
+
+  Widget _roleCard({
+    required bool selected,
+    required Color color,
     required IconData icon,
     required String title,
-    required String description,
+    required String hint,
+    required VoidCallback onTap,
   }) {
-    return EmptyStateView(icon: icon, title: title, description: description);
+    final isDark = context.isDarkMode;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+        decoration: BoxDecoration(
+          color: selected
+              ? color.withValues(alpha: 0.12)
+              : (isDark
+                    ? Colors.white.withValues(alpha: 0.03)
+                    : Colors.black.withValues(alpha: 0.02)),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: selected
+                ? color
+                : (isDark
+                      ? Colors.white.withValues(alpha: 0.06)
+                      : AppColors.lightBorder),
+          ),
+        ),
+        child: Column(
+          children: [
+            Icon(
+              icon,
+              color: selected
+                  ? color
+                  : (isDark
+                        ? AppColors.textSecondaryDark
+                        : AppColors.textSecondaryLight),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: context.onSurfaceColor,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              hint,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: isDark
+                    ? AppColors.textSecondaryDark
+                    : AppColors.textSecondaryLight,
+                fontSize: 10,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Empty states have to stay scrollable or pull-to-refresh dies exactly when
+  /// the user most wants it — an empty Invitations tab is the screen people
+  /// tug at while waiting for an invite to land.
+  Widget _scrollableEmpty(Widget child) => LayoutBuilder(
+    builder: (context, constraints) => SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(minHeight: constraints.maxHeight),
+        child: child,
+      ),
+    ),
+  );
+}
+
+class _TabLabelWithBadge extends StatelessWidget {
+  const _TabLabelWithBadge({required this.label, required this.count});
+
+  final String label;
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Flexible(child: Text(label, overflow: TextOverflow.ellipsis)),
+        if (count > 0) ...[
+          const SizedBox(width: 6),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: const BoxDecoration(
+              color: _kIndigo,
+              shape: BoxShape.circle,
+            ),
+            constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
+            alignment: Alignment.center,
+            child: Text(
+              '$count',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
   }
 }

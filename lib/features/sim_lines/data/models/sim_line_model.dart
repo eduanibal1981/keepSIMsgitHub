@@ -47,6 +47,35 @@ abstract class SimLine with _$SimLine {
       _$SimLineFromJson(json);
 }
 
+/// I2: what a line is *entitled to*, in one place.
+///
+/// There are two tier columns on `sim_lines` and they disagree on live data:
+/// `plan_type` is what a purchase writes (`trg_fn_apply_plan_tier_from_payment`,
+/// `pay_plan_fee_from_wallet`), while `protection_tier` is an older column that
+/// nothing in the payment path updates — **3 of the 4 production premium lines
+/// carry `plan_type='premium'` with `protection_tier='standard'`**. Gating on
+/// `protection_tier`, or on the account-level `profiles.subscription_tier`
+/// (which is `'premium'` for *nobody*), silently withholds paid features from
+/// paying customers.
+///
+/// `plan_type` is authoritative. `protection_tier` is accepted only as a
+/// widening fallback so no existing entitlement is taken away.
+extension SimLineEntitlement on SimLine {
+  String get effectiveTier {
+    final plan = planType.trim().toLowerCase();
+    if (plan == 'premium') return 'premium';
+    final protection = protectionTier.trim().toLowerCase();
+    if (protection == 'premium') return 'premium';
+    if (plan == 'standard' || protection == 'standard') return 'standard';
+    return 'free';
+  }
+
+  bool get isPremiumPlan => effectiveTier == 'premium';
+
+  /// True for anything the user has paid for — i.e. not the free tier.
+  bool get isPaidPlan => effectiveTier != 'free';
+}
+
 extension SimLineWritablePayload on SimLine {
   Map<String, dynamic> toClientWritableJson() {
     return {

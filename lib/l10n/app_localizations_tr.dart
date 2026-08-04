@@ -2173,4 +2173,251 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get deviceBlockedMessage =>
       'A security check on this device stopped this payment. If this is a mistake, contact support and we will sort it out.';
+
+  @override
+  String get householdTitle => 'Hane ve Aile';
+
+  @override
+  String get householdTabMyFamily => 'Ailem';
+
+  @override
+  String get householdTabReceived => 'Davetler';
+
+  @override
+  String get householdTabJoined => 'Katıldıklarım';
+
+  @override
+  String get householdInviteMember => 'Üye davet et';
+
+  @override
+  String get householdEmptyTitle => 'Henüz aile üyesi yok';
+
+  @override
+  String get householdEmptyDesc =>
+      'Ön ödemeli SIM hatlarınızı ve yenilemelerini paylaşmak için e-postayla birini davet edin.';
+
+  @override
+  String get householdStatusPending => 'BEKLEMEDE';
+
+  @override
+  String get householdStatusAccepted => 'AKTİF';
+
+  @override
+  String get householdPendingHint => 'Kabul etmesi bekleniyor';
+
+  @override
+  String get householdRoleViewer => 'İzleyici';
+
+  @override
+  String get householdRoleManager => 'Yönetici';
+
+  @override
+  String get householdRoleViewerHint => 'Hatlarınızı görebilir';
+
+  @override
+  String get householdRoleManagerHint =>
+      'Hatlarınızı görebilir ve yükleme yapabilir';
+
+  @override
+  String get householdManagerWarning =>
+      'Yönetici hatlarınıza yükleme yapabilir. Cüzdanınızdan ancak bir limit tanımlarsanız harcar.';
+
+  @override
+  String householdSpendsMyWallet(String spent, String cap) {
+    return 'Cüzdanımdan harcıyor · bu ay $cap tutarın $spent kadarı';
+  }
+
+  @override
+  String get householdPaysOwnWallet => 'Kendi cüzdanından öder';
+
+  @override
+  String get householdManagersOnly =>
+      'Yalnızca yöneticiler — izleyici cüzdanınızdan harcayamaz';
+
+  @override
+  String get householdChangeLimit => 'Limiti değiştir';
+
+  @override
+  String get householdSetLimit => 'Limit belirle';
+
+  @override
+  String householdRemainingQueued(String remaining, String queued) {
+    return '$remaining kaldı · $queued sırada, henüz tahsil edilmedi';
+  }
+
+  @override
+  String householdRemainingThisMonth(String remaining) {
+    return 'Bu ay $remaining kaldı';
+  }
+
+  @override
+  String householdSpendingLimitFor(String name) {
+    return '$name için harcama limiti';
+  }
+
+  @override
+  String get householdSpendingLimitDesc =>
+      'Her takvim ayında hatlarınız için SİZİN cüzdanınızdan ne kadar harcayabileceği. Kapatmak için 0 girin — yeniden kendi cüzdanından öder.';
+
+  @override
+  String get householdMonthlyLimit => 'Aylık limit (USD)';
+
+  @override
+  String get householdMaxPerRefill => 'Yükleme başına üst sınır (isteğe bağlı)';
+
+  @override
+  String get householdSave => 'Kaydet';
+
+  @override
+  String householdLimitSaved(String name, String cap) {
+    return '$name artık ayda cüzdanınızdan $cap tutarına kadar harcayabilir.';
+  }
+
+  @override
+  String householdLimitCleared(String name) {
+    return '$name yeniden kendi cüzdanından ödüyor.';
+  }
+
+  @override
+  String get householdLimitFailed => 'Limit güncellenemedi.';
+
+  @override
+  String get householdNoInvitesTitle => 'Davet yok';
+
+  @override
+  String get householdNoInvitesDesc =>
+      'Biri sizi hanesine davet ettiğinde burada görünür.';
+
+  @override
+  String get householdFamilyAccount => 'Aile hesabı';
+
+  @override
+  String get householdInvitedYouViewer =>
+      'Sizi SIM hatlarını görmeye davet etti';
+
+  @override
+  String get householdInvitedYouManager =>
+      'Sizi SIM hatlarını görmeye ve yüklemeye davet etti';
+
+  @override
+  String get householdAccept => 'Kabul et';
+
+  @override
+  String get householdDecline => 'Reddet';
+
+  @override
+  String get householdNotJoinedTitle => 'Henüz bir haneye katılmadınız';
+
+  @override
+  String get householdNotJoinedDesc =>
+      'Aldığınız davetler Davetler sekmesinde görünür.';
+
+  @override
+  String get householdSharedHousehold => 'Paylaşılan hane';
+
+  @override
+  String get householdRoleManagerFull => 'YÖNETİCİ · YÜKLEME YAPABİLİR';
+
+  @override
+  String get householdRoleViewerFull => 'İZLEYİCİ · SALT OKUNUR';
+
+  @override
+  String get householdLeave => 'Ayrıl';
+
+  @override
+  String householdOwnerFunds(String owner) {
+    return 'Yüklemelerinizi $owner karşılıyor';
+  }
+
+  @override
+  String householdAllowanceExhausted(String cap) {
+    return 'Bu ayın tamamını ($cap) kullandınız. Sıfırlanana kadar hatlarına yapılan yüklemeler reddedilecek.';
+  }
+
+  @override
+  String householdAllowanceRemaining(String remaining, String cap) {
+    return 'Bu ay $cap tutarın $remaining kadarı kaldı';
+  }
+
+  @override
+  String householdAllowancePerTxn(String perTxn) {
+    return ' · yükleme başına en fazla $perTxn';
+  }
+
+  @override
+  String get householdInviteTitle => 'Bir aile üyesi davet et';
+
+  @override
+  String get householdInviteDesc =>
+      'Daveti uygulama içinde alırlar. Kabul ettiklerinde sizin ve onların SIM hatları birlikte görünür.';
+
+  @override
+  String get householdEmailLabel => 'E-posta adresi';
+
+  @override
+  String get householdAccessLevel => 'Ne yapabilir?';
+
+  @override
+  String get householdSendInvite => 'Davet gönder';
+
+  @override
+  String get householdInvalidEmail => 'Lütfen geçerli bir e-posta adresi girin';
+
+  @override
+  String householdInviteSent(String email) {
+    return 'Davet $email adresine gönderildi';
+  }
+
+  @override
+  String householdInviteSentNoAccount(String email) {
+    return 'Davet $email adresine gönderildi. Kayıt olur olmaz görecekler.';
+  }
+
+  @override
+  String get householdInviteAccepted => 'Haneye katıldınız';
+
+  @override
+  String get householdInviteDeclined => 'Davet reddedildi';
+
+  @override
+  String get householdRemoveTitle => 'Aile üyesini kaldır';
+
+  @override
+  String householdRemoveConfirm(String name) {
+    return '$name SIM hatlarınıza erişimini ve tanımladığınız harcama limitini anında kaybeder.';
+  }
+
+  @override
+  String householdRemoved(String name) {
+    return '$name hanenizden çıkarıldı';
+  }
+
+  @override
+  String get householdLeaveTitle => 'Haneden ayrıl';
+
+  @override
+  String householdLeaveConfirm(String owner) {
+    return '$owner tarafından paylaşılan SIM hatlarına erişiminizi kaybedersiniz.';
+  }
+
+  @override
+  String get householdLeft => 'Haneden ayrıldınız';
+
+  @override
+  String get householdActionFailed =>
+      'İşlem başarısız oldu. Lütfen tekrar deneyin.';
+
+  @override
+  String get householdOwnerLabel => 'Siz (sahip)';
+
+  @override
+  String get householdSettingsSubtitle =>
+      'SIM hatlarınızı ailenizle paylaşın, harcama limitleri belirleyin';
+
+  @override
+  String get householdStatusDeclined => 'REDDEDİLDİ';
+
+  @override
+  String get householdDeclinedHint =>
+      'Reddetti. Yeniden davet etmek için kaldırın.';
 }

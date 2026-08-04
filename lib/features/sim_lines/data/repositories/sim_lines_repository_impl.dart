@@ -148,6 +148,12 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
       if (line.id.isEmpty) {
         dataToSend.remove('id');
       }
+      // I2: `toJson()` emits `created_at: null` / `updated_at: null` for a new
+      // line, and an explicit NULL **overrides the column DEFAULT** — that is
+      // why one production row has a null `created_at`. Let the database stamp
+      // them.
+      dataToSend.remove('created_at');
+      dataToSend.remove('updated_at');
       dataToSend['user_id'] = userId;
 
       final response = await _supabase
@@ -759,6 +765,51 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
       throw Exception('Database error fetching offers: ${e.message}');
     } catch (e) {
       throw Exception('Error fetching Zendit offers: $e');
+    }
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> fetchLineRefillOffers(
+      String simLineId) async {
+    try {
+      // I1: one call, every enabled supplier for this line's carrier, already
+      // ranked cheapest-first server-side. This replaces the Dart-side provider
+      // switch, which listed DTOne offers that `request_instant_refill` then
+      // refused because it only ever validated against the Zendit view.
+      final rows = await _supabase.rpc(
+        'list_refill_offers',
+        params: {'p_sim_line_id': simLineId},
+      );
+
+      return (rows as List)
+          .cast<Map<String, dynamic>>()
+          .map<Map<String, dynamic>>((r) => {
+                'offerId': r['offer_id'],
+                'description': r['offer_name'] ?? r['offer_id'],
+                'priceType': r['price_type'],
+                'isRange': r['price_type'] == 'RANGE',
+                'baseCostUsd': (r['price_fixed_usd'] as num?)?.toDouble(),
+                'priceMinUsd': (r['price_min_usd'] as num?)?.toDouble(),
+                'priceMaxUsd': (r['price_max_usd'] as num?)?.toDouble(),
+                'min': r['send_min'],
+                'max': r['send_max'],
+                'sendCurrencyDivisor': r['send_currency_divisor'] ?? 100,
+                'send': {'currency': r['send_currency']},
+                // Carried for display/diagnostics only — the server picks the
+                // supplier again at purchase time from the same ranking, so a
+                // stale client cannot steer a purchase to a chosen supplier.
+                'provider': r['provider'],
+                'isStale': r['is_stale'] == true,
+              })
+          // Deliberately NOT re-sorted here. The RPC's ORDER BY is the ranking
+          // that `request_instant_refill` re-applies when it resolves the
+          // offer; a second sort in Dart is how a list and a purchase disagree.
+          .where((o) => o['isStale'] != true)
+          .toList();
+    } on PostgrestException catch (e) {
+      throw Exception('Database error fetching offers: ${e.message}');
+    } catch (e) {
+      throw Exception('Error fetching refill offers: $e');
     }
   }
 

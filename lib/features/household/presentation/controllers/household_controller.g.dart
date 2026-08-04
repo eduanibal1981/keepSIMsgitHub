@@ -34,7 +34,7 @@ final class HouseholdControllerProvider
 }
 
 String _$householdControllerHash() =>
-    r'a7a15c2794aa8c2c929adb5bafee14c07f6d0f6e';
+    r'43ba77a80634edfdd6142211d771cd2cc5b0a824';
 
 abstract class _$HouseholdController extends $AsyncNotifier<HouseholdState> {
   FutureOr<HouseholdState> build();

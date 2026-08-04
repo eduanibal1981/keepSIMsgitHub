@@ -5,13 +5,30 @@ import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_
 
 part 'api_offers_providers.g.dart';
 
+/// I1: the offers a SIM line can actually buy.
+///
+/// Prefer this over [apiOffers] anywhere a line id exists. [apiOffers] switches
+/// on `carriers.api_provider` in Dart and so can only ever see one supplier —
+/// and it saw the wrong one for DTOne, listing offers that
+/// `request_instant_refill` was guaranteed to refuse. `list_refill_offers`
+/// unions every enabled supplier and applies the same ranking the purchase RPC
+/// re-applies, so what is listed is what can be bought.
+@riverpod
+Future<List<Map<String, dynamic>>> lineRefillOffers(
+  Ref ref,
+  String simLineId,
+) {
+  return ref.watch(simLinesRepositoryProvider).fetchLineRefillOffers(simLineId);
+}
+
+/// Country+carrier lookup for the add-line flow, which has no SIM line id yet.
+/// Resolves only the carrier's default supplier — see [lineRefillOffers].
 @riverpod
 Future<List<Map<String, dynamic>>> apiOffers(
   Ref ref,
   String countryId,
   String carrierId,
 ) async {
-  // 1. Fetch carriers to find the current carrier's config
   final carriers = await ref.watch(carriersForCountryProvider(countryId).future);
   final carrier = carriers.firstWhereOrNull((c) => c.id == carrierId);
 
@@ -19,66 +36,32 @@ Future<List<Map<String, dynamic>>> apiOffers(
     throw Exception('Carrier not found');
   }
 
-  // Handle gateway logic
-  if (carrier.fulfillmentGateway != null && carrier.fulfillmentGateway != 'API') {
-    // If it's manual or tasker script, we might not have API offers, or we could return custom amounts.
-    // For now, we will throw or return empty if we only expect API offers here.
+  // A MANUAL or SCRIPT carrier has no online catalogue to list.
+  if (carrier.fulfillmentGateway != null &&
+      carrier.fulfillmentGateway != 'API') {
     return [];
   }
 
-  // 2. Delegate to the correct provider based on apiProvider
-  final providerName = carrier.apiProvider?.toLowerCase() ?? 'zendit';
-
-  switch (providerName) {
-    case 'zendit':
-      return ref.watch(zenditOffersProvider(countryId, carrierId).future);
-    case 'dtconnect':
-    case 'dtone':
-      return ref.watch(dtconnectOffersProvider(countryId, carrierId).future);
-    case 'ding':
-      return ref.watch(dingOffersProvider(countryId, carrierId).future);
-    case 'reloadly':
-      return ref.watch(reloadlyOffersProvider(countryId, carrierId).future);
-    default:
-      // Fallback to zendit if unknown
-      return ref.watch(zenditOffersProvider(countryId, carrierId).future);
-  }
+  // I1: the per-provider switch that used to live here was dead weight and one
+  // live bug. `fetchZenditOffers` has been provider-aware since C3b-2 — it reads
+  // `carriers.api_provider` and picks `dt_carrier` vs `zen_carrier` itself — so
+  // three of the four branches either duplicated it or, for `ding`/`reloadly`,
+  // returned a hardcoded empty list that would have silently swallowed a real
+  // catalogue the moment those codes were populated.
+  return ref.watch(offersForCarrierProvider(countryId, carrierId).future);
 }
 
+/// Offers for a country+carrier via the carrier's default supplier.
+///
+/// Named for what it does, not for a supplier: the underlying repository call
+/// resolves the provider from `carriers.api_provider`.
 @riverpod
-Future<List<Map<String, dynamic>>> zenditOffers(
+Future<List<Map<String, dynamic>>> offersForCarrier(
   Ref ref,
   String countryId,
   String carrierId,
 ) {
-  return ref.watch(simLinesRepositoryProvider).fetchZenditOffers(countryId, carrierId);
-}
-
-@riverpod
-Future<List<Map<String, dynamic>>> dingOffers(
-  Ref ref,
-  String countryId,
-  String carrierId,
-) async {
-  // TODO: Implement Ding fetching
-  return [];
-}
-
-@riverpod
-Future<List<Map<String, dynamic>>> dtconnectOffers(
-  Ref ref,
-  String countryId,
-  String carrierId,
-) {
-  return ref.watch(simLinesRepositoryProvider).fetchZenditOffers(countryId, carrierId);
-}
-
-@riverpod
-Future<List<Map<String, dynamic>>> reloadlyOffers(
-  Ref ref,
-  String countryId,
-  String carrierId,
-) async {
-  // TODO: Implement Reloadly fetching
-  return [];
+  return ref
+      .watch(simLinesRepositoryProvider)
+      .fetchZenditOffers(countryId, carrierId);
 }

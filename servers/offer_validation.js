@@ -5,6 +5,8 @@
 
 const zenditProvider = require('./providers/zendit');
 const dtoneProvider = require('./providers/dtone');
+const dingProvider = require('./providers/ding');
+const reloadlyProvider = require('./providers/reloadly');
 
 const OFFER_PRICE_TOLERANCE_USD = 0.01;
 const OFFER_VALUE_TOLERANCE_RATIO = 0.05; // 5% ratio allowance on interpolated send value rounding
@@ -80,7 +82,9 @@ function chargedOfferPriceUsd(execution) {
     : parseFloat(execution.amount);
 }
 
-function createCatalogFetcher({ provider = 'zendit', baseUrl, apiSecret, apiKey, ttlMs = 5 * 60 * 1000, fetchImpl = fetch }) {
+// I5: `clientId`/`clientSecret` are here for Reloadly, the only supplier of the
+// four that authenticates with OAuth rather than a static key.
+function createCatalogFetcher({ provider = 'zendit', baseUrl, apiSecret, apiKey, clientId, clientSecret, ttlMs = 5 * 60 * 1000, fetchImpl = fetch }) {
   const cache = new Map(); // `${country}|${brand}` -> { offers, fetchedAt }
 
   return async function fetchTopupCatalog(countryCode, carrierCode) {
@@ -89,10 +93,18 @@ function createCatalogFetcher({ provider = 'zendit', baseUrl, apiSecret, apiKey,
     if (hit && Date.now() - hit.fetchedAt < ttlMs) return hit.offers;
 
     let offers;
-    if (provider === 'dtone') {
-      offers = await dtoneProvider.fetchCatalog({ baseUrl, apiKey, apiSecret, countryCode, carrierCode, fetchImpl });
-    } else {
-      offers = await zenditProvider.fetchCatalog({ baseUrl, apiSecret, countryCode, carrierCode, fetchImpl });
+    switch (provider) {
+      case 'dtone':
+        offers = await dtoneProvider.fetchCatalog({ baseUrl, apiKey, apiSecret, countryCode, carrierCode, fetchImpl });
+        break;
+      case 'ding':
+        offers = await dingProvider.fetchCatalog({ baseUrl, apiKey, countryCode, carrierCode, fetchImpl });
+        break;
+      case 'reloadly':
+        offers = await reloadlyProvider.fetchCatalog({ baseUrl, clientId, clientSecret, countryCode, carrierCode, fetchImpl });
+        break;
+      default:
+        offers = await zenditProvider.fetchCatalog({ baseUrl, apiSecret, countryCode, carrierCode, fetchImpl });
     }
 
     cache.set(key, { offers, fetchedAt: Date.now() });
