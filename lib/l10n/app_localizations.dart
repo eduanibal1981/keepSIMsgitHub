@@ -2710,6 +2710,30 @@ abstract class AppLocalizations {
   /// **'Delete'**
   String get deleteButton;
 
+  /// No description provided for @confirmDeletionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm deletion'**
+  String get confirmDeletionTitle;
+
+  /// No description provided for @noDeviceLockConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This device has no fingerprint or screen lock set up. Type {token} to confirm.'**
+  String noDeviceLockConfirmBody(String token);
+
+  /// No description provided for @typeToConfirmHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Type {token}'**
+  String typeToConfirmHint(String token);
+
+  /// No description provided for @deletionNotVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'Deletion cancelled - identity not verified.'**
+  String get deletionNotVerified;
+
   /// No description provided for @autoNotifySchedule.
   ///
   /// In en, this message translates to:
@@ -4663,6 +4687,180 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tell me when a line needs something only I can do — using the SIM, or topping it up in my operator\'s own app.'**
   String get carrierActionDesc;
+
+  /// No description provided for @compareDestinationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Destination'**
+  String get compareDestinationLabel;
+
+  /// No description provided for @comparePlansFound.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} plans'**
+  String comparePlansFound(int count);
+
+  /// No description provided for @compareCountriesSuffix.
+  ///
+  /// In en, this message translates to:
+  /// **'countries'**
+  String get compareCountriesSuffix;
+
+  /// No description provided for @compareDaysSuffix.
+  ///
+  /// In en, this message translates to:
+  /// **'days'**
+  String get compareDaysSuffix;
+
+  /// No description provided for @compareDataLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Data'**
+  String get compareDataLabel;
+
+  /// No description provided for @compareValidityLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Validity'**
+  String get compareValidityLabel;
+
+  /// No description provided for @compareCoverageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Coverage'**
+  String get compareCoverageLabel;
+
+  /// No description provided for @compareSpeedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Speed'**
+  String get compareSpeedLabel;
+
+  /// No description provided for @compareMaxPriceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Max price'**
+  String get compareMaxPriceLabel;
+
+  /// No description provided for @compareFiltersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Filters'**
+  String get compareFiltersTitle;
+
+  /// No description provided for @compareReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get compareReset;
+
+  /// No description provided for @compareShowResults.
+  ///
+  /// In en, this message translates to:
+  /// **'Show results'**
+  String get compareShowResults;
+
+  /// No description provided for @compareSortDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Validity: Longest first'**
+  String get compareSortDuration;
+
+  /// No description provided for @compareUnlimitedOverridesData.
+  ///
+  /// In en, this message translates to:
+  /// **'\"Unlimited only\" is on, so the minimum-data filter is ignored.'**
+  String get compareUnlimitedOverridesData;
+
+  /// Badge on an offer KeepSIMs sells itself: paid from the wallet, eSIM delivered in-app.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy in app'**
+  String get compareBuyInApp;
+
+  /// Badge on an affiliate offer. Tapping leaves KeepSIMs for another company's checkout.
+  ///
+  /// In en, this message translates to:
+  /// **'Partner site'**
+  String get comparePartnerSite;
+
+  /// No description provided for @compareViewDeal.
+  ///
+  /// In en, this message translates to:
+  /// **'View deal'**
+  String get compareViewDeal;
+
+  /// Shown instead of a figure when a hand-entered partner price is past its check-by date. We would rather show no price than a stale one about someone else's shop.
+  ///
+  /// In en, this message translates to:
+  /// **'Price on partner site'**
+  String get comparePriceAtPartner;
+
+  /// No description provided for @compareCouponCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Code {code} copied'**
+  String compareCouponCopied(String code);
+
+  /// Required affiliate disclosure. Shown above the first result whenever any partner offer is in the list.
+  ///
+  /// In en, this message translates to:
+  /// **'Deals marked “Partner site” open another company\'s checkout. KeepSIMs may earn a commission — it never changes the price you pay.'**
+  String get compareAffiliateDisclosure;
+
+  /// No description provided for @compareOpenFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'That deal couldn\'t be opened. Please try again.'**
+  String get compareOpenFailed;
+
+  /// No description provided for @compareNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No plans match your filters'**
+  String get compareNoResults;
+
+  /// No description provided for @compareLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t load plans right now.'**
+  String get compareLoadFailed;
+
+  /// No description provided for @compareRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get compareRetry;
+
+  /// No description provided for @compareViewAll.
+  ///
+  /// In en, this message translates to:
+  /// **'View all'**
+  String get compareViewAll;
+
+  /// No description provided for @comparePriceWatchTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch prices for this destination'**
+  String get comparePriceWatchTooltip;
+
+  /// No description provided for @comparePriceWatchOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Watching {country} — we\'ll tell you if the best price drops.'**
+  String comparePriceWatchOn(String country);
+
+  /// No description provided for @comparePriceWatchOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Stopped watching {country}.'**
+  String comparePriceWatchOff(String country);
+
+  /// No description provided for @roamOrEsimTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Roam or eSIM? Compare with your carrier'**
+  String get roamOrEsimTooltip;
 }
 
 class _AppLocalizationsDelegate

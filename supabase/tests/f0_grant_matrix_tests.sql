@@ -188,7 +188,40 @@ DECLARE
     -- T16, T17) — an allow-list entry without a tested internal check is
     -- exactly what F-4's apply_referral was.
     'transfer_wallet_credit(text,numeric,text,text,text)',
-    'update_mini_refill_dates(uuid,jsonb)'
+    'update_mini_refill_dates(uuid,jsonb)',
+    -- J2b. Read-only comparison across both rails. SECURITY DEFINER only
+    -- because the affiliate tables are deny-all to clients; it projects the
+    -- public-safe columns and leaves `affiliate_partners.commission_percent`
+    -- behind, which is the same markup isolation that keeps wholesale eSIM
+    -- prices off the wire. Moves no money and writes nothing.
+    'compare_esim_offers(text,text,bigint,integer,numeric,boolean,text[],text,integer,integer)',
+    -- J2b. Writes one attribution row and returns a URL. Sender is auth.uid()
+    -- with no user parameter, so a caller cannot log a click as someone else;
+    -- rate-limited via RATE_LIMIT_AFFILIATE_CLICK; refuses entirely while
+    -- AFFILIATE_ENABLED is false. Its checks are asserted in
+    -- supabase/tests/j2_affiliate_rail_tests.sql.
+    'record_affiliate_click(uuid,text,text)',
+    -- J3. Admin-only despite the `authenticated` grant: the body opens with
+    -- assert_admin(), which raises KS460 for a non-admin and on a *missing*
+    -- identity. Same shape as every other admin_* RPC on this list.
+    'admin_sync_esim_catalogue(text)',
+    -- J4. The affiliate control plane. All six open with assert_admin(), take
+    -- the Phase H jsonb patch (unknown key -> KS467) and write an
+    -- admin_audit_log row. Their guards are asserted in
+    -- supabase/tests/j4_affiliate_admin_tests.sql: a non-admin gets KS460, a
+    -- partner cannot be activated without a tracking URL, and disclosure
+    -- cannot be switched off while commission is paid.
+    'admin_list_affiliate_partners()',
+    'admin_upsert_affiliate_partner(text,jsonb,text)',
+    'admin_list_affiliate_offers(text,integer)',
+    'admin_upsert_affiliate_offer(uuid,jsonb,text)',
+    'admin_delete_affiliate_offer(uuid,text)',
+    'admin_affiliate_overview(integer)',
+    -- J5. Fires the conversion reader. assert_admin() first; the pg_net call
+    -- and the Vault secret read both live in kick_affiliate_sync(), which is
+    -- service_role-only, so an admin can trigger a sync but never see the
+    -- credential.
+    'admin_sync_affiliate_network(integer,text)'
   ];
   v_bad text;
   v_n int;

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:keep_sims/core/services/biometric_auth_service.dart';
+import 'package:keep_sims/core/services/destructive_action_guard.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/core/utils/build_context_extension.dart';
+import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import 'package:keep_sims/features/settings/presentation/controllers/privacy_controller.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -470,15 +471,35 @@ class _PrivacyScreenState extends ConsumerState<PrivacyScreen> {
   }
 
   Future<void> _performDeletion() async {
-    // 1. PaymentAuthGuard (Biometric / Passcode confirmation)
-    final authResult = await ref.read(paymentAuthGuardProvider).confirmPayment(
-      reason: 'Confirm account deletion',
-    );
-    if (authResult == BiometricResult.cancelled || authResult == BiometricResult.failed) {
-      return;
-    }
+    if (!mounted) return;
+
+    // Deleting the account is irreversible, so it is gated on the owner being
+    // present. Not PaymentAuthGuard: that guard suppresses its prompt for 60s
+    // after any successful payment auth, so a delete tapped moments after a
+    // refill or top-up would run with no prompt at all, and it lets
+    // BiometricResult.lockedOut through. This one prompts every time and
+    // treats every non-success as a refusal.
+    final profile = ref.read(authControllerProvider).value;
+    final verified = await ref
+        .read(destructiveActionGuardProvider)
+        .confirmDestructiveAction(
+          context,
+          reason: 'Authenticate to delete your KeepSIMs account',
+          // The account's own number, so the no-device-lock fallback is
+          // answerable. Accounts with no phone on file get the literal word.
+          confirmationToken: destructiveConfirmationToken(profile?.phone ?? ''),
+        );
 
     if (!mounted) return;
+    if (!verified) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.deletionNotVerified),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+      return;
+    }
 
     showDialog(
       context: context,

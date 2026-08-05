@@ -1,5 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:keep_sims/core/services/device_identity_service.dart';
+import 'package:keep_sims/features/esim/domain/entities/affiliate_click_result.dart';
+import 'package:keep_sims/features/esim/domain/entities/compare_offer.dart';
 import 'package:keep_sims/features/esim/domain/entities/esim_order.dart';
 import 'package:keep_sims/features/esim/domain/entities/esim_plan.dart';
 import 'package:keep_sims/features/esim/domain/entities/user_esim.dart';
@@ -12,14 +14,73 @@ class EsimGoRepositoryImpl implements EsimRepository {
       : _supabase = supabase ?? Supabase.instance.client;
 
   @override
+  Future<List<CompareOffer>> compareOffers(
+    String countryIsoCode, {
+    CompareFilters filters = const CompareFilters(),
+    int limit = 60,
+    int offset = 0,
+  }) async {
+    try {
+      final res = await _supabase.rpc('compare_esim_offers', params: {
+        'p_country_code': countryIsoCode.trim().toUpperCase(),
+        'p_coverage': filters.coverage,
+        'p_min_data_mb': filters.minDataMb,
+        'p_min_days': filters.minDays,
+        'p_max_price_usd': filters.maxPriceUsd,
+        'p_unlimited_only': filters.unlimitedOnly,
+        'p_speed_tiers': filters.speedTiers,
+        'p_sort': filters.sort.wire,
+        'p_limit': limit,
+        'p_offset': offset,
+      });
+
+      final rows = (res as List<dynamic>?) ?? const [];
+      return rows
+          .map((e) => CompareOffer.fromRpc(Map<String, dynamic>.from(e as Map)))
+          .toList();
+    } on PostgrestException catch (e) {
+      throw Exception(e.message);
+    } catch (e) {
+      throw Exception('Failed to load eSIM comparison: $e');
+    }
+  }
+
+  @override
+  Future<AffiliateClickResult> recordAffiliateClick(
+    String offerId, {
+    String? countryCode,
+  }) async {
+    try {
+      final res = await _supabase.rpc('record_affiliate_click', params: {
+        'p_offer_id': offerId,
+        'p_country_code': countryCode,
+        'p_device_id':
+            await DeviceIdentityService(supabase: _supabase).deviceId(),
+      });
+      return AffiliateClickResult.fromRpc(res);
+    } catch (_) {
+      // A refusal here must never fall through to "open something anyway".
+      // An untracked outbound click is traffic given away for free.
+      return const AffiliateClickResult(success: false);
+    }
+  }
+
+  @override
   Future<List<EsimPlan>> getPlans(String countryIsoCode) async {
     try {
       final String upperIso = countryIsoCode.trim().toUpperCase();
 
+      // Filter server-side. This used to select the entire `esim_offers` view
+      // and match countries in Dart, which was fine while the supplier fetch
+      // was accidentally truncated to 50 rows and is not now that the real
+      // catalogue (5,412 bundles) is cached. `countries` and `roaming_enabled`
+      // both carry GIN indexes for exactly this predicate.
       final response = await _supabase
           .from('esim_offers')
           .select()
-          .order('retail_price_usd', ascending: true);
+          .or('countries.cs.{$upperIso},roaming_enabled.cs.{$upperIso}')
+          .order('retail_price_usd', ascending: true)
+          .limit(200);
 
       final List<dynamic> data = response as List<dynamic>;
 

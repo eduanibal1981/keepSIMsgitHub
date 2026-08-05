@@ -1,3 +1,5 @@
+import 'package:keep_sims/features/esim/domain/entities/affiliate_click_result.dart';
+import 'package:keep_sims/features/esim/domain/entities/compare_offer.dart';
 import 'package:keep_sims/features/esim/domain/entities/esim_order.dart';
 import 'package:keep_sims/features/esim/domain/entities/esim_plan.dart';
 import 'package:keep_sims/features/esim/domain/entities/user_esim.dart';
@@ -5,6 +7,31 @@ import 'package:keep_sims/features/esim/domain/entities/user_esim.dart';
 abstract class EsimRepository {
   /// Fetches a list of available eSIM plans for a given country ISO code.
   Future<List<EsimPlan>> getPlans(String countryIsoCode);
+
+  /// The comparison list: our own resale bundles and every active partner deal
+  /// in one server-ranked result.
+  ///
+  /// Filtering, sorting and paging all happen in SQL. This is not a style
+  /// preference — the catalogue is 5,412 bundles across 220 countries, and the
+  /// older `getPlans()` habit of pulling the whole table down to filter it in
+  /// Dart was only viable while the supplier fetch was accidentally truncated
+  /// to 50 rows.
+  Future<List<CompareOffer>> compareOffers(
+    String countryIsoCode, {
+    CompareFilters filters,
+    int limit,
+    int offset,
+  });
+
+  /// Logs an outbound partner click and returns the tracked URL to open.
+  ///
+  /// The URL is built server-side so attribution cannot be forged from a
+  /// device, and the token it carries is an opaque click id — the user's
+  /// identity is never handed to the partner network.
+  Future<AffiliateClickResult> recordAffiliateClick(
+    String offerId, {
+    String? countryCode,
+  });
 
   /// Validates a plan purchase without charging the account (Sandbox testing)
   Future<bool> validatePlanPurchase(String planId, {int quantity = 1});

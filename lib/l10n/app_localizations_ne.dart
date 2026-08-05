@@ -1493,6 +1493,23 @@ class AppLocalizationsNe extends AppLocalizations {
   String get deleteButton => 'मेटाउनुहोस्';
 
   @override
+  String get confirmDeletionTitle => 'Confirm deletion';
+
+  @override
+  String noDeviceLockConfirmBody(String token) {
+    return 'This device has no fingerprint or screen lock set up. Type $token to confirm.';
+  }
+
+  @override
+  String typeToConfirmHint(String token) {
+    return 'Type $token';
+  }
+
+  @override
+  String get deletionNotVerified =>
+      'Deletion cancelled - identity not verified.';
+
+  @override
   String get autoNotifySchedule => 'स्वत:-सूचना तालिका';
 
   @override
@@ -2641,4 +2658,102 @@ class AppLocalizationsNe extends AppLocalizations {
   @override
   String get carrierActionDesc =>
       'कुनै लाइनलाई म आफैँले मात्र गर्न सक्ने काम चाहिँदा मलाई भन्नुहोस् — सिम प्रयोग गर्नु वा क्यारियरकै एपबाट टप-अप गर्नु।';
+
+  @override
+  String get compareDestinationLabel => 'Destination';
+
+  @override
+  String comparePlansFound(int count) {
+    return '$count plans';
+  }
+
+  @override
+  String get compareCountriesSuffix => 'countries';
+
+  @override
+  String get compareDaysSuffix => 'days';
+
+  @override
+  String get compareDataLabel => 'Data';
+
+  @override
+  String get compareValidityLabel => 'Validity';
+
+  @override
+  String get compareCoverageLabel => 'Coverage';
+
+  @override
+  String get compareSpeedLabel => 'Speed';
+
+  @override
+  String get compareMaxPriceLabel => 'Max price';
+
+  @override
+  String get compareFiltersTitle => 'Filters';
+
+  @override
+  String get compareReset => 'Reset';
+
+  @override
+  String get compareShowResults => 'Show results';
+
+  @override
+  String get compareSortDuration => 'Validity: Longest first';
+
+  @override
+  String get compareUnlimitedOverridesData =>
+      '\"Unlimited only\" is on, so the minimum-data filter is ignored.';
+
+  @override
+  String get compareBuyInApp => 'Buy in app';
+
+  @override
+  String get comparePartnerSite => 'Partner site';
+
+  @override
+  String get compareViewDeal => 'View deal';
+
+  @override
+  String get comparePriceAtPartner => 'Price on partner site';
+
+  @override
+  String compareCouponCopied(String code) {
+    return 'Code $code copied';
+  }
+
+  @override
+  String get compareAffiliateDisclosure =>
+      'Deals marked “Partner site” open another company\'s checkout. KeepSIMs may earn a commission — it never changes the price you pay.';
+
+  @override
+  String get compareOpenFailed =>
+      'That deal couldn\'t be opened. Please try again.';
+
+  @override
+  String get compareNoResults => 'No plans match your filters';
+
+  @override
+  String get compareLoadFailed => 'We couldn\'t load plans right now.';
+
+  @override
+  String get compareRetry => 'Try again';
+
+  @override
+  String get compareViewAll => 'View all';
+
+  @override
+  String get comparePriceWatchTooltip => 'Watch prices for this destination';
+
+  @override
+  String comparePriceWatchOn(String country) {
+    return 'Watching $country — we\'ll tell you if the best price drops.';
+  }
+
+  @override
+  String comparePriceWatchOff(String country) {
+    return 'Stopped watching $country.';
+  }
+
+  @override
+  String get roamOrEsimTooltip => 'Roam or eSIM? Compare with your carrier';
 }

@@ -5,6 +5,7 @@ import 'package:keep_sims/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart' hide TextDirection;
+import 'package:keep_sims/core/services/destructive_action_guard.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
@@ -885,14 +886,18 @@ class SimLineCard extends ConsumerWidget {
   }
 
   // ── DELETE DIALOG ────────────────────────────────────────────────────────────
-  void _showDeleteConfirmation(
+  Future<void> _showDeleteConfirmation(
     BuildContext context,
     WidgetRef ref,
     SimLine line,
-  ) {
-    showDialog(
+  ) async {
+    // Captured before any await; the builder's context is dead once popped.
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context)!;
+
+    final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         backgroundColor: context.surfaceColor,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24),
@@ -924,7 +929,7 @@ class SimLineCard extends ConsumerWidget {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext, false),
             child: Text(
               'Cancel',
               style: TextStyle(
@@ -933,33 +938,7 @@ class SimLineCard extends ConsumerWidget {
             ),
           ),
           ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              try {
-                await ref
-                    .read(simLinesControllerProvider.notifier)
-                    .deleteSimLine(line.id);
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                        'SIM line protection removed successfully.',
-                      ),
-                      backgroundColor: AppColors.success,
-                    ),
-                  );
-                }
-              } catch (e) {
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Failed to delete: $e'),
-                      backgroundColor: AppColors.error,
-                    ),
-                  );
-                }
-              }
-            },
+            onPressed: () => Navigator.pop(dialogContext, true),
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
             child: Text(
               'Delete',
@@ -969,5 +948,45 @@ class SimLineCard extends ConsumerWidget {
         ],
       ),
     );
+
+    if (confirmed != true) return;
+    if (!context.mounted) return;
+
+    // Deleting a line is irreversible, so it is gated on the owner being
+    // present. No grace window: this prompts every time.
+    final verified = await ref
+        .read(destructiveActionGuardProvider)
+        .confirmDestructiveAction(
+          context,
+          reason:
+              'Authenticate to delete ${line.nickname ?? line.phoneNumber}',
+          confirmationToken: destructiveConfirmationToken(line.phoneNumber),
+        );
+    if (!verified) {
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content: Text(l10n.deletionNotVerified),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+
+    try {
+      await ref.read(simLinesControllerProvider.notifier).deleteSimLine(line.id);
+      scaffoldMessenger.showSnackBar(
+        const SnackBar(
+          content: Text('SIM line protection removed successfully.'),
+          backgroundColor: AppColors.success,
+        ),
+      );
+    } catch (e) {
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content: Text('Failed to delete: $e'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+    }
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:keep_sims/core/services/destructive_action_guard.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/core/widgets/glass_card.dart';
@@ -206,11 +207,42 @@ class DashboardSimLineCard extends ConsumerWidget {
                               ) ??
                               false;
 
-                          if (confirm) {
-                            await ref
-                                .read(simLinesControllerProvider.notifier)
-                                .deleteSimLine(line.id);
+                          if (!confirm) return;
+                          if (!context.mounted) return;
+
+                          // Deleting a line is irreversible, so it is gated on
+                          // the owner being present. No grace window: this
+                          // prompts every time.
+                          final verified = await ref
+                              .read(destructiveActionGuardProvider)
+                              .confirmDestructiveAction(
+                                context,
+                                reason:
+                                    'Authenticate to delete ${line.nickname ?? line.phoneNumber}',
+                                confirmationToken:
+                                    destructiveConfirmationToken(
+                                      line.phoneNumber,
+                                    ),
+                              );
+                          if (!verified) {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.deletionNotVerified,
+                                  ),
+                                  backgroundColor: AppColors.error,
+                                ),
+                              );
+                            }
+                            return;
                           }
+
+                          await ref
+                              .read(simLinesControllerProvider.notifier)
+                              .deleteSimLine(line.id);
                         }
                       },
                       itemBuilder: (BuildContext context) => [

@@ -745,6 +745,24 @@
                                },
     "saveButton":  "Save",
     "deleteButton":  "Delete",
+    "confirmDeletionTitle":  "Confirm deletion",
+    "noDeviceLockConfirmBody":  "This device has no fingerprint or screen lock set up. Type {token} to confirm.",
+    "@noDeviceLockConfirmBody":  {
+                                     "placeholders":  {
+                                                          "token":  {
+                                                                        "type":  "String"
+                                                                    }
+                                                      }
+                                 },
+    "typeToConfirmHint":  "Type {token}",
+    "@typeToConfirmHint":  {
+                               "placeholders":  {
+                                                    "token":  {
+                                                                  "type":  "String"
+                                                              }
+                                                }
+                           },
+    "deletionNotVerified":  "Deletion cancelled - identity not verified.",
     "autoNotifySchedule":  "Auto-Notify Schedule",
     "renewalCheckInterval":  "Renewal Check Interval",
     "editNotificationConfig":  "Edit Notification Config",
@@ -1382,5 +1400,59 @@
     "@carrierActionTitle": {
         "description": "Alert Preferences row for the notification advising a top-up in the operator's own app."
     },
-    "carrierActionDesc": "Tell me when a line needs something only I can do — using the SIM, or topping it up in my operator's own app."
+    "carrierActionDesc": "Tell me when a line needs something only I can do — using the SIM, or topping it up in my operator's own app.",
+
+    "compareDestinationLabel": "Destination",
+    "comparePlansFound": "{count} plans",
+    "@comparePlansFound": {
+        "placeholders": { "count": { "type": "int" } }
+    },
+    "compareCountriesSuffix": "countries",
+    "compareDaysSuffix": "days",
+    "compareDataLabel": "Data",
+    "compareValidityLabel": "Validity",
+    "compareCoverageLabel": "Coverage",
+    "compareSpeedLabel": "Speed",
+    "compareMaxPriceLabel": "Max price",
+    "compareFiltersTitle": "Filters",
+    "compareReset": "Reset",
+    "compareShowResults": "Show results",
+    "compareSortDuration": "Validity: Longest first",
+    "compareUnlimitedOverridesData": "\"Unlimited only\" is on, so the minimum-data filter is ignored.",
+    "compareBuyInApp": "Buy in app",
+    "@compareBuyInApp": {
+        "description": "Badge on an offer KeepSIMs sells itself: paid from the wallet, eSIM delivered in-app."
+    },
+    "comparePartnerSite": "Partner site",
+    "@comparePartnerSite": {
+        "description": "Badge on an affiliate offer. Tapping leaves KeepSIMs for another company's checkout."
+    },
+    "compareViewDeal": "View deal",
+    "comparePriceAtPartner": "Price on partner site",
+    "@comparePriceAtPartner": {
+        "description": "Shown instead of a figure when a hand-entered partner price is past its check-by date. We would rather show no price than a stale one about someone else's shop."
+    },
+    "compareCouponCopied": "Code {code} copied",
+    "@compareCouponCopied": {
+        "placeholders": { "code": { "type": "String" } }
+    },
+    "compareAffiliateDisclosure": "Deals marked “Partner site” open another company's checkout. KeepSIMs may earn a commission — it never changes the price you pay.",
+    "@compareAffiliateDisclosure": {
+        "description": "Required affiliate disclosure. Shown above the first result whenever any partner offer is in the list."
+    },
+    "compareOpenFailed": "That deal couldn't be opened. Please try again.",
+    "compareNoResults": "No plans match your filters",
+    "compareLoadFailed": "We couldn't load plans right now.",
+    "compareRetry": "Try again",
+    "compareViewAll": "View all",
+    "comparePriceWatchTooltip": "Watch prices for this destination",
+    "comparePriceWatchOn": "Watching {country} — we'll tell you if the best price drops.",
+    "@comparePriceWatchOn": {
+        "placeholders": { "country": { "type": "String" } }
+    },
+    "comparePriceWatchOff": "Stopped watching {country}.",
+    "@comparePriceWatchOff": {
+        "placeholders": { "country": { "type": "String" } }
+    },
+    "roamOrEsimTooltip": "Roam or eSIM? Compare with your carrier"
 }

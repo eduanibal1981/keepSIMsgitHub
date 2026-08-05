@@ -4,6 +4,7 @@ import 'package:keep_sims/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart' hide TextDirection;
+import 'package:keep_sims/core/services/destructive_action_guard.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/core/result.dart';
@@ -2870,11 +2871,19 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
     );
   }
 
-  void _showDeleteConfirmation(BuildContext context, SimLine line) {
+  Future<void> _showDeleteConfirmation(BuildContext context, SimLine line) async {
     final isDark = context.isDarkMode;
-    showDialog(
+
+    // Captured before any await. This used to pop the dialog and *then* call
+    // GoRouter.of/ScaffoldMessenger.of on the builder's context, which shadows
+    // State.context and is dead once popped.
+    final goRouter = GoRouter.of(context);
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context)!;
+
+    final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         backgroundColor: isDark ? AppColors.darkCard : Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24),
@@ -2891,7 +2900,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
             ),
             const SizedBox(width: 12),
             Text(
-              AppLocalizations.of(context)!.removeProtectionTitle,
+              l10n.removeProtectionTitle,
               style: AppTextStyles.headlineSmall.copyWith(
                 color: context.onSurfaceColor,
               ),
@@ -2899,9 +2908,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
           ],
         ),
         content: Text(
-          AppLocalizations.of(
-            context,
-          )!.confirmRemoveProtectionDesc(line.nickname ?? line.phoneNumber),
+          l10n.confirmRemoveProtectionDesc(line.nickname ?? line.phoneNumber),
           style: AppTextStyles.bodyMedium.copyWith(
             color: isDark
                 ? AppColors.textSecondaryDark
@@ -2910,9 +2917,9 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext, false),
             child: Text(
-              AppLocalizations.of(context)!.cancel,
+              l10n.cancel,
               style: TextStyle(
                 color: isDark
                     ? AppColors.textSecondaryDark
@@ -2921,46 +2928,62 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
             ),
           ),
           ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(context); // Dismiss the confirm dialog
-
-              final goRouter = GoRouter.of(context);
-              final scaffoldMessenger = ScaffoldMessenger.of(context);
-              final l10n = AppLocalizations.of(context)!;
-
-              // Instantly navigate back to the Home Page to prevent this screen
-              // from rebuilding with a "SIM Line not found" error when the deletion completes.
-              goRouter.go(AppRoutes.home);
-
-              try {
-                await ref
-                    .read(simLinesControllerProvider.notifier)
-                    .deleteSimLine(line.id);
-
-                scaffoldMessenger.showSnackBar(
-                  SnackBar(
-                    content: Text(l10n.simLineProtectionRemoved),
-                    backgroundColor: AppColors.success,
-                  ),
-                );
-              } catch (e) {
-                scaffoldMessenger.showSnackBar(
-                  SnackBar(
-                    content: Text(l10n.failedToDeleteSimLine(e.toString())),
-                    backgroundColor: AppColors.error,
-                  ),
-                );
-              }
-            },
+            onPressed: () => Navigator.pop(dialogContext, true),
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
             child: Text(
-              AppLocalizations.of(context)!.deleteButton,
+              l10n.deleteButton,
               style: const TextStyle(color: Colors.white),
             ),
           ),
         ],
       ),
     );
+
+    if (confirmed != true) return;
+    if (!context.mounted) return;
+
+    // Deleting a line is irreversible, so it is gated on the owner being
+    // present. No grace window: this prompts every time, even seconds after a
+    // refill was authenticated.
+    final verified = await ref
+        .read(destructiveActionGuardProvider)
+        .confirmDestructiveAction(
+          context,
+          reason:
+              'Authenticate to delete ${line.nickname ?? line.phoneNumber}',
+          confirmationToken: destructiveConfirmationToken(line.phoneNumber),
+        );
+    if (!verified) {
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content: Text(l10n.deletionNotVerified),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+
+    // Instantly navigate back to the Home Page to prevent this screen
+    // from rebuilding with a "SIM Line not found" error when the deletion completes.
+    goRouter.go(AppRoutes.home);
+
+    try {
+      await ref.read(simLinesControllerProvider.notifier).deleteSimLine(line.id);
+
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content: Text(l10n.simLineProtectionRemoved),
+          backgroundColor: AppColors.success,
+        ),
+      );
+    } catch (e) {
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content: Text(l10n.failedToDeleteSimLine(e.toString())),
+          backgroundColor: AppColors.error,
+        ),
+      );
+    }
   }
 
   void _showEditNicknameDialog(BuildContext context, SimLine line) {
