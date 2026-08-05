@@ -3130,6 +3130,12 @@ abstract class AppLocalizations {
   /// **'Plan fee paid from your wallet balance.'**
   String get planFeePaidFromWallet;
 
+  /// No description provided for @planFeeNotChargedRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Your top-up arrived but the plan fee could not be charged, so the line was not created. Your balance is safe — please try again.'**
+  String get planFeeNotChargedRetry;
+
   /// No description provided for @activityTopupRequested.
   ///
   /// In en, this message translates to:
@@ -3826,6 +3832,54 @@ abstract class AppLocalizations {
   /// **'I\'ve Completed Payment on PayPal'**
   String get payPalForceCaptureButton;
 
+  /// No description provided for @payPalBrowserOpened.
+  ///
+  /// In en, this message translates to:
+  /// **'PayPal is open in your browser'**
+  String get payPalBrowserOpened;
+
+  /// No description provided for @payPalBrowserOpenedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish paying there — this screen updates on its own.'**
+  String get payPalBrowserOpenedBody;
+
+  /// No description provided for @payPalTakingLonger.
+  ///
+  /// In en, this message translates to:
+  /// **'This is taking longer than usual. If you have already paid, check the payment below.'**
+  String get payPalTakingLonger;
+
+  /// No description provided for @payPalReopenButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Reopen PayPal'**
+  String get payPalReopenButton;
+
+  /// No description provided for @payPalVerifying.
+  ///
+  /// In en, this message translates to:
+  /// **'Verifying your payment…'**
+  String get payPalVerifying;
+
+  /// No description provided for @payPalVerifyingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'One moment while we confirm with PayPal.'**
+  String get payPalVerifyingBody;
+
+  /// No description provided for @payPalPaymentCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment cancelled. You have not been charged.'**
+  String get payPalPaymentCancelled;
+
+  /// No description provided for @payPalDoneButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get payPalDoneButton;
+
   /// No description provided for @yourDevices.
   ///
   /// In en, this message translates to:
@@ -4335,6 +4389,280 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'They declined. Remove them to invite again.'**
   String get householdDeclinedHint;
+
+  /// Stands in for the operator name in the carrier activity notice when the carrier has not been resolved yet.
+  ///
+  /// In en, this message translates to:
+  /// **'This carrier'**
+  String get carrierActivityFallbackOperator;
+
+  /// Heading shown when a carrier only resets its inactivity clock on real usage, so the Premium plan is not offered.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-refill cannot protect this line'**
+  String get carrierUsageRequiredTitle;
+
+  /// Explains why Premium is unavailable for a usage_required carrier.
+  ///
+  /// In en, this message translates to:
+  /// **'{operator} only restarts its inactivity countdown when the line makes a call, sends an SMS, or uses data. Adding credit does not count, so no automatic top-up can stop this number being deactivated. Choose Standard and we will alert you in time to use the line yourself.'**
+  String carrierUsageRequiredBody(String operator);
+
+  /// Heading shown when only a top-up at or above a threshold buys line validity.
+  ///
+  /// In en, this message translates to:
+  /// **'This carrier needs a larger top-up'**
+  String get carrierMinDenominationTitle;
+
+  /// Explains why the refill amount is higher than the carrier's headline minimum.
+  ///
+  /// In en, this message translates to:
+  /// **'{operator} only adds line validity for top-ups of {amount} {currency} or more. Anything smaller arrives as spendable credit and the number can still be deactivated, so Premium refills this line at {amount} {currency}.'**
+  String carrierMinDenominationBody(
+    String operator,
+    String amount,
+    String currency,
+  );
+
+  /// No description provided for @premiumUnavailableForCarrier.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium is not available for this carrier'**
+  String get premiumUnavailableForCarrier;
+
+  /// Tappable line on the plan card that opens the full deactivation-rules sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'More about this carrier\'s rules'**
+  String get carrierRulesLinkLabel;
+
+  /// No description provided for @carrierRulesSheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivation rules'**
+  String get carrierRulesSheetTitle;
+
+  /// No description provided for @carrierRulesHowTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How {operator} decides'**
+  String carrierRulesHowTitle(String operator);
+
+  /// Explains an ordinary recharge_ok carrier, where refilling is enough.
+  ///
+  /// In en, this message translates to:
+  /// **'{operator} restarts its countdown every time the line is topped up, whatever the amount. That is what lets an automatic refill hold the number.'**
+  String carrierRechargeOkBody(String operator);
+
+  /// No description provided for @carrierRulesNumbersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The numbers'**
+  String get carrierRulesNumbersTitle;
+
+  /// No description provided for @carrierRulesWindowRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivated after {days} days without a qualifying top-up'**
+  String carrierRulesWindowRow(int days);
+
+  /// No description provided for @carrierRulesGraceRow.
+  ///
+  /// In en, this message translates to:
+  /// **'{days} days afterwards to recover the same number'**
+  String carrierRulesGraceRow(int days);
+
+  /// No description provided for @carrierRulesNoGraceRow.
+  ///
+  /// In en, this message translates to:
+  /// **'No recovery window — the number is released straight away'**
+  String get carrierRulesNoGraceRow;
+
+  /// No description provided for @carrierRulesMinTopupRow.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} {currency} is the smallest top-up that adds validity'**
+  String carrierRulesMinTopupRow(String amount, String currency);
+
+  /// No description provided for @carrierRulesCadenceRow.
+  ///
+  /// In en, this message translates to:
+  /// **'We would refill every {days} days — {count} times a year'**
+  String carrierRulesCadenceRow(int days, int count);
+
+  /// No description provided for @carrierRulesVerdictTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What we would do'**
+  String get carrierRulesVerdictTitle;
+
+  /// No description provided for @carrierVerdictSelfServiceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Do not buy Premium for this line'**
+  String get carrierVerdictSelfServiceTitle;
+
+  /// No description provided for @carrierVerdictSelfServiceBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep your money. Nothing we can send resets this carrier\'s clock, so the only thing that keeps the number is using it.'**
+  String get carrierVerdictSelfServiceBody;
+
+  /// No description provided for @carrierVerdictStandardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Standard is enough here'**
+  String get carrierVerdictStandardTitle;
+
+  /// No description provided for @carrierVerdictStandardBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This carrier gives you a long runway. Let us watch the date and tell you; top up yourself when we do, and you pay only the airtime.'**
+  String get carrierVerdictStandardBody;
+
+  /// No description provided for @carrierVerdictPremiumWorthTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium is worth it'**
+  String get carrierVerdictPremiumWorthTitle;
+
+  /// No description provided for @carrierVerdictPremiumWorthBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A few top-ups a year, each on a date you cannot see from here. Doing it by hand is realistic if you prefer — automating it means you never have to think about it.'**
+  String get carrierVerdictPremiumWorthBody;
+
+  /// No description provided for @carrierVerdictPremiumMustTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Automate this one'**
+  String get carrierVerdictPremiumMustTitle;
+
+  /// No description provided for @carrierVerdictPremiumMustBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This carrier moves fast enough that remembering by hand, from another country, will eventually slip — and one slip is the number.'**
+  String get carrierVerdictPremiumMustBody;
+
+  /// No description provided for @carrierReasonUsageOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Only a call, an SMS or a data session counts. Credit alone does not.'**
+  String get carrierReasonUsageOnly;
+
+  /// No description provided for @carrierReasonQualifying.
+  ///
+  /// In en, this message translates to:
+  /// **'A top-up under {amount} {currency} arrives as credit and buys no validity.'**
+  String carrierReasonQualifying(String amount, String currency);
+
+  /// No description provided for @carrierReasonShortWindow.
+  ///
+  /// In en, this message translates to:
+  /// **'Only {days} days between qualifying top-ups.'**
+  String carrierReasonShortWindow(int days);
+
+  /// No description provided for @carrierReasonLongWindow.
+  ///
+  /// In en, this message translates to:
+  /// **'{days} days is close to a full year — one reminder covers it.'**
+  String carrierReasonLongWindow(int days);
+
+  /// No description provided for @carrierReasonNoGrace.
+  ///
+  /// In en, this message translates to:
+  /// **'There is no grace period. Miss the date and the number is gone.'**
+  String get carrierReasonNoGrace;
+
+  /// No description provided for @carrierReasonGrace.
+  ///
+  /// In en, this message translates to:
+  /// **'You would have {days} days after the date to recover the number.'**
+  String carrierReasonGrace(int days);
+
+  /// Names what the convenience costs, so the user can decide whether it is worth it.
+  ///
+  /// In en, this message translates to:
+  /// **'The airtime alone is about {self} a year. Premium is {premium}, so {extra} of it buys the automation.'**
+  String carrierReasonAutomationCost(String self, String premium, String extra);
+
+  /// No description provided for @carrierSelfServiceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Or buy it from {operator} directly'**
+  String carrierSelfServiceTitle(String operator);
+
+  /// No description provided for @carrierSelfServiceBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Top up in the operator\'s own app and you pay the airtime and nothing else.'**
+  String get carrierSelfServiceBody;
+
+  /// No description provided for @carrierSelfServiceCountryLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Home country: {country}'**
+  String carrierSelfServiceCountryLine(String country);
+
+  /// No description provided for @carrierSelfServiceAppHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Its app is usually published as \"{app}\".'**
+  String carrierSelfServiceAppHint(String app);
+
+  /// Shown whenever carrier_self_service.verified_at is NULL, which is every row today.
+  ///
+  /// In en, this message translates to:
+  /// **'We have not checked this listing ourselves. Search the store and make sure the publisher really is {operator} before you install anything.'**
+  String carrierSelfServiceUnverified(String operator);
+
+  /// No description provided for @carrierSelfServiceSearchStore.
+  ///
+  /// In en, this message translates to:
+  /// **'Search the app store'**
+  String get carrierSelfServiceSearchStore;
+
+  /// No description provided for @carrierSelfServiceOpenApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the operator\'s app'**
+  String get carrierSelfServiceOpenApp;
+
+  /// No description provided for @carrierSelfServiceWeb.
+  ///
+  /// In en, this message translates to:
+  /// **'Top up on the operator\'s website'**
+  String get carrierSelfServiceWeb;
+
+  /// No description provided for @carrierSelfServiceUssd.
+  ///
+  /// In en, this message translates to:
+  /// **'No data? Dial {code} on the handset itself.'**
+  String carrierSelfServiceUssd(String code);
+
+  /// No description provided for @carrierRulesSourceLink.
+  ///
+  /// In en, this message translates to:
+  /// **'The carrier\'s published terms'**
+  String get carrierRulesSourceLink;
+
+  /// No description provided for @carrierRulesDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'Carriers change these rules without announcing it. If yours has, tell support and we will re-check.'**
+  String get carrierRulesDisclaimer;
+
+  /// Alert Preferences row for the notification advising a top-up in the operator's own app.
+  ///
+  /// In en, this message translates to:
+  /// **'Carrier Action Needed'**
+  String get carrierActionTitle;
+
+  /// No description provided for @carrierActionDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell me when a line needs something only I can do — using the SIM, or topping it up in my operator\'s own app.'**
+  String get carrierActionDesc;
 }
 
 class _AppLocalizationsDelegate

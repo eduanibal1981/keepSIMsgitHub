@@ -1,4 +1,11 @@
 
+# PayPal redirects a plain browser here with no Authorization header, so JWT
+# verification has to be off. The function is read-only and moves no money.
+[functions.paypal-return]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/paypal-return/index.ts"
+
 [functions.fetch_zendit_offers]
 enabled = true
 verify_jwt = true

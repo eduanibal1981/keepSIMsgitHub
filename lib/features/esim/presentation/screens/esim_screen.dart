@@ -18,14 +18,24 @@ import 'package:keep_sims/features/esim/presentation/controllers/user_esims_cont
 import 'package:keep_sims/features/esim/presentation/screens/esim_delivery_screen.dart';
 import 'package:keep_sims/l10n/app_localizations.dart';
 
-class EsimScreen extends ConsumerWidget {
+class EsimScreen extends ConsumerStatefulWidget {
   const EsimScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<EsimScreen> createState() => _EsimScreenState();
+}
+
+class _EsimScreenState extends ConsumerState<EsimScreen> {
+  bool _forceTestMode = false;
+
+  @override
+  Widget build(BuildContext context) {
     final esimCapability = ref.watch(esimCapabilityServiceProvider);
     final isDark = context.isDarkMode;
     final l10n = AppLocalizations.of(context)!;
+    final uri = GoRouterState.of(context).uri;
+    final isTestModeQuery = uri.queryParameters['test_mode'] == 'true';
+    final bool testMode = _forceTestMode || isTestModeQuery;
 
     return Scaffold(
       backgroundColor: context.scaffoldBackgroundColor,
@@ -48,12 +58,44 @@ class EsimScreen extends ConsumerWidget {
           ),
           onPressed: () => Navigator.of(context).pop(),
         ),
+        actions: [
+          if (testMode)
+            Padding(
+              padding: const EdgeInsets.only(right: 16),
+              child: Center(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF6366F1).withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFF6366F1), width: 1),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.bug_report, size: 14, color: Color(0xFF6366F1)),
+                      SizedBox(width: 4),
+                      Text(
+                        'TEST MODE',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF6366F1),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
       body: SafeArea(
         child: esimCapability.when(
-          data: (isSupported) => _buildContent(context, ref, isDark, isSupported),
+          data: (isSupported) =>
+              _buildContent(context, ref, isDark, isSupported || testMode, testMode),
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (err, _) => _buildContent(context, ref, isDark, false),
+          error: (err, _) => _buildContent(context, ref, isDark, testMode, testMode),
         ),
       ),
     );
@@ -64,6 +106,7 @@ class EsimScreen extends ConsumerWidget {
     WidgetRef ref,
     bool isDark,
     bool isSupported,
+    bool testMode,
   ) {
     final l10n = AppLocalizations.of(context)!;
     final userEsimsAsync = ref.watch(userEsimsControllerProvider);
@@ -78,6 +121,35 @@ class EsimScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if (testMode) ...[
+              Container(
+                margin: const EdgeInsets.only(bottom: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF6366F1).withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: const Color(0xFF6366F1).withValues(alpha: 0.3),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.info_outline, color: Color(0xFF6366F1), size: 18),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        'Emulator Test Mode: Displaying full eSIM management structure & preview cards.',
+                        style: AppTextStyles.caption.copyWith(
+                          color: context.onSurfaceColor,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+
             // ── Hero eSIM Card ───────────────────────────────────────
             _buildEsimHeroCard(context, isDark, isSupported),
             const SizedBox(height: 28),
@@ -108,11 +180,17 @@ class EsimScreen extends ConsumerWidget {
 
               userEsimsAsync.when(
                 data: (esims) {
-                  if (esims.isEmpty) {
+                  final displayEsims =
+                      (esims.isEmpty && testMode) ? _getMockEsims() : esims;
+                  if (displayEsims.isEmpty) {
                     return _buildEmptyProfilesCard(context, isDark);
                   }
-                  final activeEsims = esims.where((e) => e.status == 'active' || e.status == 'installed').toList();
-                  final archivedEsims = esims.where((e) => e.status == 'expired' || e.status == 'depleted').toList();
+                  final activeEsims = displayEsims
+                      .where((e) => e.status == 'active' || e.status == 'installed')
+                      .toList();
+                  final archivedEsims = displayEsims
+                      .where((e) => e.status == 'expired' || e.status == 'depleted')
+                      .toList();
 
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -127,7 +205,9 @@ class EsimScreen extends ConsumerWidget {
                             'Archived eSIMs (${archivedEsims.length})',
                             style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.bold),
                           ),
-                          children: archivedEsims.map((esim) => _buildEsimCard(context, esim, isDark)).toList(),
+                          children: archivedEsims
+                              .map((esim) => _buildEsimCard(context, esim, isDark))
+                              .toList(),
                         ),
                       ],
                     ],
@@ -139,7 +219,21 @@ class EsimScreen extends ConsumerWidget {
                     child: CircularProgressIndicator(),
                   ),
                 ),
-                error: (err, _) => _buildEmptyProfilesCard(context, isDark),
+                error: (err, _) {
+                  final displayEsims = testMode ? _getMockEsims() : <UserEsim>[];
+                  if (displayEsims.isNotEmpty) {
+                    final activeEsims = displayEsims
+                        .where((e) => e.status == 'active' || e.status == 'installed')
+                        .toList();
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: activeEsims
+                          .map((esim) => _buildEsimCard(context, esim, isDark))
+                          .toList(),
+                    );
+                  }
+                  return _buildEmptyProfilesCard(context, isDark);
+                },
               ),
             ] else ...[
               // ── Device Not Supported ────────────────────────────────
@@ -150,6 +244,49 @@ class EsimScreen extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  List<UserEsim> _getMockEsims() {
+    return [
+      UserEsim(
+        id: 'test-esim-1',
+        userId: 'test-user',
+        esimOrderId: 'order-101',
+        iccid: '89860000000000000001',
+        lpaActivationCode: 'LPA:1\$rsp.global-esim.com\$TESTMATCHINGCODE1',
+        qrCodeUrl:
+            'https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=LPA:1\$rsp.global-esim.com\$TESTMATCHINGCODE1',
+        bundleName: 'Global Pass 10 GB',
+        provider: 'KeepSIMs Global',
+        status: 'active',
+        dataRemainingMb: 6553,
+        dataTotalMb: 10240,
+        purchasedAt: DateTime.now().subtract(const Duration(days: 3)),
+        firstActivatedAt: DateTime.now().subtract(const Duration(days: 2)),
+        expiresAt: DateTime.now().add(const Duration(days: 27)),
+        createdAt: DateTime.now().subtract(const Duration(days: 3)),
+        updatedAt: DateTime.now(),
+      ),
+      UserEsim(
+        id: 'test-esim-2',
+        userId: 'test-user',
+        esimOrderId: 'order-102',
+        iccid: '89860000000000000002',
+        lpaActivationCode: 'LPA:1\$rsp.global-esim.com\$TESTMATCHINGCODE2',
+        qrCodeUrl:
+            'https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=LPA:1\$rsp.global-esim.com\$TESTMATCHINGCODE2',
+        bundleName: 'USA & Canada 5 GB',
+        provider: 'KeepSIMs Americas',
+        status: 'active',
+        dataRemainingMb: 1280,
+        dataTotalMb: 5120,
+        purchasedAt: DateTime.now().subtract(const Duration(days: 10)),
+        firstActivatedAt: DateTime.now().subtract(const Duration(days: 9)),
+        expiresAt: DateTime.now().add(const Duration(days: 5)),
+        createdAt: DateTime.now().subtract(const Duration(days: 10)),
+        updatedAt: DateTime.now(),
+      ),
+    ];
   }
 
   Widget _buildEsimCard(BuildContext context, UserEsim esim, bool isDark) {
@@ -600,6 +737,30 @@ class EsimScreen extends ConsumerWidget {
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF6366F1),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              icon: const Icon(Icons.bug_report, size: 18),
+              label: const Text(
+                '🧪 Open eSIM Manager (Emulator Test Mode)',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              onPressed: () {
+                setState(() {
+                  _forceTestMode = true;
+                });
+              },
+            ),
           ),
         ],
       ),

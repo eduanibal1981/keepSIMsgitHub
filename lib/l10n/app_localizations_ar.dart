@@ -1702,6 +1702,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get planFeePaidFromWallet => 'تم دفع رسوم الخطة من رصيد محفظتك.';
 
   @override
+  String get planFeeNotChargedRetry =>
+      'وصل رصيدك لكن تعذّر خصم رسوم الخطة، لذلك لم يتم إنشاء الخط. رصيدك في أمان — يرجى المحاولة مرة أخرى.';
+
+  @override
   String activityTopupRequested(String amount) {
     return 'تم تقديم طلب إعادة الشحن بمبلغ \$$amount';
   }
@@ -2087,6 +2091,32 @@ class AppLocalizationsAr extends AppLocalizations {
   String get payPalForceCaptureButton => 'لقد أكملت الدفع على PayPal';
 
   @override
+  String get payPalBrowserOpened => 'تم فتح PayPal في المتصفح';
+
+  @override
+  String get payPalBrowserOpenedBody =>
+      'أكمل الدفع هناك — سيتم تحديث هذه الشاشة تلقائيًا.';
+
+  @override
+  String get payPalTakingLonger =>
+      'يستغرق الأمر وقتًا أطول من المعتاد. إذا كنت قد دفعت بالفعل، تحقق من الدفع أدناه.';
+
+  @override
+  String get payPalReopenButton => 'إعادة فتح PayPal';
+
+  @override
+  String get payPalVerifying => 'جارٍ التحقق من دفعتك…';
+
+  @override
+  String get payPalVerifyingBody => 'لحظة واحدة ريثما نؤكد مع PayPal.';
+
+  @override
+  String get payPalPaymentCancelled => 'تم إلغاء الدفع. لم يتم خصم أي مبلغ.';
+
+  @override
+  String get payPalDoneButton => 'تم';
+
+  @override
   String get yourDevices => 'أجهزتك';
 
   @override
@@ -2391,4 +2421,196 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get householdDeclinedHint =>
       'لقد رفضوا الدعوة. أزلهم لإرسال دعوة جديدة.';
+
+  @override
+  String get carrierActivityFallbackOperator => 'هذا المشغّل';
+
+  @override
+  String get carrierUsageRequiredTitle =>
+      'الشحن التلقائي لا يمكنه حماية هذا الخط';
+
+  @override
+  String carrierUsageRequiredBody(String operator) {
+    return 'لا تعيد $operator ضبط عداد عدم النشاط إلا عند إجراء مكالمة أو إرسال رسالة أو استخدام البيانات على الخط. إضافة الرصيد لا تُحتسب، لذا لا يمكن لأي شحن تلقائي إيقاف إلغاء تفعيل هذا الرقم. اختر الخطة القياسية وسننبهك في الوقت المناسب لاستخدام الخط بنفسك.';
+  }
+
+  @override
+  String get carrierMinDenominationTitle => 'هذا المشغّل يتطلب شحنًا أكبر';
+
+  @override
+  String carrierMinDenominationBody(
+    String operator,
+    String amount,
+    String currency,
+  ) {
+    return 'لا تضيف $operator صلاحية للخط إلا عند شحن $amount $currency أو أكثر. أي مبلغ أقل يصل كرصيد قابل للاستخدام فقط، وقد يظل الرقم عرضة للإلغاء، لذا تعيد الخطة المميزة شحن هذا الخط بمبلغ $amount $currency.';
+  }
+
+  @override
+  String get premiumUnavailableForCarrier =>
+      'الخطة المميزة غير متاحة لهذا المشغّل';
+
+  @override
+  String get carrierRulesLinkLabel => 'المزيد عن قواعد هذا المشغّل';
+
+  @override
+  String get carrierRulesSheetTitle => 'قواعد إلغاء التنشيط';
+
+  @override
+  String carrierRulesHowTitle(String operator) {
+    return 'كيف يقرّر $operator';
+  }
+
+  @override
+  String carrierRechargeOkBody(String operator) {
+    return 'يعيد $operator تشغيل العدّاد في كل مرة يُشحن فيها الخط، مهما كان المبلغ. هذا ما يجعل الشحن التلقائي قادرًا على الحفاظ على الرقم.';
+  }
+
+  @override
+  String get carrierRulesNumbersTitle => 'الأرقام';
+
+  @override
+  String carrierRulesWindowRow(int days) {
+    return 'يُلغى التنشيط بعد $days يومًا دون شحنة مؤهّلة';
+  }
+
+  @override
+  String carrierRulesGraceRow(int days) {
+    return '$days يومًا بعد ذلك لاستعادة الرقم نفسه';
+  }
+
+  @override
+  String get carrierRulesNoGraceRow =>
+      'لا توجد مهلة استعادة — يُطرح الرقم فورًا';
+
+  @override
+  String carrierRulesMinTopupRow(String amount, String currency) {
+    return '$amount $currency هو أصغر شحن يضيف صلاحية';
+  }
+
+  @override
+  String carrierRulesCadenceRow(int days, int count) {
+    return 'سنشحن كل $days يومًا — $count مرات في السنة';
+  }
+
+  @override
+  String get carrierRulesVerdictTitle => 'ما الذي ننصح به';
+
+  @override
+  String get carrierVerdictSelfServiceTitle =>
+      'لا تشترِ الخطة المميزة لهذا الخط';
+
+  @override
+  String get carrierVerdictSelfServiceBody =>
+      'احتفظ بمالك. لا شيء نرسله يعيد ضبط عدّاد هذا المشغّل، والشيء الوحيد الذي يحافظ على الرقم هو استخدامه.';
+
+  @override
+  String get carrierVerdictStandardTitle => 'الخطة القياسية تكفي هنا';
+
+  @override
+  String get carrierVerdictStandardBody =>
+      'يمنحك هذا المشغّل مهلة طويلة. دعنا نراقب الموعد ونخبرك؛ اشحن بنفسك عندما نُعلمك، فتدفع ثمن الرصيد فقط.';
+
+  @override
+  String get carrierVerdictPremiumWorthTitle => 'الخطة المميزة تستحق';
+
+  @override
+  String get carrierVerdictPremiumWorthBody =>
+      'بضع شحنات في السنة، كل واحدة في موعد لا تراه من هنا. يمكنك فعلها يدويًا إن فضّلت — والأتمتة تعني ألّا تفكّر في الأمر أبدًا.';
+
+  @override
+  String get carrierVerdictPremiumMustTitle => 'أتمت هذا الخط';
+
+  @override
+  String get carrierVerdictPremiumMustBody =>
+      'هذا المشغّل سريع بما يكفي ليجعل التذكّر يدويًا، من بلد آخر، يفلت منك يومًا ما — وإفلات واحد يعني فقدان الرقم.';
+
+  @override
+  String get carrierReasonUsageOnly =>
+      'لا يُحتسب إلا اتصال أو رسالة أو جلسة بيانات. الرصيد وحده لا يكفي.';
+
+  @override
+  String carrierReasonQualifying(String amount, String currency) {
+    return 'الشحن بأقل من $amount $currency يصل كرصيد ولا يضيف أي صلاحية.';
+  }
+
+  @override
+  String carrierReasonShortWindow(int days) {
+    return '$days يومًا فقط بين شحنة مؤهّلة وأخرى.';
+  }
+
+  @override
+  String carrierReasonLongWindow(int days) {
+    return '$days يومًا تقارب سنة كاملة — تذكير واحد يكفي.';
+  }
+
+  @override
+  String get carrierReasonNoGrace =>
+      'لا توجد مهلة سماح. إن فات الموعد ضاع الرقم.';
+
+  @override
+  String carrierReasonGrace(int days) {
+    return 'أمامك $days يومًا بعد الموعد لاستعادة الرقم.';
+  }
+
+  @override
+  String carrierReasonAutomationCost(
+    String self,
+    String premium,
+    String extra,
+  ) {
+    return 'الرصيد وحده يكلّف نحو $self في السنة. الخطة المميزة $premium، أي أن $extra منها ثمن الأتمتة.';
+  }
+
+  @override
+  String carrierSelfServiceTitle(String operator) {
+    return 'أو اشترِ مباشرة من $operator';
+  }
+
+  @override
+  String get carrierSelfServiceBody =>
+      'اشحن من تطبيق المشغّل نفسه فتدفع ثمن الرصيد ولا شيء غيره.';
+
+  @override
+  String carrierSelfServiceCountryLine(String country) {
+    return 'بلد الخط: $country';
+  }
+
+  @override
+  String carrierSelfServiceAppHint(String app) {
+    return 'يُنشر تطبيقه عادة باسم \"$app\".';
+  }
+
+  @override
+  String carrierSelfServiceUnverified(String operator) {
+    return 'لم نتحقق من هذا التطبيق بأنفسنا. ابحث في المتجر وتأكد أن الناشر هو $operator فعلًا قبل التثبيت.';
+  }
+
+  @override
+  String get carrierSelfServiceSearchStore => 'ابحث في متجر التطبيقات';
+
+  @override
+  String get carrierSelfServiceOpenApp => 'افتح تطبيق المشغّل';
+
+  @override
+  String get carrierSelfServiceWeb => 'اشحن من موقع المشغّل';
+
+  @override
+  String carrierSelfServiceUssd(String code) {
+    return 'لا توجد بيانات؟ اطلب $code من الهاتف نفسه.';
+  }
+
+  @override
+  String get carrierRulesSourceLink => 'شروط المشغّل المنشورة';
+
+  @override
+  String get carrierRulesDisclaimer =>
+      'يغيّر المشغّلون هذه القواعد دون إعلان. إن تغيّرت لدى مشغّلك، أخبر الدعم وسنراجعها.';
+
+  @override
+  String get carrierActionTitle => 'إجراء مطلوب منك';
+
+  @override
+  String get carrierActionDesc =>
+      'أخبرني عندما يحتاج خط إلى شيء لا أستطيع فعله إلا بنفسي — استخدام الشريحة أو شحنها من تطبيق المشغّل.';
 }

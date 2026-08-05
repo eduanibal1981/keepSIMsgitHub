@@ -1,6 +1,7 @@
 import 'package:keep_sims/features/sim_lines/data/models/country_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/carrier_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/carrier_rule_model.dart';
+import 'package:keep_sims/features/sim_lines/data/models/carrier_self_service_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/line_activity_log_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/payment_method_model.dart';
@@ -14,6 +15,7 @@ abstract class SimLinesRepository {
   Future<List<Carrier>> getCarriersForCountry(String countryId);
   Future<CarrierRule?> getCarrierRule(String carrierId);
   Future<CarrierRule?> getCarrierRuleById(String ruleId);
+  Future<CarrierSelfService?> getCarrierSelfService(String carrierId);
   Future<List<LineActivityLog>> getLineActivityLogs(String simLineId);
   Future<void> deleteLineActivityLog(String id);
   Future<void> cleanMockLogs(String simLineId);

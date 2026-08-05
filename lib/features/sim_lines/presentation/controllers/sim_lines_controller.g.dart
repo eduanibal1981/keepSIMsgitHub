@@ -34,7 +34,7 @@ final class SimLinesControllerProvider
 }
 
 String _$simLinesControllerHash() =>
-    r'8db52efa9624611955fc44d39aea9a2f16b915e5';
+    r'77c1b2d911dbeed585b83c16c8846ca9c7a428ba';
 
 abstract class _$SimLinesController extends $AsyncNotifier<List<SimLine>> {
   FutureOr<List<SimLine>> build();
@@ -203,6 +203,98 @@ final class CarrierRuleFamily extends $Family
 
   @override
   String toString() => r'carrierRuleProvider';
+}
+
+/// I8: the operator's own top-up channel, for the rules sheet. Null for most
+/// carriers — the sheet renders a store search from the carrier's name instead.
+
+@ProviderFor(carrierSelfService)
+final carrierSelfServiceProvider = CarrierSelfServiceFamily._();
+
+/// I8: the operator's own top-up channel, for the rules sheet. Null for most
+/// carriers — the sheet renders a store search from the carrier's name instead.
+
+final class CarrierSelfServiceProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<CarrierSelfService?>,
+          CarrierSelfService?,
+          FutureOr<CarrierSelfService?>
+        >
+    with
+        $FutureModifier<CarrierSelfService?>,
+        $FutureProvider<CarrierSelfService?> {
+  /// I8: the operator's own top-up channel, for the rules sheet. Null for most
+  /// carriers — the sheet renders a store search from the carrier's name instead.
+  CarrierSelfServiceProvider._({
+    required CarrierSelfServiceFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'carrierSelfServiceProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$carrierSelfServiceHash();
+
+  @override
+  String toString() {
+    return r'carrierSelfServiceProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<CarrierSelfService?> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<CarrierSelfService?> create(Ref ref) {
+    final argument = this.argument as String;
+    return carrierSelfService(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is CarrierSelfServiceProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$carrierSelfServiceHash() =>
+    r'50e15f44856ebed13ad1ba150336907c94d8c701';
+
+/// I8: the operator's own top-up channel, for the rules sheet. Null for most
+/// carriers — the sheet renders a store search from the carrier's name instead.
+
+final class CarrierSelfServiceFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<CarrierSelfService?>, String> {
+  CarrierSelfServiceFamily._()
+    : super(
+        retry: null,
+        name: r'carrierSelfServiceProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// I8: the operator's own top-up channel, for the rules sheet. Null for most
+  /// carriers — the sheet renders a store search from the carrier's name instead.
+
+  CarrierSelfServiceProvider call(String carrierId) =>
+      CarrierSelfServiceProvider._(argument: carrierId, from: this);
+
+  @override
+  String toString() => r'carrierSelfServiceProvider';
 }
 
 @ProviderFor(simLineActivityLogs)

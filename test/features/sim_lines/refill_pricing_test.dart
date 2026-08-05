@@ -124,7 +124,11 @@ void main() {
     // O2 Germany, the live row: $19.24 base cost, 30-day validity, PayPal at
     // 3.4% + $0.49 per payment_gateways.
     const o2Base = 19.24;
-    const o2Validity = 30;
+    // O2 Germany terminates a prepaid line after six months without a top-up.
+    // refillIntervalDays(180) = 153, so a plan year pre-pays 3 refills — not the
+    // 13 the old bundle-cycle cadence billed for.
+    const o2InactivityDays = 180;
+    const o2Refills = 3;
     const paypalPct = 3.4;
     const paypalFixed = 0.49;
 
@@ -139,7 +143,7 @@ void main() {
     }) => RefillPricing.premiumYearlyTotal(
       baseServiceFeeUsd: 2.50,
       minimumTopupAmount: o2Base,
-      topupValidityDays: o2Validity,
+      inactivityLimitDays: o2InactivityDays,
       appFeePercent: 3,
       premiumMarginPercent: margin,
       premiumMarginPerRefillUsd: flat,
@@ -148,15 +152,67 @@ void main() {
       inappPricingOverride: override,
     );
 
-    test('a 30-day carrier pre-pays 13 refills', () {
-      expect(RefillPricing.refillsPerYear(30), 13);
-      expect(RefillPricing.refillsPerYear(90), 5);
-      expect(RefillPricing.refillsPerYear(365), 1);
+    test('cadence comes off the deactivation window, with a safety margin', () {
+      // 15% of the window, floored at a week, so a failed refill still has room
+      // for the retry sweep before the carrier reclaims the number.
+      expect(RefillPricing.refillIntervalDays(90), 76); // 90 - 14
+      expect(RefillPricing.refillIntervalDays(180), 153); // 180 - 27
+      expect(RefillPricing.refillIntervalDays(330), 280); // 330 - 50
+      // Short windows get the 7-day floor rather than a proportional sliver.
+      expect(RefillPricing.refillIntervalDays(30), 23);
     });
 
-    test('a zero or negative validity cannot divide by zero', () {
+    test('STC Saudi Arabia: 3 refills a year, not 13', () {
+      // The regression this phase exists to fix. stc extends SIM validity 180
+      // days from the last paid activity; the rule row previously carried a
+      // 30-day bundle cycle, so the plan sold 13 refills at $7.07 for a line
+      // that needs 3.
+      expect(RefillPricing.refillsPerYear(180), 3);
+      // What the old cadence produced, for contrast.
+      expect(RefillPricing.refillsPerYear(37), 13);
+    });
+
+    test('an explicit override wins and is clamped to a year', () {
+      expect(RefillPricing.refillIntervalDays(90, override: 45), 45);
+      expect(RefillPricing.refillIntervalDays(90, override: 900), 365);
+      // Non-positive means "no override", not "interval zero".
+      expect(RefillPricing.refillIntervalDays(90, override: 0), 76);
+    });
+
+    test('a zero or negative window cannot divide by zero', () {
       expect(RefillPricing.refillsPerYear(0), 0);
       expect(RefillPricing.refillsPerYear(-5), 0);
+      expect(RefillPricing.refillIntervalDays(0), 0);
+    });
+
+    test('a derived interval is never mistaken for a schedule chip label', () {
+      // RefillScheduleMath.safetyAdjustedDelayDays maps the chip labels 90/30/14
+      // to their execution days 85/28/13, because a chip means "the carrier's
+      // window". A derived interval already has the margin taken out, so if one
+      // ever lands exactly on a chip label it would be adjusted a second time —
+      // the schedule would then fire days apart from the pre-paid executions
+      // queue_premium_refill_executions lays down at the un-remapped interval.
+      //
+      // No carrier rule in the table hits this today — the windows in use are
+      // 30, 90, 95, 120, 150, 180, 184, 330, 365 and 700. This test is the
+      // tripwire for the admin RPC letting someone set one of the six windows
+      // below, which derive exactly onto a chip label.
+      const chipLabels = {90, 30, 14, 85};
+      final offenders = <int>[];
+      for (var window = 1; window <= 730; window++) {
+        final interval = RefillPricing.refillIntervalDays(window);
+        if (chipLabels.contains(interval)) offenders.add(window);
+      }
+      expect(
+        offenders,
+        // 21→14, 37→30, 100/101→85, 106/107→90.
+        [21, 37, 100, 101, 106, 107],
+        reason:
+            'These windows derive an interval that collides with a chip label. '
+            'They are unreachable from current carrier data; if a rule ever '
+            'uses one, either give it refill_interval_days_override or teach '
+            'the sheet to stop re-adjusting carrier-derived intervals.',
+      );
     });
 
     test('the per-refill price carries no gateway fee', () {
@@ -192,7 +248,7 @@ void main() {
 
     test('THE POINT: the gross-up leaves the full subtotal after the gateway cut', () {
       final charged = yearly(margin: marginPct, flat: marginFlat);
-      const subtotal = 2.50 + 21.1032 * 13; // 276.8416
+      const subtotal = 2.50 + 21.1032 * o2Refills;
       final gatewayTakes =
           RefillPricing.round2(charged * (paypalPct / 100) + paypalFixed);
 
@@ -222,7 +278,7 @@ void main() {
     test('a zero margin is honoured, not treated as unset', () {
       // The whole reason these configs exist is to be numbers that mean what
       // they say — 0 must mean "no margin", not "use some default".
-      const subtotal = 2.50 + 19.24 * 1.03 * 13;
+      const subtotal = 2.50 + 19.24 * 1.03 * o2Refills;
       expect(
         yearly(margin: 0, flat: 0),
         RefillPricing.round2((subtotal + paypalFixed) / (1 - 0.034)),
@@ -233,7 +289,7 @@ void main() {
       // du and Orange Egypt carry round-number prices set by hand; those must
       // survive, while every other carrier follows the config.
       final withOverride = yearly(margin: marginPct, flat: marginFlat, override: 2.00);
-      const expectedNet = 2.50 + 2.00 * 13;
+      const expectedNet = 2.50 + 2.00 * o2Refills;
       expect(
         withOverride,
         RefillPricing.round2((expectedNet + paypalFixed) / (1 - 0.034)),
@@ -251,21 +307,21 @@ void main() {
       final total = RefillPricing.premiumYearlyTotal(
         baseServiceFeeUsd: 2.50,
         minimumTopupAmount: o2Base,
-        topupValidityDays: o2Validity,
+        inactivityLimitDays: o2InactivityDays,
         appFeePercent: 3,
         premiumMarginPercent: 0,
         premiumMarginPerRefillUsd: 0,
         gatewayFeePercentage: 0,
         gatewayFeeFixed: 0,
       );
-      expect(total, RefillPricing.round2(2.50 + 19.24 * 1.03 * 13));
+      expect(total, RefillPricing.round2(2.50 + 19.24 * 1.03 * o2Refills));
     });
 
     test('an impossible 100% gateway does not divide by zero or go negative', () {
       final total = RefillPricing.premiumYearlyTotal(
         baseServiceFeeUsd: 2.50,
         minimumTopupAmount: o2Base,
-        topupValidityDays: o2Validity,
+        inactivityLimitDays: o2InactivityDays,
         appFeePercent: 3,
         premiumMarginPercent: 0,
         premiumMarginPerRefillUsd: 0,

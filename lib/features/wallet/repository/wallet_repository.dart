@@ -12,6 +12,7 @@ import 'package:keep_sims/core/services/local_cache_service.dart';
 import '../contract/wallet_contract.dart';
 import '../model/wallet_model.dart';
 import '../model/gift_transfer_model.dart';
+import '../model/plan_fee_result.dart';
 
 class WalletRepository implements WalletContract {
   final SupabaseClient _client;
@@ -288,7 +289,7 @@ class WalletRepository implements WalletContract {
   }
 
   @override
-  Future<Result<Wallet>> payPlanFee({String? simLineId}) async {
+  Future<Result<Wallet>> payPlanFee({String? simLineId, String? referenceId}) async {
     if (_connectivity.isOffline) {
       return const Failure(
         AppFailure.server(
@@ -305,18 +306,39 @@ class WalletRepository implements WalletContract {
         );
       }
 
-      // Priced and debited server-side; the reference id makes a network retry
-      // of this exact attempt adopt the original debit instead of paying twice.
-      final referenceId =
+      // Priced and debited server-side; the reference id makes a retry of this
+      // exact attempt adopt the original debit instead of paying twice. The
+      // caller supplies it when it is resuming a fee it already paid for but
+      // could not spend — see [PendingPlanFee].
+      final reference =
+          referenceId ??
           'planfee_${userId.substring(0, 8)}_${DateTime.now().microsecondsSinceEpoch}';
-      await _client.rpc(
+      final response = await _client.rpc(
         'pay_plan_fee_from_wallet',
         params: {
-          'p_reference_id': referenceId,
+          'p_reference_id': reference,
           'p_sim_line_id': simLineId,
+          // The device rides along for the same reason it does on a gift:
+          // without it `guard_money_action` scores every plan fee
+          // `missing_device_id`, which is the risk signal it exists to avoid.
           'p_device_id': await _deviceIdentity.deviceId(),
         },
       );
+
+      // Only *some* refusals raise. UNAUTHORIZED, a suspended account and a
+      // DEVICE_BLOCKED verdict all come back as a 200 with success:false and
+      // no debit — read as a paid fee if the body is ignored, which is how a
+      // paid line could be created for free.
+      //
+      // Reported as a server failure, never a validation one: the controller
+      // reads a validation failure as "insufficient, fall back to PayPal", and
+      // a suspended or device-blocked account must surface rather than quietly
+      // reroute to a card. Insufficient balance is not in this branch at all —
+      // the function RAISEs for that, caught below.
+      final result = PlanFeeResult.fromRpc(response);
+      if (!result.isPaid) {
+        return Failure(AppFailure.server(message: result.message));
+      }
 
       return getWallet();
     } on PostgrestException catch (e) {

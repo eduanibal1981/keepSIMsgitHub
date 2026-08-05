@@ -753,7 +753,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 height: 150,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AppColors.success.withValues(alpha: isDark ? 0.02 : 0.01),
+                  color: AppColors.success.withValues(
+                    alpha: isDark ? 0.02 : 0.01,
+                  ),
                 ),
               ),
             ),
@@ -773,7 +775,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     }
                   },
                   splashColor: context.onSurfaceColor.withValues(alpha: 0.05),
-                  highlightColor: context.onSurfaceColor.withValues(alpha: 0.02),
+                  highlightColor: context.onSurfaceColor.withValues(
+                    alpha: 0.02,
+                  ),
                 ),
               ),
             ),
@@ -1178,6 +1182,82 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           ),
         ),
         const SizedBox(height: 16),
+        // ── Test Temporary Button for Emulator eSIM Management ─────────────
+        Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          width: double.infinity,
+          child: Material(
+            color: const Color(0xFF6366F1).withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(14),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(14),
+              onTap: () async {
+                await HapticHelper.lightTick();
+                if (context.mounted) {
+                  context.push('${AppRoutes.esim}?test_mode=true');
+                }
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 10,
+                ),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: const Color(0xFF6366F1).withValues(alpha: 0.4),
+                    width: 1.5,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF6366F1).withValues(alpha: 0.2),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.bug_report_rounded,
+                        color: Color(0xFF6366F1),
+                        size: 18,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '🧪 [TEST] Open eSIM Page Manager',
+                            style: AppTextStyles.bodySmall.copyWith(
+                              color: context.onSurfaceColor,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            'Preview eSIM management structure on emulator',
+                            style: AppTextStyles.caption.copyWith(
+                              color: context.onSurfaceColor.withValues(
+                                alpha: 0.6,
+                              ),
+                              fontSize: 11,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      color: Color(0xFF6366F1),
+                      size: 14,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
         Row(
           children: [
             _buildQuickActionCard(
@@ -1185,16 +1265,18 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               assetIcon: 'assets/images/esim.png',
               label: 'eSIM',
               color: const Color(0xFF6366F1),
-              enabled: isEsimSupported,
-              subtitle: isEsimSupported ? null : 'Device not supported',
-              onTap: isEsimSupported
-                  ? () async {
-                      await HapticHelper.lightTick();
-                      if (context.mounted) {
-                        context.push(AppRoutes.esim);
-                      }
-                    }
-                  : null,
+              enabled: true,
+              subtitle: isEsimSupported ? null : 'Test mode (emulator)',
+              onTap: () async {
+                await HapticHelper.lightTick();
+                if (context.mounted) {
+                  context.push(
+                    isEsimSupported
+                        ? AppRoutes.esim
+                        : '${AppRoutes.esim}?test_mode=true',
+                  );
+                }
+              },
             ),
             const SizedBox(width: 12),
             _buildQuickActionCard(

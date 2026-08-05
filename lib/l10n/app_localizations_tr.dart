@@ -1724,6 +1724,10 @@ class AppLocalizationsTr extends AppLocalizations {
   String get planFeePaidFromWallet => 'Plan ücreti cüzdan bakiyenizden ödendi.';
 
   @override
+  String get planFeeNotChargedRetry =>
+      'Yüklemeniz ulaştı ancak plan ücreti tahsil edilemedi, bu yüzden hat oluşturulmadı. Bakiyeniz güvende — lütfen tekrar deneyin.';
+
+  @override
   String activityTopupRequested(String amount) {
     return '\$$amount tutarında yükleme talebi gönderildi';
   }
@@ -2112,6 +2116,34 @@ class AppLocalizationsTr extends AppLocalizations {
   String get payPalForceCaptureButton => 'PayPal\'da Ödemeyi Tamamladım';
 
   @override
+  String get payPalBrowserOpened => 'PayPal tarayıcınızda açık';
+
+  @override
+  String get payPalBrowserOpenedBody =>
+      'Ödemeyi orada tamamlayın — bu ekran kendiliğinden güncellenir.';
+
+  @override
+  String get payPalTakingLonger =>
+      'Bu her zamankinden uzun sürüyor. Ödemeyi zaten yaptıysanız aşağıdan kontrol edin.';
+
+  @override
+  String get payPalReopenButton => 'PayPal\'ı yeniden aç';
+
+  @override
+  String get payPalVerifying => 'Ödemeniz doğrulanıyor…';
+
+  @override
+  String get payPalVerifyingBody =>
+      'PayPal ile onaylarken bir dakika bekleyin.';
+
+  @override
+  String get payPalPaymentCancelled =>
+      'Ödeme iptal edildi. Sizden ücret alınmadı.';
+
+  @override
+  String get payPalDoneButton => 'Tamam';
+
+  @override
   String get yourDevices => 'Your devices';
 
   @override
@@ -2420,4 +2452,196 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get householdDeclinedHint =>
       'Reddetti. Yeniden davet etmek için kaldırın.';
+
+  @override
+  String get carrierActivityFallbackOperator => 'Bu operatör';
+
+  @override
+  String get carrierUsageRequiredTitle => 'Otomatik yükleme bu hattı koruyamaz';
+
+  @override
+  String carrierUsageRequiredBody(String operator) {
+    return '$operator hareketsizlik geri sayımını yalnızca hat arama yaptığında, SMS gönderdiğinde veya veri kullandığında yeniden başlatır. Bakiye yüklemek bu kapsama girmez, bu yüzden hiçbir otomatik yükleme bu numaranın devre dışı kalmasını engelleyemez. Standart planı seçin — hattı kendiniz kullanabilmeniz için sizi zamanında uyaracağız.';
+  }
+
+  @override
+  String get carrierMinDenominationTitle =>
+      'Bu operatör daha büyük bir yükleme gerektiriyor';
+
+  @override
+  String carrierMinDenominationBody(
+    String operator,
+    String amount,
+    String currency,
+  ) {
+    return '$operator yalnızca $amount $currency veya üzeri yüklemelerde hat geçerliliği ekler. Daha küçük tutarlar yalnızca harcanabilir bakiye olarak gelir ve numara yine de devre dışı bırakılabilir, bu yüzden Premium bu hattı $amount $currency ile yükler.';
+  }
+
+  @override
+  String get premiumUnavailableForCarrier =>
+      'Premium bu operatör için kullanılamıyor';
+
+  @override
+  String get carrierRulesLinkLabel =>
+      'Bu operatörün kuralları hakkında daha fazlası';
+
+  @override
+  String get carrierRulesSheetTitle => 'Devre dışı bırakma kuralları';
+
+  @override
+  String carrierRulesHowTitle(String operator) {
+    return '$operator nasıl karar veriyor';
+  }
+
+  @override
+  String carrierRechargeOkBody(String operator) {
+    return '$operator, hatta her yükleme yapıldığında geri sayımı yeniden başlatır; tutar fark etmez. Otomatik yüklemenin numarayı burada koruyabilmesinin nedeni budur.';
+  }
+
+  @override
+  String get carrierRulesNumbersTitle => 'Rakamlar';
+
+  @override
+  String carrierRulesWindowRow(int days) {
+    return 'Sayılan bir yükleme olmadan $days gün sonra devre dışı bırakılır';
+  }
+
+  @override
+  String carrierRulesGraceRow(int days) {
+    return 'Sonrasında aynı numarayı geri almak için $days gün';
+  }
+
+  @override
+  String get carrierRulesNoGraceRow =>
+      'Geri alma süresi yok — numara hemen serbest bırakılır';
+
+  @override
+  String carrierRulesMinTopupRow(String amount, String currency) {
+    return 'Geçerlilik ekleyen en küçük yükleme $amount $currency';
+  }
+
+  @override
+  String carrierRulesCadenceRow(int days, int count) {
+    return 'Her $days günde bir yükleriz — yılda $count kez';
+  }
+
+  @override
+  String get carrierRulesVerdictTitle => 'Biz ne yapardık';
+
+  @override
+  String get carrierVerdictSelfServiceTitle => 'Bu hat için Premium almayın';
+
+  @override
+  String get carrierVerdictSelfServiceBody =>
+      'Paranızı tutun. Gönderebileceğimiz hiçbir şey bu operatörün sayacını sıfırlamıyor; numarayı koruyan tek şey onu kullanmanız.';
+
+  @override
+  String get carrierVerdictStandardTitle => 'Burada Standard yeterli';
+
+  @override
+  String get carrierVerdictStandardBody =>
+      'Bu operatör size uzun bir süre tanıyor. Tarihi biz takip edip haber verelim; biz haber verince kendiniz yükleyin, yalnızca kontör parasını ödeyin.';
+
+  @override
+  String get carrierVerdictPremiumWorthTitle => 'Premium buna değer';
+
+  @override
+  String get carrierVerdictPremiumWorthBody =>
+      'Yılda birkaç yükleme, her biri buradan göremediğiniz bir tarihte. İsterseniz elle de yapılabilir — otomatikleştirmek ise hiç düşünmemek demek.';
+
+  @override
+  String get carrierVerdictPremiumMustTitle => 'Bunu otomatikleştirin';
+
+  @override
+  String get carrierVerdictPremiumMustBody =>
+      'Bu operatör, başka bir ülkeden elle hatırlamanın er ya da geç aksayacağı kadar hızlı ilerliyor — ve tek bir aksama numaranın kendisi demek.';
+
+  @override
+  String get carrierReasonUsageOnly =>
+      'Yalnızca bir arama, bir SMS ya da bir veri oturumu sayılır. Tek başına kontör saymaz.';
+
+  @override
+  String carrierReasonQualifying(String amount, String currency) {
+    return '$amount $currency altındaki bir yükleme kontör olarak gelir ve hiç geçerlilik kazandırmaz.';
+  }
+
+  @override
+  String carrierReasonShortWindow(int days) {
+    return 'Sayılan iki yükleme arasında yalnızca $days gün var.';
+  }
+
+  @override
+  String carrierReasonLongWindow(int days) {
+    return '$days gün neredeyse tam bir yıl — tek bir hatırlatma yeter.';
+  }
+
+  @override
+  String get carrierReasonNoGrace =>
+      'Ek süre yok. Tarihi kaçırırsanız numara gider.';
+
+  @override
+  String carrierReasonGrace(int days) {
+    return 'Tarihten sonra numarayı geri almak için $days gününüz olur.';
+  }
+
+  @override
+  String carrierReasonAutomationCost(
+    String self,
+    String premium,
+    String extra,
+  ) {
+    return 'Yalnızca kontör yılda yaklaşık $self tutuyor. Premium $premium, yani bunun $extra kadarı otomasyonun bedeli.';
+  }
+
+  @override
+  String carrierSelfServiceTitle(String operator) {
+    return 'Ya da doğrudan $operator üzerinden alın';
+  }
+
+  @override
+  String get carrierSelfServiceBody =>
+      'Operatörün kendi uygulamasından yükleyin; yalnızca kontör parasını ödersiniz, başka hiçbir şey ödemezsiniz.';
+
+  @override
+  String carrierSelfServiceCountryLine(String country) {
+    return 'Hattın ülkesi: $country';
+  }
+
+  @override
+  String carrierSelfServiceAppHint(String app) {
+    return 'Uygulaması genellikle \"$app\" adıyla yayımlanır.';
+  }
+
+  @override
+  String carrierSelfServiceUnverified(String operator) {
+    return 'Bu uygulama kaydını biz doğrulamadık. Mağazada arayın ve bir şey yüklemeden önce yayıncının gerçekten $operator olduğundan emin olun.';
+  }
+
+  @override
+  String get carrierSelfServiceSearchStore => 'Uygulama mağazasında ara';
+
+  @override
+  String get carrierSelfServiceOpenApp => 'Operatörün uygulamasını aç';
+
+  @override
+  String get carrierSelfServiceWeb => 'Operatörün sitesinden yükle';
+
+  @override
+  String carrierSelfServiceUssd(String code) {
+    return 'İnternet yok mu? Telefonun kendisinden $code tuşlayın.';
+  }
+
+  @override
+  String get carrierRulesSourceLink => 'Operatörün yayımladığı koşullar';
+
+  @override
+  String get carrierRulesDisclaimer =>
+      'Operatörler bu kuralları duyurmadan değiştirir. Sizinki değiştirdiyse desteğe bildirin, yeniden kontrol edelim.';
+
+  @override
+  String get carrierActionTitle => 'Sizden bir işlem gerekiyor';
+
+  @override
+  String get carrierActionDesc =>
+      'Bir hat yalnızca benim yapabileceğim bir şeye ihtiyaç duyduğunda haber ver — SIM\'i kullanmak ya da operatörün kendi uygulamasından yüklemek gibi.';
 }

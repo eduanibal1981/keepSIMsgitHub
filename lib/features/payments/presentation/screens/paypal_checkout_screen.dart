@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -45,22 +46,36 @@ class PayPalCheckoutScreen extends ConsumerStatefulWidget {
   ConsumerState<PayPalCheckoutScreen> createState() => _PayPalCheckoutScreenState();
 }
 
-class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen> {
+class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen>
+    with WidgetsBindingObserver {
   final TextEditingController _amountController = TextEditingController(text: '10.00');
   double _selectedDepositAmount = 10.00;
   PayPalCheckoutStatus _status = PayPalCheckoutStatus.idle;
   String? _orderId;
   String? _approveUrl;
   String? _errorMessage;
-  double _initialWalletBalance = 0.0;
   RealtimeChannel? _realtimeChannel;
   bool _isCapturingManually = false;
+
+  /// Latches once the capture has been reported, so the four racing detectors
+  /// cannot fire [widget.onSuccess] more than once.
+  bool _successHandled = false;
+  StreamSubscription<Uri>? _linkSub;
+  Timer? _pollTimer;
+  Timer? _elapsedTimer;
+  int _secondsAwaiting = 0;
+
+  /// How long the approval can sit before the screen stops claiming everything
+  /// is fine and offers the manual check instead.
+  static const int _slowApprovalSeconds = 25;
 
   static const List<double> _presetAmounts = [10.0, 20.0, 50.0, 100.0];
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _listenForReturnDeepLink();
     final amt = widget.initialAmount ?? 10.0;
     _selectedDepositAmount = amt < 1.00 ? 1.00 : amt;
     _amountController.text = _selectedDepositAmount.toStringAsFixed(2);
@@ -74,9 +89,80 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _linkSub?.cancel();
+    _stopWaitTimers();
     _realtimeChannel?.unsubscribe();
     _amountController.dispose();
     super.dispose();
+  }
+
+  /// The paypal-return function bounces the browser to
+  /// `io.supabase.keepsims://payment-success`, which is what brings the app
+  /// forward and lets us verify without the user having to press anything.
+  void _listenForReturnDeepLink() {
+    _linkSub = AppLinks().uriLinkStream.listen(
+      (uri) {
+        // The scheme is shared with Supabase's auth callback, so the host is
+        // the only thing that says this link is ours.
+        if (uri.host != 'payment-success') return;
+        if (!mounted || _orderId == null) return;
+
+        // A stale link from an earlier order must not resolve this one.
+        final returned = uri.queryParameters['order_id'];
+        if (returned != null && returned.isNotEmpty && returned != _orderId) return;
+
+        // On iOS the SFSafariViewController stays up behind the app.
+        closeInAppWebView();
+
+        if (uri.queryParameters['status'] == 'cancel') {
+          _onUserCancelled();
+        } else {
+          _verifyAfterReturn();
+        }
+      },
+      onError: (_) {
+        // A dead link stream only costs us the fast path; the lifecycle and
+        // poll fallbacks still resolve the order.
+      },
+    );
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.resumed) return;
+    if (_status != PayPalCheckoutStatus.awaitingApproval) return;
+    final orderId = _orderId;
+    if (orderId == null) return;
+
+    // The realtime socket does not survive backgrounding, and Postgres changes
+    // that fired while we were away are never replayed on reconnect — so a
+    // payment captured in the browser would otherwise leave this screen
+    // spinning forever. Re-read the row, then re-arm the subscription.
+    _refreshOrderStatus();
+    _subscribeToOrderRealtime(orderId);
+  }
+
+  void _startWaitTimers() {
+    _stopWaitTimers();
+    _secondsAwaiting = 0;
+    // Belt to the deep link's braces: covers a browser that never bounced back
+    // and a webhook that landed while the socket was down.
+    _pollTimer = Timer.periodic(
+      const Duration(seconds: 4),
+      (_) => _refreshOrderStatus(),
+    );
+    _elapsedTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (!mounted) return;
+      setState(() => _secondsAwaiting++);
+    });
+  }
+
+  void _stopWaitTimers() {
+    _pollTimer?.cancel();
+    _pollTimer = null;
+    _elapsedTimer?.cancel();
+    _elapsedTimer = null;
   }
 
   void _onAmountSelected(double amount) {
@@ -118,8 +204,6 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen> {
 
     try {
       final supabase = Supabase.instance.client;
-      final walletState = ref.read(walletControllerProvider);
-      _initialWalletBalance = walletState.value?.wallet.balance ?? 0.0;
 
       // Create Order on Server (Server-priced for plan, floor clamped for deposit)
       // G10: device_id + platform ride in the body (not a header) so no CORS
@@ -160,16 +244,15 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen> {
 
       // 2. Subscribe Realtime stream on paypal_orders table for this order_id (BLOCKER 2 Realtime Stream)
       _subscribeToOrderRealtime(_orderId!);
+      _startWaitTimers();
 
-      // 3. Launch approve URL in external browser
-      final uri = Uri.parse(_approveUrl!);
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
-      } else {
-        throw Exception('Could not launch PayPal approval URL.');
-      }
-
+      // 3. Hand the approval URL to a Custom Tab (Android) / SFSafariViewController
+      //    (iOS) rather than a full external browser: it keeps KeepSIMs framing
+      //    around the payment and dismisses itself when paypal-return fires the
+      //    payment-success deep link.
+      await _openApprovalUrl();
     } catch (e) {
+      _stopWaitTimers();
       if (mounted) {
         setState(() {
           _status = PayPalCheckoutStatus.failed;
@@ -199,6 +282,7 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen> {
             if (newStatus == 'captured') {
               _onPaymentSuccess();
             } else if (newStatus == 'failed') {
+              _stopWaitTimers();
               if (mounted) {
                 setState(() {
                   _status = PayPalCheckoutStatus.failed;
@@ -210,6 +294,84 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen> {
           },
         )
         .subscribe();
+  }
+
+  /// Reopens the approval page. The order is still live at PayPal, so this is
+  /// the right escape hatch when the tab was dismissed by accident.
+  Future<void> _openApprovalUrl() async {
+    final approveUrl = _approveUrl;
+    if (approveUrl == null) return;
+    final uri = Uri.parse(approveUrl);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.inAppBrowserView);
+    } else {
+      throw Exception('Could not launch PayPal approval URL.');
+    }
+  }
+
+  /// Reads the authoritative order status. Cheap, RLS-scoped, and read-only —
+  /// safe to call from a poll, a resume, or a returning deep link.
+  Future<void> _refreshOrderStatus() async {
+    final orderId = _orderId;
+    if (orderId == null || !mounted) return;
+    if (_status == PayPalCheckoutStatus.success ||
+        _status == PayPalCheckoutStatus.failed) {
+      return;
+    }
+
+    try {
+      final row = await Supabase.instance.client
+          .from('paypal_orders')
+          .select('status')
+          .eq('order_id', orderId)
+          .maybeSingle();
+      if (!mounted) return;
+
+      final status = row?['status'] as String?;
+      if (status == 'captured') {
+        _onPaymentSuccess();
+      } else if (status == 'failed') {
+        _stopWaitTimers();
+        setState(() {
+          _status = PayPalCheckoutStatus.failed;
+          _errorMessage = AppLocalizations.of(context)?.payPalPaymentFailed ??
+              'Payment failed or was cancelled.';
+        });
+      }
+    } catch (_) {
+      // Transient — the next poll tick tries again rather than showing the
+      // user a network error over a payment that may well have succeeded.
+    }
+  }
+
+  /// Runs when the browser hands us back a success return. The webhook usually
+  /// beats us here; when it has not landed yet, capture is idempotent
+  /// (ORDER_ALREADY_CAPTURED) so calling it costs nothing.
+  Future<void> _verifyAfterReturn() async {
+    if (_status == PayPalCheckoutStatus.success ||
+        _status == PayPalCheckoutStatus.capturing) {
+      return;
+    }
+    _stopWaitTimers();
+    setState(() {
+      _status = PayPalCheckoutStatus.capturing;
+      _errorMessage = null;
+    });
+
+    await _refreshOrderStatus();
+    if (!mounted || _status == PayPalCheckoutStatus.success) return;
+    await _triggerManualCapture();
+  }
+
+  void _onUserCancelled() {
+    _stopWaitTimers();
+    _realtimeChannel?.unsubscribe();
+    if (!mounted) return;
+    setState(() {
+      _status = PayPalCheckoutStatus.failed;
+      _errorMessage = AppLocalizations.of(context)?.payPalPaymentCancelled ??
+          'Payment cancelled. You have not been charged.';
+    });
   }
 
   Future<void> _triggerManualCapture() async {
@@ -249,11 +411,25 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen> {
           _status = PayPalCheckoutStatus.awaitingApproval;
           _errorMessage = e.toString().replaceAll('Exception: ', '');
         });
+        // Back to waiting means back to watching: the capture may still land
+        // via the webhook even though this attempt failed.
+        _startWaitTimers();
       }
     }
   }
 
   void _onPaymentSuccess() {
+    // Four callers race to report the same capture: the realtime UPDATE, the
+    // resume re-read, the poll tick and the returning deep link. `mounted` is
+    // not a guard against them — `onSuccess` opens by popping this route, and a
+    // route is not unmounted until the end of the frame, so two callbacks in
+    // one frame both pop. The second pop takes the *caller's* screen with it,
+    // tearing down the widget that was midway through creating the SIM line
+    // the payment had already been charged for.
+    if (_successHandled) return;
+    _successHandled = true;
+
+    _stopWaitTimers();
     _realtimeChannel?.unsubscribe();
     HapticHelper.mediumImpact();
     ref.invalidate(walletControllerProvider);
@@ -415,29 +591,54 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen> {
                     ),
                   ),
                 ),
-              if (_status == PayPalCheckoutStatus.awaitingApproval || _status == PayPalCheckoutStatus.capturing)
+              // While the tab is open the primary action is getting back to
+              // PayPal, not forcing a capture — the capture resolves itself.
+              if (_status == PayPalCheckoutStatus.awaitingApproval) ...[
                 SizedBox(
                   width: double.infinity,
                   height: 54,
-                  child: OutlinedButton(
-                    onPressed: _isCapturingManually ? null : _triggerManualCapture,
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: const Color(0xFF0070BA),
-                      side: const BorderSide(color: Color(0xFF0070BA), width: 2),
+                  child: ElevatedButton.icon(
+                    onPressed: _openApprovalUrl,
+                    icon: const Icon(Icons.open_in_new_rounded, size: 20),
+                    label: Text(
+                      l10n.payPalReopenButton,
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF0070BA),
+                      foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),
-                    child: _isCapturingManually
-                        ? const SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : Text(
-                            l10n.payPalForceCaptureButton,
-                            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                          ),
+                  ),
+                ),
+                // Only offered once the automatic path has visibly had its
+                // chance, so it reads as a rescue rather than a required step.
+                if (_secondsAwaiting >= _slowApprovalSeconds)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10.0),
+                    child: TextButton(
+                      onPressed: _isCapturingManually ? null : _verifyAfterReturn,
+                      style: TextButton.styleFrom(
+                        foregroundColor: const Color(0xFF0070BA),
+                      ),
+                      child: Text(
+                        l10n.payPalForceCaptureButton,
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+              ],
+              if (_status == PayPalCheckoutStatus.capturing)
+                const SizedBox(
+                  height: 54,
+                  child: Center(
+                    child: SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
                   ),
                 ),
               if (_status == PayPalCheckoutStatus.success)
@@ -454,7 +655,7 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen> {
                       ),
                     ),
                     child: Text(
-                      l10n.biometricCancel,
+                      l10n.payPalDoneButton,
                       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                   ),
@@ -485,18 +686,49 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen> {
           ],
         );
       case PayPalCheckoutStatus.awaitingApproval:
+        final isSlow = _secondsAwaiting >= _slowApprovalSeconds;
+        return Column(
+          children: [
+            const Icon(Icons.open_in_browser_rounded, size: 40, color: Color(0xFF0070BA)),
+            const SizedBox(height: 12),
+            Text(
+              l10n.payPalBrowserOpened,
+              textAlign: TextAlign.center,
+              style: AppTextStyles.titleMedium.copyWith(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              isSlow ? l10n.payPalTakingLonger : l10n.payPalBrowserOpenedBody,
+              textAlign: TextAlign.center,
+              style: AppTextStyles.bodySmall.copyWith(
+                color: isSlow
+                    ? AppColors.warning
+                    : (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+              ),
+            ),
+            if (_errorMessage != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                _errorMessage!,
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.redAccent, fontSize: 13),
+              ),
+            ],
+          ],
+        );
       case PayPalCheckoutStatus.capturing:
         return Column(
           children: [
             const CircularProgressIndicator(),
             const SizedBox(height: 16),
             Text(
-              l10n.payPalAwaitingConfirmation,
+              l10n.payPalVerifying,
+              textAlign: TextAlign.center,
               style: AppTextStyles.titleMedium.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
-              l10n.payPalCompleteInBrowser,
+              l10n.payPalVerifyingBody,
               textAlign: TextAlign.center,
               style: AppTextStyles.bodySmall.copyWith(
                 color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,

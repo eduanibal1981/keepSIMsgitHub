@@ -28,6 +28,8 @@ import '../../../sim_lines/data/models/carrier_rule_model.dart';
 import 'package:keep_sims/core/providers/app_config_provider.dart';
 import 'package:keep_sims/features/sim_lines/domain/plan_payment.dart';
 import 'package:keep_sims/features/sim_lines/domain/refill_pricing.dart';
+import 'package:keep_sims/features/sim_lines/presentation/widgets/carrier_activity_notice.dart';
+import 'package:keep_sims/features/sim_lines/presentation/widgets/carrier_rules_sheet.dart';
 import 'package:keep_sims/l10n/app_localizations.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
@@ -244,6 +246,17 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 .read(simLinesRepositoryProvider)
                 .getCarrierRule(_selectedSimCarrier!.id);
             if (rule != null) {
+              // i7: last gate before payment. queue_premium_refill_executions
+              // raises KS422 for these carriers, and by the time it does, the
+              // yearly charge has already been taken — the charged-but-no-line
+              // shape this codebase has paid for before. Refuse here instead.
+              if (CarrierActivityNotice.blocksPremium(rule)) {
+                throw Exception(
+                  'This carrier only resets its inactivity clock on a call, SMS or '
+                  'data session, so automatic refills cannot keep the line active. '
+                  'Please select the Standard plan.',
+                );
+              }
               carrierRuleId = rule.id;
             } else {
               throw Exception(
@@ -347,6 +360,25 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             .read(simLinesRepositoryProvider)
             .getCarrierRule(_selectedSimCarrier!.id);
         if (rule != null) {
+          // i7: refuse before PayPal is ever invoked. commitSubmit()'s guard
+          // only runs in the PayPal onSuccess callback — by then the charge
+          // has already been taken, which is the charged-but-no-line shape
+          // this codebase has paid for once already.
+          if (CarrierActivityNotice.blocksPremium(rule)) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text(
+                    'This carrier only resets its inactivity clock on a call, SMS '
+                    'or data session, so automatic refills cannot keep the line '
+                    'active. Please select the Standard plan.',
+                  ),
+                  backgroundColor: AppColors.error,
+                ),
+              );
+            }
+            return;
+          }
           amountToCharge = await _premiumYearlyTotal(rule);
         }
       }
@@ -1082,6 +1114,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             ),
           ),
           const SizedBox(height: 8),
+          // i7: above the tiers, not below them — if this carrier cannot be
+          // protected by refilling, the user should know before they read a
+          // price. Mirrors sim_line_form_screen.dart.
+          if (premiumRule != null)
+            CarrierActivityNotice(rule: premiumRule),
           _buildTierGrid(premiumRule, isPremiumLoading),
           const SizedBox(height: 24),
           _buildDynamicBillingSection(
@@ -1724,6 +1761,15 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       if (isPremiumLoading) {
         billingDesc = 'Loading premium pricing rules for this carrier...';
         billingRate = '$_feePerYearLabel + ...';
+      } else if (CarrierActivityNotice.blocksPremium(premiumRule)) {
+        // The server refuses to queue refills for these carriers, so selling
+        // the plan here would take the money and fail afterwards.
+        billingDesc =
+            'This carrier only counts calls, texts and data as activity, so '
+            'automatic top-ups cannot keep the line active. Please choose the '
+            'Standard Plan.';
+        planColor = isDark ? AppColors.error : Colors.redAccent;
+        billingRate = 'Not Supported';
       } else if (premiumRule != null) {
         // The whole year is charged once, up front — the old copy read as though
         // each refill were billed separately.
@@ -1731,8 +1777,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         billingDesc =
             'Fully automated top-ups. ${_premiumYearlyTotalSync(premiumRule).toStringAsFixed(2)} $cur charged once for the year — '
             '\$${_baseServiceFeeUsd.toStringAsFixed(2)} service plus '
-            '${RefillPricing.refillsPerYear(premiumRule.topupValidityDays)} refills of '
-            '${_premiumRefillPriceSync(premiumRule).toStringAsFixed(2)} $cur, one every ${premiumRule.topupValidityDays} days.';
+            '${premiumRule.refillsPerYear} refills of '
+            '${_premiumRefillPriceSync(premiumRule).toStringAsFixed(2)} $cur, one every ${premiumRule.refillIntervalDays} days.';
         billingRate = '$_feePerYearLabel + Refill';
       } else {
         billingDesc =
@@ -1818,7 +1864,55 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               height: 1.4,
             ),
           ),
+          // i8: same link as the add-line form. Onboarding is where most people
+          // meet this decision for the first time, so it is the last place that
+          // should hide what the carrier's rules actually are.
+          if (premiumRule != null && _selectedSimCarrier != null)
+            _buildCarrierRulesLink(premiumRule, planColor),
         ],
+      ),
+    );
+  }
+
+  Widget _buildCarrierRulesLink(CarrierRule rule, Color planColor) {
+    final l10n = AppLocalizations.of(context)!;
+    return Padding(
+      padding: const EdgeInsets.only(top: 14),
+      child: InkWell(
+        onTap: () => CarrierRulesSheet.show(
+          context: context,
+          rule: rule,
+          carrierId: _selectedSimCarrier!.id,
+          carrierName: _selectedSimCarrier!.name,
+          countryName: _selectedSimCountry?.name,
+          premiumYearlyTotal: CarrierActivityNotice.blocksPremium(rule)
+              ? null
+              : _premiumYearlyTotalSync(rule),
+        ),
+        borderRadius: BorderRadius.circular(8),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.menu_book_rounded, size: 16, color: planColor),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  l10n.carrierRulesLinkLabel,
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: planColor,
+                    fontWeight: FontWeight.w700,
+                    decoration: TextDecoration.underline,
+                    decorationColor: planColor.withValues(alpha: 0.5),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 4),
+              Icon(Icons.chevron_right_rounded, size: 16, color: planColor),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -2235,7 +2329,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
-                                  'Auto-refill: ${_premiumRefillPriceSync(premiumRule).toStringAsFixed(2)} ${premiumRule.inappPricingCurrency.toUpperCase()} every ${premiumRule.topupValidityDays} days (telecom, VAT included)',
+                                  'Auto-refill: ${_premiumRefillPriceSync(premiumRule).toStringAsFixed(2)} ${premiumRule.inappPricingCurrency.toUpperCase()} every ${premiumRule.refillIntervalDays} days (telecom, VAT included)',
                                   style: AppTextStyles.caption.copyWith(
                                     color: context.onSurfaceColor.withValues(
                                       alpha: 0.7,

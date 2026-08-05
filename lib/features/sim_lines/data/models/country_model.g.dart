@@ -11,10 +11,14 @@ _Country _$CountryFromJson(Map<String, dynamic> json) => _Country(
   name: json['name'] as String,
   isoCode: json['iso_code'] as String,
   dialingCode: json['dialing_code'] as String,
-  flagEmoji: json['flag_emoji'] as String,
+  flagEmoji: json['flag_emoji'] == null
+      ? '🌐'
+      : _parseFlagEmoji(json['flag_emoji']),
   currencyCode: json['currency_code'] as String,
-  avgSimReplacementCost: (json['avg_sim_replacement_cost'] as num).toDouble(),
-  isSupported: json['is_supported'] as bool,
+  avgSimReplacementCost: _parseDoubleNullable(json['avg_sim_replacement_cost']),
+  isSupported: json['is_supported'] == null
+      ? true
+      : _parseBoolDefaultTrue(json['is_supported']),
 );
 
 Map<String, dynamic> _$CountryToJson(_Country instance) => <String, dynamic>{

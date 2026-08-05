@@ -1720,6 +1720,10 @@ class AppLocalizationsUr extends AppLocalizations {
       'پلان کی فیس آپ کے والٹ بیلنس سے ادا کر دی گئی۔';
 
   @override
+  String get planFeeNotChargedRetry =>
+      'آپ کی رقم پہنچ گئی لیکن پلان کی فیس وصول نہیں کی جا سکی، اس لیے لائن نہیں بنائی گئی۔ آپ کا بیلنس محفوظ ہے — براہ کرم دوبارہ کوشش کریں۔';
+
+  @override
   String activityTopupRequested(String amount) {
     return '\$$amount کے لیے ری فل کی درخواست جمع کر دی گئی';
   }
@@ -2109,6 +2113,34 @@ class AppLocalizationsUr extends AppLocalizations {
       'میں نے PayPal پر ادائیگی مکمل کر لی ہے';
 
   @override
+  String get payPalBrowserOpened => 'PayPal آپ کے براؤزر میں کھلا ہے';
+
+  @override
+  String get payPalBrowserOpenedBody =>
+      'ادائیگی وہیں مکمل کریں — یہ اسکرین خود اپڈیٹ ہو جائے گی۔';
+
+  @override
+  String get payPalTakingLonger =>
+      'یہ معمول سے زیادہ وقت لے رہا ہے۔ اگر آپ پہلے ہی ادائیگی کر چکے ہیں تو نیچے تصدیق کریں۔';
+
+  @override
+  String get payPalReopenButton => 'PayPal دوبارہ کھولیں';
+
+  @override
+  String get payPalVerifying => 'آپ کی ادائیگی کی تصدیق ہو رہی ہے…';
+
+  @override
+  String get payPalVerifyingBody =>
+      'PayPal سے تصدیق کرتے ہوئے ایک لمحہ انتظار کریں۔';
+
+  @override
+  String get payPalPaymentCancelled =>
+      'ادائیگی منسوخ کر دی گئی۔ آپ سے کوئی رقم وصول نہیں کی گئی۔';
+
+  @override
+  String get payPalDoneButton => 'مکمل';
+
+  @override
   String get yourDevices => 'Your devices';
 
   @override
@@ -2417,4 +2449,196 @@ class AppLocalizationsUr extends AppLocalizations {
   @override
   String get householdDeclinedHint =>
       'انہوں نے مسترد کر دیا۔ دوبارہ مدعو کرنے کے لیے ہٹائیں۔';
+
+  @override
+  String get carrierActivityFallbackOperator => 'یہ کیریئر';
+
+  @override
+  String get carrierUsageRequiredTitle =>
+      'خودکار ری فل اس لائن کو محفوظ نہیں رکھ سکتا';
+
+  @override
+  String carrierUsageRequiredBody(String operator) {
+    return '$operator صرف اس وقت غیر فعالیت کا شمار دوبارہ شروع کرتا ہے جب لائن سے کال کی جائے، ایس ایم ایس بھیجا جائے یا ڈیٹا استعمال ہو۔ بیلنس شامل کرنا اس میں شمار نہیں ہوتا، اس لیے کوئی بھی خودکار ٹاپ اپ اس نمبر کو غیر فعال ہونے سے نہیں روک سکتا۔ اسٹینڈرڈ پلان منتخب کریں — ہم آپ کو بروقت مطلع کریں گے تاکہ آپ خود لائن استعمال کر سکیں۔';
+  }
+
+  @override
+  String get carrierMinDenominationTitle =>
+      'اس کیریئر کے لیے بڑا ٹاپ اپ درکار ہے';
+
+  @override
+  String carrierMinDenominationBody(
+    String operator,
+    String amount,
+    String currency,
+  ) {
+    return '$operator صرف $amount $currency یا اس سے زیادہ کے ٹاپ اپ پر لائن کی میعاد شامل کرتا ہے۔ اس سے کم کوئی بھی رقم صرف خرچ کرنے کے قابل بیلنس کے طور پر آتی ہے اور نمبر پھر بھی غیر فعال ہو سکتا ہے، اس لیے پریمیم اس لائن کو $amount $currency پر ری فل کرتا ہے۔';
+  }
+
+  @override
+  String get premiumUnavailableForCarrier =>
+      'پریمیم اس کیریئر کے لیے دستیاب نہیں ہے';
+
+  @override
+  String get carrierRulesLinkLabel => 'اس کیریئر کے قواعد کے بارے میں مزید';
+
+  @override
+  String get carrierRulesSheetTitle => 'نمبر بند ہونے کے قواعد';
+
+  @override
+  String carrierRulesHowTitle(String operator) {
+    return '$operator کیسے فیصلہ کرتا ہے';
+  }
+
+  @override
+  String carrierRechargeOkBody(String operator) {
+    return '$operator ہر بار لائن ری چارج ہونے پر اپنی گنتی دوبارہ شروع کر دیتا ہے، رقم چاہے جتنی ہو۔ یہی وجہ ہے کہ یہاں خودکار ری چارج نمبر بچا سکتا ہے۔';
+  }
+
+  @override
+  String get carrierRulesNumbersTitle => 'اعداد و شمار';
+
+  @override
+  String carrierRulesWindowRow(int days) {
+    return 'قابلِ شمار ری چارج کے بغیر $days دن بعد نمبر بند کر دیا جاتا ہے';
+  }
+
+  @override
+  String carrierRulesGraceRow(int days) {
+    return 'اس کے بعد وہی نمبر واپس لینے کے لیے $days دن';
+  }
+
+  @override
+  String get carrierRulesNoGraceRow =>
+      'واپس لینے کا کوئی وقت نہیں — نمبر فوراً کسی اور کو دے دیا جاتا ہے';
+
+  @override
+  String carrierRulesMinTopupRow(String amount, String currency) {
+    return 'میعاد بڑھانے والا سب سے چھوٹا ری چارج $amount $currency ہے';
+  }
+
+  @override
+  String carrierRulesCadenceRow(int days, int count) {
+    return 'ہم ہر $days دن بعد ری چارج کریں گے — سال میں $count بار';
+  }
+
+  @override
+  String get carrierRulesVerdictTitle => 'ہم کیا کرتے';
+
+  @override
+  String get carrierVerdictSelfServiceTitle => 'اس لائن کے لیے پریمیم نہ لیں';
+
+  @override
+  String get carrierVerdictSelfServiceBody =>
+      'اپنے پیسے بچائیں۔ ہم جو کچھ بھی بھیج سکتے ہیں اس سے اس کیریئر کی گھڑی دوبارہ شروع نہیں ہوتی؛ نمبر صرف اسے استعمال کرنے سے ہی بچتا ہے۔';
+
+  @override
+  String get carrierVerdictStandardTitle => 'یہاں اسٹینڈرڈ ہی کافی ہے';
+
+  @override
+  String get carrierVerdictStandardBody =>
+      'یہ کیریئر آپ کو کافی لمبا وقت دیتا ہے۔ تاریخ پر ہم نظر رکھیں گے اور آپ کو بتا دیں گے؛ بتانے پر خود ری چارج کر لیں اور صرف بیلنس کے پیسے دیں۔';
+
+  @override
+  String get carrierVerdictPremiumWorthTitle => 'پریمیم لینا فائدہ مند ہے';
+
+  @override
+  String get carrierVerdictPremiumWorthBody =>
+      'سال میں چند ری چارج، ہر ایک ایسی تاریخ پر جو یہاں سے نظر نہیں آتی۔ چاہیں تو خود بھی کر سکتے ہیں — خودکار کرنے کا مطلب ہے کبھی سوچنا ہی نہ پڑے۔';
+
+  @override
+  String get carrierVerdictPremiumMustTitle => 'اسے خودکار کر دیں';
+
+  @override
+  String get carrierVerdictPremiumMustBody =>
+      'یہ کیریئر اتنی جلدی نمبر بند کرتا ہے کہ دوسرے ملک سے ہر بار خود یاد رکھنا کبھی نہ کبھی رہ ہی جائے گا — اور ایک بار رہ جانے کا مطلب ہے نمبر چلا جانا۔';
+
+  @override
+  String get carrierReasonUsageOnly =>
+      'صرف کال، SMS یا ڈیٹا استعمال کرنا شمار ہوتا ہے۔ اکیلا بیلنس نہیں۔';
+
+  @override
+  String carrierReasonQualifying(String amount, String currency) {
+    return '$amount $currency سے کم کا ری چارج صرف بیلنس بن کر آتا ہے اور میعاد نہیں بڑھاتا۔';
+  }
+
+  @override
+  String carrierReasonShortWindow(int days) {
+    return 'دو قابلِ شمار ری چارج کے درمیان صرف $days دن۔';
+  }
+
+  @override
+  String carrierReasonLongWindow(int days) {
+    return '$days دن تقریباً پورا سال ہے — ایک یاد دہانی کافی ہے۔';
+  }
+
+  @override
+  String get carrierReasonNoGrace =>
+      'کوئی رعایتی مدت نہیں۔ تاریخ نکل گئی تو نمبر گیا۔';
+
+  @override
+  String carrierReasonGrace(int days) {
+    return 'تاریخ کے بعد نمبر واپس لینے کے لیے آپ کے پاس $days دن ہوں گے۔';
+  }
+
+  @override
+  String carrierReasonAutomationCost(
+    String self,
+    String premium,
+    String extra,
+  ) {
+    return 'اکیلے بیلنس پر سال میں تقریباً $self لگتے ہیں۔ پریمیم $premium کا ہے، یعنی اس میں سے $extra اس سہولت کے ہیں۔';
+  }
+
+  @override
+  String carrierSelfServiceTitle(String operator) {
+    return 'یا براہِ راست $operator سے لیں';
+  }
+
+  @override
+  String get carrierSelfServiceBody =>
+      'کیریئر کی اپنی ایپ سے ری چارج کریں اور صرف بیلنس کے پیسے دیں، اس کے علاوہ کچھ نہیں۔';
+
+  @override
+  String carrierSelfServiceCountryLine(String country) {
+    return 'نمبر کا ملک: $country';
+  }
+
+  @override
+  String carrierSelfServiceAppHint(String app) {
+    return 'اس کی ایپ عام طور پر \"$app\" کے نام سے ملتی ہے۔';
+  }
+
+  @override
+  String carrierSelfServiceUnverified(String operator) {
+    return 'ہم نے یہ ایپ خود جانچی نہیں ہے۔ اسٹور میں تلاش کریں اور کچھ بھی انسٹال کرنے سے پہلے دیکھ لیں کہ اسے واقعی $operator نے شائع کیا ہے۔';
+  }
+
+  @override
+  String get carrierSelfServiceSearchStore => 'ایپ اسٹور میں تلاش کریں';
+
+  @override
+  String get carrierSelfServiceOpenApp => 'کیریئر کی ایپ کھولیں';
+
+  @override
+  String get carrierSelfServiceWeb => 'کیریئر کی ویب سائٹ سے ری چارج کریں';
+
+  @override
+  String carrierSelfServiceUssd(String code) {
+    return 'ڈیٹا نہیں ہے؟ اسی فون سے $code ڈائل کریں۔';
+  }
+
+  @override
+  String get carrierRulesSourceLink => 'کیریئر کی شائع کردہ شرائط';
+
+  @override
+  String get carrierRulesDisclaimer =>
+      'کیریئر یہ قواعد بغیر بتائے بدل دیتے ہیں۔ اگر آپ کے کیریئر نے بدلے ہوں تو سپورٹ کو بتائیں، ہم دوبارہ جانچ لیں گے۔';
+
+  @override
+  String get carrierActionTitle => 'آپ کی کارروائی درکار ہے';
+
+  @override
+  String get carrierActionDesc =>
+      'جب کسی لائن کو ایسا کچھ درکار ہو جو صرف میں کر سکتا ہوں — سم استعمال کرنا یا کیریئر کی اپنی ایپ سے ری چارج کرنا — تو مجھے بتائیں۔';
 }

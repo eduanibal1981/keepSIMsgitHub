@@ -19,6 +19,10 @@ import 'package:keep_sims/features/notifications/presentation/controllers/notifi
 import 'package:keep_sims/core/providers/app_config_provider.dart';
 import 'package:keep_sims/features/sim_lines/domain/plan_payment.dart';
 import 'package:keep_sims/features/sim_lines/domain/refill_pricing.dart';
+import 'package:keep_sims/features/sim_lines/presentation/widgets/carrier_activity_notice.dart';
+import 'package:keep_sims/features/sim_lines/presentation/widgets/carrier_rules_sheet.dart';
+import 'package:keep_sims/features/wallet/controller/wallet_controller.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '../../data/models/carrier_rule_model.dart';
 
@@ -296,6 +300,14 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                     // Protection Tier Dynamic Billing Info Card
                     _buildSectionHeader(context, 'PROTECTION BILLING DETAILS'),
                     const SizedBox(height: 12),
+                    // i7: above the tiers, not below them — if this carrier
+                    // cannot be protected by refilling, the user should know
+                    // before they read a price.
+                    if (premiumRule != null)
+                      CarrierActivityNotice(
+                        rule: premiumRule,
+                        carrierName: _selectedCarrier?.name,
+                      ),
                     _buildTierGrid(premiumRule, isPremiumLoading),
                     const SizedBox(height: 32),
                     _buildDynamicBillingSection(
@@ -676,6 +688,15 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
       if (isPremiumLoading) {
         billingDesc = 'Loading premium pricing rules for this carrier...';
         billingRate = '$_feePerYearLabel + ...';
+      } else if (CarrierActivityNotice.blocksPremium(premiumRule)) {
+        // The server refuses to queue refills for these carriers, so selling
+        // the plan here would take the money and fail afterwards.
+        billingDesc =
+            'This carrier only counts calls, texts and data as activity, so '
+            'automatic top-ups cannot keep the line active. Please choose the '
+            'Standard Plan.';
+        planColor = isDark ? AppColors.error : Colors.redAccent;
+        billingRate = 'Not Supported';
       } else if (premiumRule != null) {
         // Same computed quote as onboarding — the whole year charged once, not
         // the stored inapp_pricing snapshot the old copy showed.
@@ -683,8 +704,8 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
         billingDesc =
             'Fully automated top-ups. ${PlanPayment.premiumYearlyTotalSync(ref, premiumRule).toStringAsFixed(2)} $cur charged once for the year — '
             '\$${_baseServiceFeeUsd.toStringAsFixed(2)} service plus '
-            '${RefillPricing.refillsPerYear(premiumRule.topupValidityDays)} refills of '
-            '${PlanPayment.premiumRefillPriceSync(ref, premiumRule).toStringAsFixed(2)} $cur, one every ${premiumRule.topupValidityDays} days.';
+            '${premiumRule.refillsPerYear} refills of '
+            '${PlanPayment.premiumRefillPriceSync(ref, premiumRule).toStringAsFixed(2)} $cur, one every ${premiumRule.refillIntervalDays} days.';
         billingRate = '$_feePerYearLabel + Refill';
       } else {
         billingDesc =
@@ -770,7 +791,57 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
               height: 1.4,
             ),
           ),
+          // i8: the price above is only half the story. This opens the carrier's
+          // actual deactivation window, its grace period, what a top-up has to
+          // be worth — and an opinion on whether to buy anything at all.
+          if (premiumRule != null && _selectedCarrier != null)
+            _buildCarrierRulesLink(premiumRule, planColor),
         ],
+      ),
+    );
+  }
+
+  Widget _buildCarrierRulesLink(CarrierRule rule, Color planColor) {
+    final l10n = AppLocalizations.of(context)!;
+    return Padding(
+      padding: const EdgeInsets.only(top: 14),
+      child: InkWell(
+        onTap: () => CarrierRulesSheet.show(
+          context: context,
+          rule: rule,
+          carrierId: _selectedCarrier!.id,
+          carrierName: _selectedCarrier!.name,
+          countryName: _selectedCountry?.name,
+          // Withheld for a carrier we refuse to sell Premium on: a price beside
+          // a refusal reads as an offer.
+          premiumYearlyTotal: CarrierActivityNotice.blocksPremium(rule)
+              ? null
+              : PlanPayment.premiumYearlyTotalSync(ref, rule),
+        ),
+        borderRadius: BorderRadius.circular(8),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.menu_book_rounded, size: 16, color: planColor),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  l10n.carrierRulesLinkLabel,
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: planColor,
+                    fontWeight: FontWeight.w700,
+                    decoration: TextDecoration.underline,
+                    decorationColor: planColor.withValues(alpha: 0.5),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 4),
+              Icon(Icons.chevron_right_rounded, size: 16, color: planColor),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -1196,6 +1267,17 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
             .read(simLinesRepositoryProvider)
             .getCarrierRule(_selectedCarrier!.id);
         if (rule != null) {
+          // i7: last gate before payment. queue_premium_refill_executions
+          // raises KS422 for these carriers, and by the time it does, the
+          // yearly charge has already been taken — the charged-but-no-line
+          // shape this codebase has paid for before. Refuse here instead.
+          if (CarrierActivityNotice.blocksPremium(rule)) {
+            throw Exception(
+              'This carrier only resets its inactivity clock on a call, SMS or '
+              'data session, so automatic refills cannot keep the line active. '
+              'Please select the Standard plan.',
+            );
+          }
           carrierRuleId = rule.id;
         } else {
           throw Exception(
@@ -1257,6 +1339,21 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                 );
           }
 
+          // Both controller methods wrap their work in `AsyncValue.guard`, so a
+          // rejected insert lands in the provider's state instead of throwing.
+          // Without this the form would announce "saved successfully" and pop
+          // over a line that was never created — and by this point the plan fee
+          // has already been debited.
+          final saved = ref.read(simLinesControllerProvider);
+          if (saved.hasError) {
+            throw Exception(saved.error.toString());
+          }
+
+          // The line exists, so the fee it paid for is spent. Until this runs
+          // the reference stays on disk and the next attempt replays it instead
+          // of billing again.
+          await PlanPayment.consumePendingFee(ref);
+
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
@@ -1295,10 +1392,11 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
           selectedPlanType != 'free' && originalPlan != selectedPlanType;
 
       if (needsCharge) {
-        // Standard bills wallet-first (C3c): the wallet gateway is free while
-        // PayPal's fixed fee eats 23% of a standalone service-fee charge. The
-        // wallet debit is priced server-side by pay_plan_fee_from_wallet.
+        final walletBalance =
+            ref.read(walletControllerProvider).value?.wallet.balance ?? 0.0;
+
         if (selectedPlanType == 'standard') {
+          // Standard bills wallet-first (C3c)
           try {
             if (await PlanPayment.tryStandardFromWallet(
               ref,
@@ -1331,49 +1429,194 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
           }
         }
 
-        // PayPal fallback (and the premium path): Standard is the service fee
-        // grossed up so it survives PayPal's cut; premium is the fee plus a
-        // pre-paid year of refills, grossed up once — same math as onboarding.
-        double amountToCharge = await PlanPayment.standardPayPalTotal(ref);
+        // Wallet balance was insufficient (or plan is premium)
+        double basePlanFee = selectedPlanType == 'standard'
+            ? await ref.read(baseServiceFeeUsdProvider.future)
+            : 2.50;
+
         if (selectedPlanType == 'premium' && carrierRuleId != null) {
           final rule = await ref
               .read(simLinesRepositoryProvider)
               .getCarrierRule(_selectedCarrier!.id);
           if (rule != null) {
-            amountToCharge = await PlanPayment.premiumYearlyTotal(ref, rule);
+            basePlanFee =
+                RefillPricing.premiumRefillPrice(
+                      minimumTopupAmount: rule.minimumTopupAmount,
+                      appFeePercent:
+                          ref.watch(appFeePercentProvider).value ??
+                          kDefaultAppFeePercent,
+                      premiumMarginPercent:
+                          ref.watch(premiumMarginPercentProvider).value ?? 0,
+                      premiumMarginPerRefillUsd:
+                          ref.watch(premiumMarginPerRefillUsdProvider).value ??
+                          0,
+                      inappPricingOverride: PlanPayment.overrideFor(rule),
+                    ) *
+                    rule.refillsPerYear +
+                await ref.read(baseServiceFeeUsdProvider.future);
           }
         }
+        basePlanFee = double.parse(basePlanFee.toStringAsFixed(2));
 
-        amountToCharge = double.parse(amountToCharge.toStringAsFixed(2));
-
-        final authGuard = ref.read(paymentAuthGuardProvider);
-        final authResult = await authGuard.confirmPayment(
-          reason: 'Authenticate to confirm plan payment',
-        );
-        if (authResult != BiometricResult.success) {
-          setState(() {
-            _isSaving = false;
-          });
-          return;
+        // Deduct existing wallet balance from fee needed
+        double netNeeded = basePlanFee - walletBalance;
+        if (netNeeded < 1.00) {
+          netNeeded = 1.00; // Minimum PayPal deposit
         }
+        netNeeded = double.parse(netNeeded.toStringAsFixed(2));
 
-        setState(() {
-          _isSaving = false;
-        });
+        // Get PayPal gateway fee specs
+        final paypalGateway = await ref.read(
+          paymentGatewayProvider('paypal').future,
+        );
+        final feePct = paypalGateway?.feePercentage ?? 3.4;
+        final feeFixed = paypalGateway?.feeFixed ?? 0.49;
+
+        // Gross up netNeeded so PayPal's cut leaves netNeeded in the wallet
+        final grossTotalToCharge = RefillPricing.grossUpTotal(
+          net: netNeeded,
+          gatewayFeePercentage: feePct,
+          gatewayFeeFixed: feeFixed,
+        );
+
+        final paypalFee = double.parse(
+          (grossTotalToCharge - netNeeded).toStringAsFixed(2),
+        );
+
+        // Show dialog with detailed breakdown!
+        setState(() => _isSaving = false);
+        final shouldTopUp = await _showInsufficientWalletDialog(
+          context: context,
+          currentBalance: walletBalance,
+          basePlanFee: basePlanFee,
+          netNeeded: netNeeded,
+          grossTotalToCharge: grossTotalToCharge,
+          paypalFee: paypalFee,
+          planName: selectedPlanType == 'premium' ? 'Premium' : 'Standard',
+        );
+
+        if (shouldTopUp != true) return;
+
+        // Biometric / Mock Security Verification (Interactive so emulator works)
+        final authGuard = ref.read(paymentAuthGuardProvider);
+        final authOk = await authGuard.confirmPaymentInteractive(
+          context,
+          reason: 'Authenticate to top up wallet for $selectedPlanType plan',
+        );
+        if (!authOk) return;
 
         if (mounted) {
-          Navigator.of(context).push(
+          // Captured from *this* screen's context, before the route is pushed.
+          // The builder's parameter used to be called `context` too, which
+          // shadowed `State.context`, so every lookup inside `onSuccess` ran
+          // against the PayPal route — an element that is deactivated the
+          // instant the first line pops it. `mounted` refers to this State and
+          // stayed true, so the guards passed straight into
+          // `ScaffoldMessenger.of(<deactivated>)`, which throws "Looking up a
+          // deactivated widget's ancestor is unsafe" *after* the plan fee had
+          // been debited and before the line was ever created.
+          final navigator = Navigator.of(context);
+          final messenger = ScaffoldMessenger.of(context);
+          final l10n = AppLocalizations.of(context)!;
+
+          navigator.push(
             MaterialPageRoute(
-              builder: (context) => PayPalCheckoutScreen(
-                initialAmount: amountToCharge,
-                paymentReason: 'Payment for $selectedPlanType protection plan',
-                paymentKind: 'plan',
-                plan: selectedPlanType,
-                simLineId: widget.id,
-                onSuccess: () {
-                  Navigator.of(context).pop(); // pop Paypal screen
+              builder: (_) => PayPalCheckoutScreen(
+                initialAmount: netNeeded,
+                paymentReason:
+                    'Top up wallet for $selectedPlanType protection plan',
+                paymentKind: 'deposit',
+                onSuccess: () async {
+                  navigator.pop(); // pop PayPal screen
                   setState(() => _isSaving = true);
-                  commitSave();
+
+                  // Every await below is a network call with no timeout of its
+                  // own. `_isSaving` blanks the whole form behind a spinner, so
+                  // one stalled socket used to leave the screen unusable with no
+                  // way back — hence the outer bound and the finally.
+                  try {
+                    if (selectedPlanType == 'standard') {
+                      // The deposit is credited by a webhook that lands *after*
+                      // checkout reports success, so the balance has to be
+                      // waited for. A fixed delay here used to time out against
+                      // an 11-second credit, leaving the fee uncharged.
+                      final funded = await PlanPayment.waitForWalletCredit(
+                        ref,
+                        atLeast: basePlanFee,
+                      );
+
+                      var paid = false;
+                      String? failure;
+                      if (funded) {
+                        try {
+                          paid = await PlanPayment.tryStandardFromWallet(
+                            ref,
+                            simLineId: widget.id,
+                          ).timeout(const Duration(seconds: 30));
+                        } catch (e) {
+                          failure = e.toString();
+                        }
+                      }
+
+                      // The fee is what the line is sold for, so an uncharged
+                      // fee must not produce a line. The deposit stays in the
+                      // wallet, so retrying costs the user nothing.
+                      if (!paid) {
+                        messenger.showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              failure != null
+                                  ? 'Payment failed: $failure'
+                                  : l10n.planFeeNotChargedRetry,
+                            ),
+                            backgroundColor: AppColors.error,
+                            duration: const Duration(seconds: 6),
+                          ),
+                        );
+                        return;
+                      }
+
+                      messenger.showSnackBar(
+                        SnackBar(
+                          content: Text(l10n.planFeePaidFromWallet),
+                          backgroundColor: AppColors.success,
+                        ),
+                      );
+                    }
+
+                    // The fee is already debited by this point, so a save that
+                    // stalls must surface as a retryable error rather than an
+                    // endless spinner — the reference id makes the retry adopt
+                    // the existing debit instead of billing a second year.
+                    await commitSave().timeout(const Duration(seconds: 45));
+                  } catch (e, stack) {
+                    // The fee is already debited here, so a failure at this
+                    // point is a money event, not a UI hiccup. Report it with
+                    // enough context to identify the call that failed —
+                    // several of these have been invisible in the device log.
+                    await Sentry.captureException(
+                      e,
+                      stackTrace: stack,
+                      withScope: (scope) {
+                        scope.setTag('flow', 'plan_fee_line_create');
+                        scope.setContexts('plan_fee', {
+                          'plan': selectedPlanType,
+                          'is_edit': _isEdit,
+                          'sim_line_id': widget.id,
+                        });
+                      },
+                    );
+                    messenger.showSnackBar(
+                      SnackBar(
+                        content: Text('Could not finish saving the line: $e'),
+                        backgroundColor: AppColors.error,
+                        duration: const Duration(seconds: 10),
+                      ),
+                    );
+                  } finally {
+                    // commitSave pops the form on success; guard for that.
+                    if (mounted) setState(() => _isSaving = false);
+                  }
                 },
               ),
             ),
@@ -1398,6 +1641,281 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
         });
       }
     }
+  }
+
+  // ── Insufficient Wallet Balance Dialog (Option 1 with Breakdown) ─────────
+  Future<bool?> _showInsufficientWalletDialog({
+    required BuildContext context,
+    required double currentBalance,
+    required double basePlanFee,
+    required double netNeeded,
+    required double grossTotalToCharge,
+    required double paypalFee,
+    required String planName,
+  }) {
+    final isDark = context.isDarkMode;
+
+    return showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 5,
+                  margin: const EdgeInsets.only(bottom: 20),
+                  decoration: BoxDecoration(
+                    color: isDark ? Colors.white24 : Colors.black12,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.amber.withValues(alpha: 0.15),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.account_balance_wallet_outlined,
+                      color: Colors.amber.shade800,
+                      size: 28,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Insufficient Wallet Balance',
+                          style: AppTextStyles.titleMedium.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: context.onSurfaceColor,
+                          ),
+                        ),
+                        Text(
+                          'Top up shortfall to activate $planName Plan',
+                          style: AppTextStyles.caption.copyWith(
+                            color: isDark
+                                ? AppColors.textSecondaryDark
+                                : AppColors.textSecondaryLight,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: isDark ? AppColors.darkCard : const Color(0xFFF5F7FA),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: isDark
+                        ? AppColors.darkBorder
+                        : AppColors.lightBorder,
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '$planName Plan Fee:',
+                          style: TextStyle(
+                            color: isDark
+                                ? AppColors.textSecondaryDark
+                                : AppColors.textSecondaryLight,
+                          ),
+                        ),
+                        Text(
+                          '\$${basePlanFee.toStringAsFixed(2)}',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: context.primaryColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (currentBalance > 0) ...[
+                      const SizedBox(height: 8),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Less Existing Balance:',
+                            style: TextStyle(
+                              color: isDark
+                                  ? AppColors.textSecondaryDark
+                                  : AppColors.textSecondaryLight,
+                            ),
+                          ),
+                          Text(
+                            '-\$${currentBalance.toStringAsFixed(2)}',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.success,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Net Deposit Needed:',
+                          style: TextStyle(
+                            color: isDark
+                                ? AppColors.textSecondaryDark
+                                : AppColors.textSecondaryLight,
+                          ),
+                        ),
+                        Text(
+                          '\$${netNeeded.toStringAsFixed(2)}',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'PayPal Processing Fee:',
+                          style: TextStyle(
+                            color: isDark
+                                ? AppColors.textSecondaryDark
+                                : AppColors.textSecondaryLight,
+                          ),
+                        ),
+                        Text(
+                          '+\$${paypalFee.toStringAsFixed(2)}',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: isDark
+                                ? AppColors.textSecondaryDark
+                                : AppColors.textSecondaryLight,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const Divider(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Total PayPal Charge:',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          '\$${grossTotalToCharge.toStringAsFixed(2)}',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w900,
+                            fontSize: 17,
+                            color: Color(0xFF0070BA),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF0070BA).withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.info_outline_rounded,
+                      color: Color(0xFF0070BA),
+                      size: 20,
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        'Breakdown: \$${netNeeded.toStringAsFixed(2)} net deposit + \$${paypalFee.toStringAsFixed(2)} PayPal fee. Exactly \$${basePlanFee.toStringAsFixed(2)} will be paid to activate your plan, leaving \$0.00 leftover in your wallet.',
+                        style: AppTextStyles.caption.copyWith(
+                          color: context.onSurfaceColor.withValues(alpha: 0.85),
+                          fontSize: 12,
+                          height: 1.3,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF0070BA),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  onPressed: () => Navigator.pop(context, true),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.payment_rounded, size: 20),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Pay \$${grossTotalToCharge.toStringAsFixed(2)} via PayPal & Activate',
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: Text(
+                    'Cancel',
+                    style: TextStyle(
+                      color: isDark
+                          ? AppColors.textSecondaryDark
+                          : AppColors.textSecondaryLight,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   // ── Info Dialog ────────────────────────────────────────────────────────────
@@ -1667,7 +2185,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
-                                  'Auto-refill: ${premiumRule.inappPricing} ${premiumRule.inappPricingCurrency.toUpperCase()} every ${premiumRule.topupValidityDays} days (telecom, VAT included)',
+                                  'Auto-refill: ${premiumRule.inappPricing} ${premiumRule.inappPricingCurrency.toUpperCase()} every ${premiumRule.refillIntervalDays} days (telecom, VAT included)',
                                   style: AppTextStyles.caption.copyWith(
                                     color: context.onSurfaceColor.withValues(
                                       alpha: 0.7,

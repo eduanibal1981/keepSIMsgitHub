@@ -109,6 +109,17 @@ class NotificationSettingsScreen extends ConsumerWidget {
       icon: Icons.headset_mic_rounded,
       color: AppColors.info,
     ),
+    // I8b. Its own row rather than folded into 'system': this is the one alert
+    // that regularly tells the user to buy from someone other than us, and
+    // muting it must not also mute maintenance notices.
+    'carrier_action': _CategoryMeta(
+      name: 'Carrier Action Needed',
+      description:
+          'Tell me when a line needs something only I can do — using the SIM, '
+          'or topping it up in my operator\'s own app.',
+      icon: Icons.storefront_rounded,
+      color: AppColors.warning,
+    ),
   };
 
   /// Channels a user can switch per category. telegram and whatsapp stay on the
@@ -691,6 +702,13 @@ class NotificationSettingsScreen extends ConsumerWidget {
         return _CategoryMeta(
           name: local.promoTitle,
           description: local.promoDesc,
+          icon: defaultMeta.icon,
+          color: defaultMeta.color,
+        );
+      case 'carrier_action':
+        return _CategoryMeta(
+          name: local.carrierActionTitle,
+          description: local.carrierActionDesc,
           icon: defaultMeta.icon,
           color: defaultMeta.color,
         );

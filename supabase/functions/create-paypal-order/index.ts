@@ -247,8 +247,13 @@ serve(async (req) => {
     if (plan) customIdObj.p = plan;
     if (simLineId) customIdObj.l = simLineId;
 
-    const returnUrl = Deno.env.get("PAYPAL_RETURN_URL") || "https://keepsims.com/paypal-return";
-    const cancelUrl = Deno.env.get("PAYPAL_CANCEL_URL") || "https://keepsims.com/paypal-cancel";
+    // Both URLs default to the paypal-return function in this same project, so
+    // the return path works without a marketing-site deploy or an extra secret.
+    // That page bounces the browser into io.supabase.keepsims://payment-success,
+    // which is what actually closes the Custom Tab and wakes the checkout screen.
+    const returnFnUrl = `${Deno.env.get("SUPABASE_URL")}/functions/v1/paypal-return`;
+    const returnUrl = Deno.env.get("PAYPAL_RETURN_URL") || returnFnUrl;
+    const cancelUrl = Deno.env.get("PAYPAL_CANCEL_URL") || `${returnFnUrl}?ks_cancel=1`;
 
     const paypalOrderReq = {
       intent: "CAPTURE",

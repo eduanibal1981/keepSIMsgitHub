@@ -5,6 +5,7 @@ import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/country_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/carrier_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/carrier_rule_model.dart';
+import 'package:keep_sims/features/sim_lines/data/models/carrier_self_service_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/line_activity_log_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/payment_method_model.dart';
 import 'package:keep_sims/features/sim_lines/data/repositories/sim_lines_repository_impl.dart';
@@ -78,6 +79,20 @@ class SimLinesController extends _$SimLinesController {
 
       final added = await repo.addSimLine(newLine);
 
+      // A paid line must exist on the server before anyone is told it is
+      // protected. When the device reads as offline the repository silently
+      // queues the row and hands back an `offline_…` placeholder — for a free
+      // line that is the point, but for a paid one it means the fee was just
+      // debited and nothing was created, with no error anywhere to show for it.
+      // Failing here keeps the plan-fee reference unconsumed, so the retry
+      // replays it rather than billing a second time.
+      if (planType != 'free' && added.id.startsWith('offline_')) {
+        throw Exception(
+          'This line could not be saved because the device is offline. '
+          'Your payment is safe and will not be charged again — reconnect and try once more.',
+        );
+      }
+
       // Auto-configure Scheduled Topups
       int frequencyDays = 30;
       double topupAmount = 0.0;
@@ -86,7 +101,7 @@ class SimLinesController extends _$SimLinesController {
       if (carrierRuleId != null) {
         final rule = await repo.getCarrierRuleById(carrierRuleId);
         if (rule != null) {
-          frequencyDays = rule.topupValidityDays;
+          frequencyDays = rule.refillIntervalDays;
           topupAmount = rule.minimumTopupAmount;
           offerId = rule.offerId;
           offerValue = rule.offerValue;
@@ -99,7 +114,7 @@ class SimLinesController extends _$SimLinesController {
       } else if (added.carrierId != null) {
         final rule = await repo.getCarrierRule(added.carrierId!);
         if (rule != null) {
-          frequencyDays = rule.topupValidityDays;
+          frequencyDays = rule.refillIntervalDays;
           topupAmount = rule.minimumTopupAmount;
           offerId = rule.offerId;
           offerValue = rule.offerValue;
@@ -115,14 +130,17 @@ class SimLinesController extends _$SimLinesController {
 
       final topupNotifier = ref.read(scheduledTopupControllerProvider.notifier);
 
-      // All plans (Free/Basic, Standard, Premium) get Auto-Notify
-      int notifyDelay = frequencyDays;
-      if (frequencyDays == 90 || frequencyDays == 85) {
-        notifyDelay = 85;
-      } else if (frequencyDays == 30)
-        notifyDelay = 28;
-      else if (frequencyDays == 14)
-        notifyDelay = 13;
+      // All plans (Free/Basic, Standard, Premium) get Auto-Notify.
+      //
+      // No safety re-adjustment here. `frequencyDays` is now
+      // CarrierRule.refillIntervalDays, which has already had the margin taken
+      // out of the carrier's deactivation window. The 90→85 / 30→28 / 14→13
+      // mapping that used to sit here belongs to the *chip labels* a user picks
+      // in the schedule sheet, where the number means "the carrier's window".
+      // Applying it to an already-adjusted interval subtracts the margin twice
+      // and desynchronises this schedule from the pre-paid executions
+      // queue_premium_refill_executions lays down at the un-remapped interval.
+      final notifyDelay = frequencyDays;
 
       final nextExecTime = DateTime.now().toUtc().add(
         Duration(days: notifyDelay),
@@ -216,7 +234,7 @@ class SimLinesController extends _$SimLinesController {
           if (ruleIdToUse != null) {
             final rule = await repo.getCarrierRuleById(ruleIdToUse);
             if (rule != null) {
-              frequencyDays = rule.topupValidityDays;
+              frequencyDays = rule.refillIntervalDays;
               topupAmount = rule.minimumTopupAmount;
               offerId = rule.offerId;
               offerValue = rule.offerValue;
@@ -231,7 +249,7 @@ class SimLinesController extends _$SimLinesController {
             if (carrierIdToUse != null) {
               final rule = await repo.getCarrierRule(carrierIdToUse);
               if (rule != null) {
-                frequencyDays = rule.topupValidityDays;
+                frequencyDays = rule.refillIntervalDays;
                 topupAmount = rule.minimumTopupAmount;
                 offerId = rule.offerId;
                 offerValue = rule.offerValue;
@@ -250,15 +268,9 @@ class SimLinesController extends _$SimLinesController {
             scheduledTopupControllerProvider.notifier,
           );
 
-          // Standard and Premium get Auto-Notify
-          int notifyDelay = frequencyDays;
-          if (frequencyDays == 90 || frequencyDays == 85) {
-            notifyDelay = 85;
-          } else if (frequencyDays == 30) {
-            notifyDelay = 28;
-          } else if (frequencyDays == 14) {
-            notifyDelay = 13;
-          }
+          // Standard and Premium get Auto-Notify. See addSimLine: no safety
+          // re-adjustment, because refillIntervalDays already carries it.
+          final notifyDelay = frequencyDays;
 
           final nextExecTime = DateTime.now().toUtc().add(
             Duration(days: notifyDelay),
@@ -564,6 +576,13 @@ Future<List<Carrier>> carriersForCountry(Ref ref, String countryId) {
 @riverpod
 Future<CarrierRule?> carrierRule(Ref ref, String carrierId) {
   return ref.watch(simLinesRepositoryProvider).getCarrierRule(carrierId);
+}
+
+/// I8: the operator's own top-up channel, for the rules sheet. Null for most
+/// carriers — the sheet renders a store search from the carrier's name instead.
+@riverpod
+Future<CarrierSelfService?> carrierSelfService(Ref ref, String carrierId) {
+  return ref.watch(simLinesRepositoryProvider).getCarrierSelfService(carrierId);
 }
 
 @riverpod

@@ -9,7 +9,8 @@ import 'package:keep_sims/core/widgets/haptic_helper.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/carrier_rule_model.dart';
 import 'package:keep_sims/features/sim_lines/domain/plan_payment.dart';
-import 'package:keep_sims/features/sim_lines/domain/refill_pricing.dart';
+import 'package:keep_sims/features/sim_lines/presentation/widgets/carrier_activity_notice.dart';
+import 'package:keep_sims/features/sim_lines/presentation/widgets/carrier_rules_sheet.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_line_detail_controller.dart';
 import 'package:keep_sims/core/utils/build_context_extension.dart';
@@ -220,6 +221,23 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
               ),
               const SizedBox(height: 24),
 
+              // i7: before the prices, say whether refilling this carrier can
+              // work at all.
+              // SimLine carries only carrier_id, so the notice falls back to
+              // its generic "This carrier" phrasing here.
+              if (carrierRule != null)
+                CarrierActivityNotice(rule: carrierRule),
+
+              // i8: the third purchase surface gets the same link as the form
+              // and onboarding. SimLine carries carrier_id but no carrier or
+              // country name, so the sheet falls back to its generic phrasing
+              // rather than this widget inventing one.
+              if (carrierRule != null && widget.simLine.carrierId != null)
+                _buildCarrierRulesLink(
+                  carrierRule,
+                  widget.simLine.carrierId!,
+                ),
+
               // Plan selection cards
               ...availablePlans.map((planKey) {
                 final plan = _plans[planKey]!;
@@ -272,6 +290,27 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
                                 const SnackBar(
                                   content: Text(
                                     'Premium auto-refill is not yet supported for this carrier.',
+                                  ),
+                                  backgroundColor: AppColors.error,
+                                ),
+                              );
+                              return;
+                            }
+
+                            // i7: refuse before charging. The server raises
+                            // KS422 when it tries to queue refills for a
+                            // carrier that only counts real usage, and by then
+                            // the year has been paid for.
+                            if (tier == 'premium' &&
+                                CarrierActivityNotice.blocksPremium(
+                                  carrierRule,
+                                )) {
+                              messenger.showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'This carrier only resets its inactivity clock on a call, '
+                                    'SMS or data session, so automatic refills cannot keep the '
+                                    'line active. Standard protection still alerts you in time.',
                                   ),
                                   backgroundColor: AppColors.error,
                                 ),
@@ -358,10 +397,11 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
                             );
 
                             final authGuard = ref.read(paymentAuthGuardProvider);
-                            final authResult = await authGuard.confirmPayment(
+                            final authOk = await authGuard.confirmPaymentInteractive(
+                              context,
                               reason: 'Authenticate to confirm plan upgrade',
                             );
-                            if (authResult != BiometricResult.success) {
+                            if (!authOk) {
                               return;
                             }
 
@@ -445,6 +485,37 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  /// Takes the rule as a non-nullable parameter rather than reading the
+  /// nullable local: a `carrierRule!` inside the button's closure reads as a
+  /// crash waiting for a rebuild, even where the analyzer can prove it is not.
+  Widget _buildCarrierRulesLink(CarrierRule rule, String carrierId) {
+    return Align(
+      alignment: AlignmentDirectional.centerStart,
+      child: TextButton.icon(
+        onPressed: () => CarrierRulesSheet.show(
+          context: context,
+          rule: rule,
+          carrierId: carrierId,
+          // Withheld for a carrier we refuse to sell Premium on: a price beside
+          // a refusal reads as an offer.
+          premiumYearlyTotal: CarrierActivityNotice.blocksPremium(rule)
+              ? null
+              : PlanPayment.premiumYearlyTotalSync(ref, rule),
+        ),
+        icon: const Icon(Icons.menu_book_rounded, size: 16),
+        label: Text(
+          AppLocalizations.of(context)!.carrierRulesLinkLabel,
+          style: AppTextStyles.bodySmall.copyWith(fontWeight: FontWeight.w700),
+        ),
+        style: TextButton.styleFrom(
+          foregroundColor: context.primaryColor,
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          visualDensity: VisualDensity.compact,
         ),
       ),
     );
@@ -567,7 +638,7 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
                     // Show "+ Refill" for premium if carrier rule exists
                     if (planKey == 'premium' && carrierRule != null)
                       Text(
-                        'incl. ${PlanPayment.premiumRefillPriceSync(ref, carrierRule).toStringAsFixed(2)} ${carrierRule.inappPricingCurrency.toUpperCase()} × ${RefillPricing.refillsPerYear(carrierRule.topupValidityDays)} refills',
+                        'incl. ${PlanPayment.premiumRefillPriceSync(ref, carrierRule).toStringAsFixed(2)} ${carrierRule.inappPricingCurrency.toUpperCase()} × ${carrierRule.refillsPerYear} refills',
                         style: TextStyle(
                           fontSize: 9,
                           fontWeight: FontWeight.w600,
@@ -664,7 +735,7 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
-                                  'Auto-refill: ${PlanPayment.premiumRefillPriceSync(ref, carrierRule).toStringAsFixed(2)} ${carrierRule.inappPricingCurrency.toUpperCase()} every ${carrierRule.topupValidityDays} days (telecom, VAT included)',
+                                  'Auto-refill: ${PlanPayment.premiumRefillPriceSync(ref, carrierRule).toStringAsFixed(2)} ${carrierRule.inappPricingCurrency.toUpperCase()} every ${carrierRule.refillIntervalDays} days (telecom, VAT included)',
                                   style: AppTextStyles.caption.copyWith(
                                     color: context.onSurfaceColor.withValues(
                                       alpha: 0.7,

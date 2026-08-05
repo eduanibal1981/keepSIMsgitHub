@@ -97,9 +97,12 @@ class WalletController extends _$WalletController {
   /// Returns false — without charging anything — when the balance cannot
   /// cover the fee, so the caller can fall back to a PayPal charge. Any other
   /// failure throws.
-  Future<bool> payPlanFee({String? simLineId}) async {
+  Future<bool> payPlanFee({String? simLineId, String? referenceId}) async {
+    // Only used to drive the submitting spinner, so a state that has not
+    // loaded yet must not decide whether the fee gets charged. This used to
+    // `return false` on a null value, which the caller reads as "the wallet
+    // cannot cover it" — an unloaded provider silently cancelled the charge.
     final current = state.value;
-    if (current == null) return false;
 
     final authGuard = ref.read(paymentAuthGuardProvider);
     final authResult = await authGuard.confirmPayment(
@@ -111,17 +114,21 @@ class WalletController extends _$WalletController {
       return false;
     }
 
-    state = AsyncData(current.copyWith(isSubmitting: true));
+    if (current != null) {
+      state = AsyncData(current.copyWith(isSubmitting: true));
+    }
 
     final repo = ref.read(walletRepositoryProvider);
-    final result = await repo.payPlanFee(simLineId: simLineId);
+    final result = await repo.payPlanFee(simLineId: simLineId, referenceId: referenceId);
 
     switch (result) {
       case Success():
         ref.invalidateSelf();
         return true;
       case Failure(error: final f):
-        state = AsyncData(current.copyWith(isSubmitting: false));
+        if (current != null) {
+          state = AsyncData(current.copyWith(isSubmitting: false));
+        }
         if (f is ValidationFailure ||
             f.message.contains('Insufficient funds')) {
           return false;

@@ -1,5 +1,5 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:local_auth/local_auth.dart';
 
@@ -119,6 +119,87 @@ class PaymentAuthGuard {
       _lastSuccessfulPaymentAuth = DateTime.now();
     }
     return result;
+  }
+
+  /// Confirms payment interactively. If biometrics are unavailable (e.g. on emulator
+  /// without enrolled fingerprint), displays an interactive mock authorization dialog
+  /// so developers/testers can authorize actions explicitly.
+  Future<bool> confirmPaymentInteractive(
+    BuildContext context, {
+    required String reason,
+    Duration gracePeriod = const Duration(seconds: 60),
+  }) async {
+    final result = await confirmPayment(reason: reason, gracePeriod: gracePeriod);
+
+    if (result == BiometricResult.success) {
+      return true;
+    }
+
+    if (result == BiometricResult.unavailable) {
+      final approved = await showDialog<bool>(
+        context: context,
+        barrierDismissible: false,
+        builder: (ctx) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: const Row(
+            children: [
+              Icon(Icons.fingerprint_rounded, color: Color(0xFF0070BA), size: 28),
+              SizedBox(width: 10),
+              Text('Security Verification', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(reason, style: const TextStyle(fontSize: 14)),
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF0070BA).withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: const Color(0xFF0070BA).withValues(alpha: 0.3)),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(Icons.developer_mode_rounded, color: Color(0xFF0070BA), size: 20),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Device biometrics unavailable (Emulator Mode). Press Authorize to confirm.',
+                        style: TextStyle(fontSize: 12, color: Color(0xFF0070BA), fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF0070BA),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              onPressed: () {
+                _lastSuccessfulPaymentAuth = DateTime.now();
+                Navigator.pop(ctx, true);
+              },
+              child: const Text('Authorize Payment'),
+            ),
+          ],
+        ),
+      );
+      return approved ?? false;
+    }
+
+    return false;
   }
 }
 

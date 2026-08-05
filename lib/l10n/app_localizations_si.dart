@@ -1723,6 +1723,10 @@ class AppLocalizationsSi extends AppLocalizations {
       'සැලසුම් ගාස්තුව ඔබගේ පසුම්බි ශේෂයෙන් ගෙවන ලදී.';
 
   @override
+  String get planFeeNotChargedRetry =>
+      'ඔබගේ ඉහළ දැමීම ලැබුණද සැලසුම් ගාස්තුව අය කළ නොහැකි වූ බැවින් රේඛාව නිර්මාණය නොවීය. ඔබගේ ශේෂය ආරක්ෂිතයි — කරුණාකර නැවත උත්සාහ කරන්න.';
+
+  @override
   String activityTopupRequested(String amount) {
     return '\$$amount සඳහා නැවත පිරවීමේ ඉල්ලීම යොමු කරන ලදී';
   }
@@ -2111,6 +2115,34 @@ class AppLocalizationsSi extends AppLocalizations {
   String get payPalForceCaptureButton => 'මම PayPal හි ගෙවීම සම්පූර්ණ කළෙමි';
 
   @override
+  String get payPalBrowserOpened => 'PayPal ඔබේ බ්‍රවුසරයේ විවෘතව ඇත';
+
+  @override
+  String get payPalBrowserOpenedBody =>
+      'ගෙවීම එහිදී සම්පූර්ණ කරන්න — මෙම තිරය ස්වයංක්‍රීයව යාවත්කාලීන වේ.';
+
+  @override
+  String get payPalTakingLonger =>
+      'සාමාන්‍යයෙන් වඩා වැඩි කාලයක් ගත වේ. ඔබ දැනටමත් ගෙවා ඇත්නම්, පහත පරීක්ෂා කරන්න.';
+
+  @override
+  String get payPalReopenButton => 'PayPal නැවත විවෘත කරන්න';
+
+  @override
+  String get payPalVerifying => 'ඔබේ ගෙවීම සත්‍යාපනය කරමින්…';
+
+  @override
+  String get payPalVerifyingBody =>
+      'PayPal සමඟ තහවුරු කරන තෙක් මොහොතක් රැඳී සිටින්න.';
+
+  @override
+  String get payPalPaymentCancelled =>
+      'ගෙවීම අවලංගු කරන ලදී. ඔබෙන් කිසිදු මුදලක් අය කර නොමැත.';
+
+  @override
+  String get payPalDoneButton => 'නිමයි';
+
+  @override
   String get yourDevices => 'Your devices';
 
   @override
@@ -2417,4 +2449,197 @@ class AppLocalizationsSi extends AppLocalizations {
   @override
   String get householdDeclinedHint =>
       'ඔවුන් ප්‍රතික්ෂේප කළා. නැවත ආරාධනා කිරීමට ඉවත් කරන්න.';
+
+  @override
+  String get carrierActivityFallbackOperator => 'මෙම වාහකයා';
+
+  @override
+  String get carrierUsageRequiredTitle =>
+      'ස්වයංක්‍රීය රීෆිල් මගින් මෙම රේඛාව ආරක්ෂා කළ නොහැක';
+
+  @override
+  String carrierUsageRequiredBody(String operator) {
+    return '$operator නිෂ්ක්‍රියතා ගණන් කිරීම ආරම්භ කරන්නේ ඇමතුමක්, කෙටි පණිවිඩයක් හෝ දත්ත භාවිතයක් සිදු කළ විට පමණි. ශේෂය එකතු කිරීම එයට ගණන් නොගැනේ, එබැවින් කිසිදු ස්වයංක්‍රීය රීෆිල් එකකට මෙම අංකය අක්‍රිය වීම නවත්වාගත නොහැක. ස්ටෑන්ඩඩ් සැලැස්ම තෝරන්න — ඔබටම රේඛාව භාවිත කිරීමට ඉඩ ලැබෙන ලෙස වේලාවට අපි ඔබට දැනුම් දෙන්නෙමු.';
+  }
+
+  @override
+  String get carrierMinDenominationTitle =>
+      'මෙම වාහකයාට වඩා විශාල රීෆිල් එකක් අවශ්‍යයි';
+
+  @override
+  String carrierMinDenominationBody(
+    String operator,
+    String amount,
+    String currency,
+  ) {
+    return '$operator රේඛා වලංගුතාවය එකතු කරන්නේ $amount $currency හෝ ඊට වැඩි රීෆිල් සඳහා පමණි. ඊට අඩු ඕනෑම මුදලක් වියදම් කළ හැකි ශේෂයක් ලෙස පමණක් පැමිණේ, තවමත් අංකය අක්‍රිය විය හැක, එබැවින් ප්‍රිමියම් මෙම රේඛාව $amount $currency වලින් රීෆිල් කරයි.';
+  }
+
+  @override
+  String get premiumUnavailableForCarrier =>
+      'මෙම වාහකයා සඳහා ප්‍රිමියම් ලබා ගත නොහැක';
+
+  @override
+  String get carrierRulesLinkLabel => 'මෙම වාහකයාගේ නීති ගැන තව';
+
+  @override
+  String get carrierRulesSheetTitle => 'අංකය අක්‍රිය වන නීති';
+
+  @override
+  String carrierRulesHowTitle(String operator) {
+    return '$operator තීරණය කරන ආකාරය';
+  }
+
+  @override
+  String carrierRechargeOkBody(String operator) {
+    return '$operator රේඛාවට රීලෝඩ් කරන සෑම විටම එහි ගණන් කිරීම නැවත ආරම්භ කරයි, මුදල කුමක් වුවත්. ස්වයංක්‍රීය රීෆිල් එකකින් මෙහි අංකය රැක ගත හැක්කේ එබැවිනි.';
+  }
+
+  @override
+  String get carrierRulesNumbersTitle => 'සංඛ්‍යා';
+
+  @override
+  String carrierRulesWindowRow(int days) {
+    return 'වලංගු රීලෝඩයක් නොමැතිව දින $daysකින් පසු අක්‍රිය කරයි';
+  }
+
+  @override
+  String carrierRulesGraceRow(int days) {
+    return 'ඉන් පසු එම අංකයම නැවත ලබා ගැනීමට දින $daysක්';
+  }
+
+  @override
+  String get carrierRulesNoGraceRow =>
+      'නැවත ලබා ගැනීමේ කාලයක් නැත — අංකය වහාම නිදහස් කරයි';
+
+  @override
+  String carrierRulesMinTopupRow(String amount, String currency) {
+    return 'වලංගුතාව එකතු කරන කුඩාම රීලෝඩය $amount $currency වේ';
+  }
+
+  @override
+  String carrierRulesCadenceRow(int days, int count) {
+    return 'අපි දින $daysකට වරක් රීෆිල් කරමු — වසරකට $count වතාවක්';
+  }
+
+  @override
+  String get carrierRulesVerdictTitle => 'අපි කරන්නේ කුමක්ද';
+
+  @override
+  String get carrierVerdictSelfServiceTitle =>
+      'මෙම රේඛාවට ප්‍රිමියම් මිලදී නොගන්න';
+
+  @override
+  String get carrierVerdictSelfServiceBody =>
+      'ඔබේ මුදල් තබා ගන්න. අපට යැවිය හැකි කිසිවක් මෙම වාහකයාගේ ඔරලෝසුව නැවත ආරම්භ නොකරයි; අංකය රැකෙන එකම ක්‍රමය එය භාවිත කිරීමයි.';
+
+  @override
+  String get carrierVerdictStandardTitle => 'මෙහිදී ස්ටෑන්ඩර්ඩ් ප්‍රමාණවත්';
+
+  @override
+  String get carrierVerdictStandardBody =>
+      'මෙම වාහකයා ඔබට දිගු කාලයක් දෙයි. දිනය අපි බලාගෙන ඔබට දන්වන්නම්; එවිට ඔබම රීලෝඩ් කරන්න, එවිට ගෙවන්නේ රීලෝඩ් මුදල පමණි.';
+
+  @override
+  String get carrierVerdictPremiumWorthTitle => 'ප්‍රිමියම් වටිනවා';
+
+  @override
+  String get carrierVerdictPremiumWorthBody =>
+      'වසරකට රීෆිල් කිහිපයක්, එකිනෙක මෙතැනින් නොපෙනෙන දිනවල. කැමති නම් අතින්ම කළ හැකියි — ස්වයංක්‍රීය කිරීම කියන්නේ ඒ ගැන කිසිදා සිතන්නට නොවීමයි.';
+
+  @override
+  String get carrierVerdictPremiumMustTitle => 'මෙය ස්වයංක්‍රීය කරන්න';
+
+  @override
+  String get carrierVerdictPremiumMustBody =>
+      'මෙම වාහකයා තරමක් වේගවත් නිසා වෙනත් රටක සිට සෑම වතාවකම මතක තබා ගැනීම කවදා හෝ අතපසු වේ — එක් අතපසුවීමක් යනු අංකයමයි.';
+
+  @override
+  String get carrierReasonUsageOnly =>
+      'ගණන් ගන්නේ ඇමතුමක්, කෙටි පණිවුඩයක් හෝ දත්ත භාවිතයක් පමණි. ශේෂය පමණක් නොවේ.';
+
+  @override
+  String carrierReasonQualifying(String amount, String currency) {
+    return '$amount $currencyට වඩා අඩු රීලෝඩයක් ශේෂයක් ලෙස පමණක් එකතු වන අතර වලංගුතාවක් නොදෙයි.';
+  }
+
+  @override
+  String carrierReasonShortWindow(int days) {
+    return 'වලංගු රීලෝඩ් දෙකක් අතර ඇත්තේ දින $daysක් පමණි.';
+  }
+
+  @override
+  String carrierReasonLongWindow(int days) {
+    return 'දින $days යනු වසරකට ආසන්නයි — එක් මතක් කිරීමක් ප්‍රමාණවත්.';
+  }
+
+  @override
+  String get carrierReasonNoGrace =>
+      'සහන කාලයක් නැත. දිනය මඟ හැරුණොත් අංකය නැති වේ.';
+
+  @override
+  String carrierReasonGrace(int days) {
+    return 'දිනයෙන් පසු අංකය නැවත ලබා ගැනීමට ඔබට දින $daysක් ඇත.';
+  }
+
+  @override
+  String carrierReasonAutomationCost(
+    String self,
+    String premium,
+    String extra,
+  ) {
+    return 'රීලෝඩ් මුදල පමණක් වසරකට $self පමණ වේ. ප්‍රිමියම් $premium වන අතර, එයින් $extra ස්වයංක්‍රීයකරණයට යයි.';
+  }
+
+  @override
+  String carrierSelfServiceTitle(String operator) {
+    return 'නැත්නම් $operatorගෙන් සෘජුවම ගන්න';
+  }
+
+  @override
+  String get carrierSelfServiceBody =>
+      'වාහකයාගේම යෙදුමෙන් රීලෝඩ් කරන්න, එවිට ඔබ ගෙවන්නේ රීලෝඩ් මුදල පමණි, වෙන කිසිවක් නොවේ.';
+
+  @override
+  String carrierSelfServiceCountryLine(String country) {
+    return 'අංකයේ රට: $country';
+  }
+
+  @override
+  String carrierSelfServiceAppHint(String app) {
+    return 'එහි යෙදුම සාමාන්‍යයෙන් \"$app\" ලෙස ප්‍රකාශයට පත් වේ.';
+  }
+
+  @override
+  String carrierSelfServiceUnverified(String operator) {
+    return 'අපි මෙම යෙදුම පරීක්ෂා කර නැත. ගබඩාවේ සොයා, කිසිවක් ස්ථාපනය කිරීමට පෙර ප්‍රකාශකයා ඇත්තටම $operator බව තහවුරු කරගන්න.';
+  }
+
+  @override
+  String get carrierSelfServiceSearchStore => 'යෙදුම් ගබඩාවේ සොයන්න';
+
+  @override
+  String get carrierSelfServiceOpenApp => 'වාහකයාගේ යෙදුම විවෘත කරන්න';
+
+  @override
+  String get carrierSelfServiceWeb => 'වාහකයාගේ වෙබ් අඩවියෙන් රීලෝඩ් කරන්න';
+
+  @override
+  String carrierSelfServiceUssd(String code) {
+    return 'දත්ත නැද්ද? එම දුරකථනයෙන්ම $code අමතන්න.';
+  }
+
+  @override
+  String get carrierRulesSourceLink => 'වාහකයා ප්‍රකාශ කළ නියම';
+
+  @override
+  String get carrierRulesDisclaimer =>
+      'වාහකයන් මෙම නීති නොදන්වා වෙනස් කරයි. ඔබේ වාහකයා වෙනස් කර ඇත්නම් සහායට දන්වන්න, අපි නැවත පරීක්ෂා කරමු.';
+
+  @override
+  String get carrierActionTitle => 'ඔබේ ක්‍රියාව අවශ්‍යයි';
+
+  @override
+  String get carrierActionDesc =>
+      'රේඛාවකට මට පමණක් කළ හැකි දෙයක් අවශ්‍ය වූ විට මට දන්වන්න — සිම් එක භාවිත කිරීම හෝ වාහකයාගේම යෙදුමෙන් රීලෝඩ් කිරීම.';
 }

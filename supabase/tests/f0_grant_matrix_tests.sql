@@ -26,8 +26,11 @@
 -- HOW TO RUN — as ONE execute_sql call. MCP makes each call its own
 -- transaction, so a split file never pairs BEGIN with ROLLBACK.
 -- ============================================================================
--- Last run 2026-07-29 (after G3 added transfer_wallet_credit): 6/6 PASSED,
--- 0 violations.
+-- Last run 2026-08-05 (after I8). FAILED T1 on the first run and found a real
+-- one: i7's admin_upsert_carrier_rule(uuid,jsonb) had shipped with PUBLIC +
+-- anon EXECUTE. Latent, not live — its assert_admin() answered anon with KS460
+-- — but revoked in migration 20260818020000_i8c and re-probed to 42501.
+-- 6/6 PASSED, 0 violations.
 -- ============================================================================
 
 BEGIN;
@@ -80,9 +83,21 @@ DECLARE
     'admin_switch_gateway_to_manual(uuid,text)',
     'admin_update_carrier(uuid,jsonb,text)',
     'admin_update_carrier_rule(uuid,jsonb,text)',
+    -- i7's wider carrier-rule write (it also patches activity_requirement and
+    -- the qualifying denomination). It is NOT an overload of the entry above —
+    -- different name, so no PGRST203. It shipped with PUBLIC + anon EXECUTE and
+    -- this file is what caught it; I8c revoked both. Same assert_admin() gate,
+    -- which is why anon got KS460 rather than a written row while it was open.
+    'admin_upsert_carrier_rule(uuid,jsonb)',
     'admin_update_channel(text,jsonb,text)',
     'admin_upsert_esim_supplier(text,jsonb,text)',
     'admin_upsert_offline_endpoint(uuid,jsonb,text)',
+    -- I8, same assert_admin() gate. The emitter that reads every user's lines
+    -- and writes to every user's notifications
+    -- (emit_carrier_self_service_advice) is deliberately NOT here: it is
+    -- service_role-only, asserted directly in i8_carrier_advice_tests.sql T9.
+    'admin_list_carrier_self_service()',
+    'admin_upsert_carrier_self_service(uuid,jsonb,text)',
     -- I3/I4, same assert_admin() gate as every entry above. The audience query
     -- (campaign_audience) and the runner protocol (script_claim_next_execution,
     -- script_complete_execution) are deliberately NOT here: they are

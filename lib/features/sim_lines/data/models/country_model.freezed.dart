@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Country {
 
- String get id; String get name;@JsonKey(name: 'iso_code') String get isoCode;@JsonKey(name: 'dialing_code') String get dialingCode;@JsonKey(name: 'flag_emoji') String get flagEmoji;@JsonKey(name: 'currency_code') String get currencyCode;@JsonKey(name: 'avg_sim_replacement_cost') double get avgSimReplacementCost;@JsonKey(name: 'is_supported') bool get isSupported;
+ String get id; String get name;@JsonKey(name: 'iso_code') String get isoCode;@JsonKey(name: 'dialing_code') String get dialingCode;@JsonKey(name: 'flag_emoji', fromJson: _parseFlagEmoji) String get flagEmoji;@JsonKey(name: 'currency_code') String get currencyCode;@JsonKey(name: 'avg_sim_replacement_cost', fromJson: _parseDoubleNullable) double? get avgSimReplacementCost;@JsonKey(name: 'is_supported', fromJson: _parseBoolDefaultTrue) bool get isSupported;
 /// Create a copy of Country
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -48,7 +48,7 @@ abstract mixin class $CountryCopyWith<$Res>  {
   factory $CountryCopyWith(Country value, $Res Function(Country) _then) = _$CountryCopyWithImpl;
 @useResult
 $Res call({
- String id, String name,@JsonKey(name: 'iso_code') String isoCode,@JsonKey(name: 'dialing_code') String dialingCode,@JsonKey(name: 'flag_emoji') String flagEmoji,@JsonKey(name: 'currency_code') String currencyCode,@JsonKey(name: 'avg_sim_replacement_cost') double avgSimReplacementCost,@JsonKey(name: 'is_supported') bool isSupported
+ String id, String name,@JsonKey(name: 'iso_code') String isoCode,@JsonKey(name: 'dialing_code') String dialingCode,@JsonKey(name: 'flag_emoji', fromJson: _parseFlagEmoji) String flagEmoji,@JsonKey(name: 'currency_code') String currencyCode,@JsonKey(name: 'avg_sim_replacement_cost', fromJson: _parseDoubleNullable) double? avgSimReplacementCost,@JsonKey(name: 'is_supported', fromJson: _parseBoolDefaultTrue) bool isSupported
 });
 
 
@@ -65,7 +65,7 @@ class _$CountryCopyWithImpl<$Res>
 
 /// Create a copy of Country
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? isoCode = null,Object? dialingCode = null,Object? flagEmoji = null,Object? currencyCode = null,Object? avgSimReplacementCost = null,Object? isSupported = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? isoCode = null,Object? dialingCode = null,Object? flagEmoji = null,Object? currencyCode = null,Object? avgSimReplacementCost = freezed,Object? isSupported = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -73,8 +73,8 @@ as String,isoCode: null == isoCode ? _self.isoCode : isoCode // ignore: cast_nul
 as String,dialingCode: null == dialingCode ? _self.dialingCode : dialingCode // ignore: cast_nullable_to_non_nullable
 as String,flagEmoji: null == flagEmoji ? _self.flagEmoji : flagEmoji // ignore: cast_nullable_to_non_nullable
 as String,currencyCode: null == currencyCode ? _self.currencyCode : currencyCode // ignore: cast_nullable_to_non_nullable
-as String,avgSimReplacementCost: null == avgSimReplacementCost ? _self.avgSimReplacementCost : avgSimReplacementCost // ignore: cast_nullable_to_non_nullable
-as double,isSupported: null == isSupported ? _self.isSupported : isSupported // ignore: cast_nullable_to_non_nullable
+as String,avgSimReplacementCost: freezed == avgSimReplacementCost ? _self.avgSimReplacementCost : avgSimReplacementCost // ignore: cast_nullable_to_non_nullable
+as double?,isSupported: null == isSupported ? _self.isSupported : isSupported // ignore: cast_nullable_to_non_nullable
 as bool,
   ));
 }
@@ -160,7 +160,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name, @JsonKey(name: 'iso_code')  String isoCode, @JsonKey(name: 'dialing_code')  String dialingCode, @JsonKey(name: 'flag_emoji')  String flagEmoji, @JsonKey(name: 'currency_code')  String currencyCode, @JsonKey(name: 'avg_sim_replacement_cost')  double avgSimReplacementCost, @JsonKey(name: 'is_supported')  bool isSupported)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name, @JsonKey(name: 'iso_code')  String isoCode, @JsonKey(name: 'dialing_code')  String dialingCode, @JsonKey(name: 'flag_emoji', fromJson: _parseFlagEmoji)  String flagEmoji, @JsonKey(name: 'currency_code')  String currencyCode, @JsonKey(name: 'avg_sim_replacement_cost', fromJson: _parseDoubleNullable)  double? avgSimReplacementCost, @JsonKey(name: 'is_supported', fromJson: _parseBoolDefaultTrue)  bool isSupported)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Country() when $default != null:
 return $default(_that.id,_that.name,_that.isoCode,_that.dialingCode,_that.flagEmoji,_that.currencyCode,_that.avgSimReplacementCost,_that.isSupported);case _:
@@ -181,7 +181,7 @@ return $default(_that.id,_that.name,_that.isoCode,_that.dialingCode,_that.flagEm
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name, @JsonKey(name: 'iso_code')  String isoCode, @JsonKey(name: 'dialing_code')  String dialingCode, @JsonKey(name: 'flag_emoji')  String flagEmoji, @JsonKey(name: 'currency_code')  String currencyCode, @JsonKey(name: 'avg_sim_replacement_cost')  double avgSimReplacementCost, @JsonKey(name: 'is_supported')  bool isSupported)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name, @JsonKey(name: 'iso_code')  String isoCode, @JsonKey(name: 'dialing_code')  String dialingCode, @JsonKey(name: 'flag_emoji', fromJson: _parseFlagEmoji)  String flagEmoji, @JsonKey(name: 'currency_code')  String currencyCode, @JsonKey(name: 'avg_sim_replacement_cost', fromJson: _parseDoubleNullable)  double? avgSimReplacementCost, @JsonKey(name: 'is_supported', fromJson: _parseBoolDefaultTrue)  bool isSupported)  $default,) {final _that = this;
 switch (_that) {
 case _Country():
 return $default(_that.id,_that.name,_that.isoCode,_that.dialingCode,_that.flagEmoji,_that.currencyCode,_that.avgSimReplacementCost,_that.isSupported);case _:
@@ -201,7 +201,7 @@ return $default(_that.id,_that.name,_that.isoCode,_that.dialingCode,_that.flagEm
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name, @JsonKey(name: 'iso_code')  String isoCode, @JsonKey(name: 'dialing_code')  String dialingCode, @JsonKey(name: 'flag_emoji')  String flagEmoji, @JsonKey(name: 'currency_code')  String currencyCode, @JsonKey(name: 'avg_sim_replacement_cost')  double avgSimReplacementCost, @JsonKey(name: 'is_supported')  bool isSupported)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name, @JsonKey(name: 'iso_code')  String isoCode, @JsonKey(name: 'dialing_code')  String dialingCode, @JsonKey(name: 'flag_emoji', fromJson: _parseFlagEmoji)  String flagEmoji, @JsonKey(name: 'currency_code')  String currencyCode, @JsonKey(name: 'avg_sim_replacement_cost', fromJson: _parseDoubleNullable)  double? avgSimReplacementCost, @JsonKey(name: 'is_supported', fromJson: _parseBoolDefaultTrue)  bool isSupported)?  $default,) {final _that = this;
 switch (_that) {
 case _Country() when $default != null:
 return $default(_that.id,_that.name,_that.isoCode,_that.dialingCode,_that.flagEmoji,_that.currencyCode,_that.avgSimReplacementCost,_that.isSupported);case _:
@@ -216,17 +216,17 @@ return $default(_that.id,_that.name,_that.isoCode,_that.dialingCode,_that.flagEm
 @JsonSerializable()
 
 class _Country implements Country {
-  const _Country({required this.id, required this.name, @JsonKey(name: 'iso_code') required this.isoCode, @JsonKey(name: 'dialing_code') required this.dialingCode, @JsonKey(name: 'flag_emoji') required this.flagEmoji, @JsonKey(name: 'currency_code') required this.currencyCode, @JsonKey(name: 'avg_sim_replacement_cost') required this.avgSimReplacementCost, @JsonKey(name: 'is_supported') required this.isSupported});
+  const _Country({required this.id, required this.name, @JsonKey(name: 'iso_code') required this.isoCode, @JsonKey(name: 'dialing_code') required this.dialingCode, @JsonKey(name: 'flag_emoji', fromJson: _parseFlagEmoji) this.flagEmoji = '🌐', @JsonKey(name: 'currency_code') required this.currencyCode, @JsonKey(name: 'avg_sim_replacement_cost', fromJson: _parseDoubleNullable) this.avgSimReplacementCost, @JsonKey(name: 'is_supported', fromJson: _parseBoolDefaultTrue) this.isSupported = true});
   factory _Country.fromJson(Map<String, dynamic> json) => _$CountryFromJson(json);
 
 @override final  String id;
 @override final  String name;
 @override@JsonKey(name: 'iso_code') final  String isoCode;
 @override@JsonKey(name: 'dialing_code') final  String dialingCode;
-@override@JsonKey(name: 'flag_emoji') final  String flagEmoji;
+@override@JsonKey(name: 'flag_emoji', fromJson: _parseFlagEmoji) final  String flagEmoji;
 @override@JsonKey(name: 'currency_code') final  String currencyCode;
-@override@JsonKey(name: 'avg_sim_replacement_cost') final  double avgSimReplacementCost;
-@override@JsonKey(name: 'is_supported') final  bool isSupported;
+@override@JsonKey(name: 'avg_sim_replacement_cost', fromJson: _parseDoubleNullable) final  double? avgSimReplacementCost;
+@override@JsonKey(name: 'is_supported', fromJson: _parseBoolDefaultTrue) final  bool isSupported;
 
 /// Create a copy of Country
 /// with the given fields replaced by the non-null parameter values.
@@ -261,7 +261,7 @@ abstract mixin class _$CountryCopyWith<$Res> implements $CountryCopyWith<$Res> {
   factory _$CountryCopyWith(_Country value, $Res Function(_Country) _then) = __$CountryCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String name,@JsonKey(name: 'iso_code') String isoCode,@JsonKey(name: 'dialing_code') String dialingCode,@JsonKey(name: 'flag_emoji') String flagEmoji,@JsonKey(name: 'currency_code') String currencyCode,@JsonKey(name: 'avg_sim_replacement_cost') double avgSimReplacementCost,@JsonKey(name: 'is_supported') bool isSupported
+ String id, String name,@JsonKey(name: 'iso_code') String isoCode,@JsonKey(name: 'dialing_code') String dialingCode,@JsonKey(name: 'flag_emoji', fromJson: _parseFlagEmoji) String flagEmoji,@JsonKey(name: 'currency_code') String currencyCode,@JsonKey(name: 'avg_sim_replacement_cost', fromJson: _parseDoubleNullable) double? avgSimReplacementCost,@JsonKey(name: 'is_supported', fromJson: _parseBoolDefaultTrue) bool isSupported
 });
 
 
@@ -278,7 +278,7 @@ class __$CountryCopyWithImpl<$Res>
 
 /// Create a copy of Country
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? isoCode = null,Object? dialingCode = null,Object? flagEmoji = null,Object? currencyCode = null,Object? avgSimReplacementCost = null,Object? isSupported = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? isoCode = null,Object? dialingCode = null,Object? flagEmoji = null,Object? currencyCode = null,Object? avgSimReplacementCost = freezed,Object? isSupported = null,}) {
   return _then(_Country(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -286,8 +286,8 @@ as String,isoCode: null == isoCode ? _self.isoCode : isoCode // ignore: cast_nul
 as String,dialingCode: null == dialingCode ? _self.dialingCode : dialingCode // ignore: cast_nullable_to_non_nullable
 as String,flagEmoji: null == flagEmoji ? _self.flagEmoji : flagEmoji // ignore: cast_nullable_to_non_nullable
 as String,currencyCode: null == currencyCode ? _self.currencyCode : currencyCode // ignore: cast_nullable_to_non_nullable
-as String,avgSimReplacementCost: null == avgSimReplacementCost ? _self.avgSimReplacementCost : avgSimReplacementCost // ignore: cast_nullable_to_non_nullable
-as double,isSupported: null == isSupported ? _self.isSupported : isSupported // ignore: cast_nullable_to_non_nullable
+as String,avgSimReplacementCost: freezed == avgSimReplacementCost ? _self.avgSimReplacementCost : avgSimReplacementCost // ignore: cast_nullable_to_non_nullable
+as double?,isSupported: null == isSupported ? _self.isSupported : isSupported // ignore: cast_nullable_to_non_nullable
 as bool,
   ));
 }

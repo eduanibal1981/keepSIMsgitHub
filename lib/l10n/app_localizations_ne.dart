@@ -1721,6 +1721,10 @@ class AppLocalizationsNe extends AppLocalizations {
       'योजना शुल्क तपाईंको वालेट ब्यालेन्सबाट भुक्तानी गरियो।';
 
   @override
+  String get planFeeNotChargedRetry =>
+      'तपाईंको टप-अप आइपुग्यो तर योजना शुल्क लिन सकिएन, त्यसैले लाइन सिर्जना भएन। तपाईंको ब्यालेन्स सुरक्षित छ — कृपया फेरि प्रयास गर्नुहोस्।';
+
+  @override
   String activityTopupRequested(String amount) {
     return '\$$amount को रिफिल अनुरोध पेश गरियो';
   }
@@ -2111,6 +2115,33 @@ class AppLocalizationsNe extends AppLocalizations {
   String get payPalForceCaptureButton => 'I\'ve Completed Payment on PayPal';
 
   @override
+  String get payPalBrowserOpened => 'PayPal is open in your browser';
+
+  @override
+  String get payPalBrowserOpenedBody =>
+      'Finish paying there — this screen updates on its own.';
+
+  @override
+  String get payPalTakingLonger =>
+      'This is taking longer than usual. If you have already paid, check the payment below.';
+
+  @override
+  String get payPalReopenButton => 'Reopen PayPal';
+
+  @override
+  String get payPalVerifying => 'Verifying your payment…';
+
+  @override
+  String get payPalVerifyingBody => 'One moment while we confirm with PayPal.';
+
+  @override
+  String get payPalPaymentCancelled =>
+      'Payment cancelled. You have not been charged.';
+
+  @override
+  String get payPalDoneButton => 'Done';
+
+  @override
   String get yourDevices => 'Your devices';
 
   @override
@@ -2418,4 +2449,196 @@ class AppLocalizationsNe extends AppLocalizations {
   @override
   String get householdDeclinedHint =>
       'उहाँले अस्वीकार गर्नुभयो। फेरि निम्त्याउन हटाउनुहोस्।';
+
+  @override
+  String get carrierActivityFallbackOperator => 'यो क्यारियर';
+
+  @override
+  String get carrierUsageRequiredTitle =>
+      'अटो-रिफिलले यो लाइन सुरक्षित राख्न सक्दैन';
+
+  @override
+  String carrierUsageRequiredBody(String operator) {
+    return '$operator ले लाइनबाट कल गरेमा, एसएमएस पठाएमा वा डेटा प्रयोग गरेमा मात्र निष्क्रियता काउन्टडाउन पुनः सुरु गर्छ। ब्यालेन्स थप्नु यसमा गनिँदैन, त्यसैले कुनै पनि अटो टप-अपले यो नम्बर निष्क्रिय हुनबाट रोक्न सक्दैन। स्ट्यान्डर्ड प्लान छान्नुहोस् — हामी तपाईंलाई समयमै सूचित गर्नेछौं ताकि तपाईं आफैं लाइन प्रयोग गर्न सक्नुहुन्छ।';
+  }
+
+  @override
+  String get carrierMinDenominationTitle => 'यो क्यारियरलाई ठूलो टप-अप चाहिन्छ';
+
+  @override
+  String carrierMinDenominationBody(
+    String operator,
+    String amount,
+    String currency,
+  ) {
+    return '$operator ले $amount $currency वा बढी टप-अपमा मात्र लाइनको वैधता थप्छ। यसभन्दा कम रकम खर्च गर्न मिल्ने ब्यालेन्सको रूपमा मात्र आउँछ र नम्बर अझै निष्क्रिय हुन सक्छ, त्यसैले प्रिमियमले यो लाइन $amount $currency मा रिफिल गर्छ।';
+  }
+
+  @override
+  String get premiumUnavailableForCarrier =>
+      'यो क्यारियरका लागि प्रिमियम उपलब्ध छैन';
+
+  @override
+  String get carrierRulesLinkLabel => 'यो क्यारियरका नियमबारे थप';
+
+  @override
+  String get carrierRulesSheetTitle => 'नम्बर बन्द हुने नियम';
+
+  @override
+  String carrierRulesHowTitle(String operator) {
+    return '$operator ले कसरी निर्णय गर्छ';
+  }
+
+  @override
+  String carrierRechargeOkBody(String operator) {
+    return 'लाइनमा टप-अप हुनासाथ $operator ले आफ्नो गन्ती फेरि सुरु गर्छ, रकम जति भए पनि। त्यसैले यहाँ स्वचालित रिफिलले नम्बर जोगाउन सक्छ।';
+  }
+
+  @override
+  String get carrierRulesNumbersTitle => 'अंकहरू';
+
+  @override
+  String carrierRulesWindowRow(int days) {
+    return 'गन्तीमा आउने टप-अप बिना $days दिनपछि नम्बर निष्क्रिय गरिन्छ';
+  }
+
+  @override
+  String carrierRulesGraceRow(int days) {
+    return 'त्यसपछि उही नम्बर फिर्ता लिन $days दिन';
+  }
+
+  @override
+  String get carrierRulesNoGraceRow =>
+      'फिर्ता लिने समय छैन — नम्बर तुरुन्तै छाडिन्छ';
+
+  @override
+  String carrierRulesMinTopupRow(String amount, String currency) {
+    return 'वैधता थप्ने सबैभन्दा सानो टप-अप $amount $currency हो';
+  }
+
+  @override
+  String carrierRulesCadenceRow(int days, int count) {
+    return 'हामी हरेक $days दिनमा रिफिल गर्थ्यौं — वर्षमा $count पटक';
+  }
+
+  @override
+  String get carrierRulesVerdictTitle => 'हामी के गर्थ्यौं';
+
+  @override
+  String get carrierVerdictSelfServiceTitle =>
+      'यो लाइनका लागि प्रिमियम नकिन्नुहोस्';
+
+  @override
+  String get carrierVerdictSelfServiceBody =>
+      'पैसा जोगाउनुहोस्। हामीले पठाउन सक्ने कुनै पनि कुराले यो क्यारियरको घडी फेरि सुरु गर्दैन; नम्बर जोगाउने एउटै उपाय भनेको त्यसलाई प्रयोग गर्नु हो।';
+
+  @override
+  String get carrierVerdictStandardTitle => 'यहाँ स्ट्यान्डर्ड नै पर्याप्त छ';
+
+  @override
+  String get carrierVerdictStandardBody =>
+      'यो क्यारियरले तपाईंलाई लामो समय दिन्छ। मिति हामी हेर्छौं र तपाईंलाई भन्छौं; भनेपछि आफैँ टप-अप गर्नुहोस्, अनि बालेन्सको मात्र पैसा लाग्छ।';
+
+  @override
+  String get carrierVerdictPremiumWorthTitle => 'प्रिमियम लिनु उपयुक्त छ';
+
+  @override
+  String get carrierVerdictPremiumWorthBody =>
+      'वर्षमा केही टप-अप, हरेक यस्तो मितिमा जुन यहाँबाट देखिँदैन। चाहनुहुन्छ भने आफैँ पनि गर्न सकिन्छ — स्वचालित गर्नुको अर्थ यसबारे कहिल्यै सोच्नै नपर्नु हो।';
+
+  @override
+  String get carrierVerdictPremiumMustTitle => 'यसलाई स्वचालित बनाउनुहोस्';
+
+  @override
+  String get carrierVerdictPremiumMustBody =>
+      'यो क्यारियर यति छिटो चल्छ कि अर्को देशबाट हरेक पटक आफैँ सम्झिने काम कुनै दिन छुट्छ नै — र एक पटक छुट्नुको अर्थ नम्बर नै गुम्नु हो।';
+
+  @override
+  String get carrierReasonUsageOnly =>
+      'कल, SMS वा डेटा प्रयोग मात्र गनिन्छ। एक्लै बालेन्स गनिँदैन।';
+
+  @override
+  String carrierReasonQualifying(String amount, String currency) {
+    return '$amount $currency भन्दा कमको टप-अप बालेन्सका रूपमा मात्र आउँछ, वैधता थप्दैन।';
+  }
+
+  @override
+  String carrierReasonShortWindow(int days) {
+    return 'दुई गन्तीयोग्य टप-अपबीच जम्मा $days दिन।';
+  }
+
+  @override
+  String carrierReasonLongWindow(int days) {
+    return '$days दिन भनेको लगभग पूरै वर्ष हो — एउटै रिमाइन्डरले पुग्छ।';
+  }
+
+  @override
+  String get carrierReasonNoGrace =>
+      'कुनै छुट अवधि छैन। मिति नाघ्यो भने नम्बर गयो।';
+
+  @override
+  String carrierReasonGrace(int days) {
+    return 'मितिपछि नम्बर फिर्ता लिन तपाईंसँग $days दिन हुनेछ।';
+  }
+
+  @override
+  String carrierReasonAutomationCost(
+    String self,
+    String premium,
+    String extra,
+  ) {
+    return 'बालेन्सको मात्रै वर्षमा करिब $self लाग्छ। प्रिमियम $premium हो, अर्थात् त्यसमध्ये $extra स्वचालनको मूल्य हो।';
+  }
+
+  @override
+  String carrierSelfServiceTitle(String operator) {
+    return 'वा सिधै $operator बाट किन्नुहोस्';
+  }
+
+  @override
+  String get carrierSelfServiceBody =>
+      'क्यारियरकै एपबाट टप-अप गर्नुहोस्, अनि बालेन्सको मात्र पैसा लाग्छ, अरू केही लाग्दैन।';
+
+  @override
+  String carrierSelfServiceCountryLine(String country) {
+    return 'नम्बरको देश: $country';
+  }
+
+  @override
+  String carrierSelfServiceAppHint(String app) {
+    return 'यसको एप प्रायः \"$app\" नामले प्रकाशित हुन्छ।';
+  }
+
+  @override
+  String carrierSelfServiceUnverified(String operator) {
+    return 'हामीले यो एप आफैँ जाँचेका छैनौँ। स्टोरमा खोज्नुहोस् र केही इन्स्टल गर्नुअघि प्रकाशक साँच्चै $operator हो कि होइन पक्का गर्नुहोस्।';
+  }
+
+  @override
+  String get carrierSelfServiceSearchStore => 'एप स्टोरमा खोज्नुहोस्';
+
+  @override
+  String get carrierSelfServiceOpenApp => 'क्यारियरको एप खोल्नुहोस्';
+
+  @override
+  String get carrierSelfServiceWeb => 'क्यारियरको वेबसाइटबाट टप-अप गर्नुहोस्';
+
+  @override
+  String carrierSelfServiceUssd(String code) {
+    return 'डेटा छैन? त्यही फोनबाट $code डायल गर्नुहोस्।';
+  }
+
+  @override
+  String get carrierRulesSourceLink => 'क्यारियरले प्रकाशित गरेका सर्तहरू';
+
+  @override
+  String get carrierRulesDisclaimer =>
+      'क्यारियरहरूले यी नियम नबताई परिवर्तन गर्छन्। तपाईंको क्यारियरले परिवर्तन गरेको भए सहयोग टोलीलाई भन्नुहोस्, हामी फेरि जाँच्नेछौँ।';
+
+  @override
+  String get carrierActionTitle => 'तपाईंको कदम आवश्यक';
+
+  @override
+  String get carrierActionDesc =>
+      'कुनै लाइनलाई म आफैँले मात्र गर्न सक्ने काम चाहिँदा मलाई भन्नुहोस् — सिम प्रयोग गर्नु वा क्यारियरकै एपबाट टप-अप गर्नु।';
 }

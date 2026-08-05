@@ -1741,6 +1741,10 @@ class AppLocalizationsEs extends AppLocalizations {
       'La tarifa del plan se pagó con el saldo de tu billetera.';
 
   @override
+  String get planFeeNotChargedRetry =>
+      'Tu recarga llegó pero no se pudo cobrar la tarifa del plan, así que la línea no se creó. Tu saldo está a salvo: inténtalo de nuevo.';
+
+  @override
   String activityTopupRequested(String amount) {
     return 'Solicitud de recarga enviada por \$$amount';
   }
@@ -2132,6 +2136,34 @@ class AppLocalizationsEs extends AppLocalizations {
   String get payPalForceCaptureButton => 'He completado el pago en PayPal';
 
   @override
+  String get payPalBrowserOpened => 'PayPal está abierto en tu navegador';
+
+  @override
+  String get payPalBrowserOpenedBody =>
+      'Termina el pago allí: esta pantalla se actualiza sola.';
+
+  @override
+  String get payPalTakingLonger =>
+      'Está tardando más de lo normal. Si ya pagaste, comprueba el pago abajo.';
+
+  @override
+  String get payPalReopenButton => 'Volver a abrir PayPal';
+
+  @override
+  String get payPalVerifying => 'Verificando tu pago…';
+
+  @override
+  String get payPalVerifyingBody =>
+      'Un momento mientras lo confirmamos con PayPal.';
+
+  @override
+  String get payPalPaymentCancelled =>
+      'Pago cancelado. No se te ha cobrado nada.';
+
+  @override
+  String get payPalDoneButton => 'Listo';
+
+  @override
   String get yourDevices => 'Your devices';
 
   @override
@@ -2437,4 +2469,198 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get householdDeclinedHint =>
       'La rechazó. Quítalo para volver a invitarlo.';
+
+  @override
+  String get carrierActivityFallbackOperator => 'Este operador';
+
+  @override
+  String get carrierUsageRequiredTitle =>
+      'La recarga automática no puede proteger esta línea';
+
+  @override
+  String carrierUsageRequiredBody(String operator) {
+    return '$operator solo reinicia su cuenta atrás de inactividad cuando la línea hace una llamada, envía un SMS o usa datos. Añadir saldo no cuenta, así que ninguna recarga automática puede evitar que este número se desactive. Elige el plan Estándar y te avisaremos a tiempo para que uses la línea tú mismo.';
+  }
+
+  @override
+  String get carrierMinDenominationTitle =>
+      'Este operador requiere una recarga mayor';
+
+  @override
+  String carrierMinDenominationBody(
+    String operator,
+    String amount,
+    String currency,
+  ) {
+    return '$operator solo añade validez a la línea con recargas de $amount $currency o más. Cualquier cantidad menor llega como saldo utilizable y el número igual podría desactivarse, por lo que Premium recarga esta línea con $amount $currency.';
+  }
+
+  @override
+  String get premiumUnavailableForCarrier =>
+      'Premium no está disponible para este operador';
+
+  @override
+  String get carrierRulesLinkLabel => 'Más sobre las reglas de este operador';
+
+  @override
+  String get carrierRulesSheetTitle => 'Reglas de desactivación';
+
+  @override
+  String carrierRulesHowTitle(String operator) {
+    return 'Cómo lo decide $operator';
+  }
+
+  @override
+  String carrierRechargeOkBody(String operator) {
+    return '$operator reinicia su cuenta atrás cada vez que se recarga la línea, sea cual sea el importe. Por eso aquí una recarga automática sí mantiene el número.';
+  }
+
+  @override
+  String get carrierRulesNumbersTitle => 'Los números';
+
+  @override
+  String carrierRulesWindowRow(int days) {
+    return 'Se desactiva tras $days días sin una recarga que cuente';
+  }
+
+  @override
+  String carrierRulesGraceRow(int days) {
+    return '$days días después para recuperar el mismo número';
+  }
+
+  @override
+  String get carrierRulesNoGraceRow =>
+      'Sin margen de recuperación: el número se libera de inmediato';
+
+  @override
+  String carrierRulesMinTopupRow(String amount, String currency) {
+    return '$amount $currency es la recarga más pequeña que añade validez';
+  }
+
+  @override
+  String carrierRulesCadenceRow(int days, int count) {
+    return 'Recargaríamos cada $days días: $count veces al año';
+  }
+
+  @override
+  String get carrierRulesVerdictTitle => 'Qué haríamos nosotros';
+
+  @override
+  String get carrierVerdictSelfServiceTitle =>
+      'No compres Premium para esta línea';
+
+  @override
+  String get carrierVerdictSelfServiceBody =>
+      'Guarda tu dinero. Nada de lo que podamos enviar reinicia el reloj de este operador; lo único que conserva el número es usarlo.';
+
+  @override
+  String get carrierVerdictStandardTitle => 'Aquí Standard es suficiente';
+
+  @override
+  String get carrierVerdictStandardBody =>
+      'Este operador te da mucho margen. Deja que vigilemos la fecha y te avisemos; recarga tú mismo cuando lo hagamos y pagarás solo el saldo.';
+
+  @override
+  String get carrierVerdictPremiumWorthTitle => 'Premium merece la pena';
+
+  @override
+  String get carrierVerdictPremiumWorthBody =>
+      'Unas pocas recargas al año, cada una en una fecha que desde aquí no ves. Hacerlo a mano es viable si lo prefieres; automatizarlo significa no tener que pensarlo nunca.';
+
+  @override
+  String get carrierVerdictPremiumMustTitle => 'Automatiza esta línea';
+
+  @override
+  String get carrierVerdictPremiumMustBody =>
+      'Este operador va lo bastante rápido como para que acordarse a mano, desde otro país, acabe fallando alguna vez, y un solo fallo es el número.';
+
+  @override
+  String get carrierReasonUsageOnly =>
+      'Solo cuenta una llamada, un SMS o una sesión de datos. El saldo por sí solo no.';
+
+  @override
+  String carrierReasonQualifying(String amount, String currency) {
+    return 'Una recarga por debajo de $amount $currency llega como saldo y no añade validez.';
+  }
+
+  @override
+  String carrierReasonShortWindow(int days) {
+    return 'Solo $days días entre recargas que cuenten.';
+  }
+
+  @override
+  String carrierReasonLongWindow(int days) {
+    return '$days días es casi un año entero: basta con un recordatorio.';
+  }
+
+  @override
+  String get carrierReasonNoGrace =>
+      'No hay periodo de gracia. Si se pasa la fecha, el número se pierde.';
+
+  @override
+  String carrierReasonGrace(int days) {
+    return 'Tendrías $days días después de la fecha para recuperar el número.';
+  }
+
+  @override
+  String carrierReasonAutomationCost(
+    String self,
+    String premium,
+    String extra,
+  ) {
+    return 'Solo el saldo cuesta unos $self al año. Premium son $premium, así que $extra de eso paga la automatización.';
+  }
+
+  @override
+  String carrierSelfServiceTitle(String operator) {
+    return 'O cómpralo directamente a $operator';
+  }
+
+  @override
+  String get carrierSelfServiceBody =>
+      'Recarga en la propia app del operador y pagarás el saldo y nada más.';
+
+  @override
+  String carrierSelfServiceCountryLine(String country) {
+    return 'País de origen: $country';
+  }
+
+  @override
+  String carrierSelfServiceAppHint(String app) {
+    return 'Su app suele publicarse como «$app».';
+  }
+
+  @override
+  String carrierSelfServiceUnverified(String operator) {
+    return 'No hemos comprobado nosotros esta ficha. Busca en la tienda y asegúrate de que quien la publica es realmente $operator antes de instalar nada.';
+  }
+
+  @override
+  String get carrierSelfServiceSearchStore => 'Buscar en la tienda de apps';
+
+  @override
+  String get carrierSelfServiceOpenApp => 'Abrir la app del operador';
+
+  @override
+  String get carrierSelfServiceWeb => 'Recargar en la web del operador';
+
+  @override
+  String carrierSelfServiceUssd(String code) {
+    return '¿Sin datos? Marca $code en el propio teléfono.';
+  }
+
+  @override
+  String get carrierRulesSourceLink =>
+      'Las condiciones publicadas del operador';
+
+  @override
+  String get carrierRulesDisclaimer =>
+      'Los operadores cambian estas reglas sin avisar. Si el tuyo lo ha hecho, dínoslo y volveremos a comprobarlo.';
+
+  @override
+  String get carrierActionTitle => 'Acción tuya necesaria';
+
+  @override
+  String get carrierActionDesc =>
+      'Avísame cuando una línea necesite algo que solo puedo hacer yo: usar la SIM o recargarla en la app de mi operador.';
 }

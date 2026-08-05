@@ -1718,6 +1718,10 @@ class AppLocalizationsBn extends AppLocalizations {
       'প্ল্যান ফি আপনার ওয়ালেট ব্যালেন্স থেকে পরিশোধ করা হয়েছে।';
 
   @override
+  String get planFeeNotChargedRetry =>
+      'আপনার টপ-আপ পৌঁছেছে কিন্তু প্ল্যান ফি নেওয়া যায়নি, তাই লাইনটি তৈরি হয়নি। আপনার ব্যালেন্স নিরাপদ — অনুগ্রহ করে আবার চেষ্টা করুন।';
+
+  @override
   String activityTopupRequested(String amount) {
     return '\$$amount এর রিফিল অনুরোধ জমা দেওয়া হয়েছে';
   }
@@ -2109,6 +2113,34 @@ class AppLocalizationsBn extends AppLocalizations {
   String get payPalForceCaptureButton => 'আমি PayPal-এ পেমেন্ট সম্পন্ন করেছি';
 
   @override
+  String get payPalBrowserOpened => 'PayPal আপনার ব্রাউজারে খোলা আছে';
+
+  @override
+  String get payPalBrowserOpenedBody =>
+      'সেখানেই পেমেন্ট শেষ করুন — এই স্ক্রিন নিজেই আপডেট হবে।';
+
+  @override
+  String get payPalTakingLonger =>
+      'এটি স্বাভাবিকের চেয়ে বেশি সময় নিচ্ছে। আপনি ইতিমধ্যে পেমেন্ট করে থাকলে নিচে যাচাই করুন।';
+
+  @override
+  String get payPalReopenButton => 'PayPal আবার খুলুন';
+
+  @override
+  String get payPalVerifying => 'আপনার পেমেন্ট যাচাই করা হচ্ছে…';
+
+  @override
+  String get payPalVerifyingBody =>
+      'PayPal-এর সাথে নিশ্চিত করা হচ্ছে, একটু অপেক্ষা করুন।';
+
+  @override
+  String get payPalPaymentCancelled =>
+      'পেমেন্ট বাতিল করা হয়েছে। আপনার কাছ থেকে কোনো চার্জ নেওয়া হয়নি।';
+
+  @override
+  String get payPalDoneButton => 'হয়েছে';
+
+  @override
   String get yourDevices => 'Your devices';
 
   @override
@@ -2416,4 +2448,197 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get householdDeclinedHint =>
       'তারা প্রত্যাখ্যান করেছে। আবার আমন্ত্রণ জানাতে সরিয়ে দিন।';
+
+  @override
+  String get carrierActivityFallbackOperator => 'এই অপারেটর';
+
+  @override
+  String get carrierUsageRequiredTitle =>
+      'অটো-রিফিল এই লাইন সুরক্ষিত রাখতে পারবে না';
+
+  @override
+  String carrierUsageRequiredBody(String operator) {
+    return '$operator শুধুমাত্র কল, এসএমএস বা ডেটা ব্যবহার হলেই নিষ্ক্রিয়তার কাউন্টডাউন পুনরায় শুরু করে। ব্যালেন্স যোগ করা এর মধ্যে গণ্য হয় না, তাই কোনো অটো-টপআপ এই নম্বরটি নিষ্ক্রিয় হওয়া ঠেকাতে পারবে না। স্ট্যান্ডার্ড প্ল্যান বেছে নিন — আমরা আপনাকে সময়মতো সতর্ক করব যাতে আপনি নিজেই লাইনটি ব্যবহার করতে পারেন।';
+  }
+
+  @override
+  String get carrierMinDenominationTitle =>
+      'এই অপারেটরের জন্য বড় টপআপ প্রয়োজন';
+
+  @override
+  String carrierMinDenominationBody(
+    String operator,
+    String amount,
+    String currency,
+  ) {
+    return '$operator শুধুমাত্র $amount $currency বা তার বেশি টপআপে লাইনের মেয়াদ যোগ করে। এর কম যেকোনো পরিমাণ শুধু খরচযোগ্য ব্যালেন্স হিসেবে যোগ হয় এবং নম্বরটি তখনও নিষ্ক্রিয় হয়ে যেতে পারে, তাই প্রিমিয়াম এই লাইনটি $amount $currency-এ রিফিল করে।';
+  }
+
+  @override
+  String get premiumUnavailableForCarrier =>
+      'এই অপারেটরের জন্য প্রিমিয়াম উপলব্ধ নয়';
+
+  @override
+  String get carrierRulesLinkLabel => 'এই অপারেটরের নিয়ম সম্পর্কে আরও';
+
+  @override
+  String get carrierRulesSheetTitle => 'নম্বর বন্ধ হওয়ার নিয়ম';
+
+  @override
+  String carrierRulesHowTitle(String operator) {
+    return '$operator কীভাবে সিদ্ধান্ত নেয়';
+  }
+
+  @override
+  String carrierRechargeOkBody(String operator) {
+    return 'লাইনে টপআপ হলেই $operator তার গণনা আবার শুরু করে, পরিমাণ যাই হোক। এ কারণেই এখানে স্বয়ংক্রিয় রিফিল নম্বরটি ধরে রাখতে পারে।';
+  }
+
+  @override
+  String get carrierRulesNumbersTitle => 'সংখ্যাগুলো';
+
+  @override
+  String carrierRulesWindowRow(int days) {
+    return 'গণনাযোগ্য টপআপ ছাড়া $days দিন পর নম্বর নিষ্ক্রিয় করা হয়';
+  }
+
+  @override
+  String carrierRulesGraceRow(int days) {
+    return 'এরপর একই নম্বর ফেরত পেতে $days দিন';
+  }
+
+  @override
+  String get carrierRulesNoGraceRow =>
+      'ফেরত পাওয়ার সময় নেই — নম্বরটি সঙ্গে সঙ্গে ছেড়ে দেওয়া হয়';
+
+  @override
+  String carrierRulesMinTopupRow(String amount, String currency) {
+    return 'মেয়াদ যোগ করে এমন সবচেয়ে ছোট টপআপ $amount $currency';
+  }
+
+  @override
+  String carrierRulesCadenceRow(int days, int count) {
+    return 'আমরা প্রতি $days দিনে রিফিল করব — বছরে $count বার';
+  }
+
+  @override
+  String get carrierRulesVerdictTitle => 'আমরা কী করতাম';
+
+  @override
+  String get carrierVerdictSelfServiceTitle =>
+      'এই লাইনের জন্য প্রিমিয়াম কিনবেন না';
+
+  @override
+  String get carrierVerdictSelfServiceBody =>
+      'টাকাটা রেখে দিন। আমরা যা-ই পাঠাই, তাতে এই অপারেটরের ঘড়ি নতুন করে শুরু হয় না; নম্বরটি কেবল সেটি ব্যবহার করলেই টিকে থাকে।';
+
+  @override
+  String get carrierVerdictStandardTitle => 'এখানে স্ট্যান্ডার্ডই যথেষ্ট';
+
+  @override
+  String get carrierVerdictStandardBody =>
+      'এই অপারেটর আপনাকে অনেকটা সময় দেয়। তারিখটা আমরা দেখে রাখি আর আপনাকে জানাই; জানালে নিজেই টপআপ করে নিন, তখন শুধু ব্যালেন্সের দামটুকুই দিতে হবে।';
+
+  @override
+  String get carrierVerdictPremiumWorthTitle => 'প্রিমিয়াম নেওয়া যুক্তিসঙ্গত';
+
+  @override
+  String get carrierVerdictPremiumWorthBody =>
+      'বছরে কয়েকটি টপআপ, প্রতিটি এমন তারিখে যা এখান থেকে দেখা যায় না। চাইলে নিজে হাতেও করা যায় — স্বয়ংক্রিয় করলে বিষয়টি নিয়ে আর ভাবতেই হবে না।';
+
+  @override
+  String get carrierVerdictPremiumMustTitle => 'এটি স্বয়ংক্রিয় করে নিন';
+
+  @override
+  String get carrierVerdictPremiumMustBody =>
+      'এই অপারেটর এত দ্রুত এগোয় যে অন্য দেশ থেকে প্রতিবার নিজে মনে রাখা কোনো একদিন ফসকে যাবেই — আর একবার ফসকানো মানেই নম্বরটি হারানো।';
+
+  @override
+  String get carrierReasonUsageOnly =>
+      'শুধু কল, SMS বা ডেটা ব্যবহার গণনা হয়। একা ব্যালেন্স নয়।';
+
+  @override
+  String carrierReasonQualifying(String amount, String currency) {
+    return '$amount $currency-এর কম টপআপ শুধু ব্যালেন্স হিসেবে আসে, কোনো মেয়াদ যোগ করে না।';
+  }
+
+  @override
+  String carrierReasonShortWindow(int days) {
+    return 'দুটি গণনাযোগ্য টপআপের মাঝে মাত্র $days দিন।';
+  }
+
+  @override
+  String carrierReasonLongWindow(int days) {
+    return '$days দিন প্রায় পুরো এক বছর — একটি রিমাইন্ডারেই চলে যায়।';
+  }
+
+  @override
+  String get carrierReasonNoGrace =>
+      'কোনো ছাড়ের সময় নেই। তারিখ পেরোলেই নম্বর চলে যায়।';
+
+  @override
+  String carrierReasonGrace(int days) {
+    return 'তারিখের পরে নম্বরটি ফিরে পেতে আপনি $days দিন সময় পাবেন।';
+  }
+
+  @override
+  String carrierReasonAutomationCost(
+    String self,
+    String premium,
+    String extra,
+  ) {
+    return 'শুধু ব্যালেন্সেই বছরে প্রায় $self লাগে। প্রিমিয়াম $premium, অর্থাৎ তার $extra অংশটুকু স্বয়ংক্রিয়তার দাম।';
+  }
+
+  @override
+  String carrierSelfServiceTitle(String operator) {
+    return 'অথবা সরাসরি $operator থেকে কিনুন';
+  }
+
+  @override
+  String get carrierSelfServiceBody =>
+      'অপারেটরের নিজের অ্যাপ থেকে টপআপ করুন, তাতে শুধু ব্যালেন্সের দামই দিতে হবে, আর কিছু নয়।';
+
+  @override
+  String carrierSelfServiceCountryLine(String country) {
+    return 'নম্বরের দেশ: $country';
+  }
+
+  @override
+  String carrierSelfServiceAppHint(String app) {
+    return 'এর অ্যাপ সাধারণত \"$app\" নামে প্রকাশ করা হয়।';
+  }
+
+  @override
+  String carrierSelfServiceUnverified(String operator) {
+    return 'আমরা নিজে এই অ্যাপটি যাচাই করিনি। স্টোরে খুঁজুন এবং কিছু ইনস্টল করার আগে নিশ্চিত হয়ে নিন যে প্রকাশক সত্যিই $operator।';
+  }
+
+  @override
+  String get carrierSelfServiceSearchStore => 'অ্যাপ স্টোরে খুঁজুন';
+
+  @override
+  String get carrierSelfServiceOpenApp => 'অপারেটরের অ্যাপ খুলুন';
+
+  @override
+  String get carrierSelfServiceWeb => 'অপারেটরের ওয়েবসাইট থেকে টপআপ করুন';
+
+  @override
+  String carrierSelfServiceUssd(String code) {
+    return 'ডেটা নেই? ওই ফোন থেকেই $code ডায়াল করুন।';
+  }
+
+  @override
+  String get carrierRulesSourceLink => 'অপারেটরের প্রকাশিত শর্তাবলি';
+
+  @override
+  String get carrierRulesDisclaimer =>
+      'অপারেটররা না জানিয়েই এই নিয়ম বদলায়। আপনারটি বদলে থাকলে সাপোর্টকে জানান, আমরা আবার যাচাই করব।';
+
+  @override
+  String get carrierActionTitle => 'আপনার পদক্ষেপ দরকার';
+
+  @override
+  String get carrierActionDesc =>
+      'কোনো লাইনের এমন কিছু দরকার হলে যা কেবল আমিই করতে পারি — সিমটি ব্যবহার করা বা অপারেটরের নিজের অ্যাপ থেকে টপআপ করা — আমাকে জানান।';
 }

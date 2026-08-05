@@ -5,6 +5,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:keep_sims/features/sim_lines/data/models/country_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/carrier_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/carrier_rule_model.dart';
+import 'package:keep_sims/features/sim_lines/data/models/carrier_self_service_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/line_activity_log_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/payment_method_model.dart';
@@ -156,11 +157,15 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
       dataToSend.remove('updated_at');
       dataToSend['user_id'] = userId;
 
+      // Bounded so a socket left half-open by the app being backgrounded (for
+      // the PayPal browser, say) surfaces as an error instead of hanging the
+      // caller forever behind a spinner.
       final response = await _supabase
           .from('sim_lines')
           .insert(dataToSend)
           .select()
-          .single();
+          .single()
+          .timeout(const Duration(seconds: 20));
 
       final createdLine = SimLine.fromJson(response);
 
@@ -235,9 +240,13 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
     if (_connectivity.isOffline) {
       final cached = _cache.readJson('cached_countries');
       if (cached is List) {
-        return cached
-            .map((json) => Country.fromJson(json as Map<String, dynamic>))
-            .toList();
+        final list = <Country>[];
+        for (final item in cached) {
+          try {
+            list.add(Country.fromJson(item as Map<String, dynamic>));
+          } catch (_) {}
+        }
+        return list;
       }
       return [];
     }
@@ -269,10 +278,17 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
         'sri lanka',
       ];
 
-      final countries = (response as List)
-          .map((json) => Country.fromJson(json as Map<String, dynamic>))
-          .where((c) => targetCountries.contains(c.name.toLowerCase()))
-          .toList();
+      final countries = <Country>[];
+      for (final item in (response as List)) {
+        try {
+          final c = Country.fromJson(item as Map<String, dynamic>);
+          if (targetCountries.contains(c.name.toLowerCase()) || c.isSupported) {
+            countries.add(c);
+          }
+        } catch (e) {
+          print('[getSupportedCountries] Error parsing country: $e, item: $item');
+        }
+      }
 
       countries.sort((a, b) {
         final aIndex = targetCountries.indexOf(a.name.toLowerCase());
@@ -291,17 +307,25 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
     } on PostgrestException catch (e) {
       final cached = _cache.readJson('cached_countries');
       if (cached is List) {
-        return cached
-            .map((json) => Country.fromJson(json as Map<String, dynamic>))
-            .toList();
+        final list = <Country>[];
+        for (final item in cached) {
+          try {
+            list.add(Country.fromJson(item as Map<String, dynamic>));
+          } catch (_) {}
+        }
+        if (list.isNotEmpty) return list;
       }
       throw Exception('Failed to load countries: ${e.message}');
     } catch (e) {
       final cached = _cache.readJson('cached_countries');
       if (cached is List) {
-        return cached
-            .map((json) => Country.fromJson(json as Map<String, dynamic>))
-            .toList();
+        final list = <Country>[];
+        for (final item in cached) {
+          try {
+            list.add(Country.fromJson(item as Map<String, dynamic>));
+          } catch (_) {}
+        }
+        if (list.isNotEmpty) return list;
       }
       final errStr = e.toString();
       if (errStr.contains('SocketException') ||
@@ -473,6 +497,43 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
         throw Exception('No internet connection. Please check your network.');
       }
       throw Exception('Failed to load carrier rule by id: $errStr');
+    }
+  }
+
+  /// The operator's own top-up channel (I8). Absent for most carriers, and
+  /// absence is a normal answer, not a failure — the rules sheet degrades to a
+  /// store search built from the carrier's name.
+  ///
+  /// Never throws. This feeds an advisory panel, and a carrier with no row must
+  /// not turn the sheet into an error state.
+  @override
+  Future<CarrierSelfService?> getCarrierSelfService(String carrierId) async {
+    final cacheKey = 'cached_carrier_self_service_$carrierId';
+
+    if (_connectivity.isOffline) {
+      final cached = _cache.readJson(cacheKey);
+      if (cached != null) {
+        return CarrierSelfService.fromJson(cached as Map<String, dynamic>);
+      }
+      return null;
+    }
+
+    try {
+      final response = await _supabase
+          .from('carrier_self_service')
+          .select()
+          .eq('carrier_id', carrierId)
+          .maybeSingle();
+
+      if (response == null) return null;
+      await _cache.writeJson(cacheKey, response);
+      return CarrierSelfService.fromJson(response);
+    } catch (_) {
+      final cached = _cache.readJson(cacheKey);
+      if (cached != null) {
+        return CarrierSelfService.fromJson(cached as Map<String, dynamic>);
+      }
+      return null;
     }
   }
 

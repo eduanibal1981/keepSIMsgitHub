@@ -830,6 +830,7 @@
     "ok": "OK",
     "rechargeNow":  "Recharge Now",
     "planFeePaidFromWallet": "Plan fee paid from your wallet balance.",
+    "planFeeNotChargedRetry": "Your top-up arrived but the plan fee could not be charged, so the line was not created. Your balance is safe — please try again.",
     "activityTopupRequested": "Refill request submitted for ${amount}",
     "@activityTopupRequested": {
         "placeholders": {
@@ -1002,6 +1003,14 @@
     "payPalPaymentConfirmed": "Payment Confirmed!",
     "payPalPaymentFailed": "Payment failed or was cancelled.",
     "payPalForceCaptureButton": "I've Completed Payment on PayPal",
+    "payPalBrowserOpened": "PayPal is open in your browser",
+    "payPalBrowserOpenedBody": "Finish paying there — this screen updates on its own.",
+    "payPalTakingLonger": "This is taking longer than usual. If you have already paid, check the payment below.",
+    "payPalReopenButton": "Reopen PayPal",
+    "payPalVerifying": "Verifying your payment…",
+    "payPalVerifyingBody": "One moment while we confirm with PayPal.",
+    "payPalPaymentCancelled": "Payment cancelled. You have not been charged.",
+    "payPalDoneButton": "Done",
     "yourDevices": "Your devices",
     "manageDevicesDesc": "See where you are signed in and sign out a device",
     "devicesExplainer": "These are the app installations signed in to your account. Signing one out stops notifications reaching it and asks it to sign in again.",
@@ -1233,5 +1242,145 @@
     "householdOwnerLabel": "You (owner)",
     "householdSettingsSubtitle": "Share your SIM lines with family, set spending limits",
     "householdStatusDeclined": "DECLINED",
-    "householdDeclinedHint": "They declined. Remove them to invite again."
+    "householdDeclinedHint": "They declined. Remove them to invite again.",
+
+    "carrierActivityFallbackOperator": "This carrier",
+    "@carrierActivityFallbackOperator": {
+        "description": "Stands in for the operator name in the carrier activity notice when the carrier has not been resolved yet."
+    },
+    "carrierUsageRequiredTitle": "Auto-refill cannot protect this line",
+    "@carrierUsageRequiredTitle": {
+        "description": "Heading shown when a carrier only resets its inactivity clock on real usage, so the Premium plan is not offered."
+    },
+    "carrierUsageRequiredBody": "{operator} only restarts its inactivity countdown when the line makes a call, sends an SMS, or uses data. Adding credit does not count, so no automatic top-up can stop this number being deactivated. Choose Standard and we will alert you in time to use the line yourself.",
+    "@carrierUsageRequiredBody": {
+        "description": "Explains why Premium is unavailable for a usage_required carrier.",
+        "placeholders": {
+            "operator": {
+                "type": "String"
+            }
+        }
+    },
+    "carrierMinDenominationTitle": "This carrier needs a larger top-up",
+    "@carrierMinDenominationTitle": {
+        "description": "Heading shown when only a top-up at or above a threshold buys line validity."
+    },
+    "carrierMinDenominationBody": "{operator} only adds line validity for top-ups of {amount} {currency} or more. Anything smaller arrives as spendable credit and the number can still be deactivated, so Premium refills this line at {amount} {currency}.",
+    "@carrierMinDenominationBody": {
+        "description": "Explains why the refill amount is higher than the carrier's headline minimum.",
+        "placeholders": {
+            "operator": {
+                "type": "String"
+            },
+            "amount": {
+                "type": "String"
+            },
+            "currency": {
+                "type": "String"
+            }
+        }
+    },
+    "premiumUnavailableForCarrier": "Premium is not available for this carrier",
+
+    "carrierRulesLinkLabel": "More about this carrier's rules",
+    "@carrierRulesLinkLabel": {
+        "description": "Tappable line on the plan card that opens the full deactivation-rules sheet."
+    },
+    "carrierRulesSheetTitle": "Deactivation rules",
+    "carrierRulesHowTitle": "How {operator} decides",
+    "@carrierRulesHowTitle": {
+        "placeholders": { "operator": { "type": "String" } }
+    },
+    "carrierRechargeOkBody": "{operator} restarts its countdown every time the line is topped up, whatever the amount. That is what lets an automatic refill hold the number.",
+    "@carrierRechargeOkBody": {
+        "description": "Explains an ordinary recharge_ok carrier, where refilling is enough.",
+        "placeholders": { "operator": { "type": "String" } }
+    },
+    "carrierRulesNumbersTitle": "The numbers",
+    "carrierRulesWindowRow": "Deactivated after {days} days without a qualifying top-up",
+    "@carrierRulesWindowRow": {
+        "placeholders": { "days": { "type": "int" } }
+    },
+    "carrierRulesGraceRow": "{days} days afterwards to recover the same number",
+    "@carrierRulesGraceRow": {
+        "placeholders": { "days": { "type": "int" } }
+    },
+    "carrierRulesNoGraceRow": "No recovery window — the number is released straight away",
+    "carrierRulesMinTopupRow": "{amount} {currency} is the smallest top-up that adds validity",
+    "@carrierRulesMinTopupRow": {
+        "placeholders": { "amount": { "type": "String" }, "currency": { "type": "String" } }
+    },
+    "carrierRulesCadenceRow": "We would refill every {days} days — {count} times a year",
+    "@carrierRulesCadenceRow": {
+        "placeholders": { "days": { "type": "int" }, "count": { "type": "int" } }
+    },
+    "carrierRulesVerdictTitle": "What we would do",
+    "carrierVerdictSelfServiceTitle": "Do not buy Premium for this line",
+    "carrierVerdictSelfServiceBody": "Keep your money. Nothing we can send resets this carrier's clock, so the only thing that keeps the number is using it.",
+    "carrierVerdictStandardTitle": "Standard is enough here",
+    "carrierVerdictStandardBody": "This carrier gives you a long runway. Let us watch the date and tell you; top up yourself when we do, and you pay only the airtime.",
+    "carrierVerdictPremiumWorthTitle": "Premium is worth it",
+    "carrierVerdictPremiumWorthBody": "A few top-ups a year, each on a date you cannot see from here. Doing it by hand is realistic if you prefer — automating it means you never have to think about it.",
+    "carrierVerdictPremiumMustTitle": "Automate this one",
+    "carrierVerdictPremiumMustBody": "This carrier moves fast enough that remembering by hand, from another country, will eventually slip — and one slip is the number.",
+    "carrierReasonUsageOnly": "Only a call, an SMS or a data session counts. Credit alone does not.",
+    "carrierReasonQualifying": "A top-up under {amount} {currency} arrives as credit and buys no validity.",
+    "@carrierReasonQualifying": {
+        "placeholders": { "amount": { "type": "String" }, "currency": { "type": "String" } }
+    },
+    "carrierReasonShortWindow": "Only {days} days between qualifying top-ups.",
+    "@carrierReasonShortWindow": {
+        "placeholders": { "days": { "type": "int" } }
+    },
+    "carrierReasonLongWindow": "{days} days is close to a full year — one reminder covers it.",
+    "@carrierReasonLongWindow": {
+        "placeholders": { "days": { "type": "int" } }
+    },
+    "carrierReasonNoGrace": "There is no grace period. Miss the date and the number is gone.",
+    "carrierReasonGrace": "You would have {days} days after the date to recover the number.",
+    "@carrierReasonGrace": {
+        "placeholders": { "days": { "type": "int" } }
+    },
+    "carrierReasonAutomationCost": "The airtime alone is about {self} a year. Premium is {premium}, so {extra} of it buys the automation.",
+    "@carrierReasonAutomationCost": {
+        "description": "Names what the convenience costs, so the user can decide whether it is worth it.",
+        "placeholders": {
+            "self": { "type": "String" },
+            "premium": { "type": "String" },
+            "extra": { "type": "String" }
+        }
+    },
+    "carrierSelfServiceTitle": "Or buy it from {operator} directly",
+    "@carrierSelfServiceTitle": {
+        "placeholders": { "operator": { "type": "String" } }
+    },
+    "carrierSelfServiceBody": "Top up in the operator's own app and you pay the airtime and nothing else.",
+    "carrierSelfServiceCountryLine": "Home country: {country}",
+    "@carrierSelfServiceCountryLine": {
+        "placeholders": { "country": { "type": "String" } }
+    },
+    "carrierSelfServiceAppHint": "Its app is usually published as \"{app}\".",
+    "@carrierSelfServiceAppHint": {
+        "placeholders": { "app": { "type": "String" } }
+    },
+    "carrierSelfServiceUnverified": "We have not checked this listing ourselves. Search the store and make sure the publisher really is {operator} before you install anything.",
+    "@carrierSelfServiceUnverified": {
+        "description": "Shown whenever carrier_self_service.verified_at is NULL, which is every row today.",
+        "placeholders": { "operator": { "type": "String" } }
+    },
+    "carrierSelfServiceSearchStore": "Search the app store",
+    "carrierSelfServiceOpenApp": "Open the operator's app",
+    "carrierSelfServiceWeb": "Top up on the operator's website",
+    "carrierSelfServiceUssd": "No data? Dial {code} on the handset itself.",
+    "@carrierSelfServiceUssd": {
+        "placeholders": { "code": { "type": "String" } }
+    },
+    "carrierRulesSourceLink": "The carrier's published terms",
+    "carrierRulesDisclaimer": "Carriers change these rules without announcing it. If yours has, tell support and we will re-check.",
+
+    "carrierActionTitle": "Carrier Action Needed",
+    "@carrierActionTitle": {
+        "description": "Alert Preferences row for the notification advising a top-up in the operator's own app."
+    },
+    "carrierActionDesc": "Tell me when a line needs something only I can do — using the SIM, or topping it up in my operator's own app."
 }

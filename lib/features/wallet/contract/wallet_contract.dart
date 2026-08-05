@@ -34,7 +34,7 @@ abstract interface class WalletContract {
   ///
   /// The amount is priced server-side by `pay_plan_fee_from_wallet` from
   /// `system_configs.BASE_SERVICE_FEE_USD` — the client never states it.
-  Future<Result<Wallet>> payPlanFee({String? simLineId});
+  Future<Result<Wallet>> payPlanFee({String? simLineId, String? referenceId});
 
   /// Sends wallet credit to the KeepSIMs account owning [recipientEmail].
   ///

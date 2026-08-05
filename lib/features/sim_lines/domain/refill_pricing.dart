@@ -60,9 +60,40 @@ class RefillPricing {
     );
   }
 
+  /// Days to leave between automated refills on a carrier that terminates a
+  /// line after [inactivityLimitDays] without qualifying activity.
+  ///
+  /// **Mirrors `public.refill_interval_days(integer, integer)`.** The subscriber
+  /// is quoted from this function and the scheduler queues from that one; if
+  /// they disagree the plan year either runs out early or is overcharged, so
+  /// the two must be changed together.
+  ///
+  /// The margin exists because a refill is not instantaneous or certain: the
+  /// worker can fail, the supplier can be down, and the retry sweep needs room
+  /// before the carrier reclaims the number. 15% of the window, never less than
+  /// a week.
+  ///
+  /// What this deliberately does *not* consider is `topup_validity_days`. That
+  /// is a bundle cycle — how long the credit a refill buys stays spendable — and
+  /// letting it set the cadence is what sold a Saudi STC line 13 refills a year
+  /// against a carrier that terminates at 180 days. Credit expiring costs the
+  /// subscriber money; only the inactivity limit costs them the number.
+  static int refillIntervalDays(int inactivityLimitDays, {int? override}) {
+    if (override != null && override > 0) {
+      return override > 365 ? 365 : override;
+    }
+    if (inactivityLimitDays < 1) return 0;
+    final margin = (inactivityLimitDays * 0.15).ceil();
+    final interval = inactivityLimitDays - (margin < 7 ? 7 : margin);
+    if (interval < 1) return 1;
+    return interval > 365 ? 365 : interval;
+  }
+
   /// Refills a premium subscription pre-pays for in a year.
-  static int refillsPerYear(int topupValidityDays) =>
-      topupValidityDays <= 0 ? 0 : (365 / topupValidityDays).ceil();
+  static int refillsPerYear(int inactivityLimitDays, {int? override}) {
+    final interval = refillIntervalDays(inactivityLimitDays, override: override);
+    return interval <= 0 ? 0 : (365 / interval).ceil();
+  }
 
   /// What one premium refill costs the subscriber, before the gateway's cut.
   ///
@@ -132,7 +163,8 @@ class RefillPricing {
   static double premiumYearlyTotal({
     required double baseServiceFeeUsd,
     required double minimumTopupAmount,
-    required int topupValidityDays,
+    required int inactivityLimitDays,
+    int? refillIntervalDaysOverride,
     required double appFeePercent,
     required double premiumMarginPercent,
     required double premiumMarginPerRefillUsd,
@@ -147,7 +179,13 @@ class RefillPricing {
       premiumMarginPerRefillUsd: premiumMarginPerRefillUsd,
       inappPricingOverride: inappPricingOverride,
     );
-    final net = baseServiceFeeUsd + perRefill * refillsPerYear(topupValidityDays);
+    final net =
+        baseServiceFeeUsd +
+        perRefill *
+            refillsPerYear(
+              inactivityLimitDays,
+              override: refillIntervalDaysOverride,
+            );
 
     return grossUpTotal(
       net: net,

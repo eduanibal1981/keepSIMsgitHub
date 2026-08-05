@@ -3405,3 +3405,250 @@ so the order matters:
 **Owner note:** the Ding key supplied was marked **Live**. It was pasted in plaintext into a chat
 transcript and should be rotated once the wiring is proven. It is not, and must not be, in this
 repo.
+
+---
+
+## 10. Phase J — carrier deactivation data was fabricated, and the cadence it drove followed it
+
+*Added 2026-08-05, in answer to a user screenshot of the Premium purchase screen for STC Saudi
+Arabia: "13 refills of $7.07 = $98.29/yr, need 13 refills per year to keep line active — is this
+real?" It was not. STC's own terms extend SIM validity 180 days from the last paid activity; the
+app was pricing off a 30-day bundle-renewal column that had nothing to do with deactivation.*
+
+### 10.1 What was actually stored, and what it was doing
+
+`carrier_rules.topup_validity_days` was seeded at a flat **30** for **41 of the 50** original
+rows (a further 7 at 28, one at 86, one `NULL`), and `RefillPricing.refillsPerYear =
+ceil(365 / topup_validity_days)` used it as the deactivation window. It is not one — it is how
+long a *bundle* lasts, unrelated to when a carrier reclaims a dormant number. Six supported
+countries (`BH IQ LB NP QA SY`) had **zero carrier rows at all**, so a user in any of them saw
+an empty picker.
+
+Cross-checked against every operator's own published terms (21 countries, 50→67 carriers,
+sources cited per row in the migration): the flat-30 figure was wrong for effectively every
+carrier, in both directions —
+
+| Carrier | Real deactivation window | Old refills/yr | New refills/yr |
+|---|---|---|---|
+| STC (Saudi Arabia) | 180 days (stc's own T&Cs) | 13 ($98.29/yr) | **3** (~$25/yr) |
+| Grameenphone / Robi / Banglalink (Bangladesh) | 330 days (BTRC: 11mo + 30d notice) | 13 | **2** |
+| Jazz / Zong / Ufone / Telenor (Pakistan) | 180 days (PTA) | 13 | **3** |
+| Zain / Ooredoo / stc (Kuwait) | validity is bought by *denomination*, never reset by any top-up | 13, at a $1 minimum that bought ~1 week | **5**, at the ~$32.70 (10 KD) minimum that actually buys 90 days |
+
+The Kuwait row is a second class of bug, not just a wrong number: three Gulf/Levant/Nepal
+carriers sell line validity in voucher tiers, and the stored `minimum_topup_amount` (~$1) sat
+below the tier that buys any validity at all — the automated refill being sold as protection
+would have landed as spendable credit and the line would have churned anyway.
+
+### 10.2 What shipped — live, not flag-gated
+
+This is a **correction to already-live billing logic**, not a new capability, so it does not
+follow the "ship inert behind a flag" default ([[keepsims-pre-production-stance]]) — the thing
+being fixed is money already changing hands on numbers that were provably wrong. It went
+straight to the production DB via four migrations, each re-stamped by hand in
+`schema_migrations` (the long-running `apply_migration` drift, unchanged from Phase I).
+
+* **`20260817000000_i7`** — schema. New `carrier_rules` columns: `activity_requirement`
+  (`recharge_ok` / `min_denomination` / `usage_required`), `validity_qualifying_topup_amount`,
+  `activity_requirement_note`, `balance_validity_days`, `refill_interval_days_override`,
+  `rule_source_url`. New functions `refill_interval_days()` / `refills_per_year()` — **the
+  single source of truth**, mirrored line-for-line by `RefillPricing.refillIntervalDays` in
+  Dart. `admin_upsert_carrier_rule` extended to write all six new columns.
+* **`20260817010000_i7b`** — data. Carriers added for the six empty countries (Batelco / stc /
+  Zain Bahrain, Zain / Asiacell / Korek Iraq, Alfa / touch Lebanon, Nepal Telecom / Ncell,
+  Ooredoo / Vodafone Qatar, Syriatel / MTN Syria) plus missing majors (Airtel Bangladesh /
+  Sri Lanka, Vodafone Oman). All 67 rule rows replaced with researched values; each carries
+  `rule_source_url` and, where an operator's own terms were found, `last_verified_at`. Where
+  they weren't, the row says `UNVERIFIED` in `notes` and keeps a conservative window rather than
+  guessing generously.
+* **`20260817020000_i7c`** — `queue_premium_refill_executions` steps by
+  `refill_interval_days()` instead of `topup_validity_days`, and now **refuses to queue**
+  (`KS422`) for a `usage_required` carrier, or a `min_denomination` carrier whose
+  `minimum_topup_amount` is still below its qualifying tier.
+* **`20260817030000_i7d`** — closes a regression **i7b's own data change opened** in
+  `compute_usage_forecasts()`: the depletion forecast read the same `topup_validity_days` as a
+  refill cycle, so once it held 7 (Kuwait) instead of 30, a line with no top-up history would
+  have been suggested a 7-day refill frequency against a $32.70 qualifying minimum — roughly
+  $1,700/yr. Caught and fixed in the same session, before merge. The forecast's own fitted
+  history (`observed_days`, produced by the *old* 30-day cadence) was also no longer
+  trustworthy as a suggestion and is now used only to predict balance depletion, never cadence.
+
+**Also found and fixed in self-review, not by request:** `sim_lines_controller.dart` carried two
+hand-copied duplicates of the schedule sheet's 90→85 / 30→28 / 14→13 chip-execution mapping.
+Once `frequencyDays` became an already-margin-adjusted interval, applying that mapping again
+would have subtracted the safety margin twice and desynced the notify schedule from the
+pre-paid `topup_executions` queue. Removed; a test (`refill_pricing_test.dart` → "a derived
+interval is never mistaken for a schedule chip label") pins the six windows (21/37/100/101/
+106/107) that would collide with a chip label — none of which any current carrier uses.
+
+### 10.3 The case the old model couldn't express: refilling that doesn't help
+
+Three carriers reset their inactivity clock only on **consumption** — an outgoing call, SMS or
+data session — not on credit arriving: MTN Syria, Syriatel (assumed to match, unverified), and
+Vodafone Germany's CallYa. No refill cadence saves these lines. Per the guard-doctrine already
+established for money paths ([[plan-fee-rpc-refuses-without-raising]]), the fix is at the
+spend, not just a warning: `queue_premium_refill_executions` refuses `usage_required` carriers
+outright (`KS422`), and the client refuses the purchase **before charging** in both
+`sim_line_form_screen._saveLine` and `line_upgrade_sheet` — mirroring the RPC guard rather than
+discovering it after a PayPal charge, the exact charged-but-no-line shape recorded in
+[[builder-context-shadowing-ate-the-plan-fee]].
+
+New widget `CarrierActivityNotice` (`lib/features/sim_lines/presentation/widgets/
+carrier_activity_notice.dart`) renders above the plan tiers whenever `activity_requirement !=
+recharge_ok`, quoting the operator's own terms (`activity_requirement_note`) rather than a
+paraphrase — paraphrasing carrier terms is how the 13-refill claim survived as long as it did.
+
+### 10.4 Verification
+
+`flutter test`: **251/251** (was 223 at session start; +28, including a tripwire that walks all
+730 possible windows checking for chip-label collisions). `flutter analyze`: **0 errors** (104
+info/warnings, baseline 122). Two pre-existing tests re-derived for the new `RefillPricing`
+signature (`inactivityLimitDays` replaces `topupValidityDays` as the priced parameter) —
+`refill_pricing_test.dart` and `paypal_checkout_screen_test.dart` — both recomputed from the
+carrier's real deactivation window, not just parameter-renamed.
+
+Live SQL cross-check, all 67 rows: `refill_interval_days()` / `refills_per_year()` output range
+23–365 days / 1–16 refills a year, **zero** collisions with a schedule-sheet chip label.
+
+### 10.5 Closed the same day
+
+* ✅ **`onboarding_screen.dart`** now carries the same `CarrierActivityNotice` and pre-payment
+  gate as the other two purchase surfaces — plus a third gate the other two didn't need:
+  onboarding's premium path can pay via **PayPal**, and `commitSubmit()` (where the wallet-path
+  gate lives) is only invoked from PayPal's `onSuccess` callback, i.e. **after** the charge
+  already succeeded. The gate had to be duplicated one level up, before `amountToCharge` is
+  computed and before `PayPalCheckoutScreen` is ever pushed — otherwise a `usage_required`
+  carrier would still have taken a real PayPal payment before refusing the line.
+* ✅ **All 9 non-English locales translated** (`ar bn es hi ne si tr ur`, `en` was the template).
+  `flutter gen-l10n` confirms all six new keys resolved for all ten locales; no locale falls back
+  to English for this feature.
+* ✅ Re-verified after both changes: `flutter analyze` **0 errors, 104 issues** (unchanged),
+  `flutter test` **251/251** (unchanged from § 10.4 — the onboarding gate and translations added
+  no new test surface, and broke none of the existing 251).
+
+### 10.6 Still open
+
+* 🟡 **A meaningful fraction of the 67 rows are `UNVERIFIED`** — sourced from the regional norm
+  for that carrier's market rather than that carrier's own terms, and flagged as such in
+  `notes` / `last_verified_at`. Each keeps the *shorter* of the plausible windows, so the
+  failure mode of being wrong is "one extra refill a year," not "the line dies." The full
+  row-by-row list, with what was and wasn't sourced, is the `researched` CTE of
+  `20260817010000_i7b_real_carrier_rules.sql`.
+* 🟡 The six carriers newly added for **Bahrain, Iraq, Lebanon, Nepal, Qatar, Syria** are seeded
+  `is_supported = false` — there is no cached offer for any of them yet, so flipping that flag is
+  a separate, deliberate step once `worker_offers_cache` has something to serve them.
+
+---
+
+## 11. Phase I8 — telling the subscriber the rules, and when not to buy from us
+
+Phase J/i7 established what each carrier actually does. I8 is the other half: **showing that to
+the person being asked to pay for it**, and admitting out loud when the right answer is to spend
+the money somewhere else.
+
+Migrations `20260818000000_i8` … `20260818020000_i8c`, all applied and hand-re-stamped.
+Baselines: `flutter analyze lib` **104 issues (unchanged)**, `flutter test` **264/264** (251 + 13
+new), `f0_grant_matrix_tests.sql` **6/6**, new `i8_carrier_advice_tests.sql` **9/9**, zero residue.
+
+### 11.1 "More about this carrier's rules" — the link on the plan card
+
+The plan card quoted a price and nothing else, so a subscriber had no way to see that Telekom DE
+reclaims a number after **700** days of silence while DITO does it after 90 with **no grace period
+at all**. Those two lines do not need the same product.
+
+`CarrierRulesSheet` (opened from all three purchase surfaces — `sim_line_form_screen`,
+`onboarding_screen`, `line_upgrade_sheet`) shows the deactivation window, the recovery window, the
+smallest top-up that adds validity, our refill cadence, the operator's own published terms — and a
+verdict.
+
+The verdict engine is `lib/features/sim_lines/domain/carrier_rule_advice.dart`, kept out of the
+widgets so the three surfaces cannot drift into three different opinions:
+
+| Verdict | When | What it says |
+|---|---|---|
+| `selfServiceOnly` | `usage_required` | **Keep your money.** Nothing we send resets this clock. |
+| `standardIsEnough` | window ≥ 270 days | One reminder a year covers it; pay only the airtime. |
+| `premiumWorthIt` | 61–269 days | Doing it by hand is realistic; automating means never thinking about it. |
+| `premiumStronglyAdvised` | window ≤ 60 days | Remembering by hand, from abroad, will eventually slip. |
+
+Two design points that are the feature, not decoration:
+
+* **A missing grace period escalates the verdict one level, and a generous one never de-escalates
+  it.** A recovery window is a reason to relax about *this* top-up, not a reason to stop topping
+  up. Philippine carriers (DITO/Globe/Smart) all have `grace_period_days = 0`.
+* **`usage_required` returns before the money is ever computed**, so the sheet prints no yearly
+  price at all for a plan i7 already refuses to sell. A price printed beside a refusal reads as an
+  offer.
+
+The sheet also names what the convenience costs: `refillsPerYear × qualifying amount` is the
+airtime alone, and the difference from the Premium quote is stated in the same sentence. On Kuwait
+that is $163.50 of airtime inside a $200 plan.
+
+### 11.2 The notification: buy it in the operator's own app
+
+New notification category **`carrier_action`** (both CHECKs, `seed_default_alert_settings`, and a
+backfill so all 8 existing accounts can mute it). Deliberately **not** `system` — a subscriber who
+does not want to be told to shop elsewhere must be able to silence exactly that without also
+silencing maintenance notices — and **not** `promo`, which is marketing consent, off for 8 of 8
+users, and the wrong contract for advice that costs us the sale.
+
+`emit_carrier_self_service_advice(p_dry_run boolean)`, cron `55 2 * * *` (after the 02:20 forecast
+refresh it reads its due dates from). It writes to exactly two kinds of line:
+
+* **`usage_required`** — nothing we sell can hold it, whatever the subscriber has paid.
+* **no automation paid for** — free/Standard lines, where the countdown runs and nothing is
+  scheduled. `has_paid_premium_entitlement()` is the test, so a genuine premium line on an
+  ordinary carrier is never told to go elsewhere.
+
+**It ships off.** `CARRIER_ADVICE_ENABLED = false`, per the standing pre-production instruction.
+`p_dry_run` deliberately **ignores** the switch, because a dry run only reads — so the owner can
+see the exact copy every line would receive, then flip one row. Today's live dry run: `sent 0,
+considered 0, skipped_no_due_date 1` — three of the four live lines are outside the 21-day lead
+and the fourth has no forecast at all, which is now a counter rather than silence.
+
+### 11.3 `carrier_self_service` — and what it deliberately does not contain
+
+One row per carrier for the operator's own channel: app name, store URLs, web top-up page, USSD.
+**Every URL column ships NULL and `verified_at` is NULL on all 29 seeded rows.** The seed carries
+app *names* only, and only where the app's name differs from the carrier's — "Ana Vodafone",
+"mySTC", "Jazz World", "MyGP", "GigaLife" — because that is the only case where knowing it saves
+the user anything.
+
+A prepaid telecom app is among the most cloned listings in either store, so an unverified row
+renders as a **store search plus an explicit "check the publisher really is <Carrier>" caution**,
+never as a link. Same principle as G5's roaming tariffs: 44 carriers got nothing rather than an
+invention. Filling the URLs in is an owner/admin task through
+`admin_upsert_carrier_self_service()` (patch-shaped, `assert_admin()`-gated, audit-logged;
+`{"verified": true}` stamps `verified_at` with `now()` — a caller may not supply the date itself).
+
+### 11.4 🔴 Found by re-running F0: `admin_upsert_carrier_rule` was anon-callable
+
+`f0_grant_matrix_tests.sql` **failed T1 on the first run after I8**. i7 created
+`admin_upsert_carrier_rule(uuid,jsonb)` and never revoked anything, so it carried Supabase's
+blanket grant: `{=X/postgres, …, anon=X/postgres, …}` — PUBLIC **and** anon EXECUTE on a
+SECURITY DEFINER function that rewrites the rules every refill schedule and plan price is computed
+from. Third occurrence of the F-3/F-4 shape.
+
+**Latent, not live, and that was established by probing rather than reading**: called as `anon` it
+answered `KS460 "Admin access required"`, because the body opens with `PERFORM assert_admin()` and
+assert_admin raises on a *missing* identity. Revoked in `20260818020000_i8c`; the same probe now
+answers `42501`, i.e. the grant refuses before the body runs. Both new I8 admin RPCs were added to
+the allow-list at the same time. **This is the fourth phase in a row where running F0 found
+something. Run it after every phase.**
+
+### 11.5 Still open
+
+* 🟡 **The registry is 29 app names and nothing else.** No store URL, no web top-up page, no USSD
+  string, nothing verified. Until the owner fills those in through the admin app, every carrier
+  renders as a store search.
+* 🟡 **Server-authored notification bodies are English-only.** The sheet is fully localised across
+  all 9 locales (39 new keys × 9), but `emit_carrier_self_service_advice` composes its copy in
+  SQL, exactly like `emit_forecast_depletion_alerts` and every other emitter. Localising
+  server-authored notifications is its own piece of work and belongs with § 6 #12.
+* 🟡 **Nothing has been driven through the Flutter UI.** The sheet is proven by `analyze`, the
+  advice engine by 13 unit tests, and the emitter by 9 DB assertions against real rows — no
+  screenshot, no device run.
+* 🔎 **`carrier_rules.rule_type` CHECK is `('prepaid','postpaid','data_only')`, but
+  `getCarrierRule()` queries `rule_type = 'default'` first.** That branch can never match, so
+  every live read is served by the `'prepaid'` fallback. Harmless today (one wasted round-trip per
+  lookup), but the dead branch reads as though `'default'` were a real tier.

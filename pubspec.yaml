@@ -37,6 +37,10 @@ dependencies:
 
   # Utilities
   url_launcher: ^6.3.1
+  # Receives io.supabase.keepsims://payment-success when PayPal bounces the
+  # browser back. Already resolved as a supabase_flutter transitive; declared
+  # directly because the payment flow imports it.
+  app_links: ^7.2.0
   qr_flutter: ^4.1.0
   flutter_secure_storage: ^10.3.1
   http: ^1.2.2

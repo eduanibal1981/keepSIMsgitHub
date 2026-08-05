@@ -1710,6 +1710,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get planFeePaidFromWallet => 'Plan fee paid from your wallet balance.';
 
   @override
+  String get planFeeNotChargedRetry =>
+      'Your top-up arrived but the plan fee could not be charged, so the line was not created. Your balance is safe — please try again.';
+
+  @override
   String activityTopupRequested(String amount) {
     return 'Refill request submitted for \$$amount';
   }
@@ -2098,6 +2102,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get payPalForceCaptureButton => 'I\'ve Completed Payment on PayPal';
 
   @override
+  String get payPalBrowserOpened => 'PayPal is open in your browser';
+
+  @override
+  String get payPalBrowserOpenedBody =>
+      'Finish paying there — this screen updates on its own.';
+
+  @override
+  String get payPalTakingLonger =>
+      'This is taking longer than usual. If you have already paid, check the payment below.';
+
+  @override
+  String get payPalReopenButton => 'Reopen PayPal';
+
+  @override
+  String get payPalVerifying => 'Verifying your payment…';
+
+  @override
+  String get payPalVerifyingBody => 'One moment while we confirm with PayPal.';
+
+  @override
+  String get payPalPaymentCancelled =>
+      'Payment cancelled. You have not been charged.';
+
+  @override
+  String get payPalDoneButton => 'Done';
+
+  @override
   String get yourDevices => 'Your devices';
 
   @override
@@ -2403,4 +2434,197 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get householdDeclinedHint =>
       'They declined. Remove them to invite again.';
+
+  @override
+  String get carrierActivityFallbackOperator => 'This carrier';
+
+  @override
+  String get carrierUsageRequiredTitle =>
+      'Auto-refill cannot protect this line';
+
+  @override
+  String carrierUsageRequiredBody(String operator) {
+    return '$operator only restarts its inactivity countdown when the line makes a call, sends an SMS, or uses data. Adding credit does not count, so no automatic top-up can stop this number being deactivated. Choose Standard and we will alert you in time to use the line yourself.';
+  }
+
+  @override
+  String get carrierMinDenominationTitle =>
+      'This carrier needs a larger top-up';
+
+  @override
+  String carrierMinDenominationBody(
+    String operator,
+    String amount,
+    String currency,
+  ) {
+    return '$operator only adds line validity for top-ups of $amount $currency or more. Anything smaller arrives as spendable credit and the number can still be deactivated, so Premium refills this line at $amount $currency.';
+  }
+
+  @override
+  String get premiumUnavailableForCarrier =>
+      'Premium is not available for this carrier';
+
+  @override
+  String get carrierRulesLinkLabel => 'More about this carrier\'s rules';
+
+  @override
+  String get carrierRulesSheetTitle => 'Deactivation rules';
+
+  @override
+  String carrierRulesHowTitle(String operator) {
+    return 'How $operator decides';
+  }
+
+  @override
+  String carrierRechargeOkBody(String operator) {
+    return '$operator restarts its countdown every time the line is topped up, whatever the amount. That is what lets an automatic refill hold the number.';
+  }
+
+  @override
+  String get carrierRulesNumbersTitle => 'The numbers';
+
+  @override
+  String carrierRulesWindowRow(int days) {
+    return 'Deactivated after $days days without a qualifying top-up';
+  }
+
+  @override
+  String carrierRulesGraceRow(int days) {
+    return '$days days afterwards to recover the same number';
+  }
+
+  @override
+  String get carrierRulesNoGraceRow =>
+      'No recovery window — the number is released straight away';
+
+  @override
+  String carrierRulesMinTopupRow(String amount, String currency) {
+    return '$amount $currency is the smallest top-up that adds validity';
+  }
+
+  @override
+  String carrierRulesCadenceRow(int days, int count) {
+    return 'We would refill every $days days — $count times a year';
+  }
+
+  @override
+  String get carrierRulesVerdictTitle => 'What we would do';
+
+  @override
+  String get carrierVerdictSelfServiceTitle =>
+      'Do not buy Premium for this line';
+
+  @override
+  String get carrierVerdictSelfServiceBody =>
+      'Keep your money. Nothing we can send resets this carrier\'s clock, so the only thing that keeps the number is using it.';
+
+  @override
+  String get carrierVerdictStandardTitle => 'Standard is enough here';
+
+  @override
+  String get carrierVerdictStandardBody =>
+      'This carrier gives you a long runway. Let us watch the date and tell you; top up yourself when we do, and you pay only the airtime.';
+
+  @override
+  String get carrierVerdictPremiumWorthTitle => 'Premium is worth it';
+
+  @override
+  String get carrierVerdictPremiumWorthBody =>
+      'A few top-ups a year, each on a date you cannot see from here. Doing it by hand is realistic if you prefer — automating it means you never have to think about it.';
+
+  @override
+  String get carrierVerdictPremiumMustTitle => 'Automate this one';
+
+  @override
+  String get carrierVerdictPremiumMustBody =>
+      'This carrier moves fast enough that remembering by hand, from another country, will eventually slip — and one slip is the number.';
+
+  @override
+  String get carrierReasonUsageOnly =>
+      'Only a call, an SMS or a data session counts. Credit alone does not.';
+
+  @override
+  String carrierReasonQualifying(String amount, String currency) {
+    return 'A top-up under $amount $currency arrives as credit and buys no validity.';
+  }
+
+  @override
+  String carrierReasonShortWindow(int days) {
+    return 'Only $days days between qualifying top-ups.';
+  }
+
+  @override
+  String carrierReasonLongWindow(int days) {
+    return '$days days is close to a full year — one reminder covers it.';
+  }
+
+  @override
+  String get carrierReasonNoGrace =>
+      'There is no grace period. Miss the date and the number is gone.';
+
+  @override
+  String carrierReasonGrace(int days) {
+    return 'You would have $days days after the date to recover the number.';
+  }
+
+  @override
+  String carrierReasonAutomationCost(
+    String self,
+    String premium,
+    String extra,
+  ) {
+    return 'The airtime alone is about $self a year. Premium is $premium, so $extra of it buys the automation.';
+  }
+
+  @override
+  String carrierSelfServiceTitle(String operator) {
+    return 'Or buy it from $operator directly';
+  }
+
+  @override
+  String get carrierSelfServiceBody =>
+      'Top up in the operator\'s own app and you pay the airtime and nothing else.';
+
+  @override
+  String carrierSelfServiceCountryLine(String country) {
+    return 'Home country: $country';
+  }
+
+  @override
+  String carrierSelfServiceAppHint(String app) {
+    return 'Its app is usually published as \"$app\".';
+  }
+
+  @override
+  String carrierSelfServiceUnverified(String operator) {
+    return 'We have not checked this listing ourselves. Search the store and make sure the publisher really is $operator before you install anything.';
+  }
+
+  @override
+  String get carrierSelfServiceSearchStore => 'Search the app store';
+
+  @override
+  String get carrierSelfServiceOpenApp => 'Open the operator\'s app';
+
+  @override
+  String get carrierSelfServiceWeb => 'Top up on the operator\'s website';
+
+  @override
+  String carrierSelfServiceUssd(String code) {
+    return 'No data? Dial $code on the handset itself.';
+  }
+
+  @override
+  String get carrierRulesSourceLink => 'The carrier\'s published terms';
+
+  @override
+  String get carrierRulesDisclaimer =>
+      'Carriers change these rules without announcing it. If yours has, tell support and we will re-check.';
+
+  @override
+  String get carrierActionTitle => 'Carrier Action Needed';
+
+  @override
+  String get carrierActionDesc =>
+      'Tell me when a line needs something only I can do — using the SIM, or topping it up in my operator\'s own app.';
 }

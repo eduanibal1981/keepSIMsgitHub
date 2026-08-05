@@ -1,5 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:keep_sims/core/providers.dart';
 import 'package:keep_sims/core/providers/app_config_provider.dart';
+import 'package:keep_sims/core/result.dart';
+import 'package:keep_sims/core/services/local_cache_service.dart';
+import 'package:keep_sims/features/wallet/model/pending_plan_fee.dart';
 import 'package:keep_sims/features/sim_lines/data/models/carrier_rule_model.dart';
 import 'package:keep_sims/features/sim_lines/domain/refill_pricing.dart';
 import 'package:keep_sims/features/wallet/controller/wallet_controller.dart';
@@ -36,16 +40,116 @@ class PlanPayment {
   /// the caller should proceed to the PayPal fallback. Other failures throw.
   /// The amount is priced server-side by `pay_plan_fee_from_wallet`; the
   /// balance is only pre-checked here to skip a doomed round-trip.
+  ///
+  /// That pre-check reads the **repository**, never
+  /// `walletControllerProvider.value`. `ref.invalidate` merely *schedules* a
+  /// rebuild, so a `.value` read taken straight after a refresh still returns
+  /// the pre-refresh balance. Right after a PayPal top-up that reads as $0.00,
+  /// the fee is silently skipped, and the caller is told the wallet could not
+  /// cover a balance that had in fact already arrived.
   static Future<bool> tryStandardFromWallet(
     WidgetRef ref, {
     String? simLineId,
   }) async {
     final fee = await ref.read(baseServiceFeeUsdProvider.future);
-    final balance = ref.read(walletControllerProvider).value?.wallet.balance;
-    if (balance == null || balance < fee) return false;
-    return ref
+    final cache = ref.read(localCacheServiceProvider);
+
+    // A fee already paid for a line that never got created is spendable now,
+    // and replaying its reference id debits nothing. Without this every failure
+    // after the debit bills the user again on the next attempt.
+    final pending = PendingPlanFee.fromJson(cache.readJson(_pendingFeeKey));
+    if (pending == null) {
+      final result = await ref
+          .read(walletRepositoryProvider)
+          .getWallet()
+          .timeout(const Duration(seconds: 10));
+      switch (result) {
+        case Success(data: final wallet):
+          if (wallet.balance < fee) return false;
+        case Failure():
+          return false;
+      }
+    }
+
+    // Recorded *before* the charge: a crash between the debit landing and the
+    // response arriving must still leave the reference recoverable.
+    final reference =
+        pending?.referenceId ??
+        'planfee_${DateTime.now().microsecondsSinceEpoch}';
+    await cache.writeJson(
+      _pendingFeeKey,
+      PendingPlanFee(
+        referenceId: reference,
+        amount: fee,
+        chargedAt: pending?.chargedAt ?? DateTime.now(),
+      ).toJson(),
+    );
+
+    final paid = await ref
         .read(walletControllerProvider.notifier)
-        .payPlanFee(simLineId: simLineId);
+        .payPlanFee(simLineId: simLineId, referenceId: reference);
+
+    // Not paid means not charged, so nothing is owed and nothing is held.
+    if (!paid) await cache.remove(_pendingFeeKey);
+    return paid;
+  }
+
+  static const String _pendingFeeKey = 'pending_plan_fee';
+
+  /// Called once the SIM line the fee bought actually exists. Until this runs,
+  /// the next attempt reuses the same reference and is not billed again.
+  static Future<void> consumePendingFee(WidgetRef ref) =>
+      ref.read(localCacheServiceProvider).remove(_pendingFeeKey);
+
+  /// Blocks until a just-completed PayPal top-up has actually reached the
+  /// wallet, returning false if it never does within [timeout].
+  ///
+  /// Checkout reports success off `paypal_orders.status = 'captured'`, which
+  /// the CHECKOUT.ORDER.APPROVED webhook writes. The wallet is credited by a
+  /// *different, later* webhook — PAYMENT.CAPTURE.COMPLETED — so at the moment
+  /// the user sees "Payment Confirmed" the balance is still the old one. A
+  /// caller that charges the wallet right then reads the stale balance, decides
+  /// it cannot afford the fee and skips the charge; an 11-second gap between
+  /// the two has been observed in production.
+  ///
+  /// This polls the **repository**, not `walletControllerProvider`. Reading
+  /// `provider.future` in a loop deadlocks: `payPlanFee` calls
+  /// `invalidateSelf()` on the same provider, and a `.future` awaited across an
+  /// invalidation can be left waiting on a build that was superseded and will
+  /// never complete — which hung the form on an un-cancellable spinner. A plain
+  /// repository read has no provider lifecycle to trip over. The caller
+  /// refreshes the provider once afterwards.
+  ///
+  /// Every round is bounded so a stalled socket cannot outlive [timeout].
+  static Future<bool> waitForWalletCredit(
+    WidgetRef ref, {
+    required double atLeast,
+    Duration timeout = const Duration(seconds: 45),
+    Duration interval = const Duration(milliseconds: 1500),
+  }) async {
+    final repo = ref.read(walletRepositoryProvider);
+    final deadline = DateTime.now().add(timeout);
+
+    while (true) {
+      try {
+        final result = await repo.getWallet().timeout(
+          const Duration(seconds: 10),
+        );
+        if (result case Success(data: final wallet)
+            when wallet.balance >= atLeast) {
+          // Deliberately does *not* invalidate the controller here. Invalidating
+          // disposes its state, and `payPlanFee` opens with a `state.value` null
+          // check that returns false — so refreshing right before the charge can
+          // itself cancel the charge. `payPlanFee` calls `invalidateSelf()` once
+          // the debit lands, which is the right moment for the UI to catch up.
+          return true;
+        }
+      } catch (_) {
+        // A failed or timed-out read is not a verdict — the deadline is.
+      }
+      if (DateTime.now().isAfter(deadline)) return false;
+      await Future.delayed(interval);
+    }
   }
 
   /// `inapp_pricing` is an override, not the default: the column parses null
@@ -77,7 +181,8 @@ class PlanPayment {
       baseServiceFeeUsd:
           ref.watch(baseServiceFeeUsdProvider).value ?? kDefaultBaseServiceFeeUsd,
       minimumTopupAmount: rule.minimumTopupAmount,
-      topupValidityDays: rule.topupValidityDays,
+      inactivityLimitDays: rule.inactivityLimitDays,
+      refillIntervalDaysOverride: rule.refillIntervalDaysOverride,
       appFeePercent:
           ref.watch(appFeePercentProvider).value ?? kDefaultAppFeePercent,
       premiumMarginPercent: ref.watch(premiumMarginPercentProvider).value ?? 0,
@@ -104,7 +209,8 @@ class PlanPayment {
     return RefillPricing.premiumYearlyTotal(
       baseServiceFeeUsd: baseFee,
       minimumTopupAmount: rule.minimumTopupAmount,
-      topupValidityDays: rule.topupValidityDays,
+      inactivityLimitDays: rule.inactivityLimitDays,
+      refillIntervalDaysOverride: rule.refillIntervalDaysOverride,
       appFeePercent: appFee,
       premiumMarginPercent: margin,
       premiumMarginPerRefillUsd: marginFlat,

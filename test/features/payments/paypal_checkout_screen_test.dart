@@ -61,7 +61,12 @@ void main() {
       expect(grossUp, 3.10);
     });
 
-    test(r'Premium plan calculation for Orange Egypt (override $4.30, 30 days = 13 refills) matches SQL ($60.96)', () {
+    // i7: Orange Egypt's rule used to carry a 30-day bundle cycle, which billed
+    // 13 refills a year. Egypt's NTRA-aligned rule is a 90-day validity window
+    // with a 90-day quarantine, so refill_interval_days(90) = 76 and the plan
+    // year pre-pays 5. The per-refill override and the gross-up are unchanged —
+    // only how many of them the subscriber is charged for.
+    test(r'Premium plan calculation for Orange Egypt (override $4.30, 90-day window = 5 refills) matches SQL ($25.35)', () {
       final perRefill = RefillPricing.premiumRefillPrice(
         minimumTopupAmount: 3.59,
         appFeePercent: 3.0,
@@ -74,7 +79,7 @@ void main() {
       final total = RefillPricing.premiumYearlyTotal(
         baseServiceFeeUsd: 2.50,
         minimumTopupAmount: 3.59,
-        topupValidityDays: 30,
+        inactivityLimitDays: 90,
         appFeePercent: 3.0,
         premiumMarginPercent: 5.0,
         premiumMarginPerRefillUsd: 0.324,
@@ -82,7 +87,7 @@ void main() {
         gatewayFeeFixed: 0.49,
         inappPricingOverride: 4.30,
       );
-      expect(total, 60.96);
+      expect(total, 25.35);
     });
   });
 }
