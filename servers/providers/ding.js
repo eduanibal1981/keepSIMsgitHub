@@ -68,7 +68,8 @@ async function fetchCatalog({ baseUrl = dingBaseUrl, apiKey, countryCode, carrie
   if (!apiKey) throw new Error('DING_API_KEY is not set');
   if (!carrierCode) return [];
 
-  // `carrierCode` is Ding's ProviderCode, stored in carriers.ding_carrier.
+  // `carrierCode` is Ding's ProviderCode, held in
+  // carrier_provider_map.provider_carrier_code WHERE provider = 'ding'.
   const url = `${baseUrl}/GetProducts?providerCodes=${encodeURIComponent(carrierCode)}`
     + `&countryIsos=${encodeURIComponent(countryCode)}&pageSize=200`;
 

@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/core/utils/build_context_extension.dart';
@@ -37,11 +40,16 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
   final Set<String> _selectedIds = {};
   bool _isBulkActionLoading = false;
 
+  /// Live "a refill just completed" signal — see [_subscribeToRefillActivity].
+  RealtimeChannel? _refillChannel;
+  Timer? _refillRefreshDebounce;
+
   @override
   void initState() {
     super.initState();
     Future.microtask(() {
       ref.read(analyticsServiceProvider).logScreenView('sim_lines_list');
+      _subscribeToRefillActivity();
     });
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(() {
@@ -56,8 +64,60 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
 
   @override
   void dispose() {
+    _refillRefreshDebounce?.cancel();
+    _refillChannel?.unsubscribe();
     _tabController.dispose();
     super.dispose();
+  }
+
+  /// Re-reads the lines when one of this user's refills actually completes.
+  ///
+  /// "Last Refill: No refill yet" was shown on a Premium line whose first
+  /// pre-paid refill had already succeeded — `sim_lines.last_topup_at` was set
+  /// correctly in the database four seconds after the line was created, and
+  /// nothing in the app ever looked again. `simLinesControllerProvider` is
+  /// `keepAlive` and rebuilds only when the auth profile changes, so until
+  /// somebody pressed the refresh button the card kept rendering the row the
+  /// save had constructed locally. That affects every server-computed field on
+  /// the card, not just this one: the nightly forecast, an auto-rescue and a
+  /// scheduled refill are all invisible the same way.
+  ///
+  /// `topup_executions` is already in the `supabase_realtime` publication and
+  /// is SELECT-own for clients, so this receives only the caller's own rows.
+  /// Debounced because a worker completing a batch emits one event per row and
+  /// each would otherwise trigger its own refetch.
+  void _subscribeToRefillActivity() {
+    final userId = Supabase.instance.client.auth.currentUser?.id;
+    if (userId == null) return;
+
+    _refillChannel = Supabase.instance.client
+        .channel('sim_lines_refill_activity_$userId')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.update,
+          schema: 'public',
+          table: 'topup_executions',
+          filter: PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: 'user_id',
+            value: userId,
+          ),
+          callback: (payload) {
+            final status = payload.newRecord['status'] as String?;
+            if (status != 'success' && status != 'failed') return;
+            if (payload.oldRecord['status'] == status) return;
+
+            _refillRefreshDebounce?.cancel();
+            _refillRefreshDebounce = Timer(
+              const Duration(milliseconds: 800),
+              () {
+                if (!mounted) return;
+                ref.invalidate(simLinesControllerProvider);
+                ref.invalidate(scheduledTopupControllerProvider);
+              },
+            );
+          },
+        )
+        .subscribe();
   }
 
   Future<void> _bulkToggleRefill(

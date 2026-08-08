@@ -139,7 +139,10 @@ async function fetchCatalog({ baseUrl = reloadlyBaseUrl, clientId, clientSecret,
   const list = await res.json();
   const ops = Array.isArray(list) ? list : (list.content || []);
 
-  // `carrierCode` is carriers.reloadly_operator_id.
+  // `carrierCode` is the numeric Reloadly operator id, held in
+  // carrier_provider_map.provider_carrier_code WHERE provider = 'reloadly'.
+  // service_providers.carrier_label_style = 'numeric_id' records that this
+  // supplier identifies operators by id rather than by brand string.
   const wanted = carrierCode ? ops.filter(o => String(o.operatorId) === String(carrierCode)) : ops;
 
   // No invented fallback, for the same reason as ding.js.

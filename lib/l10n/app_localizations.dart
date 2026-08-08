@@ -4861,6 +4861,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Roam or eSIM? Compare with your carrier'**
   String get roamOrEsimTooltip;
+
+  /// Label for travel preparation switch on Protection Console
+  ///
+  /// In en, this message translates to:
+  /// **'If you travel tomorrow, switch this on to help you prepare'**
+  String get travelTomorrowLabel;
+
+  /// Button label to buy eSIM when travel mode is enabled
+  ///
+  /// In en, this message translates to:
+  /// **'Buy eSIM'**
+  String get buyEsimLabel;
+
+  /// Button label to buy cheapest package when travel mode is enabled
+  ///
+  /// In en, this message translates to:
+  /// **'Buy Cheapest Package'**
+  String get buyCheapestPackageLabel;
 }
 
 class _AppLocalizationsDelegate

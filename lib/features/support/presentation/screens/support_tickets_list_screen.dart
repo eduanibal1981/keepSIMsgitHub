@@ -169,6 +169,8 @@ class _TicketCard extends StatelessWidget {
         return loc.ticketCategoryRefillIssue;
       case 'account':
         return loc.ticketCategoryAccount;
+      case 'feedback':
+        return 'Feedback & Improvement';
       default:
         return category;
     }

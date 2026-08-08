@@ -16,12 +16,12 @@ import 'package:keep_sims/core/services/biometric_auth_service.dart';
 import 'package:keep_sims/features/sim_lines/data/repositories/sim_lines_repository_impl.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
 import 'package:keep_sims/features/notifications/presentation/controllers/notification_settings_controller.dart';
+import 'package:keep_sims/core/providers.dart';
 import 'package:keep_sims/core/providers/app_config_provider.dart';
+import 'package:keep_sims/core/result.dart';
 import 'package:keep_sims/features/sim_lines/domain/plan_payment.dart';
-import 'package:keep_sims/features/sim_lines/domain/refill_pricing.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/carrier_activity_notice.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/carrier_rules_sheet.dart';
-import 'package:keep_sims/features/wallet/controller/wallet_controller.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '../../data/models/carrier_rule_model.dart';
@@ -1257,6 +1257,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
     try {
       final selectedPlanType = _selectedTier;
       String? carrierRuleId;
+      CarrierRule? premiumRule;
       DateTime? planExpiresAt;
 
       // Ensure premium lines have pricing
@@ -1279,12 +1280,25 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
             );
           }
           carrierRuleId = rule.id;
+          premiumRule = rule;
         } else {
           throw Exception(
             'Premium pricing not configured for this carrier. Please select Standard plan.',
           );
         }
       }
+
+      // Premium is priced from the carrier rule and cannot be charged without
+      // one — on both rails, and on the server too (`plan_price_net` raises
+      // rather than invent a carrier). Saying so here keeps it a sentence the
+      // subscriber can act on instead of a null-check crash further down.
+      if (selectedPlanType == 'premium' && premiumRule == null) {
+        throw Exception(
+          'Please choose the country and carrier for this line before selecting '
+          'the Premium plan — its price comes from the carrier\'s own rules.',
+        );
+      }
+
       if (selectedPlanType != 'free') {
         planExpiresAt = DateTime.now().add(const Duration(days: 365));
       }
@@ -1363,6 +1377,42 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
             );
             Navigator.pop(context); // Close the form
           }
+        } on PremiumRefillQueueException catch (e, stack) {
+          // The line was created and the plan was paid for; only the pre-paid
+          // refill queue is missing. Reporting this as "failed to save" is what
+          // left an unpaid-looking premium line in production with no way for
+          // its owner to retry — the phone number is taken, so a second attempt
+          // can only collide with the row that already exists.
+          //
+          // The fee is spent either way: the reference must be consumed here
+          // too, or the next line the user adds replays it and is created for
+          // free.
+          await PlanPayment.consumePendingFee(ref);
+          await Sentry.captureException(
+            e.cause,
+            stackTrace: stack,
+            withScope: (scope) {
+              scope.setTag('flow', 'premium_refill_queue');
+              scope.setContexts('premium_queue', {
+                'sim_line_id': e.simLineId,
+                'carrier_rule_id': carrierRuleId,
+              });
+            },
+          );
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  'Your line was saved and your payment was recorded, but the '
+                  'automatic refills could not be scheduled: $e\n'
+                  'Please contact support — do not add the line again.',
+                ),
+                backgroundColor: AppColors.warning,
+                duration: const Duration(seconds: 12),
+              ),
+            );
+            Navigator.pop(context);
+          }
         } catch (e) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -1392,118 +1442,116 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
           selectedPlanType != 'free' && originalPlan != selectedPlanType;
 
       if (needsCharge) {
-        final walletBalance =
-            ref.read(walletControllerProvider).value?.wallet.balance ?? 0.0;
+        // What this plan costs on the wallet rail. Priced here only to size the
+        // top-up and fill in the breakdown sheet — `pay_plan_fee_from_wallet`
+        // prices the debit itself, server-side, from the same formula
+        // (`plan_price_net`, J8).
+        final double basePlanFee = double.parse(
+          (selectedPlanType == 'premium'
+                  ? await PlanPayment.premiumWalletTotal(ref, premiumRule!)
+                  : await ref.read(baseServiceFeeUsdProvider.future))
+              .toStringAsFixed(2),
+        );
 
-        if (selectedPlanType == 'standard') {
-          // Standard bills wallet-first (C3c)
-          try {
-            if (await PlanPayment.tryStandardFromWallet(
-              ref,
-              simLineId: _isEdit ? widget.id : null,
-            )) {
-              if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      AppLocalizations.of(context)!.planFeePaidFromWallet,
-                    ),
-                    backgroundColor: AppColors.success,
-                  ),
-                );
-              }
-              await commitSave();
-              return;
-            }
-          } catch (e) {
+        // BOTH paid tiers bill wallet-first (C3c for Standard; J8 extends it to
+        // Premium). Premium used to skip this entirely and push a PayPal
+        // *deposit* — which credited the wallet, created the line and never
+        // charged for the plan, so `queue_premium_refill_executions` refused
+        // the line with KS403 and the save reported failure over a row that
+        // had already been inserted. A wallet debit also lands the entitlement
+        // synchronously, before the line exists.
+        try {
+          if (await PlanPayment.tryPlanFromWallet(
+            ref,
+            plan: selectedPlanType,
+            rule: premiumRule,
+            simLineId: _isEdit ? widget.id : null,
+          )) {
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text('Payment failed: $e'),
-                  backgroundColor: AppColors.error,
+                  content: Text(
+                    AppLocalizations.of(context)!.planFeePaidFromWallet,
+                  ),
+                  backgroundColor: AppColors.success,
                 ),
               );
-              setState(() => _isSaving = false);
             }
+            await commitSave();
             return;
           }
-        }
-
-        // Wallet balance was insufficient (or plan is premium)
-        double basePlanFee = selectedPlanType == 'standard'
-            ? await ref.read(baseServiceFeeUsdProvider.future)
-            : 2.50;
-
-        if (selectedPlanType == 'premium' && carrierRuleId != null) {
-          final rule = await ref
-              .read(simLinesRepositoryProvider)
-              .getCarrierRule(_selectedCarrier!.id);
-          if (rule != null) {
-            basePlanFee =
-                RefillPricing.premiumRefillPrice(
-                      minimumTopupAmount: rule.minimumTopupAmount,
-                      appFeePercent:
-                          ref.watch(appFeePercentProvider).value ??
-                          kDefaultAppFeePercent,
-                      premiumMarginPercent:
-                          ref.watch(premiumMarginPercentProvider).value ?? 0,
-                      premiumMarginPerRefillUsd:
-                          ref.watch(premiumMarginPerRefillUsdProvider).value ??
-                          0,
-                      inappPricingOverride: PlanPayment.overrideFor(rule),
-                    ) *
-                    rule.refillsPerYear +
-                await ref.read(baseServiceFeeUsdProvider.future);
+        } catch (e) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Payment failed: $e'),
+                backgroundColor: AppColors.error,
+              ),
+            );
+            setState(() => _isSaving = false);
           }
+          return;
         }
-        basePlanFee = double.parse(basePlanFee.toStringAsFixed(2));
 
-        // Deduct existing wallet balance from fee needed
-        double netNeeded = basePlanFee - walletBalance;
-        if (netNeeded < 1.00) {
-          netNeeded = 1.00; // Minimum PayPal deposit
-        }
-        netNeeded = double.parse(netNeeded.toStringAsFixed(2));
-
-        // Get PayPal gateway fee specs
-        final paypalGateway = await ref.read(
-          paymentGatewayProvider('paypal').future,
+        // The wallet cannot cover it, so the plan is bought through PayPal as a
+        // PLAN charge — not as a wallet deposit.
+        //
+        // That distinction is the whole of C3c's contract and this screen was
+        // the one place breaking it. A deposit is credited to the payer's
+        // wallet at its FULL captured value (`paypal-webhook` passes `gross` to
+        // `credit_wallet_for_deposit`), so routing a plan purchase through a
+        // deposit hands the subscriber every cent they paid and leaves KeepSIMs
+        // paying PayPal's cut — $0.81 on a $9.52 Premium year, and $0.57 of a
+        // $2.50 Standard fee, which is 23%. Worse, the sheet computed a
+        // grossed-up total, printed it on the button, and then pushed checkout
+        // with the *un*-grossed figure, so PayPal charged $9.52 against a
+        // button that said $10.36.
+        //
+        // A plan charge is priced server-side by `quote_plan_price` from the
+        // same `plan_price_net` the wallet rail uses, grossed up once for the
+        // gateway. The figure below is the client's copy of that quote, shown
+        // for confirmation; the server still decides what is billed.
+        final planPayPalTotal = double.parse(
+          (selectedPlanType == 'premium'
+                  ? await PlanPayment.premiumYearlyTotal(ref, premiumRule!)
+                  : await PlanPayment.standardPayPalTotal(ref))
+              .toStringAsFixed(2),
         );
-        final feePct = paypalGateway?.feePercentage ?? 3.4;
-        final feeFixed = paypalGateway?.feeFixed ?? 0.49;
-
-        // Gross up netNeeded so PayPal's cut leaves netNeeded in the wallet
-        final grossTotalToCharge = RefillPricing.grossUpTotal(
-          net: netNeeded,
-          gatewayFeePercentage: feePct,
-          gatewayFeeFixed: feeFixed,
-        );
-
         final paypalFee = double.parse(
-          (grossTotalToCharge - netNeeded).toStringAsFixed(2),
+          (planPayPalTotal - basePlanFee).toStringAsFixed(2),
         );
+
+        // Read from the repository, not `walletControllerProvider.value` — the
+        // provider hands back the pre-refresh balance after an invalidate.
+        double walletBalance = 0.0;
+        final walletRead = await ref.read(walletRepositoryProvider).getWallet();
+        if (walletRead case Success(data: final w)) {
+          walletBalance = w.balance;
+        }
 
         // Show dialog with detailed breakdown!
         setState(() => _isSaving = false);
-        final shouldTopUp = await _showInsufficientWalletDialog(
+        final shouldPay = await _showPayPalPlanChargeDialog(
           context: context,
           currentBalance: walletBalance,
           basePlanFee: basePlanFee,
-          netNeeded: netNeeded,
-          grossTotalToCharge: grossTotalToCharge,
           paypalFee: paypalFee,
+          grossTotalToCharge: planPayPalTotal,
           planName: selectedPlanType == 'premium' ? 'Premium' : 'Standard',
         );
 
-        if (shouldTopUp != true) return;
+        if (shouldPay != true) return;
 
         // Biometric / Mock Security Verification (Interactive so emulator works)
         final authGuard = ref.read(paymentAuthGuardProvider);
         final authOk = await authGuard.confirmPaymentInteractive(
           context,
-          reason: 'Authenticate to top up wallet for $selectedPlanType plan',
+          reason: 'Authenticate to pay for the $selectedPlanType plan',
         );
         if (!authOk) return;
+
+        // Anything recorded from here on belongs to this purchase.
+        final chargeStartedAt = DateTime.now().toUtc();
 
         if (mounted) {
           // Captured from *this* screen's context, before the route is pushed.
@@ -1517,15 +1565,20 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
           // been debited and before the line was ever created.
           final navigator = Navigator.of(context);
           final messenger = ScaffoldMessenger.of(context);
-          final l10n = AppLocalizations.of(context)!;
 
           navigator.push(
             MaterialPageRoute(
               builder: (_) => PayPalCheckoutScreen(
-                initialAmount: netNeeded,
+                initialAmount: planPayPalTotal,
                 paymentReason:
-                    'Top up wallet for $selectedPlanType protection plan',
-                paymentKind: 'deposit',
+                    '${selectedPlanType == 'premium' ? 'Premium' : 'Standard'} '
+                    'protection plan — 1 year',
+                paymentKind: 'plan',
+                plan: selectedPlanType,
+                // Null on a new line: the row does not exist yet, which is
+                // exactly why the carrier rule id has to travel instead.
+                simLineId: _isEdit ? widget.id : null,
+                carrierRuleId: carrierRuleId,
                 onSuccess: () async {
                   navigator.pop(); // pop PayPal screen
                   setState(() => _isSaving = true);
@@ -1535,59 +1588,31 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                   // one stalled socket used to leave the screen unusable with no
                   // way back — hence the outer bound and the finally.
                   try {
-                    if (selectedPlanType == 'standard') {
-                      // The deposit is credited by a webhook that lands *after*
-                      // checkout reports success, so the balance has to be
-                      // waited for. A fixed delay here used to time out against
-                      // an 11-second credit, leaving the fee uncharged.
-                      final funded = await PlanPayment.waitForWalletCredit(
-                        ref,
-                        atLeast: basePlanFee,
-                      );
+                    // A plan charge becomes an entitlement only when the
+                    // `plan_payments` row lands, and checkout can report
+                    // success first — always on the client-driven capture
+                    // fallback, which writes no payment row at all. Creating a
+                    // Premium line before then asks the refill queue to trust a
+                    // payment it cannot see, and it answers KS403.
+                    //
+                    // Committed either way once the wait is over: the charge is
+                    // already made and a plan charge carries no idempotency
+                    // reference, so the worst outcome must be "plan active,
+                    // refills pending", never a second payment.
+                    await PlanPayment.waitForPlanPayment(
+                      ref,
+                      since: chargeStartedAt,
+                    );
 
-                      var paid = false;
-                      String? failure;
-                      if (funded) {
-                        try {
-                          paid = await PlanPayment.tryStandardFromWallet(
-                            ref,
-                            simLineId: widget.id,
-                          ).timeout(const Duration(seconds: 30));
-                        } catch (e) {
-                          failure = e.toString();
-                        }
-                      }
+                    messenger.showSnackBar(
+                      const SnackBar(
+                        content: Text('Payment received. Activating your plan…'),
+                        backgroundColor: AppColors.success,
+                      ),
+                    );
 
-                      // The fee is what the line is sold for, so an uncharged
-                      // fee must not produce a line. The deposit stays in the
-                      // wallet, so retrying costs the user nothing.
-                      if (!paid) {
-                        messenger.showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              failure != null
-                                  ? 'Payment failed: $failure'
-                                  : l10n.planFeeNotChargedRetry,
-                            ),
-                            backgroundColor: AppColors.error,
-                            duration: const Duration(seconds: 6),
-                          ),
-                        );
-                        return;
-                      }
-
-                      messenger.showSnackBar(
-                        SnackBar(
-                          content: Text(l10n.planFeePaidFromWallet),
-                          backgroundColor: AppColors.success,
-                        ),
-                      );
-                    }
-
-                    // The fee is already debited by this point, so a save that
-                    // stalls must surface as a retryable error rather than an
-                    // endless spinner — the reference id makes the retry adopt
-                    // the existing debit instead of billing a second year.
+                    // Paid by this point, so a save that stalls must surface as
+                    // a retryable error rather than an endless spinner.
                     await commitSave().timeout(const Duration(seconds: 45));
                   } catch (e, stack) {
                     // The fee is already debited here, so a failure at this
@@ -1643,12 +1668,17 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
     }
   }
 
-  // ── Insufficient Wallet Balance Dialog (Option 1 with Breakdown) ─────────
-  Future<bool?> _showInsufficientWalletDialog({
+  // ── Pay for the plan with PayPal (the wallet could not cover it) ─────────
+  //
+  // This used to be an "Insufficient Wallet Balance" top-up sheet, and every
+  // number in it described a deposit that is no longer made. It also stated a
+  // grossed-up total that was never charged: the button said $10.36 while
+  // checkout was opened for $9.52, because the caller passed the *net*. The
+  // breakdown now describes exactly one thing — the PayPal charge for the plan.
+  Future<bool?> _showPayPalPlanChargeDialog({
     required BuildContext context,
     required double currentBalance,
     required double basePlanFee,
-    required double netNeeded,
     required double grossTotalToCharge,
     required double paypalFee,
     required String planName,
@@ -1700,14 +1730,14 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Insufficient Wallet Balance',
+                          'Pay with PayPal',
                           style: AppTextStyles.titleMedium.copyWith(
                             fontWeight: FontWeight.bold,
                             color: context.onSurfaceColor,
                           ),
                         ),
                         Text(
-                          'Top up shortfall to activate $planName Plan',
+                          'Your wallet cannot cover the $planName Plan',
                           style: AppTextStyles.caption.copyWith(
                             color: isDark
                                 ? AppColors.textSecondaryDark
@@ -1737,7 +1767,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          '$planName Plan Fee:',
+                          '$planName Plan (1 year):',
                           style: TextStyle(
                             color: isDark
                                 ? AppColors.textSecondaryDark
@@ -1750,47 +1780,6 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                             fontWeight: FontWeight.bold,
                             color: context.primaryColor,
                           ),
-                        ),
-                      ],
-                    ),
-                    if (currentBalance > 0) ...[
-                      const SizedBox(height: 8),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Less Existing Balance:',
-                            style: TextStyle(
-                              color: isDark
-                                  ? AppColors.textSecondaryDark
-                                  : AppColors.textSecondaryLight,
-                            ),
-                          ),
-                          Text(
-                            '-\$${currentBalance.toStringAsFixed(2)}',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.success,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Net Deposit Needed:',
-                          style: TextStyle(
-                            color: isDark
-                                ? AppColors.textSecondaryDark
-                                : AppColors.textSecondaryLight,
-                          ),
-                        ),
-                        Text(
-                          '\$${netNeeded.toStringAsFixed(2)}',
-                          style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
@@ -1855,7 +1844,11 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        'Breakdown: \$${netNeeded.toStringAsFixed(2)} net deposit + \$${paypalFee.toStringAsFixed(2)} PayPal fee. Exactly \$${basePlanFee.toStringAsFixed(2)} will be paid to activate your plan, leaving \$0.00 leftover in your wallet.',
+                        'Breakdown: \$${basePlanFee.toStringAsFixed(2)} plan '
+                        '+ \$${paypalFee.toStringAsFixed(2)} PayPal fee. This '
+                        'is charged by PayPal for the plan itself, so nothing '
+                        'passes through your wallet.'
+                        '${currentBalance > 0 ? ' Your \$${currentBalance.toStringAsFixed(2)} balance stays untouched — top it up to \$${basePlanFee.toStringAsFixed(2)} and save the PayPal fee.' : ''}',
                         style: AppTextStyles.caption.copyWith(
                           color: context.onSurfaceColor.withValues(alpha: 0.85),
                           fontSize: 12,

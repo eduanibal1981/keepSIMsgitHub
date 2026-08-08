@@ -289,7 +289,12 @@ class WalletRepository implements WalletContract {
   }
 
   @override
-  Future<Result<Wallet>> payPlanFee({String? simLineId, String? referenceId}) async {
+  Future<Result<Wallet>> payPlanFee({
+    String? simLineId,
+    String? referenceId,
+    String plan = 'standard',
+    String? carrierRuleId,
+  }) async {
     if (_connectivity.isOffline) {
       return const Failure(
         AppFailure.server(
@@ -322,6 +327,11 @@ class WalletRepository implements WalletContract {
           // without it `guard_money_action` scores every plan fee
           // `missing_device_id`, which is the risk signal it exists to avoid.
           'p_device_id': await _deviceIdentity.deviceId(),
+          // J8. The plan names WHAT is being bought; the price still comes from
+          // the server. A Premium purchase for a line that does not exist yet
+          // is priced from the carrier rule the form already picked.
+          'p_plan': plan,
+          'p_carrier_rule_id': carrierRuleId,
         },
       );
 

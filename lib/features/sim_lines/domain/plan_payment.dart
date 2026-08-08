@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:keep_sims/core/providers.dart';
 import 'package:keep_sims/core/providers/app_config_provider.dart';
 import 'package:keep_sims/core/result.dart';
@@ -50,14 +51,60 @@ class PlanPayment {
   static Future<bool> tryStandardFromWallet(
     WidgetRef ref, {
     String? simLineId,
+  }) => tryPlanFromWallet(ref, simLineId: simLineId);
+
+  /// [tryStandardFromWallet] for any plan.
+  ///
+  /// Premium goes through the same rail as Standard (J8) rather than being
+  /// PayPal-only, for three reasons that are all the reported bug:
+  ///
+  ///  * the add-line form used to push PayPal with `paymentKind: 'deposit'`
+  ///    for Premium and then **skip the debit entirely** — the money landed in
+  ///    the wallet, the line was created, and
+  ///    `queue_premium_refill_executions` refused it with KS403 because
+  ///    nothing had been paid *for the plan*. No Premium line bought on that
+  ///    screen had ever been paid for;
+  ///  * a wallet debit is a single synchronous round-trip, so the entitlement
+  ///    exists before the line is inserted. A `kind: 'plan'` PayPal charge is
+  ///    recorded by a webhook that can land *after* checkout reports success —
+  ///    see [waitForPlanPayment];
+  ///  * the wallet gateway takes 0% + $0.00, so it is also the cheaper rail.
+  ///
+  /// [rule] is required for Premium: the server prices the year from that
+  /// carrier rule, which on a new line is the only handle it has (the line
+  /// does not exist yet). It is also what stops a Premium plan being sold for
+  /// a carrier the refill queue would refuse — `plan_price_net` raises KS422
+  /// for those before any money moves.
+  static Future<bool> tryPlanFromWallet(
+    WidgetRef ref, {
+    String plan = 'standard',
+    CarrierRule? rule,
+    String? simLineId,
   }) async {
-    final fee = await ref.read(baseServiceFeeUsdProvider.future);
+    final isPremium = plan == 'premium';
+    if (isPremium && rule == null) {
+      throw ArgumentError('A carrier rule is required to price a premium plan.');
+    }
+
+    final fee = isPremium
+        ? await premiumWalletTotal(ref, rule!)
+        : await ref.read(baseServiceFeeUsdProvider.future);
     final cache = ref.read(localCacheServiceProvider);
 
     // A fee already paid for a line that never got created is spendable now,
     // and replaying its reference id debits nothing. Without this every failure
     // after the debit bills the user again on the next attempt.
-    final pending = PendingPlanFee.fromJson(cache.readJson(_pendingFeeKey));
+    //
+    // **Only if it covers this plan.** Since J8 the two tiers cost different
+    // amounts, and a replay answers `already_paid` with whatever the ledger
+    // holds — so a leftover $2.50 Standard fee would otherwise be adopted as
+    // payment for a $9.52 Premium year and the line created for the
+    // difference. A cheaper pending fee is left on disk for the tier it was
+    // actually charged for, and this purchase pays its own way.
+    final stored = PendingPlanFee.fromJson(cache.readJson(_pendingFeeKey));
+    final pending = (stored != null && stored.amount + 0.001 >= fee)
+        ? stored
+        : null;
     if (pending == null) {
       final result = await ref
           .read(walletRepositoryProvider)
@@ -87,7 +134,12 @@ class PlanPayment {
 
     final paid = await ref
         .read(walletControllerProvider.notifier)
-        .payPlanFee(simLineId: simLineId, referenceId: reference);
+        .payPlanFee(
+          simLineId: simLineId,
+          referenceId: reference,
+          plan: plan,
+          carrierRuleId: rule?.id,
+        );
 
     // Not paid means not charged, so nothing is owed and nothing is held.
     if (!paid) await cache.remove(_pendingFeeKey);
@@ -152,6 +204,53 @@ class PlanPayment {
     }
   }
 
+  /// Blocks until the `plan_payments` row a `kind: 'plan'` PayPal charge
+  /// produces is visible, returning false if it never arrives within [timeout].
+  ///
+  /// **The entitlement is not in place when checkout says "Payment Confirmed".**
+  /// That signal is `paypal_orders.status = 'captured'`, and there are two ways
+  /// it gets written: `paypal-webhook`'s PAYMENT.CAPTURE.COMPLETED handler,
+  /// which inserts the `plan_payments` row *first*, and the client-driven
+  /// `capture-paypal-order` fallback, which marks the order captured and writes
+  /// no payment row at all — that one only appears when PayPal's webhook lands
+  /// afterwards. So on the fallback path a caller that commits immediately asks
+  /// `queue_premium_refill_executions` to queue a year of refills for a line
+  /// whose payment is not yet recorded, and gets KS403: the same "no paid,
+  /// unexpired premium plan" sentence the deposit bug produced, but
+  /// intermittent. Same shape as [waitForWalletCredit], same reason.
+  ///
+  /// Polls Supabase directly rather than a provider: there is no lifecycle to
+  /// trip over, and RLS already scopes `plan_payments` to the caller.
+  static Future<bool> waitForPlanPayment(
+    WidgetRef ref, {
+    required DateTime since,
+    Duration timeout = const Duration(seconds: 45),
+    Duration interval = const Duration(milliseconds: 1500),
+  }) async {
+    final client = Supabase.instance.client;
+    final userId = client.auth.currentUser?.id;
+    if (userId == null) return false;
+    final deadline = DateTime.now().add(timeout);
+
+    while (true) {
+      try {
+        final rows = await client
+            .from('plan_payments')
+            .select('id')
+            .eq('user_id', userId)
+            .eq('kind', 'plan')
+            .gte('created_at', since.toUtc().toIso8601String())
+            .limit(1)
+            .timeout(const Duration(seconds: 10));
+        if (rows.isNotEmpty) return true;
+      } catch (_) {
+        // A failed or timed-out read is not a verdict — the deadline is.
+      }
+      if (DateTime.now().isAfter(deadline)) return false;
+      await Future.delayed(interval);
+    }
+  }
+
   /// `inapp_pricing` is an override, not the default: the column parses null
   /// to 0, so only a positive value counts as a deliberate per-carrier price.
   static double? overrideFor(CarrierRule rule) =>
@@ -190,6 +289,36 @@ class PlanPayment {
           ref.watch(premiumMarginPerRefillUsdProvider).value ?? 0,
       gatewayFeePercentage: paypal?.feePercentage ?? 0,
       gatewayFeeFixed: paypal?.feeFixed ?? 0,
+      inappPricingOverride: overrideFor(rule),
+    );
+  }
+
+  /// What a year of Premium costs when it is bought from the wallet.
+  ///
+  /// The same total as [premiumYearlyTotal] with **no gateway grossing-up**,
+  /// because the wallet gateway is 0% + $0.00 — buying from the balance is
+  /// genuinely cheaper than buying through PayPal, exactly as it is for
+  /// Standard. Mirrors `round(plan_price_net('premium', …), 2)`, which is what
+  /// the server actually debits.
+  static Future<double> premiumWalletTotal(
+    WidgetRef ref,
+    CarrierRule rule,
+  ) async {
+    final baseFee = await ref.read(baseServiceFeeUsdProvider.future);
+    final appFee = await ref.read(appFeePercentProvider.future);
+    final margin = await ref.read(premiumMarginPercentProvider.future);
+    final marginFlat = await ref.read(premiumMarginPerRefillUsdProvider.future);
+
+    return RefillPricing.premiumYearlyTotal(
+      baseServiceFeeUsd: baseFee,
+      minimumTopupAmount: rule.minimumTopupAmount,
+      inactivityLimitDays: rule.inactivityLimitDays,
+      refillIntervalDaysOverride: rule.refillIntervalDaysOverride,
+      appFeePercent: appFee,
+      premiumMarginPercent: margin,
+      premiumMarginPerRefillUsd: marginFlat,
+      gatewayFeePercentage: 0,
+      gatewayFeeFixed: 0,
       inappPricingOverride: overrideFor(rule),
     );
   }

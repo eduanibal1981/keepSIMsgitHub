@@ -34,6 +34,8 @@ import 'package:keep_sims/features/settings/presentation/screens/alert_simulator
 import 'package:keep_sims/features/support/presentation/screens/support_tickets_list_screen.dart';
 import 'package:keep_sims/features/support/presentation/screens/create_ticket_screen.dart';
 import 'package:keep_sims/features/support/presentation/screens/ticket_detail_screen.dart';
+import 'package:keep_sims/features/support/presentation/ui/faq_screen.dart';
+import 'package:keep_sims/features/support/presentation/screens/submit_feedback_screen.dart';
 import 'package:keep_sims/features/esim/presentation/screens/esim_screen.dart';
 import 'package:keep_sims/features/esim/presentation/screens/esim_plans_screen.dart';
 import 'package:keep_sims/features/price_watch/presentation/screens/price_watch_screen.dart';
@@ -65,6 +67,8 @@ abstract final class AppRoutes {
   static const String simulators = '/settings/simulators';
   static const String tests = '/settings/tests';
   static const String support = '/support';
+  static const String supportFaq = '/support/faq';
+  static const String supportFeedback = '/support/feedback';
   static const String esim = '/esim';
   static const String esimPlans = '/esim/plans';
   static const String esimPriceWatch = '/esim/price-watch';
@@ -330,6 +334,16 @@ RouterConfig<Object> appRouter(Ref ref) {
             name: 'support',
             builder: (context, state) => const SupportTicketsListScreen(),
             routes: [
+              GoRoute(
+                path: 'faq',
+                name: 'supportFaq',
+                builder: (context, state) => const FaqScreen(),
+              ),
+              GoRoute(
+                path: 'feedback',
+                name: 'supportFeedback',
+                builder: (context, state) => const SubmitFeedbackScreen(),
+              ),
               GoRoute(
                 path: 'new',
                 name: 'supportNewTicket',

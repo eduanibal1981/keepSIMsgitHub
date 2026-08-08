@@ -92,12 +92,20 @@ class WalletController extends _$WalletController {
     }
   }
 
-  /// Pays the yearly plan service fee from the wallet (priced server-side).
+  /// Pays a yearly plan from the wallet (priced server-side).
   ///
   /// Returns false — without charging anything — when the balance cannot
   /// cover the fee, so the caller can fall back to a PayPal charge. Any other
   /// failure throws.
-  Future<bool> payPlanFee({String? simLineId, String? referenceId}) async {
+  ///
+  /// [plan] is `'standard'` or `'premium'`; [carrierRuleId] prices a Premium
+  /// year for a line that does not exist yet (J8).
+  Future<bool> payPlanFee({
+    String? simLineId,
+    String? referenceId,
+    String plan = 'standard',
+    String? carrierRuleId,
+  }) async {
     // Only used to drive the submitting spinner, so a state that has not
     // loaded yet must not decide whether the fee gets charged. This used to
     // `return false` on a null value, which the caller reads as "the wallet
@@ -119,7 +127,12 @@ class WalletController extends _$WalletController {
     }
 
     final repo = ref.read(walletRepositoryProvider);
-    final result = await repo.payPlanFee(simLineId: simLineId, referenceId: referenceId);
+    final result = await repo.payPlanFee(
+      simLineId: simLineId,
+      referenceId: referenceId,
+      plan: plan,
+      carrierRuleId: carrierRuleId,
+    );
 
     switch (result) {
       case Success():

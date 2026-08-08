@@ -2728,4 +2728,14 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get roamOrEsimTooltip => 'Roam or eSIM? Compare with your carrier';
+
+  @override
+  String get travelTomorrowLabel =>
+      'If you travel tomorrow, switch this on to help you prepare';
+
+  @override
+  String get buyEsimLabel => 'Buy eSIM';
+
+  @override
+  String get buyCheapestPackageLabel => 'Buy Cheapest Package';
 }

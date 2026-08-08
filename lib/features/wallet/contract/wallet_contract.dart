@@ -30,11 +30,21 @@ abstract interface class WalletContract {
     String type = 'topup_debit',
   });
 
-  /// Pays the yearly plan service fee from the wallet.
+  /// Pays a yearly plan up front from the wallet.
   ///
-  /// The amount is priced server-side by `pay_plan_fee_from_wallet` from
-  /// `system_configs.BASE_SERVICE_FEE_USD` — the client never states it.
-  Future<Result<Wallet>> payPlanFee({String? simLineId, String? referenceId});
+  /// The amount is priced server-side by `pay_plan_fee_from_wallet` — the
+  /// client never states it. Standard is the flat
+  /// `system_configs.BASE_SERVICE_FEE_USD`; Premium is that fee plus the
+  /// pre-paid year of refills the chosen carrier rule implies, which is why
+  /// [carrierRuleId] exists: on a *new* line the purchase completes before the
+  /// line does, so the rule id is the only handle the server has on the
+  /// carrier being bought for (J8).
+  Future<Result<Wallet>> payPlanFee({
+    String? simLineId,
+    String? referenceId,
+    String plan = 'standard',
+    String? carrierRuleId,
+  });
 
   /// Sends wallet credit to the KeepSIMs account owning [recipientEmail].
   ///

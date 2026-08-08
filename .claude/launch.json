@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "ad-console",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "tools/ad-console", "run", "dev"],
+      "port": 5180
+    }
+  ]
+}

@@ -31,6 +31,7 @@ import 'package:keep_sims/features/sim_lines/presentation/widgets/depletion_fore
 import 'package:keep_sims/features/sim_lines/presentation/widgets/sim_insurance_card.dart';
 import 'package:keep_sims/features/sim_lines/presentation/providers/usage_forecast_provider.dart';
 import 'package:keep_sims/features/home_widget/presentation/live_activity_pin_button.dart';
+import 'package:keep_sims/core/services/esim_capability_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SimLineDetailScreen extends ConsumerStatefulWidget {
@@ -249,7 +250,14 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-                child: _buildHeaderCard(context, detailState, country, score),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _buildHeaderCard(context, detailState, country, score),
+                    const SizedBox(height: 10),
+                    _buildTravelTomorrowRow(context, line),
+                  ],
+                ),
               ),
               Expanded(
                 child: SingleChildScrollView(
@@ -715,6 +723,134 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
           ),
           const SizedBox(width: 8),
           healthRing,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTravelTomorrowRow(BuildContext context, SimLine line) {
+    final isDark = context.isDarkMode;
+    final isTravelMode = !line.isHomeMode;
+    final hasEsimSupport =
+        ref.watch(esimCapabilityServiceProvider).value ?? false;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkCard : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isTravelMode
+              ? AppColors.primary.withValues(alpha: 0.4)
+              : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
+          width: 1,
+        ),
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.03),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: (isTravelMode ? AppColors.primary : AppColors.info)
+                  .withValues(alpha: 0.12),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.flight_takeoff_rounded,
+              size: 16,
+              color: isTravelMode
+                  ? AppColors.primary
+                  : (isDark
+                      ? AppColors.textSecondaryDark
+                      : AppColors.textSecondaryLight),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: isTravelMode
+                ? Padding(
+                    padding: const EdgeInsets.only(right: 6),
+                    child: SizedBox(
+                      height: 36,
+                      child: ElevatedButton.icon(
+                        onPressed: () async {
+                          await HapticHelper.mediumImpact();
+                          if (context.mounted) {
+                            if (hasEsimSupport) {
+                              context.push(AppRoutes.esim);
+                            } else {
+                              showModalBottomSheet(
+                                context: context,
+                                isScrollControlled: true,
+                                backgroundColor: Colors.transparent,
+                                builder: (context) =>
+                                    ManualRefillBottomSheet(simLine: line),
+                              );
+                            }
+                          }
+                        },
+                        icon: Icon(
+                          hasEsimSupport
+                              ? Icons.sim_card_outlined
+                              : Icons.bolt_rounded,
+                          size: 16,
+                          color: Colors.white,
+                        ),
+                        label: Text(
+                          hasEsimSupport
+                              ? AppLocalizations.of(context)!.buyEsimLabel
+                              : AppLocalizations.of(context)!
+                                  .buyCheapestPackageLabel,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      ),
+                    ),
+                  )
+                : Text(
+                    AppLocalizations.of(context)!.travelTomorrowLabel,
+                    style: AppTextStyles.caption.copyWith(
+                      color: context.onSurfaceColor,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+          ),
+          const SizedBox(width: 8),
+          GlassToggleSwitch(
+            value: isTravelMode,
+            activeColor: AppColors.primary,
+            onChanged: _isViewer
+                ? null
+                : (value) async {
+                    await HapticHelper.lightTick();
+                    ref
+                        .read(simLinesControllerProvider.notifier)
+                        .toggleHomeMode(line.id, !value);
+                  },
+          ),
         ],
       ),
     );

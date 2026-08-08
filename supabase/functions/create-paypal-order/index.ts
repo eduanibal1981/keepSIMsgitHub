@@ -100,6 +100,13 @@ serve(async (req) => {
     const kind = body.kind || "deposit";
     const plan = body.plan;
     const simLineId = body.sim_line_id;
+    // J8: which carrier rule a Premium year is priced against. Needed because
+    // onboarding buys the plan BEFORE the sim_lines row exists, so there is no
+    // line for quote_plan_price to read a carrier from — it used to fall back
+    // to a $10 / 30-day carrier that exists nowhere and bill that instead of
+    // what the screen quoted. Still only an id: the price itself is computed
+    // server-side from the rule, never accepted from the client.
+    const carrierRuleId = body.carrier_rule_id;
 
     // ── G10: device identity + App Check ─────────────────────────────────────
     // Both are claims from the client. The device id is scored, never trusted;
@@ -151,13 +158,27 @@ serve(async (req) => {
         p_sim_line_id: simLineId || null,
         p_plan: plan,
         p_gateway: "paypal",
+        p_carrier_rule_id: carrierRuleId || null,
       });
 
       if (quoteErr || !quotedPrice) {
+        // J8: this now also refuses (KS422) a Premium year for a carrier whose
+        // inactivity clock only resets on human usage, and refuses outright
+        // when no carrier rule can be resolved — cases that used to be quoted a
+        // fictional price and billed. The message is user-facing on purpose;
+        // the old blanket "Unable to calculate plan price" hid a refusal that
+        // the subscriber can act on.
         console.error("quote_plan_price failed:", quoteErr);
+        const refused = quoteErr?.code === "KS422";
         return new Response(
-          JSON.stringify({ success: false, error: "FAILED: Unable to calculate plan price" }),
-          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          JSON.stringify({
+            success: false,
+            code: refused ? "KS422" : undefined,
+            error: refused
+              ? quoteErr?.message
+              : "FAILED: Unable to calculate plan price",
+          }),
+          { status: refused ? 400 : 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
 
@@ -251,6 +272,13 @@ serve(async (req) => {
     // the return path works without a marketing-site deploy or an extra secret.
     // That page bounces the browser into io.supabase.keepsims://payment-success,
     // which is what actually closes the Custom Tab and wakes the checkout screen.
+    //
+    // ⚠️ NOT IN PRODUCTION YET, and it must not be deployed on its own.
+    // Committed in 522e86b but never deployed: live is v7, whose fallbacks are
+    // still the keepsims.com URLs. `paypal-return` is NOT a deployed Edge
+    // Function (checked 2026-08-08), so shipping these three lines while
+    // PAYPAL_RETURN_URL is unset points PayPal at a 404 in the middle of a
+    // payment. Deploy `paypal-return` FIRST, then this.
     const returnFnUrl = `${Deno.env.get("SUPABASE_URL")}/functions/v1/paypal-return`;
     const returnUrl = Deno.env.get("PAYPAL_RETURN_URL") || returnFnUrl;
     const cancelUrl = Deno.env.get("PAYPAL_CANCEL_URL") || `${returnFnUrl}?ks_cancel=1`;

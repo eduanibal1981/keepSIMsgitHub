@@ -286,6 +286,24 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 planExpiresAt: planExpiresAt,
                 carrierRuleId: carrierRuleId,
               );
+        } on PremiumRefillQueueException catch (e) {
+          // The line exists and the plan is paid for — only the pre-paid
+          // refills are missing. Falling through to completeOnboarding is
+          // deliberate: returning here would leave the account stuck on the
+          // onboarding screen with a line it has already been charged for.
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  'Your SIM is protected and your payment was recorded, but the '
+                  'automatic refills could not be scheduled: $e\n'
+                  'Please contact support — do not pay again.',
+                ),
+                backgroundColor: AppColors.warning,
+                duration: const Duration(seconds: 12),
+              ),
+            );
+          }
         } catch (e) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -355,6 +373,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       // grossed up so it survives PayPal's cut; premium is the fee plus a
       // pre-paid year of refills, grossed up once — see _premiumYearlyTotal.
       double amountToCharge = await PlanPayment.standardPayPalTotal(ref);
+      String? premiumRuleId;
       if (_selectedTier == 'premium' && hasSimDetails) {
         final rule = await ref
             .read(simLinesRepositoryProvider)
@@ -380,6 +399,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             return;
           }
           amountToCharge = await _premiumYearlyTotal(rule);
+          // J8: the server prices the charge, and for Premium it needs to know
+          // WHICH carrier. There is no sim line yet — it is created in
+          // commitSubmit(), after the payment — so without this the quote fell
+          // back to a generic carrier and billed a number this screen never
+          // showed. Sending it makes the charge equal the quote above.
+          premiumRuleId = rule.id;
         }
       }
 
@@ -394,16 +419,33 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       }
 
       if (mounted) {
-        Navigator.of(context).push(
+        // Everything recorded from here on belongs to this purchase.
+        final chargeStartedAt = DateTime.now().toUtc();
+        final navigator = Navigator.of(context);
+
+        navigator.push(
           MaterialPageRoute(
-            builder: (context) => PayPalCheckoutScreen(
+            builder: (_) => PayPalCheckoutScreen(
               initialAmount: amountToCharge,
               paymentReason: 'Payment for $_selectedTier plan',
               paymentKind: 'plan',
               plan: _selectedTier,
-              onSuccess: () {
-                Navigator.of(context).pop();
-                commitSubmit();
+              carrierRuleId: premiumRuleId,
+              onSuccess: () async {
+                navigator.pop();
+                // The `plan_payments` row a plan charge produces is what
+                // `has_paid_premium_entitlement` reads, and it can land after
+                // checkout reports success — on the client-driven capture
+                // fallback it is not written at that point at all. Creating the
+                // premium line first asks the refill queue to trust a payment
+                // it cannot see yet, and it answers KS403.
+                if (_selectedTier == 'premium') {
+                  await PlanPayment.waitForPlanPayment(
+                    ref,
+                    since: chargeStartedAt,
+                  );
+                }
+                await commitSubmit();
               },
             ),
           ),

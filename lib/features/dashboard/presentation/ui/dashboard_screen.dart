@@ -28,6 +28,7 @@ import 'package:keep_sims/core/providers/locale_provider.dart';
 import 'package:keep_sims/features/notifications/presentation/controllers/notification_settings_controller.dart';
 import 'package:keep_sims/core/services/esim_capability_service.dart';
 import 'package:keep_sims/features/dashboard/presentation/widgets/promo_banner.dart';
+import 'package:keep_sims/features/geo/controller/geo_controller.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -39,6 +40,14 @@ class DashboardScreen extends ConsumerStatefulWidget {
 class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   final PageController _pageController = PageController(viewportFraction: 0.9);
   int _currentLineIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(geoControllerProvider.notifier).checkCurrentLocationOnAppOpen();
+    });
+  }
 
   @override
   void dispose() {
@@ -211,6 +220,138 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     );
   }
 
+  String _isoToFlagEmoji(String isoCode) {
+    if (isoCode.length != 2) return '🌐';
+    final String upper = isoCode.toUpperCase();
+    final int firstLetter = upper.codeUnitAt(0) - 0x41 + 0x1F1E6;
+    final int secondLetter = upper.codeUnitAt(1) - 0x41 + 0x1F1E6;
+    return String.fromCharCode(firstLetter) + String.fromCharCode(secondLetter);
+  }
+
+  void _showLocationInfoDialog(
+    BuildContext context,
+    WidgetRef ref,
+    String countryName,
+    String flagEmoji,
+  ) {
+    final isDark = context.isDarkMode;
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: isDark ? AppColors.darkCard : Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+            side: BorderSide(
+              color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+            ),
+          ),
+          title: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: (isDark ? AppColors.primary : AppColors.lightPrimary)
+                      .withValues(alpha: 0.12),
+                ),
+                child: Text(flagEmoji, style: const TextStyle(fontSize: 24)),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Current Location',
+                  style: AppTextStyles.headlineSmall.copyWith(
+                    color: context.onSurfaceColor,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              RichText(
+                text: TextSpan(
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: context.onSurfaceColor,
+                    height: 1.4,
+                  ),
+                  children: [
+                    const TextSpan(text: 'You are currently detected in '),
+                    TextSpan(
+                      text: countryName,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    TextSpan(text: ' $flagEmoji.'),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'If this is incorrect, please ensure you are not using a VPN and that your device is online. Tapping Refresh will re-check your location.',
+                style: AppTextStyles.caption.copyWith(
+                  color: isDark
+                      ? AppColors.textSecondaryDark
+                      : AppColors.textSecondaryLight,
+                  height: 1.4,
+                ),
+              ),
+            ],
+          ),
+          actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              style: TextButton.styleFrom(
+                foregroundColor: isDark
+                    ? AppColors.textSecondaryDark
+                    : AppColors.textSecondaryLight,
+              ),
+              child: const Text('OK'),
+            ),
+            ElevatedButton.icon(
+              onPressed: () async {
+                Navigator.of(dialogContext).pop();
+                await HapticHelper.mediumImpact();
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Re-checking location...'),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                }
+                await ref
+                    .read(geoControllerProvider.notifier)
+                    .checkCurrentLocationOnAppOpen();
+                await ref
+                    .read(dashboardControllerProvider.notifier)
+                    .refreshDashboard();
+              },
+              icon: const Icon(Icons.refresh_rounded, size: 18),
+              label: const Text('Refresh'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   // ── Header Widget ───────────────────────────────────────────────
   Widget _buildHeader(
     BuildContext context,
@@ -224,30 +365,46 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       orElse: () => 0,
     );
 
+    final geoState = ref.watch(geoControllerProvider);
+    final currentIso = geoState.currentIsoCode;
+    final countryName = geoState.currentCountry;
+    final flagEmoji = _isoToFlagEmoji(currentIso);
+    final isLight = Theme.of(context).brightness == Brightness.light;
+
     return Row(
       children: [
-        // Glowing Avatar placeholder
-        Container(
-          width: 48,
-          height: 48,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: AppColors.primaryGradient,
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.primary.withValues(alpha: 0.3),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
+        // Geo-detected Country Flag Avatar
+        GestureDetector(
+          onTap: () async {
+            await HapticHelper.lightTick();
+            if (context.mounted) {
+              _showLocationInfoDialog(context, ref, countryName, flagEmoji);
+            }
+          },
+          child: Tooltip(
+            message: countryName,
+            child: Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: isLight
+                    ? const Color(0xFFEAEEF1)
+                    : AppColors.darkSurface,
+                border: Border.all(
+                  color: isLight ? AppColors.lightBorder : AppColors.darkBorder,
+                  width: 1.5,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.15),
+                    blurRadius: 10,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
               ),
-            ],
-          ),
-          child: Center(
-            child: Text(
-              name.substring(0, name.isNotEmpty ? 1 : 0).toUpperCase(),
-              style: TextStyle(
-                color: context.onSurfaceColor,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
+              child: Center(
+                child: Text(flagEmoji, style: const TextStyle(fontSize: 26)),
               ),
             ),
           ),
@@ -532,21 +689,22 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               const SizedBox(height: 16),
               _buildHelpBulletPoint(
                 context,
-                Icons.menu_book_rounded,
-                'Browse FAQs & troubleshooting guides',
+                Icons.confirmation_number_outlined,
+                'Tickets Manager',
+                subtitle: '(report your problem, solve ASAP)',
                 onTap: () {
                   Navigator.pop(context);
-                  context.push('/support/faq');
+                  context.push(AppRoutes.support);
                 },
               ),
               const SizedBox(height: 10),
               _buildHelpBulletPoint(
                 context,
-                Icons.support_agent_rounded,
-                'Open Ticket to report your problem',
+                Icons.menu_book_rounded,
+                'Browse FAQs & troubleshooting guides',
                 onTap: () {
                   Navigator.pop(context);
-                  context.push('/support/create?category=Technical Support');
+                  context.push(AppRoutes.supportFaq);
                 },
               ),
               const SizedBox(height: 10),
@@ -556,7 +714,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 'Submit Feedback and request improvements',
                 onTap: () {
                   Navigator.pop(context);
-                  context.push('/support/create?category=Feedback & Other');
+                  context.push(AppRoutes.supportFeedback);
                 },
               ),
               const SizedBox(height: 28),
@@ -571,6 +729,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     BuildContext context,
     IconData icon,
     String text, {
+    String? subtitle,
     VoidCallback? onTap,
   }) {
     final isLight = Theme.of(context).brightness == Brightness.light;
@@ -581,17 +740,35 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
         child: Row(
           children: [
-            Icon(icon, color: AppColors.secondary, size: 18),
+            Icon(icon, color: AppColors.secondary, size: 20),
             const SizedBox(width: 12),
             Expanded(
-              child: Text(
-                text,
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: isLight
-                      ? AppColors.textPrimaryLight
-                      : AppColors.textPrimaryDark,
-                  fontWeight: FontWeight.w600,
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    text,
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      color: isLight
+                          ? AppColors.textPrimaryLight
+                          : AppColors.textPrimaryDark,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  if (subtitle != null && subtitle.isNotEmpty) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: AppTextStyles.caption.copyWith(
+                        color: isLight
+                            ? AppColors.textTertiaryLight
+                            : AppColors.textTertiaryDark,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ),
             Icon(
@@ -783,180 +960,214 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             ),
 
             // Card content layout
-            IgnorePointer(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        // Left Side - Circular Ring Progress Indicator
-                        Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            SizedBox(
-                              width: 82,
-                              height: 82,
-                              child: CircularProgressIndicator(
-                                value: progress,
-                                strokeWidth: 7,
-                                backgroundColor: context.onSurfaceColor
-                                    .withValues(alpha: 0.08),
-                                valueColor: const AlwaysStoppedAnimation<Color>(
-                                  AppColors.success,
-                                ),
+            Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      // Left Side - Circular Ring Progress Indicator
+                      Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          SizedBox(
+                            width: 82,
+                            height: 82,
+                            child: CircularProgressIndicator(
+                              value: progress,
+                              strokeWidth: 7,
+                              backgroundColor: context.onSurfaceColor
+                                  .withValues(alpha: 0.08),
+                              valueColor: const AlwaysStoppedAnimation<Color>(
+                                AppColors.success,
                               ),
                             ),
-                            Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  data.nextTopUpDate != null
-                                      ? (isHourlyMode
-                                            ? '$nextTopUpMinutes'
-                                            : '${data.nextTopUpDays}')
-                                      : '0',
-                                  style: AppTextStyles.headlineMedium.copyWith(
-                                    color: context.onSurfaceColor,
-                                    fontWeight: FontWeight.w900,
-                                    height: 1.1,
-                                  ),
-                                ),
-                                Text(
-                                  isHourlyMode
-                                      ? 'mins'
-                                      : AppLocalizations.of(context)!.days,
-                                  style: AppTextStyles.caption.copyWith(
-                                    color: isDark
-                                        ? AppColors.textSecondaryDark
-                                        : AppColors.textSecondaryLight,
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                        const SizedBox(width: 24),
-
-                        // Right Side - SIM line info & dates
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          ),
+                          Column(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      isPremium
-                                          ? 'NEXT TOP-UP'
-                                          : AppLocalizations.of(
-                                              context,
-                                            )!.nextNotify,
-                                      style: AppTextStyles.labelSmall.copyWith(
-                                        color: isDark
-                                            ? AppColors.textSecondaryDark
-                                            : AppColors.textSecondaryLight,
-                                        fontWeight: FontWeight.bold,
-                                        letterSpacing: 1.2,
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  if (data.nextTopUpDate != null)
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 10,
-                                        vertical: 4,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: AppColors.success.withValues(
-                                          alpha: 0.15,
-                                        ),
-                                        borderRadius: BorderRadius.circular(6),
-                                      ),
-                                      child: Text(
-                                        AppLocalizations.of(context)!.active,
-                                        style: AppTextStyles.labelSmall
-                                            .copyWith(
-                                              color: AppColors.success,
-                                              fontWeight: FontWeight.w800,
-                                            ),
-                                      ),
-                                    ),
-                                ],
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                formattedDate,
-                                style: AppTextStyles.headlineSmall.copyWith(
-                                  color: context.onSurfaceColor,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 4),
                               Text(
                                 data.nextTopUpDate != null
-                                    ? (data.nextTopUpNickname != null
-                                          ? '${data.nextTopUpNickname} • ${data.nextTopUpPhone}'
-                                          : '${data.nextTopUpPhone}')
-                                    : 'Add or configure a SIM line',
-                                style: AppTextStyles.bodyMedium.copyWith(
+                                    ? (isHourlyMode
+                                          ? '$nextTopUpMinutes'
+                                          : '${data.nextTopUpDays}')
+                                    : '0',
+                                style: AppTextStyles.headlineMedium.copyWith(
+                                  color: context.onSurfaceColor,
+                                  fontWeight: FontWeight.w900,
+                                  height: 1.1,
+                                ),
+                              ),
+                              Text(
+                                isHourlyMode
+                                    ? 'mins'
+                                    : AppLocalizations.of(context)!.days,
+                                style: AppTextStyles.caption.copyWith(
                                   color: isDark
                                       ? AppColors.textSecondaryDark
                                       : AppColors.textSecondaryLight,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
                                 ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
                               ),
                             ],
                           ),
+                        ],
+                      ),
+                      const SizedBox(width: 24),
+
+                      // Right Side - SIM line info & dates
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    isPremium
+                                        ? 'NEXT TOP-UP'
+                                        : AppLocalizations.of(
+                                            context,
+                                          )!.nextNotify,
+                                    style: AppTextStyles.labelSmall.copyWith(
+                                      color: isDark
+                                          ? AppColors.textSecondaryDark
+                                          : AppColors.textSecondaryLight,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 1.2,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                if (data.nextTopUpDate != null)
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.success.withValues(
+                                        alpha: 0.15,
+                                      ),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Text(
+                                      AppLocalizations.of(context)!.active,
+                                      style: AppTextStyles.labelSmall.copyWith(
+                                        color: AppColors.success,
+                                        fontWeight: FontWeight.w800,
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              formattedDate,
+                              style: AppTextStyles.headlineSmall.copyWith(
+                                color: context.onSurfaceColor,
+                                fontWeight: FontWeight.w800,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              data.nextTopUpDate != null
+                                  ? (data.nextTopUpNickname != null
+                                        ? '${data.nextTopUpNickname} • ${data.nextTopUpPhone}'
+                                        : '${data.nextTopUpPhone}')
+                                  : 'Add or configure a SIM line',
+                              style: AppTextStyles.bodyMedium.copyWith(
+                                color: isDark
+                                    ? AppColors.textSecondaryDark
+                                    : AppColors.textSecondaryLight,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    Divider(
-                      color: isDark
-                          ? AppColors.darkBorder
-                          : AppColors.lightBorder,
-                      height: 1,
-                      thickness: 1.2,
-                    ),
-                    const SizedBox(height: 14),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          AppLocalizations.of(context)!.showingNearestLine,
-                          style: AppTextStyles.caption.copyWith(
-                            color:
-                                (isDark
-                                        ? AppColors.textSecondaryDark
-                                        : AppColors.textSecondaryLight)
-                                    .withValues(alpha: 0.7),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  Divider(
+                    color: isDark
+                        ? AppColors.darkBorder
+                        : AppColors.lightBorder,
+                    height: 1,
+                    thickness: 1.2,
+                  ),
+                  const SizedBox(height: 14),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Click "Showing nearest line" -> Open Protection Console of nearest line needing refill/notify
+                      GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () async {
+                          await HapticHelper.lightTick();
+                          if (!context.mounted) return;
+                          if (data.nextTopUpId != null) {
+                            context.push(
+                              '${AppRoutes.simLines}/detail/${data.nextTopUpId}',
+                            );
+                          } else if (data.totalLines > 0) {
+                            context.push(AppRoutes.simLines);
+                          } else {
+                            context.push('${AppRoutes.simLines}/add');
+                          }
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 4,
+                            horizontal: 2,
+                          ),
+                          child: Text(
+                            AppLocalizations.of(context)!.showingNearestLine,
+                            style: AppTextStyles.caption.copyWith(
+                              color:
+                                  (isDark
+                                          ? AppColors.textSecondaryDark
+                                          : AppColors.textSecondaryLight)
+                                      .withValues(alpha: 0.7),
+                            ),
                           ),
                         ),
-                        Text(
-                          data.totalLines == 1
-                              ? '1 line'
-                              : '${data.totalLines} lines',
-                          style: AppTextStyles.caption.copyWith(
-                            color: context.onSurfaceColor,
-                            fontWeight: FontWeight.bold,
+                      ),
+                      // Click "X lines" -> Go to SIMs Page
+                      GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () async {
+                          await HapticHelper.lightTick();
+                          if (!context.mounted) return;
+                          context.push(AppRoutes.simLines);
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 4,
+                            horizontal: 2,
+                          ),
+                          child: Text(
+                            data.totalLines == 1
+                                ? '1 line'
+                                : '${data.totalLines} lines',
+                            style: AppTextStyles.caption.copyWith(
+                              color: context.onSurfaceColor,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
-                      ],
-                    ),
-                  ],
-                ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ],

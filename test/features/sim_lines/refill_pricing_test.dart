@@ -332,4 +332,89 @@ void main() {
       expect(total.isFinite, isTrue);
     });
   });
+
+  // J8. The two rails a Premium year can be bought on, pinned to the live Zain
+  // KSA rule (min top-up $1.00, 90-day inactivity window) and to what
+  // `public.plan_price_net` / `public.quote_plan_price` return for it. If one
+  // of these fails, the app and the database disagree about a price, which is
+  // the class of bug that charged $21.99 for a $10.36 plan.
+  group('premium: the wallet rail and the PayPal rail (Zain KSA)', () {
+    const baseFee = 2.50;
+    const minTopup = 1.00; // carrier_rules.minimum_topup_amount
+    const window = 90; // carrier_rules.inactivity_limit_days
+    const appFeePct = 3.0; // APP_FEE_PERCENT
+    const marginPct = 5.0; // PREMIUM_MARGIN_PERCENT
+    const marginFlat = 0.324; // PREMIUM_MARGIN_PER_REFILL_USD
+    const paypalPct = 3.4;
+    const paypalFixed = 0.49;
+
+    double total({required double gwPct, required double gwFixed}) =>
+        RefillPricing.premiumYearlyTotal(
+          baseServiceFeeUsd: baseFee,
+          minimumTopupAmount: minTopup,
+          inactivityLimitDays: window,
+          appFeePercent: appFeePct,
+          premiumMarginPercent: marginPct,
+          premiumMarginPerRefillUsd: marginFlat,
+          gatewayFeePercentage: gwPct,
+          gatewayFeeFixed: gwFixed,
+        );
+
+    test('five refills a year, not the thirteen the bundle cycle implied', () {
+      // The rule's topup_validity_days is 30, which is what quote_plan_price
+      // divided 365 by until J8 — 13 refills against a 90-day deactivation
+      // window that only needs 5.
+      expect(RefillPricing.refillIntervalDays(window), 76);
+      expect(RefillPricing.refillsPerYear(window), 5);
+    });
+
+    test('the wallet debits the net: \$9.52, matching plan_price_net', () {
+      // Verified against the live database on 2026-08-08:
+      //   SELECT public.plan_price_net('premium', NULL, '997ca983-…') → 9.52
+      expect(total(gwPct: 0, gwFixed: 0), 9.52);
+    });
+
+    test('PayPal is grossed up to \$10.36, matching quote_plan_price', () {
+      //   SELECT public.quote_plan_price(NULL,'premium','paypal','997ca983-…')
+      //     → 10.36   (was 21.99 before J8)
+      expect(total(gwPct: paypalPct, gwFixed: paypalFixed), 10.36);
+    });
+
+    test('buying from the wallet is cheaper than buying through PayPal', () {
+      // Not a rounding accident: it is the reason both tiers bill wallet-first.
+      expect(
+        total(gwPct: 0, gwFixed: 0),
+        lessThan(total(gwPct: paypalPct, gwFixed: paypalFixed)),
+      );
+    });
+
+    test('the PayPal charge covers the gateway fee, it does not absorb it', () {
+      // The bug this pins: the add-line sheet computed the grossed-up total,
+      // printed it on the button, and then opened checkout for the *net* — so
+      // PayPal billed $9.52 against a button that said $10.36, and KeepSIMs
+      // paid the $0.81 cut. Whatever is charged must leave the plan price
+      // behind after the gateway takes its percentage and fixed fee.
+      final charged = total(gwPct: paypalPct, gwFixed: paypalFixed);
+      final keptAfterPayPal = charged - (charged * paypalPct / 100 + paypalFixed);
+      expect(RefillPricing.round2(keptAfterPayPal), 9.52);
+
+      // And the net alone does NOT survive its own fee — the shape of the bug.
+      final undercharged = total(gwPct: 0, gwFixed: 0);
+      final wouldKeep =
+          undercharged - (undercharged * paypalPct / 100 + paypalFixed);
+      expect(RefillPricing.round2(wouldKeep), lessThan(9.52));
+    });
+
+    test('Standard through PayPal is \$3.10, matching quote_plan_price', () {
+      // SELECT public.quote_plan_price(NULL,'standard','paypal') → 3.10
+      expect(
+        RefillPricing.grossUpTotal(
+          net: baseFee,
+          gatewayFeePercentage: paypalPct,
+          gatewayFeeFixed: paypalFixed,
+        ),
+        3.10,
+      );
+    });
+  });
 }

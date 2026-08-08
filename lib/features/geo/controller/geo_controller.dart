@@ -61,9 +61,6 @@ class GeoController extends _$GeoController {
 
   /// Triggers IP-based country detection via detect-country Edge Function on app open / resume.
   Future<void> checkCurrentLocationOnAppOpen() async {
-    final userPrefs = ref.read(userPreferencesControllerProvider).value;
-    if (userPrefs?.travelModeEnabled != true) return;
-
     try {
       final response = await Supabase.instance.client.functions.invoke('detect-country');
       if (response.status == 200 && response.data != null) {

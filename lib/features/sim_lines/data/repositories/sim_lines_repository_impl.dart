@@ -770,62 +770,52 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
     await TwilioVerificationService.cancelCall(callSid);
   }
 
+  /// Offers for a carrier in the add-line flow, which has no SIM line id yet.
+  ///
+  /// K3/K5: this used to read `carriers.api_provider` plus `zen_carrier` /
+  /// `dt_carrier` and then query `provider_offers_cache` itself — client-side
+  /// supplier dispatch over columns that no longer exist. Those columns held one
+  /// supplier per carrier, so a carrier reachable through two was unrepresentable
+  /// and the branch for `ding`/`reloadly` silently returned nothing.
+  ///
+  /// `list_carrier_offers` resolves the supplier server-side from
+  /// `carrier_provider_map`, applies the same routability test the purchase path
+  /// applies, and returns the effective price — so an admin's manual price shows
+  /// here without a client release. `countryId` is no longer needed: the carrier
+  /// already determines the country. It stays in the signature so the provider
+  /// key and its callers are untouched.
   @override
   Future<List<Map<String, dynamic>>> fetchZenditOffers(String countryId, String carrierId) async {
     try {
-      // 1. Resolve the line's Zendit catalog coordinates.
-      final countryRes = await _supabase
-          .from('countries')
-          .select('iso_code') // Using iso_code as per the Country model
-          .eq('id', countryId)
-          .single();
-      final countryCode = countryRes['iso_code'] as String;
+      final rows = await _supabase.rpc(
+        'list_carrier_offers',
+        params: {'p_carrier_id': carrierId},
+      );
 
-      final carrierRes = await _supabase
-          .from('carriers')
-          .select('api_provider, zen_carrier, dt_carrier')
-          .eq('id', carrierId)
-          .single();
-      final apiProvider =
-          (carrierRes['api_provider'] as String?)?.toLowerCase() ?? 'zendit';
-      final carrierCode = (apiProvider == 'dtone'
-          ? carrierRes['dt_carrier']
-          : carrierRes['zen_carrier']) as String?;
-      if (carrierCode == null) return [];
-
-      // 2. Read the server-side offers cache (C3b-2 / provider-aware).
-      final rows = await _supabase
-          .from('provider_offers_cache')
-          .select()
-          .eq('api_provider', apiProvider)
-          .eq('country_code', countryCode)
-          .eq('carrier_code', carrierCode);
-
-      final offers = (rows as List)
+      return (rows as List)
           .cast<Map<String, dynamic>>()
           .map<Map<String, dynamic>>((r) => {
                 'offerId': r['offer_id'],
                 'description': r['offer_name'] ?? r['offer_id'],
                 'priceType': r['price_type'],
                 'isRange': r['price_type'] == 'RANGE',
-                'baseCostUsd': (r['price_fixed_usd'] as num?)?.toDouble(),
+                // The server already applied any manual override, so this is
+                // what the user will actually be charged.
+                'baseCostUsd': (r['price_usd'] as num?)?.toDouble(),
                 'priceMinUsd': (r['price_min_usd'] as num?)?.toDouble(),
                 'priceMaxUsd': (r['price_max_usd'] as num?)?.toDouble(),
                 'min': r['send_min'],
                 'max': r['send_max'],
                 'sendCurrencyDivisor': r['send_currency_divisor'] ?? 100,
                 'send': {'currency': r['send_currency']},
+                'provider': r['provider'],
+                'isStale': r['is_stale'] ?? false,
               })
-          .toList();
-
-      offers.sort((a, b) =>
-          ((a['baseCostUsd'] ?? a['priceMinUsd'] ?? 0.0) as double)
-              .compareTo((b['baseCostUsd'] ?? b['priceMinUsd'] ?? 0.0) as double));
-      return offers;
+          .toList(); // Already ranked cheapest-first server-side.
     } on PostgrestException catch (e) {
       throw Exception('Database error fetching offers: ${e.message}');
     } catch (e) {
-      throw Exception('Error fetching Zendit offers: $e');
+      throw Exception('Error fetching carrier offers: $e');
     }
   }
 

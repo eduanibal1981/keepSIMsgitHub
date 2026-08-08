@@ -1454,5 +1454,17 @@
     "@comparePriceWatchOff": {
         "placeholders": { "country": { "type": "String" } }
     },
-    "roamOrEsimTooltip": "Roam or eSIM? Compare with your carrier"
+    "roamOrEsimTooltip": "Roam or eSIM? Compare with your carrier",
+    "travelTomorrowLabel": "If you travel tomorrow, switch this on to help you prepare",
+    "@travelTomorrowLabel": {
+        "description": "Label for travel preparation switch on Protection Console"
+    },
+    "buyEsimLabel": "Buy eSIM",
+    "@buyEsimLabel": {
+        "description": "Button label to buy eSIM when travel mode is enabled"
+    },
+    "buyCheapestPackageLabel": "Buy Cheapest Package",
+    "@buyCheapestPackageLabel": {
+        "description": "Button label to buy cheapest package when travel mode is enabled"
+    }
 }

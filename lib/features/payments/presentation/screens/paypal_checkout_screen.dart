@@ -32,6 +32,16 @@ class PayPalCheckoutScreen extends ConsumerStatefulWidget {
   final String? plan;
   final String? simLineId;
 
+  /// Which carrier rule a Premium year is being bought against.
+  ///
+  /// A plan charge is priced by the server, and for Premium the price comes
+  /// from the carrier's rule. Where there is no [simLineId] yet — onboarding
+  /// creates the line *after* the payment — this is the only handle the server
+  /// has, and without it `quote_plan_price` used to fall back to a generic
+  /// $10 / 30-day carrier that exists nowhere and quote a price the screen had
+  /// never shown (J8).
+  final String? carrierRuleId;
+
   const PayPalCheckoutScreen({
     super.key,
     this.initialAmount,
@@ -40,6 +50,7 @@ class PayPalCheckoutScreen extends ConsumerStatefulWidget {
     this.paymentKind = 'deposit',
     this.plan,
     this.simLineId,
+    this.carrierRuleId,
   });
 
   @override
@@ -217,6 +228,7 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen>
           'kind': widget.paymentKind,
           'plan': widget.plan,
           'sim_line_id': widget.simLineId,
+          'carrier_rule_id': widget.carrierRuleId,
           'amount_usd': effectiveAmt,
           'device_id': await identity.deviceId(),
           'platform': identity.platform,

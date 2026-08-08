@@ -28,7 +28,7 @@ SQL, all in one repo.
 
 | path | what it is |
 |---|---|
-| `lib/` | Flutter app. Feature-first: `lib/features/<feature>/{data,domain,presentation}`, shared code in `lib/core/`. Riverpod for state. |
+| `lib/` | Flutter app. Feature-first: `lib/features/<feature>/{data,domain,presentation}`, shared code in `lib/core/`. Riverpod for state. Dashboard header displays geo-detected country flag avatar with interactive location & refresh dialog; Protection Console (`sim_line_detail_screen.dart`) includes a narrow "Traveling Tomorrow" toggle row to switch between Home Mode (`isHomeMode = true`) and Travel Mode (`isHomeMode = false`), dynamically transforming the label into a "Buy eSIM" or "Buy Cheapest Package" action button when switched ON. |
 | `lib/core/supabase_client.dart` | Supabase URL + anon key (compile-time overridable). The anon key ships in the APK — **treat it as public**. |
 | `supabase/migrations/*.sql` | Schema history. Naming convention: `<timestamp>_<phase>_<description>.sql` with **round manual timestamps**. |
 | `supabase/functions/<slug>/index.ts` | Edge Function sources (Deno). |

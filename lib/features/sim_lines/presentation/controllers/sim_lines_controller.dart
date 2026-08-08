@@ -9,6 +9,7 @@ import 'package:keep_sims/features/sim_lines/data/models/carrier_self_service_mo
 import 'package:keep_sims/features/sim_lines/data/models/line_activity_log_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/payment_method_model.dart';
 import 'package:keep_sims/features/sim_lines/data/repositories/sim_lines_repository_impl.dart';
+import 'package:keep_sims/features/sim_lines/domain/repositories/sim_lines_repository.dart';
 import 'package:keep_sims/features/scheduled_topups/controller/scheduled_topup_controller.dart';
 import 'package:keep_sims/features/wallet/controller/wallet_controller.dart';
 import 'package:keep_sims/core/providers.dart';
@@ -17,6 +18,28 @@ import 'package:keep_sims/core/result.dart';
 import 'package:keep_sims/features/notifications/data/repositories/notifications_repository_impl.dart';
 
 part 'sim_lines_controller.g.dart';
+
+/// The line was created and paid for, but its pre-paid year of refills could
+/// not be queued.
+///
+/// This is a *different* outcome from "the save failed", and conflating the two
+/// is what put an unpaid premium line into production on 2026-08-08: the insert
+/// had already succeeded when `queue_premium_refill_executions` raised KS403,
+/// so the screen reported "Failed to save SIM line" over a row that exists.
+/// The user then cannot retry — the phone number is taken — and the line sits
+/// there labelled Premium with nothing scheduled behind it.
+///
+/// Callers must treat this as: the line is real, the money is spent, say so,
+/// and do not offer a retry that would only collide with the row.
+class PremiumRefillQueueException implements Exception {
+  const PremiumRefillQueueException(this.simLineId, this.cause);
+
+  final String simLineId;
+  final Object cause;
+
+  @override
+  String toString() => cause.toString();
+}
 
 @Riverpod(keepAlive: true)
 class SimLinesController extends _$SimLinesController {
@@ -59,6 +82,10 @@ class SimLinesController extends _$SimLinesController {
     }
 
     final previousList = state.value ?? [];
+    // Set only when the line itself was created but its pre-paid refills were
+    // not. Raised after the state assignment below, so the list still carries
+    // the line that really exists.
+    PremiumRefillQueueException? queueFailure;
     state = const AsyncLoading<List<SimLine>>().copyWithPrevious(state);
     state = await AsyncValue.guard(() async {
       final repo = ref.read(simLinesRepositoryProvider);
@@ -183,7 +210,8 @@ class SimLinesController extends _$SimLinesController {
         // C3b-2: the plan year's mini refills are queued and priced
         // server-side from carrier_rules in one call.
         if (result is Success<ScheduledTopup> && planExpiresAt != null) {
-          await repo.queuePremiumRefillExecutions(
+          queueFailure = await _queuePremiumRefills(
+            repo,
             simLineId: added.id,
             scheduledTopupId: result.data.id,
             planExpiresAt: planExpiresAt,
@@ -207,10 +235,48 @@ class SimLinesController extends _$SimLinesController {
 
       return [added, ...previousList];
     });
+
+    // Raised last, and only once the list above already holds the new line: the
+    // row exists and the plan has been paid for, so the caller must not treat
+    // this as "nothing happened".
+    if (queueFailure != null) throw queueFailure!;
+  }
+
+  /// Queues the pre-paid year, returning the failure instead of throwing.
+  ///
+  /// Retried once, because the call is idempotent by construction — it cancels
+  /// this schedule's pending executions before re-inserting them — so a dropped
+  /// socket costs a round-trip rather than a line that is Premium in name only.
+  /// A second failure is reported, never swallowed: a premium line with an
+  /// empty queue looks identical to a working one from the app, and would only
+  /// be discovered when the number was already gone.
+  Future<PremiumRefillQueueException?> _queuePremiumRefills(
+    SimLinesRepository repo, {
+    required String simLineId,
+    required String scheduledTopupId,
+    required DateTime planExpiresAt,
+  }) async {
+    for (var attempt = 0; attempt < 2; attempt++) {
+      try {
+        await repo.queuePremiumRefillExecutions(
+          simLineId: simLineId,
+          scheduledTopupId: scheduledTopupId,
+          planExpiresAt: planExpiresAt,
+        );
+        return null;
+      } catch (e) {
+        if (attempt == 1) {
+          return PremiumRefillQueueException(simLineId, e);
+        }
+        await Future<void>.delayed(const Duration(seconds: 2));
+      }
+    }
+    return null;
   }
 
   Future<void> updateSimLine(SimLine line) async {
     final previousList = state.value ?? [];
+    PremiumRefillQueueException? queueFailure;
     state = const AsyncLoading<List<SimLine>>().copyWithPrevious(state);
     state = await AsyncValue.guard(() async {
       final repo = ref.read(simLinesRepositoryProvider);
@@ -320,7 +386,8 @@ class SimLinesController extends _$SimLinesController {
 
             // C3b-2: queued and priced server-side from carrier_rules.
             if (result is Success<ScheduledTopup>) {
-              await repo.queuePremiumRefillExecutions(
+              queueFailure = await _queuePremiumRefills(
+                repo,
                 simLineId: line.id,
                 scheduledTopupId: result.data.id,
                 planExpiresAt: line.planExpiresAt ??
@@ -335,6 +402,10 @@ class SimLinesController extends _$SimLinesController {
           .map((item) => item.id == line.id ? updated : item)
           .toList();
     });
+
+    // See addSimLine: the upgrade itself landed, only the pre-paid queue did
+    // not, and the two must not read as the same failure.
+    if (queueFailure != null) throw queueFailure!;
   }
 
   Future<void> deleteSimLine(String id) async {

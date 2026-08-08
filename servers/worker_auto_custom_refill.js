@@ -1,4 +1,4 @@
-require('dotenv').config({ path: require('path').join(__dirname, '.env') });
+﻿require('dotenv').config({ path: require('path').join(__dirname, '.env') });
 const { createClient } = require('@supabase/supabase-js');
 const {
     createCatalogFetcher,
@@ -67,23 +67,25 @@ const fetchDtoneCatalog = createCatalogFetcher({
     ttlMs: 5 * 60 * 1000,
 });
 
-async function getCarrierDetails(simLineId) {
+// K3: the per-supplier columns this used to read (zen_carrier, dt_carrier,
+// dt_country, api_provider) no longer exist. `carrier_provider_map` holds one
+// row per (carrier, supplier) with that supplier's own country and carrier
+// codes, so adding a fifth supplier is a row, not a code change.
+//
+// It also takes `preferredProvider` now, which fixes a real defect the old
+// shape hid: the caller resolved codes from the CARRIER's default supplier and
+// then dispatched on the EXECUTION's supplier. Any execution stamped with a
+// non-default provider â€” which is now every premium refill, since
+// queue_premium_refill_executions stamps the winning supplier â€” would have
+// called that supplier's API with the default supplier's carrier code and been
+// told the product does not exist.
+//
+// `dt_country` was selected here and never read: it held a full country name
+// ('Saudi Arabia') while every lookup joins on ISO-2.
+async function getCarrierDetails(simLineId, preferredProvider = null) {
     const { data: lineData, error: lineError } = await supabase
         .from('sim_lines')
-        .select(`
-            id,
-            phone_number,
-            carriers (
-                id,
-                zen_carrier,
-                dt_carrier,
-                dt_country,
-                api_provider,
-                countries (
-                    iso_code
-                )
-            )
-        `)
+        .select('id, phone_number, carrier_id')
         .eq('id', simLineId)
         .single();
 
@@ -91,30 +93,59 @@ async function getCarrierDetails(simLineId) {
         throw new Error(`Failed to fetch SIM line details: ${lineError ? lineError.message : 'Not found'}`);
     }
 
-    const carrier = lineData.carriers;
-    const countryCode = carrier?.countries?.iso_code;
-    const provider = (carrier?.api_provider || 'zendit').toLowerCase();
-    const carrierCode = provider === 'dtone' ? carrier?.dt_carrier : carrier?.zen_carrier;
+    let query = supabase
+        .from('carrier_provider_map')
+        .select('provider, provider_country_code, provider_carrier_code, is_primary, priority')
+        .eq('carrier_id', lineData.carrier_id)
+        .eq('is_enabled', true);
 
-    if (!carrierCode || !countryCode) {
-        throw new Error(`Missing country or carrier mapping for SIM line ${simLineId} (provider: ${provider})`);
+    if (preferredProvider) {
+        query = query.eq('provider', preferredProvider.toLowerCase());
+    }
+
+    const { data: maps, error: mapError } = await query
+        .order('is_primary', { ascending: false })
+        .order('priority', { ascending: true });
+
+    if (mapError) {
+        throw new Error(`Failed to resolve supplier mapping: ${mapError.message}`);
+    }
+
+    const mapping = (maps || [])[0];
+    if (!mapping) {
+        // Naming the provider matters: "no mapping" and "no mapping FOR DTONE"
+        // are different faults with different fixes, and the old message could
+        // not tell them apart.
+        throw new Error(
+            `No enabled supplier mapping for SIM line ${simLineId}` +
+            (preferredProvider ? ` and provider ${preferredProvider}` : '')
+        );
     }
 
     return {
         phoneNumber: lineData.phone_number,
-        countryCode,
-        carrierCode,
-        provider
+        countryCode: mapping.provider_country_code,
+        carrierCode: mapping.provider_carrier_code,
+        provider: mapping.provider
     };
 }
 
+
 async function executeRefill(execution) {
     console.log(`[executeRefill] Processing Auto Custom Refill Execution ID: ${execution.id}`);
-    const executionProvider = (execution.api_provider || 'zendit').toLowerCase();
+    // No 'zendit' fallback any more. An unstamped execution takes whatever the
+    // carrier's PRIMARY mapping says; defaulting to Zendit here is how a DTOne
+    // carrier's refill got dispatched to a supplier that has never heard of it.
+    const executionProvider = execution.api_provider
+        ? execution.api_provider.toLowerCase()
+        : null;
 
     try {
-        const { phoneNumber, countryCode, carrierCode, provider } = await getCarrierDetails(execution.sim_line_id);
-        const activeProvider = executionProvider || provider;
+        // Codes are resolved FOR the supplier we are about to call, so the
+        // carrier code and the API being called can no longer disagree.
+        const { phoneNumber, countryCode, carrierCode, provider } =
+            await getCarrierDetails(execution.sim_line_id, executionProvider);
+        const activeProvider = provider;
 
         // Validation
         const chargedUsd = chargedOfferPriceUsd(execution);

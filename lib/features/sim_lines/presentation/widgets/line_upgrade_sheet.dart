@@ -340,6 +340,32 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
                                     widget.simLine.id,
                                   ),
                                 );
+                              } on PremiumRefillQueueException catch (e) {
+                                // The tier is upgraded and the year is paid
+                                // for; only the pre-paid queue is missing.
+                                // "Failed to save upgrade" would invite a
+                                // second PayPal charge for a plan already
+                                // bought — a plan charge carries no
+                                // idempotency reference, so that money would
+                                // be gone.
+                                container.invalidate(
+                                  simLineDetailControllerProvider(
+                                    widget.simLine.id,
+                                  ),
+                                );
+                                messenger.showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Your payment went through and the plan '
+                                      'is active, but the automatic refills '
+                                      'could not be scheduled: $e\n'
+                                      'Please contact support — do not pay '
+                                      'again.',
+                                    ),
+                                    backgroundColor: AppColors.warning,
+                                    duration: const Duration(seconds: 12),
+                                  ),
+                                );
                               } catch (e) {
                                 messenger.showSnackBar(
                                   SnackBar(
@@ -405,17 +431,42 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
                               return;
                             }
 
+                            // Anything recorded from here on belongs to this
+                            // purchase — see the wait in onSuccess.
+                            final chargeStartedAt = DateTime.now().toUtc();
+
                             navigator.pop();
                             // Navigate directly to PayPal payment
                             navigator.push(
                               MaterialPageRoute(
-                                builder: (context) => PayPalCheckoutScreen(
+                                builder: (_) => PayPalCheckoutScreen(
                                   initialAmount: totalAmount,
                                   paymentReason: reason,
                                   paymentKind: 'plan',
                                   plan: _selectedPlan,
                                   simLineId: widget.simLine.id,
-                                  onSuccess: commitUpgrade,
+                                  carrierRuleId: carrierRule?.id,
+                                  onSuccess: () async {
+                                    // A `kind: 'plan'` charge becomes an
+                                    // entitlement only when the
+                                    // `plan_payments` row lands, and checkout
+                                    // can report success first — always on the
+                                    // client-driven capture fallback, which
+                                    // writes no payment row at all. Upgrading
+                                    // before then asks the refill queue to
+                                    // trust a payment it cannot see, and it
+                                    // answers KS403.
+                                    //
+                                    // Committed either way once the wait is
+                                    // over: the charge is already made, so the
+                                    // worst case must be "plan active, refills
+                                    // pending" rather than a second payment.
+                                    await PlanPayment.waitForPlanPayment(
+                                      ref,
+                                      since: chargeStartedAt,
+                                    );
+                                    await commitUpgrade();
+                                  },
                                 ),
                               ),
                             );

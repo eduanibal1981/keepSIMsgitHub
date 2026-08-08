@@ -3048,6 +3048,10 @@ Fixed with one helper, `SimLine.effectiveTier` — `plan_type` is authoritative,
 widens but never narrows, and an unrecognised value falls back to *free* (fail closed). 7 new unit
 tests in `test/features/sim_lines/line_entitlement_test.dart`.
 
+**(d) Protection Console Travel Preparation Switch.** Added a narrow "Traveling Tomorrow" toggle row directly below the main SIM data card on the Protection Console (`sim_line_detail_screen.dart`). Toggling this switch calls `SimLinesController.toggleHomeMode()` to switch between Home Mode (`isHomeMode = true`) and Travel Mode (`isHomeMode = false`), preparing the line and unpausing auto-refills/alerts ahead of travel. When toggled ON, the text label dynamically replaces with an action button ("Buy eSIM" if device hardware supports eSIM, or "Buy Cheapest Package" for standard devices).
+
+**(e) Dashboard Geo-Location Flag Avatar & Location Modal.** Replaced the static initial letter avatar in `dashboard_screen.dart` header with the real-time IP-detected country flag emoji. Tapping the flag avatar opens an interactive location dialog showing the detected country name, VPN/offline troubleshooting advice, and a Refresh action to re-trigger IP location detection (`detect-country`) and reload dashboard state.
+
 **(c) 🔴 The one that matters: a signed-in user could obtain a year of free airtime.**
 
 `trg_prevent_sim_line_plan_tampering` is `BEFORE UPDATE` **only**, and `authenticated` holds
@@ -3652,3 +3656,288 @@ something. Run it after every phase.**
   `getCarrierRule()` queries `rule_type = 'default'` first.** That branch can never match, so
   every live read is served by the `'prepaid'` fallback. Harmless today (one wasted round-trip per
   lookup), but the dead branch reads as though `'default'` were a real tier.
+
+---
+
+## 12. Phase J8 — Premium had never been paid for, on the screen that sells it
+
+Reported 2026-08-08 from a device, on **Protect New Line**:
+
+> Failed to save SIM line: Exception: Exception: Failed to schedule premium refills: This line has
+> no paid, unexpired premium plan, so pre-paid refills cannot be queued.
+
+That sentence is I2b's `KS403` in `queue_premium_refill_executions`, and **it was telling the
+truth**. The guard was not over-firing; there was no payment.
+
+Migration `20260820000000_j8_premium_plan_pricing_and_wallet_purchase.sql` (applied, hand
+re-stamped — `apply_migration` registered nothing again, the 11th drift). `create-paypal-order`
+deployed **v7**. New baselines: `flutter test` **297/297** (291 + 6 new), `flutter analyze lib`
+**102** (unchanged by this work — the +1 over the 101 baseline is J7's untracked
+`submit_feedback_screen.dart`), new `supabase/tests/j8_plan_pricing_tests.sql` **11/11**,
+`f0_grant_matrix_tests.sql` T1/T2/T3/T6 **0 violations** and T4/T5 clean at **81 = 81**, zero
+residue.
+
+### 12.1 What actually happened, from the ledger
+
+| Time (UTC, 2026-08-08) | Event |
+|---|---|
+| 02:06:31 | `sim_lines` row inserted for `+966555554444555` (Zain KSA), `plan_type = 'premium'` |
+| 02:06:32 | `queue_premium_refill_executions` → **KS403**, the whole save reported as failed |
+| 02:06:48 | `wallet_transactions`: **deposit $9.52**, PayPal order `4YL62738T8351391V` |
+
+No `plan_fee_debit`. No `plan_payments` row. `plan_payments` still holds exactly **one** row in the
+entire database — a July fixture with a NULL `user_id`.
+
+The cause is four lines of `sim_line_form_screen._saveLine`. Its PayPal branch pushed checkout with
+`paymentKind: 'deposit'`, so the money went to the **wallet**, and then:
+
+```dart
+onSuccess: () async {
+  if (selectedPlanType == 'standard') {
+    // waitForWalletCredit -> tryStandardFromWallet -> refuse if not paid
+  }
+  await commitSave();   // premium arrives here having paid for NOTHING
+}
+```
+
+Standard had a debit. Premium had no branch at all. **No Premium line bought on that screen has
+ever been paid for** — the entitlement guard is simply the first thing downstream that noticed, and
+it noticed 17 seconds before the subscriber's own deposit had even landed.
+
+The executor's write-up had the right scenario (its "Scenario B"). Its Scenario A and C are not
+what happened: the tier was Premium, deliberately chosen, and there is no state in which the card
+shows Free while the controller sends `premium` — `commitSave` reads `selectedPlanType`, captured
+from `_selectedTier` at the top of the same function.
+
+### 12.2 The fix could not be written in Dart alone
+
+The obvious repair — debit the wallet the way Standard does — was impossible:
+`pay_plan_fee_from_wallet` could only ever charge one number, `BASE_SERVICE_FEE_USD`. There was **no
+server-side way to charge for a year of Premium**. The other two purchase surfaces avoid that by
+billing PayPal with `kind='plan'`, which prices from `quote_plan_price` — and that function had
+been wrong since i7 in two independent ways:
+
+* it still derived the refill count from **`topup_validity_days`**, the bundle cycle i7 established
+  is not the cadence and i7c removed from the queue in favour of `refill_interval_days()`. Zain KSA:
+  validity 30 ⇒ **13 refills quoted and charged** against the **5** the queue lays down. The
+  subscriber saw the Dart quote of **$10.36** and PayPal billed the server quote of **$21.99**;
+* it could only find a carrier through an existing `sim_lines` row, so **onboarding** — which
+  creates the line *after* the payment — priced every carrier at the `COALESCE(min_topup, 10.0)` /
+  `COALESCE(validity, 30)` fiction.
+
+So the real defect is bigger than the reported one: **there were three purchase surfaces and no
+single price.** J8 makes one.
+
+### 12.3 `plan_price_net` — one formula, two rails
+
+New `public.plan_price_net(p_plan, p_sim_line_id, p_carrier_rule_id)`, service_role only, mirroring
+`RefillPricing.premiumYearlyTotal` in Dart. Both rails are now derived from it:
+
+```
+quote_plan_price(..., p_gateway)  = round(gross_up(plan_price_net, gateway), 2)   -- PayPal
+pay_plan_fee_from_wallet(...)     = round(plan_price_net, 2)                      -- wallet
+```
+
+Verified live on Zain KSA: **wallet $9.52, PayPal $10.36** — the number the screen had been
+showing all along, and exactly the balance the affected subscriber is still holding.
+
+Details that are load-bearing:
+
+* **`plan_price_net` returns UNROUNDED.** Rounding the net before grossing up can move the gross by
+  a cent away from the figure printed on the button, and rounding ~13 refills individually before
+  summing drifts from the yearly total. Callers round exactly once.
+* **A carrier rule id is a first-class input, not a fallback.** On a new line the row does not
+  exist yet, so the id the form already chose is the only handle the server has. It is only an *id*
+  — the price is still computed server-side from that rule, never accepted from the client.
+* **No silent default carrier.** `COALESCE(min_topup, 10.0)` produced a plausible price for a
+  carrier nobody had configured, and a plausible wrong price gets charged without anyone noticing.
+  It now raises `22023`.
+* **i7's two refusals moved to the money boundary.** `usage_required`, and `min_denomination` whose
+  minimum is below the qualifying amount, now raise **KS422 from the pricing function**, in the
+  same dialect and with the same sentences the queue uses. i7 gated these in three Flutter screens
+  and noted that a fourth surface would need its own copy; pricing is the one thing every surface
+  must pass through, so a screen that forgets its gate now fails to get a price instead of taking a
+  year's payment for a plan the queue will refuse.
+
+### 12.4 Premium is billed wallet-first, like Standard
+
+`PlanPayment.tryPlanFromWallet` generalises `tryStandardFromWallet`, and the add-line form now runs
+the identical sequence for both tiers: try the wallet → if short, deposit the difference through
+PayPal → wait for the credit → **charge the plan from the wallet** → only then create the line.
+
+Three reasons, in order of importance:
+
+1. **the debit is synchronous**, so the entitlement exists before the line is inserted. There is no
+   window in which a premium line exists unpaid;
+2. **it uses the balance the subscriber already has.** The affected account is holding $9.52, which
+   is to the cent what a Zain KSA Premium year costs on the wallet rail;
+3. **the wallet gateway is 0% + $0.00**, so it is the cheaper rail — the same C3c reasoning that
+   made Standard wallet-first.
+
+`pay_plan_fee_from_wallet` gained `p_plan` and `p_carrier_rule_id`, and `quote_plan_price` gained
+`p_carrier_rule_id`. Both are **DROP + CREATE**, never a replace with an extra defaulted parameter —
+that leaves two overloads and PostgREST answers PGRST203 to every call (the D5b→F2b failure, twice).
+The new parameters are last and defaulted, so an APK sending the old argument list still resolves.
+Both signatures updated in the F0 allow-list.
+
+One behavioural improvement carried in: the **idempotency check now runs before the price is
+computed and reports the amount actually debited**, read from the ledger. Recomputing a price to
+answer "you already paid" is how a replay starts disagreeing with the ledger, and for a carrier
+since flagged `usage_required` the recompute would raise instead of answering at all.
+
+### 12.5 The webhook race the same bug was hiding
+
+The other two surfaces pay with `kind='plan'`, and that becomes an entitlement only when the
+`plan_payments` row lands. Checkout's success signal is `paypal_orders.status = 'captured'`, which
+is written **two** different ways:
+
+* `paypal-webhook` PAYMENT.CAPTURE.COMPLETED — inserts `plan_payments` *first*, then marks captured.
+  Safe;
+* `capture-paypal-order`, the client-driven fallback — marks the order captured and **writes no
+  payment row at all**. The row only appears when PayPal's webhook arrives afterwards.
+
+So on the fallback path, `line_upgrade_sheet` and `onboarding_screen` committed against a payment
+the database could not yet see, and got the same KS403 — intermittently, which is why it never got
+diagnosed. Both now await `PlanPayment.waitForPlanPayment(since:)` before committing, the plan-rail
+twin of `waitForWalletCredit`. They commit **either way** once the wait is over: the charge has
+already been made and a plan charge carries no idempotency reference, so the worst acceptable
+outcome is "plan active, refills pending", never "pay again".
+
+### 12.6 A failed queue no longer reads as a failed save
+
+The insert had already succeeded when KS403 was raised, so the screen said *"Failed to save SIM
+line"* over a row that exists — and the subscriber cannot retry, because the phone number is now
+taken by their own line. That is how an unpaid premium line ended up sitting in production.
+
+`addSimLine`/`updateSimLine` now retry the queue once (it is idempotent by construction — it
+cancels the schedule's pending executions before re-inserting) and then raise
+`PremiumRefillQueueException`, **after** the state assignment, so the list still holds the line that
+really exists. All three surfaces catch it separately and say: the line is real, the payment is
+recorded, contact support, **do not pay again**. The pending-fee reference is consumed on that path
+too — otherwise the next line the user added would replay it and be created for free.
+
+### 12.7 Still open
+
+* 🔴 **One unpaid premium line is live in production** — `a716e5fb…` / `+966555554444555`, created
+  by the failed save, `plan_type='premium'`, `plan_expires_at` 2027-08-08, **zero** queued
+  executions, no payment. Its owner's wallet holds the $9.52 they paid. **Owner decision, not an
+  agent's**: either delete the line so it can be re-created cleanly on a fixed build (the balance
+  then buys it properly, and the DB is truthful), or keep it and grandfather it. Nothing has been
+  deleted.
+* 🟡 **`has_paid_premium_entitlement` still only asks "was a plan paid for", never "how much".** A
+  $2.50 Standard debit satisfies the Premium queue. Pre-existing (I2b), untouched by J8 because
+  narrowing it risks refusing legitimate purchases priced before a config change — but now that a
+  price can be computed per line, an amount test is finally *possible*. Belongs with I2c.
+* 🟡 **`create-paypal-order` in the repo is ahead of production in one unrelated way.** `522e86b`
+  changed its return-URL fallbacks to the `paypal-return` Edge Function, but **`paypal-return` has
+  never been deployed** (checked 2026-08-08). Live v7 is therefore production's v6 source plus the
+  J8 change only, keeping the keepsims.com fallbacks. A warning comment now sits on those three
+  lines: deploy `paypal-return` first, or the next deploy from the repo points PayPal at a 404 in
+  the middle of a payment.
+* 🟡 **Nothing has been driven through the Flutter UI.** The SQL is proven by 11 live assertions
+  under a real subscriber JWT (all rolled back, zero residue), the Dart by 4 new unit tests pinned
+  to the same numbers. No device run, no screenshot.
+* 🔎 **The wallet-shortfall dialog still floors the top-up at $1.00.** If the balance is $0.30
+  short, the subscriber deposits $1.00 and keeps $0.70 in the wallet. Pre-existing and harmless —
+  the surplus is theirs — but it is why a fully-funded wallet used to be asked for another dollar.
+* 🔎 **A pending plan-fee reference is now only replayed when it covers the plan being bought.**
+  `PendingPlanFee` exists so a fee charged for a line that was never created is spendable on the
+  retry; with two different prices, an orphaned $2.50 Standard reference would otherwise have been
+  adopted as payment for a $9.52 Premium year.
+
+### 12.8 J8b — the PayPal charge did not include the PayPal fee (found on the fixed build)
+
+Driving the repaired flow on a device produced the next defect in the same block. The sheet said:
+
+| Premium Plan Fee | $9.52 |
+|---|---|
+| Net Deposit Needed | $9.52 |
+| PayPal Processing Fee | +$0.84 |
+| **Total PayPal Charge** | **$10.36** |
+
+…and the button said *"Pay $10.36 via PayPal & Activate"*. PayPal then asked for **9.52 USD**.
+
+`initialAmount: netNeeded` — the whole gross-up was display-only. `paypal_orders` confirms it:
+four orders on 2026-08-08, every one `kind='deposit'`, `amount_usd = 9.52`.
+
+**Both halves of that were wrong, and the second one is the expensive half.** Routing a plan
+purchase through a *deposit* means `paypal-webhook` credits the wallet with `gross` — the full
+captured amount — so the subscriber receives every cent they paid and **KeepSIMs absorbs PayPal's
+cut**: $0.81 of a $9.52 Premium year, and $0.57 of a $2.50 Standard fee, which is 23% of it. That
+is precisely what `PlanPayment`'s own class comment has warned about since C3c: *"PayPal plan
+charges must be tagged `paymentKind: 'plan'` — tagged 'deposit' they are credited straight back
+into the payer's wallet by the webhook."* This screen was the one place breaking its own contract.
+
+Grossing up the deposit instead would have been worse, not better: the webhook credits the gross,
+so charging $10.36 would credit $10.36, debit $9.52 for the plan and leave $0.84 of *our* money as
+the subscriber's wallet credit — a bigger loss than the one it fixes.
+
+**So the fallback is now a plan charge, not a top-up**, which is what the other two purchase
+surfaces have always done:
+
+* checkout is pushed with `paymentKind: 'plan'`, `plan`, `carrierRuleId`, and `simLineId` only
+  when editing — so `create-paypal-order` prices it from `quote_plan_price` and **the client's
+  amount is ignored entirely**. A display/charge mismatch is no longer possible in the direction
+  that costs anyone money;
+* `onSuccess` waits for the `plan_payments` row (§ 12.5) and then commits;
+* the `$1.00` minimum-deposit floor disappears from this path — it never belonged to a plan.
+
+The sheet was rewritten to describe what actually happens: *Pay with PayPal / Your wallet cannot
+cover the Premium Plan*, rows `Premium Plan (1 year) $9.52` + `PayPal Processing Fee $0.84` =
+`Total PayPal Charge $10.36`, and no "net deposit" or "less existing balance" line, because
+neither happens any more.
+
+**The trade-off, stated plainly:** a plan charge cannot be part-funded from the wallet. Someone
+holding $9.00 against a $9.52 plan now pays $10.36 by card and keeps their $9.00, where before they
+would have deposited $1.00 and spent the balance. The sheet says so and points at the cheaper
+route — top the wallet up to the plan price and the PayPal fee disappears entirely, because the
+wallet gateway is 0% + $0.00. Making the wallet part-fund a card payment would mean reintroducing
+the deposit rail and its fee absorption, which is the bug.
+
+Pinned by two more unit tests: what is charged, minus the gateway's own percentage and fixed fee,
+must still leave the plan price behind — and the un-grossed figure demonstrably does not.
+
+**🔎 Related, NOT fixed, flagged for the owner:** *every* wallet deposit absorbs the gateway fee.
+`credit_wallet_for_deposit` is called with `gross`, so a $20 top-up costs the subscriber $20, gives
+them $20 of credit and nets KeepSIMs $18.83. That is a defensible business choice for real top-ups
+— but at the `PAYPAL_MIN_DEPOSIT_USD` floor of $1.00 it is a guaranteed **-$0.52 per deposit**, and
+nothing stops it being used that way. Either raise the floor or credit `net_usd`; both are pricing
+decisions, not bugs, so nothing was changed.
+
+### 12.9 J8c — "No refill yet" on a line that had already been refilled
+
+The first end-to-end Premium purchase on the fixed build worked: line `b144d63e…` /
+`+96655599555` created 03:33:01, five `refill_mini` executions queued 03:33:02, and the first of
+them **succeeded at 03:33:06** through DTOne (`dt_tx_6ee58744`). The card still read
+**Last Refill — No refill yet**.
+
+**The database was right.** `trigger_update_sim_line_last_topup` → `update_sim_line_last_topup_at`
+had stamped `sim_lines.last_topup_at = 2026-08-08 03:33:06.41291`, in the same transaction that
+marked the execution successful. Nothing in the app ever looked again.
+
+`simLinesControllerProvider` is `@Riverpod(keepAlive: true)` and its `build()` watches only
+`authControllerProvider`, so after the initial load the list is a snapshot. `addSimLine` then
+*splices the row it constructed locally* into that snapshot — a row that by definition has no
+server-computed fields — and the only thing that ever re-reads is the refresh button in the app
+bar. So the card kept rendering a `last_topup_at` of `null` that had been true for four seconds.
+
+This is not a Premium-only or `last_topup_at`-only problem, which is why the fix is not a one-field
+patch: **every server-side change to a line is invisible until the user presses refresh** — the
+02:20 forecast, an auto-rescue spend, a scheduled refill, a status change. Premium merely makes it
+obvious, because `queue_premium_refill_executions` starts the plan year at `p_start_at`, so the
+first pre-paid refill fires within seconds of the purchase.
+
+**Fixed with the signal that already exists.** `topup_executions` is in the `supabase_realtime`
+publication and carries three SELECT-own RLS policies, so the list screen now subscribes to
+UPDATEs on it filtered to `user_id = auth.uid()`, and invalidates `simLinesControllerProvider` +
+`scheduledTopupControllerProvider` when an execution reaches `success` or `failed`. Same idiom
+`PayPalCheckoutScreen` already uses for `paypal_orders`. Debounced by 800 ms, because a worker
+completing a batch emits one event per row and each would otherwise cost a refetch; unsubscribed in
+`dispose`.
+
+**🔎 Left as-is, deliberately:** `addSimLine`/`updateSimLine` still splice a locally-built row
+rather than re-reading the saved line from the server, so between the save and the first realtime
+event the card shows the client's idea of the row. Harmless for the fields on the card today, and
+the realtime refresh covers the case that mattered — but it is the reason to reach for a re-read
+before adding any new server-computed column to that card. The SIM line **detail** screen has its
+own `simLineDetailControllerProvider` and is not covered by this subscription.

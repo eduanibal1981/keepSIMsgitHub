@@ -92,6 +92,18 @@ DECLARE
     'admin_update_channel(text,jsonb,text)',
     'admin_upsert_esim_supplier(text,jsonb,text)',
     'admin_upsert_offline_endpoint(uuid,jsonb,text)',
+    -- --------------------------------------------------------------------
+    -- K1-K4, the service-provider split. Same assert_admin() gate as every
+    -- entry above. admin_upsert_service_provider is the one that INSERTS as
+    -- well as updates, so a new supplier (Reloadly and whatever follows) is a
+    -- row an operator adds, not a migration.
+    'admin_list_service_providers()',
+    'admin_upsert_service_provider(text,jsonb,text)',
+    'admin_list_carrier_provider_map(uuid)',
+    'admin_upsert_carrier_provider_map(uuid,text,jsonb,text)',
+    'admin_list_provider_offers(text,text,text,uuid,boolean,integer,integer)',
+    'admin_override_provider_offer(uuid,jsonb,text)',
+    'admin_refresh_provider_offers(text)',
     -- I8, same assert_admin() gate. The emitter that reads every user's lines
     -- and writes to every user's notifications
     -- (emit_carrier_self_service_advice) is deliberately NOT here: it is
@@ -170,9 +182,22 @@ DECLARE
     -- Neither of these moves money or writes a row.
     'list_refill_offers(uuid)',
     'pick_best_refill_offer(uuid,numeric)',
-    'pay_plan_fee_from_wallet(text,uuid,text)',
+    -- K5. The add-line flow has no sim_line id yet, so it cannot use
+    -- list_refill_offers. Read-only, moves no money, and returns only what the
+    -- carrier's routable suppliers actually sell — the supplier code never
+    -- reaches the client as something to dispatch on.
+    'list_carrier_offers(uuid)',
+    -- J8 appended `p_plan` + `p_carrier_rule_id` to both of these, last and
+    -- defaulted so an old APK sending the previous argument list still resolves.
+    -- Both were DROP + CREATE, never a replace with an extra defaulted param:
+    -- that leaves two overloads and PostgREST answers PGRST203 to every call
+    -- (the D5b→F2b failure). The price they charge is computed by
+    -- `plan_price_net`, which is deliberately NOT on this list — it is granted
+    -- to service_role only, because two quotes would otherwise let anyone solve
+    -- for the margin percentages.
+    'pay_plan_fee_from_wallet(text,uuid,text,text,uuid)',
     'queue_premium_refill_executions(uuid,uuid,timestamp with time zone,timestamp with time zone)',
-    'quote_plan_price(uuid,text,text)',
+    'quote_plan_price(uuid,text,text,uuid)',
     'redeem_referral_points()',
     'request_account_deletion(text,boolean)',
     'request_esim_purchase(text,integer,text)',
@@ -221,7 +246,15 @@ DECLARE
     -- and the Vault secret read both live in kick_affiliate_sync(), which is
     -- service_role-only, so an admin can trigger a sync but never see the
     -- credential.
-    'admin_sync_affiliate_network(integer,text)'
+    'admin_sync_affiliate_network(integer,text)',
+    -- J7. Outbound admin email. assert_admin() first, then rate-limited, and
+    -- the sender is validated against the ADMIN_EMAIL_FROM_OPTIONS allow-list —
+    -- a caller cannot choose an arbitrary From on the verified domain. The
+    -- Resend key is never reachable from here: this only queues a row, and the
+    -- Edge Function that holds the key is reached via the service_role-only
+    -- kick_admin_email(). Guards asserted in j7_admin_email_tests.sql.
+    'admin_send_email(text[],text,text,text[],text,text,text)',
+    'admin_list_emails(integer)'
   ];
   v_bad text;
   v_n int;
