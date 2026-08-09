@@ -109,7 +109,42 @@ async function catalogPairs() {
     return pairs;
 }
 
-async function refreshPair({ apiProvider, countryCode, carrierCode }) {
+// K9: supplier prices are not all in USD. DTOne and Ding both settle in OMR on
+// the live accounts — proven against real payloads, not assumed. Converting is
+// therefore mandatory, and converting with a STALE rate is worse than not
+// converting at all, so the policy lives in the database.
+//
+// `fx_rates_for_costing` has already applied it: pegs age in days (the rial has
+// been fixed at 2.6008 USD since 1986 — expiring it after 72h would take two
+// suppliers offline for a rate that cannot drift), floating rates in hours.
+// Anything it flags is EXCLUDED from the map, so offerCacheRow() throws rather
+// than silently pricing off a bad number.
+async function loadFxRates() {
+    const { data, error } = await supabase
+        .from('fx_rates_for_costing')
+        .select('currency_code, usd_to_local, rate_as_of, unusable_reason');
+
+    if (error) throw new Error(`Failed to read fx_rates_for_costing: ${error.message}`);
+
+    const rates = {};
+    const rejected = [];
+    for (const row of data || []) {
+        if (row.unusable_reason) {
+            rejected.push(`${row.currency_code} (${row.unusable_reason})`);
+            continue;
+        }
+        rates[String(row.currency_code).toUpperCase()] = {
+            usdToLocal: Number(row.usd_to_local),
+            rateAsOf: row.rate_as_of,
+        };
+    }
+    if (rejected.length > 0) {
+        console.warn(`[fx] unusable rates skipped: ${rejected.join(', ')}`);
+    }
+    return rates;
+}
+
+async function refreshPair({ apiProvider, countryCode, carrierCode }, rates) {
     let offers = [];
     // A missing credential returns 0, never throws: one unconfigured supplier
     // must not stop the others refreshing.
@@ -132,7 +167,7 @@ async function refreshPair({ apiProvider, countryCode, carrierCode }) {
     }
 
     const rows = offers
-        .map(o => offerCacheRow(o, countryCode, carrierCode, apiProvider))
+        .map(o => offerCacheRow(o, countryCode, carrierCode, apiProvider, rates))
         .filter(r => (r.price_type === 'FIXED' && r.price_fixed_usd > 0)
                   || (r.price_type === 'RANGE' && r.price_min_usd != null && r.price_max_usd != null
                       && r.send_min != null && r.send_max != null));
@@ -170,12 +205,16 @@ async function refreshAll() {
     let totalRows = 0;
 
     try {
+        // Loaded ONCE per cycle, not per pair: a rate that changed mid-run would
+        // price two halves of the same catalogue differently.
+        const rates = await loadFxRates();
         const pairs = await catalogPairs();
-        console.log(`[refreshAll] Refreshing ${pairs.length} country/carrier catalogs...`);
+        console.log(`[refreshAll] Refreshing ${pairs.length} country/carrier catalogs `
+            + `with ${Object.keys(rates).length} usable FX rates...`);
 
         for (const pair of pairs) {
             try {
-                const n = await refreshPair(pair);
+                const n = await refreshPair(pair, rates);
                 totalRows += n;
                 ok++;
                 console.log(`[refreshAll] ${pair.apiProvider} ${pair.countryCode}/${pair.carrierCode}: ${n} offers`);

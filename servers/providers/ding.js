@@ -31,6 +31,35 @@ function toMinor(v) {
   return Number.isFinite(n) ? Math.round(n * 100) : null;
 }
 
+// Ding quotes SendValue in the ACCOUNT's settlement currency, not USD — the
+// live account settles in OMR, exactly like DTOne. Verified against a real
+// GetProducts response for ZNPK: `"SendValue":0.18,"SendCurrencyIso":"OMR"` for
+// a PKR 100 top-up, which is $0.47, not $0.18.
+//
+// Storing it as USD understates every Ding cost by ~2.6x. `fx_rates` has OMR
+// (K7) but no conversion is wired through this path yet, so a non-USD price is
+// REFUSED rather than mislabelled — the same stance as providers/dtone.js.
+const SUPPORTED_SEND_CURRENCIES = new Set(['USD']);
+
+/// True for a plain credit top-up, false for a content bundle.
+///
+/// Ding returns both from GetProducts and the bundles are CHEAPER, so a
+/// cheapest-first ranking picks them: Zong's "Weekly Mega TikTOk" is PKR 60 /
+/// OMR 0.11 against PKR 100 / OMR 0.18 for a plain top-up. A carrier rule is
+/// written in terms of a qualifying RECHARGE AMOUNT, and `resolveVerifiedOffer`
+/// matches on that amount — a themed data bundle is a different product wearing
+/// a similar price.
+///
+/// The discriminator is `ValidityPeriodIso`: empty for plain credit, `P7D` /
+/// `P30D` / `P90D` for a bundle. `DefaultDisplayText` corroborates it
+/// ("PKR 100.00" vs "Monthly WhatsApp Prime").
+function isPlainTopUp(p) {
+  const validity = String(p?.ValidityPeriodIso ?? '').trim();
+  if (validity !== '') return false;
+  const benefits = Array.isArray(p?.Benefits) ? p.Benefits.map(String) : [];
+  return benefits.length === 0 || benefits.includes('Mobile');
+}
+
 function normalizeDingProduct(p) {
   // Ding calls a denomination a SKU. A SKU with distinct Minimum/Maximum
   // SendValue is a range product; equal values mean a fixed denomination.
@@ -39,12 +68,21 @@ function normalizeDingProduct(p) {
   const minRecv = p?.Minimum?.ReceiveValue ?? null;
   const maxRecv = p?.Maximum?.ReceiveValue ?? null;
 
+  // K9: report the currency, do not refuse it. offerCacheRow() converts through
+  // fx_rates and records the rate it used, so the USD figure is auditable.
+  // Refusing was the right stance only while no conversion existed.
+  const sendCcy = String(
+    p?.Minimum?.SendCurrencyIso || p?.Maximum?.SendCurrencyIso || 'USD'
+  ).toUpperCase();
+
   const isRange = minSend != null && maxSend != null && Number(minSend) !== Number(maxSend);
   const priceType = isRange ? 'RANGE' : 'FIXED';
 
   return {
     offerId: String(p.SkuCode),
-    name: p.LocalizationKey || p.DefaultDisplayText || `Ding ${p.SkuCode}`,
+    // DefaultDisplayText first: LocalizationKey is the SKU again ("ZNPK3878"),
+    // which renders as gibberish in the admin catalogue.
+    name: p.DefaultDisplayText || p.LocalizationKey || `Ding ${p.SkuCode}`,
     productType: 'TOPUP',
     priceType,
     enabled: true,
@@ -53,6 +91,8 @@ function normalizeDingProduct(p) {
       min: isRange ? toMinor(minSend) : null,
       max: isRange ? toMinor(maxSend) : null,
       currencyDivisor: 100,
+      // The account's settlement currency — OMR on the live account, NOT USD.
+      currency: sendCcy,
     },
     send: {
       min: minRecv != null ? Number(minRecv) : null,
@@ -81,12 +121,19 @@ async function fetchCatalog({ baseUrl = dingBaseUrl, apiKey, countryCode, carrie
   const data = await res.json();
   const items = Array.isArray(data) ? data : (data.Items || data.items || []);
 
-  // Deliberately NO fallback catalogue. DTOne has one because it is on a preprod
-  // endpoint that returns nothing useful; inventing Ding prices would put
-  // fictional money in front of a user. An empty list is the honest answer and
-  // request_instant_refill already refuses an offer it cannot find.
+  // `ResultCode` is Ding's own success flag and can be non-1 on an HTTP 200.
+  if (data && data.ResultCode != null && Number(data.ResultCode) !== 1) {
+    throw new Error(
+      `Ding GetProducts failed: ResultCode ${data.ResultCode} ${JSON.stringify(data.ErrorCodes || [])}`
+    );
+  }
+
+  // Deliberately NO fallback catalogue. Inventing prices puts fictional money in
+  // front of a user — see providers/dtone.js for what that cost us. An empty
+  // list is the honest answer, and a mapping with nothing cached is not routable.
   return items
     .filter(p => p && p.SkuCode)
+    .filter(isPlainTopUp)
     .map(normalizeDingProduct);
 }
 
@@ -186,6 +233,7 @@ async function pollStatus({ baseUrl = dingBaseUrl, apiKey, transactionId, extern
 module.exports = {
   fetchCatalog,
   normalizeDingProduct,
+  isPlainTopUp,
   purchase,
   pollStatus,
 };

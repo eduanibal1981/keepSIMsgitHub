@@ -142,9 +142,57 @@ function resolveVerifiedOffer({ topups, offerId, offerValue, chargedUsd, country
     `No matching Zendit offer found for value ${chargedUsd} USD (searched ${topups.length} top-up offers for ${countryCode}/${zenCarrier})`);
 }
 
-function offerCacheRow(offer, countryCode, carrierCode, apiProvider = 'zendit') {
-  const price = offerPriceUsd(offer);
+/// K9: supplier prices are not all in USD.
+///
+/// Three of the four top-up suppliers settle in **OMR** — proven against live
+/// payloads (DTOne: all 16,172 rows `SOURCE CURRENCY = OMR`; Ding:
+/// `"SendValue":0.18,"SendCurrencyIso":"OMR"`). Only Zendit quotes USD.
+///
+/// Storing the native figure in a `*_usd` column understates cost by ~2.6x:
+/// Ding's PKR 100 top-up costs OMR 0.18 = $0.47 and was cached as $0.18. A
+/// guaranteed loss on every sale, invisible because the number looks plausible.
+///
+/// `rates` maps CURRENCY -> { usdToLocal, rateAsOf }, built from the
+/// `fx_rates_for_costing` view, which has ALREADY applied the staleness policy.
+/// Anything it flagged unusable must not be in this map — converting with a
+/// stale rate is the mistake G11 exists to prevent, now with money moving.
+///
+/// Throws rather than guessing. An offer we cannot price is an offer we do not
+/// cache, and a mapping with nothing cached is simply not routable — that is
+/// the safe, visible outcome.
+function convertToUsd(amount, currency, rates) {
+  if (amount == null) return null;
+  const ccy = String(currency || 'USD').toUpperCase();
+  if (ccy === 'USD') return amount;
+
+  const rate = rates ? rates[ccy] : undefined;
+  if (!rate || !(rate.usdToLocal > 0)) {
+    throw new Error(
+      `No usable FX rate for ${ccy}; cannot convert a supplier price to USD. ` +
+      `Add ${ccy} to fx_rates (and check fx_rates_for_costing.unusable_reason).`
+    );
+  }
+  // fx_rates stores usd_to_local — how many LOCAL units one USD buys. So the
+  // inverse converts a native supplier price back to USD.
+  return amount / rate.usdToLocal;
+}
+
+function offerCacheRow(offer, countryCode, carrierCode, apiProvider = 'zendit', rates = null) {
+  const native = offerPriceUsd(offer); // native units; name predates multi-currency
   const pType = offer.priceType || (offer.price?.fixed != null ? 'FIXED' : (offer.price?.min != null ? 'RANGE' : null));
+
+  // The supplier's own currency. Absent means USD, which is how Zendit and every
+  // pre-K9 adapter behaved — so this stays backwards compatible by default.
+  const costCcy = String(offer.price?.currency || 'USD').toUpperCase();
+  const isConverted = costCcy !== 'USD';
+
+  const fixedUsd = pType === 'FIXED' ? convertToUsd(native.fixed, costCcy, rates) : null;
+  const minUsd = pType === 'RANGE' ? convertToUsd(native.min, costCcy, rates) : null;
+  const maxUsd = pType === 'RANGE' ? convertToUsd(native.max, costCcy, rates) : null;
+
+  // Round only at the boundary, once. Rounding before the division drifts.
+  const r4 = (v) => (v == null ? null : Math.round(v * 10000) / 10000);
+
   return {
     api_provider: apiProvider,
     offer_id: offer.offerId,
@@ -152,13 +200,21 @@ function offerCacheRow(offer, countryCode, carrierCode, apiProvider = 'zendit') 
     carrier_code: carrierCode,
     offer_name: offer.name || null,
     price_type: pType,
-    price_fixed_usd: pType === 'FIXED' ? price.fixed : null,
-    price_min_usd: pType === 'RANGE' ? price.min : null,
-    price_max_usd: pType === 'RANGE' ? price.max : null,
+    price_fixed_usd: r4(fixedUsd),
+    price_min_usd: r4(minUsd),
+    price_max_usd: r4(maxUsd),
     send_min: pType === 'RANGE' && offer.send ? offer.send.min : null,
     send_max: pType === 'RANGE' && offer.send ? offer.send.max : null,
     send_currency: offer.send ? offer.send.currencyCode || offer.send.currency || null : null,
     send_currency_divisor: offer.send ? offer.send.currencyDivisor || 100 : 100,
+    // Provenance. With these three the USD figure is reproducible from first
+    // principles months later; without them it is an assertion.
+    source_currency: isConverted ? costCcy : null,
+    source_amount_native: isConverted
+      ? (pType === 'FIXED' ? native.fixed : native.min)
+      : null,
+    fx_usd_to_local: isConverted ? rates[costCcy].usdToLocal : null,
+    fx_rate_as_of: isConverted ? rates[costCcy].rateAsOf : null,
     refreshed_at: new Date().toISOString(),
   };
 }
@@ -195,5 +251,6 @@ module.exports = {
   createCatalogFetcher,
   resolveVerifiedOffer,
   offerCacheRow,
+  convertToUsd,
   alertOfferTampering,
 };

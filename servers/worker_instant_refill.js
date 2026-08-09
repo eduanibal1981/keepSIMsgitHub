@@ -1,4 +1,4 @@
-require('dotenv').config({ path: require('path').join(__dirname, '.env') });
+﻿require('dotenv').config({ path: require('path').join(__dirname, '.env') });
 const { createClient } = require('@supabase/supabase-js');
 const {
     createCatalogFetcher,
@@ -75,8 +75,8 @@ const fetchDtoneCatalog = createCatalogFetcher({
 // It also takes `preferredProvider` now, which fixes a real defect the old
 // shape hid: the caller resolved codes from the CARRIER's default supplier and
 // then dispatched on the EXECUTION's supplier. Any execution stamped with a
-// non-default provider — which is now every premium refill, since
-// queue_premium_refill_executions stamps the winning supplier — would have
+// non-default provider â€” which is now every premium refill, since
+// queue_premium_refill_executions stamps the winning supplier â€” would have
 // called that supplier's API with the default supplier's carrier code and been
 // told the product does not exist.
 //
@@ -239,7 +239,13 @@ async function executeRefill(execution) {
                     externalId
                 });
 
-                if (pollRes.isFailed) {
+                // Only an explicit success counts as delivered. `isFailed` alone
+                // let an INDETERMINATE poll - no verdict after 12 tries, or an
+                // unreachable API - fall through and be recorded as success.
+                // A false failure is recoverable: both adapters adopt-on-retry
+                // against the same external_id, so a retry cannot double-charge.
+                // A false success is not recoverable at all.
+                if (!pollRes.isSuccess) {
                     throw new Error(`DTone purchase failed: ${pollRes.errorMsg || pollRes.status}`);
                 }
 
@@ -265,7 +271,13 @@ async function executeRefill(execution) {
                     transactionId: purchaseResult.transactionId
                 });
 
-                if (pollRes.isFailed) {
+                // Only an explicit success counts as delivered. `isFailed` alone
+                // let an INDETERMINATE poll - no verdict after 12 tries, or an
+                // unreachable API - fall through and be recorded as success.
+                // A false failure is recoverable: both adapters adopt-on-retry
+                // against the same external_id, so a retry cannot double-charge.
+                // A false success is not recoverable at all.
+                if (!pollRes.isSuccess) {
                     throw new Error(`Zendit purchase failed: ${pollRes.errorMsg || pollRes.status}`);
                 }
 

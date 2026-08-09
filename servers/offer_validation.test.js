@@ -252,3 +252,96 @@ test('dtoneProvider normalizeDtoneProduct correctly maps FIXED and RANGE product
   assert.strictEqual(normalizedRange.send.min, 500);
   assert.strictEqual(normalizedRange.send.max, 5000);
 });
+
+// ---------------------------------------------------------------------------
+// K9 — supplier-currency conversion.
+//
+// Every fixture below is a REAL payload shape, not an invention: the Ding rows
+// come from a live GetProducts response for ZNPK (Zong Pakistan). Three of the
+// four top-up suppliers settle in OMR, and storing that native figure in a
+// `*_usd` column understated cost by ~2.6x on every Ding and DTOne offer.
+// ---------------------------------------------------------------------------
+const dingProvider = require('./providers/ding');
+
+// 1 USD = 0.3845 OMR (pegged since 1986).
+const OMR_RATES = { OMR: { usdToLocal: 0.3845, rateAsOf: '2026-08-09T00:00:00Z' } };
+
+const DING_FIXED_100 = {
+  SkuCode: 'PK_ZN_TopUp_100.00', DefaultDisplayText: 'PKR 100.00',
+  ValidityPeriodIso: '', Benefits: ['Mobile', 'Minutes'],
+  Minimum: { SendValue: 0.18, SendCurrencyIso: 'OMR', ReceiveValue: 100, ReceiveCurrencyIso: 'PKR' },
+  Maximum: { SendValue: 0.18, SendCurrencyIso: 'OMR', ReceiveValue: 100, ReceiveCurrencyIso: 'PKR' },
+};
+
+const DING_RANGED = {
+  SkuCode: 'PK_ZN_TopUp', DefaultDisplayText: 'PKR 279.00-4967.00',
+  ValidityPeriodIso: '', Benefits: ['Mobile', 'Minutes'],
+  Minimum: { SendValue: 0.5, SendCurrencyIso: 'OMR', ReceiveValue: 279, ReceiveCurrencyIso: 'PKR' },
+  Maximum: { SendValue: 8.9, SendCurrencyIso: 'OMR', ReceiveValue: 4967, ReceiveCurrencyIso: 'PKR' },
+};
+
+const DING_BUNDLE = {
+  SkuCode: 'ZNPK3878', DefaultDisplayText: 'Weekly Mega TikTOk',
+  ValidityPeriodIso: 'P7D', Benefits: ['Mobile', 'Minutes', 'Data'],
+  Minimum: { SendValue: 0.11, SendCurrencyIso: 'OMR', ReceiveValue: 60, ReceiveCurrencyIso: 'PKR' },
+  Maximum: { SendValue: 0.11, SendCurrencyIso: 'OMR', ReceiveValue: 60, ReceiveCurrencyIso: 'PKR' },
+};
+
+test('offerCacheRow converts an OMR supplier price to USD', () => {
+  const row = offerCacheRow(
+    dingProvider.normalizeDingProduct(DING_FIXED_100), 'PK', 'ZNPK', 'ding', OMR_RATES);
+  // 0.18 OMR / 0.3845 = $0.4681, NOT $0.18.
+  assert.strictEqual(row.price_fixed_usd, 0.4681);
+});
+
+test('offerCacheRow records how the conversion was made, so it can be audited', () => {
+  const row = offerCacheRow(
+    dingProvider.normalizeDingProduct(DING_FIXED_100), 'PK', 'ZNPK', 'ding', OMR_RATES);
+  assert.strictEqual(row.source_currency, 'OMR');
+  assert.strictEqual(row.source_amount_native, 0.18);
+  assert.strictEqual(row.fx_usd_to_local, 0.3845);
+  assert.ok(row.fx_rate_as_of, 'the rate age must be recorded, not just the rate');
+});
+
+test('offerCacheRow converts both ends of a RANGE offer', () => {
+  const row = offerCacheRow(
+    dingProvider.normalizeDingProduct(DING_RANGED), 'PK', 'ZNPK', 'ding', OMR_RATES);
+  assert.strictEqual(row.price_type, 'RANGE');
+  assert.strictEqual(row.price_min_usd, 1.3004);
+  assert.strictEqual(row.price_max_usd, 23.1469);
+});
+
+test('a USD supplier is untouched and carries no conversion provenance', () => {
+  // Zendit quotes USD, so nothing converts and no rates are even required.
+  const zendit = {
+    offerId: 'STC_SA_001_USD', name: 'STC 25 SAR', priceType: 'FIXED',
+    price: { fixed: 710, currencyDivisor: 100 }, send: { currencyCode: 'SAR' },
+  };
+  const row = offerCacheRow(zendit, 'SA', 'STC', 'zendit');
+  assert.strictEqual(row.price_fixed_usd, 7.1);
+  assert.strictEqual(row.source_currency, null);
+  assert.strictEqual(row.fx_usd_to_local, null);
+});
+
+test('a missing FX rate REFUSES rather than caching a native figure as USD', () => {
+  assert.throws(
+    () => offerCacheRow(
+      dingProvider.normalizeDingProduct(DING_FIXED_100), 'PK', 'ZNPK', 'ding', {}),
+    /No usable FX rate for OMR/,
+    'an unpriceable offer must not be cached — that is how a 2.6x understatement ships',
+  );
+});
+
+test('Ding bundles are excluded: they are cheaper than top-ups and would win the ranking', () => {
+  // "Weekly Mega TikTOk" is OMR 0.11 against OMR 0.18 for plain PKR 100 credit,
+  // so a cheapest-first ranker would buy a data bundle to keep a line alive.
+  assert.strictEqual(dingProvider.isPlainTopUp(DING_BUNDLE), false);
+  assert.strictEqual(dingProvider.isPlainTopUp(DING_FIXED_100), true);
+  assert.strictEqual(dingProvider.isPlainTopUp(DING_RANGED), true);
+});
+
+test('convertToUsd divides by usd_to_local and leaves USD alone', () => {
+  const { convertToUsd } = require('./offer_validation');
+  assert.strictEqual(convertToUsd(10, 'USD', {}), 10);
+  assert.strictEqual(Number(convertToUsd(0.3845, 'OMR', OMR_RATES).toFixed(6)), 1);
+});

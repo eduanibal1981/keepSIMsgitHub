@@ -208,7 +208,13 @@ async function executeRefill(execution) {
                     externalId
                 });
 
-                if (pollRes.isFailed) {
+                // Only an explicit success counts as delivered. `isFailed` alone
+                // let an INDETERMINATE poll - no verdict after 12 tries, or an
+                // unreachable API - fall through and be recorded as success.
+                // A false failure is recoverable: both adapters adopt-on-retry
+                // against the same external_id, so a retry cannot double-charge.
+                // A false success is not recoverable at all.
+                if (!pollRes.isSuccess) {
                     throw new Error(`DTone auto mini refill failed: ${pollRes.errorMsg || pollRes.status}`);
                 }
 
@@ -232,7 +238,13 @@ async function executeRefill(execution) {
                     transactionId: purchaseResult.transactionId
                 });
 
-                if (pollRes.isFailed) {
+                // Only an explicit success counts as delivered. `isFailed` alone
+                // let an INDETERMINATE poll - no verdict after 12 tries, or an
+                // unreachable API - fall through and be recorded as success.
+                // A false failure is recoverable: both adapters adopt-on-retry
+                // against the same external_id, so a retry cannot double-charge.
+                // A false success is not recoverable at all.
+                if (!pollRes.isSuccess) {
                     throw new Error(`Zendit auto mini refill failed: ${pollRes.errorMsg || pollRes.status}`);
                 }
 
@@ -241,16 +253,16 @@ async function executeRefill(execution) {
 
             // Mark execution as success
             const { error: updateError } = await supabase
-                .rpc('update_execution_status', { 
+                .rpc('update_execution_status', {
                     p_id: execution.id,
                     p_status: 'success',
-                    p_reloadly_transaction_id: purchaseResult.transactionId || externalId 
+                    p_reloadly_transaction_id: purchaseResult.transactionId || externalId
                 });
-                
+
             if (updateError) {
                 throw new Error(`Failed to update database status to success: ${updateError.message}`);
             }
-                
+
             console.log(`Successfully completed Auto Mini Refill ${execution.id}`);
 
         } else {
@@ -266,11 +278,11 @@ async function executeRefill(execution) {
 
 async function markExecutionFailed(executionId, reason) {
     const { error } = await supabase
-        .rpc('update_execution_failed', { 
+        .rpc('update_execution_failed', {
             p_id: executionId,
             p_reason: reason
         });
-        
+
     if (error) {
         console.error(`Failed to update database status to failed:`, error.message);
     }

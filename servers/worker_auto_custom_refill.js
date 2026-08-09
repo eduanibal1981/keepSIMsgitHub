@@ -208,7 +208,13 @@ async function executeRefill(execution) {
                     externalId
                 });
 
-                if (pollRes.isFailed) {
+                // Only an explicit success counts as delivered. `isFailed` alone
+                // let an INDETERMINATE poll - no verdict after 12 tries, or an
+                // unreachable API - fall through and be recorded as success.
+                // A false failure is recoverable: both adapters adopt-on-retry
+                // against the same external_id, so a retry cannot double-charge.
+                // A false success is not recoverable at all.
+                if (!pollRes.isSuccess) {
                     throw new Error(`DTone auto custom refill failed: ${pollRes.errorMsg || pollRes.status}`);
                 }
 
@@ -232,7 +238,13 @@ async function executeRefill(execution) {
                     transactionId: purchaseResult.transactionId
                 });
 
-                if (pollRes.isFailed) {
+                // Only an explicit success counts as delivered. `isFailed` alone
+                // let an INDETERMINATE poll - no verdict after 12 tries, or an
+                // unreachable API - fall through and be recorded as success.
+                // A false failure is recoverable: both adapters adopt-on-retry
+                // against the same external_id, so a retry cannot double-charge.
+                // A false success is not recoverable at all.
+                if (!pollRes.isSuccess) {
                     throw new Error(`Zendit auto custom refill failed: ${pollRes.errorMsg || pollRes.status}`);
                 }
 
