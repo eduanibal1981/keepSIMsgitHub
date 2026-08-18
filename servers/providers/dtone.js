@@ -295,8 +295,35 @@ async function purchase({ baseUrl = dtoneBaseUrl, apiKey, apiSecret, execution, 
   };
 
   if (offerValue != null) {
-    body.prices = { unit: 'USD' };
-    body.calculation_mode = 'SOURCE_AMOUNT';
+    let isRange = false;
+    let destUnit = 'EGP';
+    try {
+      const pRes = await fetchImpl(`${baseUrl}/products/${numericProductId}`, {
+        headers: { 'Authorization': authHeader }
+      });
+      if (pRes.ok) {
+        const pData = await pRes.json();
+        isRange = String(pData.type || '').toUpperCase().includes('RANGE');
+        destUnit = pData.destination?.unit || pData.destination?.currency || 'EGP';
+      }
+    } catch (err) {
+      console.warn(`[DTone] Failed to inspect product ${numericProductId}:`, err.message);
+    }
+
+    if (isRange) {
+      const numericVal = typeof offerValue === 'number'
+        ? offerValue
+        : (typeof offerValue === 'object' && offerValue !== null
+            ? Number(offerValue.value || offerValue.amount)
+            : Number(offerValue));
+
+      body.calculation_mode = 'DESTINATION_AMOUNT';
+      body.destination = {
+        amount: numericVal,
+        unit: destUnit,
+        unit_type: 'CURRENCY'
+      };
+    }
   }
 
   const res = await fetchImpl(`${baseUrl}/async/transactions`, {

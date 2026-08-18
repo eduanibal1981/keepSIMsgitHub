@@ -393,3 +393,66 @@ test('zenditProvider pollStatus accepts DONE as a successful terminal status', a
   assert.strictEqual(pollRes.status, 'DONE');
 });
 
+test('dtoneProvider purchase correctly structures fixed and ranged transactions', async () => {
+  let capturedBody = null;
+  const mockFetch = async (url, opts) => {
+    if (url.includes('/products/4961')) {
+      return {
+        ok: true,
+        json: async () => ({ id: 4961, type: 'FIXED_VALUE_RECHARGE', destination: { unit: 'EGP' } })
+      };
+    }
+    if (url.includes('/products/11317')) {
+      return {
+        ok: true,
+        json: async () => ({ id: 11317, type: 'RANGED_VALUE_RECHARGE', destination: { unit: 'EGP' } })
+      };
+    }
+    if (url.includes('/async/transactions')) {
+      capturedBody = JSON.parse(opts.body);
+      return {
+        ok: true,
+        json: async () => ({ id: 'dt_tx_1', status: { message: 'CONFIRMED' } })
+      };
+    }
+    throw new Error('Unexpected URL ' + url);
+  };
+
+  // 1. Fixed product with offerValue present (e.g. from mini-refill schedule)
+  await dtoneProvider.purchase({
+    baseUrl: 'https://mock.dtone.com/v1',
+    apiKey: 'k',
+    apiSecret: 's',
+    execution: { id: 'ex_1' },
+    recipientPhone: '+201095351020',
+    offerId: '4961',
+    offerValue: 8,
+    externalId: 'dt_test_fixed',
+    fetchImpl: mockFetch
+  });
+  assert.strictEqual(capturedBody.product_id, 4961);
+  assert.strictEqual(capturedBody.calculation_mode, undefined);
+  assert.strictEqual(capturedBody.prices, undefined);
+
+  // 2. Ranged product with offerValue (8 EGP)
+  await dtoneProvider.purchase({
+    baseUrl: 'https://mock.dtone.com/v1',
+    apiKey: 'k',
+    apiSecret: 's',
+    execution: { id: 'ex_2' },
+    recipientPhone: '+201095351020',
+    offerId: '11317',
+    offerValue: 8,
+    externalId: 'dt_test_range',
+    fetchImpl: mockFetch
+  });
+  assert.strictEqual(capturedBody.product_id, 11317);
+  assert.strictEqual(capturedBody.calculation_mode, 'DESTINATION_AMOUNT');
+  assert.deepStrictEqual(capturedBody.destination, {
+    amount: 8,
+    unit: 'EGP',
+    unit_type: 'CURRENCY'
+  });
+});
+
+
