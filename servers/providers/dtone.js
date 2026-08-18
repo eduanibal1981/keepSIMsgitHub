@@ -84,7 +84,7 @@ function normalizeDtoneProduct(p, countryCode, carrierCode) {
   const sendMin = isRange ? parseFloat(p.destination?.amount?.min || p.destination?.amount || 0) : (p.destination?.amount ? parseFloat(p.destination.amount) : null);
   const sendMax = isRange ? parseFloat(p.destination?.amount?.max || p.destination?.amount || 0) : (p.destination?.amount ? parseFloat(p.destination.amount) : null);
 
-  const sendCurrency = p.destination?.currency || 'USD';
+  const sendCurrency = p.destination?.unit || p.destination?.currency || 'USD';
   const sendCurrencyDivisor = p.destination?.currency_divisor || 1;
 
   const instructions = p.pin?.usage_info || p.pin_usage_info || (isPin ? (p.description || null) : null);
