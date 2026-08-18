@@ -235,7 +235,7 @@ test('dtoneProvider normalizeDtoneProduct correctly maps FIXED and RANGE product
   const normalizedFixed = dtoneProvider.normalizeDtoneProduct(rawFixed, 'US', 'mint');
   assert.strictEqual(normalizedFixed.offerId, '101');
   assert.strictEqual(normalizedFixed.priceType, 'FIXED');
-  assert.strictEqual(normalizedFixed.price.fixed, 1000);
+  assert.strictEqual(normalizedFixed.price.fixed, 10000);
 
   const rawRange = {
     id: 202,
@@ -247,8 +247,8 @@ test('dtoneProvider normalizeDtoneProduct correctly maps FIXED and RANGE product
   const normalizedRange = dtoneProvider.normalizeDtoneProduct(rawRange, 'EG', 'vodafone');
   assert.strictEqual(normalizedRange.offerId, '202');
   assert.strictEqual(normalizedRange.priceType, 'RANGE');
-  assert.strictEqual(normalizedRange.price.min, 500);
-  assert.strictEqual(normalizedRange.price.max, 5000);
+  assert.strictEqual(normalizedRange.price.min, 5000);
+  assert.strictEqual(normalizedRange.price.max, 50000);
   assert.strictEqual(normalizedRange.send.min, 500);
   assert.strictEqual(normalizedRange.send.max, 5000);
 });

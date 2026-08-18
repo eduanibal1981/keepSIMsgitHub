@@ -104,10 +104,10 @@ function normalizeDtoneProduct(p, countryCode, carrierCode) {
     durationDays: meta.durationDays,
     enabled: true,
     price: {
-      fixed: fixedUsd != null ? Math.round(fixedUsd * 100) : null,
-      min: minUsd != null ? Math.round(minUsd * 100) : null,
-      max: maxUsd != null ? Math.round(maxUsd * 100) : null,
-      currencyDivisor: 100,
+      fixed: fixedUsd != null ? Math.round(fixedUsd * 1000) : null,
+      min: minUsd != null ? Math.round(minUsd * 1000) : null,
+      max: maxUsd != null ? Math.round(maxUsd * 1000) : null,
+      currencyDivisor: 1000,
       // The account's settlement currency — OMR on this account, NOT USD.
       currency: unit
     },
