@@ -1414,11 +1414,40 @@
     "compareCoverageLabel": "Coverage",
     "compareSpeedLabel": "Speed",
     "compareMaxPriceLabel": "Max price",
+    "comparePriceLabel": "Price",
     "compareFiltersTitle": "Filters",
     "compareReset": "Reset",
     "compareShowResults": "Show results",
     "compareSortDuration": "Validity: Longest first",
-    "compareUnlimitedOverridesData": "\"Unlimited only\" is on, so the minimum-data filter is ignored.",
+    "compareModeAll": "All",
+    "@compareModeAll": {
+        "description": "Filter mode: no constraint on this dimension. Kept short — it sits in a segmented row beside Range and Pick."
+    },
+    "compareModeRange": "Range",
+    "compareModePickDays": "Pick days",
+    "compareModePickSizes": "Pick sizes",
+    "compareModeUnlimited": "Unlimited",
+    "@compareModeUnlimited": {
+        "description": "Data filter mode. Replaces the old standalone 'Unlimited' switch, which sat next to a Speed section listing Unlimited Lite/Essential/Plus and so read as 'unlimited what?'. As one of the answers to 'how much data' it is unambiguous."
+    },
+    "compareRangeDays": "{min} – {max} days",
+    "@compareRangeDays": {
+        "placeholders": { "min": { "type": "int" }, "max": { "type": "int" } }
+    },
+    "compareRangeData": "{min} – {max}",
+    "@compareRangeData": {
+        "description": "Selected data range, both ends already formatted, e.g. '3 GB – 20 GB'.",
+        "placeholders": { "min": { "type": "String" }, "max": { "type": "String" } }
+    },
+    "compareMeteredOnlyNote": "Sizes and ranges match plans with a set amount of data. For plans with no cap, choose Unlimited.",
+    "comparePriceMinHint": "Min",
+    "comparePriceMaxHint": "Max",
+    "comparePriceRangeHelp": "Leave a box empty for no limit. Plans here run from {min} to {max}.",
+    "@comparePriceRangeHelp": {
+        "placeholders": { "min": { "type": "String" }, "max": { "type": "String" } }
+    },
+    "comparePriceRangeHelpPlain": "Leave the first box empty to start at zero, or the second empty to include the highest price available.",
+    "compareBoundsUnavailable": "We couldn't read what this destination sells, so only “All” is available.",
     "compareBuyInApp": "Buy in app",
     "@compareBuyInApp": {
         "description": "Badge on an offer KeepSIMs sells itself: paid from the wallet, eSIM delivered in-app."
@@ -1466,5 +1495,65 @@
     "buyCheapestPackageLabel": "Buy Cheapest Package",
     "@buyCheapestPackageLabel": {
         "description": "Button label to buy cheapest package when travel mode is enabled"
-    }
+    },
+
+    "voucherCardTitle": "Emergency top-up PIN",
+    "@voucherCardTitle": {
+        "description": "Title of the offline voucher card. Premium only."
+    },
+    "voucherCardSubtitle": "Works with no data, no credit and no signal",
+    "voucherSealedBody": "A {amount} recharge PIN is stored on this phone. Reveal it when you cannot top up any other way.",
+    "@voucherSealedBody": {
+        "placeholders": { "amount": { "type": "String" } }
+    },
+    "voucherRevealAction": "Reveal my PIN",
+    "voucherRevealConfirmTitle": "Use your emergency PIN?",
+    "voucherRevealConfirmBody": "This gives you {face} of credit right now, as a gift. When you are back online we will ask you for {due} from your wallet — and once that is settled you get a new PIN for next time.",
+    "@voucherRevealConfirmBody": {
+        "placeholders": {
+            "face": { "type": "String" },
+            "due": { "type": "String" }
+        }
+    },
+    "voucherRevealConfirmAction": "Show the PIN",
+    "voucherYourPin": "YOUR RECHARGE PIN",
+    "voucherSerial": "Serial",
+    "voucherPinCopied": "PIN copied",
+    "voucherDialAction": "Dial {code}",
+    "@voucherDialAction": {
+        "placeholders": { "code": { "type": "String" } }
+    },
+    "voucherOwedTitle": "{amount} due for your emergency PIN",
+    "@voucherOwedTitle": {
+        "placeholders": { "amount": { "type": "String" } }
+    },
+    "voucherOwedBody": "Settle it to get a new PIN for the next time you are offline.",
+    "voucherSettleAction": "Pay {amount} from wallet",
+    "@voucherSettleAction": {
+        "placeholders": { "amount": { "type": "String" } }
+    },
+    "voucherSettledToast": "Settled — a new PIN will be ready shortly",
+    "voucherSettleNoFunds": "You need {due} but your wallet has {balance}.",
+    "@voucherSettleNoFunds": {
+        "placeholders": {
+            "due": { "type": "String" },
+            "balance": { "type": "String" }
+        }
+    },
+    "voucherSettleFailed": "Could not settle right now. Please try again.",
+    "voucherCollectBody": "Store a recharge PIN on this phone now, while you have signal. You will be able to use it even with no data and no credit.",
+    "voucherCollectAction": "Store a PIN on this phone",
+    "voucherCollectedToast": "PIN stored securely on this phone",
+    "voucherCollectFailed": "Could not store a PIN right now. Please try again.",
+    "voucherPreparingTitle": "Being prepared",
+    "voucherPreparingBody": "We are getting an emergency PIN ready for this number.",
+    "voucherPreparingBodyBy": "We are getting an emergency PIN ready for this number, expected by {date}.",
+    "@voucherPreparingBodyBy": {
+        "placeholders": { "date": { "type": "String" } }
+    },
+    "voucherPremiumOnly": "Emergency PINs are part of the Premium plan.",
+    "voucherNeedsConnection": "Connect to the internet once to store a PIN for offline use.",
+    "voucherUnavailableOffline": "Connect once to set up your emergency PIN.",
+    "voucherExpiredTitle": "This PIN has expired",
+    "voucherExpiredBody": "Connect to the internet and we will store a fresh one."
 }

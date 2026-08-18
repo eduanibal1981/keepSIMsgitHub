@@ -21,13 +21,21 @@ class EsimGoRepositoryImpl implements EsimRepository {
     int offset = 0,
   }) async {
     try {
+      // Every bound comes from a `wire*` getter rather than the raw field, so
+      // the "an exact list only counts in exact mode" rule is applied once, in
+      // CompareFilters, instead of being re-implemented here.
       final res = await _supabase.rpc('compare_esim_offers', params: {
         'p_country_code': countryIsoCode.trim().toUpperCase(),
         'p_coverage': filters.coverage,
-        'p_min_data_mb': filters.minDataMb,
-        'p_min_days': filters.minDays,
-        'p_max_price_usd': filters.maxPriceUsd,
-        'p_unlimited_only': filters.unlimitedOnly,
+        'p_min_data_mb': filters.wireMinDataMb,
+        'p_max_data_mb': filters.wireMaxDataMb,
+        'p_data_exact_mb': filters.wireDataExactMb,
+        'p_min_days': filters.wireMinDays,
+        'p_max_days': filters.wireMaxDays,
+        'p_days_exact': filters.wireDaysExact,
+        'p_min_price_usd': filters.wireMinPriceUsd,
+        'p_max_price_usd': filters.wireMaxPriceUsd,
+        'p_unlimited_only': filters.wireUnlimitedOnly,
         'p_speed_tiers': filters.speedTiers,
         'p_sort': filters.sort.wire,
         'p_limit': limit,
@@ -42,6 +50,21 @@ class EsimGoRepositoryImpl implements EsimRepository {
       throw Exception(e.message);
     } catch (e) {
       throw Exception('Failed to load eSIM comparison: $e');
+    }
+  }
+
+  @override
+  Future<CompareBounds> compareFilterBounds(String countryIsoCode) async {
+    try {
+      final res = await _supabase.rpc('compare_esim_filter_bounds', params: {
+        'p_country_code': countryIsoCode.trim().toUpperCase(),
+      });
+      return CompareBounds.fromRpc(res);
+    } catch (_) {
+      // Empty bounds make the sheet fall back to All-only on each dimension,
+      // which is a usable sheet. Throwing here would take the filters down
+      // with it over a call that only decides which chips to draw.
+      return const CompareBounds();
     }
   }
 

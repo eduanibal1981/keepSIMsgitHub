@@ -32,22 +32,34 @@ function getCountryName(iso: string): string {
   return COUNTRY_NAMES[iso.toUpperCase()] ?? iso.toUpperCase();
 }
 
-async function resolveCountryFromIp(req: Request): Promise<string> {
+// A country the caller's IP actually resolved to, or an explicit failure.
+//
+// This used to return the bare string "US" for a loopback address, a private
+// range, or an ipapi.co outage — indistinguishable from a genuine US visitor.
+// Now that each SIM line's home/travel mode is derived from this answer, an
+// unresolved lookup that reads as "United States" would pause the protection of
+// every non-US line on the account. Callers must be able to tell the two apart,
+// so the failure is returned as such and nothing downstream acts on it.
+type CountryResolution =
+  | { resolved: true; country: string; confidence: "edge_header" | "ip_lookup" }
+  | { resolved: false; country: null; confidence: "unresolved" };
+
+async function resolveCountryFromIp(req: Request): Promise<CountryResolution> {
   const cfCountry = req.headers.get("cf-ipcountry");
   if (cfCountry && cfCountry.length === 2 && cfCountry.toUpperCase() !== "XX") {
-    return cfCountry.toUpperCase();
+    return { resolved: true, country: cfCountry.toUpperCase(), confidence: "edge_header" };
   }
 
   const xCountry = req.headers.get("x-country-code") || req.headers.get("x-appengine-country") || req.headers.get("x-client-ip-country");
   if (xCountry && xCountry.length === 2 && xCountry.toUpperCase() !== "XX") {
-    return xCountry.toUpperCase();
+    return { resolved: true, country: xCountry.toUpperCase(), confidence: "edge_header" };
   }
 
   const xForwardedFor = req.headers.get("x-forwarded-for");
   const clientIp = xForwardedFor ? xForwardedFor.split(",")[0].trim() : req.headers.get("x-real-ip");
 
   if (!clientIp || clientIp === "127.0.0.1" || clientIp.startsWith("10.") || clientIp.startsWith("192.168.")) {
-    return "US";
+    return { resolved: false, country: null, confidence: "unresolved" };
   }
 
   try {
@@ -57,14 +69,14 @@ async function resolveCountryFromIp(req: Request): Promise<string> {
     if (res.ok) {
       const countryText = (await res.text()).trim().toUpperCase();
       if (countryText.length === 2 && countryText !== "UNDEFINED") {
-        return countryText;
+        return { resolved: true, country: countryText, confidence: "ip_lookup" };
       }
     }
   } catch (_) {
     // Ignore external fetch errors and fall through
   }
 
-  return "US";
+  return { resolved: false, country: null, confidence: "unresolved" };
 }
 
 serve(async (req: Request) => {
@@ -122,7 +134,26 @@ serve(async (req: Request) => {
     }
 
     // Resolve country
-    const detectedCountry = await resolveCountryFromIp(req);
+    const resolution = await resolveCountryFromIp(req);
+
+    if (!resolution.resolved) {
+      // Nothing is written — not `profiles.last_country`, not a notification.
+      // A country we could not determine must not overwrite the last one we
+      // could, or a user behind a VPN-less private range would "move" to the
+      // fallback every time they opened the app.
+      return new Response(JSON.stringify({
+        status: "unresolved",
+        resolved: false,
+        confidence: resolution.confidence,
+        detected_country: null,
+        reason: "could_not_resolve_ip",
+      }), {
+        status: 200,
+        headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
+      });
+    }
+
+    const detectedCountry = resolution.country;
 
     // Fetch user profile
     const { data: profile, error: profileError } = await supabase
@@ -142,8 +173,13 @@ serve(async (req: Request) => {
     const homeCountry = profile.home_country_code ? profile.home_country_code.toUpperCase() : "US";
 
     if (lastCountry === detectedCountry) {
+      // "noop" means the profile already knew this country — it says nothing
+      // about whether each SIM line's mode agrees, so the client still
+      // reconciles them off this response.
       return new Response(JSON.stringify({
         status: "noop",
+        resolved: true,
+        confidence: resolution.confidence,
         detected_country: detectedCountry,
         last_country: lastCountry,
         reason: "same_country",
@@ -178,8 +214,12 @@ serve(async (req: Request) => {
         .limit(1);
 
       if (recentNotifications && recentNotifications.length > 0) {
+        // The flap guard debounces *notifications*, not the country itself.
+        // The client still syncs line modes off this response.
         return new Response(JSON.stringify({
           status: "suppressed",
+          resolved: true,
+          confidence: resolution.confidence,
           detected_country: detectedCountry,
           last_country: lastCountry,
           reason: "flap_guard",
@@ -224,6 +264,8 @@ serve(async (req: Request) => {
 
     return new Response(JSON.stringify({
       status: "updated",
+      resolved: true,
+      confidence: resolution.confidence,
       detected_country: detectedCountry,
       last_country: lastCountry,
       category: category,

@@ -134,56 +134,216 @@ class CompareOffer {
     );
   }
 
-  String get formattedData {
-    if (isUnlimited || dataAmountMb <= 0) return 'Unlimited';
-    if (dataAmountMb >= 1024) {
-      final gb = dataAmountMb / 1024.0;
-      return '${gb == gb.roundToDouble() ? gb.toInt() : gb.toStringAsFixed(1)} GB';
-    }
-    return '$dataAmountMb MB';
+  String get formattedData =>
+      isUnlimited || dataAmountMb <= 0 ? 'Unlimited' : formatDataMb(dataAmountMb);
+
+  /// Renders a size the way the supplier sells it.
+  ///
+  /// 1 GB is 1000 MB here, not 1024. That is not a rounding preference: eSIM Go
+  /// stores `esim_10GB_30D_FR_V2` as 10000 MB, so dividing by 1024 printed
+  /// "9.8 GB" on a bundle whose own name says 10 GB, and a filter chip built on
+  /// 1024 asked for 10240 MB — a size nothing in the catalogue has. The whole
+  /// data ladder (1/2/3/5/10/20/50/100 GB) is stored in thousands.
+  static String formatDataMb(int mb) {
+    if (mb <= 0) return '0 MB';
+    if (mb < 1000) return '$mb MB';
+    final gb = mb / 1000.0;
+    return '${gb == gb.roundToDouble() ? gb.toInt() : gb.toStringAsFixed(1)} GB';
   }
 }
 
+/// The bounds one destination's catalogue actually offers, from
+/// `compare_esim_filter_bounds()`.
+///
+/// The filter sheet used to hard-code its chip values with a comment warning
+/// that "a 14 days chip would match nothing". The ladder is a property of the
+/// catalogue, so it is read from the catalogue — and it differs by country:
+/// France sells 12 metered sizes across 4 durations, and offering the global
+/// ladder there invents choices that return nothing.
+class CompareBounds {
+  const CompareBounds({
+    this.durations = const [],
+    this.dataMb = const [],
+    this.minPriceUsd,
+    this.maxPriceUsd,
+    this.hasUnlimited = false,
+  });
+
+  final List<int> durations;
+  final List<int> dataMb;
+  final double? minPriceUsd;
+  final double? maxPriceUsd;
+  final bool hasUnlimited;
+
+  bool get isEmpty => durations.isEmpty && dataMb.isEmpty;
+
+  factory CompareBounds.fromRpc(dynamic raw) {
+    if (raw is! Map) return const CompareBounds();
+    final map = Map<String, dynamic>.from(raw);
+    List<int> ints(String key) =>
+        (map[key] as List<dynamic>? ?? const [])
+            .map((e) => (e as num).toInt())
+            .toList();
+    return CompareBounds(
+      durations: ints('durations'),
+      dataMb: ints('data_mb'),
+      minPriceUsd: (map['min_price_usd'] as num?)?.toDouble(),
+      maxPriceUsd: (map['max_price_usd'] as num?)?.toDouble(),
+      hasUnlimited: map['has_unlimited'] as bool? ?? false,
+    );
+  }
+}
+
+/// How a numeric dimension is being asked about.
+///
+/// The three shapes are not interchangeable, which is why the mode is stored
+/// rather than inferred from whichever field happens to be non-null: "any
+/// length" (all), "between 1 and 7 days" (range) and "the 3-day or the 7-day
+/// one" (exact) are three different questions, and a user who taps Range and
+/// has not moved the slider yet still means Range.
+enum RangeFilterMode { all, range, exact }
+
+/// Data has a fourth answer that is not a quantity at all.
+///
+/// Unlimited used to be a switch sitting beside the size chips, which asked
+/// "unlimited what?" — the catalogue also has speed tiers called Unlimited
+/// Lite/Essential/Plus, so a bare "Unlimited" toggle next to a Speed section
+/// was genuinely ambiguous. As a mode it reads as what it is: one of the
+/// answers to "how much data", mutually exclusive with naming a size.
+enum DataFilterMode { all, range, exact, unlimited }
+
 /// The filter state the compare screen sends to `compare_esim_offers()`.
 ///
-/// Every field maps to a server parameter. Filtering happens in SQL, not in
-/// Dart: the catalogue is 5,412 bundles and pulling it down to filter on the
-/// device was only ever viable while it was truncated to 50.
+/// Filtering happens in SQL, not in Dart: the catalogue is 5,412 bundles and
+/// pulling it down to filter on the device was only ever viable while it was
+/// truncated to 50. The `wire*` getters are what actually goes over the wire —
+/// they exist so the mode rules (an exact list only counts in exact mode, an
+/// empty box is NULL and not 0) are decided in one place instead of being
+/// re-derived by the repository, the sheet and the badge separately.
 class CompareFilters {
   const CompareFilters({
     this.coverage,
-    this.minDataMb,
+    this.validityMode = RangeFilterMode.all,
     this.minDays,
+    this.maxDays,
+    this.daysExact = const [],
+    this.dataMode = DataFilterMode.all,
+    this.minDataMb,
+    this.maxDataMb,
+    this.dataExactMb = const [],
+    this.priceRangeOn = false,
+    this.minPriceUsd,
     this.maxPriceUsd,
-    this.unlimitedOnly = false,
     this.speedTiers,
     this.sort = CompareSort.price,
   });
 
   final String? coverage; // 'local' | 'regional' | 'global'
-  final int? minDataMb;
+
+  final RangeFilterMode validityMode;
   final int? minDays;
+  final int? maxDays;
+  final List<int> daysExact;
+
+  final DataFilterMode dataMode;
+  final int? minDataMb;
+  final int? maxDataMb;
+  final List<int> dataExactMb;
+
+  /// Price has no exact mode — nobody shops for a plan that costs precisely
+  /// $12.40 — so the segmented control is just All / Range.
+  final bool priceRangeOn;
+
+  /// Both bounds are optional inside the range. An empty minimum means 0 and
+  /// an empty maximum means the top of the catalogue; neither is sent as a
+  /// number, because sending 0 for an empty maximum would mean the opposite of
+  /// what the user left blank.
+  final double? minPriceUsd;
   final double? maxPriceUsd;
-  final bool unlimitedOnly;
+
   final List<String>? speedTiers;
   final CompareSort sort;
 
+  // ── What the server is actually asked ────────────────────────────────────
+  int? get wireMinDays =>
+      validityMode == RangeFilterMode.range ? minDays : null;
+  int? get wireMaxDays =>
+      validityMode == RangeFilterMode.range ? maxDays : null;
+  List<int>? get wireDaysExact =>
+      validityMode == RangeFilterMode.exact && daysExact.isNotEmpty
+          ? daysExact
+          : null;
+
+  int? get wireMinDataMb => dataMode == DataFilterMode.range ? minDataMb : null;
+  int? get wireMaxDataMb => dataMode == DataFilterMode.range ? maxDataMb : null;
+  List<int>? get wireDataExactMb =>
+      dataMode == DataFilterMode.exact && dataExactMb.isNotEmpty
+          ? dataExactMb
+          : null;
+  bool get wireUnlimitedOnly => dataMode == DataFilterMode.unlimited;
+
+  double? get wireMinPriceUsd => priceRangeOn ? minPriceUsd : null;
+  double? get wireMaxPriceUsd => priceRangeOn ? maxPriceUsd : null;
+
+  // ── Which sections are narrowing the list ────────────────────────────────
+  // A mode that is selected but not yet filled in narrows nothing, so it must
+  // not inflate the badge on the Filters pill. "Range" with both ends blank is
+  // "All" with extra steps.
+  bool get validityIsActive => switch (validityMode) {
+        RangeFilterMode.all => false,
+        RangeFilterMode.range => minDays != null || maxDays != null,
+        RangeFilterMode.exact => daysExact.isNotEmpty,
+      };
+
+  bool get dataIsActive => switch (dataMode) {
+        DataFilterMode.all => false,
+        DataFilterMode.unlimited => true,
+        DataFilterMode.range => minDataMb != null || maxDataMb != null,
+        DataFilterMode.exact => dataExactMb.isNotEmpty,
+      };
+
+  bool get priceIsActive =>
+      priceRangeOn && (minPriceUsd != null || maxPriceUsd != null);
+
+  int get activeCount => [
+        coverage != null,
+        validityIsActive,
+        dataIsActive,
+        priceIsActive,
+        speedTiers != null && speedTiers!.isNotEmpty,
+      ].where((e) => e).length;
+
   CompareFilters copyWith({
     Object? coverage = _sentinel,
-    Object? minDataMb = _sentinel,
+    RangeFilterMode? validityMode,
     Object? minDays = _sentinel,
+    Object? maxDays = _sentinel,
+    List<int>? daysExact,
+    DataFilterMode? dataMode,
+    Object? minDataMb = _sentinel,
+    Object? maxDataMb = _sentinel,
+    List<int>? dataExactMb,
+    bool? priceRangeOn,
+    Object? minPriceUsd = _sentinel,
     Object? maxPriceUsd = _sentinel,
-    bool? unlimitedOnly,
     Object? speedTiers = _sentinel,
     CompareSort? sort,
   }) {
     return CompareFilters(
       coverage: coverage == _sentinel ? this.coverage : coverage as String?,
-      minDataMb: minDataMb == _sentinel ? this.minDataMb : minDataMb as int?,
+      validityMode: validityMode ?? this.validityMode,
       minDays: minDays == _sentinel ? this.minDays : minDays as int?,
+      maxDays: maxDays == _sentinel ? this.maxDays : maxDays as int?,
+      daysExact: daysExact ?? this.daysExact,
+      dataMode: dataMode ?? this.dataMode,
+      minDataMb: minDataMb == _sentinel ? this.minDataMb : minDataMb as int?,
+      maxDataMb: maxDataMb == _sentinel ? this.maxDataMb : maxDataMb as int?,
+      dataExactMb: dataExactMb ?? this.dataExactMb,
+      priceRangeOn: priceRangeOn ?? this.priceRangeOn,
+      minPriceUsd:
+          minPriceUsd == _sentinel ? this.minPriceUsd : minPriceUsd as double?,
       maxPriceUsd:
           maxPriceUsd == _sentinel ? this.maxPriceUsd : maxPriceUsd as double?,
-      unlimitedOnly: unlimitedOnly ?? this.unlimitedOnly,
       speedTiers:
           speedTiers == _sentinel ? this.speedTiers : speedTiers as List<String>?,
       sort: sort ?? this.sort,
@@ -191,34 +351,46 @@ class CompareFilters {
   }
 
   // A plain `null` default cannot distinguish "leave alone" from "clear it",
-  // and every filter here is legitimately clearable.
+  // and every bound here is legitimately clearable.
   static const Object _sentinel = Object();
-
-  int get activeCount => [
-        coverage != null,
-        minDataMb != null,
-        minDays != null,
-        maxPriceUsd != null,
-        unlimitedOnly,
-        speedTiers != null && speedTiers!.isNotEmpty,
-      ].where((e) => e).length;
 
   @override
   bool operator ==(Object other) =>
       other is CompareFilters &&
       other.coverage == coverage &&
-      other.minDataMb == minDataMb &&
+      other.validityMode == validityMode &&
       other.minDays == minDays &&
+      other.maxDays == maxDays &&
+      other.dataMode == dataMode &&
+      other.minDataMb == minDataMb &&
+      other.maxDataMb == maxDataMb &&
+      other.priceRangeOn == priceRangeOn &&
+      other.minPriceUsd == minPriceUsd &&
       other.maxPriceUsd == maxPriceUsd &&
-      other.unlimitedOnly == unlimitedOnly &&
       other.sort == sort &&
+      _listEq(other.daysExact, daysExact) &&
+      _listEq(other.dataExactMb, dataExactMb) &&
       _listEq(other.speedTiers, speedTiers);
 
   @override
-  int get hashCode => Object.hash(coverage, minDataMb, minDays, maxPriceUsd,
-      unlimitedOnly, sort, speedTiers?.join(','));
+  int get hashCode => Object.hash(
+        coverage,
+        validityMode,
+        minDays,
+        maxDays,
+        daysExact.join(','),
+        dataMode,
+        minDataMb,
+        maxDataMb,
+        dataExactMb.join(','),
+        priceRangeOn,
+        minPriceUsd,
+        maxPriceUsd,
+        sort,
+        speedTiers?.join(','),
+      );
 
-  static bool _listEq(List<String>? a, List<String>? b) {
+  static bool _listEq(List<Object>? a, List<Object>? b) {
     if (a == null || b == null) return a == b;
     if (a.length != b.length) return false;
     for (var i = 0; i < a.length; i++) {

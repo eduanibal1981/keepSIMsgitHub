@@ -20,6 +20,7 @@ import 'package:keep_sims/core/providers.dart';
 import 'package:keep_sims/core/providers/app_config_provider.dart';
 import 'package:keep_sims/core/result.dart';
 import 'package:keep_sims/features/sim_lines/domain/plan_payment.dart';
+import 'package:keep_sims/features/sim_lines/presentation/providers/api_offers_providers.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/carrier_activity_notice.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/carrier_rules_sheet.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -698,14 +699,47 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
         planColor = isDark ? AppColors.error : Colors.redAccent;
         billingRate = 'Not Supported';
       } else if (premiumRule != null) {
-        // Same computed quote as onboarding — the whole year charged once, not
-        // the stored inapp_pricing snapshot the old copy showed.
+        final paypalQuoteAsync = ref.watch(
+          quotedPlanPriceProvider(
+            QuotedPlanPriceParams(
+              simLineId: widget.id,
+              plan: 'premium',
+              gateway: 'paypal',
+              carrierRuleId: premiumRule.id,
+            ),
+          ),
+        );
+        final walletQuoteAsync = ref.watch(
+          quotedPlanPriceProvider(
+            QuotedPlanPriceParams(
+              simLineId: widget.id,
+              plan: 'premium',
+              gateway: 'wallet',
+              carrierRuleId: premiumRule.id,
+            ),
+          ),
+        );
+
+        final yearlyTotal =
+            paypalQuoteAsync.value ??
+            PlanPayment.premiumYearlyTotalSync(ref, premiumRule);
+
+        final netPlanTotal =
+            walletQuoteAsync.value ??
+            PlanPayment.premiumWalletTotalSync(ref, premiumRule);
+
+        final refillsCount = premiumRule.refillsPerYear > 0
+            ? premiumRule.refillsPerYear
+            : 1;
+        final perRefillPrice =
+            (netPlanTotal - _baseServiceFeeUsd) / refillsCount;
+
         final cur = premiumRule.inappPricingCurrency.toUpperCase();
         billingDesc =
-            'Fully automated top-ups. ${PlanPayment.premiumYearlyTotalSync(ref, premiumRule).toStringAsFixed(2)} $cur charged once for the year — '
+            'Fully automated top-ups. ${yearlyTotal.toStringAsFixed(2)} $cur charged once for the year — '
             '\$${_baseServiceFeeUsd.toStringAsFixed(2)} service plus '
             '${premiumRule.refillsPerYear} refills of '
-            '${PlanPayment.premiumRefillPriceSync(ref, premiumRule).toStringAsFixed(2)} $cur, one every ${premiumRule.refillIntervalDays} days.';
+            '${perRefillPrice.toStringAsFixed(2)} $cur, one every ${premiumRule.refillIntervalDays} days.';
         billingRate = '$_feePerYearLabel + Refill';
       } else {
         billingDesc =
@@ -796,6 +830,43 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
           // be worth — and an opinion on whether to buy anything at all.
           if (premiumRule != null && _selectedCarrier != null)
             _buildCarrierRulesLink(premiumRule, planColor),
+          if (isPremium && _selectedCarrier?.name.toLowerCase().contains('mobily') == true) ...[
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: (isDark ? Colors.amber : Colors.orange).withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: (isDark ? Colors.amber : Colors.orange).withValues(alpha: 0.4),
+                  width: 1,
+                ),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    Icons.info_outline_rounded,
+                    color: isDark ? Colors.amberAccent : Colors.orange.shade800,
+                    size: 18,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'PIN Voucher Fulfillment: Direct network recharge is not available for this carrier. On each scheduled refill, you will receive an instant digital PIN voucher in the app with 1-tap dialer activation (*1400*PIN#).',
+                      style: AppTextStyles.caption.copyWith(
+                        color: isDark
+                            ? Colors.amber.shade100
+                            : Colors.orange.shade900,
+                        fontSize: 11.5,
+                        height: 1.35,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -1513,7 +1584,11 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
         // for confirmation; the server still decides what is billed.
         final planPayPalTotal = double.parse(
           (selectedPlanType == 'premium'
-                  ? await PlanPayment.premiumYearlyTotal(ref, premiumRule!)
+                  ? await PlanPayment.premiumYearlyTotal(
+                      ref,
+                      premiumRule!,
+                      simLineId: widget.id,
+                    )
                   : await PlanPayment.standardPayPalTotal(ref))
               .toStringAsFixed(2),
         );
@@ -1606,7 +1681,9 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
 
                     messenger.showSnackBar(
                       const SnackBar(
-                        content: Text('Payment received. Activating your plan…'),
+                        content: Text(
+                          'Payment received. Activating your plan…',
+                        ),
                         backgroundColor: AppColors.success,
                       ),
                     );

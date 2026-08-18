@@ -5,6 +5,7 @@ import 'package:keep_sims/core/providers/app_config_provider.dart';
 import 'package:keep_sims/core/result.dart';
 import 'package:keep_sims/core/services/local_cache_service.dart';
 import 'package:keep_sims/features/wallet/model/pending_plan_fee.dart';
+import 'package:keep_sims/features/sim_lines/data/models/carrier_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/carrier_rule_model.dart';
 import 'package:keep_sims/features/sim_lines/domain/refill_pricing.dart';
 import 'package:keep_sims/features/wallet/controller/wallet_controller.dart';
@@ -251,10 +252,15 @@ class PlanPayment {
     }
   }
 
-  /// `inapp_pricing` is an override, not the default: the column parses null
-  /// to 0, so only a positive value counts as a deliberate per-carrier price.
-  static double? overrideFor(CarrierRule rule) =>
-      rule.inappPricing > 0 ? rule.inappPricing : null;
+  /// `inapp_pricing` is an override for MANUAL and TASKER_SCRIPT carriers.
+  /// For API-fulfilled carriers, pricing is calculated dynamically from live
+  /// supplier catalog offers.
+  static double? overrideFor(CarrierRule rule, {Carrier? carrier}) {
+    if (carrier != null && carrier.fulfillmentGateway == 'API') {
+      return null;
+    }
+    return rule.inappPricing > 0 ? rule.inappPricing : null;
+  }
 
   /// What one premium refill costs, before the gateway's cut. Safe to call
   /// during build(); prices from whatever the config providers have loaded.
@@ -293,6 +299,26 @@ class PlanPayment {
     );
   }
 
+  /// The up-front charge for a year of premium when paid via wallet, for
+  /// display during build(). Uses 0% + $0.00 gateway fees.
+  static double premiumWalletTotalSync(WidgetRef ref, CarrierRule rule) {
+    return RefillPricing.premiumYearlyTotal(
+      baseServiceFeeUsd:
+          ref.watch(baseServiceFeeUsdProvider).value ?? kDefaultBaseServiceFeeUsd,
+      minimumTopupAmount: rule.minimumTopupAmount,
+      inactivityLimitDays: rule.inactivityLimitDays,
+      refillIntervalDaysOverride: rule.refillIntervalDaysOverride,
+      appFeePercent:
+          ref.watch(appFeePercentProvider).value ?? kDefaultAppFeePercent,
+      premiumMarginPercent: ref.watch(premiumMarginPercentProvider).value ?? 0,
+      premiumMarginPerRefillUsd:
+          ref.watch(premiumMarginPerRefillUsdProvider).value ?? 0,
+      gatewayFeePercentage: 0,
+      gatewayFeeFixed: 0,
+      inappPricingOverride: overrideFor(rule),
+    );
+  }
+
   /// What a year of Premium costs when it is bought from the wallet.
   ///
   /// The same total as [premiumYearlyTotal] with **no gateway grossing-up**,
@@ -308,6 +334,16 @@ class PlanPayment {
     final appFee = await ref.read(appFeePercentProvider.future);
     final margin = await ref.read(premiumMarginPercentProvider.future);
     final marginFlat = await ref.read(premiumMarginPerRefillUsdProvider.future);
+
+    final serverQuote = await fetchQuotedPlanPrice(
+      simLineId: rule.carrierId,
+      plan: 'premium',
+      gateway: 'wallet',
+      carrierRuleId: rule.id,
+    );
+    if (serverQuote != null && serverQuote > 0) {
+      return serverQuote;
+    }
 
     return RefillPricing.premiumYearlyTotal(
       baseServiceFeeUsd: baseFee,
@@ -327,8 +363,19 @@ class PlanPayment {
   /// config and gateway rows instead of pricing on cached build() state.
   static Future<double> premiumYearlyTotal(
     WidgetRef ref,
-    CarrierRule rule,
-  ) async {
+    CarrierRule rule, {
+    String? simLineId,
+  }) async {
+    final serverQuote = await fetchQuotedPlanPrice(
+      simLineId: simLineId,
+      plan: 'premium',
+      gateway: 'paypal',
+      carrierRuleId: rule.id,
+    );
+    if (serverQuote != null && serverQuote > 0) {
+      return serverQuote;
+    }
+
     final baseFee = await ref.read(baseServiceFeeUsdProvider.future);
     final appFee = await ref.read(appFeePercentProvider.future);
     final margin = await ref.read(premiumMarginPercentProvider.future);
@@ -348,4 +395,31 @@ class PlanPayment {
       inappPricingOverride: overrideFor(rule),
     );
   }
+
+  /// Queries the database RPC `quote_plan_price` to fetch the exact, authoritative
+  /// server-quoted plan price for a SIM line or carrier rule.
+  static Future<double?> fetchQuotedPlanPrice({
+    String? simLineId,
+    String plan = 'premium',
+    String gateway = 'paypal',
+    String? carrierRuleId,
+  }) async {
+    try {
+      final client = Supabase.instance.client;
+      final response = await client.rpc('quote_plan_price', params: {
+        'p_sim_line_id': simLineId,
+        'p_plan': plan,
+        'p_gateway': gateway,
+        'p_carrier_rule_id': carrierRuleId,
+      }).timeout(const Duration(seconds: 10));
+
+      if (response != null) {
+        return (response as num).toDouble();
+      }
+    } catch (_) {
+      // Fallback to local calculation if offline or RPC fails
+    }
+    return null;
+  }
 }
+

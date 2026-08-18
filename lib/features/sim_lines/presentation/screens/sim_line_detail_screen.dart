@@ -46,6 +46,10 @@ class SimLineDetailScreen extends ConsumerStatefulWidget {
 
 class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
   bool _isToggling = false;
+
+  /// The user tapped "if you travel tomorrow" to see pre-trip packages. Screen
+  /// state only — it says nothing about where they are.
+  bool _travelPrepArmed = false;
   late bool _isShared;
   late bool _isViewer;
   dynamic _membership;
@@ -187,24 +191,12 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                     );
               },
             ),
-          if (simLine != null && !_isViewer)
-            IconButton(
-              icon: Icon(
-                simLine.isHomeMode ? Icons.flight_takeoff_rounded : Icons.home_rounded,
-                color: simLine.isHomeMode
-                    ? (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight)
-                    : AppColors.primary,
-              ),
-              tooltip: simLine.isHomeMode
-                  ? 'Switch to Travel Mode'
-                  : 'Switch to Home Mode',
-              onPressed: () async {
-                await HapticHelper.lightTick();
-                ref
-                    .read(simLinesControllerProvider.notifier)
-                    .toggleHomeMode(simLine.id, !simLine.isHomeMode);
-              },
-            ),
+          // No manual home/travel switch. The mode is a location fact derived
+          // from geolocation (`resolveLineMode`), so a button that sets it can
+          // only make the app disagree with reality — which is how a Saudi line
+          // came to read "Home Mode" in Oman. What the user *does* control is
+          // whether protection keeps running when they are home: the shield
+          // above (`requires_protection_at_home`).
         ],
       ),
       body: () {
@@ -728,9 +720,21 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
     );
   }
 
+  /// "If you travel tomorrow…" — a *shopping* prompt, not a mode switch.
+  ///
+  /// This row exists to put the right package in front of someone before they
+  /// fly. It used to call `toggleHomeMode`, so arming it told the app the user
+  /// had already left the country: it flipped `is_home_mode`, resumed or paused
+  /// every schedule on the line through `protection_paused`, and stamped
+  /// `last_topup_at = now()` — a refill that never happened. Now it only
+  /// reveals the offer, and geolocation keeps owning the mode.
   Widget _buildTravelTomorrowRow(BuildContext context, SimLine line) {
     final isDark = context.isDarkMode;
-    final isTravelMode = !line.isHomeMode;
+    // Where the user actually is, per the geo sync.
+    final isAway = !line.isHomeMode;
+    // Showing the offer either because they are already away, or because they
+    // armed the prompt to prepare for a trip.
+    final isTravelMode = isAway || _travelPrepArmed;
     final hasEsimSupport =
         ref.watch(esimCapabilityServiceProvider).value ?? false;
 
@@ -842,13 +846,13 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
           GlassToggleSwitch(
             value: isTravelMode,
             activeColor: AppColors.primary,
-            onChanged: _isViewer
+            // Already away: the offer is showing on its own merits and there is
+            // nothing left to arm.
+            onChanged: (_isViewer || isAway)
                 ? null
                 : (value) async {
                     await HapticHelper.lightTick();
-                    ref
-                        .read(simLinesControllerProvider.notifier)
-                        .toggleHomeMode(line.id, !value);
+                    setState(() => _travelPrepArmed = value);
                   },
           ),
         ],

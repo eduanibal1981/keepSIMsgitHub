@@ -23,6 +23,14 @@ abstract class EsimRepository {
     int offset,
   });
 
+  /// The durations, data sizes and price range this destination actually
+  /// sells, so the filter sheet can offer choices that return something.
+  ///
+  /// A hard-coded ladder cannot do this: France sells metered data at four
+  /// durations while the global catalogue spans ten, so a fixed "60 days" chip
+  /// is an empty result waiting to happen.
+  Future<CompareBounds> compareFilterBounds(String countryIsoCode);
+
   /// Logs an outbound partner click and returns the tracked URL to open.
   ///
   /// The URL is built server-side so attribution cannot be forged from a

@@ -341,7 +341,7 @@ class _EsimPlansScreenState extends ConsumerState<EsimPlansScreen> {
     final active = filters.activeCount;
     return InkWell(
       borderRadius: BorderRadius.circular(14),
-      onTap: () => CompareFilterSheet.show(context),
+      onTap: () => CompareFilterSheet.show(context, _countryCode),
       child: _pill(
         context,
         icon: Icons.tune_rounded,

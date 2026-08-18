@@ -2661,6 +2661,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get compareMaxPriceLabel => 'Max price';
 
   @override
+  String get comparePriceLabel => 'Price';
+
+  @override
   String get compareFiltersTitle => 'Filters';
 
   @override
@@ -2673,8 +2676,52 @@ class AppLocalizationsAr extends AppLocalizations {
   String get compareSortDuration => 'Validity: Longest first';
 
   @override
-  String get compareUnlimitedOverridesData =>
-      '\"Unlimited only\" is on, so the minimum-data filter is ignored.';
+  String get compareModeAll => 'All';
+
+  @override
+  String get compareModeRange => 'Range';
+
+  @override
+  String get compareModePickDays => 'Pick days';
+
+  @override
+  String get compareModePickSizes => 'Pick sizes';
+
+  @override
+  String get compareModeUnlimited => 'Unlimited';
+
+  @override
+  String compareRangeDays(int min, int max) {
+    return '$min – $max days';
+  }
+
+  @override
+  String compareRangeData(String min, String max) {
+    return '$min – $max';
+  }
+
+  @override
+  String get compareMeteredOnlyNote =>
+      'Sizes and ranges match plans with a set amount of data. For plans with no cap, choose Unlimited.';
+
+  @override
+  String get comparePriceMinHint => 'Min';
+
+  @override
+  String get comparePriceMaxHint => 'Max';
+
+  @override
+  String comparePriceRangeHelp(String min, String max) {
+    return 'Leave a box empty for no limit. Plans here run from $min to $max.';
+  }
+
+  @override
+  String get comparePriceRangeHelpPlain =>
+      'Leave the first box empty to start at zero, or the second empty to include the highest price available.';
+
+  @override
+  String get compareBoundsUnavailable =>
+      'We couldn\'t read what this destination sells, so only “All” is available.';
 
   @override
   String get compareBuyInApp => 'Buy in app';
@@ -2738,4 +2785,115 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get buyCheapestPackageLabel => 'Buy Cheapest Package';
+
+  @override
+  String get voucherCardTitle => 'Emergency top-up PIN';
+
+  @override
+  String get voucherCardSubtitle =>
+      'Works with no data, no credit and no signal';
+
+  @override
+  String voucherSealedBody(String amount) {
+    return 'A $amount recharge PIN is stored on this phone. Reveal it when you cannot top up any other way.';
+  }
+
+  @override
+  String get voucherRevealAction => 'Reveal my PIN';
+
+  @override
+  String get voucherRevealConfirmTitle => 'Use your emergency PIN?';
+
+  @override
+  String voucherRevealConfirmBody(String face, String due) {
+    return 'This gives you $face of credit right now, as a gift. When you are back online we will ask you for $due from your wallet — and once that is settled you get a new PIN for next time.';
+  }
+
+  @override
+  String get voucherRevealConfirmAction => 'Show the PIN';
+
+  @override
+  String get voucherYourPin => 'YOUR RECHARGE PIN';
+
+  @override
+  String get voucherSerial => 'Serial';
+
+  @override
+  String get voucherPinCopied => 'PIN copied';
+
+  @override
+  String voucherDialAction(String code) {
+    return 'Dial $code';
+  }
+
+  @override
+  String voucherOwedTitle(String amount) {
+    return '$amount due for your emergency PIN';
+  }
+
+  @override
+  String get voucherOwedBody =>
+      'Settle it to get a new PIN for the next time you are offline.';
+
+  @override
+  String voucherSettleAction(String amount) {
+    return 'Pay $amount from wallet';
+  }
+
+  @override
+  String get voucherSettledToast => 'Settled — a new PIN will be ready shortly';
+
+  @override
+  String voucherSettleNoFunds(String due, String balance) {
+    return 'You need $due but your wallet has $balance.';
+  }
+
+  @override
+  String get voucherSettleFailed =>
+      'Could not settle right now. Please try again.';
+
+  @override
+  String get voucherCollectBody =>
+      'Store a recharge PIN on this phone now, while you have signal. You will be able to use it even with no data and no credit.';
+
+  @override
+  String get voucherCollectAction => 'Store a PIN on this phone';
+
+  @override
+  String get voucherCollectedToast => 'PIN stored securely on this phone';
+
+  @override
+  String get voucherCollectFailed =>
+      'Could not store a PIN right now. Please try again.';
+
+  @override
+  String get voucherPreparingTitle => 'Being prepared';
+
+  @override
+  String get voucherPreparingBody =>
+      'We are getting an emergency PIN ready for this number.';
+
+  @override
+  String voucherPreparingBodyBy(String date) {
+    return 'We are getting an emergency PIN ready for this number, expected by $date.';
+  }
+
+  @override
+  String get voucherPremiumOnly =>
+      'Emergency PINs are part of the Premium plan.';
+
+  @override
+  String get voucherNeedsConnection =>
+      'Connect to the internet once to store a PIN for offline use.';
+
+  @override
+  String get voucherUnavailableOffline =>
+      'Connect once to set up your emergency PIN.';
+
+  @override
+  String get voucherExpiredTitle => 'This PIN has expired';
+
+  @override
+  String get voucherExpiredBody =>
+      'Connect to the internet and we will store a fresh one.';
 }

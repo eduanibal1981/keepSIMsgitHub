@@ -173,9 +173,9 @@ async function purchase({ baseUrl = dingBaseUrl, apiKey, execution, recipientPho
       const list = Array.isArray(rec) ? rec : (rec.Items || []);
       if (list.length > 0) {
         return {
-          transactionId: String(list[0].TransferId || distributorRef),
+          transactionId: transferRefOf(list[0]) || distributorRef,
           externalId: distributorRef,
-          status: list[0].TransferRecordStatus || 'Completed',
+          status: processingStateOf(list[0]) || 'Completed',
           raw: list[0],
         };
       }
@@ -184,11 +184,38 @@ async function purchase({ baseUrl = dingBaseUrl, apiKey, execution, recipientPho
   }
 
   return {
-    transactionId: String(payload.TransferRecord?.TransferId || distributorRef),
+    transactionId: transferRefOf(payload.TransferRecord) || distributorRef,
     externalId: distributorRef,
-    status: payload.TransferRecord?.TransferRecordStatus || 'Completed',
+    status: processingStateOf(payload.TransferRecord) || 'Completed',
     raw: payload,
   };
+}
+
+// ── Field readers, written against Ding's PUBLISHED model ──────────────────
+//
+// Two of the names this adapter used were not in it, and both would have failed
+// silently on the first live call:
+//
+//   * `TransferRecord.TransferId` is an OBJECT — `{TransferRef, DistributorRef}`
+//     — not a string. `String(obj)` yields the literal "[object Object]", which
+//     is what would have been stored as the transaction id and then used to
+//     poll for a status that could never be found.
+//   * There is no `TransferRecordStatus`. The status field is `ProcessingState`.
+//     Reading the absent name made purchase() report 'Completed' unconditionally
+//     and pollStatus() sit on 'Pending' until it ran out of polls.
+//
+// Both fall back to the old names so that if a live response really does carry
+// them, nothing breaks — but the published name is tried first.
+function transferRefOf(record) {
+  const id = record?.TransferId;
+  if (id && typeof id === 'object') {
+    return id.TransferRef ? String(id.TransferRef) : null;
+  }
+  return id != null ? String(id) : null;
+}
+
+function processingStateOf(record) {
+  return record?.ProcessingState || record?.TransferRecordStatus || null;
 }
 
 async function pollStatus({ baseUrl = dingBaseUrl, apiKey, transactionId, externalId, maxPolls = 12, pollDelayMs = 2500, fetchImpl = fetch }) {
@@ -208,7 +235,7 @@ async function pollStatus({ baseUrl = dingBaseUrl, apiKey, transactionId, extern
         const list = Array.isArray(body) ? body : (body.Items || []);
         if (list.length > 0) {
           raw = list[0];
-          status = raw.TransferRecordStatus || status;
+          status = processingStateOf(raw) || status;
         }
       }
     } catch (err) {
@@ -230,10 +257,198 @@ async function pollStatus({ baseUrl = dingBaseUrl, apiKey, transactionId, extern
   };
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// PIN / voucher products  (L-phase: offline recharge without connectivity)
+// ═══════════════════════════════════════════════════════════════════════════
+//
+// There is NO "give me a PIN" endpoint. A Ding PIN is the receipt of a real,
+// paid `SendTransfer`, so every call below spends money. That is why the caller
+// is a queue-driven worker with a per-job cost ceiling and not a request path.
+//
+// How Ding models it, from the published API model (verified, not assumed):
+//   * `Product.RedemptionMechanism` is 'Immediate' or 'ReadReceipt'. PIN
+//     products are ReadReceipt: "further instructions ... will be printed
+//     within the ReceiptText property".
+//   * `TransferRecord.ReceiptText`   — "Provider specific receipt text ... may
+//     contain additional information for the end customer."
+//   * `TransferRecord.ReceiptParams` — "Name value pairs of data that is in the
+//     ReceiptText."
+//
+// ⚠️ WHAT IS *NOT* KNOWN, and must not be invented: the KEY NAMES inside
+// ReceiptParams, and the exact wording of ReceiptText. Both are described as
+// "provider specific" — they vary per telecom. No live Ding response has ever
+// been seen by this project. `extractPin` therefore matches conservatively and
+// **returns null rather than guessing**; the worker treats null as "we bought
+// something, a human must read the receipt", which is a recoverable state. A
+// guessed PIN is not: it would be stored as a bearer instrument, handed to a
+// subscriber, and fail at the moment they have no way to ask why. This is the
+// same failure the DTOne adapter shipped when it fabricated success.
+
+const PIN_KEY_PATTERN = /^(pin|pincode|pin_code|voucher|vouchercode|voucher_code|rechargepin|recharge_pin|code|secret)$/i;
+const SERIAL_KEY_PATTERN = /^(serial|serialnumber|serial_number|batch|batchnumber|batch_number)$/i;
+
+/// True for a product Ding delivers as a PIN the customer redeems themselves.
+function isPinProduct(p) {
+  return String(p?.RedemptionMechanism ?? '').toLowerCase() === 'readreceipt';
+}
+
+/// Pulls a PIN out of a transfer record, or returns null.
+///
+/// Order matters: `ReceiptParams` is structured data and is tried first;
+/// `ReceiptText` is free prose and is only scraped when a labelled line makes
+/// the intent unambiguous ("PIN: 1234 5678"). A bare number found loose in the
+/// prose is NOT accepted — receipts carry balances, dates and phone numbers,
+/// and picking the wrong one produces a plausible, wrong, unusable voucher.
+function extractPin(record) {
+  const params = record?.ReceiptParams;
+  if (params && typeof params === 'object') {
+    for (const [key, value] of Object.entries(params)) {
+      if (PIN_KEY_PATTERN.test(String(key).replace(/[\s-]/g, '')) && String(value ?? '').trim()) {
+        return String(value).trim();
+      }
+    }
+  }
+
+  const text = String(record?.ReceiptText ?? '');
+  if (text) {
+    const labelled = text.match(
+      /\b(?:pin|voucher(?:\s*code)?|recharge\s*code)\b\s*[:=]\s*([A-Za-z0-9][A-Za-z0-9 -]{3,30})/i
+    );
+    if (labelled) return labelled[1].trim();
+  }
+
+  return null;
+}
+
+function extractSerial(record) {
+  const params = record?.ReceiptParams;
+  if (params && typeof params === 'object') {
+    for (const [key, value] of Object.entries(params)) {
+      if (SERIAL_KEY_PATTERN.test(String(key).replace(/[\s-]/g, '')) && String(value ?? '').trim()) {
+        return String(value).trim();
+      }
+    }
+  }
+  return null;
+}
+
+/// Every PIN-capable SKU for a provider, cheapest first.
+///
+/// Unlike fetchCatalog() this deliberately does NOT filter with isPlainTopUp():
+/// a PIN product legitimately carries a validity period, and excluding those
+/// would leave most PIN shelves empty.
+async function fetchPinProducts({
+  baseUrl = dingBaseUrl, apiKey, countryCode, carrierCode, fetchImpl = fetch,
+}) {
+  if (!apiKey) throw new Error('DING_API_KEY is not set');
+  if (!carrierCode) return [];
+
+  const url = `${baseUrl}/GetProducts?providerCodes=${encodeURIComponent(carrierCode)}`
+    + `&countryIsos=${encodeURIComponent(countryCode)}&pageSize=200`;
+
+  const res = await fetchImpl(url, { headers: authHeaders(apiKey) });
+  if (!res.ok) {
+    throw new Error(`Ding GetProducts returned ${res.status}: ${await res.text()}`);
+  }
+
+  const data = await res.json();
+  if (data && data.ResultCode != null && Number(data.ResultCode) !== 1) {
+    throw new Error(
+      `Ding GetProducts failed: ResultCode ${data.ResultCode} ${JSON.stringify(data.ErrorCodes || [])}`
+    );
+  }
+
+  const items = Array.isArray(data) ? data : (data.Items || data.items || []);
+
+  return items
+    .filter(p => p && p.SkuCode && isPinProduct(p))
+    .map(p => ({
+      skuCode: String(p.SkuCode),
+      name: p.DefaultDisplayText || p.LocalizationKey || `Ding ${p.SkuCode}`,
+      // What WE pay, in the account's settlement currency (OMR on the live
+      // account, not USD — see toMinor()'s note above).
+      sendValue: p?.Minimum?.SendValue != null ? Number(p.Minimum.SendValue) : null,
+      sendCurrency: String(
+        p?.Minimum?.SendCurrencyIso || p?.Maximum?.SendCurrencyIso || 'USD'
+      ).toUpperCase(),
+      // What the SUBSCRIBER receives, in their own currency.
+      receiveValue: p?.Minimum?.ReceiveValue != null ? Number(p.Minimum.ReceiveValue) : null,
+      receiveCurrency: String(
+        p?.Minimum?.ReceiveCurrencyIso || p?.Maximum?.ReceiveCurrencyIso || ''
+      ).toUpperCase() || null,
+      validityIso: String(p?.ValidityPeriodIso ?? '').trim() || null,
+      raw: p,
+    }))
+    .filter(p => p.sendValue != null && p.sendValue > 0)
+    .sort((a, b) => a.sendValue - b.sendValue);
+}
+
+/// Buys ONE PIN. Returns `{ pin, serial, instructions, providerRef, receipt }`
+/// with `pin: null` when the receipt could not be parsed — which is a purchase
+/// that succeeded and now needs a human, not a failure.
+async function purchasePin({
+  baseUrl = dingBaseUrl, apiKey, skuCode, sendValue, accountNumber,
+  distributorRef, fetchImpl = fetch,
+}) {
+  if (!apiKey) throw new Error('DING_API_KEY is not set');
+  if (!skuCode) throw new Error('purchasePin needs a skuCode');
+  if (!accountNumber) {
+    // SendTransfer requires AccountNumber even for a PIN product.
+    throw new Error('purchasePin needs an accountNumber (Ding requires one even for PIN SKUs)');
+  }
+
+  const body = {
+    SkuCode: skuCode,
+    SendValue: sendValue != null ? Number(sendValue) : undefined,
+    AccountNumber: accountNumber,
+    DistributorRef: distributorRef,
+    ValidateOnly: false,
+  };
+
+  const res = await fetchImpl(`${baseUrl}/SendTransfer`, {
+    method: 'POST',
+    headers: authHeaders(apiKey),
+    body: JSON.stringify(body),
+  });
+
+  const payload = await res.json().catch(() => ({}));
+
+  if (!res.ok || (payload.ErrorCodes && payload.ErrorCodes.length)) {
+    throw new Error(
+      `Ding SendTransfer (PIN) failed: ${res.status} ${JSON.stringify(payload.ErrorCodes || payload)}`
+    );
+  }
+
+  const record = payload.TransferRecord || {};
+
+  return {
+    pin: extractPin(record),
+    serial: extractSerial(record),
+    // The receipt IS the instructions for a ReadReceipt product — Ding's own
+    // wording for this telecom beats anything we could write generically.
+    instructions: String(record.ReceiptText ?? '').trim() || null,
+    providerRef: transferRefOf(record) || distributorRef,
+    processingState: processingStateOf(record),
+    // Price actually charged, which may differ from the quoted minimum.
+    chargedValue: record?.Price?.SendValue != null ? Number(record.Price.SendValue) : null,
+    chargedCurrency: record?.Price?.SendCurrencyIso
+      ? String(record.Price.SendCurrencyIso).toUpperCase() : null,
+    receipt: payload,
+  };
+}
+
 module.exports = {
   fetchCatalog,
   normalizeDingProduct,
   isPlainTopUp,
   purchase,
   pollStatus,
+  // L-phase voucher rail
+  isPinProduct,
+  extractPin,
+  extractSerial,
+  fetchPinProducts,
+  purchasePin,
+  transferRefOf,
+  processingStateOf,
 };

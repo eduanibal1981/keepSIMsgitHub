@@ -4742,6 +4742,12 @@ abstract class AppLocalizations {
   /// **'Max price'**
   String get compareMaxPriceLabel;
 
+  /// No description provided for @comparePriceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get comparePriceLabel;
+
   /// No description provided for @compareFiltersTitle.
   ///
   /// In en, this message translates to:
@@ -4766,11 +4772,83 @@ abstract class AppLocalizations {
   /// **'Validity: Longest first'**
   String get compareSortDuration;
 
-  /// No description provided for @compareUnlimitedOverridesData.
+  /// Filter mode: no constraint on this dimension. Kept short — it sits in a segmented row beside Range and Pick.
   ///
   /// In en, this message translates to:
-  /// **'\"Unlimited only\" is on, so the minimum-data filter is ignored.'**
-  String get compareUnlimitedOverridesData;
+  /// **'All'**
+  String get compareModeAll;
+
+  /// No description provided for @compareModeRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Range'**
+  String get compareModeRange;
+
+  /// No description provided for @compareModePickDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick days'**
+  String get compareModePickDays;
+
+  /// No description provided for @compareModePickSizes.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick sizes'**
+  String get compareModePickSizes;
+
+  /// Data filter mode. Replaces the old standalone 'Unlimited' switch, which sat next to a Speed section listing Unlimited Lite/Essential/Plus and so read as 'unlimited what?'. As one of the answers to 'how much data' it is unambiguous.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlimited'**
+  String get compareModeUnlimited;
+
+  /// No description provided for @compareRangeDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{min} – {max} days'**
+  String compareRangeDays(int min, int max);
+
+  /// Selected data range, both ends already formatted, e.g. '3 GB – 20 GB'.
+  ///
+  /// In en, this message translates to:
+  /// **'{min} – {max}'**
+  String compareRangeData(String min, String max);
+
+  /// No description provided for @compareMeteredOnlyNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Sizes and ranges match plans with a set amount of data. For plans with no cap, choose Unlimited.'**
+  String get compareMeteredOnlyNote;
+
+  /// No description provided for @comparePriceMinHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Min'**
+  String get comparePriceMinHint;
+
+  /// No description provided for @comparePriceMaxHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Max'**
+  String get comparePriceMaxHint;
+
+  /// No description provided for @comparePriceRangeHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave a box empty for no limit. Plans here run from {min} to {max}.'**
+  String comparePriceRangeHelp(String min, String max);
+
+  /// No description provided for @comparePriceRangeHelpPlain.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave the first box empty to start at zero, or the second empty to include the highest price available.'**
+  String get comparePriceRangeHelpPlain;
+
+  /// No description provided for @compareBoundsUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t read what this destination sells, so only “All” is available.'**
+  String get compareBoundsUnavailable;
 
   /// Badge on an offer KeepSIMs sells itself: paid from the wallet, eSIM delivered in-app.
   ///
@@ -4879,6 +4957,180 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Buy Cheapest Package'**
   String get buyCheapestPackageLabel;
+
+  /// Title of the offline voucher card. Premium only.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency top-up PIN'**
+  String get voucherCardTitle;
+
+  /// No description provided for @voucherCardSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Works with no data, no credit and no signal'**
+  String get voucherCardSubtitle;
+
+  /// No description provided for @voucherSealedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A {amount} recharge PIN is stored on this phone. Reveal it when you cannot top up any other way.'**
+  String voucherSealedBody(String amount);
+
+  /// No description provided for @voucherRevealAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Reveal my PIN'**
+  String get voucherRevealAction;
+
+  /// No description provided for @voucherRevealConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Use your emergency PIN?'**
+  String get voucherRevealConfirmTitle;
+
+  /// No description provided for @voucherRevealConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This gives you {face} of credit right now, as a gift. When you are back online we will ask you for {due} from your wallet — and once that is settled you get a new PIN for next time.'**
+  String voucherRevealConfirmBody(String face, String due);
+
+  /// No description provided for @voucherRevealConfirmAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Show the PIN'**
+  String get voucherRevealConfirmAction;
+
+  /// No description provided for @voucherYourPin.
+  ///
+  /// In en, this message translates to:
+  /// **'YOUR RECHARGE PIN'**
+  String get voucherYourPin;
+
+  /// No description provided for @voucherSerial.
+  ///
+  /// In en, this message translates to:
+  /// **'Serial'**
+  String get voucherSerial;
+
+  /// No description provided for @voucherPinCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'PIN copied'**
+  String get voucherPinCopied;
+
+  /// No description provided for @voucherDialAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Dial {code}'**
+  String voucherDialAction(String code);
+
+  /// No description provided for @voucherOwedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} due for your emergency PIN'**
+  String voucherOwedTitle(String amount);
+
+  /// No description provided for @voucherOwedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Settle it to get a new PIN for the next time you are offline.'**
+  String get voucherOwedBody;
+
+  /// No description provided for @voucherSettleAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay {amount} from wallet'**
+  String voucherSettleAction(String amount);
+
+  /// No description provided for @voucherSettledToast.
+  ///
+  /// In en, this message translates to:
+  /// **'Settled — a new PIN will be ready shortly'**
+  String get voucherSettledToast;
+
+  /// No description provided for @voucherSettleNoFunds.
+  ///
+  /// In en, this message translates to:
+  /// **'You need {due} but your wallet has {balance}.'**
+  String voucherSettleNoFunds(String due, String balance);
+
+  /// No description provided for @voucherSettleFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not settle right now. Please try again.'**
+  String get voucherSettleFailed;
+
+  /// No description provided for @voucherCollectBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Store a recharge PIN on this phone now, while you have signal. You will be able to use it even with no data and no credit.'**
+  String get voucherCollectBody;
+
+  /// No description provided for @voucherCollectAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Store a PIN on this phone'**
+  String get voucherCollectAction;
+
+  /// No description provided for @voucherCollectedToast.
+  ///
+  /// In en, this message translates to:
+  /// **'PIN stored securely on this phone'**
+  String get voucherCollectedToast;
+
+  /// No description provided for @voucherCollectFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not store a PIN right now. Please try again.'**
+  String get voucherCollectFailed;
+
+  /// No description provided for @voucherPreparingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Being prepared'**
+  String get voucherPreparingTitle;
+
+  /// No description provided for @voucherPreparingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'We are getting an emergency PIN ready for this number.'**
+  String get voucherPreparingBody;
+
+  /// No description provided for @voucherPreparingBodyBy.
+  ///
+  /// In en, this message translates to:
+  /// **'We are getting an emergency PIN ready for this number, expected by {date}.'**
+  String voucherPreparingBodyBy(String date);
+
+  /// No description provided for @voucherPremiumOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency PINs are part of the Premium plan.'**
+  String get voucherPremiumOnly;
+
+  /// No description provided for @voucherNeedsConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect to the internet once to store a PIN for offline use.'**
+  String get voucherNeedsConnection;
+
+  /// No description provided for @voucherUnavailableOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect once to set up your emergency PIN.'**
+  String get voucherUnavailableOffline;
+
+  /// No description provided for @voucherExpiredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This PIN has expired'**
+  String get voucherExpiredTitle;
+
+  /// No description provided for @voucherExpiredBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect to the internet and we will store a fresh one.'**
+  String get voucherExpiredBody;
 }
 
 class _AppLocalizationsDelegate

@@ -21,14 +21,56 @@ class EsimCompareFilters extends _$EsimCompareFilters {
   void setCoverage(String? coverage) =>
       state = state.copyWith(coverage: coverage);
 
-  void setMinData(int? mb) => state = state.copyWith(minDataMb: mb);
+  // ── Validity ─────────────────────────────────────────────────────────────
+  // Switching mode clears the other mode's values. Leaving them behind would
+  // make Reset look like it half-worked when the user switched back, and the
+  // `wire*` getters would then be hiding state the sheet still displays.
+  void setValidityMode(RangeFilterMode mode) => state = state.copyWith(
+        validityMode: mode,
+        minDays: null,
+        maxDays: null,
+        daysExact: const [],
+      );
 
-  void setMinDays(int? days) => state = state.copyWith(minDays: days);
+  void setDaysRange(int? min, int? max) =>
+      state = state.copyWith(minDays: min, maxDays: max);
 
-  void setMaxPrice(double? usd) => state = state.copyWith(maxPriceUsd: usd);
+  void toggleDayExact(int days) {
+    final next = [...state.daysExact];
+    if (!next.remove(days)) next.add(days);
+    next.sort();
+    state = state.copyWith(daysExact: next);
+  }
 
-  void setUnlimitedOnly(bool value) =>
-      state = state.copyWith(unlimitedOnly: value);
+  // ── Data ─────────────────────────────────────────────────────────────────
+  void setDataMode(DataFilterMode mode) => state = state.copyWith(
+        dataMode: mode,
+        minDataMb: null,
+        maxDataMb: null,
+        dataExactMb: const [],
+      );
+
+  void setDataRange(int? minMb, int? maxMb) =>
+      state = state.copyWith(minDataMb: minMb, maxDataMb: maxMb);
+
+  void toggleDataExact(int mb) {
+    final next = [...state.dataExactMb];
+    if (!next.remove(mb)) next.add(mb);
+    next.sort();
+    state = state.copyWith(dataExactMb: next);
+  }
+
+  // ── Price ────────────────────────────────────────────────────────────────
+  void setPriceRangeOn(bool on) => state = state.copyWith(
+        priceRangeOn: on,
+        minPriceUsd: null,
+        maxPriceUsd: null,
+      );
+
+  /// An empty box is `null`, never 0. On the maximum side those mean opposite
+  /// things — no ceiling versus "free only" — so the caller must not coerce.
+  void setPriceRange({double? min, double? max}) =>
+      state = state.copyWith(minPriceUsd: min, maxPriceUsd: max);
 
   void setSpeedTiers(List<String>? tiers) => state = state.copyWith(
       speedTiers: (tiers == null || tiers.isEmpty) ? null : tiers);
@@ -59,6 +101,18 @@ class EsimCompare extends _$EsimCompare {
       return repo.compareOffers(countryIsoCode, filters: filters, limit: 100);
     });
   }
+}
+
+/// The durations, data sizes and price floor/ceiling this destination sells.
+///
+/// Deliberately keyed by country and NOT watched by [EsimCompare]: the filter
+/// sheet needs it to draw its choices, but the result list must not re-fetch
+/// when it arrives. Keeping them separate is also why a slow bounds call can
+/// never delay the offers.
+@riverpod
+Future<CompareBounds> esimCompareBounds(Ref ref, String countryIsoCode) async {
+  final repo = ref.read(esimRepositoryProvider);
+  return repo.compareFilterBounds(countryIsoCode);
 }
 
 /// Records an outbound partner click and hands back the tracked URL.

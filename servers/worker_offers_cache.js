@@ -226,6 +226,17 @@ async function refreshAll() {
         }
 
         console.log(`[refreshAll] Done in ${Date.now() - startedAt}ms: ${ok} ok, ${failed} failed, ${totalRows} offers cached.`);
+
+        if (totalRows > 0) {
+            const { data: syncData, error: syncError } = await supabase.rpc('admin_refresh_provider_offers', {
+                p_note: 'worker_offers_cache cycle'
+            });
+            if (syncError) {
+                console.error(`[refreshAll] admin_refresh_provider_offers sync failed: ${syncError.message}`);
+            } else {
+                console.log(`[refreshAll] provider_offers synced:`, syncData);
+            }
+        }
     } catch (err) {
         console.error(`[refreshAll] Cycle failed: ${err.message}`);
     } finally {

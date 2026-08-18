@@ -65,8 +65,11 @@ function priceUnit(p) {
 }
 
 function normalizeDtoneProduct(p, countryCode, carrierCode) {
-  const isRange = p.type && (p.type.includes('RANGED') || p.type.includes('RANGE'));
+  const type = String(p.type || '').toUpperCase();
+  const isPin = type.includes('PIN');
+  const isRange = type.includes('RANGED') || type.includes('RANGE');
   const priceType = isRange ? 'RANGE' : 'FIXED';
+  const deliveryType = isPin ? 'pin' : 'direct';
 
   const unit = String(priceUnit(p) || 'USD').toUpperCase();
 
@@ -84,11 +87,15 @@ function normalizeDtoneProduct(p, countryCode, carrierCode) {
   const sendCurrency = p.destination?.currency || 'USD';
   const sendCurrencyDivisor = p.destination?.currency_divisor || 1;
 
+  const instructions = p.pin?.usage_info || p.pin_usage_info || (isPin ? (p.description || null) : null);
+
   return {
     offerId: String(p.id),
     name: p.name || p.description || `Product ${p.id}`,
     productType: 'TOPUP',
     priceType,
+    deliveryType,
+    redeemInstructions: instructions,
     enabled: true,
     price: {
       fixed: fixedUsd != null ? Math.round(fixedUsd * 100) : null,
@@ -108,25 +115,25 @@ function normalizeDtoneProduct(p, countryCode, carrierCode) {
   };
 }
 
-/// A product we can actually use to keep a line alive.
+/// A product we can use to top up or maintain a line.
 ///
-/// DTOne's own export distinguishes SERVICE `Mobile` / SUBSERVICE `Airtime`
-/// from `Gift Cards` / `Retail`, and PRODUCT TYPE
-/// `FIXED_VALUE_PIN_PURCHASE` from the RECHARGE types. A PIN is a voucher the
-/// subscriber must redeem by hand — DTOne's own row for STC Saudi Arabia
-/// carries the instructions "Enter *155*<code>#". It cannot silently keep a
-/// line alive, which is the entire premise of the premium plan, so it is
-/// excluded rather than sold as if it were a direct top-up.
-function isDirectMobileRecharge(p) {
+/// Supports both direct airtime/data recharges (automated) and digital PIN
+/// vouchers (for carriers with no direct recharge rail, e.g. Mobily).
+function isUsableTopupOrPin(p) {
   const type = String(p.type || '').toUpperCase();
-  if (type.includes('PIN')) return false;
-  if (!type.includes('RECHARGE') && !type.includes('TOPUP')) return false;
+  const isPin = type.includes('PIN');
+  const isRecharge = type.includes('RECHARGE') || type.includes('TOPUP');
+  if (!isPin && !isRecharge) return false;
 
   const service = String(p.service?.name || p.service || '').toLowerCase();
   const sub = String(p.service?.subservice?.name || p.subservice || '').toLowerCase();
   if (service && service !== 'mobile') return false;
-  if (sub && !['airtime', 'topup', 'top up'].includes(sub)) return false;
+  if (sub && !['airtime', 'topup', 'top up', 'data', 'bundle'].includes(sub)) return false;
   return true;
+}
+
+function isDirectMobileRecharge(p) {
+  return isUsableTopupOrPin(p) && !String(p.type || '').toUpperCase().includes('PIN');
 }
 
 /// `countryCode` and `carrierCode` are used VERBATIM — they come from
@@ -181,7 +188,7 @@ async function fetchCatalog({ baseUrl = dtoneBaseUrl, apiKey, apiSecret, country
     page++;
   }
 
-  return all.filter(isDirectMobileRecharge).map(p => normalizeDtoneProduct(p, countryCode, carrierCode));
+  return all.filter(isUsableTopupOrPin).map(p => normalizeDtoneProduct(p, countryCode, carrierCode));
 }
 
 async function purchase({ baseUrl = dtoneBaseUrl, apiKey, apiSecret, execution, recipientPhone, offerId, offerValue, externalId, fetchImpl = fetch }) {

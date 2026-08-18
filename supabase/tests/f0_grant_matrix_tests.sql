@@ -219,7 +219,16 @@ DECLARE
     -- public-safe columns and leaves `affiliate_partners.commission_percent`
     -- behind, which is the same markup isolation that keeps wholesale eSIM
     -- prices off the wire. Moves no money and writes nothing.
-    'compare_esim_offers(text,text,bigint,integer,numeric,boolean,text[],text,integer,integer)',
+    -- N1 appended five bound parameters (max data, exact sizes, max days,
+    -- exact durations, min price), last and defaulted so an old APK sending
+    -- the J2b argument list still resolves. DROP + CREATE, never a replace
+    -- with extra defaulted params — that leaves two overloads and PostgREST
+    -- answers PGRST203 to every call.
+    'compare_esim_offers(text,text,bigint,integer,numeric,boolean,text[],text,integer,integer,bigint,bigint[],integer,integer[],numeric)',
+    -- N1. Reads the same two catalogues and returns only bounds — the
+    -- durations and data sizes on sale for one destination plus the price
+    -- floor and ceiling. No commission, no wholesale, no per-offer row.
+    'compare_esim_filter_bounds(text)',
     -- J2b. Writes one attribution row and returns a URL. Sender is auth.uid()
     -- with no user parameter, so a caller cannot log a click as someone else;
     -- rate-limited via RATE_LIMIT_AFFILIATE_CLICK; refuses entirely while
@@ -254,7 +263,46 @@ DECLARE
     -- Edge Function that holds the key is reached via the service_role-only
     -- kick_admin_email(). Guards asserted in j7_admin_email_tests.sql.
     'admin_send_email(text[],text,text,text[],text,text,text)',
-    'admin_list_emails(integer)'
+    'admin_list_emails(integer)',
+
+    -- L2. The offline recharge voucher rail — the customer side.
+    --
+    -- `provision_offline_voucher` is the ONE function in this database that
+    -- returns a bearer instrument, so it carries more of the feature's weight
+    -- than anything else on this list. It is allow-listed because it must be:
+    -- the whole point is a subscriber collecting a PIN onto their own handset
+    -- while they still have signal. Its ownership check is
+    -- `sim_lines.user_id = auth.uid()` (owner only — a household manager may
+    -- refill a shared line but has never been able to buy its plan, and a
+    -- voucher is an entitlement of that plan). Its spend cap is the partial
+    -- unique index `offline_voucher_grants_one_live_per_line`, not a branch.
+    -- Both are asserted in l_offline_voucher_tests.sql (T05, T07, T10, T13).
+    'provision_offline_voucher(uuid,text)',
+    -- Creates the debt. Ownership checked; the client-supplied reveal time is
+    -- clamped into [provisioned_at, now()] so a wrong device clock cannot
+    -- backdate a debt out of the grace window (T11).
+    'report_offline_voucher_reveal(uuid,timestamp with time zone)',
+    -- Moves money OUT of the caller's own wallet, toward us. Idempotent on the
+    -- ledger, not on the grant's status (T15, T16).
+    'settle_offline_voucher(uuid)',
+    -- Read-only status. Deliberately carries NO pin (T18).
+    'offline_voucher_state()',
+
+    -- L3. The voucher control plane. Each calls assert_admin() first and
+    -- writes an admin_audit_log row; refusals are proven in T04/T19/T20.
+    'admin_voucher_overview()',
+    'admin_list_voucher_stock(uuid,text,integer)',
+    'admin_add_voucher_stock(uuid,jsonb,jsonb,text)',
+    'admin_void_voucher_stock(uuid,text,text)',
+    'admin_list_voucher_grants(text,integer)',
+    'admin_write_off_voucher_grant(uuid,text,text)',
+    'admin_list_voucher_requests(text,integer)',
+    'admin_cancel_voucher_request(uuid,text,text)',
+    'admin_list_carrier_voucher_redemption()',
+    'admin_upsert_carrier_voucher_redemption(uuid,jsonb,text)',
+    'admin_queue_ding_voucher_purchase(uuid,integer,text,numeric,text)',
+    'admin_list_voucher_purchase_jobs(integer)',
+    'admin_cancel_voucher_purchase_job(uuid,text)'
   ];
   v_bad text;
   v_n int;

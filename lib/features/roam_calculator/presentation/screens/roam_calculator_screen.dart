@@ -257,13 +257,18 @@ class _RoamCalculatorScreenState extends ConsumerState<RoamCalculatorScreen> {
       children: <Widget>[
         _verdictBanner(q),
         const SizedBox(height: 16),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            Expanded(child: _roamingCard(q)),
-            const SizedBox(width: 12),
-            Expanded(child: _esimCard(q)),
-          ],
+        // Same trap as the household invite dialog: this Column rides in a
+        // ListView, so the Row's height is unbounded and `stretch` would hand
+        // its children a tight infinite constraint. IntrinsicHeight bounds it.
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Expanded(child: _roamingCard(q)),
+              const SizedBox(width: 12),
+              Expanded(child: _esimCard(q)),
+            ],
+          ),
         ),
         const SizedBox(height: 16),
         if (q.hasEsim) _callToAction(context, q),

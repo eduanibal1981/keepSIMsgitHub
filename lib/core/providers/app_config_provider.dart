@@ -91,6 +91,31 @@ Future<double> premiumMarginPercent(Ref ref) async =>
 Future<double> premiumMarginPerRefillUsd(Ref ref) async =>
     _numericConfig('PREMIUM_MARGIN_PER_REFILL_USD', fallback: 0, max: 1000);
 
+/// Whether geolocation is allowed to write each line's home/travel mode.
+///
+/// The derivation itself (`resolveLineMode`) is pure and always runs; this row
+/// decides whether the result is persisted. Off by default: turning it on
+/// un-pauses the protection of every line whose country the user is not in,
+/// which resumes schedules and makes those lines eligible for `run_auto_rescue`
+/// — a live money decision that belongs to the owner, not to a deploy.
+///
+/// `system_configs.GEO_LINE_MODE_SYNC_ENABLED`. A failed read means off, so a
+/// network blip cannot start writing modes.
+@Riverpod(keepAlive: true)
+Future<bool> geoLineModeSyncEnabled(Ref ref) async {
+  try {
+    final row = await Supabase.instance.client
+        .from('system_configs')
+        .select('config_value')
+        .eq('config_key', 'GEO_LINE_MODE_SYNC_ENABLED')
+        .maybeSingle();
+
+    return row?['config_value']?.toString().trim().toLowerCase() == 'true';
+  } catch (_) {
+    return false;
+  }
+}
+
 /// Reads a number from `system_configs`, refusing nonsense rather than pricing
 /// on it. Mirrors the guard in `calculate_topup_fees`.
 Future<double> _numericConfig(

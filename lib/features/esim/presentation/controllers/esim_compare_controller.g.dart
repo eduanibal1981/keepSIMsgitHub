@@ -60,7 +60,7 @@ final class EsimCompareFiltersProvider
 }
 
 String _$esimCompareFiltersHash() =>
-    r'0635746f0fb8e8b1e25ef4c6844b06339db9f50e';
+    r'e32553836e23e4c8d84e407af182250c5445dd0c';
 
 /// The filter set currently applied on the compare screen.
 ///
@@ -185,6 +185,115 @@ abstract class _$EsimCompare extends $AsyncNotifier<List<CompareOffer>> {
             >;
     return element.handleCreate(ref, () => build(_$args));
   }
+}
+
+/// The durations, data sizes and price floor/ceiling this destination sells.
+///
+/// Deliberately keyed by country and NOT watched by [EsimCompare]: the filter
+/// sheet needs it to draw its choices, but the result list must not re-fetch
+/// when it arrives. Keeping them separate is also why a slow bounds call can
+/// never delay the offers.
+
+@ProviderFor(esimCompareBounds)
+final esimCompareBoundsProvider = EsimCompareBoundsFamily._();
+
+/// The durations, data sizes and price floor/ceiling this destination sells.
+///
+/// Deliberately keyed by country and NOT watched by [EsimCompare]: the filter
+/// sheet needs it to draw its choices, but the result list must not re-fetch
+/// when it arrives. Keeping them separate is also why a slow bounds call can
+/// never delay the offers.
+
+final class EsimCompareBoundsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<CompareBounds>,
+          CompareBounds,
+          FutureOr<CompareBounds>
+        >
+    with $FutureModifier<CompareBounds>, $FutureProvider<CompareBounds> {
+  /// The durations, data sizes and price floor/ceiling this destination sells.
+  ///
+  /// Deliberately keyed by country and NOT watched by [EsimCompare]: the filter
+  /// sheet needs it to draw its choices, but the result list must not re-fetch
+  /// when it arrives. Keeping them separate is also why a slow bounds call can
+  /// never delay the offers.
+  EsimCompareBoundsProvider._({
+    required EsimCompareBoundsFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'esimCompareBoundsProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$esimCompareBoundsHash();
+
+  @override
+  String toString() {
+    return r'esimCompareBoundsProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<CompareBounds> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<CompareBounds> create(Ref ref) {
+    final argument = this.argument as String;
+    return esimCompareBounds(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is EsimCompareBoundsProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$esimCompareBoundsHash() => r'631c6e6a70c885b2bfbb2de6ce0c50b85f48a97e';
+
+/// The durations, data sizes and price floor/ceiling this destination sells.
+///
+/// Deliberately keyed by country and NOT watched by [EsimCompare]: the filter
+/// sheet needs it to draw its choices, but the result list must not re-fetch
+/// when it arrives. Keeping them separate is also why a slow bounds call can
+/// never delay the offers.
+
+final class EsimCompareBoundsFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<CompareBounds>, String> {
+  EsimCompareBoundsFamily._()
+    : super(
+        retry: null,
+        name: r'esimCompareBoundsProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// The durations, data sizes and price floor/ceiling this destination sells.
+  ///
+  /// Deliberately keyed by country and NOT watched by [EsimCompare]: the filter
+  /// sheet needs it to draw its choices, but the result list must not re-fetch
+  /// when it arrives. Keeping them separate is also why a slow bounds call can
+  /// never delay the offers.
+
+  EsimCompareBoundsProvider call(String countryIsoCode) =>
+      EsimCompareBoundsProvider._(argument: countryIsoCode, from: this);
+
+  @override
+  String toString() => r'esimCompareBoundsProvider';
 }
 
 /// Records an outbound partner click and hands back the tracked URL.

@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:keep_sims/features/esim/domain/entities/compare_offer.dart';
 
 part 'esim_plan.freezed.dart';
 part 'esim_plan.g.dart';
@@ -28,12 +29,9 @@ abstract class EsimPlan with _$EsimPlan {
     return priceUsd / gb;
   }
 
-  String get formattedData {
-    if (dataAmountMB <= 0) return 'Unlimited';
-    if (dataAmountMB >= 1024) {
-      final gb = dataAmountMB / 1024.0;
-      return '${gb == gb.roundToDouble() ? gb.toInt() : gb.toStringAsFixed(1)} GB';
-    }
-    return '$dataAmountMB MB';
-  }
+  /// Shares one formatter with the comparison list so a card that says "10 GB"
+  /// cannot become "9.8 GB" on the checkout sheet the user taps through to.
+  /// See [CompareOffer.formatDataMb] for why 1 GB is 1000 MB here.
+  String get formattedData =>
+      dataAmountMB <= 0 ? 'Unlimited' : CompareOffer.formatDataMb(dataAmountMB);
 }

@@ -7,7 +7,9 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:keep_sims/core/providers/app_config_provider.dart';
 import 'package:keep_sims/features/offline_recharge/controller/offline_refill_controller.dart';
+import 'package:keep_sims/features/offline_recharge/controller/offline_voucher_controller.dart';
 import 'package:keep_sims/features/offline_recharge/model/offline_refill_model.dart';
+import 'package:keep_sims/features/offline_recharge/ui/emergency_pin_card.dart';
 import 'package:keep_sims/features/sim_lines/data/models/carrier_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
@@ -136,6 +138,13 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen>
     if (state == AppLifecycleState.resumed) {
       ref
           .read(pendingOfflineRefillsControllerProvider.notifier)
+          .refresh();
+      // A PIN revealed while offline is only in the keystore until something
+      // reports it. Resume is the first moment there may be signal again, so
+      // this is where the debt reaches the server — refresh() flushes the
+      // pending reveals before it re-reads state.
+      ref
+          .read(offlineVoucherStateControllerProvider.notifier)
           .refresh();
     }
   }
@@ -442,6 +451,17 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen>
                       ),
                     ),
                   ),
+                  // First, above the three message channels, and not by
+                  // accident: WhatsApp needs data, and SMS and a missed call
+                  // need the SIM to be able to originate traffic — which a
+                  // prepaid line that has run to zero usually cannot. A stored
+                  // recharge PIN is the only one of the four that works when
+                  // the line is barred, which is the case this screen is for.
+                  if (activeSim != null)
+                    EmergencyPinCard(
+                      simLineId: activeSim.id,
+                      phoneNumber: activeSim.phoneNumber,
+                    ),
                   for (final channel in channels) ...[
                     _buildChannelCard(
                       channel: channel,

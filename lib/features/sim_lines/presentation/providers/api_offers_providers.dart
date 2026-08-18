@@ -1,7 +1,9 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:collection/collection.dart';
 import 'package:keep_sims/features/sim_lines/data/repositories/sim_lines_repository_impl.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
+import 'package:keep_sims/features/sim_lines/domain/plan_payment.dart';
 
 part 'api_offers_providers.g.dart';
 
@@ -65,3 +67,43 @@ Future<List<Map<String, dynamic>>> offersForCarrier(
       .watch(simLinesRepositoryProvider)
       .fetchZenditOffers(countryId, carrierId);
 }
+
+class QuotedPlanPriceParams {
+  final String? simLineId;
+  final String plan;
+  final String gateway;
+  final String? carrierRuleId;
+
+  const QuotedPlanPriceParams({
+    this.simLineId,
+    this.plan = 'premium',
+    this.gateway = 'paypal',
+    this.carrierRuleId,
+  });
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is QuotedPlanPriceParams &&
+          runtimeType == other.runtimeType &&
+          simLineId == other.simLineId &&
+          plan == other.plan &&
+          gateway == other.gateway &&
+          carrierRuleId == other.carrierRuleId;
+
+  @override
+  int get hashCode =>
+      Object.hash(simLineId, plan, gateway, carrierRuleId);
+}
+
+/// Fetches the authoritative server-quoted plan price for a plan via `quote_plan_price` RPC.
+final quotedPlanPriceProvider =
+    FutureProvider.family<double?, QuotedPlanPriceParams>((ref, params) async {
+  return PlanPayment.fetchQuotedPlanPrice(
+    simLineId: params.simLineId,
+    plan: params.plan,
+    gateway: params.gateway,
+    carrierRuleId: params.carrierRuleId,
+  );
+});
+

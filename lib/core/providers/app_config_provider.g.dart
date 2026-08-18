@@ -237,6 +237,72 @@ final class PremiumMarginPerRefillUsdProvider
 String _$premiumMarginPerRefillUsdHash() =>
     r'812dec90ee252a2de078d94ce60bae8e35611c44';
 
+/// Whether geolocation is allowed to write each line's home/travel mode.
+///
+/// The derivation itself (`resolveLineMode`) is pure and always runs; this row
+/// decides whether the result is persisted. Off by default: turning it on
+/// un-pauses the protection of every line whose country the user is not in,
+/// which resumes schedules and makes those lines eligible for `run_auto_rescue`
+/// — a live money decision that belongs to the owner, not to a deploy.
+///
+/// `system_configs.GEO_LINE_MODE_SYNC_ENABLED`. A failed read means off, so a
+/// network blip cannot start writing modes.
+
+@ProviderFor(geoLineModeSyncEnabled)
+final geoLineModeSyncEnabledProvider = GeoLineModeSyncEnabledProvider._();
+
+/// Whether geolocation is allowed to write each line's home/travel mode.
+///
+/// The derivation itself (`resolveLineMode`) is pure and always runs; this row
+/// decides whether the result is persisted. Off by default: turning it on
+/// un-pauses the protection of every line whose country the user is not in,
+/// which resumes schedules and makes those lines eligible for `run_auto_rescue`
+/// — a live money decision that belongs to the owner, not to a deploy.
+///
+/// `system_configs.GEO_LINE_MODE_SYNC_ENABLED`. A failed read means off, so a
+/// network blip cannot start writing modes.
+
+final class GeoLineModeSyncEnabledProvider
+    extends $FunctionalProvider<AsyncValue<bool>, bool, FutureOr<bool>>
+    with $FutureModifier<bool>, $FutureProvider<bool> {
+  /// Whether geolocation is allowed to write each line's home/travel mode.
+  ///
+  /// The derivation itself (`resolveLineMode`) is pure and always runs; this row
+  /// decides whether the result is persisted. Off by default: turning it on
+  /// un-pauses the protection of every line whose country the user is not in,
+  /// which resumes schedules and makes those lines eligible for `run_auto_rescue`
+  /// — a live money decision that belongs to the owner, not to a deploy.
+  ///
+  /// `system_configs.GEO_LINE_MODE_SYNC_ENABLED`. A failed read means off, so a
+  /// network blip cannot start writing modes.
+  GeoLineModeSyncEnabledProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'geoLineModeSyncEnabledProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$geoLineModeSyncEnabledHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<bool> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<bool> create(Ref ref) {
+    return geoLineModeSyncEnabled(ref);
+  }
+}
+
+String _$geoLineModeSyncEnabledHash() =>
+    r'd116fe1f157df2d234b401f31b02a81d49dc2cd9';
+
 /// A contact number for the offline-recharge flow, from `system_configs`.
 ///
 /// These were hardcoded Oman numbers in `offline_refill_screen.dart` (C3c).

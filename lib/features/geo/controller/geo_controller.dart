@@ -1,9 +1,12 @@
 import 'dart:convert';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:keep_sims/core/providers/app_config_provider.dart';
 import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import 'package:keep_sims/features/notifications/presentation/controllers/notification_settings_controller.dart';
+import 'package:keep_sims/features/sim_lines/data/models/country_model.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
+import '../domain/line_mode_resolver.dart';
 import '../model/geo_state.dart';
 
 part 'geo_controller.g.dart';
@@ -71,7 +74,14 @@ class GeoController extends _$GeoController {
         final status = data['status'] as String?;
         final detectedIso = data['detected_country'] as String?;
 
-        if (detectedIso != null && detectedIso.isNotEmpty) {
+        // The function answers "US" when it cannot resolve the IP at all
+        // (loopback, private range, ipapi.co down). That is indistinguishable
+        // from a real US user unless it says so, and acting on it would flip
+        // every line's protection on a failed lookup — so a detection that did
+        // not resolve is treated as no detection.
+        final resolved = data['resolved'] as bool? ?? true;
+
+        if (detectedIso != null && detectedIso.isNotEmpty && resolved) {
           _detectedIso = detectedIso;
           _logs.add('📍 Location checked via IP: $detectedIso ($status)');
 
@@ -89,11 +99,68 @@ class GeoController extends _$GeoController {
             ref.invalidate(authControllerProvider);
           }
 
+          // Runs on every resolved detection, not only on `status == 'updated'`.
+          // 'noop' means the country matches what the profile already stored,
+          // and 'suppressed' means the flap guard silenced a *notification* —
+          // neither says anything about whether the lines agree. Keying the
+          // sync on 'updated' would leave a user who was already abroad when
+          // this shipped stuck in the wrong mode forever, which is exactly the
+          // state the Saudi line was found in.
+          await _syncLineModes(detectedIso);
+
           ref.invalidateSelf();
+        } else if (!resolved) {
+          _logs.add('📍 Location could not be resolved — modes left unchanged.');
         }
       }
     } catch (_) {
       // Silent no-op on network / location check failure
+    }
+  }
+
+  /// Brings every line's `is_home_mode` / `protection_paused` into line with
+  /// where the user actually is.
+  ///
+  /// This is the step the B3 code path documented and no code performed:
+  /// `detect-country` wrote `profiles.last_country` and posted a notification,
+  /// and nothing ever touched `sim_lines`. The only writers were two UI
+  /// switches, so a line kept whatever the user last tapped — a Saudi line sat
+  /// in Home Mode, protection paused, while its owner was in Oman.
+  Future<void> _syncLineModes(String detectedIso) async {
+    if (!(await ref.read(geoLineModeSyncEnabledProvider.future))) {
+      _logs.add('⏸️ Mode sync is off (GEO_LINE_MODE_SYNC_ENABLED).');
+      return;
+    }
+
+    final lines = ref.read(simLinesControllerProvider).value ?? [];
+    final countries = ref.read(supportedCountriesProvider).value ?? [];
+    if (lines.isEmpty || countries.isEmpty) return;
+
+    final isoByCountryId = {for (final c in countries) c.id: c.isoCode};
+    final notifier = ref.read(simLinesControllerProvider.notifier);
+
+    for (final line in lines) {
+      final decision = resolveLineMode(
+        detectedIso: detectedIso,
+        // A line with no country on file resolves to null and is skipped
+        // rather than guessed at.
+        lineCountryIso: isoByCountryId[line.countryId],
+        isHomeMode: line.isHomeMode,
+        protectionPaused: line.protectionPaused,
+        requiresProtectionAtHome: line.requiresProtectionAtHome,
+      );
+      if (decision == null) continue;
+
+      await notifier.applyGeoLineMode(
+        line.id,
+        isHome: decision.isHomeMode,
+        pauseProtection: decision.protectionPaused,
+      );
+      _logs.add(
+        decision.isHomeMode
+            ? '🏠 ${line.phoneNumber} → Home Mode (you are in its country).'
+            : '✈️ ${line.phoneNumber} → Travel Mode (protection running).',
+      );
     }
   }
 
@@ -111,22 +178,61 @@ class GeoController extends _$GeoController {
     ref.invalidateSelf();
   }
 
-  /// Performs bulk updates to freeze all international SIM lines (fixing cosmetic freeze).
+  /// The country the user is in right now, best-effort.
+  ///
+  /// Detection first, then the last country the server recorded. The profile's
+  /// home country is *not* a fallback: it answers "where does this user live",
+  /// which is a different question, and using it here is what made a Saudi line
+  /// look local to a user in Oman.
+  String? _currentIso() {
+    final detected = _detectedIso?.trim().toUpperCase();
+    if (detected != null && detected.length == 2) return detected;
+    final last = ref
+        .read(authControllerProvider)
+        .value
+        ?.lastCountry
+        ?.trim()
+        .toUpperCase();
+    if (last != null && last.length == 2) return last;
+    return null;
+  }
+
+  /// The line's country, or null when it has none on file — never a guess.
+  ///
+  /// The old `orElse` here returned *any* country that wasn't the user's home
+  /// one, so a line whose `country_id` didn't match the loaded list was read as
+  /// foreign and frozen on that basis alone.
+  String? _lineIso(List<Country> countries, String? countryId) {
+    if (countryId == null) return null;
+    for (final c in countries) {
+      if (c.id == countryId) return c.isoCode.trim().toUpperCase();
+    }
+    return null;
+  }
+
+  /// Freezes every line for a country the user is *not* in.
+  ///
+  /// "International" means away from the user's current location, not away from
+  /// `profiles.home_country_code` — an Omani line is local while the user is in
+  /// Oman, whatever their profile says.
   Future<void> freezeAllInternationalLines() async {
     final lines = ref.read(simLinesControllerProvider).value ?? [];
     final countries = ref.read(supportedCountriesProvider).value ?? [];
-    final homeCountryCode =
-        ref.read(authControllerProvider).value?.homeCountryCode ?? 'US';
+    final currentIso = _currentIso();
+
+    if (currentIso == null) {
+      _logs.add('⚠️ Freeze skipped: current country unknown.');
+      return;
+    }
 
     _logs.add('❄️ Freeze Request: Pausing all international lines...');
 
     for (final line in lines) {
-      final country = countries.firstWhere(
-        (c) => c.id == line.countryId,
-        orElse: () => countries.firstWhere(
-          (c) => c.isoCode != homeCountryCode,
-        ),
-      );
+      final lineIso = _lineIso(countries, line.countryId);
+      if (lineIso == null) {
+        _logs.add('❔ Skipped: Line ${line.phoneNumber} has no country on file.');
+        continue;
+      }
 
       // Lines flagged requiresProtectionAtHome must never be auto-frozen —
       // a resident's dormant second SIM dies if its refills stop (B5).
@@ -136,11 +242,11 @@ class GeoController extends _$GeoController {
         );
         continue;
       }
-      if (country.isoCode != homeCountryCode && line.status == 'active') {
+      if (lineIso != currentIso && line.status == 'active') {
         await ref
             .read(simLinesControllerProvider.notifier)
             .freezeLine(line.id, true);
-        _logs.add('⏸️ Frozen: Line ${line.phoneNumber} (${country.name}).');
+        _logs.add('⏸️ Frozen: Line ${line.phoneNumber} ($lineIso).');
       }
     }
 
@@ -153,21 +259,26 @@ class GeoController extends _$GeoController {
   Future<void> resumeAllInternationalLines() async {
     final lines = ref.read(simLinesControllerProvider).value ?? [];
     final countries = ref.read(supportedCountriesProvider).value ?? [];
-    final homeCountryCode =
-        ref.read(authControllerProvider).value?.homeCountryCode ?? 'US';
+    final currentIso = _currentIso();
+
+    if (currentIso == null) {
+      _logs.add('⚠️ Resume skipped: current country unknown.');
+      return;
+    }
 
     _logs.add('🔥 Resume Request: Reactivating international renewals...');
 
     for (final line in lines) {
-      final country = countries.firstWhere(
-        (c) => c.id == line.countryId,
-        orElse: () => countries.firstWhere((c) => c.isoCode != homeCountryCode),
-      );
-      if (country.isoCode != homeCountryCode && line.status == 'paused') {
+      final lineIso = _lineIso(countries, line.countryId);
+      if (lineIso == null) {
+        _logs.add('❔ Skipped: Line ${line.phoneNumber} has no country on file.');
+        continue;
+      }
+      if (lineIso != currentIso && line.status == 'paused') {
         await ref
             .read(simLinesControllerProvider.notifier)
             .freezeLine(line.id, false);
-        _logs.add('▶️ Resumed: Line ${line.phoneNumber} (${country.name}).');
+        _logs.add('▶️ Resumed: Line ${line.phoneNumber} ($lineIso).');
       }
     }
 

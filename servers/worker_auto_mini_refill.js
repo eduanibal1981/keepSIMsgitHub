@@ -1,4 +1,4 @@
-﻿require('dotenv').config({ path: require('path').join(__dirname, '.env') });
+require('dotenv').config({ path: require('path').join(__dirname, '.env') });
 const { createClient } = require('@supabase/supabase-js');
 const {
     createCatalogFetcher,
@@ -249,6 +249,25 @@ async function executeRefill(execution) {
                 }
 
                 purchaseResult.transactionId = pollRes.transactionId || purchaseResult.transactionId;
+            }
+
+            // If a digital PIN voucher was returned, notify the subscriber immediately
+            const pinPayload = (activeProvider === 'dtone') ? (purchaseResult.raw?.pin || null) : null;
+            if (pinPayload && pinPayload.code) {
+                const code = pinPayload.code;
+                const instructions = pinPayload.usage_info || `Dial *1400*${code}# on your device to apply airtime.`;
+                try {
+                    await supabase.from('notifications').insert({
+                        user_id: userId,
+                        category: 'system',
+                        title: 'Your Scheduled Recharge PIN is Ready',
+                        body: `Your refill PIN is ${code}. ${instructions}`,
+                        sim_line_id: execution.sim_line_id,
+                        action_url: `/sim-lines/${execution.sim_line_id}`
+                    });
+                } catch (notifErr) {
+                    console.warn(`[notif] Failed to create PIN notification: ${notifErr.message}`);
+                }
             }
 
             // Mark execution as success

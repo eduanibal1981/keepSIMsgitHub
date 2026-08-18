@@ -903,37 +903,46 @@ class _HouseholdScreenState extends ConsumerState<HouseholdScreen>
                   ),
                 ),
                 const SizedBox(height: 10),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Expanded(
-                      child: _roleCard(
-                        selected: selectedRole == 'viewer',
-                        color: _kBlue,
-                        icon: Icons.visibility_rounded,
-                        title: _l.householdRoleViewer,
-                        hint: _l.householdRoleViewerHint,
-                        onTap: () async {
-                          await HapticHelper.lightTick();
-                          setModalState(() => selectedRole = 'viewer');
-                        },
+                // The two cards have to end up the same height whichever one
+                // carries the longer hint, which is what `stretch` buys. But a
+                // dialog's content scrolls, so the Row is handed an unbounded
+                // height and `stretch` turns that into a tight infinite
+                // constraint — layout throws, the dialog gets no size, and the
+                // user is left staring at the barrier with nothing on it.
+                // IntrinsicHeight bounds the Row first.
+                IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(
+                        child: _roleCard(
+                          selected: selectedRole == 'viewer',
+                          color: _kBlue,
+                          icon: Icons.visibility_rounded,
+                          title: _l.householdRoleViewer,
+                          hint: _l.householdRoleViewerHint,
+                          onTap: () async {
+                            await HapticHelper.lightTick();
+                            setModalState(() => selectedRole = 'viewer');
+                          },
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: _roleCard(
-                        selected: selectedRole == 'manager',
-                        color: _kPurple,
-                        icon: Icons.manage_accounts_rounded,
-                        title: _l.householdRoleManager,
-                        hint: _l.householdRoleManagerHint,
-                        onTap: () async {
-                          await HapticHelper.lightTick();
-                          setModalState(() => selectedRole = 'manager');
-                        },
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: _roleCard(
+                          selected: selectedRole == 'manager',
+                          color: _kPurple,
+                          icon: Icons.manage_accounts_rounded,
+                          title: _l.householdRoleManager,
+                          hint: _l.householdRoleManagerHint,
+                          onTap: () async {
+                            await HapticHelper.lightTick();
+                            setModalState(() => selectedRole = 'manager');
+                          },
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
                 // Handing someone the manager role is the decision with money
                 // attached, so the consequence is stated at the moment of choice

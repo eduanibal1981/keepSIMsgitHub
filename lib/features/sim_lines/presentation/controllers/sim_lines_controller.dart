@@ -422,25 +422,35 @@ class SimLinesController extends _$SimLinesController {
     });
   }
 
-  Future<void> toggleHomeMode(String simLineId, bool isHome) async {
+  /// Writes a line's home/travel mode.
+  ///
+  /// Called by the geo sync, which owns this fact — see
+  /// `resolveLineMode`. Nothing in the UI writes it: a switch that claims the
+  /// user is in Saudi Arabia while they are in Oman is a lie the whole
+  /// protection model is then derived from.
+  Future<void> applyGeoLineMode(
+    String simLineId, {
+    required bool isHome,
+    required bool pauseProtection,
+  }) async {
     try {
       final repo = ref.read(simLinesRepositoryProvider);
       final previousList = state.value ?? [];
       final line = previousList.firstWhere((l) => l.id == simLineId);
 
       // Home mode is a location fact; pausing protection is a separate intent
-      // (B5). Lines flagged requiresProtectionAtHome keep their schedules
-      // running while home — e.g. a resident's dormant second SIM.
-      final bool pauseProtection = isHome && !line.requiresProtectionAtHome;
-
+      // (B5). `pauseProtection` already honours requiresProtectionAtHome —
+      // lines flagged that way keep their schedules running while home, e.g. a
+      // resident's dormant second SIM.
+      //
+      // `last_topup_at` is deliberately untouched. Entering travel mode used to
+      // stamp it with `DateTime.now()` — "treat as recent refill" — which
+      // fabricated a top-up that never happened, reset next_topup_due, and fed
+      // a fake 100 into calculate_health_score() through trg_update_line_health.
       SimLine updatedLine = line.copyWith(
         isHomeMode: isHome,
         protectionPaused: pauseProtection,
       );
-      if (!isHome) {
-        // Returning to abroad mode: treat as recent refill
-        updatedLine = updatedLine.copyWith(lastTopupAt: DateTime.now());
-      }
 
       updatedLine = await repo.updateSimLine(updatedLine);
 

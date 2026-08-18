@@ -215,6 +215,8 @@ function offerCacheRow(offer, countryCode, carrierCode, apiProvider = 'zendit', 
       : null,
     fx_usd_to_local: isConverted ? rates[costCcy].usdToLocal : null,
     fx_rate_as_of: isConverted ? rates[costCcy].rateAsOf : null,
+    delivery_type: offer.deliveryType || 'direct',
+    redeem_instructions: offer.redeemInstructions || null,
     refreshed_at: new Date().toISOString(),
   };
 }
