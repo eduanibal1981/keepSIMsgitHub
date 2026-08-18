@@ -43,16 +43,21 @@ class RefillPricing {
   }
 
   /// [appFeePercent] and [gatewayFeePercentage] are percentages (3 means 3%).
+  /// [minAppFeeUsd] establishes a minimum floor for the app fee (default $0.03).
   static RefillQuote quote({
     required double baseCostUsd,
     required double appFeePercent,
+    double minAppFeeUsd = 0.03,
     double gatewayFeePercentage = 0,
     double gatewayFeeFixed = 0,
   }) {
     final gatewayFee = round2(
       baseCostUsd * (gatewayFeePercentage / 100) + gatewayFeeFixed,
     );
-    final appFee = round2(baseCostUsd * (appFeePercent / 100));
+    final calcAppFee = round2(baseCostUsd * (appFeePercent / 100));
+    final appFee = (appFeePercent > 0 && calcAppFee < minAppFeeUsd)
+        ? minAppFeeUsd
+        : calcAppFee;
     return RefillQuote(
       gatewayFee: gatewayFee,
       appFee: appFee,

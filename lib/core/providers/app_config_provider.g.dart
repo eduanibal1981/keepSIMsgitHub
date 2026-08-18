@@ -76,6 +76,53 @@ final class AppFeePercentProvider
 
 String _$appFeePercentHash() => r'3ef7ad79cecd31c5a4db6b43b8c00e62d4672321';
 
+/// The minimum dollar floor for the app fee, read from `system_configs.MIN_APP_FEE_USD`.
+///
+/// Ensures micro-topups (under $1.00) retain a safe minimum profit margin floor
+/// ($0.03 by default) rather than fractions of a cent.
+
+@ProviderFor(minAppFeeUsd)
+final minAppFeeUsdProvider = MinAppFeeUsdProvider._();
+
+/// The minimum dollar floor for the app fee, read from `system_configs.MIN_APP_FEE_USD`.
+///
+/// Ensures micro-topups (under $1.00) retain a safe minimum profit margin floor
+/// ($0.03 by default) rather than fractions of a cent.
+
+final class MinAppFeeUsdProvider
+    extends $FunctionalProvider<AsyncValue<double>, double, FutureOr<double>>
+    with $FutureModifier<double>, $FutureProvider<double> {
+  /// The minimum dollar floor for the app fee, read from `system_configs.MIN_APP_FEE_USD`.
+  ///
+  /// Ensures micro-topups (under $1.00) retain a safe minimum profit margin floor
+  /// ($0.03 by default) rather than fractions of a cent.
+  MinAppFeeUsdProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'minAppFeeUsdProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$minAppFeeUsdHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<double> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<double> create(Ref ref) {
+    return minAppFeeUsd(ref);
+  }
+}
+
+String _$minAppFeeUsdHash() => r'7658ce853e8e05279dc62ac735d136a0e5e98aab';
+
 /// The yearly per-line service fee both paid tiers carry.
 ///
 /// Read from `system_configs.BASE_SERVICE_FEE_USD` (C3c) instead of the

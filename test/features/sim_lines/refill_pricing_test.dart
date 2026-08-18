@@ -63,6 +63,18 @@ void main() {
       expect(q.total, 8.65);
     });
 
+    test('enforces MIN_APP_FEE_USD floor (\$0.03) on micro-topups', () {
+      // Base cost 0.20: 3% of 0.20 is 0.006 (0.01 rounded).
+      // Floor lifts it to $0.03, resulting in total $0.23.
+      final q = RefillPricing.quote(
+        baseCostUsd: 0.20,
+        appFeePercent: 3,
+        minAppFeeUsd: 0.03,
+      );
+      expect(q.appFee, 0.03);
+      expect(q.total, 0.23);
+    });
+
     test('a zero app fee is honoured, not treated as unset', () {
       final q = RefillPricing.quote(baseCostUsd: 5.00, appFeePercent: 0);
       expect(q.appFee, 0.00);

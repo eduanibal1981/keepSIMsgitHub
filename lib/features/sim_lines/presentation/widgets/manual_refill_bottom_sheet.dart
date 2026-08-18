@@ -31,6 +31,8 @@ class _ManualRefillBottomSheetState
   Map<String, dynamic>? _selectedOffer;
   bool _isLoading = false;
   PaymentMethod? _selectedPaymentMethod;
+  String _categoryFilter = 'all';
+  String _sortBy = 'price_asc';
 
   final _amountController = TextEditingController();
   int? _rangeValue;
@@ -51,10 +53,14 @@ class _ManualRefillBottomSheetState
   double get _appFeePercent =>
       ref.watch(appFeePercentProvider).value ?? kDefaultAppFeePercent;
 
+  double get _minAppFeeUsd =>
+      ref.watch(minAppFeeUsdProvider).value ?? kDefaultMinAppFeeUsd;
+
   RefillQuote _quote(double baseCostUsd, PaymentMethod? pm) =>
       RefillPricing.quote(
         baseCostUsd: baseCostUsd,
         appFeePercent: _appFeePercent,
+        minAppFeeUsd: _minAppFeeUsd,
         gatewayFeePercentage: pm?.feePercentage ?? 0,
         gatewayFeeFixed: pm?.feeFixed ?? 0,
       );
@@ -448,11 +454,17 @@ class _ManualRefillBottomSheetState
               error: (_, _) => const SizedBox.shrink(),
             ),
             const SizedBox(height: 24),
-            Text(
-              'Select Refill Package',
-              style: AppTextStyles.labelLarge.copyWith(
-                color: AppColors.textPrimaryDark,
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Select Refill Package',
+                  style: AppTextStyles.labelLarge.copyWith(
+                    color: AppColors.textPrimaryDark,
+                  ),
+                ),
+                _buildSortMenu(),
+              ],
             ),
             const SizedBox(height: 12),
             if (widget.simLine.countryId == null ||
@@ -488,100 +500,91 @@ class _ManualRefillBottomSheetState
                       final rangeOfferIdx = offers.indexWhere(
                         (o) => o['priceType'] == 'RANGE',
                       );
-                      if (rangeOfferIdx != -1) {
-                        return _buildRangeUI(offers[rangeOfferIdx]);
-                      }
+                      final rangeOffer =
+                          rangeOfferIdx != -1 ? offers[rangeOfferIdx] : null;
+                      final fixedOffers = offers
+                          .where((o) => o['priceType'] != 'RANGE')
+                          .toList();
 
-                      return ConstrainedBox(
-                        constraints: BoxConstraints(
-                          maxHeight: MediaQuery.of(context).size.height * 0.4,
-                        ),
-                        child: ListView.separated(
-                          shrinkWrap: true,
-                          itemCount: offers.length,
-                          separatorBuilder: (_, _) => const SizedBox(height: 8),
-                          itemBuilder: (context, index) {
-                            final offer = offers[index];
-                            final isSelected =
-                                _selectedOffer?['offerId'] == offer['offerId'];
+                      final filteredOffers = fixedOffers.where((o) {
+                        if (_categoryFilter == 'all') return true;
+                        return o['serviceType'] == _categoryFilter;
+                      }).toList();
 
-                            final baseCost = (offer['baseCostUsd'] as num)
-                                .toDouble();
-                            final q = _quote(baseCost, _selectedPaymentMethod);
-                            final gatewayFee = q.gatewayFee;
-                            final appFee = q.appFee;
-                            final finalPrice = q.total;
+                      final sortedOffers = _sortOffers(filteredOffers);
 
-                            final name =
-                                offer['description'] ?? offer['offerId'];
+                      final showRangeUI = rangeOffer != null &&
+                          (_categoryFilter == 'all' ||
+                              _categoryFilter == 'airtime');
 
-                            return InkWell(
-                              onTap: () {
-                                setState(() => _selectedOffer = offer);
-                              },
-                              borderRadius: BorderRadius.circular(12),
-                              child: Container(
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color: isSelected
-                                      ? AppColors.primary.withValues(alpha: 0.1)
-                                      : AppColors.darkCard,
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                    color: isSelected
-                                        ? AppColors.primary
-                                        : AppColors.darkBorder,
-                                    width: isSelected ? 2 : 1,
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (fixedOffers.isNotEmpty)
+                            _buildFilterChips(fixedOffers),
+                          if (sortedOffers.isEmpty && !showRangeUI)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 20),
+                              child: Center(
+                                child: Text(
+                                  _categoryFilter == 'data'
+                                      ? 'No data bundles available for this carrier.'
+                                      : 'No airtime offers found in this category.',
+                                  style: const TextStyle(
+                                    color: AppColors.textSecondaryDark,
+                                    fontSize: 13,
                                   ),
                                 ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Expanded(
-                                          child: Text(
-                                            name,
-                                            style: AppTextStyles.labelLarge
-                                                .copyWith(
-                                                  color:
-                                                      AppColors.textPrimaryDark,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                          ),
-                                        ),
-                                        Text(
-                                          '\$${finalPrice.toStringAsFixed(2)}',
-                                          style: AppTextStyles.titleMedium
-                                              .copyWith(
-                                                color: AppColors.primaryLight,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 8),
-                                    // G11 — the all-in price in the user's own
-                                    // currency. It converts `finalPrice`, the
-                                    // charged total, and not the fee breakdown
-                                    // below: converting each component invites
-                                    // adding them up and finding they do not
-                                    // reconcile, because each is rounded.
-                                    ApproxLocalText(finalPrice),
-                                    Text(
-                                      'Base: \$${baseCost.toStringAsFixed(2)} | Fees: \$${gatewayFee.toStringAsFixed(2)} | App: \$${appFee.toStringAsFixed(2)}',
-                                      style: AppTextStyles.labelSmall.copyWith(
-                                        color: AppColors.textTertiaryDark,
-                                      ),
-                                    ),
-                                  ],
+                              ),
+                            )
+                          else ...[
+                            if (sortedOffers.isNotEmpty)
+                              ConstrainedBox(
+                                constraints: BoxConstraints(
+                                  maxHeight:
+                                      MediaQuery.of(context).size.height * 0.35,
+                                ),
+                                child: ListView.separated(
+                                  shrinkWrap: true,
+                                  itemCount: sortedOffers.length,
+                                  separatorBuilder: (_, _) =>
+                                      const SizedBox(height: 8),
+                                  itemBuilder: (context, index) {
+                                    final offer = sortedOffers[index];
+                                    final isSelected =
+                                        _selectedOffer?['offerId'] ==
+                                            offer['offerId'];
+
+                                    final baseCost =
+                                        (offer['baseCostUsd'] as num)
+                                            .toDouble();
+                                    final q = _quote(
+                                      baseCost,
+                                      _selectedPaymentMethod,
+                                    );
+                                    final gatewayFee = q.gatewayFee;
+                                    final appFee = q.appFee;
+                                    final finalPrice = q.total;
+
+                                    return _buildOfferCard(
+                                      offer: offer,
+                                      isSelected: isSelected,
+                                      baseCost: baseCost,
+                                      gatewayFee: gatewayFee,
+                                      appFee: appFee,
+                                      finalPrice: finalPrice,
+                                    );
+                                  },
                                 ),
                               ),
-                            );
-                          },
-                        ),
+                            if (showRangeUI)
+                              _buildRangeUI(
+                                rangeOffer,
+                                hasOtherOffers: sortedOffers.isNotEmpty,
+                              ),
+                          ],
+                        ],
                       );
                     },
                     loading: () => const Center(
@@ -653,11 +656,14 @@ class _ManualRefillBottomSheetState
     return 'Confirm \$${total.toStringAsFixed(2)} Refill';
   }
 
-  Widget _buildRangeUI(Map<String, dynamic> offer) {
-    if (_selectedOffer?['offerId'] != offer['offerId']) {
-      // Auto-select the range offer if we are showing it
+  Widget _buildRangeUI(
+    Map<String, dynamic> offer, {
+    bool hasOtherOffers = false,
+  }) {
+    if (!hasOtherOffers && _selectedOffer?['offerId'] != offer['offerId']) {
+      // Auto-select the range offer only if it is the only option available
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        setState(() => _selectedOffer = offer);
+        if (mounted) setState(() => _selectedOffer = offer);
       });
     }
 
@@ -668,12 +674,36 @@ class _ManualRefillBottomSheetState
         (offer['max'] as num? ?? 20000) /
         (offer['sendCurrencyDivisor'] as num? ?? 100);
     final currency = offer['send']?['currency'] ?? 'EGP';
+    final isRangeSelected =
+        _selectedOffer?['offerId'] == offer['offerId'] &&
+        _selectedOffer?['isRange'] == true;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (hasOtherOffers) ...[
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                const Expanded(child: Divider(color: AppColors.darkBorder)),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: Text(
+                    'OR CUSTOM AMOUNT',
+                    style: AppTextStyles.labelSmall.copyWith(
+                      color: AppColors.textTertiaryDark,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.1,
+                    ),
+                  ),
+                ),
+                const Expanded(child: Divider(color: AppColors.darkBorder)),
+              ],
+            ),
+            const SizedBox(height: 12),
+          ],
           Text(
             'Custom Amount ($currency)',
             style: AppTextStyles.labelLarge.copyWith(
@@ -689,14 +719,25 @@ class _ManualRefillBottomSheetState
               hintText: 'Enter amount (Min: $minLocal, Max: $maxLocal)',
               hintStyle: const TextStyle(color: Colors.grey),
               filled: true,
-              fillColor: AppColors.darkCard,
+              fillColor: isRangeSelected
+                  ? AppColors.primary.withValues(alpha: 0.08)
+                  : AppColors.darkCard,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: const BorderSide(color: AppColors.darkBorder),
               ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: isRangeSelected
+                      ? AppColors.primary
+                      : AppColors.darkBorder,
+                  width: isRangeSelected ? 1.5 : 1.0,
+                ),
+              ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.primary),
+                borderSide: const BorderSide(color: AppColors.primary, width: 2),
               ),
             ),
             onChanged: (value) {
@@ -723,12 +764,16 @@ class _ManualRefillBottomSheetState
                 );
 
                 setState(() {
+                  _selectedOffer = offer;
                   _rangeValue = intValue;
                   _rangeBaseCostUsd = baseCostUsd;
                 });
                 _calculateRangeFees();
               } else {
                 setState(() {
+                  if (_selectedOffer?['offerId'] == offer['offerId']) {
+                    _selectedOffer = null;
+                  }
                   _rangeValue = null;
                   _rangeFinalPriceUsd = 0.0;
                   _rangeBaseCostUsd = 0.0;
@@ -750,6 +795,400 @@ class _ManualRefillBottomSheetState
               ),
             ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildFilterChips(List<Map<String, dynamic>> allOffers) {
+    final hasAirtime = allOffers.any((o) => o['serviceType'] == 'airtime');
+    final hasData = allOffers.any((o) => o['serviceType'] == 'data');
+
+    if (!hasAirtime || !hasData) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            _buildChip('all', 'All Packages', Icons.grid_view_rounded),
+            const SizedBox(width: 8),
+            _buildChip('airtime', '⚡ Airtime / Keep-Alive', Icons.bolt_rounded),
+            const SizedBox(width: 8),
+            _buildChip('data', '🌐 Data Bundles', Icons.language_rounded),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildChip(String key, String label, IconData icon) {
+    final isSelected = _categoryFilter == key;
+    return InkWell(
+      onTap: () => setState(() => _categoryFilter = key),
+      borderRadius: BorderRadius.circular(20),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? AppColors.primary
+              : AppColors.darkCard,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? AppColors.primary : AppColors.darkBorder,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 14,
+              color: isSelected ? Colors.white : AppColors.textSecondaryDark,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                color: isSelected ? Colors.white : AppColors.textSecondaryDark,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _getSortLabel(String sortBy) {
+    switch (sortBy) {
+      case 'price_asc':
+        return 'Price: Low to High';
+      case 'price_desc':
+        return 'Price: High to Low';
+      case 'value_asc':
+        return 'Value: Low to High';
+      case 'value_desc':
+        return 'Value: High to Low';
+      default:
+        return 'Sort by';
+    }
+  }
+
+  double _extractOfferValue(Map<String, dynamic> offer) {
+    if (offer['dataMb'] != null && (offer['dataMb'] as num) > 0) {
+      return (offer['dataMb'] as num).toDouble();
+    }
+    final summary = (offer['benefitSummary'] ?? offer['description'] ?? '').toString();
+    final match = RegExp(r'(\d+(?:\.\d+)?)').firstMatch(summary);
+    if (match != null) {
+      return double.tryParse(match.group(1)!) ?? 0.0;
+    }
+    return (offer['baseCostUsd'] as num?)?.toDouble() ?? 0.0;
+  }
+
+  List<Map<String, dynamic>> _sortOffers(List<Map<String, dynamic>> list) {
+    final sorted = List<Map<String, dynamic>>.from(list);
+    switch (_sortBy) {
+      case 'price_asc':
+        sorted.sort((a, b) => ((a['baseCostUsd'] as num?) ?? 0)
+            .compareTo((b['baseCostUsd'] as num?) ?? 0));
+        break;
+      case 'price_desc':
+        sorted.sort((a, b) => ((b['baseCostUsd'] as num?) ?? 0)
+            .compareTo((a['baseCostUsd'] as num?) ?? 0));
+        break;
+      case 'value_asc':
+        sorted.sort((a, b) => _extractOfferValue(a).compareTo(_extractOfferValue(b)));
+        break;
+      case 'value_desc':
+        sorted.sort((a, b) => _extractOfferValue(b).compareTo(_extractOfferValue(a)));
+        break;
+    }
+    return sorted;
+  }
+
+  PopupMenuItem<String> _buildSortMenuItem(
+    String key,
+    String label,
+    IconData icon,
+  ) {
+    final isSelected = _sortBy == key;
+    return PopupMenuItem<String>(
+      value: key,
+      child: Row(
+        children: [
+          Icon(
+            icon,
+            size: 16,
+            color: isSelected ? AppColors.primary : AppColors.textSecondaryDark,
+          ),
+          const SizedBox(width: 8),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              color: isSelected ? AppColors.primary : AppColors.textPrimaryDark,
+            ),
+          ),
+          if (isSelected) ...[
+            const Spacer(),
+            const Icon(
+              Icons.check_rounded,
+              size: 16,
+              color: AppColors.primary,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSortMenu() {
+    return PopupMenuButton<String>(
+      initialValue: _sortBy,
+      tooltip: 'Sort Offers',
+      color: AppColors.darkCard,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: const BorderSide(color: AppColors.darkBorder),
+      ),
+      onSelected: (val) => setState(() => _sortBy = val),
+      itemBuilder: (context) => [
+        _buildSortMenuItem(
+          'price_asc',
+          'Price: Low to High',
+          Icons.arrow_upward_rounded,
+        ),
+        _buildSortMenuItem(
+          'price_desc',
+          'Price: High to Low',
+          Icons.arrow_downward_rounded,
+        ),
+        _buildSortMenuItem(
+          'value_asc',
+          'Value: Low to High',
+          Icons.swap_vert_rounded,
+        ),
+        _buildSortMenuItem(
+          'value_desc',
+          'Value: High to Low',
+          Icons.swap_vertical_circle_rounded,
+        ),
+      ],
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        decoration: BoxDecoration(
+          color: AppColors.darkCard,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: AppColors.darkBorder),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.sort_rounded,
+              size: 14,
+              color: AppColors.primary,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              _getSortLabel(_sortBy),
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textSecondaryDark,
+              ),
+            ),
+            const SizedBox(width: 4),
+            const Icon(
+              Icons.keyboard_arrow_down_rounded,
+              size: 14,
+              color: AppColors.textSecondaryDark,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOfferCard({
+    required Map<String, dynamic> offer,
+    required bool isSelected,
+    required double baseCost,
+    required double gatewayFee,
+    required double appFee,
+    required double finalPrice,
+  }) {
+    final isData = offer['serviceType'] == 'data';
+    final isPin = offer['deliveryType'] == 'pin';
+    final benefitSummary = (offer['benefitSummary'] as String?)?.isNotEmpty == true
+        ? offer['benefitSummary'] as String
+        : (offer['description'] ?? offer['offerId']);
+    final durationDays = offer['durationDays'] as int?;
+
+    return InkWell(
+      onTap: () {
+        setState(() {
+          _selectedOffer = offer;
+          _amountController.clear();
+          _rangeValue = null;
+          _rangeFinalPriceUsd = 0.0;
+          _rangeBaseCostUsd = 0.0;
+          _rangeGatewayFee = 0.0;
+          _rangeAppFee = 0.0;
+        });
+      },
+      borderRadius: BorderRadius.circular(14),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? AppColors.primary.withValues(alpha: 0.12)
+              : AppColors.darkCard,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: isSelected ? AppColors.primary : AppColors.darkBorder,
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Top Row: Benefit Title + Final USD Price
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        benefitSummary,
+                        style: AppTextStyles.titleMedium.copyWith(
+                          color: AppColors.textPrimaryDark,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      // Badges
+                      Wrap(
+                        spacing: 6,
+                        runSpacing: 4,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: (isData ? Colors.blue : Colors.amber)
+                                  .withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(
+                                color: (isData ? Colors.blue : Colors.amber)
+                                    .withValues(alpha: 0.3),
+                              ),
+                            ),
+                            child: Text(
+                              isData ? 'DATA BUNDLE' : 'AIRTIME CREDIT',
+                              style: TextStyle(
+                                fontSize: 9,
+                                fontWeight: FontWeight.bold,
+                                color: isData
+                                    ? Colors.lightBlueAccent
+                                    : Colors.amberAccent,
+                              ),
+                            ),
+                          ),
+                          if (isPin)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.orange.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(
+                                  color: Colors.orange.withValues(alpha: 0.3),
+                                ),
+                              ),
+                              child: const Text(
+                                'DIGITAL PIN',
+                                style: TextStyle(
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.orangeAccent,
+                                ),
+                              ),
+                            ),
+                          if (durationDays != null)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.green.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(
+                                  color: Colors.green.withValues(alpha: 0.3),
+                                ),
+                              ),
+                              child: Text(
+                                '${durationDays >= 30 ? (durationDays ~/ 30) : durationDays} ${durationDays >= 30 ? (durationDays >= 60 ? "MONTHS" : "MONTH") : "DAYS"}',
+                                style: const TextStyle(
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.lightGreenAccent,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      '\$${finalPrice.toStringAsFixed(2)}',
+                      style: AppTextStyles.titleLarge.copyWith(
+                        color: AppColors.primaryLight,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      'USD',
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppColors.textTertiaryDark,
+                        fontSize: 10,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            ApproxLocalText(finalPrice),
+            const SizedBox(height: 2),
+            Text(
+              'Base: \$${baseCost.toStringAsFixed(2)} | Fees: \$${gatewayFee.toStringAsFixed(2)} | App: \$${appFee.toStringAsFixed(2)}',
+              style: AppTextStyles.labelSmall.copyWith(
+                color: AppColors.textTertiaryDark,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

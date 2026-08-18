@@ -10,6 +10,9 @@ part 'app_config_provider.g.dart';
 /// (or absent) for the trigger too, and they land on the same answer.
 const double kDefaultAppFeePercent = 3.0;
 
+/// Fallback minimum app fee floor, matching `calculate_topup_fees`.
+const double kDefaultMinAppFeeUsd = 0.03;
+
 /// The KeepSIMs service fee, as a percentage of a refill's base cost.
 ///
 /// Read from `system_configs.APP_FEE_PERCENT` instead of a constant so the
@@ -39,6 +42,29 @@ Future<double> appFeePercent(Ref ref) async {
     return parsed;
   } catch (_) {
     return kDefaultAppFeePercent;
+  }
+}
+
+/// The minimum dollar floor for the app fee, read from `system_configs.MIN_APP_FEE_USD`.
+///
+/// Ensures micro-topups (under $1.00) retain a safe minimum profit margin floor
+/// ($0.03 by default) rather than fractions of a cent.
+@Riverpod(keepAlive: true)
+Future<double> minAppFeeUsd(Ref ref) async {
+  try {
+    final row = await Supabase.instance.client
+        .from('system_configs')
+        .select('config_value')
+        .eq('config_key', 'MIN_APP_FEE_USD')
+        .maybeSingle();
+
+    final parsed = double.tryParse(row?['config_value']?.toString() ?? '');
+    if (parsed == null || parsed < 0 || parsed > 100) {
+      return kDefaultMinAppFeeUsd;
+    }
+    return parsed;
+  } catch (_) {
+    return kDefaultMinAppFeeUsd;
   }
 }
 

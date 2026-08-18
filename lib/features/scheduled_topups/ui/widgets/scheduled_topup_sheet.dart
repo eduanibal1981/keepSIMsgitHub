@@ -565,91 +565,128 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                       );
                     }
                     
-                    final rangeOfferIdx = offers.indexWhere((o) => o['priceType'] == 'RANGE');
-                    if (rangeOfferIdx != -1) {
-                      return _buildRangeUI(offers[rangeOfferIdx]);
-                    }
+                    final rangeOfferIdx =
+                        offers.indexWhere((o) => o['priceType'] == 'RANGE');
+                    final rangeOffer =
+                        rangeOfferIdx != -1 ? offers[rangeOfferIdx] : null;
+                    final fixedOffers = offers
+                        .where((o) => o['priceType'] != 'RANGE')
+                        .toList();
 
                     _maybeApplySuggestedOffer(
-                      offers,
+                      fixedOffers.isNotEmpty ? fixedOffers : offers,
                       forecast?.suggestedOfferId,
                       isEditMode: isEditMode,
                     );
 
-                    return ConstrainedBox(
-                      constraints: BoxConstraints(
-                        maxHeight: MediaQuery.of(context).size.height * 0.4,
-                      ),
-                      child: ListView.separated(
-                        shrinkWrap: true,
-                        itemCount: offers.length,
-                        separatorBuilder: (_, _) => const SizedBox(height: 8),
-                        itemBuilder: (context, index) {
-                          final offer = offers[index];
-                          final isSelected = _selectedOffer?['offerId'] == offer['offerId'];
-                          
-                          final baseCost = (offer['baseCostUsd'] as num).toDouble();
-                          final q = _quote(baseCost);
-                          final appFee = q.appFee;
-                          final finalPrice = q.total;
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (fixedOffers.isNotEmpty)
+                          ConstrainedBox(
+                            constraints: BoxConstraints(
+                              maxHeight:
+                                  MediaQuery.of(context).size.height * 0.35,
+                            ),
+                            child: ListView.separated(
+                              shrinkWrap: true,
+                              itemCount: fixedOffers.length,
+                              separatorBuilder: (_, _) =>
+                                  const SizedBox(height: 8),
+                              itemBuilder: (context, index) {
+                                final offer = fixedOffers[index];
+                                final isSelected =
+                                    _selectedOffer?['offerId'] ==
+                                        offer['offerId'];
 
-                          final name = offer['description'] ?? offer['offerId'];
+                                final baseCost =
+                                    (offer['baseCostUsd'] as num).toDouble();
+                                final q = _quote(baseCost);
+                                final appFee = q.appFee;
+                                final finalPrice = q.total;
 
-                          return InkWell(
-                            onTap: () {
-                              setState(() {
-                                _selectedOffer = offer;
-                                _amount = finalPrice;
-                              });
-                            },
-                            borderRadius: BorderRadius.circular(12),
-                            child: Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: isSelected ? AppColors.primary.withValues(alpha: 0.1) : AppColors.darkCard,
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: isSelected ? AppColors.primary : AppColors.darkBorder,
-                                  width: isSelected ? 2 : 1,
-                                ),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          name,
-                                          style: AppTextStyles.labelLarge.copyWith(
-                                            color: AppColors.textPrimaryDark,
-                                            fontWeight: FontWeight.bold,
+                                final name =
+                                    offer['description'] ?? offer['offerId'];
+
+                                return InkWell(
+                                  onTap: () {
+                                    setState(() {
+                                      _selectedOffer = offer;
+                                      _amount = finalPrice;
+                                      _amountController.clear();
+                                      _rangeValue = null;
+                                      _rangeFinalPriceUsd = 0.0;
+                                      _rangeBaseCostUsd = 0.0;
+                                      _rangeAppFee = 0.0;
+                                    });
+                                  },
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Container(
+                                    padding: const EdgeInsets.all(16),
+                                    decoration: BoxDecoration(
+                                      color: isSelected
+                                          ? AppColors.primary
+                                              .withValues(alpha: 0.1)
+                                          : AppColors.darkCard,
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color: isSelected
+                                            ? AppColors.primary
+                                            : AppColors.darkBorder,
+                                        width: isSelected ? 2 : 1,
+                                      ),
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                name,
+                                                style: AppTextStyles.labelLarge
+                                                    .copyWith(
+                                                  color:
+                                                      AppColors.textPrimaryDark,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                            Text(
+                                              '\$${finalPrice.toStringAsFixed(2)}',
+                                              style: AppTextStyles.titleMedium
+                                                  .copyWith(
+                                                color: AppColors.primaryLight,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          'Base: \$${baseCost.toStringAsFixed(2)} | App: \$${appFee.toStringAsFixed(2)}',
+                                          style: AppTextStyles.labelSmall
+                                              .copyWith(
+                                            color: AppColors.textTertiaryDark,
                                           ),
                                         ),
-                                      ),
-                                      Text(
-                                        '\$${finalPrice.toStringAsFixed(2)}',
-                                        style: AppTextStyles.titleMedium.copyWith(
-                                          color: AppColors.primaryLight,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    'Base: \$${baseCost.toStringAsFixed(2)} | App: \$${appFee.toStringAsFixed(2)}',
-                                    style: AppTextStyles.labelSmall.copyWith(
-                                      color: AppColors.textTertiaryDark,
+                                      ],
                                     ),
                                   ),
-                                ],
-                              ),
+                                );
+                              },
                             ),
-                          );
-                        },
-                      ),
+                          ),
+                        if (rangeOffer != null)
+                          _buildRangeUI(
+                            rangeOffer,
+                            hasOtherOffers: fixedOffers.isNotEmpty,
+                          ),
+                      ],
                     );
                   },
                   loading: () => const Center(
@@ -1163,10 +1200,16 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
   double get _appFeePercent =>
       ref.watch(appFeePercentProvider).value ?? kDefaultAppFeePercent;
 
+  double get _minAppFeeUsd =>
+      ref.watch(minAppFeeUsdProvider).value ?? kDefaultMinAppFeeUsd;
+
   /// Auto-refill is funded from the wallet, which is a 0% / $0.00 gateway in
   /// payment_gateways — so there is no gateway fee to add here, only the app fee.
-  RefillQuote _quote(double baseCostUsd) =>
-      RefillPricing.quote(baseCostUsd: baseCostUsd, appFeePercent: _appFeePercent);
+  RefillQuote _quote(double baseCostUsd) => RefillPricing.quote(
+        baseCostUsd: baseCostUsd,
+        appFeePercent: _appFeePercent,
+        minAppFeeUsd: _minAppFeeUsd,
+      );
 
   void _calculateRangeFees() {
     if (_rangeValue != null) {
@@ -1179,22 +1222,44 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
     }
   }
 
-  Widget _buildRangeUI(Map<String, dynamic> offer) {
-    if (_selectedOffer?['offerId'] != offer['offerId']) {
+  Widget _buildRangeUI(Map<String, dynamic> offer, {bool hasOtherOffers = false}) {
+    if (!hasOtherOffers && _selectedOffer?['offerId'] != offer['offerId']) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        setState(() => _selectedOffer = offer);
+        if (mounted) setState(() => _selectedOffer = offer);
       });
     }
 
     final minLocal = (offer['min'] as num? ?? 800) / (offer['sendCurrencyDivisor'] as num? ?? 100);
     final maxLocal = (offer['max'] as num? ?? 20000) / (offer['sendCurrencyDivisor'] as num? ?? 100);
     final currency = offer['send']?['currency'] ?? 'EGP';
+    final isRangeSelected = _selectedOffer?['offerId'] == offer['offerId'] && _selectedOffer?['priceType'] == 'RANGE';
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (hasOtherOffers) ...[
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                const Expanded(child: Divider(color: AppColors.darkBorder)),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: Text(
+                    'OR CUSTOM AMOUNT',
+                    style: AppTextStyles.labelSmall.copyWith(
+                      color: AppColors.textTertiaryDark,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.1,
+                    ),
+                  ),
+                ),
+                const Expanded(child: Divider(color: AppColors.darkBorder)),
+              ],
+            ),
+            const SizedBox(height: 12),
+          ],
           Text(
             'Custom Amount ($currency)',
             style: AppTextStyles.labelLarge.copyWith(color: AppColors.textPrimaryDark),
@@ -1208,14 +1273,21 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
               hintText: 'Enter amount (Min: $minLocal, Max: $maxLocal)',
               hintStyle: const TextStyle(color: Colors.grey),
               filled: true,
-              fillColor: AppColors.darkCard,
+              fillColor: isRangeSelected ? AppColors.primary.withValues(alpha: 0.08) : AppColors.darkCard,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: const BorderSide(color: AppColors.darkBorder),
               ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: isRangeSelected ? AppColors.primary : AppColors.darkBorder,
+                  width: isRangeSelected ? 1.5 : 1.0,
+                ),
+              ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.primary),
+                borderSide: const BorderSide(color: AppColors.primary, width: 2),
               ),
             ),
             onChanged: (value) {
@@ -1228,12 +1300,16 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                 final baseCostUsd = doubleVal / fxRate;
 
                 setState(() {
+                  _selectedOffer = offer;
                   _rangeValue = intValue;
                   _rangeBaseCostUsd = baseCostUsd;
                 });
                 _calculateRangeFees();
               } else {
                 setState(() {
+                  if (_selectedOffer?['offerId'] == offer['offerId']) {
+                    _selectedOffer = null;
+                  }
                   _rangeValue = null;
                   _rangeFinalPriceUsd = 0.0;
                   _rangeBaseCostUsd = 0.0;
