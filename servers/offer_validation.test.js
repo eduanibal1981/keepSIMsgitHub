@@ -153,8 +153,8 @@ test('resolveVerifiedOffer falls back to a RANGE offer when no FIXED price match
 
 test('resolveVerifiedOffer throws when nothing in the catalog matches the price', () => {
   assert.throws(
-    () => resolveVerifiedOffer({ ...ctx, offerId: null, offerValue: null, chargedUsd: 999 }),
-    /No matching Zendit offer found/);
+    () => resolveVerifiedOffer({ topups: catalog, chargedUsd: 999, countryCode: 'EG', zenCarrier: 'Etisalat' }),
+    /No matching offer found/);
 });
 
 test('createCatalogFetcher caches per country+brand and refetches after the TTL', async () => {
@@ -345,3 +345,51 @@ test('convertToUsd divides by usd_to_local and leaves USD alone', () => {
   assert.strictEqual(convertToUsd(10, 'USD', {}), 10);
   assert.strictEqual(Number(convertToUsd(0.3845, 'OMR', OMR_RATES).toFixed(6)), 1);
 });
+
+test('zenditProvider purchase formats range value as { type: "ZEND", value } object', async () => {
+  const zenditProvider = require('./providers/zendit');
+  let capturedBody = null;
+  const mockFetch = async (url, opts) => {
+    capturedBody = JSON.parse(opts.body);
+    return {
+      ok: true,
+      json: async () => ({ transactionId: 'z_test', status: 'ACCEPTED' })
+    };
+  };
+
+  const res = await zenditProvider.purchase({
+    baseUrl: 'https://mock.zendit.io',
+    apiSecret: 'test_sec',
+    execution: { id: 'test_1' },
+    recipientPhone: '+201095351020',
+    offerId: 'VODAFONE_EG_OPEN',
+    offerValue: 800,
+    externalId: 'z_test_1',
+    fetchImpl: mockFetch
+  });
+
+  assert.strictEqual(res.status, 'ACCEPTED');
+  assert.deepStrictEqual(capturedBody.value, { type: 'ZEND', value: 800 });
+});
+
+test('zenditProvider pollStatus accepts DONE as a successful terminal status', async () => {
+  const zenditProvider = require('./providers/zendit');
+  const mockFetch = async () => ({
+    ok: true,
+    json: async () => ({ transactionId: 'z_test_2', status: 'DONE' })
+  });
+
+  const pollRes = await zenditProvider.pollStatus({
+    baseUrl: 'https://mock.zendit.io',
+    apiSecret: 'test_sec',
+    transactionId: 'z_test_2',
+    maxPolls: 2,
+    pollDelayMs: 5,
+    fetchImpl: mockFetch
+  });
+
+  assert.strictEqual(pollRes.isSuccess, true);
+  assert.strictEqual(pollRes.isFailed, false);
+  assert.strictEqual(pollRes.status, 'DONE');
+});
+

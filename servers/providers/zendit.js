@@ -29,7 +29,9 @@ async function purchase({ baseUrl = zenditBaseUrl, apiSecret, execution, recipie
     offerId,
   };
   if (offerValue != null) {
-    purchaseBody.value = offerValue;
+    purchaseBody.value = (typeof offerValue === 'object' && offerValue !== null)
+      ? offerValue
+      : { type: 'ZEND', value: Math.round(Number(offerValue)) };
   }
 
   const purchaseResponse = await fetchImpl(`${baseUrl}/topups/purchases`, {
@@ -89,8 +91,8 @@ async function pollStatus({ baseUrl = zenditBaseUrl, apiSecret, transactionId, m
     pollCount++;
   }
 
-  const isSuccess = ['SUCCESS', 'COMPLETED'].includes(currentStatus);
-  const isFailed = ['FAILED', 'DECLINED'].includes(currentStatus);
+  const isSuccess = ['SUCCESS', 'COMPLETED', 'DONE'].includes(currentStatus);
+  const isFailed = ['FAILED', 'DECLINED', 'REJECTED', 'CANCELLED'].includes(currentStatus);
 
   return {
     status: currentStatus,

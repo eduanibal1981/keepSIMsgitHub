@@ -89,6 +89,8 @@ function normalizeDtoneProduct(p, countryCode, carrierCode) {
 
   const instructions = p.pin?.usage_info || p.pin_usage_info || (isPin ? (p.description || null) : null);
 
+  const meta = extractDtoneMetadata(p, p.name || p.description, sendMin || sendMax, sendCurrency);
+
   return {
     offerId: String(p.id),
     name: p.name || p.description || `Product ${p.id}`,
@@ -96,6 +98,10 @@ function normalizeDtoneProduct(p, countryCode, carrierCode) {
     priceType,
     deliveryType,
     redeemInstructions: instructions,
+    serviceType: meta.serviceType,
+    benefitSummary: meta.benefitSummary,
+    dataMb: meta.dataMb,
+    durationDays: meta.durationDays,
     enabled: true,
     price: {
       fixed: fixedUsd != null ? Math.round(fixedUsd * 100) : null,
@@ -113,6 +119,80 @@ function normalizeDtoneProduct(p, countryCode, carrierCode) {
     },
     dtoneRaw: p
   };
+}
+
+function extractDtoneMetadata(p, name, sendAmount, sendCurrency) {
+  let serviceType = 'airtime';
+  let dataMb = null;
+  let durationDays = null;
+
+  const rawSub = String(p.service?.subservice?.name || p.subservice || '').toLowerCase();
+  const rawService = String(p.service?.name || p.service || '').toLowerCase();
+  const rawName = String(p.name || '').toLowerCase();
+  const rawDesc = String(p.description || '').toLowerCase();
+
+  // 1. Check Data vs Airtime vs Bundle
+  if (rawSub === 'data' || rawService === 'data' || rawName.includes('gb') || rawDesc.includes('gb') || rawName.includes('data')) {
+    serviceType = 'data';
+  } else if (rawSub === 'bundle' || rawName.includes('bundle') || rawName.includes('min')) {
+    serviceType = 'bundle';
+  }
+
+  // 2. Extract Data MB from benefits or text
+  if (Array.isArray(p.benefits)) {
+    const dataBenefit = p.benefits.find(b => String(b.type || '').toUpperCase() === 'DATA');
+    if (dataBenefit && dataBenefit.amount) {
+      const unit = String(dataBenefit.unit || 'MB').toUpperCase();
+      dataMb = unit === 'GB' ? Math.round(dataBenefit.amount * 1024) : Math.round(dataBenefit.amount);
+    }
+  }
+  if (dataMb == null) {
+    const gbMatch = (p.name + ' ' + (p.description || '')).match(/(\d+(?:\.\d+)?)\s*(?:GB|G)\b/i);
+    if (gbMatch) {
+      dataMb = Math.round(parseFloat(gbMatch[1]) * 1024);
+    } else {
+      const mbMatch = (p.name + ' ' + (p.description || '')).match(/(\d+)\s*MB\b/i);
+      if (mbMatch) dataMb = parseInt(mbMatch[1], 10);
+    }
+  }
+
+  // 3. Extract Duration Days from validity or text
+  if (p.validity?.quantity && p.validity?.unit) {
+    const vUnit = String(p.validity.unit).toUpperCase();
+    const qty = parseInt(p.validity.quantity, 10) || 1;
+    if (vUnit.includes('MONTH')) durationDays = qty * 30;
+    else if (vUnit.includes('DAY')) durationDays = qty;
+    else if (vUnit.includes('YEAR')) durationDays = qty * 365;
+  }
+  if (durationDays == null) {
+    const monthMatch = (p.name + ' ' + (p.description || '')).match(/(\d+)\s*(?:Month|Months|M)\b/i);
+    if (monthMatch) {
+      durationDays = parseInt(monthMatch[1], 10) * 30;
+    } else {
+      const dayMatch = (p.name + ' ' + (p.description || '')).match(/(\d+)\s*(?:Day|Days|D)\b/i);
+      if (dayMatch) durationDays = parseInt(dayMatch[1], 10);
+    }
+  }
+
+  // 4. Construct human-friendly benefitSummary
+  let benefitSummary = p.description || p.name;
+  if (serviceType === 'data') {
+    const gb = dataMb ? (dataMb >= 1024 ? `${dataMb / 1024} GB` : `${dataMb} MB`) : null;
+    const dur = durationDays ? (durationDays >= 30 ? `${Math.round(durationDays / 30)} Month${durationDays >= 60 ? 's' : ''}` : `${durationDays} Days`) : null;
+    if (gb && dur) {
+      benefitSummary = `${gb} Data • ${dur}`;
+    } else if (gb) {
+      benefitSummary = `${gb} Data Bundle`;
+    }
+  } else if (serviceType === 'airtime') {
+    if (sendAmount && sendCurrency) {
+      benefitSummary = `${sendAmount} ${sendCurrency} Airtime Balance`;
+    } else {
+      benefitSummary = `${name} Airtime Balance`;
+    }
+  }
+
+  return { serviceType, benefitSummary, dataMb, durationDays };
 }
 
 /// A product we can use to top up or maintain a line.
@@ -303,7 +383,12 @@ async function pollStatus({ baseUrl = dtoneBaseUrl, apiKey, apiSecret, transacti
   }
 
   const isSuccess = ['COMPLETED', 'COMPLETED_LOGICALLY', 'SUCCESS'].includes(currentStatus);
-  const isFailed = ['CANCELLED', 'REJECTED', 'DECLINED', 'FAILED'].includes(currentStatus);
+  const isFailed = ['CANCELLED', 'REJECTED', 'DECLINED', 'FAILED'].includes(currentStatus) || String(currentStatus).startsWith('DECLINED');
+
+  const errorDetails = (Array.isArray(txData?.errors) ? txData.errors.map(e => e.message || e.code).join('; ') : null)
+    || txData?.status?.message
+    || txData?.status?.name
+    || (isFailed ? `DTone transaction failed with status: ${currentStatus}` : null);
 
   return {
     status: currentStatus,
@@ -313,7 +398,7 @@ async function pollStatus({ baseUrl = dtoneBaseUrl, apiKey, apiSecret, transacti
     // caller must NOT treat this as delivered.
     isIndeterminate: !isSuccess && !isFailed,
     errorMsg: isFailed
-      ? (txData?.status?.message || `DTone transaction failed with status: ${currentStatus}`)
+      ? errorDetails
       : (isSuccess ? null : `DTone gave no final status after ${pollCount} polls (last: ${currentStatus}${lastError ? `; ${lastError}` : ''})`),
     transactionId: idToPoll,
     raw: txData

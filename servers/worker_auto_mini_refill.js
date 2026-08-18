@@ -1,10 +1,11 @@
-require('dotenv').config({ path: require('path').join(__dirname, '.env') });
+﻿require('dotenv').config({ path: require('path').join(__dirname, '.env') });
 const { createClient } = require('@supabase/supabase-js');
 const {
     createCatalogFetcher,
     resolveVerifiedOffer,
     chargedOfferPriceUsd,
-    alertOfferTampering
+    alertOfferTampering,
+    loadFxRates
 } = require('./offer_validation');
 
 const zenditProvider = require('./providers/zendit');
@@ -162,6 +163,7 @@ async function executeRefill(execution) {
             topups = await fetchZenditCatalog(countryCode, carrierCode);
         }
 
+        const rates = await loadFxRates(supabase);
         let offerId = execution.offer_id;
         let offerValue = execution.offer_value != null ? parseFloat(execution.offer_value) : null;
         try {
@@ -171,7 +173,8 @@ async function executeRefill(execution) {
                 offerValue,
                 chargedUsd,
                 countryCode,
-                zenCarrier: carrierCode
+                zenCarrier: carrierCode,
+                rates
             });
             offerId = resolved.offerId;
             offerValue = resolved.offerValue;
@@ -185,6 +188,7 @@ async function executeRefill(execution) {
         if (gateway === 'API') {
             let purchaseResult;
             let externalId;
+            let pollRes = null;
 
             if (activeProvider === 'dtone') {
                 externalId = `dt_${execution.id}`;
@@ -200,7 +204,7 @@ async function executeRefill(execution) {
                     externalId
                 });
 
-                const pollRes = await dtoneProvider.pollStatus({
+                pollRes = await dtoneProvider.pollStatus({
                     baseUrl: dtoneBaseUrl,
                     apiKey: dtoneApiKey,
                     apiSecret: dtoneApiSecret,
@@ -232,7 +236,7 @@ async function executeRefill(execution) {
                     externalId
                 });
 
-                const pollRes = await zenditProvider.pollStatus({
+                pollRes = await zenditProvider.pollStatus({
                     baseUrl: zenditBaseUrl,
                     apiSecret: zenditApiSecret,
                     transactionId: purchaseResult.transactionId
@@ -252,16 +256,23 @@ async function executeRefill(execution) {
             }
 
             // If a digital PIN voucher was returned, notify the subscriber immediately
-            const pinPayload = (activeProvider === 'dtone') ? (purchaseResult.raw?.pin || null) : null;
+            const pinPayload = (activeProvider === 'dtone')
+                ? (pollRes?.raw?.pin || purchaseResult?.raw?.pin || (Array.isArray(pollRes?.raw) ? pollRes.raw[0]?.pin : null) || null)
+                : null;
+            let pinCode = null;
+            let pinSerial = null;
+            let pinInstructions = null;
+
             if (pinPayload && pinPayload.code) {
-                const code = pinPayload.code;
-                const instructions = pinPayload.usage_info || `Dial *1400*${code}# on your device to apply airtime.`;
+                pinCode = String(pinPayload.code);
+                pinSerial = pinPayload.serial ? String(pinPayload.serial) : null;
+                pinInstructions = pinPayload.usage_info || `Dial *1400*${pinCode}# on your device to apply airtime.`;
                 try {
                     await supabase.from('notifications').insert({
                         user_id: userId,
                         category: 'system',
                         title: 'Your Scheduled Recharge PIN is Ready',
-                        body: `Your refill PIN is ${code}. ${instructions}`,
+                        body: `Your refill PIN is ${pinCode}. ${pinInstructions}`,
                         sim_line_id: execution.sim_line_id,
                         action_url: `/sim-lines/${execution.sim_line_id}`
                     });
@@ -275,7 +286,10 @@ async function executeRefill(execution) {
                 .rpc('update_execution_status', {
                     p_id: execution.id,
                     p_status: 'success',
-                    p_reloadly_transaction_id: purchaseResult.transactionId || externalId
+                    p_reloadly_transaction_id: purchaseResult.transactionId || externalId,
+                    p_pin_code: pinCode,
+                    p_pin_serial: pinSerial,
+                    p_redeem_instructions: pinInstructions
                 });
 
             if (updateError) {

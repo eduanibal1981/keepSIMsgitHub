@@ -11,23 +11,31 @@ const reloadlyProvider = require('./providers/reloadly');
 const OFFER_PRICE_TOLERANCE_USD = 0.01;
 const OFFER_VALUE_TOLERANCE_RATIO = 0.05; // 5% ratio allowance on interpolated send value rounding
 
-function offerPriceUsd(offer) {
+function offerPriceUsd(offer, rates = null) {
   const divisor = offer.price?.currencyDivisor || 100;
   const priceType = offer.priceType || (offer.price?.fixed != null ? 'FIXED' : (offer.price?.min != null ? 'RANGE' : null));
+  const costCcy = String(offer.price?.currency || 'USD').toUpperCase();
+
   if (priceType === 'FIXED') {
-    return { fixed: (offer.price?.fixed || 0) / divisor };
+    const raw = (offer.price?.fixed || 0) / divisor;
+    const val = rates ? convertToUsd(raw, costCcy, rates) : raw;
+    return { fixed: val };
   }
   if (priceType === 'RANGE') {
+    const rawMin = (offer.price?.min || 0) / divisor;
+    const rawMax = (offer.price?.max || 0) / divisor;
+    const minVal = rates ? convertToUsd(rawMin, costCcy, rates) : rawMin;
+    const maxVal = rates ? convertToUsd(rawMax, costCcy, rates) : rawMax;
     return {
-      min: (offer.price?.min || 0) / divisor,
-      max: (offer.price?.max || 0) / divisor,
+      min: minVal,
+      max: maxVal,
     };
   }
   throw new Error(`Unsupported priceType '${offer.priceType}' in offer.`);
 }
 
-function interpolateSendValue(offer, chargedUsd) {
-  const price = offerPriceUsd(offer);
+function interpolateSendValue(offer, chargedUsd, rates = null) {
+  const price = offerPriceUsd(offer, rates);
   const priceRange = price.max - price.min;
   if (priceRange <= 0) return offer.send.min;
 
@@ -36,8 +44,8 @@ function interpolateSendValue(offer, chargedUsd) {
   return Math.round(offer.send.min + fraction * sendRange);
 }
 
-function assertOfferMatchesPrice(offer, offerId, chargedUsd, requestedValue) {
-  const price = offerPriceUsd(offer);
+function assertOfferMatchesPrice(offer, offerId, chargedUsd, requestedValue, rates = null) {
+  const price = offerPriceUsd(offer, rates);
   const priceType = offer.priceType || (offer.price?.fixed != null ? 'FIXED' : (offer.price?.min != null ? 'RANGE' : null));
 
   if (priceType === 'FIXED') {
@@ -64,7 +72,7 @@ function assertOfferMatchesPrice(offer, offerId, chargedUsd, requestedValue) {
       throw new Error(
         `Offer value ${requestedValue} is outside ${offer.send.min}-${offer.send.max} for ${offerId}.`);
     }
-    const expectedValue = interpolateSendValue(offer, chargedUsd);
+    const expectedValue = interpolateSendValue(offer, chargedUsd, rates);
     const tolerance = Math.max(1, Math.abs(expectedValue) * OFFER_VALUE_TOLERANCE_RATIO);
     if (Math.abs(requestedValue - expectedValue) > tolerance) {
       throw new Error(
@@ -112,34 +120,58 @@ function createCatalogFetcher({ provider = 'zendit', baseUrl, apiSecret, apiKey,
   };
 }
 
-function resolveVerifiedOffer({ topups, offerId, offerValue, chargedUsd, countryCode, zenCarrier }) {
+function resolveVerifiedOffer({ topups, offerId, offerValue, chargedUsd, countryCode, zenCarrier, rates = null }) {
   if (offerId) {
     const offer = topups.find(o => o.offerId === offerId);
     if (!offer) {
       throw new Error(
         `Offer ${offerId} is not an enabled top-up in the ${countryCode}/${zenCarrier} catalog.`);
     }
-    return { offerId, offerValue: assertOfferMatchesPrice(offer, offerId, chargedUsd, offerValue) };
+    const resolvedValue = assertOfferMatchesPrice(offer, offerId, chargedUsd, offerValue, rates);
+    return {
+      offerId: offer.offerId,
+      offerValue: resolvedValue
+    };
   }
 
+  // Fallback / discovery mode (no explicit offerId given)
   for (const offer of topups) {
     const pType = offer.priceType || (offer.price?.fixed != null ? 'FIXED' : (offer.price?.min != null ? 'RANGE' : null));
     if (pType !== 'FIXED') continue;
-    if (Math.abs(offerPriceUsd(offer).fixed - chargedUsd) < OFFER_PRICE_TOLERANCE_USD) {
+    const price = offerPriceUsd(offer, rates);
+    if (Math.abs(price.fixed - chargedUsd) < OFFER_PRICE_TOLERANCE_USD) {
       return { offerId: offer.offerId, offerValue: null };
     }
   }
   for (const offer of topups) {
     const pType = offer.priceType || (offer.price?.fixed != null ? 'FIXED' : (offer.price?.min != null ? 'RANGE' : null));
     if (pType !== 'RANGE') continue;
-    const price = offerPriceUsd(offer);
-    if (chargedUsd >= price.min && chargedUsd <= price.max) {
-      return { offerId: offer.offerId, offerValue: interpolateSendValue(offer, chargedUsd) };
+    const price = offerPriceUsd(offer, rates);
+    if (chargedUsd >= price.min - OFFER_PRICE_TOLERANCE_USD && chargedUsd <= price.max + OFFER_PRICE_TOLERANCE_USD) {
+      return { offerId: offer.offerId, offerValue: interpolateSendValue(offer, chargedUsd, rates) };
     }
   }
 
   throw new Error(
-    `No matching Zendit offer found for value ${chargedUsd} USD (searched ${topups.length} top-up offers for ${countryCode}/${zenCarrier})`);
+    `No matching offer found for value ${chargedUsd} USD (searched ${topups.length} top-up offers for ${countryCode}/${zenCarrier})`);
+}
+
+async function loadFxRates(supabase) {
+  const { data, error } = await supabase
+    .from('fx_rates_for_costing')
+    .select('currency_code, usd_to_local, rate_as_of, unusable_reason');
+
+  if (error) throw new Error(`Failed to read fx_rates_for_costing: ${error.message}`);
+
+  const rates = {};
+  for (const row of data || []) {
+    if (row.unusable_reason) continue;
+    rates[String(row.currency_code).toUpperCase()] = {
+      usdToLocal: Number(row.usd_to_local),
+      rateAsOf: row.rate_as_of,
+    };
+  }
+  return rates;
 }
 
 /// K9: supplier prices are not all in USD.
@@ -217,6 +249,10 @@ function offerCacheRow(offer, countryCode, carrierCode, apiProvider = 'zendit', 
     fx_rate_as_of: isConverted ? rates[costCcy].rateAsOf : null,
     delivery_type: offer.deliveryType || 'direct',
     redeem_instructions: offer.redeemInstructions || null,
+    service_type: offer.serviceType || 'airtime',
+    benefit_summary: offer.benefitSummary || offer.name || null,
+    data_mb: offer.dataMb || null,
+    duration_days: offer.durationDays || null,
     refreshed_at: new Date().toISOString(),
   };
 }
@@ -252,7 +288,8 @@ module.exports = {
   chargedOfferPriceUsd,
   createCatalogFetcher,
   resolveVerifiedOffer,
-  offerCacheRow,
   convertToUsd,
+  offerCacheRow,
   alertOfferTampering,
+  loadFxRates,
 };
