@@ -1,5 +1,33 @@
 const zenditBaseUrl = process.env.ZENDIT_BASE_URL || 'https://api.zendit.io/v1';
 
+function normalizeZenditProduct(o) {
+  const isRange = o.priceType === 'RANGE';
+  const divisor = o.send?.currencyDivisor || 100;
+  const ccy = o.send?.currency || 'USD';
+
+  let benefitSummary = o.shortNotes || o.notes || o.name || null;
+  if (!benefitSummary) {
+    if (o.dataGB && o.dataGB > 0) {
+      const dur = o.durationDays ? ` • ${o.durationDays} Days` : '';
+      benefitSummary = `${o.dataGB} GB Data${dur}`;
+    } else if (isRange) {
+      const minVal = (o.send?.min || 0) / divisor;
+      const maxVal = (o.send?.max || 0) / divisor;
+      benefitSummary = `${minVal}-${maxVal} ${ccy} Custom Airtime`;
+    } else if (o.send?.fixed != null) {
+      const fixedVal = o.send.fixed / divisor;
+      const formatted = Number.isInteger(fixedVal) ? fixedVal : parseFloat(fixedVal.toFixed(2));
+      benefitSummary = `${formatted} ${ccy} Airtime Balance`;
+    }
+  }
+
+  return {
+    ...o,
+    name: o.name || benefitSummary || o.offerId,
+    benefitSummary: benefitSummary || `${o.offerId} Airtime`,
+  };
+}
+
 async function fetchCatalog({ baseUrl = zenditBaseUrl, apiSecret, countryCode, carrierCode, fetchImpl = fetch }) {
   const all = [];
   let pageOffset = 0;
@@ -17,8 +45,9 @@ async function fetchCatalog({ baseUrl = zenditBaseUrl, apiSecret, countryCode, c
     pageOffset += 100;
   }
 
-  return all.filter(o =>
-    o.enabled && o.productType === 'TOPUP' && (o.subTypes || []).includes('Mobile Top Up'));
+  return all
+    .filter(o => o.enabled && o.productType === 'TOPUP' && (o.subTypes || []).includes('Mobile Top Up'))
+    .map(normalizeZenditProduct);
 }
 
 async function purchase({ baseUrl = zenditBaseUrl, apiSecret, execution, recipientPhone, offerId, offerValue, externalId, fetchImpl = fetch }) {
@@ -105,6 +134,7 @@ async function pollStatus({ baseUrl = zenditBaseUrl, apiSecret, transactionId, m
 
 module.exports = {
   fetchCatalog,
+  normalizeZenditProduct,
   purchase,
   pollStatus,
 };
