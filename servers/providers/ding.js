@@ -167,6 +167,15 @@ async function purchase({ baseUrl = dingBaseUrl, apiKey, execution, recipientPho
     }
   }
 
+  // Fallback if GetProducts is rate limited or unavailable: derive from execution cost (OMR peg)
+  if (sendValue == null && execution) {
+    const costUsd = Number(execution.base_cost_usd || execution.amount || 0);
+    if (costUsd > 0) {
+      sendValue = Math.round(costUsd * 0.384497 * 100) / 100;
+      sendCurrencyIso = 'OMR';
+    }
+  }
+
   const body = {
     SkuCode: offerId,
     SendValue: sendValue,

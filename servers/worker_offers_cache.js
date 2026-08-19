@@ -2,8 +2,8 @@ require('dotenv').config({ path: require('path').join(__dirname, '.env') });
 const { createClient } = require('@supabase/supabase-js');
 const { createCatalogFetcher, offerCacheRow } = require('./offer_validation');
 
-const REFRESH_INTERVAL_MS = parseInt(process.env.OFFERS_CACHE_REFRESH_MS) || 10 * 60 * 1000;
-const PAIR_DELAY_MS = parseInt(process.env.OFFERS_CACHE_PAIR_DELAY_MS) || 500;
+const REFRESH_INTERVAL_MS = parseInt(process.env.OFFERS_CACHE_REFRESH_MS) || 15 * 60 * 1000;
+const PAIR_DELAY_MS = parseInt(process.env.OFFERS_CACHE_PAIR_DELAY_MS) || 1500;
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -36,6 +36,7 @@ const fetchZenditCatalog = createCatalogFetcher({
     baseUrl: zenditBaseUrl,
     apiSecret: zenditApiSecret,
     ttlMs: 1,
+    supabase,
 });
 
 const fetchDtoneCatalog = createCatalogFetcher({
@@ -44,6 +45,7 @@ const fetchDtoneCatalog = createCatalogFetcher({
     apiKey: dtoneApiKey,
     apiSecret: dtoneApiSecret,
     ttlMs: 1,
+    supabase,
 });
 
 const fetchDingCatalog = createCatalogFetcher({
@@ -51,6 +53,7 @@ const fetchDingCatalog = createCatalogFetcher({
     baseUrl: dingBaseUrl,
     apiKey: dingApiKey,
     ttlMs: 1,
+    supabase,
 });
 
 const fetchReloadlyCatalog = createCatalogFetcher({
@@ -59,6 +62,7 @@ const fetchReloadlyCatalog = createCatalogFetcher({
     clientId: reloadlyClientId,
     clientSecret: reloadlyClientSecret,
     ttlMs: 1,
+    supabase,
 });
 
 // I5: the pair list now comes from `carrier_provider_map`, not from the
@@ -218,11 +222,13 @@ async function refreshAll() {
                 totalRows += n;
                 ok++;
                 console.log(`[refreshAll] ${pair.apiProvider} ${pair.countryCode}/${pair.carrierCode}: ${n} offers`);
+                await new Promise(r => setTimeout(r, PAIR_DELAY_MS));
             } catch (err) {
                 failed++;
                 console.error(`[refreshAll] ${pair.apiProvider} ${pair.countryCode}/${pair.carrierCode} FAILED: ${err.message}`);
+                const isRateLimit = String(err.message || '').includes('RateLimited') || String(err.message || '').includes('503') || String(err.message || '').includes('429');
+                await new Promise(r => setTimeout(r, isRateLimit ? 10000 : PAIR_DELAY_MS));
             }
-            await new Promise(r => setTimeout(r, PAIR_DELAY_MS));
         }
 
         console.log(`[refreshAll] Done in ${Date.now() - startedAt}ms: ${ok} ok, ${failed} failed, ${totalRows} offers cached.`);

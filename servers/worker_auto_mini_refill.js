@@ -67,6 +67,7 @@ const fetchZenditCatalog = createCatalogFetcher({
     baseUrl: zenditBaseUrl,
     apiSecret: zenditApiSecret,
     ttlMs: 5 * 60 * 1000,
+    supabase,
 });
 
 const fetchDtoneCatalog = createCatalogFetcher({
@@ -75,6 +76,7 @@ const fetchDtoneCatalog = createCatalogFetcher({
     apiKey: dtoneApiKey,
     apiSecret: dtoneApiSecret,
     ttlMs: 5 * 60 * 1000,
+    supabase,
 });
 
 const fetchReloadlyCatalog = createCatalogFetcher({
@@ -83,6 +85,7 @@ const fetchReloadlyCatalog = createCatalogFetcher({
     clientId: reloadlyClientId,
     clientSecret: reloadlyClientSecret,
     ttlMs: 5 * 60 * 1000,
+    supabase,
 });
 
 const fetchDingCatalog = createCatalogFetcher({
@@ -90,6 +93,7 @@ const fetchDingCatalog = createCatalogFetcher({
     baseUrl: dingBaseUrl,
     apiKey: dingApiKey,
     ttlMs: 5 * 60 * 1000,
+    supabase,
 });
 
 // K3: the per-supplier columns this used to read (zen_carrier, dt_carrier,

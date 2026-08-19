@@ -92,7 +92,7 @@ function chargedOfferPriceUsd(execution) {
 
 // I5: `clientId`/`clientSecret` are here for Reloadly, the only supplier of the
 // four that authenticates with OAuth rather than a static key.
-function createCatalogFetcher({ provider = 'zendit', baseUrl, apiSecret, apiKey, clientId, clientSecret, ttlMs = 5 * 60 * 1000, fetchImpl = fetch }) {
+function createCatalogFetcher({ provider = 'zendit', baseUrl, apiSecret, apiKey, clientId, clientSecret, ttlMs = 5 * 60 * 1000, fetchImpl = fetch, supabase = null }) {
   const cache = new Map(); // `${country}|${brand}` -> { offers, fetchedAt }
 
   return async function fetchTopupCatalog(countryCode, carrierCode) {
@@ -100,23 +100,82 @@ function createCatalogFetcher({ provider = 'zendit', baseUrl, apiSecret, apiKey,
     const hit = cache.get(key);
     if (hit && Date.now() - hit.fetchedAt < ttlMs) return hit.offers;
 
-    let offers;
-    switch (provider) {
-      case 'dtone':
-        offers = await dtoneProvider.fetchCatalog({ baseUrl, apiKey, apiSecret, countryCode, carrierCode, fetchImpl });
-        break;
-      case 'ding':
-        offers = await dingProvider.fetchCatalog({ baseUrl, apiKey, countryCode, carrierCode, fetchImpl });
-        break;
-      case 'reloadly':
-        offers = await reloadlyProvider.fetchCatalog({ baseUrl, clientId, clientSecret, countryCode, carrierCode, fetchImpl });
-        break;
-      default:
-        offers = await zenditProvider.fetchCatalog({ baseUrl, apiSecret, countryCode, carrierCode, fetchImpl });
+    let offers = null;
+    let liveError = null;
+
+    try {
+      switch (provider) {
+        case 'dtone':
+          offers = await dtoneProvider.fetchCatalog({ baseUrl, apiKey, apiSecret, countryCode, carrierCode, fetchImpl });
+          break;
+        case 'ding':
+          offers = await dingProvider.fetchCatalog({ baseUrl, apiKey, countryCode, carrierCode, fetchImpl });
+          break;
+        case 'reloadly':
+          offers = await reloadlyProvider.fetchCatalog({ baseUrl, clientId, clientSecret, countryCode, carrierCode, fetchImpl });
+          break;
+        default:
+          offers = await zenditProvider.fetchCatalog({ baseUrl, apiSecret, countryCode, carrierCode, fetchImpl });
+      }
+    } catch (err) {
+      liveError = err;
+      console.warn(`[CatalogFetcher] Live catalog fetch failed for ${provider} ${countryCode}/${carrierCode}: ${err.message}`);
     }
 
-    cache.set(key, { offers, fetchedAt: Date.now() });
-    return offers;
+    if (offers && offers.length > 0) {
+      cache.set(key, { offers, fetchedAt: Date.now() });
+      return offers;
+    }
+
+    // Fallback 1: Return memory cached offers even if slightly stale
+    if (hit && hit.offers && hit.offers.length > 0) {
+      console.log(`[CatalogFetcher] Using in-memory cached offers for ${provider} ${countryCode}/${carrierCode}`);
+      return hit.offers;
+    }
+
+    // Fallback 2: Query provider_offers_cache directly from Supabase
+    if (supabase) {
+      try {
+        const { data: cachedRows } = await supabase
+          .from('provider_offers_cache')
+          .select('*')
+          .eq('api_provider', provider)
+          .eq('country_code', countryCode)
+          .eq('carrier_code', carrierCode);
+
+        if (cachedRows && cachedRows.length > 0) {
+          const parsedOffers = cachedRows.map(r => ({
+            offerId: r.offer_id,
+            name: r.offer_name,
+            priceType: r.price_type,
+            enabled: true,
+            price: {
+              fixed: r.source_amount_native != null ? Math.round(Number(r.source_amount_native) * 100) : Math.round(Number(r.price_fixed_usd) * 100),
+              min: r.price_min_usd != null ? Math.round(Number(r.price_min_usd) * 100) : null,
+              max: r.price_max_usd != null ? Math.round(Number(r.price_max_usd) * 100) : null,
+              currency: r.source_currency || 'USD',
+              currencyDivisor: 100,
+            },
+            send: {
+              min: r.send_min,
+              max: r.send_max,
+              currencyCode: r.send_currency || 'USD',
+              currencyDivisor: r.send_currency_divisor || 1,
+            },
+            dingRaw: null,
+          }));
+
+          cache.set(key, { offers: parsedOffers, fetchedAt: Date.now() });
+          console.log(`[CatalogFetcher] Loaded ${parsedOffers.length} fallback offers from database for ${provider} ${countryCode}/${carrierCode}`);
+          return parsedOffers;
+        }
+      } catch (dbErr) {
+        console.warn(`[CatalogFetcher] Database fallback query failed: ${dbErr.message}`);
+      }
+    }
+
+    if (liveError) throw liveError;
+    return [];
   };
 }
 
