@@ -54,10 +54,9 @@ const SUPPORTED_SEND_CURRENCIES = new Set(['USD']);
 /// `P30D` / `P90D` for a bundle. `DefaultDisplayText` corroborates it
 /// ("PKR 100.00" vs "Monthly WhatsApp Prime").
 function isPlainTopUp(p) {
-  const validity = String(p?.ValidityPeriodIso ?? '').trim();
-  if (validity !== '') return false;
+  if (!p || !p.SkuCode) return false;
   const benefits = Array.isArray(p?.Benefits) ? p.Benefits.map(String) : [];
-  return benefits.length === 0 || benefits.includes('Mobile');
+  return benefits.length === 0 || benefits.includes('Mobile') || benefits.includes('Minutes') || benefits.includes('Data');
 }
 
 function normalizeDingProduct(p) {
@@ -145,10 +144,33 @@ async function purchase({ baseUrl = dingBaseUrl, apiKey, execution, recipientPho
   // retry adopts the original transaction instead of buying twice.
   const distributorRef = externalId || `d_${execution.id}`;
 
+  let sendValue = offerValue != null ? Number(offerValue) : undefined;
+  let sendCurrencyIso = 'OMR';
+
+  // If sendValue is not explicitly provided, look up the product to get Minimum.SendValue and SendCurrencyIso
+  if (sendValue == null && offerId) {
+    try {
+      const prodRes = await fetchImpl(`${baseUrl}/GetProducts?skuCodes=${encodeURIComponent(offerId)}`, {
+        headers: authHeaders(apiKey),
+      });
+      if (prodRes.ok) {
+        const prodData = await prodRes.json();
+        const items = Array.isArray(prodData) ? prodData : (prodData.Items || []);
+        const found = items.find(i => i.SkuCode === offerId) || items[0];
+        if (found && found.Minimum) {
+          sendValue = found.Minimum.SendValue;
+          sendCurrencyIso = found.Minimum.SendCurrencyIso || 'OMR';
+        }
+      }
+    } catch (e) {
+      console.warn(`[Ding.purchase] Failed to fetch SKU details for ${offerId}: ${e.message}`);
+    }
+  }
+
   const body = {
     SkuCode: offerId,
-    SendValue: offerValue != null ? Number(offerValue) : undefined,
-    SendCurrencyIso: 'USD',
+    SendValue: sendValue,
+    SendCurrencyIso: sendCurrencyIso,
     AccountNumber: recipientPhone,
     DistributorRef: distributorRef,
     ValidateOnly: false,

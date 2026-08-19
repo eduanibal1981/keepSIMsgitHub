@@ -11,6 +11,7 @@ const {
 const zenditProvider = require('./providers/zendit');
 const dtoneProvider = require('./providers/dtone');
 const reloadlyProvider = require('./providers/reloadly');
+const dingProvider = require('./providers/ding');
 
 const EXECUTION_TYPE = 'refill_instant';
 const CONCURRENCY_LIMIT = 5;
@@ -50,6 +51,9 @@ const reloadlyClientId = process.env.RELOADLY_CLIENT_ID;
 const reloadlyClientSecret = process.env.RELOADLY_CLIENT_SECRET;
 const reloadlyBaseUrl = process.env.RELOADLY_BASE_URL || 'https://topups.reloadly.com';
 
+const dingApiKey = process.env.DING_API_KEY;
+const dingBaseUrl = process.env.DING_BASE_URL || 'https://api.dingconnect.com/api/V1';
+
 if (!supabaseUrl || !supabaseKey) {
     console.error('Error: SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set in servers/.env');
     process.exit(1);
@@ -78,6 +82,13 @@ const fetchReloadlyCatalog = createCatalogFetcher({
     baseUrl: reloadlyBaseUrl,
     clientId: reloadlyClientId,
     clientSecret: reloadlyClientSecret,
+    ttlMs: 5 * 60 * 1000,
+});
+
+const fetchDingCatalog = createCatalogFetcher({
+    provider: 'ding',
+    baseUrl: dingBaseUrl,
+    apiKey: dingApiKey,
     ttlMs: 5 * 60 * 1000,
 });
 
@@ -168,7 +179,12 @@ async function executeRefill(execution) {
         // Validation
         const chargedUsd = chargedOfferPriceUsd(execution);
         let topups;
-        if (activeProvider === 'dtone') {
+        if (activeProvider === 'ding') {
+            if (!dingApiKey) {
+                throw new Error('Ding API credentials (DING_API_KEY) not configured on server.');
+            }
+            topups = await fetchDingCatalog(countryCode, carrierCode);
+        } else if (activeProvider === 'dtone') {
             if (!dtoneApiKey || !dtoneApiSecret) {
                 throw new Error('DTone API credentials (DTONE_API_KEY, DTONE_API_SECRET) not configured on server.');
             }
@@ -239,7 +255,34 @@ async function executeRefill(execution) {
             let externalId;
             let pollRes = null;
 
-            if (activeProvider === 'dtone') {
+            if (activeProvider === 'ding') {
+                externalId = `d_${execution.id}`;
+                console.log(`Executing Ding purchase for ${phoneNumber}, offer: ${offerId}, external_id: ${externalId}`);
+                purchaseResult = await dingProvider.purchase({
+                    baseUrl: dingBaseUrl,
+                    apiKey: dingApiKey,
+                    execution,
+                    recipientPhone: phoneNumber,
+                    offerId,
+                    offerValue,
+                    externalId
+                });
+
+                pollRes = await dingProvider.pollStatus({
+                    baseUrl: dingBaseUrl,
+                    apiKey: dingApiKey,
+                    transactionId: purchaseResult.transactionId,
+                    externalId
+                });
+
+                if (!pollRes.isSuccess) {
+                    throw new Error(`Ding purchase failed: ${pollRes.errorMsg || pollRes.status}`);
+                }
+
+                console.log(`Ding transaction completed! Status: ${pollRes.status}`);
+                purchaseResult.transactionId = pollRes.transactionId || purchaseResult.transactionId;
+
+            } else if (activeProvider === 'dtone') {
                 externalId = `dt_${execution.id}`;
                 console.log(`Executing DTone purchase for ${phoneNumber}, offer: ${offerId}, external_id: ${externalId}`);
                 purchaseResult = await dtoneProvider.purchase({
