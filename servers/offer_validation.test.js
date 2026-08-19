@@ -455,4 +455,108 @@ test('dtoneProvider purchase correctly structures fixed and ranged transactions'
   });
 });
 
+const reloadlyProvider = require('./providers/reloadly');
+
+test('reloadlyProvider normalizeReloadlyOperator correctly maps FIXED and RANGE operators', () => {
+  const rawFixed = {
+    operatorId: 557,
+    name: 'Airvoice GSM PIN USA',
+    pin: true,
+    data: false,
+    bundle: false,
+    senderCurrencyCode: 'USD',
+    destinationCurrencyCode: 'USD',
+    fixedAmounts: [50],
+    fixedAmountsDescriptions: { '50.00': 'Airvoice GSM Monthly Plan' },
+    localFixedAmounts: [50],
+  };
+  const fixedOffers = reloadlyProvider.normalizeReloadlyOperator(rawFixed);
+  assert.strictEqual(fixedOffers.length, 1);
+  assert.strictEqual(fixedOffers[0].offerId, 'rl_557_50');
+  assert.strictEqual(fixedOffers[0].priceType, 'FIXED');
+  assert.strictEqual(fixedOffers[0].price.fixed, 5000);
+  assert.strictEqual(fixedOffers[0].deliveryType, 'pin');
+  assert.strictEqual(fixedOffers[0].serviceType, 'airtime');
+
+  const rawRange = {
+    operatorId: 354,
+    name: 'Jazz Pakistan',
+    pin: false,
+    data: false,
+    bundle: false,
+    senderCurrencyCode: 'USD',
+    destinationCurrencyCode: 'PKR',
+    minAmount: 1.0,
+    maxAmount: 100.0,
+    localMinAmount: 280,
+    localMaxAmount: 28000,
+    fx: { rate: 280 }
+  };
+  const rangeOffers = reloadlyProvider.normalizeReloadlyOperator(rawRange);
+  assert.strictEqual(rangeOffers.length, 1);
+  assert.strictEqual(rangeOffers[0].offerId, 'rl_354_range');
+  assert.strictEqual(rangeOffers[0].priceType, 'RANGE');
+  assert.strictEqual(rangeOffers[0].price.min, 100);
+  assert.strictEqual(rangeOffers[0].price.max, 10000);
+  assert.strictEqual(rangeOffers[0].send.min, 280);
+  assert.strictEqual(rangeOffers[0].send.max, 28000);
+  assert.strictEqual(rangeOffers[0].deliveryType, 'direct');
+});
+
+test('reloadlyProvider purchase and pollStatus work with token and customIdentifier', async () => {
+  reloadlyProvider._resetTokenCache();
+  let capturedPurchaseBody = null;
+
+  const mockFetch = async (url, opts) => {
+    if (url.includes('/oauth/token')) {
+      return {
+        ok: true,
+        json: async () => ({ access_token: 'test_token', expires_in: 3600 })
+      };
+    }
+    if (url.includes('/topups') && opts.method === 'POST') {
+      capturedPurchaseBody = JSON.parse(opts.body);
+      return {
+        ok: true,
+        json: async () => ({ transactionId: 998877, status: 'SUCCESSFUL' })
+      };
+    }
+    if (url.includes('/topups/reports/transactions')) {
+      return {
+        ok: true,
+        json: async () => ([{ transactionId: 998877, status: 'SUCCESSFUL' }])
+      };
+    }
+    throw new Error('Unexpected URL ' + url);
+  };
+
+  const res = await reloadlyProvider.purchase({
+    baseUrl: 'https://topups-sandbox.reloadly.com',
+    clientId: 'cid',
+    clientSecret: 'csec',
+    execution: { id: 'ex_rl_1' },
+    recipientPhone: '1234567890',
+    offerId: 'rl_557_50',
+    countryCode: 'US',
+    fetchImpl: mockFetch,
+  });
+
+  assert.strictEqual(res.transactionId, '998877');
+  assert.strictEqual(res.status, 'SUCCESSFUL');
+  assert.strictEqual(capturedPurchaseBody.operatorId, 557);
+  assert.strictEqual(capturedPurchaseBody.amount, 50);
+
+  const pollRes = await reloadlyProvider.pollStatus({
+    baseUrl: 'https://topups-sandbox.reloadly.com',
+    clientId: 'cid',
+    clientSecret: 'csec',
+    transactionId: '998877',
+    pollDelayMs: 1,
+    fetchImpl: mockFetch,
+  });
+  assert.strictEqual(pollRes.isSuccess, true);
+  assert.strictEqual(pollRes.status, 'SUCCESSFUL');
+});
+
+
 

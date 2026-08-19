@@ -1,4 +1,4 @@
-﻿require('dotenv').config({ path: require('path').join(__dirname, '.env') });
+require('dotenv').config({ path: require('path').join(__dirname, '.env') });
 const { createClient } = require('@supabase/supabase-js');
 const {
     createCatalogFetcher,
@@ -9,6 +9,7 @@ const {
 
 const zenditProvider = require('./providers/zendit');
 const dtoneProvider = require('./providers/dtone');
+const reloadlyProvider = require('./providers/reloadly');
 
 const EXECUTION_TYPE = 'refill_custom';
 const BATCH_SIZE = 10;
@@ -44,6 +45,10 @@ const dtoneApiKey = process.env.DTONE_API_KEY;
 const dtoneApiSecret = process.env.DTONE_API_SECRET;
 const dtoneBaseUrl = process.env.DTONE_BASE_URL || 'https://preprod-dvs-api.dtone.com/v1';
 
+const reloadlyClientId = process.env.RELOADLY_CLIENT_ID;
+const reloadlyClientSecret = process.env.RELOADLY_CLIENT_SECRET;
+const reloadlyBaseUrl = process.env.RELOADLY_BASE_URL || 'https://topups.reloadly.com';
+
 if (!supabaseUrl || !supabaseKey) {
     console.error('Error: SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set in servers/.env');
     process.exit(1);
@@ -64,6 +69,14 @@ const fetchDtoneCatalog = createCatalogFetcher({
     baseUrl: dtoneBaseUrl,
     apiKey: dtoneApiKey,
     apiSecret: dtoneApiSecret,
+    ttlMs: 5 * 60 * 1000,
+});
+
+const fetchReloadlyCatalog = createCatalogFetcher({
+    provider: 'reloadly',
+    baseUrl: reloadlyBaseUrl,
+    clientId: reloadlyClientId,
+    clientSecret: reloadlyClientSecret,
     ttlMs: 5 * 60 * 1000,
 });
 
@@ -155,6 +168,11 @@ async function executeRefill(execution) {
                 throw new Error('DTone API credentials (DTONE_API_KEY, DTONE_API_SECRET) not configured on server.');
             }
             topups = await fetchDtoneCatalog(countryCode, carrierCode);
+        } else if (activeProvider === 'reloadly') {
+            if (!reloadlyClientId || !reloadlyClientSecret) {
+                throw new Error('Reloadly credentials (RELOADLY_CLIENT_ID, RELOADLY_CLIENT_SECRET) not configured on server.');
+            }
+            topups = await fetchReloadlyCatalog(countryCode, carrierCode);
         } else {
             if (!zenditApiSecret) {
                 throw new Error('Zendit API credentials (ZENDIT_API_SECRET) not configured on server.');
@@ -216,6 +234,34 @@ async function executeRefill(execution) {
                 // A false success is not recoverable at all.
                 if (!pollRes.isSuccess) {
                     throw new Error(`DTone auto custom refill failed: ${pollRes.errorMsg || pollRes.status}`);
+                }
+
+                purchaseResult.transactionId = pollRes.transactionId || purchaseResult.transactionId;
+            } else if (activeProvider === 'reloadly') {
+                externalId = `rl_${execution.id}`;
+                console.log(`Executing Reloadly auto custom refill for ${phoneNumber}, offer: ${offerId}, external_id: ${externalId}`);
+                purchaseResult = await reloadlyProvider.purchase({
+                    baseUrl: reloadlyBaseUrl,
+                    clientId: reloadlyClientId,
+                    clientSecret: reloadlyClientSecret,
+                    execution,
+                    recipientPhone: phoneNumber,
+                    offerId,
+                    offerValue,
+                    externalId,
+                    countryCode
+                });
+
+                const pollRes = await reloadlyProvider.pollStatus({
+                    baseUrl: reloadlyBaseUrl,
+                    clientId: reloadlyClientId,
+                    clientSecret: reloadlyClientSecret,
+                    transactionId: purchaseResult.transactionId,
+                    externalId
+                });
+
+                if (!pollRes.isSuccess) {
+                    throw new Error(`Reloadly auto custom refill failed: ${pollRes.errorMsg || pollRes.status}`);
                 }
 
                 purchaseResult.transactionId = pollRes.transactionId || purchaseResult.transactionId;

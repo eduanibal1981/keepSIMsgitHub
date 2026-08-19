@@ -27,12 +27,14 @@ const RELOADLY_AUDIENCE = process.env.RELOADLY_AUDIENCE || reloadlyBaseUrl;
 let _token = null;
 let _tokenExpiresAt = 0;
 
-async function getToken({ clientId, clientSecret, fetchImpl = fetch }) {
+async function getToken({ baseUrl = reloadlyBaseUrl, audience, clientId, clientSecret, fetchImpl = fetch }) {
   if (!clientId || !clientSecret) {
     throw new Error('RELOADLY_CLIENT_ID / RELOADLY_CLIENT_SECRET are not set');
   }
   // 60s of slack so a token cannot expire between the check and the call.
   if (_token && Date.now() < _tokenExpiresAt - 60_000) return _token;
+
+  const effectiveAudience = audience || process.env.RELOADLY_AUDIENCE || (baseUrl ? baseUrl.replace(/\/$/, '') : reloadlyBaseUrl);
 
   const res = await fetchImpl(RELOADLY_AUTH_URL, {
     method: 'POST',
@@ -41,7 +43,7 @@ async function getToken({ clientId, clientSecret, fetchImpl = fetch }) {
       client_id: clientId,
       client_secret: clientSecret,
       grant_type: 'client_credentials',
-      audience: RELOADLY_AUDIENCE,
+      audience: effectiveAudience,
     }),
   });
 
@@ -76,20 +78,31 @@ function toMinor(v) {
 function normalizeReloadlyOperator(op) {
   const out = [];
   const sendCurrency = op.destinationCurrencyCode || op.senderCurrencyCode || 'USD';
+  const costCurrency = op.senderCurrencyCode || 'USD';
   const fx = Number(op.fx?.rate || 1);
+  const isPin = Boolean(op.pin);
+  const serviceType = op.data ? 'data' : (op.bundle ? 'bundle' : 'airtime');
+  const deliveryType = isPin ? 'pin' : 'direct';
 
   if (Array.isArray(op.fixedAmounts) && op.fixedAmounts.length > 0) {
-    for (const amt of op.fixedAmounts) {
+    for (let i = 0; i < op.fixedAmounts.length; i++) {
+      const amt = op.fixedAmounts[i];
+      const desc = op.fixedAmountsDescriptions?.[amt] 
+        || op.fixedAmountsDescriptions?.[Number(amt).toFixed(2)] 
+        || `${op.name} ${amt} ${costCurrency}`;
+
       out.push({
         offerId: `rl_${op.operatorId}_${amt}`,
-        name: `${op.name} ${amt} ${op.senderCurrencyCode || 'USD'}`,
+        name: desc,
         productType: 'TOPUP',
         priceType: 'FIXED',
         enabled: true,
-        price: { fixed: toMinor(amt), currencyDivisor: 100 },
+        deliveryType,
+        serviceType,
+        price: { fixed: toMinor(amt), currency: costCurrency, currencyDivisor: 100 },
         send: {
-          min: op.localFixedAmounts?.[op.fixedAmounts.indexOf(amt)] ?? Number(amt) * fx,
-          max: op.localFixedAmounts?.[op.fixedAmounts.indexOf(amt)] ?? Number(amt) * fx,
+          min: op.localFixedAmounts?.[i] ?? Number(amt) * fx,
+          max: op.localFixedAmounts?.[i] ?? Number(amt) * fx,
           currencyCode: sendCurrency,
           currencyDivisor: 1,
         },
@@ -106,7 +119,9 @@ function normalizeReloadlyOperator(op) {
       productType: 'TOPUP',
       priceType: 'RANGE',
       enabled: true,
-      price: { min: toMinor(op.minAmount), max: toMinor(op.maxAmount), currencyDivisor: 100 },
+      deliveryType,
+      serviceType,
+      price: { min: toMinor(op.minAmount), max: toMinor(op.maxAmount), currency: costCurrency, currencyDivisor: 100 },
       send: {
         min: Number(op.localMinAmount ?? Number(op.minAmount) * fx),
         max: Number(op.localMaxAmount ?? Number(op.maxAmount) * fx),
@@ -126,7 +141,7 @@ function operatorIdFromOfferId(offerId) {
 }
 
 async function fetchCatalog({ baseUrl = reloadlyBaseUrl, clientId, clientSecret, countryCode, carrierCode, fetchImpl = fetch }) {
-  const token = await getToken({ clientId, clientSecret, fetchImpl });
+  const token = await getToken({ baseUrl, clientId, clientSecret, fetchImpl });
 
   const res = await fetchImpl(
     `${baseUrl}/operators/countries/${encodeURIComponent(countryCode)}`,
@@ -150,7 +165,7 @@ async function fetchCatalog({ baseUrl = reloadlyBaseUrl, clientId, clientSecret,
 }
 
 async function purchase({ baseUrl = reloadlyBaseUrl, clientId, clientSecret, execution, recipientPhone, offerId, offerValue, externalId, countryCode, fetchImpl = fetch }) {
-  const token = await getToken({ clientId, clientSecret, fetchImpl });
+  const token = await getToken({ baseUrl, clientId, clientSecret, fetchImpl });
   const customIdentifier = externalId || `r_${execution.id}`;
   const operatorId = operatorIdFromOfferId(offerId);
   if (!operatorId) throw new Error(`Cannot derive a Reloadly operatorId from offer ${offerId}`);
@@ -208,7 +223,7 @@ async function purchase({ baseUrl = reloadlyBaseUrl, clientId, clientSecret, exe
 }
 
 async function pollStatus({ baseUrl = reloadlyBaseUrl, clientId, clientSecret, transactionId, externalId, maxPolls = 12, pollDelayMs = 2500, fetchImpl = fetch }) {
-  const token = await getToken({ clientId, clientSecret, fetchImpl });
+  const token = await getToken({ baseUrl, clientId, clientSecret, fetchImpl });
   const ref = externalId || transactionId;
   let status = 'PROCESSING';
   let raw = null;
