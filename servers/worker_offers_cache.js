@@ -96,10 +96,13 @@ async function catalogPairs() {
     const seen = new Set();
     const pairs = [];
 
+const DING_BACKGROUND_POLL = process.env.DING_BACKGROUND_POLL === 'true';
+
     for (const row of data) {
         if (!row.carriers?.is_supported) continue;
         if (!liveProviders.has(row.provider)) continue;
         if (!row.provider_country_code || !row.provider_carrier_code) continue;
+        if (row.provider === 'ding' && !DING_BACKGROUND_POLL) continue;
 
         const key = `${row.provider}|${row.provider_country_code}|${row.provider_carrier_code}`;
         if (seen.has(key)) continue;
