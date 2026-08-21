@@ -144,10 +144,20 @@ async function purchase({ baseUrl = dingBaseUrl, apiKey, execution, recipientPho
   // retry adopts the original transaction instead of buying twice.
   const distributorRef = externalId || `d_${execution.id}`;
 
+  // 1. Derive from offerValue if present
   let sendValue = offerValue != null ? Number(offerValue) : undefined;
   let sendCurrencyIso = 'OMR';
 
-  // If sendValue is not explicitly provided, look up the product to get Minimum.SendValue and SendCurrencyIso
+  // 2. If not provided, derive directly from execution cost (OMR peg: $1 OMR = $2.6008 USD)
+  if (sendValue == null && execution) {
+    const costUsd = Number(execution.base_cost_usd || execution.amount || 0);
+    if (costUsd > 0) {
+      sendValue = Math.round(costUsd * 0.384497 * 100) / 100;
+      sendCurrencyIso = 'OMR';
+    }
+  }
+
+  // 3. Fallback: only if cost is still unknown, look up the product via GetProducts
   if (sendValue == null && offerId) {
     try {
       const prodRes = await fetchImpl(`${baseUrl}/GetProducts?skuCodes=${encodeURIComponent(offerId)}`, {
@@ -164,15 +174,6 @@ async function purchase({ baseUrl = dingBaseUrl, apiKey, execution, recipientPho
       }
     } catch (e) {
       console.warn(`[Ding.purchase] Failed to fetch SKU details for ${offerId}: ${e.message}`);
-    }
-  }
-
-  // Fallback if GetProducts is rate limited or unavailable: derive from execution cost (OMR peg)
-  if (sendValue == null && execution) {
-    const costUsd = Number(execution.base_cost_usd || execution.amount || 0);
-    if (costUsd > 0) {
-      sendValue = Math.round(costUsd * 0.384497 * 100) / 100;
-      sendCurrencyIso = 'OMR';
     }
   }
 
