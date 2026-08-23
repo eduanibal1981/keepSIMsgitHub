@@ -395,8 +395,66 @@ async function executeRefill(execution) {
 
     } catch (error) {
         console.error(`Failed to execute refill ${execution.id}:`, error.message);
-        // Premium users pay upfront; no wallet refund needed
         await markExecutionFailed(execution.id, error.message);
+
+        // Failure handling protocol:
+        // 1. Cancel remaining orphaned pending executions for this schedule so broken executions do not fire.
+        if (execution.scheduled_topup_id) {
+            try {
+                await supabase
+                    .from('topup_executions')
+                    .update({ status: 'cancelled', completed_at: new Date().toISOString() })
+                    .eq('scheduled_topup_id', execution.scheduled_topup_id)
+                    .eq('status', 'pending');
+
+                await supabase
+                    .from('scheduled_topups')
+                    .update({ status: 'paused', is_active: false })
+                    .eq('id', execution.scheduled_topup_id);
+            } catch (cleanErr) {
+                console.warn(`[cleanup] Failed to cancel pending executions for schedule ${execution.scheduled_topup_id}:`, cleanErr.message);
+            }
+        }
+
+        // 2. Issue wallet refund for the failed execution amount.
+        const refundAmount = parseFloat(execution.amount || execution.base_cost_usd || 0);
+        if (execution.user_id && refundAmount > 0) {
+            try {
+                const { error: refundError } = await supabase.rpc('credit_wallet_for_refund', {
+                    p_user_id: execution.user_id,
+                    p_sim_line_id: execution.sim_line_id,
+                    p_amount: refundAmount,
+                    p_description: `Refund for failed auto refill execution ${execution.id}`,
+                    p_reference_id: `refund_exec_${execution.id}`
+                });
+                if (refundError) {
+                    if (!refundError.message?.includes('duplicate key') && refundError.code !== '23505') {
+                        console.warn(`[refund] Wallet refund failed for execution ${execution.id}:`, refundError.message);
+                    }
+                } else {
+                    console.log(`[refund] Refunded ${refundAmount} USD to user ${execution.user_id} for failed execution ${execution.id}`);
+                }
+            } catch (refErr) {
+                console.warn(`[refund] Wallet refund error:`, refErr.message);
+            }
+        }
+
+        // 3. User notification & customer support reference logging
+        const refCode = `REF-${String(execution.id).slice(0, 8).toUpperCase()}`;
+        if (execution.user_id) {
+            try {
+                await supabase.from('notifications').insert({
+                    user_id: execution.user_id,
+                    category: 'system',
+                    title: 'Auto-Refill Failed — Action Required',
+                    body: `Scheduled recharge for your SIM could not be fulfilled by the carrier network. Any charged funds have been refunded to your wallet. Reference: ${refCode}. Please review or select an alternative recharge package.`,
+                    sim_line_id: execution.sim_line_id,
+                    action_url: `/sim-lines/${execution.sim_line_id}`
+                });
+            } catch (notifErr) {
+                console.warn(`[notif] Failed to create failure notification: ${notifErr.message}`);
+            }
+        }
     }
 }
 

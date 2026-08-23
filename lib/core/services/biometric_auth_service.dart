@@ -122,11 +122,12 @@ class PaymentAuthGuard {
   }
 
   /// Confirms payment interactively. If biometrics are unavailable (e.g. on emulator
-  /// without enrolled fingerprint), displays an interactive mock authorization dialog
-  /// so developers/testers can authorize actions explicitly.
+  /// without enrolled fingerprint), displays an interactive confirmation dialog.
+  /// If [confirmationToken] is provided, requires typing the token (e.g. last 4 digits of SIM).
   Future<bool> confirmPaymentInteractive(
     BuildContext context, {
     required String reason,
+    String? confirmationToken,
     Duration gracePeriod = const Duration(seconds: 60),
   }) async {
     final result = await confirmPayment(reason: reason, gracePeriod: gracePeriod);
@@ -136,6 +137,23 @@ class PaymentAuthGuard {
     }
 
     if (result == BiometricResult.unavailable) {
+      if (!context.mounted) return false;
+
+      if (confirmationToken != null && confirmationToken.isNotEmpty) {
+        final approved = await showDialog<bool>(
+          context: context,
+          barrierDismissible: false,
+          builder: (ctx) => _TypedPaymentConfirmationDialog(
+            reason: reason,
+            token: confirmationToken,
+            onAuthorized: () {
+              _lastSuccessfulPaymentAuth = DateTime.now();
+            },
+          ),
+        );
+        return approved ?? false;
+      }
+
       final approved = await showDialog<bool>(
         context: context,
         barrierDismissible: false,
@@ -200,6 +218,128 @@ class PaymentAuthGuard {
     }
 
     return false;
+  }
+}
+
+/// Typed confirmation dialog shown when biometrics are unavailable and a specific confirmation token (e.g. last 4 digits of SIM) is required.
+class _TypedPaymentConfirmationDialog extends StatefulWidget {
+  final String reason;
+  final String token;
+  final VoidCallback onAuthorized;
+
+  const _TypedPaymentConfirmationDialog({
+    required this.reason,
+    required this.token,
+    required this.onAuthorized,
+  });
+
+  @override
+  State<_TypedPaymentConfirmationDialog> createState() => _TypedPaymentConfirmationDialogState();
+}
+
+class _TypedPaymentConfirmationDialogState extends State<_TypedPaymentConfirmationDialog> {
+  final _controller = TextEditingController();
+  bool _matches = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.addListener(() {
+      final matches = _controller.text.trim().toUpperCase() == widget.token.toUpperCase();
+      if (matches != _matches) {
+        setState(() => _matches = matches);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isNumeric = int.tryParse(widget.token) != null;
+
+    return AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      title: const Row(
+        children: [
+          Icon(Icons.shield_outlined, color: Color(0xFF0070BA), size: 28),
+          SizedBox(width: 10),
+          Text('Security Confirmation', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        ],
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(widget.reason, style: const TextStyle(fontSize: 14)),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: const Color(0xFF0070BA).withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: const Color(0xFF0070BA).withValues(alpha: 0.25)),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.pin_outlined, color: Color(0xFF0070BA), size: 20),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Biometrics unavailable. Type "${widget.token}" (last digits of SIM) to authorize.',
+                    style: const TextStyle(fontSize: 12, color: Color(0xFF0070BA), fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          TextField(
+            controller: _controller,
+            autofocus: true,
+            keyboardType: isNumeric ? TextInputType.number : TextInputType.text,
+            inputFormatters: isNumeric ? [FilteringTextInputFormatter.digitsOnly] : null,
+            maxLength: widget.token.length,
+            style: const TextStyle(fontSize: 18, letterSpacing: 4, fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
+            decoration: InputDecoration(
+              counterText: '',
+              hintText: widget.token,
+              hintStyle: TextStyle(fontSize: 18, letterSpacing: 4, color: Colors.grey.withValues(alpha: 0.5)),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: Color(0xFF0070BA), width: 2),
+              ),
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, false),
+          child: const Text('Cancel'),
+        ),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF0070BA),
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+          onPressed: _matches
+              ? () {
+                  widget.onAuthorized();
+                  Navigator.pop(context, true);
+                }
+              : null,
+          child: const Text('Confirm Payment'),
+        ),
+      ],
+    );
   }
 }
 

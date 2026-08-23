@@ -1438,6 +1438,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
           // the reference stays on disk and the next attempt replays it instead
           // of billing again.
           await PlanPayment.consumePendingFee(ref);
+          ref.read(simLinesControllerProvider.notifier).schedulePostRefillCheck();
 
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -1523,6 +1524,23 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                   : await ref.read(baseServiceFeeUsdProvider.future))
               .toStringAsFixed(2),
         );
+
+        // Security Verification (Biometrics or 4-digit SIM fallback on emulators)
+        final phoneDigits = _phoneController.text.replaceAll(RegExp(r'[^0-9]'), '');
+        final confirmationToken = phoneDigits.length <= 4
+            ? phoneDigits
+            : phoneDigits.substring(phoneDigits.length - 4);
+
+        final authGuard = ref.read(paymentAuthGuardProvider);
+        final authOk = await authGuard.confirmPaymentInteractive(
+          context,
+          reason: 'Authorize activation and payment for the $selectedPlanType plan (\$${basePlanFee.toStringAsFixed(2)})',
+          confirmationToken: confirmationToken,
+        );
+        if (!authOk) {
+          setState(() => _isSaving = false);
+          return;
+        }
 
         // BOTH paid tiers bill wallet-first (C3c for Standard; J8 extends it to
         // Premium). Premium used to skip this entirely and push a PayPal
@@ -1617,13 +1635,13 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
 
         if (shouldPay != true) return;
 
-        // Biometric / Mock Security Verification (Interactive so emulator works)
-        final authGuard = ref.read(paymentAuthGuardProvider);
-        final authOk = await authGuard.confirmPaymentInteractive(
+        // Biometric / Mock Security Verification (Interactive with 4-digit token fallback)
+        final paypalAuthOk = await authGuard.confirmPaymentInteractive(
           context,
-          reason: 'Authenticate to pay for the $selectedPlanType plan',
+          reason: 'Authenticate to pay for the $selectedPlanType plan via PayPal',
+          confirmationToken: confirmationToken,
         );
-        if (!authOk) return;
+        if (!paypalAuthOk) return;
 
         // Anything recorded from here on belongs to this purchase.
         final chargeStartedAt = DateTime.now().toUtc();
