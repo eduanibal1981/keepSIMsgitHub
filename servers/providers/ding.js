@@ -251,7 +251,7 @@ function processingStateOf(record) {
 }
 
 async function pollStatus({ baseUrl = dingBaseUrl, apiKey, transactionId, externalId, maxPolls = 12, pollDelayMs = 2500, fetchImpl = fetch }) {
-  const ref = externalId || transactionId;
+  const ref = transactionId || externalId;
   let status = 'Pending';
   let raw = null;
   let polls = 0;
@@ -259,8 +259,12 @@ async function pollStatus({ baseUrl = dingBaseUrl, apiKey, transactionId, extern
   while (['Pending', 'Submitted', 'Processing'].includes(status) && polls < maxPolls) {
     await new Promise(r => setTimeout(r, pollDelayMs));
     try {
+      const queryParam = transactionId
+        ? `transferRef=${encodeURIComponent(transactionId)}`
+        : `distributorRef=${encodeURIComponent(externalId || ref)}`;
+
       const res = await fetchImpl(
-        `${baseUrl}/GetTransferRecords?DistributorRef=${encodeURIComponent(ref)}`,
+        `${baseUrl}/GetTransferRecords?${queryParam}`,
         { headers: authHeaders(apiKey) });
       if (res.ok) {
         const body = await res.json();

@@ -240,12 +240,23 @@ async function executeRefill(execution) {
                     externalId
                 });
 
-                const pollRes = await dingProvider.pollStatus({
-                    baseUrl: dingBaseUrl,
-                    apiKey: dingApiKey,
-                    transactionId: purchaseResult.transactionId,
-                    externalId
-                });
+                let pollRes = null;
+                if (['Complete', 'Completed', 'Success'].includes(purchaseResult.status)) {
+                    pollRes = {
+                        status: purchaseResult.status,
+                        isSuccess: true,
+                        isFailed: false,
+                        transactionId: purchaseResult.transactionId,
+                        raw: purchaseResult.raw?.TransferRecord || purchaseResult.raw
+                    };
+                } else {
+                    pollRes = await dingProvider.pollStatus({
+                        baseUrl: dingBaseUrl,
+                        apiKey: dingApiKey,
+                        transactionId: purchaseResult.transactionId,
+                        externalId
+                    });
+                }
 
                 if (!pollRes.isSuccess) {
                     throw new Error(`Ding auto custom refill failed: ${pollRes.errorMsg || pollRes.status}`);
