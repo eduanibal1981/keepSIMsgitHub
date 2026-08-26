@@ -1,0 +1,403 @@
+{
+  "timestamp": "2026-08-22T22:29:39.126Z",
+  "dtone": [
+    {
+      "carrier": "Zain Kuwait",
+      "name": "Zain Kuwait 1.5 KWD",
+      "productId": 24347,
+      "recipient": "+96590000101",
+      "httpStatus": 201,
+      "response": {
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 1.5,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 1.5,
+              "total_including_tax": 1.5
+            },
+            "type": "CREDITS",
+            "unit": "KWD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "confirmation_date": "2026-08-22T22:29:37.648693000Z",
+        "confirmation_expiration_date": "2026-08-22T23:29:37.617560000Z",
+        "creation_date": "2026-08-22T22:29:37.617560000Z",
+        "credit_party_identifier": {
+          "mobile_number": "+96590000101"
+        },
+        "external_id": "dt_kw_test_1787437779134_24347",
+        "id": 2240793386,
+        "prices": {
+          "retail": {
+            "amount": 2.713,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 2.359,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "product": {
+          "description": "1.5 KWD",
+          "id": 24347,
+          "name": "1.5 KWD",
+          "operator": {
+            "country": {
+              "iso_code": "KWT",
+              "name": "Kuwait",
+              "regions": [
+                {
+                  "code": "KWT",
+                  "name": "Kuwait"
+                }
+              ]
+            },
+            "id": 1812,
+            "name": "Zain Kuwait",
+            "regions": null
+          },
+          "regions": null,
+          "service": {
+            "id": 1,
+            "name": "Mobile",
+            "subservice": {
+              "id": 11,
+              "name": "Airtime"
+            }
+          },
+          "tags": [
+            "AIRTIME"
+          ],
+          "type": "FIXED_VALUE_RECHARGE"
+        },
+        "promotions": null,
+        "rates": {
+          "base": 0.635862653666808,
+          "retail": 0.552893475856985,
+          "wholesale": 0.635862653666808
+        },
+        "status": {
+          "class": {
+            "id": 2,
+            "message": "CONFIRMED"
+          },
+          "id": 20000,
+          "message": "CONFIRMED"
+        }
+      }
+    },
+    {
+      "carrier": "Ooredoo Kuwait",
+      "name": "Ooredoo Kuwait 1.5 KWD",
+      "productId": 24345,
+      "recipient": "+96560000101",
+      "httpStatus": 201,
+      "response": {
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 1.5,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 1.5,
+              "total_including_tax": 1.5
+            },
+            "type": "CREDITS",
+            "unit": "KWD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "confirmation_date": "2026-08-22T22:29:39.352167000Z",
+        "confirmation_expiration_date": "2026-08-22T23:29:39.327342000Z",
+        "creation_date": "2026-08-22T22:29:39.327342000Z",
+        "credit_party_identifier": {
+          "mobile_number": "+96560000101"
+        },
+        "external_id": "dt_kw_test_1787437781134_24345",
+        "id": 2240793387,
+        "prices": {
+          "retail": {
+            "amount": 2.706,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 2.353,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "product": {
+          "description": "1.5 KWD",
+          "id": 24345,
+          "name": "1.5 KWD",
+          "operator": {
+            "country": {
+              "iso_code": "KWT",
+              "name": "Kuwait",
+              "regions": [
+                {
+                  "code": "KWT",
+                  "name": "Kuwait"
+                }
+              ]
+            },
+            "id": 1811,
+            "name": "Ooredoo Kuwait",
+            "regions": null
+          },
+          "regions": null,
+          "service": {
+            "id": 1,
+            "name": "Mobile",
+            "subservice": {
+              "id": 11,
+              "name": "Airtime"
+            }
+          },
+          "tags": [
+            "AIRTIME"
+          ],
+          "type": "FIXED_VALUE_RECHARGE"
+        },
+        "promotions": null,
+        "rates": {
+          "base": 0.637484062898428,
+          "retail": 0.554323725055432,
+          "wholesale": 0.637484062898428
+        },
+        "status": {
+          "class": {
+            "id": 2,
+            "message": "CONFIRMED"
+          },
+          "id": 20000,
+          "message": "CONFIRMED"
+        }
+      }
+    },
+    {
+      "carrier": "STC Kuwait",
+      "name": "STC Kuwait 1.5 KWD",
+      "productId": 24346,
+      "recipient": "+96550000101",
+      "httpStatus": 201,
+      "response": {
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 1.5,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 1.5,
+              "total_including_tax": 1.5
+            },
+            "type": "CREDITS",
+            "unit": "KWD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "confirmation_date": "2026-08-22T22:29:41.088298000Z",
+        "confirmation_expiration_date": "2026-08-22T23:29:41.042085000Z",
+        "creation_date": "2026-08-22T22:29:41.042085000Z",
+        "credit_party_identifier": {
+          "mobile_number": "+96550000101"
+        },
+        "external_id": "dt_kw_test_1787437782814_24346",
+        "id": 2240793388,
+        "prices": {
+          "retail": {
+            "amount": 2.696,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 2.344,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "product": {
+          "description": "1.5 KWD",
+          "id": 24346,
+          "name": "1.5 KWD",
+          "operator": {
+            "country": {
+              "iso_code": "KWT",
+              "name": "Kuwait",
+              "regions": [
+                {
+                  "code": "KWT",
+                  "name": "Kuwait"
+                }
+              ]
+            },
+            "id": 1813,
+            "name": "STC Kuwait",
+            "regions": null
+          },
+          "regions": null,
+          "service": {
+            "id": 1,
+            "name": "Mobile",
+            "subservice": {
+              "id": 11,
+              "name": "Airtime"
+            }
+          },
+          "tags": [
+            "AIRTIME"
+          ],
+          "type": "FIXED_VALUE_RECHARGE"
+        },
+        "promotions": null,
+        "rates": {
+          "base": 0.639931740614335,
+          "retail": 0.556379821958457,
+          "wholesale": 0.639931740614335
+        },
+        "status": {
+          "class": {
+            "id": 2,
+            "message": "CONFIRMED"
+          },
+          "id": 20000,
+          "message": "CONFIRMED"
+        }
+      }
+    }
+  ],
+  "reloadly": [
+    {
+      "carrier": "Zain Kuwait",
+      "name": "Zain Kuwait Airtime ($5.70 USD / ~1.48 KWD)",
+      "operatorId": 268,
+      "recipient": "+96590000101",
+      "httpStatus": 200,
+      "response": {
+        "transactionId": 178436,
+        "status": "SUCCESSFUL",
+        "operatorTransactionId": null,
+        "customIdentifier": "rl_kw_test_1787437785924_268",
+        "recipientPhone": "96590000101",
+        "recipientEmail": null,
+        "senderPhone": null,
+        "countryCode": "KW",
+        "operatorId": 268,
+        "operatorName": "Zain Kuwait",
+        "discount": 0.17,
+        "discountCurrencyCode": "USD",
+        "requestedAmount": 5.7,
+        "requestedAmountCurrencyCode": "USD",
+        "deliveredAmount": 1.76,
+        "deliveredAmountCurrencyCode": "KWD",
+        "transactionDate": "2026-08-22 22:29:45",
+        "pinDetail": null,
+        "fee": 0,
+        "balanceInfo": {
+          "oldBalance": 894.9524,
+          "newBalance": 889.4234,
+          "cost": 5.529,
+          "currencyCode": "USD",
+          "currencyName": "US Dollar",
+          "updatedAt": "2026-08-22 22:02:09"
+        }
+      }
+    },
+    {
+      "carrier": "Ooredoo Kuwait",
+      "name": "Ooredoo Kuwait Airtime ($5.70 USD / ~1.48 KWD)",
+      "operatorId": 1166,
+      "recipient": "+96560000101",
+      "httpStatus": 200,
+      "response": {
+        "transactionId": 178438,
+        "status": "SUCCESSFUL",
+        "operatorTransactionId": null,
+        "customIdentifier": "rl_kw_test_1787437788412_1166",
+        "recipientPhone": "96560000101",
+        "recipientEmail": null,
+        "senderPhone": null,
+        "countryCode": "KW",
+        "operatorId": 1166,
+        "operatorName": "Ooredo Kuwait",
+        "discount": 0,
+        "discountCurrencyCode": "USD",
+        "requestedAmount": 5.7,
+        "requestedAmountCurrencyCode": "USD",
+        "deliveredAmount": 1.76,
+        "deliveredAmountCurrencyCode": "KWD",
+        "transactionDate": "2026-08-22 22:29:47",
+        "pinDetail": null,
+        "fee": 0,
+        "balanceInfo": {
+          "oldBalance": 886.4344,
+          "newBalance": 880.7344,
+          "cost": 5.7,
+          "currencyCode": "USD",
+          "currencyName": "US Dollar",
+          "updatedAt": "2026-08-22 22:29:46"
+        }
+      }
+    },
+    {
+      "carrier": "STC Kuwait",
+      "name": "STC Kuwait Airtime ($7.60 USD / ~1.90 KWD)",
+      "operatorId": 267,
+      "recipient": "+96550000101",
+      "httpStatus": 200,
+      "response": {
+        "transactionId": 178440,
+        "status": "SUCCESSFUL",
+        "operatorTransactionId": null,
+        "customIdentifier": "rl_kw_test_1787437790215_267",
+        "recipientPhone": "96550000101",
+        "recipientEmail": null,
+        "senderPhone": null,
+        "countryCode": "KW",
+        "operatorId": 267,
+        "operatorName": "STC Kuwait",
+        "discount": 0.23,
+        "discountCurrencyCode": "USD",
+        "requestedAmount": 7.6,
+        "requestedAmountCurrencyCode": "USD",
+        "deliveredAmount": 2.34,
+        "deliveredAmountCurrencyCode": "KWD",
+        "transactionDate": "2026-08-22 22:29:48",
+        "pinDetail": null,
+        "fee": 0,
+        "balanceInfo": {
+          "oldBalance": 879.1844,
+          "newBalance": 871.8124,
+          "cost": 7.372,
+          "currencyCode": "USD",
+          "currencyName": "US Dollar",
+          "updatedAt": "2026-08-22 22:29:48"
+        }
+      }
+    }
+  ],
+  "zendit": [
+    {
+      "status": "Disabled",
+      "reason": "0 active catalog offers in Zendit sandbox for country KW"
+    }
+  ],
+  "ding": [
+    {
+      "status": "Disabled",
+      "reason": "Ding UAT returns 503 / 0 active products for country KW"
+    }
+  ]
+}

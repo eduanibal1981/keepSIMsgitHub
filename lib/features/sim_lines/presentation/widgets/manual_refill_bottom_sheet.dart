@@ -15,6 +15,7 @@ import 'package:keep_sims/features/sim_lines/domain/refill_pricing.dart';
 import 'package:keep_sims/core/services/biometric_auth_service.dart';
 import 'package:keep_sims/core/utils/error_formatter.dart';
 import 'package:keep_sims/core/fx/money.dart';
+import 'package:keep_sims/features/sim_lines/presentation/widgets/provider_badge.dart';
 
 class ManualRefillBottomSheet extends ConsumerStatefulWidget {
   final SimLine simLine;
@@ -704,11 +705,22 @@ class _ManualRefillBottomSheetState
             ),
             const SizedBox(height: 12),
           ],
-          Text(
-            'Custom Amount ($currency)',
-            style: AppTextStyles.labelLarge.copyWith(
-              color: AppColors.textPrimaryDark,
-            ),
+          Row(
+            children: [
+              Text(
+                'Custom Amount ($currency)',
+                style: AppTextStyles.labelLarge.copyWith(
+                  color: AppColors.textPrimaryDark,
+                ),
+              ),
+              if (offer['provider'] != null) ...[
+                const SizedBox(width: 8),
+                ProviderBadge(
+                  provider: offer['provider'] as String?,
+                  showFullName: true,
+                ),
+              ],
+            ],
           ),
           const SizedBox(height: 8),
           TextFormField(
@@ -1107,6 +1119,11 @@ class _ManualRefillBottomSheetState
                               ),
                             ),
                           ),
+                          if (offer['provider'] != null)
+                            ProviderBadge(
+                              provider: offer['provider'] as String?,
+                              showFullName: true,
+                            ),
                           if (isPin)
                             Container(
                               padding: const EdgeInsets.symmetric(

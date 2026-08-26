@@ -1,0 +1,428 @@
+{
+  "supabase": {
+    "countries": [
+      {
+        "id": "d6108f9d-7510-407a-8eaf-0b45c5dd1856",
+        "name": "Lebanon",
+        "iso_code": "LB",
+        "dialing_code": "+961",
+        "flag_emoji": "🇱🇧",
+        "currency_code": "LBP",
+        "avg_sim_replacement_cost": null,
+        "is_supported": true,
+        "created_at": "2026-07-18T18:40:23.351315+00:00",
+        "whatsapp_server_url": null,
+        "whatsapp_account_phone": null
+      }
+    ],
+    "carriers": [
+      {
+        "id": "a6ae78e4-cff0-4fb0-af4a-ec57e2b2e942",
+        "country_id": "d6108f9d-7510-407a-8eaf-0b45c5dd1856",
+        "name": "touch",
+        "logo_url": null,
+        "is_supported": false,
+        "created_at": "2026-08-05T03:27:24.186367+00:00",
+        "fulfillment_gateway": "API",
+        "default_refill_amount": 5,
+        "gateway_phone_number": null
+      },
+      {
+        "id": "5e058bd4-2db8-4dd5-9d1e-ce7443c24218",
+        "country_id": "d6108f9d-7510-407a-8eaf-0b45c5dd1856",
+        "name": "Alfa",
+        "logo_url": null,
+        "is_supported": false,
+        "created_at": "2026-08-05T03:27:24.186367+00:00",
+        "fulfillment_gateway": "API",
+        "default_refill_amount": 5,
+        "gateway_phone_number": null
+      }
+    ],
+    "carrier_rules": [
+      {
+        "id": "3c3e3912-ef5d-4934-ba8b-2af83c6087bf",
+        "carrier_id": "a6ae78e4-cff0-4fb0-af4a-ec57e2b2e942",
+        "rule_type": "prepaid",
+        "inactivity_limit_days": 95,
+        "grace_period_days": 12,
+        "minimum_topup_amount": 8.75,
+        "topup_validity_days": 13,
+        "recommended_topup_amount": 8.75,
+        "optimal_topup_window_start": null,
+        "optimal_topup_window_end": null,
+        "notes": "UNVERIFIED — mirrors Alfa's denomination-scaled validity and 12-day retention pending touch's published lifecycle.",
+        "last_verified_at": null,
+        "created_at": "2026-08-05T03:27:24.186367+00:00",
+        "updated_at": "2026-08-05T03:27:24.186367+00:00",
+        "inapp_pricing": null,
+        "inapp_pricing_currency": "usd",
+        "offer_id": null,
+        "offer_value": null,
+        "activity_requirement": "min_denomination",
+        "validity_qualifying_topup_amount": 8.75,
+        "activity_requirement_note": "UNVERIFIED — mirrors Alfa's denomination-scaled validity and 12-day retention pending touch's published lifecycle.",
+        "balance_validity_days": null,
+        "refill_interval_days_override": null,
+        "rule_source_url": null,
+        "sms_sender_ids": null,
+        "sms_balance_regex": null,
+        "sms_expiry_regex": null,
+        "sms_keywords": null,
+        "sms_language": "auto"
+      },
+      {
+        "id": "9b44704f-dc42-4103-9727-2b4cbfdc2529",
+        "carrier_id": "5e058bd4-2db8-4dd5-9d1e-ce7443c24218",
+        "rule_type": "prepaid",
+        "inactivity_limit_days": 95,
+        "grace_period_days": 12,
+        "minimum_topup_amount": 8.75,
+        "topup_validity_days": 13,
+        "recommended_topup_amount": 8.75,
+        "optimal_topup_window_start": null,
+        "optimal_topup_window_end": null,
+        "notes": "Alfa: recharge cards buy 13 to 95 days of validity by amount. When validity lapses the line enters a 12-day retention (receive-only, then credit lost, then fully barred) before disconnection. A minimum recharge buys under two weeks, so refills must be at the ~USD 8.75 tier.",
+        "last_verified_at": "2026-08-05T03:27:24.186367+00:00",
+        "created_at": "2026-08-05T03:27:24.186367+00:00",
+        "updated_at": "2026-08-05T03:27:24.186367+00:00",
+        "inapp_pricing": null,
+        "inapp_pricing_currency": "usd",
+        "offer_id": null,
+        "offer_value": null,
+        "activity_requirement": "min_denomination",
+        "validity_qualifying_topup_amount": 8.75,
+        "activity_requirement_note": "Alfa: recharge cards buy 13 to 95 days of validity by amount. When validity lapses the line enters a 12-day retention (receive-only, then credit lost, then fully barred) before disconnection. A minimum recharge buys under two weeks, so refills must be at the ~USD 8.75 tier.",
+        "balance_validity_days": null,
+        "refill_interval_days_override": null,
+        "rule_source_url": "https://www.alfa.com.lb/en/prepaid/lifecycle",
+        "sms_sender_ids": null,
+        "sms_balance_regex": null,
+        "sms_expiry_regex": null,
+        "sms_keywords": null,
+        "sms_language": "auto"
+      }
+    ],
+    "carrier_provider_map": [
+      {
+        "id": "5cbfbefe-3e22-4895-a1ec-26d33ce308d5",
+        "carrier_id": "a6ae78e4-cff0-4fb0-af4a-ec57e2b2e942",
+        "provider": "dtone",
+        "provider_country_code": "LBN",
+        "provider_carrier_code": "2794",
+        "is_enabled": false,
+        "priority": 20,
+        "last_verified_at": "2026-08-09T00:55:55.22957+00:00",
+        "notes": "DTOne operator 2794, 6 direct-recharge products. Mapped from DTOne product export 2026-08-09. DISABLED until production credentials replace the preprod endpoint.",
+        "created_at": "2026-08-09T00:55:55.22957+00:00",
+        "updated_at": "2026-08-09T00:55:55.22957+00:00",
+        "provider_country_label": "Lebanon",
+        "provider_carrier_label": "2794",
+        "is_primary": false
+      },
+      {
+        "id": "c8d39fc9-d75d-4001-a966-91c080a31c8e",
+        "carrier_id": "5e058bd4-2db8-4dd5-9d1e-ce7443c24218",
+        "provider": "dtone",
+        "provider_country_code": "LBN",
+        "provider_carrier_code": "2793",
+        "is_enabled": false,
+        "priority": 20,
+        "last_verified_at": "2026-08-09T00:55:55.22957+00:00",
+        "notes": "DTOne operator 2793, 7 direct-recharge products. Mapped from DTOne product export 2026-08-09. DISABLED until production credentials replace the preprod endpoint.",
+        "created_at": "2026-08-09T00:55:55.22957+00:00",
+        "updated_at": "2026-08-09T00:55:55.22957+00:00",
+        "provider_country_label": "Lebanon",
+        "provider_carrier_label": "2793",
+        "is_primary": false
+      }
+    ]
+  },
+  "dtone": {
+    "operators": [
+      {
+        "country": {
+          "iso_code": "LBN",
+          "name": "Lebanon",
+          "regions": null
+        },
+        "id": 2793,
+        "name": "Alfa Lebanon USD",
+        "regions": null
+      },
+      {
+        "country": {
+          "iso_code": "LBN",
+          "name": "Lebanon",
+          "regions": null
+        },
+        "id": 2794,
+        "name": "Touch Lebanon USD",
+        "regions": null
+      }
+    ],
+    "error": "Unexpected end of JSON input"
+  },
+  "reloadly": {
+    "operators": [
+      {
+        "id": 1017,
+        "operatorId": 1017,
+        "name": "Alfa Lebanon PIN",
+        "bundle": false,
+        "data": false,
+        "pin": true,
+        "comboProduct": false,
+        "supportsLocalAmounts": true,
+        "supportsGeographicalRechargePlans": false,
+        "denominationType": "FIXED",
+        "senderCurrencyCode": "USD",
+        "senderCurrencySymbol": "$",
+        "destinationCurrencyCode": "USD",
+        "destinationCurrencySymbol": "$",
+        "commission": 0,
+        "internationalDiscount": 0,
+        "localDiscount": 0,
+        "mostPopularAmount": 25.4,
+        "mostPopularLocalAmount": null,
+        "minAmount": null,
+        "maxAmount": null,
+        "localMinAmount": null,
+        "localMaxAmount": null,
+        "country": {
+          "isoName": "LB",
+          "name": "Lebanon"
+        },
+        "fx": {
+          "rate": 1,
+          "currencyCode": "USD"
+        },
+        "logoUrls": [
+          "https://s3.amazonaws.com/rld-portal-avatar-prd/7f976112-579a-4e2b-a02f-d178bf10965a.png",
+          "https://s3.amazonaws.com/rld-portal-avatar-prd/a59074db-564e-4f42-9dae-c69967a0ef6d.png",
+          "https://s3.amazonaws.com/rld-portal-avatar-prd/6cc131f4-1a76-4f55-9908-11331352cac8.png"
+        ],
+        "fixedAmounts": [
+          25.4
+        ],
+        "fixedAmountsDescriptions": {},
+        "localFixedAmounts": [],
+        "localFixedAmountsDescriptions": {},
+        "suggestedAmounts": [],
+        "suggestedAmountsMap": {},
+        "fees": {
+          "international": 0,
+          "local": 0,
+          "localPercentage": 0,
+          "internationalPercentage": 0
+        },
+        "geographicalRechargePlans": [],
+        "promotions": [],
+        "status": "ACTIVE"
+      },
+      {
+        "id": 276,
+        "operatorId": 276,
+        "name": "Touch Lebanon PIN",
+        "bundle": false,
+        "data": false,
+        "pin": true,
+        "comboProduct": false,
+        "supportsLocalAmounts": false,
+        "supportsGeographicalRechargePlans": false,
+        "denominationType": "FIXED",
+        "senderCurrencyCode": "USD",
+        "senderCurrencySymbol": "$",
+        "destinationCurrencyCode": "USD",
+        "destinationCurrencySymbol": "$",
+        "commission": 0,
+        "internationalDiscount": 0,
+        "localDiscount": 0,
+        "mostPopularAmount": 25.4,
+        "mostPopularLocalAmount": null,
+        "minAmount": null,
+        "maxAmount": null,
+        "localMinAmount": null,
+        "localMaxAmount": null,
+        "country": {
+          "isoName": "LB",
+          "name": "Lebanon"
+        },
+        "fx": {
+          "rate": 1,
+          "currencyCode": "USD"
+        },
+        "logoUrls": [
+          "https://s3.amazonaws.com/rld-operator/904114ca-a6ec-45a8-b0b7-427f114b911f-size-2.png",
+          "https://s3.amazonaws.com/rld-operator/904114ca-a6ec-45a8-b0b7-427f114b911f-size-3.png",
+          "https://s3.amazonaws.com/rld-operator/904114ca-a6ec-45a8-b0b7-427f114b911f-size-1.png"
+        ],
+        "fixedAmounts": [
+          25.4
+        ],
+        "fixedAmountsDescriptions": {},
+        "localFixedAmounts": [],
+        "localFixedAmountsDescriptions": {},
+        "suggestedAmounts": [],
+        "suggestedAmountsMap": {},
+        "fees": {
+          "international": 0,
+          "local": 0,
+          "localPercentage": 0,
+          "internationalPercentage": 0
+        },
+        "geographicalRechargePlans": [],
+        "promotions": [],
+        "status": "ACTIVE"
+      }
+    ]
+  },
+  "zendit": {
+    "offers": {
+      "message": "INVALID_VALUE: _offset: required",
+      "errorCode": "validation_error",
+      "fields": {}
+    }
+  },
+  "ding": {
+    "providers": {
+      "ResultCode": 1,
+      "ErrorCodes": [],
+      "Items": [
+        {
+          "ProviderCode": "4RLB",
+          "CountryIso": "LB",
+          "Name": "Roblox Lebanon",
+          "ValidationRegex": "^961[0-9]{7,8}$|^0000000000$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "LB"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/4R/LB.png"
+        },
+        {
+          "ProviderCode": "74LB",
+          "CountryIso": "LB",
+          "Name": "Free Fire Lebanon",
+          "ValidationRegex": "^39[0-9]{9,10}$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "LB"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/74/LB.png"
+        },
+        {
+          "ProviderCode": "AALB",
+          "CountryIso": "LB",
+          "Name": "Alfa Lebanon",
+          "ValidationRegex": "^961[0-9]{7,8}$|^0000000000$",
+          "RegionCodes": [
+            "LB"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/AA/LB.png"
+        },
+        {
+          "ProviderCode": "I3LB",
+          "CountryIso": "LB",
+          "Name": "Razer Gold Digital Lebanon",
+          "ValidationRegex": "^961[0-9]{7,8}$|^0000000000$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "LB"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/I3/LB.png"
+        },
+        {
+          "ProviderCode": "IALB",
+          "CountryIso": "LB",
+          "Name": "App Store & iTunes Gift Card Lebanon",
+          "ValidationRegex": "^961[0-9]{7,8}$|^0000000000$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "LB"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/IA/LB.png"
+        },
+        {
+          "ProviderCode": "NYLB",
+          "CountryIso": "LB",
+          "Name": "Netflix Lebanon Lebanon",
+          "ValidationRegex": "^39[0-9]{9,10}$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "LB"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/NY/LB.png"
+        },
+        {
+          "ProviderCode": "PGLB",
+          "CountryIso": "LB",
+          "Name": "PUBG Mobile Lebanon",
+          "ValidationRegex": "^961[0-9]{7,8}$|^0000000000$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "LB"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/PG/LB.png"
+        },
+        {
+          "ProviderCode": "PNLB",
+          "CountryIso": "LB",
+          "Name": "Playstation Network Lebanon",
+          "ValidationRegex": "^961[0-9]{7,8}$|^0000000000$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "LB"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/PN/LB.png"
+        },
+        {
+          "ProviderCode": "TMLB",
+          "CountryIso": "LB",
+          "Name": "Touch Mobile Lebanon",
+          "ValidationRegex": "^961[0-9]{7,8}$|^0000000000$",
+          "RegionCodes": [
+            "LB"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/TM/LB.png"
+        }
+      ]
+    },
+    "products": {
+      "ResultCode": 3,
+      "ErrorCodes": [
+        {
+          "Code": "RateLimited"
+        }
+      ],
+      "Items": []
+    }
+  }
+}

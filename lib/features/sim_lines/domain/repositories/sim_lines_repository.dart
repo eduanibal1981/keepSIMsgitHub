@@ -46,4 +46,10 @@ abstract class SimLinesRepository {
   /// country and carrier but no line yet.
   Future<List<Map<String, dynamic>>> fetchLineRefillOffers(String simLineId);
   Future<List<PaymentMethod>> getPaymentMethods();
+  Future<void> recordManualExternalRecharge({
+    required String simLineId,
+    required DateTime rechargeDate,
+    double? amount,
+    String? note,
+  });
 }

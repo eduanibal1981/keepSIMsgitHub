@@ -1,0 +1,355 @@
+{
+  "globe": {
+    "dtone": {
+      "status": 404,
+      "raw": {
+        "errors": [
+          {
+            "code": 1003001,
+            "message": "Product is not available in your account"
+          }
+        ]
+      }
+    },
+    "zendit": {
+      "status": 200,
+      "txId": "test_ph_zen_globe_1787360732398",
+      "state": "ACCEPTED",
+      "raw": {
+        "transactionId": "test_ph_zen_globe_1787360732398",
+        "status": "ACCEPTED"
+      }
+    }
+  },
+  "smart": {
+    "dtone": {
+      "status": 201,
+      "id": 2240792118,
+      "state": "CREATED",
+      "cost": {
+        "amount": 0.074,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      },
+      "raw": {
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 10,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 10,
+              "total_including_tax": 10
+            },
+            "type": "CREDITS",
+            "unit": "PHP",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "confirmation_expiration_date": "2026-08-22T02:05:32.766991000Z",
+        "creation_date": "2026-08-22T01:05:32.766991000Z",
+        "credit_party_identifier": {
+          "mobile_number": "+639180000101"
+        },
+        "external_id": "test_ph_dt_smart_1787360733199",
+        "id": 2240792118,
+        "prices": {
+          "retail": {
+            "amount": 0.086,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 0.074,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "product": {
+          "description": "10 PHP",
+          "id": 7684,
+          "name": "10 PHP",
+          "operator": {
+            "country": {
+              "iso_code": "PHL",
+              "name": "Philippines",
+              "regions": [
+                {
+                  "code": "PHL",
+                  "name": "Philippines"
+                }
+              ]
+            },
+            "id": 570,
+            "name": "Smart Philippines",
+            "regions": null
+          },
+          "regions": null,
+          "service": {
+            "id": 1,
+            "name": "Mobile",
+            "subservice": {
+              "id": 11,
+              "name": "Airtime"
+            }
+          },
+          "tags": [
+            "AIRTIME"
+          ],
+          "type": "FIXED_VALUE_RECHARGE"
+        },
+        "promotions": null,
+        "rates": {
+          "base": 135.135135135135,
+          "retail": 116.279069767442,
+          "wholesale": 135.135135135135
+        },
+        "status": {
+          "class": {
+            "id": 1,
+            "message": "CREATED"
+          },
+          "id": 10000,
+          "message": "CREATED"
+        }
+      }
+    },
+    "zendit": {
+      "status": 200,
+      "txId": "test_ph_zen_smart_1787360733380",
+      "state": "ACCEPTED",
+      "raw": {
+        "transactionId": "test_ph_zen_smart_1787360733380",
+        "status": "ACCEPTED"
+      }
+    }
+  },
+  "dito": {
+    "dtone": {
+      "status": "UNSUPPORTED"
+    },
+    "zendit": {
+      "status": 200,
+      "txId": "test_ph_zen_dito_1787360733692",
+      "state": "ACCEPTED",
+      "raw": {
+        "transactionId": "test_ph_zen_dito_1787360733692",
+        "status": "ACCEPTED"
+      }
+    }
+  },
+  "tm": {
+    "dtone": {
+      "status": 201,
+      "id": 2240792119,
+      "state": "CREATED",
+      "cost": {
+        "amount": 0.076,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      },
+      "raw": {
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 10,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 10,
+              "total_including_tax": 10
+            },
+            "type": "CREDITS",
+            "unit": "PHP",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "confirmation_expiration_date": "2026-08-22T02:05:34.084611000Z",
+        "creation_date": "2026-08-22T01:05:34.084611000Z",
+        "credit_party_identifier": {
+          "mobile_number": "+639050000101"
+        },
+        "external_id": "test_ph_dt_tm_1787360734495",
+        "id": 2240792119,
+        "prices": {
+          "retail": {
+            "amount": 0.088,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 0.076,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "product": {
+          "description": "10 PHP",
+          "id": 23309,
+          "name": "10 PHP",
+          "operator": {
+            "country": {
+              "iso_code": "PHL",
+              "name": "Philippines",
+              "regions": [
+                {
+                  "code": "PHL",
+                  "name": "Philippines"
+                }
+              ]
+            },
+            "id": 3128,
+            "name": "Touch Mobile Philippines",
+            "regions": null
+          },
+          "regions": null,
+          "service": {
+            "id": 1,
+            "name": "Mobile",
+            "subservice": {
+              "id": 11,
+              "name": "Airtime"
+            }
+          },
+          "tags": [
+            "AIRTIME"
+          ],
+          "type": "FIXED_VALUE_RECHARGE"
+        },
+        "promotions": null,
+        "rates": {
+          "base": 131.578947368421,
+          "retail": 113.636363636364,
+          "wholesale": 131.578947368421
+        },
+        "status": {
+          "class": {
+            "id": 1,
+            "message": "CREATED"
+          },
+          "id": 10000,
+          "message": "CREATED"
+        }
+      }
+    },
+    "zendit": {
+      "status": 400,
+      "raw": {
+        "message": "INVALID_VALUE: params.offerID: offer not found",
+        "errorCode": "validation_error",
+        "fields": {}
+      }
+    }
+  },
+  "tnt": {
+    "dtone": {
+      "status": 201,
+      "id": 2240792120,
+      "state": "CREATED",
+      "cost": {
+        "amount": 0.147,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      },
+      "raw": {
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 20,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 20,
+              "total_including_tax": 20
+            },
+            "type": "CREDITS",
+            "unit": "PHP",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "confirmation_expiration_date": "2026-08-22T02:05:34.563208000Z",
+        "creation_date": "2026-08-22T01:05:34.563208000Z",
+        "credit_party_identifier": {
+          "mobile_number": "+639080000101"
+        },
+        "external_id": "test_ph_dt_tnt_1787360734996",
+        "id": 2240792120,
+        "prices": {
+          "retail": {
+            "amount": 0.17,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 0.147,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "product": {
+          "description": "20 PHP",
+          "id": 30059,
+          "name": "TNT Philippines 20 PHP",
+          "operator": {
+            "country": {
+              "iso_code": "PHL",
+              "name": "Philippines",
+              "regions": [
+                {
+                  "code": "PHL",
+                  "name": "Philippines"
+                }
+              ]
+            },
+            "id": 2897,
+            "name": "TNT Philippines",
+            "regions": null
+          },
+          "regions": null,
+          "service": {
+            "id": 1,
+            "name": "Mobile",
+            "subservice": {
+              "id": 11,
+              "name": "Airtime"
+            }
+          },
+          "tags": [
+            "AIRTIME"
+          ],
+          "type": "FIXED_VALUE_RECHARGE"
+        },
+        "promotions": null,
+        "rates": {
+          "base": 136.054421768707,
+          "retail": 117.647058823529,
+          "wholesale": 136.054421768707
+        },
+        "status": {
+          "class": {
+            "id": 1,
+            "message": "CREATED"
+          },
+          "id": 10000,
+          "message": "CREATED"
+        }
+      }
+    },
+    "zendit": {
+      "status": 200,
+      "txId": "test_ph_zen_tnt_1787360735186",
+      "state": "ACCEPTED",
+      "raw": {
+        "transactionId": "test_ph_zen_tnt_1787360735186",
+        "status": "ACCEPTED"
+      }
+    }
+  }
+}

@@ -41,8 +41,8 @@ BEGIN
       source_is_active, source_refreshed_at,
       source_currency, source_amount_native, fx_usd_to_local,
       delivery_type, redeem_instructions)
-    SELECT DISTINCT ON (p.api_provider, p.offer_id, p.country_code, m.carrier_id)
-      p.api_provider, 'topup', p.offer_id, p.country_code, m.carrier_id,
+    SELECT DISTINCT ON (p.api_provider, p.offer_id, co.iso_code, m.carrier_id)
+      p.api_provider, 'topup', p.offer_id, co.iso_code, m.carrier_id,
       p.offer_name, p.price_type, COALESCE(p.price_fixed_usd, p.price_min_usd),
       p.price_min_usd, p.price_max_usd,
       p.send_min, p.send_max, p.send_currency, p.send_currency_divisor,
@@ -54,8 +54,9 @@ BEGIN
       ON m.provider = p.api_provider
      AND m.provider_country_code = p.country_code
      AND m.provider_carrier_code = p.carrier_code
-    JOIN public.countries co ON co.iso_code = p.country_code
-    ORDER BY p.api_provider, p.offer_id, p.country_code, m.carrier_id,
+    JOIN public.carriers c ON c.id = m.carrier_id
+    JOIN public.countries co ON co.id = c.country_id
+    ORDER BY p.api_provider, p.offer_id, co.iso_code, m.carrier_id,
              m.is_primary DESC, m.priority ASC
     ON CONFLICT (provider_code, offer_kind, offer_code, country_code,
                  COALESCE(carrier_id, '00000000-0000-0000-0000-000000000000'::uuid))

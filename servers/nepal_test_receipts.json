@@ -1,0 +1,728 @@
+{
+  "timestamp": "2026-08-22T22:46:34.139Z",
+  "dtone": [
+    {
+      "carrier": "Ncell",
+      "name": "Ncell 50 NPR",
+      "productId": 4658,
+      "recipient": "+9779800000101",
+      "httpStatus": 201,
+      "response": {
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 50,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 50,
+              "total_including_tax": 49.02
+            },
+            "type": "CREDITS",
+            "unit": "NPR",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "confirmation_date": "2026-08-22T22:46:32.628853000Z",
+        "confirmation_expiration_date": "2026-08-22T23:46:32.600060000Z",
+        "creation_date": "2026-08-22T22:46:32.600060000Z",
+        "credit_party_identifier": {
+          "mobile_number": "+9779800000101"
+        },
+        "external_id": "dt_np_test_1787438794146_4658",
+        "id": 2240793436,
+        "prices": {
+          "retail": {
+            "amount": 0.179,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 0.155,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "product": {
+          "description": "50 NPR",
+          "id": 4658,
+          "name": "50 NPR",
+          "operator": {
+            "country": {
+              "iso_code": "NPL",
+              "name": "Nepal",
+              "regions": [
+                {
+                  "code": "NPL",
+                  "name": "Nepal"
+                }
+              ]
+            },
+            "id": 1442,
+            "name": "NCell Nepal",
+            "regions": null
+          },
+          "regions": null,
+          "service": {
+            "id": 1,
+            "name": "Mobile",
+            "subservice": {
+              "id": 11,
+              "name": "Airtime"
+            }
+          },
+          "tags": [
+            "AIRTIME"
+          ],
+          "type": "FIXED_VALUE_RECHARGE"
+        },
+        "promotions": null,
+        "rates": {
+          "base": 322.58064516129,
+          "retail": 279.329608938547,
+          "wholesale": 322.58064516129
+        },
+        "status": {
+          "class": {
+            "id": 2,
+            "message": "CONFIRMED"
+          },
+          "id": 20000,
+          "message": "CONFIRMED"
+        }
+      }
+    },
+    {
+      "carrier": "Ncell",
+      "name": "Ncell RS 30 - 100MB Data",
+      "productId": 47518,
+      "recipient": "+9779800000101",
+      "httpStatus": 201,
+      "response": {
+        "benefits": [
+          {
+            "additional_information": "100MB Data Sangai Beema",
+            "amount": {
+              "base": 100,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 100,
+              "total_including_tax": 100
+            },
+            "type": "DATA",
+            "unit": "MB",
+            "unit_type": "DATA"
+          }
+        ],
+        "confirmation_date": "2026-08-22T22:46:33.802529000Z",
+        "confirmation_expiration_date": "2026-08-22T23:46:33.774915000Z",
+        "creation_date": "2026-08-22T22:46:33.774915000Z",
+        "credit_party_identifier": {
+          "mobile_number": "+9779800000101"
+        },
+        "external_id": "dt_np_test_1787438795576_47518",
+        "id": 2240793438,
+        "prices": {
+          "retail": {
+            "amount": 0.107,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 0.093,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "product": {
+          "description": "Rs 30 Data sangai Beema - For just Rs 30 get hospitalization insurance upto Rs.10,000 valid for 1 month and 100MB data for 3 days. Conditions apply, dial 17110",
+          "id": 47518,
+          "name": "RS 30 - 100MB Data Sangai Beema",
+          "operator": {
+            "country": {
+              "iso_code": "NPL",
+              "name": "Nepal",
+              "regions": [
+                {
+                  "code": "NPL",
+                  "name": "Nepal"
+                }
+              ]
+            },
+            "id": 1442,
+            "name": "NCell Nepal",
+            "regions": null
+          },
+          "regions": null,
+          "service": {
+            "id": 1,
+            "name": "Mobile",
+            "subservice": {
+              "id": 13,
+              "name": "Data"
+            }
+          },
+          "tags": [
+            "DATA"
+          ],
+          "type": "FIXED_VALUE_RECHARGE"
+        },
+        "promotions": null,
+        "rates": {
+          "base": 322.58064516129,
+          "retail": 280.373831775701,
+          "wholesale": 322.58064516129
+        },
+        "status": {
+          "class": {
+            "id": 2,
+            "message": "CONFIRMED"
+          },
+          "id": 20000,
+          "message": "CONFIRMED"
+        }
+      }
+    },
+    {
+      "carrier": "NTC (Nepal Telecom)",
+      "name": "NTC 10 NPR",
+      "productId": 6972,
+      "recipient": "+9779840000101",
+      "httpStatus": 201,
+      "response": {
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 10,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 10,
+              "total_including_tax": 9.8
+            },
+            "type": "CREDITS",
+            "unit": "NPR",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "confirmation_date": "2026-08-22T22:46:34.995447000Z",
+        "confirmation_expiration_date": "2026-08-22T23:46:34.964008000Z",
+        "creation_date": "2026-08-22T22:46:34.964008000Z",
+        "credit_party_identifier": {
+          "mobile_number": "+9779840000101"
+        },
+        "external_id": "dt_np_test_1787438796771_6972",
+        "id": 2240793440,
+        "prices": {
+          "retail": {
+            "amount": 0.036,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 0.031,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "product": {
+          "description": "10 NPR",
+          "id": 6972,
+          "name": "10 NPR",
+          "operator": {
+            "country": {
+              "iso_code": "NPL",
+              "name": "Nepal",
+              "regions": [
+                {
+                  "code": "NPL",
+                  "name": "Nepal"
+                }
+              ]
+            },
+            "id": 1443,
+            "name": "NTC Nepal",
+            "regions": null
+          },
+          "regions": null,
+          "service": {
+            "id": 1,
+            "name": "Mobile",
+            "subservice": {
+              "id": 11,
+              "name": "Airtime"
+            }
+          },
+          "tags": [
+            "AIRTIME"
+          ],
+          "type": "FIXED_VALUE_RECHARGE"
+        },
+        "promotions": null,
+        "rates": {
+          "base": 322.58064516129,
+          "retail": 277.777777777778,
+          "wholesale": 322.58064516129
+        },
+        "status": {
+          "class": {
+            "id": 2,
+            "message": "CONFIRMED"
+          },
+          "id": 20000,
+          "message": "CONFIRMED"
+        }
+      }
+    },
+    {
+      "carrier": "NTC (Nepal Telecom)",
+      "name": "NTC 50 NPR",
+      "productId": 6976,
+      "recipient": "+9779840000101",
+      "httpStatus": 201,
+      "response": {
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 50,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 50,
+              "total_including_tax": 49.02
+            },
+            "type": "CREDITS",
+            "unit": "NPR",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "confirmation_date": "2026-08-22T22:46:36.160923000Z",
+        "confirmation_expiration_date": "2026-08-22T23:46:36.135951000Z",
+        "creation_date": "2026-08-22T22:46:36.135951000Z",
+        "credit_party_identifier": {
+          "mobile_number": "+9779840000101"
+        },
+        "external_id": "dt_np_test_1787438797938_6976",
+        "id": 2240793441,
+        "prices": {
+          "retail": {
+            "amount": 0.178,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 0.154,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "product": {
+          "description": "50 NPR",
+          "id": 6976,
+          "name": "50 NPR",
+          "operator": {
+            "country": {
+              "iso_code": "NPL",
+              "name": "Nepal",
+              "regions": [
+                {
+                  "code": "NPL",
+                  "name": "Nepal"
+                }
+              ]
+            },
+            "id": 1443,
+            "name": "NTC Nepal",
+            "regions": null
+          },
+          "regions": null,
+          "service": {
+            "id": 1,
+            "name": "Mobile",
+            "subservice": {
+              "id": 11,
+              "name": "Airtime"
+            }
+          },
+          "tags": [
+            "AIRTIME"
+          ],
+          "type": "FIXED_VALUE_RECHARGE"
+        },
+        "promotions": null,
+        "rates": {
+          "base": 324.675324675325,
+          "retail": 280.898876404494,
+          "wholesale": 324.675324675325
+        },
+        "status": {
+          "class": {
+            "id": 2,
+            "message": "CONFIRMED"
+          },
+          "id": 20000,
+          "message": "CONFIRMED"
+        }
+      }
+    },
+    {
+      "carrier": "NTC (Nepal Telecom)",
+      "name": "NTC 600 MB All Time Data (22.44 NPR)",
+      "productId": 61849,
+      "recipient": "+9779840000101",
+      "httpStatus": 201,
+      "response": {
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 600,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 600,
+              "total_including_tax": 600
+            },
+            "type": "DATA",
+            "unit": "MB",
+            "unit_type": "DATA"
+          }
+        ],
+        "confirmation_date": "2026-08-22T22:46:37.400388000Z",
+        "confirmation_expiration_date": "2026-08-22T23:46:37.360188000Z",
+        "creation_date": "2026-08-22T22:46:37.360188000Z",
+        "credit_party_identifier": {
+          "mobile_number": "+9779840000101"
+        },
+        "external_id": "dt_np_test_1787438799159_61849",
+        "id": 2240793443,
+        "prices": {
+          "retail": {
+            "amount": 0.08,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 0.069,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "product": {
+          "description": "600 MB All Time Data Pack Valid for 1 day",
+          "id": 61849,
+          "name": "600 MB All Time Data Pack",
+          "operator": {
+            "country": {
+              "iso_code": "NPL",
+              "name": "Nepal",
+              "regions": [
+                {
+                  "code": "NPL",
+                  "name": "Nepal"
+                }
+              ]
+            },
+            "id": 1443,
+            "name": "NTC Nepal",
+            "regions": null
+          },
+          "regions": null,
+          "service": {
+            "id": 1,
+            "name": "Mobile",
+            "subservice": {
+              "id": 13,
+              "name": "Data"
+            }
+          },
+          "tags": [
+            "DATA"
+          ],
+          "type": "FIXED_VALUE_RECHARGE"
+        },
+        "promotions": null,
+        "rates": {
+          "base": 325.217391304348,
+          "retail": 280.5,
+          "wholesale": 325.217391304348
+        },
+        "status": {
+          "class": {
+            "id": 2,
+            "message": "CONFIRMED"
+          },
+          "id": 20000,
+          "message": "CONFIRMED"
+        }
+      }
+    }
+  ],
+  "reloadly": [
+    {
+      "carrier": "Ncell",
+      "name": "Ncell $1.00 Airtime",
+      "operatorId": 328,
+      "amount": 1,
+      "recipient": "+9779800000101",
+      "httpStatus": 200,
+      "response": {
+        "transactionId": 178469,
+        "status": "SUCCESSFUL",
+        "operatorTransactionId": null,
+        "customIdentifier": "rl_np_test_1787438801200_328",
+        "recipientPhone": "9779800000101",
+        "recipientEmail": null,
+        "senderPhone": null,
+        "countryCode": "NP",
+        "operatorId": 328,
+        "operatorName": "NCell Nepal",
+        "discount": 0.05,
+        "discountCurrencyCode": "USD",
+        "requestedAmount": 1,
+        "requestedAmountCurrencyCode": "USD",
+        "deliveredAmount": 132.57,
+        "deliveredAmountCurrencyCode": "NPR",
+        "transactionDate": "2026-08-22 22:46:40",
+        "pinDetail": null,
+        "fee": 0,
+        "balanceInfo": {
+          "oldBalance": 723.2464,
+          "newBalance": 722.2964,
+          "cost": 0.95,
+          "currencyCode": "USD",
+          "currencyName": "US Dollar",
+          "updatedAt": "2026-08-22 22:46:27"
+        }
+      }
+    },
+    {
+      "carrier": "Ncell Data",
+      "name": "Ncell Data $0.23 Bundle",
+      "operatorId": 1121,
+      "amount": 0.23,
+      "recipient": "+9779800000101",
+      "httpStatus": 200,
+      "response": {
+        "transactionId": 178470,
+        "status": "SUCCESSFUL",
+        "operatorTransactionId": null,
+        "customIdentifier": "rl_np_test_1787438803090_1121",
+        "recipientPhone": "9779800000101",
+        "recipientEmail": null,
+        "senderPhone": null,
+        "countryCode": "NP",
+        "operatorId": 1121,
+        "operatorName": "NCell Nepal Data",
+        "discount": 0.01,
+        "discountCurrencyCode": "USD",
+        "requestedAmount": 0.23,
+        "requestedAmountCurrencyCode": "USD",
+        "deliveredAmount": 30,
+        "deliveredAmountCurrencyCode": "NPR",
+        "transactionDate": "2026-08-22 22:46:41",
+        "pinDetail": null,
+        "fee": 0,
+        "balanceInfo": {
+          "oldBalance": 722.2964,
+          "newBalance": 722.0779,
+          "cost": 0.2185,
+          "currencyCode": "USD",
+          "currencyName": "US Dollar",
+          "updatedAt": "2026-08-22 22:46:40"
+        }
+      }
+    },
+    {
+      "carrier": "NTC GSM",
+      "name": "NTC $1.00 Airtime",
+      "operatorId": 326,
+      "amount": 1,
+      "recipient": "+9779840000101",
+      "httpStatus": 200,
+      "response": {
+        "transactionId": 178471,
+        "status": "SUCCESSFUL",
+        "operatorTransactionId": null,
+        "customIdentifier": "rl_np_test_1787438804441_326",
+        "recipientPhone": "9779840000101",
+        "recipientEmail": null,
+        "senderPhone": null,
+        "countryCode": "NP",
+        "operatorId": 326,
+        "operatorName": "NTC GSM Nepal",
+        "discount": 0.05,
+        "discountCurrencyCode": "USD",
+        "requestedAmount": 1,
+        "requestedAmountCurrencyCode": "USD",
+        "deliveredAmount": 132.57,
+        "deliveredAmountCurrencyCode": "NPR",
+        "transactionDate": "2026-08-22 22:46:43",
+        "pinDetail": null,
+        "fee": 0,
+        "balanceInfo": {
+          "oldBalance": 722.0779,
+          "newBalance": 721.1279,
+          "cost": 0.95,
+          "currencyCode": "USD",
+          "currencyName": "US Dollar",
+          "updatedAt": "2026-08-22 22:46:41"
+        }
+      }
+    },
+    {
+      "carrier": "NTC Data",
+      "name": "NTC Data $0.17 Bundle",
+      "operatorId": 1123,
+      "amount": 0.17,
+      "recipient": "+9779840000101",
+      "httpStatus": 200,
+      "response": {
+        "transactionId": 178472,
+        "status": "SUCCESSFUL",
+        "operatorTransactionId": null,
+        "customIdentifier": "rl_np_test_1787438805796_1123",
+        "recipientPhone": "9779840000101",
+        "recipientEmail": null,
+        "senderPhone": null,
+        "countryCode": "NP",
+        "operatorId": 1123,
+        "operatorName": "NTC Nepal Data",
+        "discount": 0.01,
+        "discountCurrencyCode": "USD",
+        "requestedAmount": 0.17,
+        "requestedAmountCurrencyCode": "USD",
+        "deliveredAmount": 22.44,
+        "deliveredAmountCurrencyCode": "NPR",
+        "transactionDate": "2026-08-22 22:46:44",
+        "pinDetail": null,
+        "fee": 0,
+        "balanceInfo": {
+          "oldBalance": 721.1279,
+          "newBalance": 720.9664,
+          "cost": 0.1615,
+          "currencyCode": "USD",
+          "currencyName": "US Dollar",
+          "updatedAt": "2026-08-22 22:46:43"
+        }
+      }
+    },
+    {
+      "carrier": "Smartcell",
+      "name": "Smartcell $0.08 Topup",
+      "operatorId": 805,
+      "amount": 0.08,
+      "recipient": "+9779610000101",
+      "httpStatus": 200,
+      "response": {
+        "transactionId": 178473,
+        "status": "SUCCESSFUL",
+        "operatorTransactionId": null,
+        "customIdentifier": "rl_np_test_1787438807110_805",
+        "recipientPhone": "9779610000101",
+        "recipientEmail": null,
+        "senderPhone": null,
+        "countryCode": "NP",
+        "operatorId": 805,
+        "operatorName": "Smartcell Nepal",
+        "discount": 0,
+        "discountCurrencyCode": "USD",
+        "requestedAmount": 0.08,
+        "requestedAmountCurrencyCode": "USD",
+        "deliveredAmount": 10,
+        "deliveredAmountCurrencyCode": "NPR",
+        "transactionDate": "2026-08-22 22:46:45",
+        "pinDetail": null,
+        "fee": 0,
+        "balanceInfo": {
+          "oldBalance": 720.9664,
+          "newBalance": 720.8904,
+          "cost": 0.076,
+          "currencyCode": "USD",
+          "currencyName": "US Dollar",
+          "updatedAt": "2026-08-22 22:46:44"
+        }
+      }
+    }
+  ],
+  "zendit": [
+    {
+      "carrier": "Ncell",
+      "name": "Ncell 6 USD Offer (668.82 NPR)",
+      "offerId": "NCELL_NP_6-I",
+      "recipient": "+9779800000101",
+      "httpStatus": 200,
+      "response": {
+        "transactionId": "zen_np_test_1787438808427_ncell_np_6_i",
+        "status": "ACCEPTED"
+      }
+    },
+    {
+      "carrier": "Ncell",
+      "name": "Ncell 12 USD Offer (1337.64 NPR)",
+      "offerId": "NCELL_NP_12-I",
+      "recipient": "+9779800000101",
+      "httpStatus": 200,
+      "response": {
+        "transactionId": "zen_np_test_1787438810107_ncell_np_12_i",
+        "status": "ACCEPTED"
+      }
+    },
+    {
+      "carrier": "NTC GSM",
+      "name": "NTC 2.5 USD Offer (236.34 NPR)",
+      "offerId": "NTCGSM_NP_2.5-I",
+      "recipient": "+9779840000101",
+      "httpStatus": 200,
+      "response": {
+        "transactionId": "zen_np_test_1787438811371_ntcgsm_np_2_5_i",
+        "status": "ACCEPTED"
+      }
+    },
+    {
+      "carrier": "NTC GSM",
+      "name": "NTC 6 USD Offer (597.80 NPR)",
+      "offerId": "NTCGSM_NP_6-I",
+      "recipient": "+9779840000101",
+      "httpStatus": 200,
+      "response": {
+        "transactionId": "zen_np_test_1787438812637_ntcgsm_np_6_i",
+        "status": "ACCEPTED"
+      }
+    }
+  ],
+  "ding": [
+    {
+      "carrier": "Ncell",
+      "providerCode": "NCNP",
+      "name": "Ncell Nepal",
+      "status": "Disabled / 0 UAT Catalog SKUs",
+      "regex": "^977(9(?:80|81|82|70|71|72|73)[0-9]{7})$"
+    },
+    {
+      "carrier": "Ncell Data",
+      "providerCode": "6NNP",
+      "name": "Ncell Nepal Data",
+      "status": "Disabled / 0 UAT Catalog SKUs",
+      "regex": "^977(9(?:80|81|82|70|71|72|73)[0-9]{7})$"
+    },
+    {
+      "carrier": "Nepal Telecom (NTC)",
+      "providerCode": "NENP",
+      "name": "Nepal Telecom Nepal",
+      "status": "Disabled / 0 UAT Catalog SKUs",
+      "regex": "^977(9(?:84|85|86|74|76|04)[0-9]{7})$"
+    },
+    {
+      "carrier": "Nepal Telecom Data",
+      "providerCode": "8NNP",
+      "name": "Nepal Telecom Nepal Data",
+      "status": "Disabled / 0 UAT Catalog SKUs",
+      "regex": "^977(9(?:84|85|86|74|76|04)[0-9]{7})$"
+    }
+  ]
+}

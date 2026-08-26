@@ -16,6 +16,7 @@ import 'package:keep_sims/core/providers.dart';
 import 'package:keep_sims/features/scheduled_topups/model/scheduled_topup_model.dart';
 import 'package:keep_sims/core/result.dart';
 import 'package:keep_sims/features/notifications/data/repositories/notifications_repository_impl.dart';
+import 'package:keep_sims/features/geo/controller/geo_controller.dart';
 
 part 'sim_lines_controller.g.dart';
 
@@ -86,9 +87,31 @@ class SimLinesController extends _$SimLinesController {
     // not. Raised after the state assignment below, so the list still carries
     // the line that really exists.
     PremiumRefillQueueException? queueFailure;
+    SimLine? addedLine;
     state = const AsyncLoading<List<SimLine>>().copyWithPrevious(state);
     state = await AsyncValue.guard(() async {
       final repo = ref.read(simLinesRepositoryProvider);
+
+      final countries = ref.read(supportedCountriesProvider).value ?? [];
+      final lineCountry = countries.where((c) => c.id == countryId).firstOrNull;
+      final authProfile = ref.read(authControllerProvider).value;
+      final geoState = ref.read(geoControllerProvider);
+
+      // Home mode is a location fact: the user is currently physically inside
+      // the SIM line's origin country. We compare against the current geolocation
+      // (from IP/edge detection or last detected country), falling back to
+      // profile homeCountryCode only if no geolocation is available.
+      final currentGeoIso =
+          geoState.currentIsoCode.isNotEmpty && geoState.currentIsoCode != 'XX'
+          ? geoState.currentIsoCode
+          : (authProfile?.lastCountry ?? authProfile?.homeCountryCode);
+
+      final isHome =
+          lineCountry != null &&
+          currentGeoIso != null &&
+          currentGeoIso.isNotEmpty &&
+          currentGeoIso != 'XX' &&
+          lineCountry.isoCode.toUpperCase() == currentGeoIso.toUpperCase();
 
       final newLine = SimLine(
         id: '',
@@ -102,9 +125,12 @@ class SimLinesController extends _$SimLinesController {
         planType: planType,
         planExpiresAt: planExpiresAt,
         carrierRuleId: carrierRuleId,
+        isHomeMode: isHome,
+        protectionPaused: isHome,
       );
 
       final added = await repo.addSimLine(newLine);
+      addedLine = added;
 
       // A paid line must exist on the server before anyone is told it is
       // protected. When the device reads as offline the repository silently
@@ -235,6 +261,13 @@ class SimLinesController extends _$SimLinesController {
 
       return [added, ...previousList];
     });
+
+    // Automatically poll after 2.5s, 5.5s, and 10s to pick up the initial refill
+    // completed asynchronously by the server worker.
+    if ((planType == 'premium' || planType == 'standard') &&
+        addedLine != null) {
+      schedulePostRefillCheck(addedLine!.id);
+    }
 
     // Raised last, and only once the list above already holds the new line: the
     // row exists and the plan has been paid for, so the caller must not treat
@@ -390,7 +423,8 @@ class SimLinesController extends _$SimLinesController {
                 repo,
                 simLineId: line.id,
                 scheduledTopupId: result.data.id,
-                planExpiresAt: line.planExpiresAt ??
+                planExpiresAt:
+                    line.planExpiresAt ??
                     DateTime.now().toUtc().add(const Duration(days: 365)),
               );
             }
@@ -402,6 +436,10 @@ class SimLinesController extends _$SimLinesController {
           .map((item) => item.id == line.id ? updated : item)
           .toList();
     });
+
+    if (line.planType == 'premium' || line.planType == 'standard') {
+      schedulePostRefillCheck(line.id);
+    }
 
     // See addSimLine: the upgrade itself landed, only the pre-paid queue did
     // not, and the two must not read as the same failure.
@@ -646,6 +684,46 @@ class SimLinesController extends _$SimLinesController {
     ref.invalidateSelf();
     ref.invalidate(topupExecutionsForLineProvider(line.id));
     ref.invalidate(simLineActivityLogsProvider(line.id));
+
+    schedulePostRefillCheck(line.id);
+  }
+
+  /// Schedules staggered background refreshes to pick up server-worker refill
+  /// completions (which take 2-5s) without requiring the user to manually hit
+  /// the refresh button.
+  void schedulePostRefillCheck([String? simLineId]) {
+    Timer(
+      const Duration(milliseconds: 2500),
+      () => _triggerAutoRefresh(simLineId),
+    );
+    Timer(
+      const Duration(milliseconds: 5500),
+      () => _triggerAutoRefresh(simLineId),
+    );
+    Timer(
+      const Duration(milliseconds: 10000),
+      () => _triggerAutoRefresh(simLineId),
+    );
+  }
+
+  Future<void> _triggerAutoRefresh([String? targetLineId]) async {
+    try {
+      final repo = ref.read(simLinesRepositoryProvider);
+      final freshLines = await repo.getSimLines();
+      freshLines.sort((a, b) {
+        final aName = (a.nickname ?? a.phoneNumber).toLowerCase();
+        final bName = (b.nickname ?? b.phoneNumber).toLowerCase();
+        return aName.compareTo(bName);
+      });
+      state = AsyncData(freshLines);
+      ref.invalidate(scheduledTopupControllerProvider);
+      if (targetLineId != null) {
+        ref.invalidate(topupExecutionsForLineProvider(targetLineId));
+        ref.invalidate(simLineActivityLogsProvider(targetLineId));
+      }
+    } catch (_) {
+      // Ignore background refresh errors
+    }
   }
 }
 

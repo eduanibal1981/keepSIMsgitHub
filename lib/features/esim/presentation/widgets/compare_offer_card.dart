@@ -35,11 +35,12 @@ class CompareOfferCard extends StatelessWidget {
     return String.fromCharCode(a) + String.fromCharCode(b);
   }
 
-  /// eSIM Go's unlimited grades are product names, not descriptions, so they
-  /// are shown as-is rather than translated. The tier only appears on
-  /// unlimited plans — on a metered bundle it would be noise.
+  /// Displays the tier / FUP speed for unlimited or DayPass plans.
   String? get _speedLabel {
     if (!offer.isUnlimited) return null;
+    if (offer.speedTierRaw != null && offer.speedTierRaw!.startsWith('high-')) {
+      return offer.speedTierRaw;
+    }
     switch (offer.speedTier) {
       case OfferSpeedTier.lite:
         return 'Lite';
@@ -107,12 +108,23 @@ class CompareOfferCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                offer.sourceName,
-                style: AppTextStyles.bodyLarge.copyWith(
-                  color: context.onSurfaceColor,
-                  fontWeight: FontWeight.bold,
-                ),
+              Row(
+                children: [
+                  Flexible(
+                    child: Text(
+                      offer.sourceName,
+                      style: AppTextStyles.bodyLarge.copyWith(
+                        color: context.onSurfaceColor,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  if (offer.typeTag != null) ...[
+                    const SizedBox(width: 8),
+                    _tagBadge(offer.typeTag!),
+                  ],
+                ],
               ),
               const SizedBox(height: 2),
               Row(
@@ -194,6 +206,46 @@ class CompareOfferCard extends StatelessWidget {
               color: colour,
               fontWeight: FontWeight.bold,
               fontSize: 10,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _tagBadge(String tag) {
+    final isDayPass = tag == 'DayPass';
+    final bg = isDayPass
+        ? const Color(0xFFF59E0B).withValues(alpha: 0.12)
+        : const Color(0xFF0EA5E9).withValues(alpha: 0.12);
+    final border = isDayPass
+        ? const Color(0xFFF59E0B).withValues(alpha: 0.40)
+        : const Color(0xFF0EA5E9).withValues(alpha: 0.40);
+    final fg = isDayPass ? const Color(0xFFD97706) : const Color(0xFF0284C7);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: border, width: 0.8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            isDayPass ? Icons.wb_sunny_outlined : Icons.inventory_2_outlined,
+            size: 10,
+            color: fg,
+          ),
+          const SizedBox(width: 3.5),
+          Text(
+            tag,
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              color: fg,
+              letterSpacing: 0.1,
             ),
           ),
         ],

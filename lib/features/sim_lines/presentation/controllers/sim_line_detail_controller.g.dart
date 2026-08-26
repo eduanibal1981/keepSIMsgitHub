@@ -53,7 +53,7 @@ final class SimLineDetailControllerProvider
 }
 
 String _$simLineDetailControllerHash() =>
-    r'02d051c75938b36cf50e3d7decb279768fbe97d4';
+    r'f9461acb0ee18f39260b24549e047b369c6fb4cc';
 
 final class SimLineDetailControllerFamily extends $Family
     with

@@ -53,7 +53,7 @@ class _EsimPlansScreenState extends ConsumerState<EsimPlansScreen> {
     'AT': 'Austria', 'BE': 'Belgium', 'IE': 'Ireland', 'PL': 'Poland',
     'AE': 'United Arab Emirates', 'SA': 'Saudi Arabia', 'QA': 'Qatar',
     'KW': 'Kuwait', 'BH': 'Bahrain', 'OM': 'Oman', 'JO': 'Jordan',
-    'EG': 'Egypt', 'MA': 'Morocco', 'TR': 'Turkey', 'IL': 'Israel',
+    'EG': 'Egypt', 'MA': 'Morocco', 'TR': 'Turkey', 'PS': 'Palestine',
     'IN': 'India', 'PK': 'Pakistan', 'BD': 'Bangladesh', 'LK': 'Sri Lanka',
     'NP': 'Nepal', 'PH': 'Philippines', 'ID': 'Indonesia', 'MY': 'Malaysia',
     'SG': 'Singapore', 'TH': 'Thailand', 'VN': 'Vietnam', 'JP': 'Japan',

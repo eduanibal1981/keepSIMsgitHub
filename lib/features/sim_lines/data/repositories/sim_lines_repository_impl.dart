@@ -837,6 +837,11 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
           .map<Map<String, dynamic>>((r) => {
                 'offerId': r['offer_id'],
                 'description': r['offer_name'] ?? r['offer_id'],
+                'benefitSummary': r['benefit_summary'] ?? r['offer_name'] ?? r['offer_id'],
+                'serviceType': r['service_type'] ?? 'airtime',
+                'dataMb': (r['data_mb'] as num?)?.toInt(),
+                'durationDays': (r['duration_days'] as num?)?.toInt(),
+                'deliveryType': r['delivery_type'] ?? 'direct',
                 'priceType': r['price_type'],
                 'isRange': r['price_type'] == 'RANGE',
                 'baseCostUsd': (r['price_fixed_usd'] as num?)?.toDouble(),
@@ -880,6 +885,27 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
       throw Exception('Failed to load payment methods: ${e.message}');
     } catch (e) {
       throw Exception('Failed to load payment methods: $e');
+    }
+  }
+
+  @override
+  Future<void> recordManualExternalRecharge({
+    required String simLineId,
+    required DateTime rechargeDate,
+    double? amount,
+    String? note,
+  }) async {
+    try {
+      await _supabase.rpc('record_manual_external_recharge', params: {
+        'p_sim_line_id': simLineId,
+        'p_recharge_date': rechargeDate.toUtc().toIso8601String(),
+        'p_amount': amount,
+        'p_note': note,
+      });
+    } on PostgrestException catch (e) {
+      throw Exception('Failed to record manual recharge: ${e.message}');
+    } catch (e) {
+      throw Exception('Error recording manual recharge: $e');
     }
   }
 }

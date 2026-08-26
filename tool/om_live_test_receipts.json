@@ -1,0 +1,649 @@
+{
+  "omantel": {
+    "name": "Omantel",
+    "dtone": {
+      "status": 201,
+      "txId": 2240792135,
+      "state": "CREATED",
+      "cost": {
+        "amount": 1.24,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      },
+      "raw": {
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 1,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 1,
+              "total_including_tax": 1
+            },
+            "type": "CREDITS",
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "confirmation_expiration_date": "2026-08-22T02:13:57.919781000Z",
+        "creation_date": "2026-08-22T01:13:57.919781000Z",
+        "credit_party_identifier": {
+          "mobile_number": "+96891000101"
+        },
+        "external_id": "test_om_dt_omantel_1787361238153",
+        "id": 2240792135,
+        "prices": {
+          "retail": {
+            "amount": 1.427,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 1.24,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "product": {
+          "description": "1 OMR",
+          "id": 17091,
+          "name": "1 OMR",
+          "operator": {
+            "country": {
+              "iso_code": "OMN",
+              "name": "Oman",
+              "regions": [
+                {
+                  "code": "OMN",
+                  "name": "Oman"
+                }
+              ]
+            },
+            "id": 2695,
+            "name": "Omantel PIN Oman",
+            "regions": null
+          },
+          "pin": {
+            "terms": null,
+            "usage_info": [
+              "To recharge your account: Call 1233 and follow the instructions or Dial *101*recharge pin#",
+              "To check your credit balance: Dial *100#",
+              "",
+              "IVR: 1233"
+            ],
+            "validity": null
+          },
+          "regions": null,
+          "service": {
+            "id": 1,
+            "name": "Mobile",
+            "subservice": {
+              "id": 11,
+              "name": "Airtime"
+            }
+          },
+          "tags": [
+            "AIRTIME"
+          ],
+          "type": "FIXED_VALUE_PIN_PURCHASE"
+        },
+        "promotions": null,
+        "rates": {
+          "base": 0.806451612903226,
+          "retail": 0.700770847932726,
+          "wholesale": 0.806451612903226
+        },
+        "status": {
+          "class": {
+            "id": 1,
+            "message": "CREATED"
+          },
+          "id": 10000,
+          "message": "CREATED"
+        }
+      }
+    },
+    "reloadly": {
+      "status": 200,
+      "txId": 178387,
+      "txStatus": "SUCCESSFUL",
+      "cost": 2.955,
+      "pinDetail": {
+        "serial": "869248",
+        "info1": "DIAL *611",
+        "info2": "DIAL *611",
+        "info3": "Dial *233* and PIN #",
+        "value": null,
+        "code": "773709732563603",
+        "ivr": "1-888-888-8888",
+        "validity": "30 days"
+      },
+      "raw": {
+        "transactionId": 178387,
+        "status": "SUCCESSFUL",
+        "operatorTransactionId": null,
+        "customIdentifier": null,
+        "recipientPhone": "96891000101",
+        "recipientEmail": null,
+        "senderPhone": null,
+        "countryCode": "OM",
+        "operatorId": 348,
+        "operatorName": "Omantel PIN Oman",
+        "discount": 0.05,
+        "discountCurrencyCode": "USD",
+        "requestedAmount": 3,
+        "requestedAmountCurrencyCode": "USD",
+        "deliveredAmount": 1.16,
+        "deliveredAmountCurrencyCode": "OMR",
+        "transactionDate": "2026-08-22 01:13:59",
+        "pinDetail": {
+          "serial": "869248",
+          "info1": "DIAL *611",
+          "info2": "DIAL *611",
+          "info3": "Dial *233* and PIN #",
+          "value": null,
+          "code": "773709732563603",
+          "ivr": "1-888-888-8888",
+          "validity": "30 days"
+        },
+        "fee": 0,
+        "balanceInfo": {
+          "oldBalance": 943.3279,
+          "newBalance": 940.3729,
+          "cost": 2.955,
+          "currencyCode": "USD",
+          "currencyName": "US Dollar",
+          "updatedAt": "2026-08-22 01:05:09"
+        }
+      }
+    },
+    "zendit": {
+      "status": "DISABLED_0_OFFERS"
+    },
+    "ding": {
+      "providerCode": "OMOM",
+      "providerName": "Omantel Oman",
+      "validationRegex": "^968[0-9]{8}$|^0000000000$",
+      "uatOffers": 0,
+      "status": "CATALOG_MAPPED_0_UAT_PRODUCTS"
+    }
+  },
+  "ooredoo": {
+    "name": "Ooredoo Oman",
+    "dtone": {
+      "status": 201,
+      "txId": 2240792136,
+      "state": "CREATED",
+      "cost": {
+        "amount": 1.228,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      },
+      "raw": {
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 1,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 1,
+              "total_including_tax": 1
+            },
+            "type": "CREDITS",
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "confirmation_expiration_date": "2026-08-22T02:13:59.556641000Z",
+        "creation_date": "2026-08-22T01:13:59.556641000Z",
+        "credit_party_identifier": {
+          "mobile_number": "+96895000101"
+        },
+        "external_id": "test_om_dt_ooredoo_1787361239982",
+        "id": 2240792136,
+        "prices": {
+          "retail": {
+            "amount": 1.413,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 1.228,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "product": {
+          "description": "1 OMR",
+          "id": 18802,
+          "name": "1 OMR",
+          "operator": {
+            "country": {
+              "iso_code": "OMN",
+              "name": "Oman",
+              "regions": [
+                {
+                  "code": "OMN",
+                  "name": "Oman"
+                }
+              ]
+            },
+            "id": 2883,
+            "name": "Ooredoo PIN Oman",
+            "regions": null
+          },
+          "pin": {
+            "terms": null,
+            "usage_info": [
+              "To recharge your PIN, Dial *115*3*Recharge code#",
+              "IVR: 115"
+            ],
+            "validity": null
+          },
+          "regions": null,
+          "service": {
+            "id": 1,
+            "name": "Mobile",
+            "subservice": {
+              "id": 11,
+              "name": "Airtime"
+            }
+          },
+          "tags": [
+            "AIRTIME"
+          ],
+          "type": "FIXED_VALUE_PIN_PURCHASE"
+        },
+        "promotions": null,
+        "rates": {
+          "base": 0.814332247557003,
+          "retail": 0.707714083510262,
+          "wholesale": 0.814332247557003
+        },
+        "status": {
+          "class": {
+            "id": 1,
+            "message": "CREATED"
+          },
+          "id": 10000,
+          "message": "CREATED"
+        }
+      }
+    },
+    "reloadly": {
+      "status": 200,
+      "txId": 178388,
+      "txStatus": "SUCCESSFUL",
+      "cost": 2.95,
+      "pinDetail": null,
+      "raw": {
+        "transactionId": 178388,
+        "status": "SUCCESSFUL",
+        "operatorTransactionId": null,
+        "customIdentifier": null,
+        "recipientPhone": "96895000101",
+        "recipientEmail": null,
+        "senderPhone": null,
+        "countryCode": "OM",
+        "operatorId": 1168,
+        "operatorName": "Ooredoo Oman",
+        "discount": 0,
+        "discountCurrencyCode": "USD",
+        "requestedAmount": 2.95,
+        "requestedAmountCurrencyCode": "USD",
+        "deliveredAmount": 1.14,
+        "deliveredAmountCurrencyCode": "OMR",
+        "transactionDate": "2026-08-22 01:14:00",
+        "pinDetail": null,
+        "fee": 0,
+        "balanceInfo": {
+          "oldBalance": 940.3729,
+          "newBalance": 937.4229,
+          "cost": 2.95,
+          "currencyCode": "USD",
+          "currencyName": "US Dollar",
+          "updatedAt": "2026-08-22 01:13:59"
+        }
+      }
+    },
+    "zendit": {
+      "status": "DISABLED_0_OFFERS"
+    },
+    "ding": {
+      "providerCode": "OOOM",
+      "providerName": "Ooredoo Oman",
+      "validationRegex": "^968[0-9]{8}$",
+      "uatOffers": 0,
+      "status": "CATALOG_MAPPED_0_UAT_PRODUCTS"
+    }
+  },
+  "vodafone": {
+    "name": "Vodafone Oman",
+    "dtone": {
+      "status": "UNSUPPORTED"
+    },
+    "reloadly": {
+      "status": "UNSUPPORTED"
+    },
+    "zendit": {
+      "status": "DISABLED_0_OFFERS"
+    },
+    "ding": {
+      "providerCode": "VFOM",
+      "providerName": "Vodafone Oman",
+      "validationRegex": "^968[0-9]{8}$|^0000000000$",
+      "uatOffers": 0,
+      "status": "CATALOG_MAPPED_0_UAT_PRODUCTS"
+    }
+  },
+  "friendi": {
+    "name": "FRiENDi Mobile Oman",
+    "dtone": {
+      "status": "UNSUPPORTED"
+    },
+    "reloadly": {
+      "status": "UNSUPPORTED"
+    },
+    "zendit": {
+      "status": "DISABLED_0_OFFERS"
+    },
+    "ding": {
+      "status": "UNSUPPORTED"
+    }
+  },
+  "renna": {
+    "name": "Renna Mobile",
+    "dtone": {
+      "status": 201,
+      "txId": 2240792138,
+      "state": "CREATED",
+      "cost": {
+        "amount": 0.37,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      },
+      "raw": {
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 0.3,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 0.3,
+              "total_including_tax": 0.3
+            },
+            "type": "CREDITS",
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "confirmation_expiration_date": "2026-08-22T02:14:00.650848000Z",
+        "creation_date": "2026-08-22T01:14:00.650848000Z",
+        "credit_party_identifier": {
+          "mobile_number": "+96893000101"
+        },
+        "external_id": "test_om_dt_renna_1787361241059",
+        "id": 2240792138,
+        "prices": {
+          "retail": {
+            "amount": 0.426,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 0.37,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "product": {
+          "description": "0.3 OMR",
+          "id": 42651,
+          "name": "0.3 OMR",
+          "operator": {
+            "country": {
+              "iso_code": "OMN",
+              "name": "Oman",
+              "regions": [
+                {
+                  "code": "OMN",
+                  "name": "Oman"
+                }
+              ]
+            },
+            "id": 2697,
+            "name": "Renna PIN Oman",
+            "regions": null
+          },
+          "pin": {
+            "terms": null,
+            "usage_info": [
+              "To recharge your account: Dial *180*recharge pin#",
+              "To check your credit balance: Dial *181*2#",
+              "",
+              "IVR: 180"
+            ],
+            "validity": {
+              "quantity": 180,
+              "unit": "DAY"
+            }
+          },
+          "regions": null,
+          "service": {
+            "id": 1,
+            "name": "Mobile",
+            "subservice": {
+              "id": 11,
+              "name": "Airtime"
+            }
+          },
+          "tags": [
+            "AIRTIME"
+          ],
+          "type": "FIXED_VALUE_PIN_PURCHASE"
+        },
+        "promotions": null,
+        "rates": {
+          "base": 0.810810810810811,
+          "retail": 0.704225352112676,
+          "wholesale": 0.810810810810811
+        },
+        "status": {
+          "class": {
+            "id": 1,
+            "message": "CREATED"
+          },
+          "id": 10000,
+          "message": "CREATED"
+        }
+      }
+    },
+    "reloadly": {
+      "status": 200,
+      "txId": 178389,
+      "txStatus": "SUCCESSFUL",
+      "cost": 1.4775,
+      "pinDetail": {
+        "serial": "603055",
+        "info1": "DIAL *611",
+        "info2": "DIAL *611",
+        "info3": "Dial *233* and PIN #",
+        "value": null,
+        "code": "773709732645176",
+        "ivr": "1-888-888-8888",
+        "validity": "30 days"
+      },
+      "raw": {
+        "transactionId": 178389,
+        "status": "SUCCESSFUL",
+        "operatorTransactionId": null,
+        "customIdentifier": null,
+        "recipientPhone": "96893000101",
+        "recipientEmail": null,
+        "senderPhone": null,
+        "countryCode": "OM",
+        "operatorId": 349,
+        "operatorName": "Renna PIN Oman",
+        "discount": 0.02,
+        "discountCurrencyCode": "USD",
+        "requestedAmount": 1.5,
+        "requestedAmountCurrencyCode": "USD",
+        "deliveredAmount": 0.58,
+        "deliveredAmountCurrencyCode": "OMR",
+        "transactionDate": "2026-08-22 01:14:01",
+        "pinDetail": {
+          "serial": "603055",
+          "info1": "DIAL *611",
+          "info2": "DIAL *611",
+          "info3": "Dial *233* and PIN #",
+          "value": null,
+          "code": "773709732645176",
+          "ivr": "1-888-888-8888",
+          "validity": "30 days"
+        },
+        "fee": 0,
+        "balanceInfo": {
+          "oldBalance": 937.4229,
+          "newBalance": 935.9454,
+          "cost": 1.4775,
+          "currencyCode": "USD",
+          "currencyName": "US Dollar",
+          "updatedAt": "2026-08-22 01:14:00"
+        }
+      }
+    },
+    "zendit": {
+      "status": "DISABLED_0_OFFERS"
+    },
+    "ding": {
+      "status": "UNSUPPORTED"
+    }
+  },
+  "redbull": {
+    "name": "Red Bull Mobile Oman",
+    "dtone": {
+      "status": 201,
+      "txId": 2240792139,
+      "state": "CREATED",
+      "cost": {
+        "amount": 0.369,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      },
+      "raw": {
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 0.3,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 0.3,
+              "total_including_tax": 0.3
+            },
+            "type": "CREDITS",
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "confirmation_expiration_date": "2026-08-22T02:14:01.243589000Z",
+        "creation_date": "2026-08-22T01:14:01.243589000Z",
+        "credit_party_identifier": {
+          "mobile_number": "+96894000101"
+        },
+        "external_id": "test_om_dt_redbull_1787361241677",
+        "id": 2240792139,
+        "prices": {
+          "retail": {
+            "amount": 0.425,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 0.369,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "product": {
+          "description": "0.3 OMR",
+          "id": 42652,
+          "name": "Red Bull PIN Oman - 0.3 OMR",
+          "operator": {
+            "country": {
+              "iso_code": "OMN",
+              "name": "Oman",
+              "regions": [
+                {
+                  "code": "OMN",
+                  "name": "Oman"
+                }
+              ]
+            },
+            "id": 3444,
+            "name": "Red Bull Oman",
+            "regions": null
+          },
+          "pin": {
+            "terms": null,
+            "usage_info": [
+              "To recharge your account: dial * 600 * recharge pin # , to check your credit balance: dial *600*11#",
+              "IVR: 1233"
+            ],
+            "validity": {
+              "quantity": 180,
+              "unit": "DAY"
+            }
+          },
+          "regions": null,
+          "service": {
+            "id": 1,
+            "name": "Mobile",
+            "subservice": {
+              "id": 11,
+              "name": "Airtime"
+            }
+          },
+          "tags": [
+            "AIRTIME"
+          ],
+          "type": "FIXED_VALUE_PIN_PURCHASE"
+        },
+        "promotions": null,
+        "rates": {
+          "base": 0.813008130081301,
+          "retail": 0.705882352941177,
+          "wholesale": 0.813008130081301
+        },
+        "status": {
+          "class": {
+            "id": 1,
+            "message": "CREATED"
+          },
+          "id": 10000,
+          "message": "CREATED"
+        }
+      }
+    },
+    "reloadly": {
+      "status": "UNSUPPORTED"
+    },
+    "zendit": {
+      "status": "DISABLED_0_OFFERS"
+    },
+    "ding": {
+      "status": "UNSUPPORTED"
+    }
+  }
+}

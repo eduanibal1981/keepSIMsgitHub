@@ -35,7 +35,9 @@ class CompareOffer {
     required this.disclosureRequired,
     this.logoUrl,
     this.description,
+    this.bundleGroup,
     this.speedTier,
+    this.speedTierRaw,
     this.listPriceUsd,
     this.pricePerGbUsd,
     this.couponCode,
@@ -50,12 +52,14 @@ class CompareOffer {
   final String? logoUrl;
   final String title;
   final String? description;
+  final String? bundleGroup;
   final List<String> countries;
   final int countryCount;
   final int dataAmountMb;
   final bool isUnlimited;
   final int durationDays;
   final OfferSpeedTier? speedTier;
+  final String? speedTierRaw;
   final double priceUsd;
 
   /// The partner's pre-discount price, for strikethrough. Null when there is
@@ -80,6 +84,19 @@ class CompareOffer {
   final bool disclosureRequired;
 
   bool get isAffiliate => action == OfferAction.openPartner;
+
+  /// Returns the user-facing product type tag (e.g. 'Fixed Bundle' or 'DayPass').
+  String? get typeTag {
+    if (bundleGroup != null && (bundleGroup == 'DayPass' || bundleGroup == 'Fixed Bundle')) {
+      return bundleGroup;
+    }
+    if (sourceCode == 'esimaccess') {
+      final isDaily = RegExp(r'daily|/day|fup|daypass', caseSensitive: false)
+          .hasMatch('$title ${description ?? ''}');
+      return isDaily ? 'DayPass' : 'Fixed Bundle';
+    }
+    return null;
+  }
 
   /// Whether a price may be printed as fact. Kept as one named getter so every
   /// surface asks the same question instead of each re-deriving the rule.
@@ -111,6 +128,7 @@ class CompareOffer {
       logoUrl: map['logo_url'] as String?,
       title: map['title'] as String? ?? '',
       description: map['description'] as String?,
+      bundleGroup: map['bundle_group'] as String?,
       countries: (map['countries'] as List<dynamic>?)
               ?.map((e) => e.toString().toUpperCase())
               .toList() ??
@@ -120,6 +138,7 @@ class CompareOffer {
       isUnlimited: map['is_unlimited'] as bool? ?? false,
       durationDays: (map['duration_days'] as num?)?.toInt() ?? 0,
       speedTier: _tier(map['speed_tier'] as String?),
+      speedTierRaw: map['speed_tier'] as String?,
       priceUsd: (map['price_usd'] as num?)?.toDouble() ?? 0.0,
       listPriceUsd: (map['list_price_usd'] as num?)?.toDouble(),
       pricePerGbUsd: (map['price_per_gb_usd'] as num?)?.toDouble(),
@@ -134,8 +153,16 @@ class CompareOffer {
     );
   }
 
-  String get formattedData =>
-      isUnlimited || dataAmountMb <= 0 ? 'Unlimited' : formatDataMb(dataAmountMb);
+
+  String get formattedData {
+    if (typeTag == 'DayPass') {
+      if (dataAmountMb > 0) {
+        return '${formatDataMb(dataAmountMb)}/day';
+      }
+      return 'Unlimited';
+    }
+    return isUnlimited || dataAmountMb <= 0 ? 'Unlimited' : formatDataMb(dataAmountMb);
+  }
 
   /// Renders a size the way the supplier sells it.
   ///

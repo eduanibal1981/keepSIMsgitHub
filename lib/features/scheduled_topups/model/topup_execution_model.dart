@@ -32,6 +32,9 @@ abstract class TopupExecution with _$TopupExecution {
     DateTime? executedAt,
     DateTime? completedAt,
     DateTime? createdAt,
+    String? pinCode,
+    String? pinSerial,
+    String? redeemInstructions,
   }) = _TopupExecution;
 
   factory TopupExecution.fromJson(Map<String, dynamic> json) =>

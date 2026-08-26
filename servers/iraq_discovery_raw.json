@@ -1,0 +1,1180 @@
+{
+  "supabase": {
+    "countries": [
+      {
+        "id": "4f5dda1a-fe84-4ccd-b733-478830c0e3e4",
+        "name": "Iraq",
+        "iso_code": "IQ",
+        "dialing_code": "+964",
+        "flag_emoji": "🇮🇶",
+        "currency_code": "IQD",
+        "avg_sim_replacement_cost": null,
+        "is_supported": true,
+        "created_at": "2026-07-18T18:40:23.351315+00:00",
+        "whatsapp_server_url": null,
+        "whatsapp_account_phone": null
+      }
+    ],
+    "carriers": [
+      {
+        "id": "8fcac8eb-0992-4690-8041-069d142b1c8b",
+        "country_id": "4f5dda1a-fe84-4ccd-b733-478830c0e3e4",
+        "name": "Asiacell",
+        "logo_url": null,
+        "is_supported": false,
+        "created_at": "2026-08-05T03:27:24.186367+00:00",
+        "fulfillment_gateway": "API",
+        "default_refill_amount": 5,
+        "gateway_phone_number": null
+      },
+      {
+        "id": "580f8049-0cb9-4033-a77e-e71aaf670380",
+        "country_id": "4f5dda1a-fe84-4ccd-b733-478830c0e3e4",
+        "name": "Zain Iraq",
+        "logo_url": null,
+        "is_supported": false,
+        "created_at": "2026-08-05T03:27:24.186367+00:00",
+        "fulfillment_gateway": "API",
+        "default_refill_amount": 5,
+        "gateway_phone_number": null
+      },
+      {
+        "id": "8824c4dd-1be1-4f87-b2bc-a3a4738fd373",
+        "country_id": "4f5dda1a-fe84-4ccd-b733-478830c0e3e4",
+        "name": "Korek Telecom",
+        "logo_url": null,
+        "is_supported": false,
+        "created_at": "2026-08-05T03:27:24.186367+00:00",
+        "fulfillment_gateway": "API",
+        "default_refill_amount": 5,
+        "gateway_phone_number": null
+      }
+    ],
+    "carrier_rules": [
+      {
+        "id": "eca75849-f406-42e5-8511-587061dca469",
+        "carrier_id": "8fcac8eb-0992-4690-8041-069d142b1c8b",
+        "rule_type": "prepaid",
+        "inactivity_limit_days": 90,
+        "grace_period_days": 30,
+        "minimum_topup_amount": 1,
+        "topup_validity_days": 30,
+        "recommended_topup_amount": null,
+        "optimal_topup_window_start": null,
+        "optimal_topup_window_end": null,
+        "notes": "UNVERIFIED — no published prepaid lifecycle found; conservative 90-day window.",
+        "last_verified_at": null,
+        "created_at": "2026-08-05T03:27:24.186367+00:00",
+        "updated_at": "2026-08-05T03:27:24.186367+00:00",
+        "inapp_pricing": null,
+        "inapp_pricing_currency": "usd",
+        "offer_id": null,
+        "offer_value": null,
+        "activity_requirement": "recharge_ok",
+        "validity_qualifying_topup_amount": null,
+        "activity_requirement_note": null,
+        "balance_validity_days": null,
+        "refill_interval_days_override": null,
+        "rule_source_url": null,
+        "sms_sender_ids": null,
+        "sms_balance_regex": null,
+        "sms_expiry_regex": null,
+        "sms_keywords": null,
+        "sms_language": "auto"
+      },
+      {
+        "id": "4b3e6c9c-3741-4f9b-9125-1f05e9ca5749",
+        "carrier_id": "580f8049-0cb9-4033-a77e-e71aaf670380",
+        "rule_type": "prepaid",
+        "inactivity_limit_days": 90,
+        "grace_period_days": 30,
+        "minimum_topup_amount": 1,
+        "topup_validity_days": 30,
+        "recommended_topup_amount": null,
+        "optimal_topup_window_start": null,
+        "optimal_topup_window_end": null,
+        "notes": "UNVERIFIED — no published prepaid lifecycle found; conservative 90-day window.",
+        "last_verified_at": null,
+        "created_at": "2026-08-05T03:27:24.186367+00:00",
+        "updated_at": "2026-08-05T03:27:24.186367+00:00",
+        "inapp_pricing": null,
+        "inapp_pricing_currency": "usd",
+        "offer_id": null,
+        "offer_value": null,
+        "activity_requirement": "recharge_ok",
+        "validity_qualifying_topup_amount": null,
+        "activity_requirement_note": null,
+        "balance_validity_days": null,
+        "refill_interval_days_override": null,
+        "rule_source_url": null,
+        "sms_sender_ids": null,
+        "sms_balance_regex": null,
+        "sms_expiry_regex": null,
+        "sms_keywords": null,
+        "sms_language": "auto"
+      },
+      {
+        "id": "55f2d0f4-1799-4381-ad2f-8a8df9af90e0",
+        "carrier_id": "8824c4dd-1be1-4f87-b2bc-a3a4738fd373",
+        "rule_type": "prepaid",
+        "inactivity_limit_days": 90,
+        "grace_period_days": 30,
+        "minimum_topup_amount": 1,
+        "topup_validity_days": 30,
+        "recommended_topup_amount": null,
+        "optimal_topup_window_start": null,
+        "optimal_topup_window_end": null,
+        "notes": "UNVERIFIED — no published prepaid lifecycle found; conservative 90-day window.",
+        "last_verified_at": null,
+        "created_at": "2026-08-05T03:27:24.186367+00:00",
+        "updated_at": "2026-08-05T03:27:24.186367+00:00",
+        "inapp_pricing": null,
+        "inapp_pricing_currency": "usd",
+        "offer_id": null,
+        "offer_value": null,
+        "activity_requirement": "recharge_ok",
+        "validity_qualifying_topup_amount": null,
+        "activity_requirement_note": null,
+        "balance_validity_days": null,
+        "refill_interval_days_override": null,
+        "rule_source_url": null,
+        "sms_sender_ids": null,
+        "sms_balance_regex": null,
+        "sms_expiry_regex": null,
+        "sms_keywords": null,
+        "sms_language": "auto"
+      }
+    ],
+    "carrier_provider_map": [
+      {
+        "id": "909f2af0-bf19-4be9-b769-430faabd3987",
+        "carrier_id": "8fcac8eb-0992-4690-8041-069d142b1c8b",
+        "provider": "dtone",
+        "provider_country_code": "IRQ",
+        "provider_carrier_code": "42",
+        "is_enabled": false,
+        "priority": 20,
+        "last_verified_at": "2026-08-09T00:55:55.22957+00:00",
+        "notes": "DTOne operator 42, 4 direct-recharge products. Mapped from DTOne product export 2026-08-09. DISABLED until production credentials replace the preprod endpoint.",
+        "created_at": "2026-08-09T00:55:55.22957+00:00",
+        "updated_at": "2026-08-09T00:55:55.22957+00:00",
+        "provider_country_label": "Iraq",
+        "provider_carrier_label": "42",
+        "is_primary": false
+      }
+    ]
+  },
+  "dtone": {
+    "operators": [
+      {
+        "country": {
+          "iso_code": "IRQ",
+          "name": "Iraq",
+          "regions": [
+            {
+              "code": "IRQ",
+              "name": "Iraq"
+            }
+          ]
+        },
+        "id": 42,
+        "name": "Asia Cell Telecom Iraq",
+        "regions": null
+      },
+      {
+        "country": {
+          "iso_code": "IRQ",
+          "name": "Iraq",
+          "regions": [
+            {
+              "code": "IRQ",
+              "name": "Iraq"
+            }
+          ]
+        },
+        "id": 2096,
+        "name": "Korek Iraq",
+        "regions": null
+      },
+      {
+        "country": {
+          "iso_code": "IRQ",
+          "name": "Iraq",
+          "regions": [
+            {
+              "code": "IRQ",
+              "name": "Iraq"
+            }
+          ]
+        },
+        "id": 3817,
+        "name": "Zain Iraq",
+        "regions": null
+      }
+    ],
+    "products": [
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 5000,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 5000,
+              "total_including_tax": 5000
+            },
+            "type": "CREDITS",
+            "unit": "IQD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "description": "5000 IQD",
+        "destination": {
+          "amount": 5000,
+          "unit": "IQD",
+          "unit_type": "CURRENCY"
+        },
+        "id": 4042,
+        "name": "5000 IQD",
+        "operator": {
+          "country": {
+            "iso_code": "IRQ",
+            "name": "Iraq",
+            "regions": [
+              {
+                "code": "IRQ",
+                "name": "Iraq"
+              }
+            ]
+          },
+          "id": 42,
+          "name": "Asia Cell Telecom Iraq",
+          "regions": null
+        },
+        "prices": {
+          "retail": {
+            "amount": 2.126,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 1.848,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 2705.6277056277054,
+          "retail": 2351.8344308560677,
+          "wholesale": 2705.6277056277054
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": [
+          [
+            "mobile_number"
+          ]
+        ],
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 1,
+          "name": "Mobile",
+          "subservice": {
+            "id": 11,
+            "name": "Airtime"
+          }
+        },
+        "source": {
+          "amount": 1.848,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": [
+          "AIRTIME"
+        ],
+        "type": "FIXED_VALUE_RECHARGE",
+        "validity": {
+          "quantity": 45,
+          "unit": "DAY"
+        }
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 10000,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 10000,
+              "total_including_tax": 10000
+            },
+            "type": "CREDITS",
+            "unit": "IQD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "description": "10000 IQD",
+        "destination": {
+          "amount": 10000,
+          "unit": "IQD",
+          "unit_type": "CURRENCY"
+        },
+        "id": 4043,
+        "name": "10000 IQD",
+        "operator": {
+          "country": {
+            "iso_code": "IRQ",
+            "name": "Iraq",
+            "regions": [
+              {
+                "code": "IRQ",
+                "name": "Iraq"
+              }
+            ]
+          },
+          "id": 42,
+          "name": "Asia Cell Telecom Iraq",
+          "regions": null
+        },
+        "prices": {
+          "retail": {
+            "amount": 4.25,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 3.695,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 2706.3599458728013,
+          "retail": 2352.9411764705883,
+          "wholesale": 2706.3599458728013
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": [
+          [
+            "mobile_number"
+          ]
+        ],
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 1,
+          "name": "Mobile",
+          "subservice": {
+            "id": 11,
+            "name": "Airtime"
+          }
+        },
+        "source": {
+          "amount": 3.695,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": [
+          "AIRTIME"
+        ],
+        "type": "FIXED_VALUE_RECHARGE",
+        "validity": {
+          "quantity": 100,
+          "unit": "DAY"
+        }
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 25000,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 25000,
+              "total_including_tax": 25000
+            },
+            "type": "CREDITS",
+            "unit": "IQD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "description": "25000 IQD",
+        "destination": {
+          "amount": 25000,
+          "unit": "IQD",
+          "unit_type": "CURRENCY"
+        },
+        "id": 4044,
+        "name": "25000 IQD",
+        "operator": {
+          "country": {
+            "iso_code": "IRQ",
+            "name": "Iraq",
+            "regions": [
+              {
+                "code": "IRQ",
+                "name": "Iraq"
+              }
+            ]
+          },
+          "id": 42,
+          "name": "Asia Cell Telecom Iraq",
+          "regions": null
+        },
+        "prices": {
+          "retail": {
+            "amount": 10.624,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 9.238,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 2706.213466118207,
+          "retail": 2353.1626506024095,
+          "wholesale": 2706.213466118207
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": [
+          [
+            "mobile_number"
+          ]
+        ],
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 1,
+          "name": "Mobile",
+          "subservice": {
+            "id": 11,
+            "name": "Airtime"
+          }
+        },
+        "source": {
+          "amount": 9.238,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": [
+          "AIRTIME"
+        ],
+        "type": "FIXED_VALUE_RECHARGE",
+        "validity": {
+          "quantity": 360,
+          "unit": "DAY"
+        }
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 100000,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 100000,
+              "total_including_tax": 100000
+            },
+            "type": "CREDITS",
+            "unit": "IQD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "description": "100000 IQD",
+        "destination": {
+          "amount": 100000,
+          "unit": "IQD",
+          "unit_type": "CURRENCY"
+        },
+        "id": 4045,
+        "name": "100000 IQD",
+        "operator": {
+          "country": {
+            "iso_code": "IRQ",
+            "name": "Iraq",
+            "regions": [
+              {
+                "code": "IRQ",
+                "name": "Iraq"
+              }
+            ]
+          },
+          "id": 42,
+          "name": "Asia Cell Telecom Iraq",
+          "regions": null
+        },
+        "prices": {
+          "retail": {
+            "amount": 42.493,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 36.95,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 2706.3599458728013,
+          "retail": 2353.328783564352,
+          "wholesale": 2706.3599458728013
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": [
+          [
+            "mobile_number"
+          ]
+        ],
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 1,
+          "name": "Mobile",
+          "subservice": {
+            "id": 11,
+            "name": "Airtime"
+          }
+        },
+        "source": {
+          "amount": 36.95,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": [
+          "AIRTIME"
+        ],
+        "type": "FIXED_VALUE_RECHARGE",
+        "validity": {
+          "quantity": 360,
+          "unit": "DAY"
+        }
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 5000,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 5000,
+              "total_including_tax": 5000
+            },
+            "type": "CREDITS",
+            "unit": "IQD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "description": "5000 IQD",
+        "destination": {
+          "amount": 5000,
+          "unit": "IQD",
+          "unit_type": "CURRENCY"
+        },
+        "id": 38999,
+        "name": "5000 IQD",
+        "operator": {
+          "country": {
+            "iso_code": "IRQ",
+            "name": "Iraq",
+            "regions": [
+              {
+                "code": "IRQ",
+                "name": "Iraq"
+              }
+            ]
+          },
+          "id": 3817,
+          "name": "Zain Iraq",
+          "regions": null
+        },
+        "pin": {
+          "terms": null,
+          "usage_info": [
+            "Press *101# enter the 16 digits secret code then press # then ok OR dial the free number 216 and follow the voice instructions",
+            "IVR: 107"
+          ],
+          "validity": {
+            "quantity": 90,
+            "unit": "DAY"
+          }
+        },
+        "prices": {
+          "retail": {
+            "amount": 2.358,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 2.05,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 2439.0243902439024,
+          "retail": 2120.441051738762,
+          "wholesale": 2439.0243902439024
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": null,
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 1,
+          "name": "Mobile",
+          "subservice": {
+            "id": 11,
+            "name": "Airtime"
+          }
+        },
+        "source": {
+          "amount": 2.05,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": [
+          "AIRTIME"
+        ],
+        "type": "FIXED_VALUE_PIN_PURCHASE",
+        "validity": null
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 15000,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 15000,
+              "total_including_tax": 15000
+            },
+            "type": "CREDITS",
+            "unit": "IQD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "description": "15000 IQD",
+        "destination": {
+          "amount": 15000,
+          "unit": "IQD",
+          "unit_type": "CURRENCY"
+        },
+        "id": 39001,
+        "name": "15000 IQD",
+        "operator": {
+          "country": {
+            "iso_code": "IRQ",
+            "name": "Iraq",
+            "regions": [
+              {
+                "code": "IRQ",
+                "name": "Iraq"
+              }
+            ]
+          },
+          "id": 3817,
+          "name": "Zain Iraq",
+          "regions": null
+        },
+        "pin": {
+          "terms": null,
+          "usage_info": [
+            "Press *101# enter the 16 digits secret code then press # then ok OR dial the free number 216 and follow the voice instructions",
+            "IVR: 107"
+          ],
+          "validity": {
+            "quantity": 90,
+            "unit": "DAY"
+          }
+        },
+        "prices": {
+          "retail": {
+            "amount": 6.812,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 5.923,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 2532.500422083404,
+          "retail": 2201.996476805637,
+          "wholesale": 2532.500422083404
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": null,
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 1,
+          "name": "Mobile",
+          "subservice": {
+            "id": 11,
+            "name": "Airtime"
+          }
+        },
+        "source": {
+          "amount": 5.923,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": [
+          "AIRTIME"
+        ],
+        "type": "FIXED_VALUE_PIN_PURCHASE",
+        "validity": null
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 5000,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 5000,
+              "total_including_tax": 5000
+            },
+            "type": "CREDITS",
+            "unit": "IQD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "description": "5000 IQD",
+        "destination": {
+          "amount": 5000,
+          "unit": "IQD",
+          "unit_type": "CURRENCY"
+        },
+        "id": 39011,
+        "name": "5000 IQD",
+        "operator": {
+          "country": {
+            "iso_code": "IRQ",
+            "name": "Iraq",
+            "regions": [
+              {
+                "code": "IRQ",
+                "name": "Iraq"
+              }
+            ]
+          },
+          "id": 2096,
+          "name": "Korek Iraq",
+          "regions": null
+        },
+        "pin": {
+          "terms": null,
+          "usage_info": [
+            "Dial from your mobile phone: *221*the voucher number and # and press send OR Dial from your mobile phone 321 ﻿or 221 and follow the voice prompts",
+            "IVR: 411"
+          ],
+          "validity": {
+            "quantity": 40,
+            "unit": "DAY"
+          }
+        },
+        "prices": {
+          "retail": {
+            "amount": 2.358,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 2.05,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 2439.0243902439024,
+          "retail": 2120.441051738762,
+          "wholesale": 2439.0243902439024
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": null,
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 1,
+          "name": "Mobile",
+          "subservice": {
+            "id": 11,
+            "name": "Airtime"
+          }
+        },
+        "source": {
+          "amount": 2.05,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": [
+          "AIRTIME"
+        ],
+        "type": "FIXED_VALUE_PIN_PURCHASE",
+        "validity": {
+          "quantity": 40,
+          "unit": "DAY"
+        }
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 3000,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 3000,
+              "total_including_tax": 3000
+            },
+            "type": "CREDITS",
+            "unit": "IQD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "description": "",
+        "destination": {
+          "amount": 3000,
+          "unit": "IQD",
+          "unit_type": "CURRENCY"
+        },
+        "id": 39018,
+        "name": "3000 IQD",
+        "operator": {
+          "country": {
+            "iso_code": "IRQ",
+            "name": "Iraq",
+            "regions": [
+              {
+                "code": "IRQ",
+                "name": "Iraq"
+              }
+            ]
+          },
+          "id": 42,
+          "name": "Asia Cell Telecom Iraq",
+          "regions": null
+        },
+        "pin": {
+          "terms": null,
+          "usage_info": [
+            "Dial *133*secret code# followed by call or ok OR Dial 333 and follow the voice instructions",
+            "IVR: 111"
+          ],
+          "validity": {
+            "quantity": 90,
+            "unit": "DAY"
+          }
+        },
+        "prices": {
+          "retail": {
+            "amount": 1.421,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 1.235,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 2429.1497975708503,
+          "retail": 2111.18930330753,
+          "wholesale": 2429.1497975708503
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": [
+          [
+            "mobile_number"
+          ]
+        ],
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 1,
+          "name": "Mobile",
+          "subservice": {
+            "id": 11,
+            "name": "Airtime"
+          }
+        },
+        "source": {
+          "amount": 1.235,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": [
+          "AIRTIME"
+        ],
+        "type": "FIXED_VALUE_PIN_PURCHASE",
+        "validity": null
+      }
+    ]
+  },
+  "reloadly": {
+    "operators": [
+      {
+        "id": 246,
+        "operatorId": 246,
+        "name": "Asia Cell Telecom Iraq",
+        "bundle": false,
+        "data": false,
+        "pin": false,
+        "comboProduct": false,
+        "supportsLocalAmounts": true,
+        "supportsGeographicalRechargePlans": false,
+        "denominationType": "FIXED",
+        "senderCurrencyCode": "USD",
+        "senderCurrencySymbol": "$",
+        "destinationCurrencyCode": "IQD",
+        "destinationCurrencySymbol": "د.ع.‏",
+        "commission": 3,
+        "internationalDiscount": 3,
+        "localDiscount": 0,
+        "mostPopularAmount": 140.68,
+        "mostPopularLocalAmount": 5000,
+        "minAmount": null,
+        "maxAmount": null,
+        "localMinAmount": null,
+        "localMaxAmount": null,
+        "country": {
+          "isoName": "IQ",
+          "name": "Iraq"
+        },
+        "fx": {
+          "rate": 853,
+          "currencyCode": "IQD"
+        },
+        "logoUrls": [
+          "https://s3.amazonaws.com/rld-operator/a012e024-5084-4604-90c2-427d5af09a8b-size-2.png",
+          "https://s3.amazonaws.com/rld-operator/a012e024-5084-4604-90c2-427d5af09a8b-size-3.png",
+          "https://s3.amazonaws.com/rld-operator/a012e024-5084-4604-90c2-427d5af09a8b-size-1.png"
+        ],
+        "fixedAmounts": [
+          7.03,
+          14.07,
+          35.17,
+          140.68
+        ],
+        "fixedAmountsDescriptions": {},
+        "localFixedAmounts": [
+          5000,
+          10000,
+          25000,
+          100000
+        ],
+        "localFixedAmountsDescriptions": {},
+        "suggestedAmounts": [],
+        "suggestedAmountsMap": {},
+        "fees": {
+          "international": 0,
+          "local": 0,
+          "localPercentage": 0,
+          "internationalPercentage": 0
+        },
+        "geographicalRechargePlans": [],
+        "promotions": [],
+        "status": "ACTIVE"
+      }
+    ]
+  },
+  "zendit": {
+    "offers": {
+      "message": "INVALID_VALUE: _offset: required",
+      "errorCode": "validation_error",
+      "fields": {}
+    }
+  },
+  "ding": {
+    "providers": {
+      "ResultCode": 1,
+      "ErrorCodes": [],
+      "Items": [
+        {
+          "ProviderCode": "4RIQ",
+          "CountryIso": "IQ",
+          "Name": "Roblox Iraq",
+          "ValidationRegex": "^964[0-9]{10}$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "IQ"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/4R/IQ.png"
+        },
+        {
+          "ProviderCode": "ACIQ",
+          "CountryIso": "IQ",
+          "Name": "Asia Cell Telecom Iraq",
+          "ValidationRegex": "^964[0-9]{10}$",
+          "CustomerCareNumber": "+1-773-427-1700",
+          "RegionCodes": [
+            "IQ"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/AC/IQ.png"
+        },
+        {
+          "ProviderCode": "I3IQ",
+          "CountryIso": "IQ",
+          "Name": "Razer Gold Digital Iraq",
+          "ValidationRegex": "^964[0-9]{10}$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "IQ"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/I3/IQ.png"
+        },
+        {
+          "ProviderCode": "IAIQ",
+          "CountryIso": "IQ",
+          "Name": "App Store & iTunes Gift Card Iraq",
+          "ValidationRegex": "^964[0-9]{10}$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "IQ"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/IA/IQ.png"
+        },
+        {
+          "ProviderCode": "KKIQ",
+          "CountryIso": "IQ",
+          "Name": "Korek Iraq",
+          "ValidationRegex": "^964[0-9]{10}$",
+          "RegionCodes": [
+            "IQ"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/KK/IQ.png"
+        },
+        {
+          "ProviderCode": "KRIQ",
+          "CountryIso": "IQ",
+          "Name": "Korek Pins Iraq",
+          "ValidationRegex": "^964[0-9]{10}$|^0000000000$",
+          "RegionCodes": [
+            "IQ"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/KR/IQ.png"
+        },
+        {
+          "ProviderCode": "PGIQ",
+          "CountryIso": "IQ",
+          "Name": "PUBG Mobile Iraq",
+          "ValidationRegex": "^964[0-9]{10}$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "IQ"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/PG/IQ.png"
+        }
+      ]
+    },
+    "products": {
+      "ResultCode": 3,
+      "ErrorCodes": [
+        {
+          "Code": "RateLimited"
+        }
+      ],
+      "Items": []
+    }
+  }
+}

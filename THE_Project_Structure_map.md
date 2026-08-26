@@ -190,9 +190,13 @@ behaviour, not every call site. DB objects are named exactly as they exist in `p
   line whose first pre-paid refill had already succeeded still read "Last Refill — No refill yet",
   because `queue_premium_refill_executions` starts the plan year at `p_start_at` and that refill
   lands seconds after the purchase. The **detail** screen has its own controller and is not covered. Protection Console (`sim_line_detail_screen.dart`)
-  includes a narrow "Traveling Tomorrow" switch row directly below the main SIM data card that invokes
-  `SimLinesController.toggleHomeMode()` to switch between Home Mode (`isHomeMode = true`) and Travel Mode
-  (`isHomeMode = false`). When toggled ON, the text label dynamically transforms into an action button ("Buy eSIM" for eSIM-capable hardware, or "Buy Cheapest Package" for standard devices).
+  includes a narrow "Traveling Tomorrow" switch row directly below the main SIM data card. When toggled ON,
+  the text label dynamically transforms into an action button ("Buy eSIM" for eSIM-capable hardware, or
+  "Buy Cheapest Package" for standard devices). It is a **shopping prompt only** — screen state, no write.
+  It used to call `SimLinesController.toggleHomeMode()`, i.e. arming a pre-trip reminder told the app the
+  user had already left the country. Home/Travel mode is now derived from geolocation alone
+  (`features/geo/domain/line_mode_resolver.dart` → `SimLinesController.applyGeoLineMode()`), gated by
+  `system_configs.GEO_LINE_MODE_SYNC_ENABLED`; no UI control writes `is_home_mode`.
 - **How Achieved (Database & Cloud VM):** `sim_lines` — **7 RLS policies** (own CRUD, household
   SELECT, household-manager UPDATE, power-user ALL). Triggers:
   `update_sim_line_last_topup_at()`, `trg_prevent_sim_line_plan_tampering` (BEFORE UPDATE),
@@ -378,7 +382,7 @@ behaviour, not every call site. DB objects are named exactly as they exist in `p
   via `quote_plan_price` — **never a client-supplied amount**; since J8 it forwards
   `carrier_rule_id` so a Premium year can be priced for a line that does not exist yet
   (onboarding), and passes a KS422 refusal through to the client as a 400 with the server's own
-  sentence instead of a blanket 500;
+  sentence instead of a blanket 500. The Flutter UI (`PlanPayment.fetchQuotedPlanPrice` & `quotedPlanPriceProvider`) queries `quote_plan_price` via RPC to display the exact server-quoted figure on plan cards and dialogs (under Migration K12, `inapp_pricing` is ignored for API carriers and used solely for MANUAL / TASKER_SCRIPT carriers);
   `capture-paypal-order` (v3) — **marks an order captured without writing `plan_payments`**, which
   is why plan-rail callers must wait for the payment row rather than trust checkout's success;
   `paypal-webhook/index.ts` (`verify_jwt:false`) with real signature verification against PayPal's

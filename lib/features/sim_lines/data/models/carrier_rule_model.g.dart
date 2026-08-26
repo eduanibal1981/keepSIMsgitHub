@@ -27,6 +27,15 @@ _CarrierRule _$CarrierRuleFromJson(Map<String, dynamic> json) => _CarrierRule(
   refillIntervalDaysOverride: (json['refill_interval_days_override'] as num?)
       ?.toInt(),
   ruleSourceUrl: json['rule_source_url'] as String?,
+  smsSenderIds: (json['sms_sender_ids'] as List<dynamic>?)
+      ?.map((e) => e as String)
+      .toList(),
+  smsBalanceRegex: json['sms_balance_regex'] as String?,
+  smsExpiryRegex: json['sms_expiry_regex'] as String?,
+  smsKeywords: (json['sms_keywords'] as List<dynamic>?)
+      ?.map((e) => e as String)
+      .toList(),
+  smsLanguage: json['sms_language'] as String? ?? 'auto',
 );
 
 Map<String, dynamic> _$CarrierRuleToJson(
@@ -49,4 +58,9 @@ Map<String, dynamic> _$CarrierRuleToJson(
   'balance_validity_days': instance.balanceValidityDays,
   'refill_interval_days_override': instance.refillIntervalDaysOverride,
   'rule_source_url': instance.ruleSourceUrl,
+  'sms_sender_ids': instance.smsSenderIds,
+  'sms_balance_regex': instance.smsBalanceRegex,
+  'sms_expiry_regex': instance.smsExpiryRegex,
+  'sms_keywords': instance.smsKeywords,
+  'sms_language': instance.smsLanguage,
 };

@@ -1,0 +1,524 @@
+{
+  "timestamp": "2026-08-22T22:35:17.679Z",
+  "dtone": [
+    {
+      "carrier": "Touch Lebanon",
+      "name": "Touch USD 3.79 (15D)",
+      "productId": 44310,
+      "recipient": "+96170000101",
+      "httpStatus": 201,
+      "response": {
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 3.79,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 3.79,
+              "total_including_tax": 3.26
+            },
+            "type": "CREDITS",
+            "unit": "USD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "confirmation_date": "2026-08-22T22:35:16.185291000Z",
+        "confirmation_expiration_date": "2026-08-22T23:35:16.157882000Z",
+        "creation_date": "2026-08-22T22:35:16.157882000Z",
+        "credit_party_identifier": {
+          "mobile_number": "+96170000101"
+        },
+        "external_id": "dt_lb_test_1787438117686_44310",
+        "id": 2240793406,
+        "prices": {
+          "retail": {
+            "amount": 2.434,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 2.116,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "product": {
+          "description": "3.79 USD, valid for 10 days + 5 days grace period",
+          "id": 44310,
+          "name": "Touch Lebanon USD - 3.79 USD",
+          "operator": {
+            "country": {
+              "iso_code": "LBN",
+              "name": "Lebanon",
+              "regions": null
+            },
+            "id": 2794,
+            "name": "Touch Lebanon USD",
+            "regions": null
+          },
+          "regions": null,
+          "service": {
+            "id": 1,
+            "name": "Mobile",
+            "subservice": {
+              "id": 11,
+              "name": "Airtime"
+            }
+          },
+          "tags": [
+            "AIRTIME"
+          ],
+          "type": "FIXED_VALUE_RECHARGE"
+        },
+        "promotions": null,
+        "rates": {
+          "base": 1.79111531190926,
+          "retail": 1.55710764174199,
+          "wholesale": 1.79111531190926
+        },
+        "status": {
+          "class": {
+            "id": 2,
+            "message": "CONFIRMED"
+          },
+          "id": 20000,
+          "message": "CONFIRMED"
+        }
+      }
+    },
+    {
+      "carrier": "Touch Lebanon",
+      "name": "Touch USD 4.50 (35D)",
+      "productId": 44311,
+      "recipient": "+96170000101",
+      "httpStatus": 201,
+      "response": {
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 4.5,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 4.5,
+              "total_including_tax": 3.9
+            },
+            "type": "CREDITS",
+            "unit": "USD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "confirmation_date": "2026-08-22T22:35:18.367990000Z",
+        "confirmation_expiration_date": "2026-08-22T23:35:18.343245000Z",
+        "creation_date": "2026-08-22T22:35:18.343245000Z",
+        "credit_party_identifier": {
+          "mobile_number": "+96170000101"
+        },
+        "external_id": "dt_lb_test_1787438120153_44311",
+        "id": 2240793407,
+        "prices": {
+          "retail": {
+            "amount": 2.861,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 2.487,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "product": {
+          "description": "4.5 USD, valid for 30 days + 5 days grace period",
+          "id": 44311,
+          "name": "Touch Lebanon USD - 4.50 USD",
+          "operator": {
+            "country": {
+              "iso_code": "LBN",
+              "name": "Lebanon",
+              "regions": null
+            },
+            "id": 2794,
+            "name": "Touch Lebanon USD",
+            "regions": null
+          },
+          "regions": null,
+          "service": {
+            "id": 1,
+            "name": "Mobile",
+            "subservice": {
+              "id": 11,
+              "name": "Airtime"
+            }
+          },
+          "tags": [
+            "AIRTIME"
+          ],
+          "type": "FIXED_VALUE_RECHARGE"
+        },
+        "promotions": null,
+        "rates": {
+          "base": 1.80940892641737,
+          "retail": 1.57287661656763,
+          "wholesale": 1.80940892641737
+        },
+        "status": {
+          "class": {
+            "id": 2,
+            "message": "CONFIRMED"
+          },
+          "id": 20000,
+          "message": "CONFIRMED"
+        }
+      }
+    },
+    {
+      "carrier": "Alfa Lebanon",
+      "name": "Alfa USD 1.22 (Micro-Refill)",
+      "productId": 44471,
+      "recipient": "+96171000101",
+      "httpStatus": 201,
+      "response": {
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 1.22,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 1.22,
+              "total_including_tax": 0.95
+            },
+            "type": "CREDITS",
+            "unit": "USD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "confirmation_date": "2026-08-22T22:35:20.574130000Z",
+        "confirmation_expiration_date": "2026-08-22T23:35:20.547588000Z",
+        "creation_date": "2026-08-22T22:35:20.547588000Z",
+        "credit_party_identifier": {
+          "mobile_number": "+96171000101"
+        },
+        "external_id": "dt_lb_test_1787438122354_44471",
+        "id": 2240793408,
+        "prices": {
+          "retail": {
+            "amount": 0.864,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 0.751,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "product": {
+          "description": "ALFA $1.22",
+          "id": 44471,
+          "name": "Alfa Lebanon USD - 1.22 USD",
+          "operator": {
+            "country": {
+              "iso_code": "LBN",
+              "name": "Lebanon",
+              "regions": null
+            },
+            "id": 2793,
+            "name": "Alfa Lebanon USD",
+            "regions": null
+          },
+          "regions": null,
+          "service": {
+            "id": 1,
+            "name": "Mobile",
+            "subservice": {
+              "id": 11,
+              "name": "Airtime"
+            }
+          },
+          "tags": [
+            "AIRTIME"
+          ],
+          "type": "FIXED_VALUE_RECHARGE"
+        },
+        "promotions": null,
+        "rates": {
+          "base": 1.62450066577896,
+          "retail": 1.41203703703704,
+          "wholesale": 1.62450066577896
+        },
+        "status": {
+          "class": {
+            "id": 2,
+            "message": "CONFIRMED"
+          },
+          "id": 20000,
+          "message": "CONFIRMED"
+        }
+      }
+    },
+    {
+      "carrier": "Alfa Lebanon",
+      "name": "Alfa USD 4.50 (35D)",
+      "productId": 44473,
+      "recipient": "+96171000101",
+      "httpStatus": 201,
+      "response": {
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 4.5,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 4.5,
+              "total_including_tax": 3.9
+            },
+            "type": "CREDITS",
+            "unit": "USD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "confirmation_date": "2026-08-22T22:35:22.775357000Z",
+        "confirmation_expiration_date": "2026-08-22T23:35:22.737802000Z",
+        "creation_date": "2026-08-22T22:35:22.737802000Z",
+        "credit_party_identifier": {
+          "mobile_number": "+96171000101"
+        },
+        "external_id": "dt_lb_test_1787438124523_44473",
+        "id": 2240793409,
+        "prices": {
+          "retail": {
+            "amount": 2.861,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 2.487,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "product": {
+          "description": "ALFA $4.50",
+          "id": 44473,
+          "name": "Alfa Lebanon USD - 4.50 USD",
+          "operator": {
+            "country": {
+              "iso_code": "LBN",
+              "name": "Lebanon",
+              "regions": null
+            },
+            "id": 2793,
+            "name": "Alfa Lebanon USD",
+            "regions": null
+          },
+          "regions": null,
+          "service": {
+            "id": 1,
+            "name": "Mobile",
+            "subservice": {
+              "id": 11,
+              "name": "Airtime"
+            }
+          },
+          "tags": [
+            "AIRTIME"
+          ],
+          "type": "FIXED_VALUE_RECHARGE"
+        },
+        "promotions": null,
+        "rates": {
+          "base": 1.80940892641737,
+          "retail": 1.57287661656763,
+          "wholesale": 1.80940892641737
+        },
+        "status": {
+          "class": {
+            "id": 2,
+            "message": "CONFIRMED"
+          },
+          "id": 20000,
+          "message": "CONFIRMED"
+        }
+      }
+    }
+  ],
+  "reloadly": [
+    {
+      "carrier": "Touch Lebanon",
+      "name": "Touch Lebanon PIN ($25.40 USD)",
+      "operatorId": 276,
+      "recipient": "+96170000101",
+      "httpStatus": 200,
+      "response": {
+        "transactionId": 178445,
+        "status": "SUCCESSFUL",
+        "operatorTransactionId": null,
+        "customIdentifier": "rl_lb_test_1787438128116_276",
+        "recipientPhone": "96170000101",
+        "recipientEmail": null,
+        "senderPhone": null,
+        "countryCode": "LB",
+        "operatorId": 276,
+        "operatorName": "Touch Lebanon PIN",
+        "discount": 0,
+        "discountCurrencyCode": "USD",
+        "requestedAmount": 25.4,
+        "requestedAmountCurrencyCode": "USD",
+        "deliveredAmount": 25.4,
+        "deliveredAmountCurrencyCode": "USD",
+        "transactionDate": "2026-08-22 22:35:27",
+        "pinDetail": {
+          "serial": "765879",
+          "info1": "DIAL *611",
+          "info2": "DIAL *611",
+          "info3": "Dial *233* and PIN #",
+          "value": null,
+          "code": "773709732762894",
+          "ivr": "1-888-888-8888",
+          "validity": "60 days"
+        },
+        "fee": 0,
+        "balanceInfo": {
+          "oldBalance": 796.6634,
+          "newBalance": 771.2634,
+          "cost": 25.4,
+          "currencyCode": "USD",
+          "currencyName": "US Dollar",
+          "updatedAt": "2026-08-22 22:35:09"
+        }
+      }
+    },
+    {
+      "carrier": "Alfa Lebanon",
+      "name": "Alfa Lebanon PIN ($25.40 USD)",
+      "operatorId": 1017,
+      "recipient": "+96171000101",
+      "httpStatus": 200,
+      "response": {
+        "transactionId": 178446,
+        "status": "SUCCESSFUL",
+        "operatorTransactionId": null,
+        "customIdentifier": "rl_lb_test_1787438131097_1017",
+        "recipientPhone": "96171000101",
+        "recipientEmail": null,
+        "senderPhone": null,
+        "countryCode": "LB",
+        "operatorId": 1017,
+        "operatorName": "Alfa Lebanon PIN",
+        "discount": 0,
+        "discountCurrencyCode": "USD",
+        "requestedAmount": 25.4,
+        "requestedAmountCurrencyCode": "USD",
+        "deliveredAmount": 25.4,
+        "deliveredAmountCurrencyCode": "USD",
+        "transactionDate": "2026-08-22 22:35:29",
+        "pinDetail": {
+          "serial": "716107",
+          "info1": "DIAL *611",
+          "info2": "DIAL *611",
+          "info3": "Dial *233* and PIN #",
+          "value": null,
+          "code": "773709732477925",
+          "ivr": "1-888-888-8888",
+          "validity": "60 days"
+        },
+        "fee": 0,
+        "balanceInfo": {
+          "oldBalance": 771.2634,
+          "newBalance": 745.8634,
+          "cost": 25.4,
+          "currencyCode": "USD",
+          "currencyName": "US Dollar",
+          "updatedAt": "2026-08-22 22:35:27"
+        }
+      }
+    }
+  ],
+  "zendit": [
+    {
+      "carrier": "Touch Lebanon",
+      "name": "Touch 3.79 USD ($6.00 USD retail tier)",
+      "offerId": "TOUCH_LB_001_USD",
+      "recipient": "+96170000101",
+      "httpStatus": 200,
+      "response": {
+        "transactionId": "zen_lb_test_1787438133438_touch_lb_001_usd",
+        "status": "ACCEPTED"
+      }
+    },
+    {
+      "carrier": "Touch Lebanon",
+      "name": "Touch 4.50 USD ($7.00 USD retail tier)",
+      "offerId": "TOUCH_LB_002_USD",
+      "recipient": "+96170000101",
+      "httpStatus": 200,
+      "response": {
+        "transactionId": "zen_lb_test_1787438136064_touch_lb_002_usd",
+        "status": "ACCEPTED"
+      }
+    },
+    {
+      "carrier": "Alfa Lebanon",
+      "name": "Alfa 1.22 USD ($2.50 USD retail tier)",
+      "offerId": "ALFA_LB_001",
+      "recipient": "+96171000101",
+      "httpStatus": 200,
+      "response": {
+        "transactionId": "zen_lb_test_1787438138317_alfa_lb_001",
+        "status": "ACCEPTED"
+      }
+    },
+    {
+      "carrier": "Alfa Lebanon",
+      "name": "Alfa 4.50 USD ($9.50 USD retail tier)",
+      "offerId": "ALFA_LB_003",
+      "recipient": "+96171000101",
+      "httpStatus": 200,
+      "response": {
+        "transactionId": "zen_lb_test_1787438140572_alfa_lb_003",
+        "status": "ACCEPTED"
+      }
+    }
+  ],
+  "ding": [
+    {
+      "status": "providers_mapped",
+      "items": [
+        {
+          "ProviderCode": "AALB",
+          "CountryIso": "LB",
+          "Name": "Alfa Lebanon",
+          "ValidationRegex": "^961[0-9]{7,8}$|^0000000000$",
+          "RegionCodes": [
+            "LB"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/AA/LB.png"
+        },
+        {
+          "ProviderCode": "TMLB",
+          "CountryIso": "LB",
+          "Name": "Touch Mobile Lebanon",
+          "ValidationRegex": "^961[0-9]{7,8}$|^0000000000$",
+          "RegionCodes": [
+            "LB"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/TM/LB.png"
+        }
+      ]
+    }
+  ]
+}

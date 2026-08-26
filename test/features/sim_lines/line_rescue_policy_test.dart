@@ -39,6 +39,24 @@ void main() {
       expect(p.rescueCount, 2);
     });
 
+    test('correctly parses max_usd when returned as String from Supabase PostgREST', () {
+      final json = <String, dynamic>{
+        'sim_line_id': 'line-1',
+        'user_id': 'user-1',
+        'max_usd': '2.00',
+        'lead_days': '2',
+        'warn_lead_days': '3',
+        'rescue_count': '0',
+      };
+      final p = LineRescuePolicy.fromJson(json);
+      expect(p.simLineId, 'line-1');
+      expect(p.maxUsd, 2.00);
+      expect(p.isInsured, isTrue);
+      expect(p.leadDays, 2);
+      expect(p.warnLeadDays, 3);
+      expect(p.rescueCount, 0);
+    });
+
     test('a never-configured line deserializes to the fail-closed default', () {
       final p = LineRescuePolicy.fromJson(<String, dynamic>{
         'sim_line_id': 'line-2',

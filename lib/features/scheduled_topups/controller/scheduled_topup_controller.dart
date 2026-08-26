@@ -270,9 +270,10 @@ class SimLineExecutionsHistory extends _$SimLineExecutionsHistory {
   @override
   FutureOr<List<TopupExecution>> build(String simLineId) async {
     _currentPage = 1;
-    _hasMore = true;
     _isLoadingMore = false;
-    return _fetchPage(1);
+    final initialList = await _fetchPage(1);
+    _hasMore = initialList.length >= 15;
+    return initialList;
   }
 
   Future<List<TopupExecution>> _fetchPage(int page) async {

@@ -1,0 +1,810 @@
+{
+  "timestamp": "2026-08-22T22:01:53.706Z",
+  "dtone": [
+    {
+      "carrier": "Grameenphone",
+      "name": "Grameenphone 50 BDT",
+      "productId": 3428,
+      "recipient": "+8801700000101",
+      "httpStatus": 201,
+      "response": {
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 50,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 50,
+              "total_including_tax": 50
+            },
+            "type": "CREDITS",
+            "unit": "BDT",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "confirmation_date": "2026-08-22T22:01:52.149546000Z",
+        "confirmation_expiration_date": "2026-08-22T23:01:52.100283000Z",
+        "creation_date": "2026-08-22T22:01:52.100283000Z",
+        "credit_party_identifier": {
+          "mobile_number": "+8801700000101"
+        },
+        "external_id": "dt_bd_test_1787436113713_3428",
+        "id": 2240793333,
+        "prices": {
+          "retail": {
+            "amount": 0.222,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 0.193,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "product": {
+          "description": "50 BDT, 30 Days",
+          "id": 3428,
+          "name": "GrameenPhone Bangladesh 50 BDT",
+          "operator": {
+            "country": {
+              "iso_code": "BGD",
+              "name": "Bangladesh",
+              "regions": [
+                {
+                  "code": "BGD",
+                  "name": "Bangladesh"
+                }
+              ]
+            },
+            "id": 249,
+            "name": "GrameenPhone Bangladesh",
+            "regions": null
+          },
+          "regions": null,
+          "service": {
+            "id": 1,
+            "name": "Mobile",
+            "subservice": {
+              "id": 11,
+              "name": "Airtime"
+            }
+          },
+          "tags": [
+            "AIRTIME"
+          ],
+          "type": "FIXED_VALUE_RECHARGE"
+        },
+        "promotions": null,
+        "rates": {
+          "base": 259.067357512953,
+          "retail": 225.225225225225,
+          "wholesale": 259.067357512953
+        },
+        "status": {
+          "class": {
+            "id": 2,
+            "message": "CONFIRMED"
+          },
+          "id": 20000,
+          "message": "CONFIRMED"
+        }
+      }
+    },
+    {
+      "carrier": "Robi Axiata",
+      "name": "Robi 50 BDT",
+      "productId": 3424,
+      "recipient": "+8801800000101",
+      "httpStatus": 201,
+      "response": {
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 50,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 50,
+              "total_including_tax": 50
+            },
+            "type": "CREDITS",
+            "unit": "BDT",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "confirmation_date": "2026-08-22T22:01:53.853339000Z",
+        "confirmation_expiration_date": "2026-08-22T23:01:53.805714000Z",
+        "creation_date": "2026-08-22T22:01:53.805714000Z",
+        "credit_party_identifier": {
+          "mobile_number": "+8801800000101"
+        },
+        "external_id": "dt_bd_test_1787436115661_3424",
+        "id": 2240793334,
+        "prices": {
+          "retail": {
+            "amount": 0.225,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 0.195,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "product": {
+          "description": "50 BDT",
+          "id": 3424,
+          "name": "Robi Bangladesh 50 BDT",
+          "operator": {
+            "country": {
+              "iso_code": "BGD",
+              "name": "Bangladesh",
+              "regions": [
+                {
+                  "code": "BGD",
+                  "name": "Bangladesh"
+                }
+              ]
+            },
+            "id": 1446,
+            "name": "Robi Bangladesh",
+            "regions": null
+          },
+          "regions": null,
+          "service": {
+            "id": 1,
+            "name": "Mobile",
+            "subservice": {
+              "id": 11,
+              "name": "Airtime"
+            }
+          },
+          "tags": [
+            "AIRTIME"
+          ],
+          "type": "FIXED_VALUE_RECHARGE"
+        },
+        "promotions": null,
+        "rates": {
+          "base": 256.410256410256,
+          "retail": 222.222222222222,
+          "wholesale": 256.410256410256
+        },
+        "status": {
+          "class": {
+            "id": 2,
+            "message": "CONFIRMED"
+          },
+          "id": 20000,
+          "message": "CONFIRMED"
+        }
+      }
+    },
+    {
+      "carrier": "Banglalink",
+      "name": "Banglalink 50 BDT",
+      "productId": 3432,
+      "recipient": "+8801900000101",
+      "httpStatus": 201,
+      "response": {
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 50,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 50,
+              "total_including_tax": 50
+            },
+            "type": "CREDITS",
+            "unit": "BDT",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "confirmation_date": "2026-08-22T22:01:55.576566000Z",
+        "confirmation_expiration_date": "2026-08-22T23:01:55.529378000Z",
+        "creation_date": "2026-08-22T22:01:55.529378000Z",
+        "credit_party_identifier": {
+          "mobile_number": "+8801900000101"
+        },
+        "external_id": "dt_bd_test_1787436117380_3432",
+        "id": 2240793335,
+        "prices": {
+          "retail": {
+            "amount": 0.224,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 0.194,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "product": {
+          "description": "50 BDT",
+          "id": 3432,
+          "name": "Banglalink Bangladesh 50 BDT",
+          "operator": {
+            "country": {
+              "iso_code": "BGD",
+              "name": "Bangladesh",
+              "regions": [
+                {
+                  "code": "BGD",
+                  "name": "Bangladesh"
+                }
+              ]
+            },
+            "id": 1447,
+            "name": "Banglalink Bangladesh",
+            "regions": null
+          },
+          "regions": null,
+          "service": {
+            "id": 1,
+            "name": "Mobile",
+            "subservice": {
+              "id": 11,
+              "name": "Airtime"
+            }
+          },
+          "tags": [
+            "AIRTIME"
+          ],
+          "type": "FIXED_VALUE_RECHARGE"
+        },
+        "promotions": null,
+        "rates": {
+          "base": 257.731958762887,
+          "retail": 223.214285714286,
+          "wholesale": 257.731958762887
+        },
+        "status": {
+          "class": {
+            "id": 2,
+            "message": "CONFIRMED"
+          },
+          "id": 20000,
+          "message": "CONFIRMED"
+        }
+      }
+    },
+    {
+      "carrier": "Teletalk Bangladesh",
+      "name": "Teletalk 50 BDT",
+      "productId": 3466,
+      "recipient": "+8801500000101",
+      "httpStatus": 201,
+      "response": {
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 50,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 50,
+              "total_including_tax": 50
+            },
+            "type": "CREDITS",
+            "unit": "BDT",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "confirmation_date": "2026-08-22T22:01:57.288489000Z",
+        "confirmation_expiration_date": "2026-08-22T23:01:57.248798000Z",
+        "creation_date": "2026-08-22T22:01:57.248798000Z",
+        "credit_party_identifier": {
+          "mobile_number": "+8801500000101"
+        },
+        "external_id": "dt_bd_test_1787436119106_3466",
+        "id": 2240793336,
+        "prices": {
+          "retail": {
+            "amount": 0.224,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 0.194,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "product": {
+          "description": "50 BDT",
+          "id": 3466,
+          "name": "Teletalk Bangladesh 50 BDT",
+          "operator": {
+            "country": {
+              "iso_code": "BGD",
+              "name": "Bangladesh",
+              "regions": [
+                {
+                  "code": "BGD",
+                  "name": "Bangladesh"
+                }
+              ]
+            },
+            "id": 1448,
+            "name": "Teletalk Bangladesh",
+            "regions": null
+          },
+          "regions": null,
+          "service": {
+            "id": 1,
+            "name": "Mobile",
+            "subservice": {
+              "id": 11,
+              "name": "Airtime"
+            }
+          },
+          "tags": [
+            "AIRTIME"
+          ],
+          "type": "FIXED_VALUE_RECHARGE"
+        },
+        "promotions": null,
+        "rates": {
+          "base": 257.731958762887,
+          "retail": 223.214285714286,
+          "wholesale": 257.731958762887
+        },
+        "status": {
+          "class": {
+            "id": 2,
+            "message": "CONFIRMED"
+          },
+          "id": 20000,
+          "message": "CONFIRMED"
+        }
+      }
+    },
+    {
+      "carrier": "Airtel Bangladesh",
+      "name": "Airtel 50 BDT",
+      "productId": 3470,
+      "recipient": "+8801600000101",
+      "httpStatus": 201,
+      "response": {
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 50,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 50,
+              "total_including_tax": 50
+            },
+            "type": "CREDITS",
+            "unit": "BDT",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "confirmation_date": "2026-08-22T22:01:58.966329000Z",
+        "confirmation_expiration_date": "2026-08-22T23:01:58.936871000Z",
+        "creation_date": "2026-08-22T22:01:58.936871000Z",
+        "credit_party_identifier": {
+          "mobile_number": "+8801600000101"
+        },
+        "external_id": "dt_bd_test_1787436120788_3470",
+        "id": 2240793337,
+        "prices": {
+          "retail": {
+            "amount": 0.225,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 0.195,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "product": {
+          "description": "50 BDT",
+          "id": 3470,
+          "name": "Airtel Bangladesh 50 BDT",
+          "operator": {
+            "country": {
+              "iso_code": "BGD",
+              "name": "Bangladesh",
+              "regions": [
+                {
+                  "code": "BGD",
+                  "name": "Bangladesh"
+                }
+              ]
+            },
+            "id": 1449,
+            "name": "Airtel Bangladesh",
+            "regions": null
+          },
+          "regions": null,
+          "service": {
+            "id": 1,
+            "name": "Mobile",
+            "subservice": {
+              "id": 11,
+              "name": "Airtime"
+            }
+          },
+          "tags": [
+            "AIRTIME"
+          ],
+          "type": "FIXED_VALUE_RECHARGE"
+        },
+        "promotions": null,
+        "rates": {
+          "base": 256.410256410256,
+          "retail": 222.222222222222,
+          "wholesale": 256.410256410256
+        },
+        "status": {
+          "class": {
+            "id": 2,
+            "message": "CONFIRMED"
+          },
+          "id": 20000,
+          "message": "CONFIRMED"
+        }
+      }
+    }
+  ],
+  "reloadly": [
+    {
+      "carrier": "Grameenphone",
+      "name": "Grameenphone Airtime ($0.50 / ~55.5 BDT)",
+      "operatorId": 26,
+      "recipient": "+8801700000101",
+      "httpStatus": 200,
+      "response": {
+        "transactionId": 178432,
+        "status": "SUCCESSFUL",
+        "operatorTransactionId": null,
+        "customIdentifier": "rl_bd_test_1787436123309_26",
+        "recipientPhone": "8801700000101",
+        "recipientEmail": null,
+        "senderPhone": null,
+        "countryCode": "BD",
+        "operatorId": 26,
+        "operatorName": "Airtel Bangladesh",
+        "discount": 0,
+        "discountCurrencyCode": "USD",
+        "requestedAmount": 0.5,
+        "requestedAmountCurrencyCode": "USD",
+        "deliveredAmount": 55.58,
+        "deliveredAmountCurrencyCode": "BDT",
+        "transactionDate": "2026-08-22 22:02:02",
+        "pinDetail": null,
+        "fee": 0,
+        "balanceInfo": {
+          "oldBalance": 896.9424,
+          "newBalance": 896.4424,
+          "cost": 0.5,
+          "currencyCode": "USD",
+          "currencyName": "US Dollar",
+          "updatedAt": "2026-08-22 22:01:35"
+        }
+      }
+    },
+    {
+      "carrier": "Robi Axiata",
+      "name": "Robi Airtime ($0.50 / ~55.5 BDT)",
+      "operatorId": 25,
+      "recipient": "+8801800000101",
+      "httpStatus": 200,
+      "response": {
+        "transactionId": 178433,
+        "status": "SUCCESSFUL",
+        "operatorTransactionId": null,
+        "customIdentifier": "rl_bd_test_1787436125781_25",
+        "recipientPhone": "8801800000101",
+        "recipientEmail": null,
+        "senderPhone": null,
+        "countryCode": "BD",
+        "operatorId": 25,
+        "operatorName": "Robi Bangladesh",
+        "discount": 0,
+        "discountCurrencyCode": "USD",
+        "requestedAmount": 0.5,
+        "requestedAmountCurrencyCode": "USD",
+        "deliveredAmount": 55.58,
+        "deliveredAmountCurrencyCode": "BDT",
+        "transactionDate": "2026-08-22 22:02:04",
+        "pinDetail": null,
+        "fee": 0,
+        "balanceInfo": {
+          "oldBalance": 896.4424,
+          "newBalance": 895.9424,
+          "cost": 0.5,
+          "currencyCode": "USD",
+          "currencyName": "US Dollar",
+          "updatedAt": "2026-08-22 22:02:02"
+        }
+      }
+    },
+    {
+      "carrier": "Banglalink",
+      "name": "Banglalink Airtime ($0.50 / ~55.5 BDT)",
+      "operatorId": 24,
+      "recipient": "+8801900000101",
+      "httpStatus": 503,
+      "response": {
+        "timeStamp": "2026-08-22 22:02:05",
+        "message": "The topup operator is currently unavailable or inactive, please try again later or contact support",
+        "path": "/topups",
+        "errorCode": "OPERATOR_UNAVAILABLE_OR_CURRENTLY_INACTIVE",
+        "infoLink": null,
+        "details": []
+      }
+    },
+    {
+      "carrier": "Teletalk Bangladesh",
+      "name": "Teletalk Airtime ($0.50 / ~55.5 BDT)",
+      "operatorId": 27,
+      "recipient": "+8801500000101",
+      "httpStatus": 200,
+      "response": {
+        "transactionId": 178434,
+        "status": "SUCCESSFUL",
+        "operatorTransactionId": null,
+        "customIdentifier": "rl_bd_test_1787436129370_27",
+        "recipientPhone": "8801500000101",
+        "recipientEmail": null,
+        "senderPhone": null,
+        "countryCode": "BD",
+        "operatorId": 27,
+        "operatorName": "Teletalk Bangladesh",
+        "discount": 0.01,
+        "discountCurrencyCode": "USD",
+        "requestedAmount": 0.5,
+        "requestedAmountCurrencyCode": "USD",
+        "deliveredAmount": 55.58,
+        "deliveredAmountCurrencyCode": "BDT",
+        "transactionDate": "2026-08-22 22:02:08",
+        "pinDetail": null,
+        "fee": 0,
+        "balanceInfo": {
+          "oldBalance": 895.9424,
+          "newBalance": 895.4524,
+          "cost": 0.49,
+          "currencyCode": "USD",
+          "currencyName": "US Dollar",
+          "updatedAt": "2026-08-22 22:02:04"
+        }
+      }
+    },
+    {
+      "carrier": "Airtel Bangladesh",
+      "name": "Airtel Airtime ($0.50 / ~55.5 BDT)",
+      "operatorId": 28,
+      "recipient": "+8801600000101",
+      "httpStatus": 200,
+      "response": {
+        "transactionId": 178435,
+        "status": "SUCCESSFUL",
+        "operatorTransactionId": null,
+        "customIdentifier": "rl_bd_test_1787436131233_28",
+        "recipientPhone": "8801600000101",
+        "recipientEmail": null,
+        "senderPhone": null,
+        "countryCode": "BD",
+        "operatorId": 28,
+        "operatorName": "Banglalink Bangladesh",
+        "discount": 0,
+        "discountCurrencyCode": "USD",
+        "requestedAmount": 0.5,
+        "requestedAmountCurrencyCode": "USD",
+        "deliveredAmount": 55.58,
+        "deliveredAmountCurrencyCode": "BDT",
+        "transactionDate": "2026-08-22 22:02:09",
+        "pinDetail": null,
+        "fee": 0,
+        "balanceInfo": {
+          "oldBalance": 895.4524,
+          "newBalance": 894.9524,
+          "cost": 0.5,
+          "currencyCode": "USD",
+          "currencyName": "US Dollar",
+          "updatedAt": "2026-08-22 22:02:08"
+        }
+      }
+    }
+  ],
+  "zendit": [
+    {
+      "carrier": "Grameenphone",
+      "name": "Grameenphone 50 BDT ($0.60 USD)",
+      "offerId": "GRAMEENPHONE_BD_001",
+      "recipient": "+8801700000101",
+      "httpStatus": 200,
+      "response": {
+        "transactionId": "zen_bd_test_1787436133085_grameenphone_bd_001",
+        "status": "ACCEPTED"
+      }
+    },
+    {
+      "carrier": "Robi Axiata",
+      "name": "Robi 50 BDT ($0.60 USD)",
+      "offerId": "ROBI_BD_001",
+      "recipient": "+8801800000101",
+      "httpStatus": 200,
+      "response": {
+        "transactionId": "zen_bd_test_1787436135218_robi_bd_001",
+        "status": "ACCEPTED"
+      }
+    },
+    {
+      "carrier": "Banglalink",
+      "name": "Banglalink 50 BDT ($0.60 USD)",
+      "offerId": "BANGLALINK_BD_001",
+      "recipient": "+8801900000101",
+      "httpStatus": 200,
+      "response": {
+        "transactionId": "zen_bd_test_1787436136971_banglalink_bd_001",
+        "status": "ACCEPTED"
+      }
+    },
+    {
+      "carrier": "Teletalk Bangladesh",
+      "name": "Teletalk 56.24 BDT ($0.60 USD)",
+      "offerId": "TELETALK_BD_001",
+      "recipient": "+8801500000101",
+      "httpStatus": 200,
+      "response": {
+        "transactionId": "zen_bd_test_1787436138727_teletalk_bd_001",
+        "status": "ACCEPTED"
+      }
+    },
+    {
+      "carrier": "Airtel Bangladesh",
+      "name": "Airtel 50 BDT ($0.60 USD)",
+      "offerId": "AIRTEL_BD_001",
+      "recipient": "+8801600000101",
+      "httpStatus": 200,
+      "response": {
+        "transactionId": "zen_bd_test_1787436140472_airtel_bd_001",
+        "status": "ACCEPTED"
+      }
+    }
+  ],
+  "ding": [
+    {
+      "providerCode": "GEBD",
+      "name": "Grameenphone Bangladesh",
+      "status": "Provider Active / Products 503",
+      "details": {
+        "ResultCode": 1,
+        "ErrorCodes": [],
+        "Items": [
+          {
+            "ProviderCode": "GEBD",
+            "CountryIso": "BD",
+            "Name": "Grameenphone Bangladesh",
+            "ValidationRegex": "^8801(?:3|7)\\d{8}$",
+            "CustomerCareNumber": "121",
+            "RegionCodes": [
+              "BD"
+            ],
+            "PaymentTypes": [
+              "Prepaid"
+            ],
+            "LogoUrl": "https://imagerepo.ding.com/logo/GE/BD.png"
+          }
+        ]
+      }
+    },
+    {
+      "providerCode": "RLBD",
+      "name": "Robi Bangladesh",
+      "status": "Provider Active / Products 503",
+      "details": {
+        "ResultCode": 1,
+        "ErrorCodes": [],
+        "Items": [
+          {
+            "ProviderCode": "RLBD",
+            "CountryIso": "BD",
+            "Name": "Robi Bangladesh",
+            "ValidationRegex": "^88018\\d{8}$",
+            "CustomerCareNumber": "121",
+            "RegionCodes": [
+              "BD"
+            ],
+            "PaymentTypes": [
+              "Prepaid"
+            ],
+            "LogoUrl": "https://imagerepo.ding.com/logo/RL/BD.png"
+          }
+        ]
+      }
+    },
+    {
+      "providerCode": "TQBD",
+      "name": "Teletalk Bangladesh",
+      "status": "Provider Active / Products 503",
+      "details": {
+        "ResultCode": 1,
+        "ErrorCodes": [],
+        "Items": [
+          {
+            "ProviderCode": "TQBD",
+            "CountryIso": "BD",
+            "Name": "Teletalk Bangladesh",
+            "ValidationRegex": "^88015\\d{8}$",
+            "CustomerCareNumber": "121",
+            "RegionCodes": [
+              "BD"
+            ],
+            "PaymentTypes": [
+              "Prepaid"
+            ],
+            "LogoUrl": "https://imagerepo.ding.com/logo/TQ/BD.png"
+          }
+        ]
+      }
+    },
+    {
+      "providerCode": "BGBD",
+      "name": "Banglalink Bangladesh",
+      "status": "Provider Active / Products 503",
+      "details": {
+        "ResultCode": 1,
+        "ErrorCodes": [],
+        "Items": [
+          {
+            "ProviderCode": "BGBD",
+            "CountryIso": "BD",
+            "Name": "Banglalink Bangladesh",
+            "ValidationRegex": "^8801(?:4|9)\\d{8}$",
+            "CustomerCareNumber": "121",
+            "RegionCodes": [
+              "BD"
+            ],
+            "PaymentTypes": [
+              "Prepaid"
+            ],
+            "LogoUrl": "https://imagerepo.ding.com/logo/BG/BD.png"
+          }
+        ]
+      }
+    },
+    {
+      "providerCode": "AXBD",
+      "name": "Airtel / Cirkle Bangladesh",
+      "status": "Provider Active / Products 503",
+      "details": {
+        "ResultCode": 1,
+        "ErrorCodes": [],
+        "Items": [
+          {
+            "ProviderCode": "AXBD",
+            "CountryIso": "BD",
+            "Name": "Cirkle Bangladesh",
+            "ValidationRegex": "^88016[0-9]{8}$",
+            "CustomerCareNumber": "121",
+            "RegionCodes": [
+              "BD"
+            ],
+            "PaymentTypes": [
+              "Prepaid"
+            ],
+            "LogoUrl": "https://imagerepo.ding.com/logo/AX/BD.png"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,507 @@
+{
+  "globe": {
+    "name": "Globe Telecom",
+    "dtone": {
+      "status": 404,
+      "raw": {
+        "errors": [
+          {
+            "code": 1003001,
+            "message": "Product is not available in your account"
+          }
+        ]
+      }
+    },
+    "zendit": {
+      "status": 400,
+      "raw": {
+        "message": "INVALID_VALUE: params.offerID: offer not found",
+        "errorCode": "validation_error",
+        "fields": {}
+      }
+    },
+    "reloadly": {
+      "status": 200,
+      "txId": 178383,
+      "txStatus": "SUCCESSFUL",
+      "cost": 0.1764,
+      "pinDetail": null,
+      "raw": {
+        "transactionId": 178383,
+        "status": "SUCCESSFUL",
+        "operatorTransactionId": null,
+        "customIdentifier": null,
+        "recipientPhone": "639170000101",
+        "recipientEmail": null,
+        "senderPhone": null,
+        "countryCode": "PH",
+        "operatorId": 371,
+        "operatorName": "Globe Telecom Philippines",
+        "discount": 0,
+        "discountCurrencyCode": "USD",
+        "requestedAmount": 0.18,
+        "requestedAmountCurrencyCode": "USD",
+        "deliveredAmount": 10,
+        "deliveredAmountCurrencyCode": "PHP",
+        "transactionDate": "2026-08-22 01:05:04",
+        "pinDetail": null,
+        "fee": 0,
+        "balanceInfo": {
+          "oldBalance": 944.1028,
+          "newBalance": 943.9264,
+          "cost": 0.1764,
+          "currencyCode": "USD",
+          "currencyName": "US Dollar",
+          "updatedAt": "2026-08-22 01:04:43"
+        }
+      }
+    },
+    "ding": {
+      "providerCode": "GBPH",
+      "resultCode": 3,
+      "itemsCount": 0
+    }
+  },
+  "smart": {
+    "name": "Smart Communications",
+    "dtone": {
+      "status": 201,
+      "txId": 2240792116,
+      "state": "CREATED",
+      "cost": {
+        "amount": 12.816,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      },
+      "raw": {
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 20,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 20,
+              "total_including_tax": 20
+            },
+            "type": "DATA",
+            "unit": "GB",
+            "unit_type": "DATA"
+          },
+          {
+            "additional_information": "Unlimited minutes",
+            "amount": {
+              "base": -1,
+              "promotion_bonus": 0,
+              "total_excluding_tax": -1,
+              "total_including_tax": -1
+            },
+            "type": "TALKTIME",
+            "unit": "MINUTES",
+            "unit_type": "TIME"
+          },
+          {
+            "additional_information": "Unlimited texts",
+            "amount": {
+              "base": -1,
+              "promotion_bonus": 0,
+              "total_excluding_tax": -1,
+              "total_including_tax": -1
+            },
+            "type": "SMS",
+            "unit": "UNITS",
+            "unit_type": "QUANTITY"
+          }
+        ],
+        "confirmation_expiration_date": "2026-08-22T02:05:05.149225000Z",
+        "creation_date": "2026-08-22T01:05:05.149225000Z",
+        "credit_party_identifier": {
+          "mobile_number": "+639180000101"
+        },
+        "external_id": "test_ph_dt_smart_1787360705551",
+        "id": 2240792116,
+        "prices": {
+          "retail": {
+            "amount": 14.739,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 12.816,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "product": {
+          "description": "20GB data, unlimited minutes, unlimited texts, valid for 30 days",
+          "id": 23473,
+          "name": "20 GBP",
+          "operator": {
+            "country": {
+              "iso_code": "GBR",
+              "name": "United Kingdom",
+              "regions": [
+                {
+                  "code": "GBR",
+                  "name": "United Kingdom"
+                }
+              ]
+            },
+            "id": 3140,
+            "name": "Vodafone PIN UK Bundles",
+            "regions": null
+          },
+          "pin": {
+            "terms": null,
+            "usage_info": [
+              "To recharge your phone, please dial 2345, follow the prompts and enter the pin number.",
+              "",
+              "",
+              "IVR: 2345"
+            ],
+            "validity": null
+          },
+          "regions": null,
+          "service": {
+            "id": 1,
+            "name": "Mobile",
+            "subservice": {
+              "id": 12,
+              "name": "Bundle"
+            }
+          },
+          "tags": [
+            "BUNDLE"
+          ],
+          "type": "FIXED_VALUE_PIN_PURCHASE"
+        },
+        "promotions": null,
+        "rates": {
+          "base": 1.5605493133583,
+          "retail": 1.35694416174774,
+          "wholesale": 1.5605493133583
+        },
+        "status": {
+          "class": {
+            "id": 1,
+            "message": "CREATED"
+          },
+          "id": 10000,
+          "message": "CREATED"
+        }
+      }
+    },
+    "zendit": {
+      "status": 400,
+      "raw": {
+        "message": "INVALID_VALUE: params.offerID: offer not found",
+        "errorCode": "validation_error",
+        "fields": {}
+      }
+    },
+    "reloadly": {
+      "status": 200,
+      "txId": 178384,
+      "txStatus": "SUCCESSFUL",
+      "cost": 0.2565,
+      "pinDetail": null,
+      "raw": {
+        "transactionId": 178384,
+        "status": "SUCCESSFUL",
+        "operatorTransactionId": null,
+        "customIdentifier": null,
+        "recipientPhone": "639180000101",
+        "recipientEmail": null,
+        "senderPhone": null,
+        "countryCode": "PH",
+        "operatorId": 372,
+        "operatorName": "Smart Philippines",
+        "discount": 0.01,
+        "discountCurrencyCode": "USD",
+        "requestedAmount": 0.27,
+        "requestedAmountCurrencyCode": "USD",
+        "deliveredAmount": 14.74,
+        "deliveredAmountCurrencyCode": "PHP",
+        "transactionDate": "2026-08-22 01:05:06",
+        "pinDetail": null,
+        "fee": 0,
+        "balanceInfo": {
+          "oldBalance": 943.9264,
+          "newBalance": 943.6699,
+          "cost": 0.2565,
+          "currencyCode": "USD",
+          "currencyName": "US Dollar",
+          "updatedAt": "2026-08-22 01:05:05"
+        }
+      }
+    },
+    "ding": {
+      "providerCode": "SMPH",
+      "resultCode": 3,
+      "itemsCount": 0
+    }
+  },
+  "dito": {
+    "name": "DITO Telecommunity",
+    "dtone": {
+      "status": "UNSUPPORTED"
+    },
+    "zendit": {
+      "status": 200,
+      "txStatus": "ACCEPTED",
+      "txId": "test_ph_zen_dito_1787360706722",
+      "raw": {
+        "transactionId": "test_ph_zen_dito_1787360706722",
+        "status": "ACCEPTED"
+      }
+    },
+    "reloadly": {
+      "status": 409,
+      "raw": {
+        "timeStamp": "2026-08-22 01:05:06",
+        "message": "The specified operator (Mobitel Sri Lanka Data ) is currently disabled for your account. Please contact support to enable it.",
+        "path": "/topups",
+        "errorCode": "OPERATOR_UNAVAILABLE_OR_CURRENTLY_INACTIVE",
+        "infoLink": null,
+        "details": []
+      }
+    },
+    "ding": {
+      "providerCode": "DWPH",
+      "resultCode": 3,
+      "itemsCount": 0
+    }
+  },
+  "tm": {
+    "name": "TM (Touch Mobile)",
+    "dtone": {
+      "status": 404,
+      "raw": {
+        "errors": [
+          {
+            "code": 1003001,
+            "message": "Product is not available in your account"
+          }
+        ]
+      }
+    },
+    "zendit": {
+      "status": 200,
+      "txStatus": "ACCEPTED",
+      "txId": "test_ph_zen_tm_1787360707702",
+      "raw": {
+        "transactionId": "test_ph_zen_tm_1787360707702",
+        "status": "ACCEPTED"
+      }
+    },
+    "reloadly": {
+      "status": 200,
+      "txId": 178385,
+      "txStatus": "SUCCESSFUL",
+      "cost": 0.171,
+      "pinDetail": null,
+      "raw": {
+        "transactionId": 178385,
+        "status": "SUCCESSFUL",
+        "operatorTransactionId": null,
+        "customIdentifier": null,
+        "recipientPhone": "639050000101",
+        "recipientEmail": null,
+        "senderPhone": null,
+        "countryCode": "PH",
+        "operatorId": 723,
+        "operatorName": "Touch Mobile Philippines",
+        "discount": 0.01,
+        "discountCurrencyCode": "USD",
+        "requestedAmount": 0.18,
+        "requestedAmountCurrencyCode": "USD",
+        "deliveredAmount": 10,
+        "deliveredAmountCurrencyCode": "PHP",
+        "transactionDate": "2026-08-22 01:05:08",
+        "pinDetail": null,
+        "fee": 0,
+        "balanceInfo": {
+          "oldBalance": 943.6699,
+          "newBalance": 943.4989,
+          "cost": 0.171,
+          "currencyCode": "USD",
+          "currencyName": "US Dollar",
+          "updatedAt": "2026-08-22 01:05:06"
+        }
+      }
+    },
+    "ding": {
+      "providerCode": "TMPH",
+      "resultCode": 3,
+      "itemsCount": 0
+    }
+  },
+  "tnt": {
+    "name": "TNT (Talk 'N Text)",
+    "dtone": {
+      "status": 201,
+      "txId": 2240792117,
+      "state": "CREATED",
+      "cost": {
+        "amount": 0.879,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      },
+      "raw": {
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 120,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 120,
+              "total_including_tax": 120
+            },
+            "type": "CREDITS",
+            "unit": "PHP",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "confirmation_expiration_date": "2026-08-22T02:05:08.310313000Z",
+        "creation_date": "2026-08-22T01:05:08.310313000Z",
+        "credit_party_identifier": {
+          "mobile_number": "+639080000101"
+        },
+        "external_id": "test_ph_dt_tnt_1787360708622",
+        "id": 2240792117,
+        "prices": {
+          "retail": {
+            "amount": 1.012,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 0.879,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "product": {
+          "description": "120 PHP",
+          "id": 23475,
+          "name": "TNT Philippines 120 PHP",
+          "operator": {
+            "country": {
+              "iso_code": "PHL",
+              "name": "Philippines",
+              "regions": [
+                {
+                  "code": "PHL",
+                  "name": "Philippines"
+                }
+              ]
+            },
+            "id": 2897,
+            "name": "TNT Philippines",
+            "regions": null
+          },
+          "regions": null,
+          "service": {
+            "id": 1,
+            "name": "Mobile",
+            "subservice": {
+              "id": 11,
+              "name": "Airtime"
+            }
+          },
+          "tags": [
+            "AIRTIME"
+          ],
+          "type": "FIXED_VALUE_RECHARGE"
+        },
+        "promotions": null,
+        "rates": {
+          "base": 136.518771331058,
+          "retail": 118.694362017804,
+          "wholesale": 136.518771331058
+        },
+        "status": {
+          "class": {
+            "id": 1,
+            "message": "CREATED"
+          },
+          "id": 10000,
+          "message": "CREATED"
+        }
+      }
+    },
+    "zendit": {
+      "status": 200,
+      "txStatus": "ACCEPTED",
+      "txId": "test_ph_zen_tnt_1787360708939",
+      "raw": {
+        "transactionId": "test_ph_zen_tnt_1787360708939",
+        "status": "ACCEPTED"
+      }
+    },
+    "reloadly": {
+      "status": 200,
+      "txId": 178386,
+      "txStatus": "SUCCESSFUL",
+      "cost": 0.171,
+      "pinDetail": {
+        "serial": "422845",
+        "info1": "DIAL *611",
+        "info2": "DIAL *611",
+        "info3": "Dial *233* and PIN #",
+        "value": null,
+        "code": "773709733071710",
+        "ivr": "1-888-888-8888",
+        "validity": "60 days"
+      },
+      "raw": {
+        "transactionId": 178386,
+        "status": "SUCCESSFUL",
+        "operatorTransactionId": null,
+        "customIdentifier": null,
+        "recipientPhone": "639080000101",
+        "recipientEmail": null,
+        "senderPhone": null,
+        "countryCode": "PH",
+        "operatorId": 378,
+        "operatorName": "TNT Philippines",
+        "discount": 0.01,
+        "discountCurrencyCode": "USD",
+        "requestedAmount": 0.18,
+        "requestedAmountCurrencyCode": "USD",
+        "deliveredAmount": 9.83,
+        "deliveredAmountCurrencyCode": "PHP",
+        "transactionDate": "2026-08-22 01:05:09",
+        "pinDetail": {
+          "serial": "422845",
+          "info1": "DIAL *611",
+          "info2": "DIAL *611",
+          "info3": "Dial *233* and PIN #",
+          "value": null,
+          "code": "773709733071710",
+          "ivr": "1-888-888-8888",
+          "validity": "60 days"
+        },
+        "fee": 0,
+        "balanceInfo": {
+          "oldBalance": 943.4989,
+          "newBalance": 943.3279,
+          "cost": 0.171,
+          "currencyCode": "USD",
+          "currencyName": "US Dollar",
+          "updatedAt": "2026-08-22 01:05:08"
+        }
+      }
+    },
+    "ding": {
+      "providerCode": "STPH",
+      "resultCode": 3,
+      "itemsCount": 0
+    }
+  }
+}

@@ -1,4 +1,16 @@
-require('dotenv').config({ path: require('path').join(__dirname, '.env') });
+try { require('dotenv').config({ path: require('path').join(__dirname, '.env') }); } catch (_) {}
+
+const {
+    purchaseEsim,
+    pollEsimPurchaseStatus,
+    getEsimPlans: getZenditEsimPlans,
+} = require('./providers/zendit');
+
+const {
+    purchaseEsim: purchaseEsimAccess,
+    pollEsimOrderStatus: pollEsimAccessOrderStatus,
+    getEsimUsage: getEsimAccessUsage,
+} = require('./providers/esimaccess');
 
 const FULFILLMENT_POLL_MS = parseInt(process.env.ESIM_FULFILLMENT_POLL_MS) || 10000; // 10s
 const USAGE_POLL_MS = parseInt(process.env.ESIM_USAGE_POLL_MS) || 4 * 60 * 60 * 1000; // 4 hours
@@ -7,6 +19,13 @@ const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const esimGoApiKey = process.env.ESIM_GO_API_KEY;
 const esimGoBaseUrl = process.env.ESIM_GO_BASE_URL || 'https://api.esim-go.com/v2.4';
+
+const zenditApiSecret = process.env.ZENDIT_API_SECRET;
+const zenditBaseUrl = process.env.ZENDIT_BASE_URL || 'https://api.zendit.io/v1';
+
+const esimAccessAccessCode = process.env.ESIM_ACCESS_ACCESS_CODE;
+const esimAccessSecretKey = process.env.ESIM_ACCESS_SECRET_KEY;
+const esimAccessBaseUrl = process.env.ESIM_ACCESS_BASE_URL || 'https://api.esimaccess.com/api/v1/open';
 
 function assembleLpaString(smdpAddress, matchingId) {
     if (!smdpAddress || !matchingId) return '';
@@ -62,6 +81,78 @@ function parseEsimGoOrderResponse(json, order) {
             }
         }
     }
+    return esims;
+}
+
+function parseZenditOrderConfirmation(pollResult, order) {
+    if (!pollResult || !pollResult.confirmation) return [];
+    const conf = pollResult.confirmation;
+    const iccid = conf.iccid;
+    if (!iccid) return [];
+
+    const smdp = conf.smdpAddress || 'rsp.zendit.io';
+    const matchingId = conf.activationCode || conf.matchingId || '';
+    const lpa = assembleLpaString(smdp, matchingId);
+
+    return [{
+        user_id: order.user_id,
+        order_id: order.id,
+        iccid: String(iccid).trim(),
+        smdp_address: String(smdp).trim(),
+        matching_id: String(matchingId).trim(),
+        lpa_string: lpa,
+        bundle_name: order.bundle_name,
+        provider: 'zendit',
+        status: 'active',
+        purchased_at: new Date().toISOString(),
+        data_total_mb: 0,
+        data_remaining_mb: 0,
+        low_data_notified: false,
+    }];
+}
+
+function parseEsimAccessOrderConfirmation(pollResult, order) {
+    if (!pollResult || !Array.isArray(pollResult.esimList) || pollResult.esimList.length === 0) {
+        return [];
+    }
+
+    const esims = [];
+    for (const item of pollResult.esimList) {
+        const iccid = item.iccid || item.ICCID;
+        if (!iccid) continue;
+
+        let lpa = '';
+        let smdp = item.smdpAddress || item.smdp || 'rsp-eu.redteamobile.com';
+        let matchingId = item.activationCode || item.matchingId || item.ac || '';
+
+        if (typeof item.ac === 'string' && item.ac.startsWith('LPA:1$')) {
+            lpa = item.ac.trim();
+            const parts = lpa.split('$');
+            if (parts.length >= 3) {
+                smdp = parts[1];
+                matchingId = parts[2];
+            }
+        } else {
+            lpa = assembleLpaString(smdp, matchingId);
+        }
+
+        esims.push({
+            user_id: order.user_id,
+            order_id: order.id,
+            iccid: String(iccid).trim(),
+            smdp_address: String(smdp).trim(),
+            matching_id: String(matchingId).trim(),
+            lpa_string: lpa,
+            bundle_name: order.bundle_name,
+            provider: 'esimaccess',
+            status: 'active',
+            purchased_at: new Date().toISOString(),
+            data_total_mb: 0,
+            data_remaining_mb: 0,
+            low_data_notified: false,
+        });
+    }
+
     return esims;
 }
 
@@ -140,7 +231,7 @@ async function processPendingOrders() {
         }
 
         for (const order of pendingOrders) {
-            console.log(`[worker_esim_fulfillment] Processing pending order ${order.id} for bundle ${order.bundle_name}...`);
+            console.log(`[worker_esim_fulfillment] Processing pending order ${order.id} (${order.provider}) for bundle ${order.bundle_name}...`);
             
             // Atomically mark order processing
             const { data: claimedData, error: markErr } = await supabase
@@ -156,12 +247,74 @@ async function processPendingOrders() {
             }
 
             try {
-                // Call eSIM Go API
-                const apiRes = await callEsimGoOrderApi(order, false);
-                const providerRef = apiRes.orderRef || apiRes.reference || apiRes.id || `esim_go_${Date.now()}`;
-                const parsedEsims = parseEsimGoOrderResponse(apiRes, order);
+                let providerRef;
+                let parsedEsims = [];
 
-                // Fetch offer details from cache for data amount
+                if (order.provider === 'zendit') {
+                    // Zendit eSIM purchase
+                    const txId = `esim_${order.id}`;
+                    console.log(`[worker_esim_fulfillment] Calling Zendit purchase for order ${order.id} (tx: ${txId})...`);
+
+                    const initRes = await purchaseEsim({
+                        baseUrl: zenditBaseUrl,
+                        apiSecret: zenditApiSecret,
+                        offerId: order.bundle_name,
+                        transactionId: txId,
+                    });
+
+                    console.log(`[worker_esim_fulfillment] Zendit purchase accepted, polling transaction ${initRes.transactionId}...`);
+                    const pollRes = await pollEsimPurchaseStatus({
+                        baseUrl: zenditBaseUrl,
+                        apiSecret: zenditApiSecret,
+                        transactionId: initRes.transactionId,
+                    });
+
+                    if (!pollRes.isSuccess) {
+                        throw new Error(pollRes.errorMsg || `Zendit purchase ended with status: ${pollRes.status}`);
+                    }
+
+                    providerRef = initRes.transactionId;
+                    parsedEsims = parseZenditOrderConfirmation(pollRes, order);
+
+                } else if (order.provider === 'esimaccess') {
+                    // eSIM Access purchase
+                    const txId = `esim_${order.id}`;
+                    console.log(`[worker_esim_fulfillment] Calling eSIM Access purchase for order ${order.id} (tx: ${txId})...`);
+
+                    const initRes = await purchaseEsimAccess({
+                        baseUrl: esimAccessBaseUrl,
+                        accessCode: esimAccessAccessCode,
+                        secretKey: esimAccessSecretKey,
+                        packageCode: order.bundle_name,
+                        quantity: parseInt(order.quantity) || 1,
+                        price: parseFloat(order.wholesale_price_usd) || undefined,
+                        transactionId: txId,
+                    });
+
+                    console.log(`[worker_esim_fulfillment] eSIM Access order placed, polling order ${initRes.orderNo || txId}...`);
+                    const pollRes = await pollEsimAccessOrderStatus({
+                        baseUrl: esimAccessBaseUrl,
+                        accessCode: esimAccessAccessCode,
+                        secretKey: esimAccessSecretKey,
+                        orderNo: initRes.orderNo,
+                        transactionId: txId,
+                    });
+
+                    if (!pollRes.isSuccess) {
+                        throw new Error(pollRes.errorMsg || `eSIM Access purchase ended with status: ${pollRes.status}`);
+                    }
+
+                    providerRef = initRes.orderNo || txId;
+                    parsedEsims = parseEsimAccessOrderConfirmation(pollRes, order);
+
+                } else {
+                    // eSIM Go purchase (default)
+                    const apiRes = await callEsimGoOrderApi(order, false);
+                    providerRef = apiRes.orderRef || apiRes.reference || apiRes.id || `esim_go_${Date.now()}`;
+                    parsedEsims = parseEsimGoOrderResponse(apiRes, order);
+                }
+
+                // Fetch offer details from cache for data amount and duration
                 const { data: offerCache } = await supabase
                     .from('esim_offers_cache')
                     .select('data_amount_mb, duration_days')
@@ -173,11 +326,13 @@ async function processPendingOrders() {
                 const durationDays = offerCache ? parseInt(offerCache.duration_days) || 30 : 30;
                 const expiresAt = new Date(Date.now() + durationDays * 24 * 60 * 60 * 1000).toISOString();
 
-                // If eSIM Go response did not explicitly list ICCIDs, generate standard record
+                // If provider response did not explicitly list ICCIDs, generate standard fallback record
                 if (parsedEsims.length === 0) {
-                    const fallbackIccid = apiRes.iccid || `898821${Date.now()}`;
-                    const smdp = apiRes.smdpAddress || 'rsp.esim-go.com';
-                    const matchingId = apiRes.matchingId || `MATCH-${order.id.slice(0, 8)}`;
+                    const fallbackIccid = `898821${Date.now()}`;
+                    let smdp = 'rsp.esim-go.com';
+                    if (order.provider === 'zendit') smdp = 'rsp.zendit.io';
+                    else if (order.provider === 'esimaccess') smdp = 'rsp-eu.redteamobile.com';
+                    const matchingId = `MATCH-${order.id.slice(0, 8)}`;
                     parsedEsims.push({
                         user_id: order.user_id,
                         order_id: order.id,
@@ -230,11 +385,11 @@ async function processPendingOrders() {
                     metadata: { order_id: order.id, action: '/esim' }
                 });
 
-                console.log(`[worker_esim_fulfillment] Order ${order.id} completed successfully.`);
+                console.log(`[worker_esim_fulfillment] Order ${order.id} completed successfully via ${order.provider}.`);
             } catch (err) {
                 console.error(`[worker_esim_fulfillment] Order ${order.id} failed: ${err.message}`);
                 
-                // Refund user wallet via RPC or credit_wallet_for_refund
+                // Refund user wallet via RPC credit_wallet_for_refund
                 const totalCost = (parseFloat(order.retail_price_usd) || 0) * (parseInt(order.quantity) || 1);
                 const refundRef = `esim_refund_${order.id}`;
 
@@ -262,8 +417,8 @@ async function processPendingOrders() {
                 // Insert system_alert
                 await supabase.from('system_alerts').insert({
                     kind: 'esim_fulfillment_failed',
-                    message: `Fulfillment failed for order ${order.id}: ${err.message}`,
-                    metadata: { order_id: order.id, user_id: order.user_id }
+                    message: `Fulfillment failed for order ${order.id} (${order.provider}): ${err.message}`,
+                    metadata: { order_id: order.id, user_id: order.user_id, provider: order.provider }
                 });
             }
         }
@@ -278,7 +433,7 @@ let isPollingUsage = false;
 
 async function pollEsimUsage() {
     if (isPollingUsage) return;
-    if (!supabaseUrl || !supabaseKey || !esimGoApiKey) return;
+    if (!supabaseUrl || !supabaseKey) return;
 
     isPollingUsage = true;
     try {
@@ -307,18 +462,49 @@ async function pollEsimUsage() {
 
         for (const esim of activeEsims) {
             try {
-                const res = await fetch(`${esimGoBaseUrl}/esims/${esim.iccid}`, {
-                    headers: {
-                        'X-API-Key': esimGoApiKey,
-                        'Accept': 'application/json',
-                    }
-                });
+                let remainingMb = esim.data_remaining_mb;
 
-                if (!res.ok) continue;
-                const json = await res.json();
+                if (esim.provider === 'zendit') {
+                    if (!zenditApiSecret) continue;
+                    const plansData = await getZenditEsimPlans({
+                        baseUrl: zenditBaseUrl,
+                        apiSecret: zenditApiSecret,
+                        iccid: esim.iccid,
+                    });
+                    if (plansData && Array.isArray(plansData.list) && plansData.list.length > 0) {
+                        const activePlan = plansData.list.find(p => p.status === 'ACTIVE') || plansData.list[0];
+                        if (typeof activePlan.remainingDataGB === 'number') {
+                            remainingMb = Math.round(activePlan.remainingDataGB * 1024);
+                        }
+                    }
+                } else if (esim.provider === 'esimaccess') {
+                    if (!esimAccessAccessCode) continue;
+                    const usageData = await getEsimAccessUsage({
+                        baseUrl: esimAccessBaseUrl,
+                        accessCode: esimAccessAccessCode,
+                        secretKey: esimAccessSecretKey,
+                        iccid: esim.iccid,
+                    });
+                    if (usageData && typeof usageData.dataRemainingMb === 'number') {
+                        remainingMb = usageData.dataRemainingMb;
+                    }
+                } else {
+                    // eSIM Go
+                    if (!esimGoApiKey) continue;
+                    const res = await fetch(`${esimGoBaseUrl}/esims/${esim.iccid}`, {
+                        headers: {
+                            'X-API-Key': esimGoApiKey,
+                            'Accept': 'application/json',
+                        }
+                    });
+
+                    if (!res.ok) continue;
+                    const json = await res.json();
+                    if (json.dataRemainingMB !== undefined) {
+                        remainingMb = parseInt(json.dataRemainingMB);
+                    }
+                }
                 
-                // Parse remaining data
-                const remainingMb = json.dataRemainingMB !== undefined ? parseInt(json.dataRemainingMB) : esim.data_remaining_mb;
                 const totalMb = esim.data_total_mb || 1024;
                 const isDepleted = remainingMb <= 0;
                 const isExpired = esim.expires_at && new Date(esim.expires_at) < new Date();
@@ -327,7 +513,7 @@ async function pollEsimUsage() {
                 if (isDepleted) newStatus = 'depleted';
                 if (isExpired) newStatus = 'expired';
 
-                const pctRemaining = (remainingMb / totalMb) * 100.0;
+                const pctRemaining = totalMb > 0 ? (remainingMb / totalMb) * 100.0 : 100.0;
                 let shouldNotifyLowData = false;
 
                 if (pctRemaining <= thresholdPct && !esim.low_data_notified && newStatus === 'active') {
@@ -358,7 +544,7 @@ async function pollEsimUsage() {
                     console.log(`[worker_esim_fulfillment] Sent esim_low_data alert for eSIM ${esim.id}`);
                 }
             } catch (err) {
-                console.error(`[worker_esim_fulfillment] Usage poll failed for ICCID ${esim.iccid}: ${err.message}`);
+                console.error(`[worker_esim_fulfillment] Usage poll failed for ICCID ${esim.iccid} (${esim.provider}): ${err.message}`);
             }
         }
     } catch (err) {
@@ -383,6 +569,8 @@ module.exports = {
     assembleLpaString,
     formatOrderPayload,
     parseEsimGoOrderResponse,
+    parseZenditOrderConfirmation,
+    parseEsimAccessOrderConfirmation,
     processPendingOrders,
     pollEsimUsage,
 };

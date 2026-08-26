@@ -3758,6 +3758,7 @@ Details that are load-bearing:
   and noted that a fourth surface would need its own copy; pricing is the one thing every surface
   must pass through, so a screen that forgets its gate now fails to get a price instead of taking a
   year's payment for a plan the queue will refuse.
+* **Client UI Quote Synchronization & Migration K12 Scoping.** The Flutter UI (`PlanPayment.fetchQuotedPlanPrice` & `quotedPlanPriceProvider`) queries `quote_plan_price` via RPC directly to render plan card previews and PayPal charge breakdown dialogs. Under Migration K12, `inapp_pricing` is strictly ignored for API-fulfilled carriers (`fulfillment_gateway = 'API'`), calculating prices dynamically from live supplier catalog offers, while preserving `inapp_pricing` for MANUAL and TASKER_SCRIPT carriers. This ensures 100% agreement between UI previews and final checkout charges.
 
 ### 12.4 Premium is billed wallet-first, like Standard
 

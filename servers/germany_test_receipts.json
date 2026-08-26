@@ -1,0 +1,847 @@
+{
+  "dtone": [
+    {
+      "carrier": "Deutsche Telekom",
+      "name": "Telekom 10 EUR Direct Top-Up",
+      "productId": 46871,
+      "recipient": "+491701234567",
+      "httpStatus": 201,
+      "transactionId": 2240793484,
+      "status": "CONFIRMED",
+      "deliveredAmount": 10,
+      "deliveredCurrency": "EUR",
+      "wholesaleCost": 5.382,
+      "wholesaleCurrency": "OMR"
+    },
+    {
+      "carrier": "Deutsche Telekom PIN",
+      "name": "Telekom 5 EUR PIN Voucher",
+      "productId": 24361,
+      "recipient": "+491701234567",
+      "httpStatus": 201,
+      "transactionId": 2240793485,
+      "status": "CONFIRMED",
+      "deliveredAmount": 5,
+      "deliveredCurrency": "EUR",
+      "wholesaleCost": 2.781,
+      "wholesaleCurrency": "OMR",
+      "pinCode": "048291048291048",
+      "ussdInstructions": "To top up *101*Top-up-code# or dial 2000 or *100#"
+    },
+    {
+      "carrier": "Vodafone Germany",
+      "name": "Vodafone 15 EUR Direct Top-Up",
+      "productId": 15313,
+      "recipient": "+491720000101",
+      "httpStatus": 201,
+      "transactionId": 2240793480,
+      "status": "CONFIRMED",
+      "deliveredAmount": 15,
+      "deliveredCurrency": "EUR",
+      "wholesaleCost": 8.084,
+      "wholesaleCurrency": "OMR"
+    },
+    {
+      "carrier": "Vodafone Germany PIN",
+      "name": "Vodafone 15 EUR PIN Voucher",
+      "productId": 23386,
+      "recipient": "+491720000101",
+      "httpStatus": 201,
+      "transactionId": 2240793481,
+      "status": "CONFIRMED",
+      "deliveredAmount": 15,
+      "deliveredCurrency": "EUR",
+      "wholesaleCost": 8.047,
+      "wholesaleCurrency": "OMR",
+      "pinCode": "059281749201847",
+      "ussdInstructions": "*100*<voucher_code># and dial"
+    },
+    {
+      "carrier": "O2 Germany",
+      "name": "O2 15 EUR Direct Top-Up",
+      "productId": 15301,
+      "recipient": "+491760000101",
+      "httpStatus": 201,
+      "transactionId": 2240793464,
+      "status": "CONFIRMED",
+      "deliveredAmount": 15,
+      "deliveredCurrency": "EUR",
+      "wholesaleCost": 8.149,
+      "wholesaleCurrency": "OMR"
+    },
+    {
+      "carrier": "O2 Germany PIN",
+      "name": "O2 15 EUR PIN Voucher",
+      "productId": 23408,
+      "recipient": "+491760000101",
+      "httpStatus": 201,
+      "transactionId": 2240793466,
+      "status": "CONFIRMED",
+      "deliveredAmount": 15,
+      "deliveredCurrency": "EUR",
+      "wholesaleCost": 8.047,
+      "wholesaleCurrency": "OMR",
+      "pinCode": "083920194820194",
+      "ussdInstructions": "*103*<voucher_code># and dial"
+    }
+  ],
+  "reloadly": [
+    {
+      "carrier": "Deutsche Telekom PIN",
+      "name": "Telekom PIN 15 EUR ($17.65)",
+      "operatorId": 664,
+      "amount": 17.65,
+      "recipient": "+491510000101",
+      "httpStatus": 200,
+      "response": {
+        "transactionId": 178483,
+        "status": "SUCCESSFUL",
+        "operatorTransactionId": null,
+        "customIdentifier": null,
+        "recipientPhone": "49491510000101",
+        "recipientEmail": null,
+        "senderPhone": null,
+        "countryCode": "DE",
+        "operatorId": 664,
+        "operatorName": "Deutsche Telekom PIN Germany",
+        "discount": 0,
+        "discountCurrencyCode": "USD",
+        "requestedAmount": 17.65,
+        "requestedAmountCurrencyCode": "USD",
+        "deliveredAmount": 15,
+        "deliveredAmountCurrencyCode": "EUR",
+        "transactionDate": "2026-08-22 22:53:25",
+        "pinDetail": {
+          "serial": "343804",
+          "info1": "DIAL *611",
+          "info2": "DIAL *611",
+          "info3": "Dial *233* and PIN #",
+          "value": null,
+          "code": "773709732972504",
+          "ivr": "1-888-888-8888",
+          "validity": "30 days"
+        },
+        "fee": 0,
+        "balanceInfo": {
+          "oldBalance": 698.8454,
+          "newBalance": 681.1954,
+          "cost": 17.65,
+          "currencyCode": "USD",
+          "currencyName": "US Dollar",
+          "updatedAt": "2026-08-22 22:53:06"
+        }
+      }
+    },
+    {
+      "carrier": "Vodafone PIN",
+      "name": "Vodafone PIN 15 EUR ($17.86)",
+      "operatorId": 875,
+      "amount": 17.86,
+      "recipient": "+491520000101",
+      "httpStatus": 200,
+      "response": {
+        "transactionId": 178484,
+        "status": "SUCCESSFUL",
+        "operatorTransactionId": null,
+        "customIdentifier": null,
+        "recipientPhone": "49491520000101",
+        "recipientEmail": null,
+        "senderPhone": null,
+        "countryCode": "DE",
+        "operatorId": 875,
+        "operatorName": "Vodafone PIN Germany",
+        "discount": 0,
+        "discountCurrencyCode": "USD",
+        "requestedAmount": 17.86,
+        "requestedAmountCurrencyCode": "USD",
+        "deliveredAmount": 15,
+        "deliveredAmountCurrencyCode": "EUR",
+        "transactionDate": "2026-08-22 22:53:27",
+        "pinDetail": {
+          "serial": "332486",
+          "info1": "DIAL *611",
+          "info2": "DIAL *611",
+          "info3": "Dial *233* and PIN #",
+          "value": null,
+          "code": "773709733100143",
+          "ivr": "1-888-888-8888",
+          "validity": "30 days"
+        },
+        "fee": 0,
+        "balanceInfo": {
+          "oldBalance": 681.1954,
+          "newBalance": 663.3354,
+          "cost": 17.86,
+          "currencyCode": "USD",
+          "currencyName": "US Dollar",
+          "updatedAt": "2026-08-22 22:53:25"
+        }
+      }
+    },
+    {
+      "carrier": "O2 PIN",
+      "name": "O2 PIN 15 EUR ($17.86)",
+      "operatorId": 868,
+      "amount": 17.86,
+      "recipient": "+491760000101",
+      "httpStatus": 200,
+      "response": {
+        "transactionId": 178485,
+        "status": "SUCCESSFUL",
+        "operatorTransactionId": null,
+        "customIdentifier": null,
+        "recipientPhone": "49491760000101",
+        "recipientEmail": null,
+        "senderPhone": null,
+        "countryCode": "DE",
+        "operatorId": 868,
+        "operatorName": "O2 PIN Germany",
+        "discount": 0,
+        "discountCurrencyCode": "USD",
+        "requestedAmount": 17.86,
+        "requestedAmountCurrencyCode": "USD",
+        "deliveredAmount": 15,
+        "deliveredAmountCurrencyCode": "EUR",
+        "transactionDate": "2026-08-22 22:53:29",
+        "pinDetail": {
+          "serial": "194158",
+          "info1": "DIAL *611",
+          "info2": "DIAL *611",
+          "info3": "Dial *233* and PIN #",
+          "value": null,
+          "code": "773709732932053",
+          "ivr": "1-888-888-8888",
+          "validity": "60 days"
+        },
+        "fee": 0,
+        "balanceInfo": {
+          "oldBalance": 663.3354,
+          "newBalance": 645.4754,
+          "cost": 17.86,
+          "currencyCode": "USD",
+          "currencyName": "US Dollar",
+          "updatedAt": "2026-08-22 22:53:27"
+        }
+      }
+    },
+    {
+      "carrier": "Congstar PIN",
+      "name": "Congstar PIN 5 EUR ($5.95)",
+      "operatorId": 850,
+      "amount": 5.95,
+      "recipient": "+491510000101",
+      "httpStatus": 200,
+      "response": {
+        "transactionId": 178487,
+        "status": "SUCCESSFUL",
+        "operatorTransactionId": null,
+        "customIdentifier": null,
+        "recipientPhone": "49491510000101",
+        "recipientEmail": null,
+        "senderPhone": null,
+        "countryCode": "DE",
+        "operatorId": 850,
+        "operatorName": "Congstar PIN Germany",
+        "discount": 0.06,
+        "discountCurrencyCode": "USD",
+        "requestedAmount": 5.95,
+        "requestedAmountCurrencyCode": "USD",
+        "deliveredAmount": 5,
+        "deliveredAmountCurrencyCode": "EUR",
+        "transactionDate": "2026-08-22 22:53:31",
+        "pinDetail": {
+          "serial": "859569",
+          "info1": "DIAL *611",
+          "info2": "DIAL *611",
+          "info3": "Dial *233* and PIN #",
+          "value": null,
+          "code": "773709732299753",
+          "ivr": "1-888-888-8888",
+          "validity": "30 days"
+        },
+        "fee": 0,
+        "balanceInfo": {
+          "oldBalance": 644.5539,
+          "newBalance": 638.6634,
+          "cost": 5.8905,
+          "currencyCode": "USD",
+          "currencyName": "US Dollar",
+          "updatedAt": "2026-08-22 22:53:29"
+        }
+      }
+    },
+    {
+      "carrier": "Lebara PIN",
+      "name": "Lebara PIN 10 EUR ($11.90)",
+      "operatorId": 855,
+      "amount": 11.9,
+      "recipient": "+491550000101",
+      "httpStatus": 200,
+      "response": {
+        "transactionId": 178489,
+        "status": "SUCCESSFUL",
+        "operatorTransactionId": null,
+        "customIdentifier": null,
+        "recipientPhone": "49491550000101",
+        "recipientEmail": null,
+        "senderPhone": null,
+        "countryCode": "DE",
+        "operatorId": 855,
+        "operatorName": "Lebara PIN Germany",
+        "discount": 0,
+        "discountCurrencyCode": "USD",
+        "requestedAmount": 11.9,
+        "requestedAmountCurrencyCode": "USD",
+        "deliveredAmount": 10,
+        "deliveredAmountCurrencyCode": "EUR",
+        "transactionDate": "2026-08-22 22:53:32",
+        "pinDetail": {
+          "serial": "314972",
+          "info1": "DIAL *611",
+          "info2": "DIAL *611",
+          "info3": "Dial *233* and PIN #",
+          "value": null,
+          "code": "773709733073622",
+          "ivr": "1-888-888-8888",
+          "validity": "30 days"
+        },
+        "fee": 0,
+        "balanceInfo": {
+          "oldBalance": 634.0654,
+          "newBalance": 622.1654,
+          "cost": 11.9,
+          "currencyCode": "USD",
+          "currencyName": "US Dollar",
+          "updatedAt": "2026-08-22 22:53:31"
+        }
+      }
+    },
+    {
+      "carrier": "Lebara Flexi Bundle",
+      "name": "Lebara Flexi Bundle 9.99 EUR ($11.89)",
+      "operatorId": 857,
+      "amount": 11.89,
+      "recipient": "+491550000101",
+      "httpStatus": 200,
+      "response": {
+        "transactionId": 178491,
+        "status": "SUCCESSFUL",
+        "operatorTransactionId": null,
+        "customIdentifier": null,
+        "recipientPhone": "49491550000101",
+        "recipientEmail": null,
+        "senderPhone": null,
+        "countryCode": "DE",
+        "operatorId": 857,
+        "operatorName": "Lebara Flexi Germany Bundles",
+        "discount": 0.36,
+        "discountCurrencyCode": "USD",
+        "requestedAmount": 11.89,
+        "requestedAmountCurrencyCode": "USD",
+        "deliveredAmount": 9.99,
+        "deliveredAmountCurrencyCode": "EUR",
+        "transactionDate": "2026-08-22 22:53:34",
+        "pinDetail": null,
+        "fee": 0,
+        "balanceInfo": {
+          "oldBalance": 621.2439,
+          "newBalance": 609.7106,
+          "cost": 11.5333,
+          "currencyCode": "USD",
+          "currencyName": "US Dollar",
+          "updatedAt": "2026-08-22 22:53:33"
+        }
+      }
+    },
+    {
+      "carrier": "Lycamobile PIN",
+      "name": "Lycamobile PIN 5 EUR ($5.92)",
+      "operatorId": 864,
+      "amount": 5.92,
+      "recipient": "+491520000101",
+      "httpStatus": 200,
+      "response": {
+        "transactionId": 178492,
+        "status": "SUCCESSFUL",
+        "operatorTransactionId": null,
+        "customIdentifier": null,
+        "recipientPhone": "49491520000101",
+        "recipientEmail": null,
+        "senderPhone": null,
+        "countryCode": "DE",
+        "operatorId": 864,
+        "operatorName": "Lycamobile PIN Germany",
+        "discount": 0,
+        "discountCurrencyCode": "USD",
+        "requestedAmount": 5.92,
+        "requestedAmountCurrencyCode": "USD",
+        "deliveredAmount": 5,
+        "deliveredAmountCurrencyCode": "EUR",
+        "transactionDate": "2026-08-22 22:53:36",
+        "pinDetail": {
+          "serial": "430234",
+          "info1": "DIAL *611",
+          "info2": "DIAL *611",
+          "info3": "Dial *233* and PIN #",
+          "value": null,
+          "code": "773709732439821",
+          "ivr": "1-888-888-8888",
+          "validity": "90 days"
+        },
+        "fee": 0,
+        "balanceInfo": {
+          "oldBalance": 609.7106,
+          "newBalance": 603.7906,
+          "cost": 5.92,
+          "currencyCode": "USD",
+          "currencyName": "US Dollar",
+          "updatedAt": "2026-08-22 22:53:34"
+        }
+      }
+    },
+    {
+      "carrier": "Blau PIN",
+      "name": "Blau PIN 15 EUR ($17.86)",
+      "operatorId": 849,
+      "amount": 17.86,
+      "recipient": "+491760000101",
+      "httpStatus": 200,
+      "response": {
+        "transactionId": 178493,
+        "status": "SUCCESSFUL",
+        "operatorTransactionId": null,
+        "customIdentifier": null,
+        "recipientPhone": "49491760000101",
+        "recipientEmail": null,
+        "senderPhone": null,
+        "countryCode": "DE",
+        "operatorId": 849,
+        "operatorName": "Blau PIN Germany",
+        "discount": 0.36,
+        "discountCurrencyCode": "USD",
+        "requestedAmount": 17.86,
+        "requestedAmountCurrencyCode": "USD",
+        "deliveredAmount": 15,
+        "deliveredAmountCurrencyCode": "EUR",
+        "transactionDate": "2026-08-22 22:53:38",
+        "pinDetail": {
+          "serial": "584907",
+          "info1": "DIAL *611",
+          "info2": "DIAL *611",
+          "info3": "Dial *233* and PIN #",
+          "value": null,
+          "code": "773709732502940",
+          "ivr": "1-888-888-8888",
+          "validity": "90 days"
+        },
+        "fee": 0,
+        "balanceInfo": {
+          "oldBalance": 603.7906,
+          "newBalance": 586.2878,
+          "cost": 17.5028,
+          "currencyCode": "USD",
+          "currencyName": "US Dollar",
+          "updatedAt": "2026-08-22 22:53:36"
+        }
+      }
+    },
+    {
+      "carrier": "Ortel PIN",
+      "name": "Ortel PIN 15 EUR ($17.86)",
+      "operatorId": 665,
+      "amount": 17.86,
+      "recipient": "+491760000101",
+      "httpStatus": 200,
+      "response": {
+        "transactionId": 178494,
+        "status": "SUCCESSFUL",
+        "operatorTransactionId": null,
+        "customIdentifier": null,
+        "recipientPhone": "49491760000101",
+        "recipientEmail": null,
+        "senderPhone": null,
+        "countryCode": "DE",
+        "operatorId": 665,
+        "operatorName": "Ortel PIN Germany",
+        "discount": 0.18,
+        "discountCurrencyCode": "USD",
+        "requestedAmount": 17.86,
+        "requestedAmountCurrencyCode": "USD",
+        "deliveredAmount": 15,
+        "deliveredAmountCurrencyCode": "EUR",
+        "transactionDate": "2026-08-22 22:53:40",
+        "pinDetail": {
+          "serial": "628931",
+          "info1": "DIAL *611",
+          "info2": "DIAL *611",
+          "info3": "Dial *233* and PIN #",
+          "value": null,
+          "code": "773709732241957",
+          "ivr": "1-888-888-8888",
+          "validity": "90 days"
+        },
+        "fee": 0,
+        "balanceInfo": {
+          "oldBalance": 586.2878,
+          "newBalance": 568.6064,
+          "cost": 17.6814,
+          "currencyCode": "USD",
+          "currencyName": "US Dollar",
+          "updatedAt": "2026-08-22 22:53:38"
+        }
+      }
+    },
+    {
+      "carrier": "Otelo PIN",
+      "name": "Otelo PIN 9 EUR ($9.00)",
+      "operatorId": 867,
+      "amount": 9,
+      "recipient": "+491520000101",
+      "httpStatus": 200,
+      "response": {
+        "transactionId": 178495,
+        "status": "SUCCESSFUL",
+        "operatorTransactionId": null,
+        "customIdentifier": null,
+        "recipientPhone": "49491520000101",
+        "recipientEmail": null,
+        "senderPhone": null,
+        "countryCode": "DE",
+        "operatorId": 867,
+        "operatorName": "Otelo PIN Germany",
+        "discount": 0,
+        "discountCurrencyCode": "USD",
+        "requestedAmount": 9,
+        "requestedAmountCurrencyCode": "USD",
+        "deliveredAmount": 9,
+        "deliveredAmountCurrencyCode": "EUR",
+        "transactionDate": "2026-08-22 22:53:42",
+        "pinDetail": {
+          "serial": "260078",
+          "info1": "DIAL *611",
+          "info2": "DIAL *611",
+          "info3": "Dial *233* and PIN #",
+          "value": null,
+          "code": "773709732483103",
+          "ivr": "1-888-888-8888",
+          "validity": "60 days"
+        },
+        "fee": 0,
+        "balanceInfo": {
+          "oldBalance": 568.6064,
+          "newBalance": 559.6064,
+          "cost": 9,
+          "currencyCode": "USD",
+          "currencyName": "US Dollar",
+          "updatedAt": "2026-08-22 22:53:40"
+        }
+      }
+    },
+    {
+      "carrier": "Fonic PIN",
+      "name": "Fonic PIN 20 EUR ($23.81)",
+      "operatorId": 853,
+      "amount": 23.81,
+      "recipient": "+491760000101",
+      "httpStatus": 200,
+      "response": {
+        "transactionId": 178496,
+        "status": "SUCCESSFUL",
+        "operatorTransactionId": null,
+        "customIdentifier": null,
+        "recipientPhone": "49491760000101",
+        "recipientEmail": null,
+        "senderPhone": null,
+        "countryCode": "DE",
+        "operatorId": 853,
+        "operatorName": "FONIC PIN Germany",
+        "discount": 0,
+        "discountCurrencyCode": "USD",
+        "requestedAmount": 23.81,
+        "requestedAmountCurrencyCode": "USD",
+        "deliveredAmount": 20,
+        "deliveredAmountCurrencyCode": "EUR",
+        "transactionDate": "2026-08-22 22:53:43",
+        "pinDetail": {
+          "serial": "667503",
+          "info1": "DIAL *611",
+          "info2": "DIAL *611",
+          "info3": "Dial *233* and PIN #",
+          "value": null,
+          "code": "773709733077300",
+          "ivr": "1-888-888-8888",
+          "validity": "30 days"
+        },
+        "fee": 0,
+        "balanceInfo": {
+          "oldBalance": 559.6064,
+          "newBalance": 535.7964,
+          "cost": 23.81,
+          "currencyCode": "USD",
+          "currencyName": "US Dollar",
+          "updatedAt": "2026-08-22 22:53:42"
+        }
+      }
+    },
+    {
+      "carrier": "Tchibo Mobile PIN",
+      "name": "Tchibo PIN 20 EUR ($23.81)",
+      "operatorId": 872,
+      "amount": 23.81,
+      "recipient": "+491760000101",
+      "httpStatus": 200,
+      "response": {
+        "transactionId": 178497,
+        "status": "SUCCESSFUL",
+        "operatorTransactionId": null,
+        "customIdentifier": null,
+        "recipientPhone": "49491760000101",
+        "recipientEmail": null,
+        "senderPhone": null,
+        "countryCode": "DE",
+        "operatorId": 872,
+        "operatorName": "Tchibo Mobile PIN Germany",
+        "discount": 0,
+        "discountCurrencyCode": "USD",
+        "requestedAmount": 23.81,
+        "requestedAmountCurrencyCode": "USD",
+        "deliveredAmount": 20,
+        "deliveredAmountCurrencyCode": "EUR",
+        "transactionDate": "2026-08-22 22:53:45",
+        "pinDetail": {
+          "serial": "486305",
+          "info1": "DIAL *611",
+          "info2": "DIAL *611",
+          "info3": "Dial *233* and PIN #",
+          "value": null,
+          "code": "773709732308265",
+          "ivr": "1-888-888-8888",
+          "validity": "60 days"
+        },
+        "fee": 0,
+        "balanceInfo": {
+          "oldBalance": 535.7964,
+          "newBalance": 511.9864,
+          "cost": 23.81,
+          "currencyCode": "USD",
+          "currencyName": "US Dollar",
+          "updatedAt": "2026-08-22 22:53:43"
+        }
+      }
+    },
+    {
+      "carrier": "Klarmobil PIN",
+      "name": "Klarmobil PIN 15 EUR ($17.86)",
+      "operatorId": 854,
+      "amount": 17.86,
+      "recipient": "+491510000101",
+      "httpStatus": 200,
+      "response": {
+        "transactionId": 178498,
+        "status": "SUCCESSFUL",
+        "operatorTransactionId": null,
+        "customIdentifier": null,
+        "recipientPhone": "49491510000101",
+        "recipientEmail": null,
+        "senderPhone": null,
+        "countryCode": "DE",
+        "operatorId": 854,
+        "operatorName": "Klarmobil PIN Germany",
+        "discount": 0,
+        "discountCurrencyCode": "USD",
+        "requestedAmount": 17.86,
+        "requestedAmountCurrencyCode": "USD",
+        "deliveredAmount": 15,
+        "deliveredAmountCurrencyCode": "EUR",
+        "transactionDate": "2026-08-22 22:53:47",
+        "pinDetail": {
+          "serial": "957567",
+          "info1": "DIAL *611",
+          "info2": "DIAL *611",
+          "info3": "Dial *233* and PIN #",
+          "value": null,
+          "code": "773709733047361",
+          "ivr": "1-888-888-8888",
+          "validity": "90 days"
+        },
+        "fee": 0,
+        "balanceInfo": {
+          "oldBalance": 511.9864,
+          "newBalance": 494.1264,
+          "cost": 17.86,
+          "currencyCode": "USD",
+          "currencyName": "US Dollar",
+          "updatedAt": "2026-08-22 22:53:45"
+        }
+      }
+    },
+    {
+      "carrier": "BILDMobil PIN",
+      "name": "BILDMobil PIN 10 EUR ($11.90)",
+      "operatorId": 848,
+      "amount": 11.9,
+      "recipient": "+491520000101",
+      "httpStatus": 200,
+      "response": {
+        "transactionId": 178499,
+        "status": "SUCCESSFUL",
+        "operatorTransactionId": null,
+        "customIdentifier": null,
+        "recipientPhone": "49491520000101",
+        "recipientEmail": null,
+        "senderPhone": null,
+        "countryCode": "DE",
+        "operatorId": 848,
+        "operatorName": "BILDMobil PIN Germany",
+        "discount": 0.12,
+        "discountCurrencyCode": "USD",
+        "requestedAmount": 11.9,
+        "requestedAmountCurrencyCode": "USD",
+        "deliveredAmount": 10,
+        "deliveredAmountCurrencyCode": "EUR",
+        "transactionDate": "2026-08-22 22:53:49",
+        "pinDetail": {
+          "serial": "192409",
+          "info1": "DIAL *611",
+          "info2": "DIAL *611",
+          "info3": "Dial *233* and PIN #",
+          "value": null,
+          "code": "773709732229262",
+          "ivr": "1-888-888-8888",
+          "validity": "60 days"
+        },
+        "fee": 0,
+        "balanceInfo": {
+          "oldBalance": 494.1264,
+          "newBalance": 482.3454,
+          "cost": 11.781,
+          "currencyCode": "USD",
+          "currencyName": "US Dollar",
+          "updatedAt": "2026-08-22 22:53:47"
+        }
+      }
+    }
+  ],
+  "zendit": [
+    {
+      "carrier": "Deutsche Telekom",
+      "name": "Telekom 15 EUR ($16.84 USD)",
+      "offerId": "TELEKOM_DE_001-ROW",
+      "recipient": "+491510000101",
+      "httpStatus": 200,
+      "response": {
+        "transactionId": "zen_de_test_1787439260604_telekom_de_001_row",
+        "status": "ACCEPTED"
+      }
+    },
+    {
+      "carrier": "Vodafone Germany",
+      "name": "Vodafone 15 EUR ($18.59 USD)",
+      "offerId": "VODAFONE_DE_001-ROW",
+      "recipient": "+491520000101",
+      "httpStatus": 200,
+      "response": {
+        "transactionId": "zen_de_test_1787439262873_vodafone_de_001_row",
+        "status": "ACCEPTED"
+      }
+    },
+    {
+      "carrier": "O2 Germany",
+      "name": "O2 15 EUR ($18.75 USD)",
+      "offerId": "O2_DE_001-ROW",
+      "recipient": "+491760000101",
+      "httpStatus": 200,
+      "response": {
+        "transactionId": "zen_de_test_1787439264626_o2_de_001_row",
+        "status": "ACCEPTED"
+      }
+    },
+    {
+      "carrier": "Congstar",
+      "name": "Congstar 15 EUR ($18.52 USD)",
+      "offerId": "CONGSTAR_DE_001-ROW",
+      "recipient": "+491510000101",
+      "httpStatus": 200,
+      "response": {
+        "transactionId": "zen_de_test_1787439266383_congstar_de_001_row",
+        "status": "ACCEPTED"
+      }
+    },
+    {
+      "carrier": "Blau",
+      "name": "Blau 15 EUR ($18.99 USD)",
+      "offerId": "BLAU_DE_001-ROW",
+      "recipient": "+491760000101",
+      "httpStatus": 200,
+      "response": {
+        "transactionId": "zen_de_test_1787439268141_blau_de_001_row",
+        "status": "ACCEPTED"
+      }
+    },
+    {
+      "carrier": "Ortel",
+      "name": "Ortel 15 EUR ($18.75 USD)",
+      "offerId": "ORTEL_DE_001-ROW",
+      "recipient": "+491760000101",
+      "httpStatus": 200,
+      "response": {
+        "transactionId": "zen_de_test_1787439269898_ortel_de_001_row",
+        "status": "ACCEPTED"
+      }
+    },
+    {
+      "carrier": "Ay Yildiz",
+      "name": "Ay Yildiz 15 EUR ($18.73 USD)",
+      "offerId": "AYYILDIZ_DE_001-ROW",
+      "recipient": "+491760000101",
+      "httpStatus": 200,
+      "response": {
+        "transactionId": "zen_de_test_1787439271650_ayyildiz_de_001_row",
+        "status": "ACCEPTED"
+      }
+    },
+    {
+      "carrier": "Otelo",
+      "name": "Otelo 9 EUR ($11.25 USD)",
+      "offerId": "OTELO_DE_001-ROW",
+      "recipient": "+491520000101",
+      "httpStatus": 200,
+      "response": {
+        "transactionId": "zen_de_test_1787439273409_otelo_de_001_row",
+        "status": "ACCEPTED"
+      }
+    }
+  ],
+  "ding": [
+    {
+      "providerCode": "TLDE",
+      "name": "T-Mobile Germany",
+      "status": "Disabled (0 Inventory in UAT)"
+    },
+    {
+      "providerCode": "VFDE",
+      "name": "Vodafone Germany",
+      "status": "Disabled (0 Inventory in UAT)"
+    },
+    {
+      "providerCode": "O2DE",
+      "name": "O2 Germany",
+      "status": "Disabled (0 Inventory in UAT)"
+    },
+    {
+      "providerCode": "C4DE",
+      "name": "Congstar Germany",
+      "status": "Disabled (0 Inventory in UAT)"
+    },
+    {
+      "providerCode": "ESDE",
+      "name": "Lebara Germany",
+      "status": "Disabled (0 Inventory in UAT)"
+    },
+    {
+      "providerCode": "LYDE",
+      "name": "Lycamobile Germany",
+      "status": "Disabled (0 Inventory in UAT)"
+    }
+  ]
+}

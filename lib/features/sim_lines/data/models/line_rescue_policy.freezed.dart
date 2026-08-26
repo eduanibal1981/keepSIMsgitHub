@@ -16,11 +16,11 @@ T _$identity<T>(T value) => value;
 mixin _$LineRescuePolicy {
 
  String get simLineId; String get userId;/// The most one rescue may cost. 0 = insurance off.
- double get maxUsd;/// Rescue when the forecast says this many days of life remain.
- int get leadDays;/// Warn this many days before that, giving the user a chance to act first.
- int get warnLeadDays;/// When the warning that starts the grace clock was written. Null means no
+@JsonKey(fromJson: _parseDouble) double get maxUsd;/// Rescue when the forecast says this many days of life remain.
+@JsonKey(fromJson: _parseLeadDays) int get leadDays;/// Warn this many days before that, giving the user a chance to act first.
+@JsonKey(fromJson: _parseWarnLeadDays) int get warnLeadDays;/// When the warning that starts the grace clock was written. Null means no
 /// warning is outstanding — either none was needed, or the user acted.
- DateTime? get lastWarnedAt; DateTime? get lastRescueAt; String? get lastRescueExecutionId; int get rescueCount; DateTime? get createdAt; DateTime? get updatedAt;
+ DateTime? get lastWarnedAt; DateTime? get lastRescueAt; String? get lastRescueExecutionId;@JsonKey(fromJson: _parseRescueCount) int get rescueCount; DateTime? get createdAt; DateTime? get updatedAt;
 /// Create a copy of LineRescuePolicy
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -53,7 +53,7 @@ abstract mixin class $LineRescuePolicyCopyWith<$Res>  {
   factory $LineRescuePolicyCopyWith(LineRescuePolicy value, $Res Function(LineRescuePolicy) _then) = _$LineRescuePolicyCopyWithImpl;
 @useResult
 $Res call({
- String simLineId, String userId, double maxUsd, int leadDays, int warnLeadDays, DateTime? lastWarnedAt, DateTime? lastRescueAt, String? lastRescueExecutionId, int rescueCount, DateTime? createdAt, DateTime? updatedAt
+ String simLineId, String userId,@JsonKey(fromJson: _parseDouble) double maxUsd,@JsonKey(fromJson: _parseLeadDays) int leadDays,@JsonKey(fromJson: _parseWarnLeadDays) int warnLeadDays, DateTime? lastWarnedAt, DateTime? lastRescueAt, String? lastRescueExecutionId,@JsonKey(fromJson: _parseRescueCount) int rescueCount, DateTime? createdAt, DateTime? updatedAt
 });
 
 
@@ -168,7 +168,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String simLineId,  String userId,  double maxUsd,  int leadDays,  int warnLeadDays,  DateTime? lastWarnedAt,  DateTime? lastRescueAt,  String? lastRescueExecutionId,  int rescueCount,  DateTime? createdAt,  DateTime? updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String simLineId,  String userId, @JsonKey(fromJson: _parseDouble)  double maxUsd, @JsonKey(fromJson: _parseLeadDays)  int leadDays, @JsonKey(fromJson: _parseWarnLeadDays)  int warnLeadDays,  DateTime? lastWarnedAt,  DateTime? lastRescueAt,  String? lastRescueExecutionId, @JsonKey(fromJson: _parseRescueCount)  int rescueCount,  DateTime? createdAt,  DateTime? updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _LineRescuePolicy() when $default != null:
 return $default(_that.simLineId,_that.userId,_that.maxUsd,_that.leadDays,_that.warnLeadDays,_that.lastWarnedAt,_that.lastRescueAt,_that.lastRescueExecutionId,_that.rescueCount,_that.createdAt,_that.updatedAt);case _:
@@ -189,7 +189,7 @@ return $default(_that.simLineId,_that.userId,_that.maxUsd,_that.leadDays,_that.w
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String simLineId,  String userId,  double maxUsd,  int leadDays,  int warnLeadDays,  DateTime? lastWarnedAt,  DateTime? lastRescueAt,  String? lastRescueExecutionId,  int rescueCount,  DateTime? createdAt,  DateTime? updatedAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String simLineId,  String userId, @JsonKey(fromJson: _parseDouble)  double maxUsd, @JsonKey(fromJson: _parseLeadDays)  int leadDays, @JsonKey(fromJson: _parseWarnLeadDays)  int warnLeadDays,  DateTime? lastWarnedAt,  DateTime? lastRescueAt,  String? lastRescueExecutionId, @JsonKey(fromJson: _parseRescueCount)  int rescueCount,  DateTime? createdAt,  DateTime? updatedAt)  $default,) {final _that = this;
 switch (_that) {
 case _LineRescuePolicy():
 return $default(_that.simLineId,_that.userId,_that.maxUsd,_that.leadDays,_that.warnLeadDays,_that.lastWarnedAt,_that.lastRescueAt,_that.lastRescueExecutionId,_that.rescueCount,_that.createdAt,_that.updatedAt);case _:
@@ -209,7 +209,7 @@ return $default(_that.simLineId,_that.userId,_that.maxUsd,_that.leadDays,_that.w
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String simLineId,  String userId,  double maxUsd,  int leadDays,  int warnLeadDays,  DateTime? lastWarnedAt,  DateTime? lastRescueAt,  String? lastRescueExecutionId,  int rescueCount,  DateTime? createdAt,  DateTime? updatedAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String simLineId,  String userId, @JsonKey(fromJson: _parseDouble)  double maxUsd, @JsonKey(fromJson: _parseLeadDays)  int leadDays, @JsonKey(fromJson: _parseWarnLeadDays)  int warnLeadDays,  DateTime? lastWarnedAt,  DateTime? lastRescueAt,  String? lastRescueExecutionId, @JsonKey(fromJson: _parseRescueCount)  int rescueCount,  DateTime? createdAt,  DateTime? updatedAt)?  $default,) {final _that = this;
 switch (_that) {
 case _LineRescuePolicy() when $default != null:
 return $default(_that.simLineId,_that.userId,_that.maxUsd,_that.leadDays,_that.warnLeadDays,_that.lastWarnedAt,_that.lastRescueAt,_that.lastRescueExecutionId,_that.rescueCount,_that.createdAt,_that.updatedAt);case _:
@@ -224,23 +224,23 @@ return $default(_that.simLineId,_that.userId,_that.maxUsd,_that.leadDays,_that.w
 
 @JsonSerializable(fieldRename: FieldRename.snake)
 class _LineRescuePolicy extends LineRescuePolicy {
-  const _LineRescuePolicy({required this.simLineId, required this.userId, this.maxUsd = 0.0, this.leadDays = 2, this.warnLeadDays = 3, this.lastWarnedAt, this.lastRescueAt, this.lastRescueExecutionId, this.rescueCount = 0, this.createdAt, this.updatedAt}): super._();
+  const _LineRescuePolicy({required this.simLineId, required this.userId, @JsonKey(fromJson: _parseDouble) this.maxUsd = 0.0, @JsonKey(fromJson: _parseLeadDays) this.leadDays = 2, @JsonKey(fromJson: _parseWarnLeadDays) this.warnLeadDays = 3, this.lastWarnedAt, this.lastRescueAt, this.lastRescueExecutionId, @JsonKey(fromJson: _parseRescueCount) this.rescueCount = 0, this.createdAt, this.updatedAt}): super._();
   factory _LineRescuePolicy.fromJson(Map<String, dynamic> json) => _$LineRescuePolicyFromJson(json);
 
 @override final  String simLineId;
 @override final  String userId;
 /// The most one rescue may cost. 0 = insurance off.
-@override@JsonKey() final  double maxUsd;
+@override@JsonKey(fromJson: _parseDouble) final  double maxUsd;
 /// Rescue when the forecast says this many days of life remain.
-@override@JsonKey() final  int leadDays;
+@override@JsonKey(fromJson: _parseLeadDays) final  int leadDays;
 /// Warn this many days before that, giving the user a chance to act first.
-@override@JsonKey() final  int warnLeadDays;
+@override@JsonKey(fromJson: _parseWarnLeadDays) final  int warnLeadDays;
 /// When the warning that starts the grace clock was written. Null means no
 /// warning is outstanding — either none was needed, or the user acted.
 @override final  DateTime? lastWarnedAt;
 @override final  DateTime? lastRescueAt;
 @override final  String? lastRescueExecutionId;
-@override@JsonKey() final  int rescueCount;
+@override@JsonKey(fromJson: _parseRescueCount) final  int rescueCount;
 @override final  DateTime? createdAt;
 @override final  DateTime? updatedAt;
 
@@ -277,7 +277,7 @@ abstract mixin class _$LineRescuePolicyCopyWith<$Res> implements $LineRescuePoli
   factory _$LineRescuePolicyCopyWith(_LineRescuePolicy value, $Res Function(_LineRescuePolicy) _then) = __$LineRescuePolicyCopyWithImpl;
 @override @useResult
 $Res call({
- String simLineId, String userId, double maxUsd, int leadDays, int warnLeadDays, DateTime? lastWarnedAt, DateTime? lastRescueAt, String? lastRescueExecutionId, int rescueCount, DateTime? createdAt, DateTime? updatedAt
+ String simLineId, String userId,@JsonKey(fromJson: _parseDouble) double maxUsd,@JsonKey(fromJson: _parseLeadDays) int leadDays,@JsonKey(fromJson: _parseWarnLeadDays) int warnLeadDays, DateTime? lastWarnedAt, DateTime? lastRescueAt, String? lastRescueExecutionId,@JsonKey(fromJson: _parseRescueCount) int rescueCount, DateTime? createdAt, DateTime? updatedAt
 });
 
 

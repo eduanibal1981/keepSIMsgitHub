@@ -1,0 +1,211 @@
+{
+  "providers": [
+    {
+      "ProviderCode": "0SPH",
+      "CountryIso": "PH",
+      "Name": "Smart (SunCellular) Philippines Data",
+      "ValidationRegex": "^630?([0-9]{10})$",
+      "CustomerCareNumber": "+1 (800) 10-672-7277",
+      "RegionCodes": [
+        "PH"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/0S/PH.png"
+    },
+    {
+      "ProviderCode": "4SPH",
+      "CountryIso": "PH",
+      "Name": "Smart Bro Philippines Data",
+      "ValidationRegex": "^630?([0-9]{10})$",
+      "CustomerCareNumber": "+1 (800) 10-672-7277",
+      "RegionCodes": [
+        "PH"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/4S/PH.png"
+    },
+    {
+      "ProviderCode": "5SPH",
+      "CountryIso": "PH",
+      "Name": "SmartTalk n Text Philippines Data",
+      "ValidationRegex": "^630?([0-9]{10})$",
+      "CustomerCareNumber": "+1 (800) 10-672-7277",
+      "RegionCodes": [
+        "PH"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/5S/PH.png"
+    },
+    {
+      "ProviderCode": "7330E7PH",
+      "CountryIso": "PH",
+      "Name": "Globe Prepaid Load Philippines",
+      "ValidationRegex": "^630?([0-9]{10})$|^0000000000$",
+      "CustomerCareNumber": "",
+      "RegionCodes": [
+        "PH"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/7330E7/PH.png"
+    },
+    {
+      "ProviderCode": "77A245PH",
+      "CountryIso": "PH",
+      "Name": "PLDT Landline Philippines",
+      "ValidationRegex": "^630?([0-9]{10})$|^0000000000$",
+      "CustomerCareNumber": "",
+      "RegionCodes": [
+        "PH"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/77A245/PH.png"
+    },
+    {
+      "ProviderCode": "D2355CPH",
+      "CountryIso": "PH",
+      "Name": "Sunmart Philippines",
+      "ValidationRegex": "^630?([0-9]{10})$|^0000000000$",
+      "CustomerCareNumber": "",
+      "RegionCodes": [
+        "PH"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/D2355C/PH.png"
+    },
+    {
+      "ProviderCode": "DWPH",
+      "CountryIso": "PH",
+      "Name": "Dito Philippines",
+      "ValidationRegex": "^630?([0-9]{10})$",
+      "RegionCodes": [
+        "PH"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/DW/PH.png"
+    },
+    {
+      "ProviderCode": "E757D0PH",
+      "CountryIso": "PH",
+      "Name": "Metro Department Store Philippines",
+      "ValidationRegex": "^630?([0-9]{10})$|^0000000000$",
+      "CustomerCareNumber": "",
+      "RegionCodes": [
+        "PH"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/E757D0/PH.png"
+    },
+    {
+      "ProviderCode": "G0PH",
+      "CountryIso": "PH",
+      "Name": "Globe Philippines Data",
+      "ValidationRegex": "^630?([0-9]{10})$",
+      "RegionCodes": [
+        "PH"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/G0/PH.png"
+    },
+    {
+      "ProviderCode": "GBPH",
+      "CountryIso": "PH",
+      "Name": "BS_Globe Philippines",
+      "ValidationRegex": "^630?([0-9]{10})$",
+      "CustomerCareNumber": "+63-2370-1000",
+      "RegionCodes": [
+        "PH"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/GB/PH.png"
+    },
+    {
+      "ProviderCode": "P1PH",
+      "CountryIso": "PH",
+      "Name": "Smart Bro Philippines",
+      "ValidationRegex": "^630?([0-9]{10})$",
+      "CustomerCareNumber": "+1 (800) 10-672-7277",
+      "RegionCodes": [
+        "PH"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/P1/PH.png"
+    },
+    {
+      "ProviderCode": "PWPH",
+      "CountryIso": "PH",
+      "Name": "Cherry Mobile Philippines",
+      "ValidationRegex": "^630?([0-9]{10})$",
+      "RegionCodes": [
+        "PH"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/PW/PH.png"
+    },
+    {
+      "ProviderCode": "SMPH",
+      "CountryIso": "PH",
+      "Name": "Smart (SunCellular) Philippines",
+      "ValidationRegex": "^630?([0-9]{10})$",
+      "CustomerCareNumber": "+1 (800) 10-672-7277",
+      "RegionCodes": [
+        "PH"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/SM/PH.png"
+    },
+    {
+      "ProviderCode": "STPH",
+      "CountryIso": "PH",
+      "Name": "SmartTalk n Text Philippines",
+      "ValidationRegex": "^630?([0-9]{10})$",
+      "CustomerCareNumber": "+1 (800) 10-672-7277",
+      "RegionCodes": [
+        "PH"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/ST/PH.png"
+    },
+    {
+      "ProviderCode": "TMPH",
+      "CountryIso": "PH",
+      "Name": "Touch Mobile Philippines",
+      "ValidationRegex": "^630?([0-9]{10})$",
+      "RegionCodes": [
+        "PH"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/TM/PH.png"
+    }
+  ],
+  "products": {}
+}

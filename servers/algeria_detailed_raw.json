@@ -1,0 +1,5060 @@
+{
+  "timestamp": "2026-08-22T22:52:12.867Z",
+  "dtone": {
+    "operators": [
+      {
+        "country": {
+          "iso_code": "DZA",
+          "name": "Algeria",
+          "regions": [
+            {
+              "code": "DZA",
+              "name": "Algeria"
+            }
+          ]
+        },
+        "id": 4,
+        "name": "Mobilis Algeria",
+        "regions": null
+      },
+      {
+        "country": {
+          "iso_code": "DZA",
+          "name": "Algeria",
+          "regions": [
+            {
+              "code": "DZA",
+              "name": "Algeria"
+            }
+          ]
+        },
+        "id": 2074,
+        "name": "Djezzy Algeria",
+        "regions": null
+      },
+      {
+        "country": {
+          "iso_code": "DZA",
+          "name": "Algeria",
+          "regions": [
+            {
+              "code": "DZA",
+              "name": "Algeria"
+            }
+          ]
+        },
+        "id": 2075,
+        "name": "Ooredoo Algeria",
+        "regions": null
+      }
+    ],
+    "products": [
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": "Additional 5GB YouTube",
+            "amount": {
+              "base": 15,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 15,
+              "total_including_tax": 15
+            },
+            "type": "DATA",
+            "unit": "GB",
+            "unit_type": "DATA"
+          }
+        ],
+        "description": "15GB Internet + 5GB YouTube",
+        "destination": {
+          "amount": 1000,
+          "unit": "DZD",
+          "unit_type": "CURRENCY"
+        },
+        "id": 2304,
+        "name": "MAXY Internet 1000",
+        "operator": {
+          "country": {
+            "iso_code": "DZA",
+            "name": "Algeria",
+            "regions": [
+              {
+                "code": "DZA",
+                "name": "Algeria"
+              }
+            ]
+          },
+          "id": 2075,
+          "name": "Ooredoo Algeria",
+          "regions": null
+        },
+        "prices": {
+          "retail": {
+            "amount": 3.395,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 2.952,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 338.7533875338753,
+          "retail": 294.5508100147275,
+          "wholesale": 338.7533875338753
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": [
+          [
+            "mobile_number"
+          ]
+        ],
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 1,
+          "name": "Mobile",
+          "subservice": {
+            "id": 13,
+            "name": "Data"
+          }
+        },
+        "source": {
+          "amount": 2.952,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": [
+          "DATA"
+        ],
+        "type": "FIXED_VALUE_RECHARGE",
+        "validity": {
+          "quantity": 30,
+          "unit": "DAY"
+        }
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 100,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 100,
+              "total_including_tax": 100
+            },
+            "type": "CREDITS",
+            "unit": "DZD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "description": "100 DZD",
+        "destination": {
+          "amount": 100,
+          "unit": "DZD",
+          "unit_type": "CURRENCY"
+        },
+        "id": 14299,
+        "name": "Mobilis Algeria 100 DZD",
+        "operator": {
+          "country": {
+            "iso_code": "DZA",
+            "name": "Algeria",
+            "regions": [
+              {
+                "code": "DZA",
+                "name": "Algeria"
+              }
+            ]
+          },
+          "id": 4,
+          "name": "Mobilis Algeria",
+          "regions": null
+        },
+        "prices": {
+          "retail": {
+            "amount": 0.341,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 0.296,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 337.8378378378378,
+          "retail": 293.2551319648094,
+          "wholesale": 337.8378378378378
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": [
+          [
+            "mobile_number"
+          ]
+        ],
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 1,
+          "name": "Mobile",
+          "subservice": {
+            "id": 11,
+            "name": "Airtime"
+          }
+        },
+        "source": {
+          "amount": 0.296,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": [
+          "AIRTIME"
+        ],
+        "type": "FIXED_VALUE_RECHARGE",
+        "validity": null
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 200,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 200,
+              "total_including_tax": 200
+            },
+            "type": "CREDITS",
+            "unit": "DZD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "description": "200 DZD",
+        "destination": {
+          "amount": 200,
+          "unit": "DZD",
+          "unit_type": "CURRENCY"
+        },
+        "id": 14300,
+        "name": "Mobilis Algeria 200 DZD",
+        "operator": {
+          "country": {
+            "iso_code": "DZA",
+            "name": "Algeria",
+            "regions": [
+              {
+                "code": "DZA",
+                "name": "Algeria"
+              }
+            ]
+          },
+          "id": 4,
+          "name": "Mobilis Algeria",
+          "regions": null
+        },
+        "prices": {
+          "retail": {
+            "amount": 0.68,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 0.591,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 338.409475465313,
+          "retail": 294.1176470588235,
+          "wholesale": 338.409475465313
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": [
+          [
+            "mobile_number"
+          ]
+        ],
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 1,
+          "name": "Mobile",
+          "subservice": {
+            "id": 11,
+            "name": "Airtime"
+          }
+        },
+        "source": {
+          "amount": 0.591,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": [
+          "AIRTIME"
+        ],
+        "type": "FIXED_VALUE_RECHARGE",
+        "validity": null
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 300,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 300,
+              "total_including_tax": 300
+            },
+            "type": "CREDITS",
+            "unit": "DZD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "description": "300 DZD",
+        "destination": {
+          "amount": 300,
+          "unit": "DZD",
+          "unit_type": "CURRENCY"
+        },
+        "id": 14301,
+        "name": "Mobilis Algeria 300 DZD",
+        "operator": {
+          "country": {
+            "iso_code": "DZA",
+            "name": "Algeria",
+            "regions": [
+              {
+                "code": "DZA",
+                "name": "Algeria"
+              }
+            ]
+          },
+          "id": 4,
+          "name": "Mobilis Algeria",
+          "regions": null
+        },
+        "prices": {
+          "retail": {
+            "amount": 1.02,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 0.886,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 338.6004514672686,
+          "retail": 294.4062806673209,
+          "wholesale": 338.6004514672686
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": [
+          [
+            "mobile_number"
+          ]
+        ],
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 1,
+          "name": "Mobile",
+          "subservice": {
+            "id": 11,
+            "name": "Airtime"
+          }
+        },
+        "source": {
+          "amount": 0.886,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": [
+          "AIRTIME"
+        ],
+        "type": "FIXED_VALUE_RECHARGE",
+        "validity": null
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 400,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 400,
+              "total_including_tax": 400
+            },
+            "type": "CREDITS",
+            "unit": "DZD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "description": "400 DZD",
+        "destination": {
+          "amount": 400,
+          "unit": "DZD",
+          "unit_type": "CURRENCY"
+        },
+        "id": 14302,
+        "name": "Mobilis Algeria 400 DZD",
+        "operator": {
+          "country": {
+            "iso_code": "DZA",
+            "name": "Algeria",
+            "regions": [
+              {
+                "code": "DZA",
+                "name": "Algeria"
+              }
+            ]
+          },
+          "id": 4,
+          "name": "Mobilis Algeria",
+          "regions": null
+        },
+        "prices": {
+          "retail": {
+            "amount": 1.359,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 1.181,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 338.6960203217612,
+          "retail": 294.3340691685063,
+          "wholesale": 338.6960203217612
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": [
+          [
+            "mobile_number"
+          ]
+        ],
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 1,
+          "name": "Mobile",
+          "subservice": {
+            "id": 11,
+            "name": "Airtime"
+          }
+        },
+        "source": {
+          "amount": 1.181,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": [
+          "AIRTIME"
+        ],
+        "type": "FIXED_VALUE_RECHARGE",
+        "validity": null
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 500,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 500,
+              "total_including_tax": 500
+            },
+            "type": "CREDITS",
+            "unit": "DZD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "description": "500 DZD",
+        "destination": {
+          "amount": 500,
+          "unit": "DZD",
+          "unit_type": "CURRENCY"
+        },
+        "id": 14303,
+        "name": "Mobilis Algeria 500 DZD",
+        "operator": {
+          "country": {
+            "iso_code": "DZA",
+            "name": "Algeria",
+            "regions": [
+              {
+                "code": "DZA",
+                "name": "Algeria"
+              }
+            ]
+          },
+          "id": 4,
+          "name": "Mobilis Algeria",
+          "regions": null
+        },
+        "prices": {
+          "retail": {
+            "amount": 1.698,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 1.476,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 338.7533875338753,
+          "retail": 294.4640753828033,
+          "wholesale": 338.7533875338753
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": [
+          [
+            "mobile_number"
+          ]
+        ],
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 1,
+          "name": "Mobile",
+          "subservice": {
+            "id": 11,
+            "name": "Airtime"
+          }
+        },
+        "source": {
+          "amount": 1.476,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": [
+          "AIRTIME"
+        ],
+        "type": "FIXED_VALUE_RECHARGE",
+        "validity": null
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 750,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 750,
+              "total_including_tax": 750
+            },
+            "type": "CREDITS",
+            "unit": "DZD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "description": "750 DZD",
+        "destination": {
+          "amount": 750,
+          "unit": "DZD",
+          "unit_type": "CURRENCY"
+        },
+        "id": 14304,
+        "name": "Mobilis Algeria 750 DZD",
+        "operator": {
+          "country": {
+            "iso_code": "DZA",
+            "name": "Algeria",
+            "regions": [
+              {
+                "code": "DZA",
+                "name": "Algeria"
+              }
+            ]
+          },
+          "id": 4,
+          "name": "Mobilis Algeria",
+          "regions": null
+        },
+        "prices": {
+          "retail": {
+            "amount": 2.547,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 2.214,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 338.7533875338753,
+          "retail": 294.4640753828033,
+          "wholesale": 338.7533875338753
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": [
+          [
+            "mobile_number"
+          ]
+        ],
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 1,
+          "name": "Mobile",
+          "subservice": {
+            "id": 11,
+            "name": "Airtime"
+          }
+        },
+        "source": {
+          "amount": 2.214,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": [
+          "AIRTIME"
+        ],
+        "type": "FIXED_VALUE_RECHARGE",
+        "validity": null
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 1000,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 1000,
+              "total_including_tax": 1000
+            },
+            "type": "CREDITS",
+            "unit": "DZD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "description": "1000 DZD",
+        "destination": {
+          "amount": 1000,
+          "unit": "DZD",
+          "unit_type": "CURRENCY"
+        },
+        "id": 14305,
+        "name": "Mobilis Algeria 1000 DZD",
+        "operator": {
+          "country": {
+            "iso_code": "DZA",
+            "name": "Algeria",
+            "regions": [
+              {
+                "code": "DZA",
+                "name": "Algeria"
+              }
+            ]
+          },
+          "id": 4,
+          "name": "Mobilis Algeria",
+          "regions": null
+        },
+        "prices": {
+          "retail": {
+            "amount": 3.395,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 2.952,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 338.7533875338753,
+          "retail": 294.5508100147275,
+          "wholesale": 338.7533875338753
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": [
+          [
+            "mobile_number"
+          ]
+        ],
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 1,
+          "name": "Mobile",
+          "subservice": {
+            "id": 11,
+            "name": "Airtime"
+          }
+        },
+        "source": {
+          "amount": 2.952,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": [
+          "AIRTIME"
+        ],
+        "type": "FIXED_VALUE_RECHARGE",
+        "validity": null
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 1500,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 1500,
+              "total_including_tax": 1500
+            },
+            "type": "CREDITS",
+            "unit": "DZD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "description": "1500 DZD",
+        "destination": {
+          "amount": 1500,
+          "unit": "DZD",
+          "unit_type": "CURRENCY"
+        },
+        "id": 14306,
+        "name": "Mobilis Algeria 1500 DZD",
+        "operator": {
+          "country": {
+            "iso_code": "DZA",
+            "name": "Algeria",
+            "regions": [
+              {
+                "code": "DZA",
+                "name": "Algeria"
+              }
+            ]
+          },
+          "id": 4,
+          "name": "Mobilis Algeria",
+          "regions": null
+        },
+        "prices": {
+          "retail": {
+            "amount": 5.093,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 4.428,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 338.7533875338753,
+          "retail": 294.521892794031,
+          "wholesale": 338.7533875338753
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": [
+          [
+            "mobile_number"
+          ]
+        ],
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 1,
+          "name": "Mobile",
+          "subservice": {
+            "id": 11,
+            "name": "Airtime"
+          }
+        },
+        "source": {
+          "amount": 4.428,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": [
+          "AIRTIME"
+        ],
+        "type": "FIXED_VALUE_RECHARGE",
+        "validity": null
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 2000,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 2000,
+              "total_including_tax": 2000
+            },
+            "type": "CREDITS",
+            "unit": "DZD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "description": "2000 DZD",
+        "destination": {
+          "amount": 2000,
+          "unit": "DZD",
+          "unit_type": "CURRENCY"
+        },
+        "id": 14307,
+        "name": "Mobilis Algeria 2000 DZD",
+        "operator": {
+          "country": {
+            "iso_code": "DZA",
+            "name": "Algeria",
+            "regions": [
+              {
+                "code": "DZA",
+                "name": "Algeria"
+              }
+            ]
+          },
+          "id": 4,
+          "name": "Mobilis Algeria",
+          "regions": null
+        },
+        "prices": {
+          "retail": {
+            "amount": 6.79,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 5.904,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 338.7533875338753,
+          "retail": 294.5508100147275,
+          "wholesale": 338.7533875338753
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": [
+          [
+            "mobile_number"
+          ]
+        ],
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 1,
+          "name": "Mobile",
+          "subservice": {
+            "id": 11,
+            "name": "Airtime"
+          }
+        },
+        "source": {
+          "amount": 5.904,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": [
+          "AIRTIME"
+        ],
+        "type": "FIXED_VALUE_RECHARGE",
+        "validity": null
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 100,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 100,
+              "total_including_tax": 100
+            },
+            "type": "CREDITS",
+            "unit": "DZD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "description": "100 DZD",
+        "destination": {
+          "amount": 100,
+          "unit": "DZD",
+          "unit_type": "CURRENCY"
+        },
+        "id": 14308,
+        "name": "Djezzy Algeria 100 DZD",
+        "operator": {
+          "country": {
+            "iso_code": "DZA",
+            "name": "Algeria",
+            "regions": [
+              {
+                "code": "DZA",
+                "name": "Algeria"
+              }
+            ]
+          },
+          "id": 2074,
+          "name": "Djezzy Algeria",
+          "regions": null
+        },
+        "prices": {
+          "retail": {
+            "amount": 0.341,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 0.296,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 337.8378378378378,
+          "retail": 293.2551319648094,
+          "wholesale": 337.8378378378378
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": [
+          [
+            "mobile_number"
+          ]
+        ],
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 1,
+          "name": "Mobile",
+          "subservice": {
+            "id": 11,
+            "name": "Airtime"
+          }
+        },
+        "source": {
+          "amount": 0.296,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": [
+          "AIRTIME"
+        ],
+        "type": "FIXED_VALUE_RECHARGE",
+        "validity": null
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 200,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 200,
+              "total_including_tax": 200
+            },
+            "type": "CREDITS",
+            "unit": "DZD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "description": "200 DZD",
+        "destination": {
+          "amount": 200,
+          "unit": "DZD",
+          "unit_type": "CURRENCY"
+        },
+        "id": 14309,
+        "name": "Djezzy Algeria 200 DZD",
+        "operator": {
+          "country": {
+            "iso_code": "DZA",
+            "name": "Algeria",
+            "regions": [
+              {
+                "code": "DZA",
+                "name": "Algeria"
+              }
+            ]
+          },
+          "id": 2074,
+          "name": "Djezzy Algeria",
+          "regions": null
+        },
+        "prices": {
+          "retail": {
+            "amount": 0.68,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 0.591,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 338.409475465313,
+          "retail": 294.1176470588235,
+          "wholesale": 338.409475465313
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": [
+          [
+            "mobile_number"
+          ]
+        ],
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 1,
+          "name": "Mobile",
+          "subservice": {
+            "id": 11,
+            "name": "Airtime"
+          }
+        },
+        "source": {
+          "amount": 0.591,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": [
+          "AIRTIME"
+        ],
+        "type": "FIXED_VALUE_RECHARGE",
+        "validity": null
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 300,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 300,
+              "total_including_tax": 300
+            },
+            "type": "CREDITS",
+            "unit": "DZD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "description": "300 DZD",
+        "destination": {
+          "amount": 300,
+          "unit": "DZD",
+          "unit_type": "CURRENCY"
+        },
+        "id": 14310,
+        "name": "Djezzy Algeria 300 DZD",
+        "operator": {
+          "country": {
+            "iso_code": "DZA",
+            "name": "Algeria",
+            "regions": [
+              {
+                "code": "DZA",
+                "name": "Algeria"
+              }
+            ]
+          },
+          "id": 2074,
+          "name": "Djezzy Algeria",
+          "regions": null
+        },
+        "prices": {
+          "retail": {
+            "amount": 1.02,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 0.886,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 338.6004514672686,
+          "retail": 294.4062806673209,
+          "wholesale": 338.6004514672686
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": [
+          [
+            "mobile_number"
+          ]
+        ],
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 1,
+          "name": "Mobile",
+          "subservice": {
+            "id": 11,
+            "name": "Airtime"
+          }
+        },
+        "source": {
+          "amount": 0.886,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": [
+          "AIRTIME"
+        ],
+        "type": "FIXED_VALUE_RECHARGE",
+        "validity": null
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 400,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 400,
+              "total_including_tax": 400
+            },
+            "type": "CREDITS",
+            "unit": "DZD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "description": "400 DZD",
+        "destination": {
+          "amount": 400,
+          "unit": "DZD",
+          "unit_type": "CURRENCY"
+        },
+        "id": 14311,
+        "name": "Djezzy Algeria 400 DZD",
+        "operator": {
+          "country": {
+            "iso_code": "DZA",
+            "name": "Algeria",
+            "regions": [
+              {
+                "code": "DZA",
+                "name": "Algeria"
+              }
+            ]
+          },
+          "id": 2074,
+          "name": "Djezzy Algeria",
+          "regions": null
+        },
+        "prices": {
+          "retail": {
+            "amount": 1.359,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 1.181,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 338.6960203217612,
+          "retail": 294.3340691685063,
+          "wholesale": 338.6960203217612
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": [
+          [
+            "mobile_number"
+          ]
+        ],
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 1,
+          "name": "Mobile",
+          "subservice": {
+            "id": 11,
+            "name": "Airtime"
+          }
+        },
+        "source": {
+          "amount": 1.181,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": [
+          "AIRTIME"
+        ],
+        "type": "FIXED_VALUE_RECHARGE",
+        "validity": null
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 500,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 500,
+              "total_including_tax": 500
+            },
+            "type": "CREDITS",
+            "unit": "DZD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "description": "500 DZD",
+        "destination": {
+          "amount": 500,
+          "unit": "DZD",
+          "unit_type": "CURRENCY"
+        },
+        "id": 14312,
+        "name": "Djezzy Algeria 500 DZD",
+        "operator": {
+          "country": {
+            "iso_code": "DZA",
+            "name": "Algeria",
+            "regions": [
+              {
+                "code": "DZA",
+                "name": "Algeria"
+              }
+            ]
+          },
+          "id": 2074,
+          "name": "Djezzy Algeria",
+          "regions": null
+        },
+        "prices": {
+          "retail": {
+            "amount": 1.698,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 1.476,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 338.7533875338753,
+          "retail": 294.4640753828033,
+          "wholesale": 338.7533875338753
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": [
+          [
+            "mobile_number"
+          ]
+        ],
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 1,
+          "name": "Mobile",
+          "subservice": {
+            "id": 11,
+            "name": "Airtime"
+          }
+        },
+        "source": {
+          "amount": 1.476,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": [
+          "AIRTIME"
+        ],
+        "type": "FIXED_VALUE_RECHARGE",
+        "validity": null
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 750,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 750,
+              "total_including_tax": 750
+            },
+            "type": "CREDITS",
+            "unit": "DZD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "description": "750 DZD",
+        "destination": {
+          "amount": 750,
+          "unit": "DZD",
+          "unit_type": "CURRENCY"
+        },
+        "id": 14313,
+        "name": "Djezzy Algeria 750 DZD",
+        "operator": {
+          "country": {
+            "iso_code": "DZA",
+            "name": "Algeria",
+            "regions": [
+              {
+                "code": "DZA",
+                "name": "Algeria"
+              }
+            ]
+          },
+          "id": 2074,
+          "name": "Djezzy Algeria",
+          "regions": null
+        },
+        "prices": {
+          "retail": {
+            "amount": 2.547,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 2.214,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 338.7533875338753,
+          "retail": 294.4640753828033,
+          "wholesale": 338.7533875338753
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": [
+          [
+            "mobile_number"
+          ]
+        ],
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 1,
+          "name": "Mobile",
+          "subservice": {
+            "id": 11,
+            "name": "Airtime"
+          }
+        },
+        "source": {
+          "amount": 2.214,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": [
+          "AIRTIME"
+        ],
+        "type": "FIXED_VALUE_RECHARGE",
+        "validity": null
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 1000,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 1000,
+              "total_including_tax": 1000
+            },
+            "type": "CREDITS",
+            "unit": "DZD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "description": "1000 DZD",
+        "destination": {
+          "amount": 1000,
+          "unit": "DZD",
+          "unit_type": "CURRENCY"
+        },
+        "id": 14314,
+        "name": "Djezzy Algeria 1000 DZD",
+        "operator": {
+          "country": {
+            "iso_code": "DZA",
+            "name": "Algeria",
+            "regions": [
+              {
+                "code": "DZA",
+                "name": "Algeria"
+              }
+            ]
+          },
+          "id": 2074,
+          "name": "Djezzy Algeria",
+          "regions": null
+        },
+        "prices": {
+          "retail": {
+            "amount": 3.395,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 2.952,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 338.7533875338753,
+          "retail": 294.5508100147275,
+          "wholesale": 338.7533875338753
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": [
+          [
+            "mobile_number"
+          ]
+        ],
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 1,
+          "name": "Mobile",
+          "subservice": {
+            "id": 11,
+            "name": "Airtime"
+          }
+        },
+        "source": {
+          "amount": 2.952,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": [
+          "AIRTIME"
+        ],
+        "type": "FIXED_VALUE_RECHARGE",
+        "validity": null
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 1500,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 1500,
+              "total_including_tax": 1500
+            },
+            "type": "CREDITS",
+            "unit": "DZD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "description": "1500 DZD",
+        "destination": {
+          "amount": 1500,
+          "unit": "DZD",
+          "unit_type": "CURRENCY"
+        },
+        "id": 14315,
+        "name": "Djezzy Algeria 1500 DZD",
+        "operator": {
+          "country": {
+            "iso_code": "DZA",
+            "name": "Algeria",
+            "regions": [
+              {
+                "code": "DZA",
+                "name": "Algeria"
+              }
+            ]
+          },
+          "id": 2074,
+          "name": "Djezzy Algeria",
+          "regions": null
+        },
+        "prices": {
+          "retail": {
+            "amount": 5.093,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 4.428,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 338.7533875338753,
+          "retail": 294.521892794031,
+          "wholesale": 338.7533875338753
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": [
+          [
+            "mobile_number"
+          ]
+        ],
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 1,
+          "name": "Mobile",
+          "subservice": {
+            "id": 11,
+            "name": "Airtime"
+          }
+        },
+        "source": {
+          "amount": 4.428,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": [
+          "AIRTIME"
+        ],
+        "type": "FIXED_VALUE_RECHARGE",
+        "validity": null
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 2000,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 2000,
+              "total_including_tax": 2000
+            },
+            "type": "CREDITS",
+            "unit": "DZD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "description": "2000 DZD",
+        "destination": {
+          "amount": 2000,
+          "unit": "DZD",
+          "unit_type": "CURRENCY"
+        },
+        "id": 14316,
+        "name": "Djezzy Algeria 2000 DZD",
+        "operator": {
+          "country": {
+            "iso_code": "DZA",
+            "name": "Algeria",
+            "regions": [
+              {
+                "code": "DZA",
+                "name": "Algeria"
+              }
+            ]
+          },
+          "id": 2074,
+          "name": "Djezzy Algeria",
+          "regions": null
+        },
+        "prices": {
+          "retail": {
+            "amount": 6.79,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 5.904,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 338.7533875338753,
+          "retail": 294.5508100147275,
+          "wholesale": 338.7533875338753
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": [
+          [
+            "mobile_number"
+          ]
+        ],
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 1,
+          "name": "Mobile",
+          "subservice": {
+            "id": 11,
+            "name": "Airtime"
+          }
+        },
+        "source": {
+          "amount": 5.904,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": [
+          "AIRTIME"
+        ],
+        "type": "FIXED_VALUE_RECHARGE",
+        "validity": null
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 100,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 100,
+              "total_including_tax": 100
+            },
+            "type": "CREDITS",
+            "unit": "DZD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "description": "100 DZD",
+        "destination": {
+          "amount": 100,
+          "unit": "DZD",
+          "unit_type": "CURRENCY"
+        },
+        "id": 14317,
+        "name": "Ooredoo Algeria 100 DZD",
+        "operator": {
+          "country": {
+            "iso_code": "DZA",
+            "name": "Algeria",
+            "regions": [
+              {
+                "code": "DZA",
+                "name": "Algeria"
+              }
+            ]
+          },
+          "id": 2075,
+          "name": "Ooredoo Algeria",
+          "regions": null
+        },
+        "prices": {
+          "retail": {
+            "amount": 0.341,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 0.296,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 337.8378378378378,
+          "retail": 293.2551319648094,
+          "wholesale": 337.8378378378378
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": [
+          [
+            "mobile_number"
+          ]
+        ],
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 1,
+          "name": "Mobile",
+          "subservice": {
+            "id": 11,
+            "name": "Airtime"
+          }
+        },
+        "source": {
+          "amount": 0.296,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": [
+          "AIRTIME"
+        ],
+        "type": "FIXED_VALUE_RECHARGE",
+        "validity": null
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 200,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 200,
+              "total_including_tax": 200
+            },
+            "type": "CREDITS",
+            "unit": "DZD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "description": "200 DZD",
+        "destination": {
+          "amount": 200,
+          "unit": "DZD",
+          "unit_type": "CURRENCY"
+        },
+        "id": 14318,
+        "name": "Ooredoo Algeria 200 DZD",
+        "operator": {
+          "country": {
+            "iso_code": "DZA",
+            "name": "Algeria",
+            "regions": [
+              {
+                "code": "DZA",
+                "name": "Algeria"
+              }
+            ]
+          },
+          "id": 2075,
+          "name": "Ooredoo Algeria",
+          "regions": null
+        },
+        "prices": {
+          "retail": {
+            "amount": 0.68,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 0.591,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 338.409475465313,
+          "retail": 294.1176470588235,
+          "wholesale": 338.409475465313
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": [
+          [
+            "mobile_number"
+          ]
+        ],
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 1,
+          "name": "Mobile",
+          "subservice": {
+            "id": 11,
+            "name": "Airtime"
+          }
+        },
+        "source": {
+          "amount": 0.591,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": [
+          "AIRTIME"
+        ],
+        "type": "FIXED_VALUE_RECHARGE",
+        "validity": null
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 300,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 300,
+              "total_including_tax": 300
+            },
+            "type": "CREDITS",
+            "unit": "DZD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "description": "300 DZD",
+        "destination": {
+          "amount": 300,
+          "unit": "DZD",
+          "unit_type": "CURRENCY"
+        },
+        "id": 14319,
+        "name": "Ooredoo Algeria 300 DZD",
+        "operator": {
+          "country": {
+            "iso_code": "DZA",
+            "name": "Algeria",
+            "regions": [
+              {
+                "code": "DZA",
+                "name": "Algeria"
+              }
+            ]
+          },
+          "id": 2075,
+          "name": "Ooredoo Algeria",
+          "regions": null
+        },
+        "prices": {
+          "retail": {
+            "amount": 1.02,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 0.886,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 338.6004514672686,
+          "retail": 294.4062806673209,
+          "wholesale": 338.6004514672686
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": [
+          [
+            "mobile_number"
+          ]
+        ],
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 1,
+          "name": "Mobile",
+          "subservice": {
+            "id": 11,
+            "name": "Airtime"
+          }
+        },
+        "source": {
+          "amount": 0.886,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": [
+          "AIRTIME"
+        ],
+        "type": "FIXED_VALUE_RECHARGE",
+        "validity": null
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 400,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 400,
+              "total_including_tax": 400
+            },
+            "type": "CREDITS",
+            "unit": "DZD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "description": "400 DZD",
+        "destination": {
+          "amount": 400,
+          "unit": "DZD",
+          "unit_type": "CURRENCY"
+        },
+        "id": 14320,
+        "name": "Ooredoo Algeria 400 DZD",
+        "operator": {
+          "country": {
+            "iso_code": "DZA",
+            "name": "Algeria",
+            "regions": [
+              {
+                "code": "DZA",
+                "name": "Algeria"
+              }
+            ]
+          },
+          "id": 2075,
+          "name": "Ooredoo Algeria",
+          "regions": null
+        },
+        "prices": {
+          "retail": {
+            "amount": 1.359,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 1.181,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 338.6960203217612,
+          "retail": 294.3340691685063,
+          "wholesale": 338.6960203217612
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": [
+          [
+            "mobile_number"
+          ]
+        ],
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 1,
+          "name": "Mobile",
+          "subservice": {
+            "id": 11,
+            "name": "Airtime"
+          }
+        },
+        "source": {
+          "amount": 1.181,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": [
+          "AIRTIME"
+        ],
+        "type": "FIXED_VALUE_RECHARGE",
+        "validity": null
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 500,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 500,
+              "total_including_tax": 500
+            },
+            "type": "CREDITS",
+            "unit": "DZD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "description": "500 DZD",
+        "destination": {
+          "amount": 500,
+          "unit": "DZD",
+          "unit_type": "CURRENCY"
+        },
+        "id": 14321,
+        "name": "Ooredoo Algeria 500 DZD",
+        "operator": {
+          "country": {
+            "iso_code": "DZA",
+            "name": "Algeria",
+            "regions": [
+              {
+                "code": "DZA",
+                "name": "Algeria"
+              }
+            ]
+          },
+          "id": 2075,
+          "name": "Ooredoo Algeria",
+          "regions": null
+        },
+        "prices": {
+          "retail": {
+            "amount": 1.698,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 1.476,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 338.7533875338753,
+          "retail": 294.4640753828033,
+          "wholesale": 338.7533875338753
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": [
+          [
+            "mobile_number"
+          ]
+        ],
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 1,
+          "name": "Mobile",
+          "subservice": {
+            "id": 11,
+            "name": "Airtime"
+          }
+        },
+        "source": {
+          "amount": 1.476,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": [
+          "AIRTIME"
+        ],
+        "type": "FIXED_VALUE_RECHARGE",
+        "validity": null
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 750,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 750,
+              "total_including_tax": 750
+            },
+            "type": "CREDITS",
+            "unit": "DZD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "description": "750 DZD",
+        "destination": {
+          "amount": 750,
+          "unit": "DZD",
+          "unit_type": "CURRENCY"
+        },
+        "id": 14322,
+        "name": "Ooredoo Algeria 750 DZD",
+        "operator": {
+          "country": {
+            "iso_code": "DZA",
+            "name": "Algeria",
+            "regions": [
+              {
+                "code": "DZA",
+                "name": "Algeria"
+              }
+            ]
+          },
+          "id": 2075,
+          "name": "Ooredoo Algeria",
+          "regions": null
+        },
+        "prices": {
+          "retail": {
+            "amount": 2.547,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 2.214,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 338.7533875338753,
+          "retail": 294.4640753828033,
+          "wholesale": 338.7533875338753
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": [
+          [
+            "mobile_number"
+          ]
+        ],
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 1,
+          "name": "Mobile",
+          "subservice": {
+            "id": 11,
+            "name": "Airtime"
+          }
+        },
+        "source": {
+          "amount": 2.214,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": [
+          "AIRTIME"
+        ],
+        "type": "FIXED_VALUE_RECHARGE",
+        "validity": null
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 1000,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 1000,
+              "total_including_tax": 1000
+            },
+            "type": "CREDITS",
+            "unit": "DZD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "description": "1000 DZD",
+        "destination": {
+          "amount": 1000,
+          "unit": "DZD",
+          "unit_type": "CURRENCY"
+        },
+        "id": 14323,
+        "name": "Ooredoo Algeria 1000 DZD",
+        "operator": {
+          "country": {
+            "iso_code": "DZA",
+            "name": "Algeria",
+            "regions": [
+              {
+                "code": "DZA",
+                "name": "Algeria"
+              }
+            ]
+          },
+          "id": 2075,
+          "name": "Ooredoo Algeria",
+          "regions": null
+        },
+        "prices": {
+          "retail": {
+            "amount": 3.395,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 2.952,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 338.7533875338753,
+          "retail": 294.5508100147275,
+          "wholesale": 338.7533875338753
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": [
+          [
+            "mobile_number"
+          ]
+        ],
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 1,
+          "name": "Mobile",
+          "subservice": {
+            "id": 11,
+            "name": "Airtime"
+          }
+        },
+        "source": {
+          "amount": 2.952,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": [
+          "AIRTIME"
+        ],
+        "type": "FIXED_VALUE_RECHARGE",
+        "validity": null
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 1500,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 1500,
+              "total_including_tax": 1500
+            },
+            "type": "CREDITS",
+            "unit": "DZD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "description": "1500 DZD",
+        "destination": {
+          "amount": 1500,
+          "unit": "DZD",
+          "unit_type": "CURRENCY"
+        },
+        "id": 14324,
+        "name": "Ooredoo Algeria 1500 DZD",
+        "operator": {
+          "country": {
+            "iso_code": "DZA",
+            "name": "Algeria",
+            "regions": [
+              {
+                "code": "DZA",
+                "name": "Algeria"
+              }
+            ]
+          },
+          "id": 2075,
+          "name": "Ooredoo Algeria",
+          "regions": null
+        },
+        "prices": {
+          "retail": {
+            "amount": 5.093,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 4.428,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 338.7533875338753,
+          "retail": 294.521892794031,
+          "wholesale": 338.7533875338753
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": [
+          [
+            "mobile_number"
+          ]
+        ],
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 1,
+          "name": "Mobile",
+          "subservice": {
+            "id": 11,
+            "name": "Airtime"
+          }
+        },
+        "source": {
+          "amount": 4.428,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": [
+          "AIRTIME"
+        ],
+        "type": "FIXED_VALUE_RECHARGE",
+        "validity": null
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 2000,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 2000,
+              "total_including_tax": 2000
+            },
+            "type": "CREDITS",
+            "unit": "DZD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "description": "2000 DZD",
+        "destination": {
+          "amount": 2000,
+          "unit": "DZD",
+          "unit_type": "CURRENCY"
+        },
+        "id": 14325,
+        "name": "Ooredoo Algeria 2000 DZD",
+        "operator": {
+          "country": {
+            "iso_code": "DZA",
+            "name": "Algeria",
+            "regions": [
+              {
+                "code": "DZA",
+                "name": "Algeria"
+              }
+            ]
+          },
+          "id": 2075,
+          "name": "Ooredoo Algeria",
+          "regions": null
+        },
+        "prices": {
+          "retail": {
+            "amount": 6.79,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 5.904,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 338.7533875338753,
+          "retail": 294.5508100147275,
+          "wholesale": 338.7533875338753
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": [
+          [
+            "mobile_number"
+          ]
+        ],
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 1,
+          "name": "Mobile",
+          "subservice": {
+            "id": 11,
+            "name": "Airtime"
+          }
+        },
+        "source": {
+          "amount": 5.904,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": [
+          "AIRTIME"
+        ],
+        "type": "FIXED_VALUE_RECHARGE",
+        "validity": null
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 375,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 375,
+              "total_including_tax": 375
+            },
+            "type": "CREDITS",
+            "unit": "DZD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "description": "375 DZD",
+        "destination": {
+          "amount": 375,
+          "unit": "DZD",
+          "unit_type": "CURRENCY"
+        },
+        "id": 14487,
+        "name": "Djezzy Algeria 375 DZD",
+        "operator": {
+          "country": {
+            "iso_code": "DZA",
+            "name": "Algeria",
+            "regions": [
+              {
+                "code": "DZA",
+                "name": "Algeria"
+              }
+            ]
+          },
+          "id": 2074,
+          "name": "Djezzy Algeria",
+          "regions": null
+        },
+        "prices": {
+          "retail": {
+            "amount": 1.274,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 1.107,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 338.7533875338753,
+          "retail": 294.3485086342229,
+          "wholesale": 338.7533875338753
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": [
+          [
+            "mobile_number"
+          ]
+        ],
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 1,
+          "name": "Mobile",
+          "subservice": {
+            "id": 11,
+            "name": "Airtime"
+          }
+        },
+        "source": {
+          "amount": 1.107,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": [
+          "AIRTIME"
+        ],
+        "type": "FIXED_VALUE_RECHARGE",
+        "validity": null
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 375,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 375,
+              "total_including_tax": 375
+            },
+            "type": "CREDITS",
+            "unit": "DZD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "description": "375 DZD",
+        "destination": {
+          "amount": 375,
+          "unit": "DZD",
+          "unit_type": "CURRENCY"
+        },
+        "id": 14488,
+        "name": "Mobilis Algeria 375 DZD",
+        "operator": {
+          "country": {
+            "iso_code": "DZA",
+            "name": "Algeria",
+            "regions": [
+              {
+                "code": "DZA",
+                "name": "Algeria"
+              }
+            ]
+          },
+          "id": 4,
+          "name": "Mobilis Algeria",
+          "regions": null
+        },
+        "prices": {
+          "retail": {
+            "amount": 1.274,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 1.107,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 338.7533875338753,
+          "retail": 294.3485086342229,
+          "wholesale": 338.7533875338753
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": [
+          [
+            "mobile_number"
+          ]
+        ],
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 1,
+          "name": "Mobile",
+          "subservice": {
+            "id": 11,
+            "name": "Airtime"
+          }
+        },
+        "source": {
+          "amount": 1.107,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": [
+          "AIRTIME"
+        ],
+        "type": "FIXED_VALUE_RECHARGE",
+        "validity": null
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 375,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 375,
+              "total_including_tax": 375
+            },
+            "type": "CREDITS",
+            "unit": "DZD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "description": "375 DZD",
+        "destination": {
+          "amount": 375,
+          "unit": "DZD",
+          "unit_type": "CURRENCY"
+        },
+        "id": 14489,
+        "name": "Ooredoo Algeria 375 DZD",
+        "operator": {
+          "country": {
+            "iso_code": "DZA",
+            "name": "Algeria",
+            "regions": [
+              {
+                "code": "DZA",
+                "name": "Algeria"
+              }
+            ]
+          },
+          "id": 2075,
+          "name": "Ooredoo Algeria",
+          "regions": null
+        },
+        "prices": {
+          "retail": {
+            "amount": 1.274,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 1.107,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 338.7533875338753,
+          "retail": 294.3485086342229,
+          "wholesale": 338.7533875338753
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": [
+          [
+            "mobile_number"
+          ]
+        ],
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 1,
+          "name": "Mobile",
+          "subservice": {
+            "id": 11,
+            "name": "Airtime"
+          }
+        },
+        "source": {
+          "amount": 1.107,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": [
+          "AIRTIME"
+        ],
+        "type": "FIXED_VALUE_RECHARGE",
+        "validity": null
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": "Unlimited Youtube",
+            "amount": {
+              "base": 700,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 700,
+              "total_including_tax": 700
+            },
+            "type": "DATA",
+            "unit": "MB",
+            "unit_type": "DATA"
+          }
+        ],
+        "description": "700Mo + Youtube Unlimited 1day",
+        "destination": {
+          "amount": 100,
+          "unit": "DZD",
+          "unit_type": "CURRENCY"
+        },
+        "id": 56642,
+        "name": "700 MB 1 Day",
+        "operator": {
+          "country": {
+            "iso_code": "DZA",
+            "name": "Algeria",
+            "regions": [
+              {
+                "code": "DZA",
+                "name": "Algeria"
+              }
+            ]
+          },
+          "id": 2075,
+          "name": "Ooredoo Algeria",
+          "regions": null
+        },
+        "prices": {
+          "retail": {
+            "amount": 0.35,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 0.304,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 328.9473684210526,
+          "retail": 285.7142857142857,
+          "wholesale": 328.9473684210526
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": [
+          [
+            "mobile_number"
+          ]
+        ],
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 1,
+          "name": "Mobile",
+          "subservice": {
+            "id": 13,
+            "name": "Data"
+          }
+        },
+        "source": {
+          "amount": 0.304,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": [
+          "DATA"
+        ],
+        "type": "FIXED_VALUE_RECHARGE",
+        "validity": {
+          "quantity": 1,
+          "unit": "DAY"
+        }
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": "Unlimited Youtube",
+            "amount": {
+              "base": 3,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 3,
+              "total_including_tax": 3
+            },
+            "type": "DATA",
+            "unit": "GB",
+            "unit_type": "DATA"
+          }
+        ],
+        "description": "3Go + Youtube Unlimited 3days",
+        "destination": {
+          "amount": 300,
+          "unit": "DZD",
+          "unit_type": "CURRENCY"
+        },
+        "id": 56643,
+        "name": "3 GB 3 Days",
+        "operator": {
+          "country": {
+            "iso_code": "DZA",
+            "name": "Algeria",
+            "regions": [
+              {
+                "code": "DZA",
+                "name": "Algeria"
+              }
+            ]
+          },
+          "id": 2075,
+          "name": "Ooredoo Algeria",
+          "regions": null
+        },
+        "prices": {
+          "retail": {
+            "amount": 1.02,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 0.886,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 338.6004514672686,
+          "retail": 294.4062806673209,
+          "wholesale": 338.6004514672686
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": [
+          [
+            "mobile_number"
+          ]
+        ],
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 1,
+          "name": "Mobile",
+          "subservice": {
+            "id": 13,
+            "name": "Data"
+          }
+        },
+        "source": {
+          "amount": 0.886,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": [
+          "DATA"
+        ],
+        "type": "FIXED_VALUE_RECHARGE",
+        "validity": {
+          "quantity": 3,
+          "unit": "DAY"
+        }
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 6,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 6,
+              "total_including_tax": 6
+            },
+            "type": "DATA",
+            "unit": "GB",
+            "unit_type": "DATA"
+          }
+        ],
+        "description": "500 DA   =>  6 GB",
+        "destination": {
+          "amount": 500,
+          "unit": "DZD",
+          "unit_type": "CURRENCY"
+        },
+        "id": 56644,
+        "name": "6 GB 30 Days",
+        "operator": {
+          "country": {
+            "iso_code": "DZA",
+            "name": "Algeria",
+            "regions": [
+              {
+                "code": "DZA",
+                "name": "Algeria"
+              }
+            ]
+          },
+          "id": 2075,
+          "name": "Ooredoo Algeria",
+          "regions": null
+        },
+        "prices": {
+          "retail": {
+            "amount": 1.698,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 1.476,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 338.7533875338753,
+          "retail": 294.4640753828033,
+          "wholesale": 338.7533875338753
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": [
+          [
+            "mobile_number"
+          ]
+        ],
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 1,
+          "name": "Mobile",
+          "subservice": {
+            "id": 13,
+            "name": "Data"
+          }
+        },
+        "source": {
+          "amount": 1.476,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": [
+          "DATA"
+        ],
+        "type": "FIXED_VALUE_RECHARGE",
+        "validity": {
+          "quantity": 30,
+          "unit": "DAY"
+        }
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": "Unlimited Youtube",
+            "amount": {
+              "base": 40,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 40,
+              "total_including_tax": 40
+            },
+            "type": "DATA",
+            "unit": "GB",
+            "unit_type": "DATA"
+          }
+        ],
+        "description": "40GB + Unlimited Youtube , validity 30 days",
+        "destination": {
+          "amount": 1500,
+          "unit": "DZD",
+          "unit_type": "CURRENCY"
+        },
+        "id": 56656,
+        "name": "40 GB 30 Days",
+        "operator": {
+          "country": {
+            "iso_code": "DZA",
+            "name": "Algeria",
+            "regions": [
+              {
+                "code": "DZA",
+                "name": "Algeria"
+              }
+            ]
+          },
+          "id": 2075,
+          "name": "Ooredoo Algeria",
+          "regions": null
+        },
+        "prices": {
+          "retail": {
+            "amount": 5.093,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 4.428,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 338.7533875338753,
+          "retail": 294.521892794031,
+          "wholesale": 338.7533875338753
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": [
+          [
+            "mobile_number"
+          ]
+        ],
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 1,
+          "name": "Mobile",
+          "subservice": {
+            "id": 13,
+            "name": "Data"
+          }
+        },
+        "source": {
+          "amount": 4.428,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": [
+          "DATA"
+        ],
+        "type": "FIXED_VALUE_RECHARGE",
+        "validity": {
+          "quantity": 30,
+          "unit": "DAY"
+        }
+      }
+    ]
+  },
+  "reloadly": {
+    "token": true,
+    "operators": [
+      {
+        "id": 8,
+        "operatorId": 8,
+        "name": "Djezzy Algeria",
+        "bundle": false,
+        "data": false,
+        "pin": false,
+        "comboProduct": false,
+        "supportsLocalAmounts": true,
+        "supportsGeographicalRechargePlans": false,
+        "denominationType": "FIXED",
+        "senderCurrencyCode": "USD",
+        "senderCurrencySymbol": "$",
+        "destinationCurrencyCode": "DZD",
+        "destinationCurrencySymbol": "د.ج.‏",
+        "commission": 5,
+        "internationalDiscount": 5,
+        "localDiscount": 0,
+        "mostPopularAmount": 19.37,
+        "mostPopularLocalAmount": 500,
+        "minAmount": null,
+        "maxAmount": null,
+        "localMinAmount": null,
+        "localMaxAmount": null,
+        "country": {
+          "isoName": "DZ",
+          "name": "Algeria"
+        },
+        "fx": {
+          "rate": 103.2600021,
+          "currencyCode": "DZD"
+        },
+        "logoUrls": [
+          "https://s3.amazonaws.com/rld-operator/2ddf40ec-7d81-4916-9b0b-1402c292bffc-size-1.png",
+          "https://s3.amazonaws.com/rld-operator/2ddf40ec-7d81-4916-9b0b-1402c292bffc-size-3.png",
+          "https://s3.amazonaws.com/rld-operator/2ddf40ec-7d81-4916-9b0b-1402c292bffc-size-2.png"
+        ],
+        "fixedAmounts": [
+          4.84,
+          9.68,
+          14.53,
+          19.37
+        ],
+        "fixedAmountsDescriptions": {
+          "4.84": "DZD500 Top Up",
+          "9.68": "DZD800 Top Up",
+          "14.53": "DZD1500 Top Up",
+          "19.37": "DZD300 Top Up"
+        },
+        "localFixedAmounts": [
+          500,
+          1000,
+          1500,
+          2000
+        ],
+        "localFixedAmountsDescriptions": {
+          "500.00": "DZD500 Top Up",
+          "1000.00": "DZD800 Top Up",
+          "1500.00": "DZD1500 Top Up",
+          "2000.00": "DZD300 Top Up"
+        },
+        "suggestedAmounts": [],
+        "suggestedAmountsMap": {},
+        "fees": {
+          "international": 0,
+          "local": 0,
+          "localPercentage": 0,
+          "internationalPercentage": 0
+        },
+        "geographicalRechargePlans": [],
+        "promotions": [],
+        "status": "ACTIVE"
+      },
+      {
+        "id": 6,
+        "operatorId": 6,
+        "name": "Mobilis Algeria",
+        "bundle": false,
+        "data": false,
+        "pin": false,
+        "comboProduct": false,
+        "supportsLocalAmounts": true,
+        "supportsGeographicalRechargePlans": false,
+        "denominationType": "FIXED",
+        "senderCurrencyCode": "USD",
+        "senderCurrencySymbol": "$",
+        "destinationCurrencyCode": "DZD",
+        "destinationCurrencySymbol": "د.ج.‏",
+        "commission": 5,
+        "internationalDiscount": 5,
+        "localDiscount": 0,
+        "mostPopularAmount": 19.37,
+        "mostPopularLocalAmount": 100,
+        "minAmount": null,
+        "maxAmount": null,
+        "localMinAmount": null,
+        "localMaxAmount": null,
+        "country": {
+          "isoName": "DZ",
+          "name": "Algeria"
+        },
+        "fx": {
+          "rate": 103.2600021,
+          "currencyCode": "DZD"
+        },
+        "logoUrls": [
+          "https://s3.amazonaws.com/rld-operator/90951873-5ef7-490c-8f80-240d5115f4cc-size-2.png",
+          "https://s3.amazonaws.com/rld-operator/90951873-5ef7-490c-8f80-240d5115f4cc-size-3.png",
+          "https://s3.amazonaws.com/rld-operator/90951873-5ef7-490c-8f80-240d5115f4cc-size-1.png"
+        ],
+        "fixedAmounts": [
+          0.97,
+          1.94,
+          2.91,
+          3.63,
+          3.87,
+          4.84,
+          7.26,
+          9.68,
+          14.53,
+          19.37
+        ],
+        "fixedAmountsDescriptions": {
+          "9.68": "DZD800 Top Up",
+          "14.53": "DZD1500 Top Up",
+          "19.37": "DZD300 Top Up"
+        },
+        "localFixedAmounts": [
+          100,
+          200,
+          300,
+          375,
+          400,
+          500,
+          750,
+          1000,
+          1500,
+          2000
+        ],
+        "localFixedAmountsDescriptions": {
+          "1000.00": "DZD800 Top Up",
+          "1500.00": "DZD1500 Top Up",
+          "2000.00": "DZD300 Top Up"
+        },
+        "suggestedAmounts": [],
+        "suggestedAmountsMap": {},
+        "fees": {
+          "international": 0,
+          "local": 0,
+          "localPercentage": 0,
+          "internationalPercentage": 0
+        },
+        "geographicalRechargePlans": [],
+        "promotions": [],
+        "status": "ACTIVE"
+      },
+      {
+        "id": 7,
+        "operatorId": 7,
+        "name": "Ooredoo Algeria",
+        "bundle": false,
+        "data": false,
+        "pin": false,
+        "comboProduct": false,
+        "supportsLocalAmounts": true,
+        "supportsGeographicalRechargePlans": false,
+        "denominationType": "FIXED",
+        "senderCurrencyCode": "USD",
+        "senderCurrencySymbol": "$",
+        "destinationCurrencyCode": "DZD",
+        "destinationCurrencySymbol": "د.ج.‏",
+        "commission": 5,
+        "internationalDiscount": 5,
+        "localDiscount": 0,
+        "mostPopularAmount": 19.37,
+        "mostPopularLocalAmount": 100,
+        "minAmount": null,
+        "maxAmount": null,
+        "localMinAmount": null,
+        "localMaxAmount": null,
+        "country": {
+          "isoName": "DZ",
+          "name": "Algeria"
+        },
+        "fx": {
+          "rate": 103.2600021,
+          "currencyCode": "DZD"
+        },
+        "logoUrls": [
+          "https://s3.amazonaws.com/rld-operator/dad96546-71c6-423c-8242-8d2a2605fe3c-size-1.png",
+          "https://s3.amazonaws.com/rld-operator/dad96546-71c6-423c-8242-8d2a2605fe3c-size-2.png",
+          "https://s3.amazonaws.com/rld-operator/dad96546-71c6-423c-8242-8d2a2605fe3c-size-3.png"
+        ],
+        "fixedAmounts": [
+          0.97,
+          1.94,
+          2.91,
+          3.63,
+          3.87,
+          4.84,
+          7.26,
+          9.68,
+          14.53,
+          19.37
+        ],
+        "fixedAmountsDescriptions": {},
+        "localFixedAmounts": [
+          100,
+          200,
+          300,
+          375,
+          400,
+          500,
+          750,
+          1000,
+          1500,
+          2000
+        ],
+        "localFixedAmountsDescriptions": {},
+        "suggestedAmounts": [],
+        "suggestedAmountsMap": {},
+        "fees": {
+          "international": 0,
+          "local": 0,
+          "localPercentage": 0,
+          "internationalPercentage": 0
+        },
+        "geographicalRechargePlans": [],
+        "promotions": [],
+        "status": "ACTIVE"
+      }
+    ]
+  },
+  "zendit": {
+    "offers": {
+      "total": 30,
+      "limit": 100,
+      "offset": 0,
+      "list": [
+        {
+          "enabled": true,
+          "offerId": "DJEZZY_DZ_01",
+          "country": "DZ",
+          "regions": [
+            "Middle East and North Africa"
+          ],
+          "brand": "DJEZZY",
+          "brandName": "DJEZZY",
+          "productType": "TOPUP",
+          "subTypes": [
+            "Mobile Top Up"
+          ],
+          "notes": "",
+          "shortNotes": "",
+          "priceType": "FIXED",
+          "send": {
+            "currency": "DZD",
+            "currencyDivisor": 100,
+            "fixed": 10065,
+            "fx": 1
+          },
+          "price": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 71,
+            "suggestedFixed": 71,
+            "fx": 141.760563,
+            "suggestedFx": 141.760563,
+            "margin": 0.11267606,
+            "fee": 0
+          },
+          "cost": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 63,
+            "fx": 159.76190476,
+            "fee": 0,
+            "feePct": 0,
+            "discount": 0.11267606
+          },
+          "durationDays": 0,
+          "dataGB": 0,
+          "dataUnlimited": false,
+          "smsNumber": 0,
+          "smsUnlimited": false,
+          "voiceMinutes": 0,
+          "voiceUnlimited": false,
+          "createdAt": "2026-05-19T14:23:34.578Z",
+          "updatedAt": "2026-08-22T00:00:00Z"
+        },
+        {
+          "enabled": true,
+          "offerId": "DJEZZY_DZ_02",
+          "country": "DZ",
+          "regions": [
+            "Middle East and North Africa"
+          ],
+          "brand": "DJEZZY",
+          "brandName": "DJEZZY",
+          "productType": "TOPUP",
+          "subTypes": [
+            "Mobile Top Up"
+          ],
+          "notes": "",
+          "shortNotes": "",
+          "priceType": "FIXED",
+          "send": {
+            "currency": "DZD",
+            "currencyDivisor": 100,
+            "fixed": 19965,
+            "fx": 1
+          },
+          "price": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 141,
+            "suggestedFixed": 141,
+            "fx": 141.595745,
+            "suggestedFx": 141.595745,
+            "margin": 0.10638298,
+            "fee": 0
+          },
+          "cost": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 126,
+            "fx": 158.45238095,
+            "fee": 0,
+            "feePct": 0,
+            "discount": 0.10638298
+          },
+          "durationDays": 0,
+          "dataGB": 0,
+          "dataUnlimited": false,
+          "smsNumber": 0,
+          "smsUnlimited": false,
+          "voiceMinutes": 0,
+          "voiceUnlimited": false,
+          "createdAt": "2026-05-19T14:23:34.578Z",
+          "updatedAt": "2026-08-22T00:00:00Z"
+        },
+        {
+          "enabled": true,
+          "offerId": "DJEZZY_DZ_03",
+          "country": "DZ",
+          "regions": [
+            "Middle East and North Africa"
+          ],
+          "brand": "DJEZZY",
+          "brandName": "DJEZZY",
+          "productType": "TOPUP",
+          "subTypes": [
+            "Mobile Top Up"
+          ],
+          "notes": "",
+          "shortNotes": "",
+          "priceType": "FIXED",
+          "send": {
+            "currency": "DZD",
+            "currencyDivisor": 100,
+            "fixed": 30030,
+            "fx": 1
+          },
+          "price": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 213,
+            "suggestedFixed": 213,
+            "fx": 140.985915,
+            "suggestedFx": 140.985915,
+            "margin": 0.10798122,
+            "fee": 0
+          },
+          "cost": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 190,
+            "fx": 158.05263158,
+            "fee": 0,
+            "feePct": 0,
+            "discount": 0.10798122
+          },
+          "durationDays": 0,
+          "dataGB": 0,
+          "dataUnlimited": false,
+          "smsNumber": 0,
+          "smsUnlimited": false,
+          "voiceMinutes": 0,
+          "voiceUnlimited": false,
+          "createdAt": "2026-05-19T14:23:34.578Z",
+          "updatedAt": "2026-08-22T00:00:00Z"
+        },
+        {
+          "enabled": true,
+          "offerId": "DJEZZY_DZ_04",
+          "country": "DZ",
+          "regions": [
+            "Middle East and North Africa"
+          ],
+          "brand": "DJEZZY",
+          "brandName": "DJEZZY",
+          "productType": "TOPUP",
+          "subTypes": [
+            "Mobile Top Up"
+          ],
+          "notes": "",
+          "shortNotes": "",
+          "priceType": "FIXED",
+          "send": {
+            "currency": "DZD",
+            "currencyDivisor": 100,
+            "fixed": 199980,
+            "fx": 1
+          },
+          "price": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 1417,
+            "suggestedFixed": 1417,
+            "fx": 141.129146,
+            "suggestedFx": 141.129146,
+            "margin": 0.10726888,
+            "fee": 0
+          },
+          "cost": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 1265,
+            "fx": 158.08695652,
+            "fee": 0,
+            "feePct": 0,
+            "discount": 0.10726888
+          },
+          "durationDays": 0,
+          "dataGB": 0,
+          "dataUnlimited": false,
+          "smsNumber": 0,
+          "smsUnlimited": false,
+          "voiceMinutes": 0,
+          "voiceUnlimited": false,
+          "createdAt": "2026-05-19T14:23:34.578Z",
+          "updatedAt": "2026-08-22T00:00:00Z"
+        },
+        {
+          "enabled": true,
+          "offerId": "DJEZZY_DZ_05",
+          "country": "DZ",
+          "regions": [
+            "Middle East and North Africa"
+          ],
+          "brand": "DJEZZY",
+          "brandName": "DJEZZY",
+          "productType": "TOPUP",
+          "subTypes": [
+            "Mobile Top Up"
+          ],
+          "notes": "",
+          "shortNotes": "",
+          "priceType": "FIXED",
+          "send": {
+            "currency": "DZD",
+            "currencyDivisor": 100,
+            "fixed": 37455,
+            "fx": 1
+          },
+          "price": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 265,
+            "suggestedFixed": 265,
+            "fx": 141.339623,
+            "suggestedFx": 141.339623,
+            "margin": 0.10566038,
+            "fee": 0
+          },
+          "cost": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 237,
+            "fx": 158.03797468,
+            "fee": 0,
+            "feePct": 0,
+            "discount": 0.10566038
+          },
+          "durationDays": 0,
+          "dataGB": 0,
+          "dataUnlimited": false,
+          "smsNumber": 0,
+          "smsUnlimited": false,
+          "voiceMinutes": 0,
+          "voiceUnlimited": false,
+          "createdAt": "2026-05-19T14:23:34.578Z",
+          "updatedAt": "2026-08-22T00:00:00Z"
+        },
+        {
+          "enabled": true,
+          "offerId": "DJEZZY_DZ_06",
+          "country": "DZ",
+          "regions": [
+            "Middle East and North Africa"
+          ],
+          "brand": "DJEZZY",
+          "brandName": "DJEZZY",
+          "productType": "TOPUP",
+          "subTypes": [
+            "Mobile Top Up"
+          ],
+          "notes": "",
+          "shortNotes": "",
+          "priceType": "FIXED",
+          "send": {
+            "currency": "DZD",
+            "currencyDivisor": 100,
+            "fixed": 39930,
+            "fx": 1
+          },
+          "price": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 283,
+            "suggestedFixed": 283,
+            "fx": 141.095406,
+            "suggestedFx": 141.095406,
+            "margin": 0.10600707,
+            "fee": 0
+          },
+          "cost": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 253,
+            "fx": 157.82608696,
+            "fee": 0,
+            "feePct": 0,
+            "discount": 0.10600707
+          },
+          "durationDays": 0,
+          "dataGB": 0,
+          "dataUnlimited": false,
+          "smsNumber": 0,
+          "smsUnlimited": false,
+          "voiceMinutes": 0,
+          "voiceUnlimited": false,
+          "createdAt": "2026-05-19T14:23:34.578Z",
+          "updatedAt": "2026-08-22T00:00:00Z"
+        },
+        {
+          "enabled": true,
+          "offerId": "DJEZZY_DZ_07",
+          "country": "DZ",
+          "regions": [
+            "Middle East and North Africa"
+          ],
+          "brand": "DJEZZY",
+          "brandName": "DJEZZY",
+          "productType": "TOPUP",
+          "subTypes": [
+            "Mobile Top Up"
+          ],
+          "notes": "",
+          "shortNotes": "",
+          "priceType": "FIXED",
+          "send": {
+            "currency": "DZD",
+            "currencyDivisor": 100,
+            "fixed": 49995,
+            "fx": 1
+          },
+          "price": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 354,
+            "suggestedFixed": 354,
+            "fx": 141.228814,
+            "suggestedFx": 141.228814,
+            "margin": 0.10734463,
+            "fee": 0
+          },
+          "cost": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 316,
+            "fx": 158.21202532,
+            "fee": 0,
+            "feePct": 0,
+            "discount": 0.10734463
+          },
+          "durationDays": 0,
+          "dataGB": 0,
+          "dataUnlimited": false,
+          "smsNumber": 0,
+          "smsUnlimited": false,
+          "voiceMinutes": 0,
+          "voiceUnlimited": false,
+          "createdAt": "2026-05-19T14:23:34.578Z",
+          "updatedAt": "2026-08-22T00:00:00Z"
+        },
+        {
+          "enabled": true,
+          "offerId": "DJEZZY_DZ_08",
+          "country": "DZ",
+          "regions": [
+            "Middle East and North Africa"
+          ],
+          "brand": "DJEZZY",
+          "brandName": "DJEZZY",
+          "productType": "TOPUP",
+          "subTypes": [
+            "Mobile Top Up"
+          ],
+          "notes": "",
+          "shortNotes": "",
+          "priceType": "FIXED",
+          "send": {
+            "currency": "DZD",
+            "currencyDivisor": 100,
+            "fixed": 75075,
+            "fx": 1
+          },
+          "price": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 531,
+            "suggestedFixed": 531,
+            "fx": 141.384181,
+            "suggestedFx": 141.384181,
+            "margin": 0.10734463,
+            "fee": 0
+          },
+          "cost": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 474,
+            "fx": 158.38607595,
+            "fee": 0,
+            "feePct": 0,
+            "discount": 0.10734463
+          },
+          "durationDays": 0,
+          "dataGB": 0,
+          "dataUnlimited": false,
+          "smsNumber": 0,
+          "smsUnlimited": false,
+          "voiceMinutes": 0,
+          "voiceUnlimited": false,
+          "createdAt": "2026-05-19T14:23:34.578Z",
+          "updatedAt": "2026-08-22T00:00:00Z"
+        },
+        {
+          "enabled": true,
+          "offerId": "DJEZZY_DZ_09",
+          "country": "DZ",
+          "regions": [
+            "Middle East and North Africa"
+          ],
+          "brand": "DJEZZY",
+          "brandName": "DJEZZY",
+          "productType": "TOPUP",
+          "subTypes": [
+            "Mobile Top Up"
+          ],
+          "notes": "",
+          "shortNotes": "",
+          "priceType": "FIXED",
+          "send": {
+            "currency": "DZD",
+            "currencyDivisor": 100,
+            "fixed": 99990,
+            "fx": 1
+          },
+          "price": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 708,
+            "suggestedFixed": 708,
+            "fx": 141.228814,
+            "suggestedFx": 141.228814,
+            "margin": 0.10734463,
+            "fee": 0
+          },
+          "cost": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 632,
+            "fx": 158.21202532,
+            "fee": 0,
+            "feePct": 0,
+            "discount": 0.10734463
+          },
+          "durationDays": 0,
+          "dataGB": 0,
+          "dataUnlimited": false,
+          "smsNumber": 0,
+          "smsUnlimited": false,
+          "voiceMinutes": 0,
+          "voiceUnlimited": false,
+          "createdAt": "2026-05-19T14:23:34.578Z",
+          "updatedAt": "2026-08-22T00:00:00Z"
+        },
+        {
+          "enabled": true,
+          "offerId": "DJEZZY_DZ_10",
+          "country": "DZ",
+          "regions": [
+            "Middle East and North Africa"
+          ],
+          "brand": "DJEZZY",
+          "brandName": "DJEZZY",
+          "productType": "TOPUP",
+          "subTypes": [
+            "Mobile Top Up"
+          ],
+          "notes": "",
+          "shortNotes": "",
+          "priceType": "FIXED",
+          "send": {
+            "currency": "DZD",
+            "currencyDivisor": 100,
+            "fixed": 149985,
+            "fx": 1
+          },
+          "price": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 1062,
+            "suggestedFixed": 1062,
+            "fx": 141.228814,
+            "suggestedFx": 141.228814,
+            "margin": 0.10734463,
+            "fee": 0
+          },
+          "cost": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 948,
+            "fx": 158.21202532,
+            "fee": 0,
+            "feePct": 0,
+            "discount": 0.10734463
+          },
+          "durationDays": 0,
+          "dataGB": 0,
+          "dataUnlimited": false,
+          "smsNumber": 0,
+          "smsUnlimited": false,
+          "voiceMinutes": 0,
+          "voiceUnlimited": false,
+          "createdAt": "2026-05-19T14:23:34.578Z",
+          "updatedAt": "2026-08-22T00:00:00Z"
+        },
+        {
+          "enabled": true,
+          "offerId": "MOBILIS_DZ_01",
+          "country": "DZ",
+          "regions": [
+            "Middle East and North Africa"
+          ],
+          "brand": "MOBILIS",
+          "brandName": "MOBILIS",
+          "productType": "TOPUP",
+          "subTypes": [
+            "Mobile Top Up"
+          ],
+          "notes": "",
+          "shortNotes": "",
+          "priceType": "FIXED",
+          "send": {
+            "currency": "DZD",
+            "currencyDivisor": 100,
+            "fixed": 10065,
+            "fx": 1
+          },
+          "price": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 71,
+            "suggestedFixed": 71,
+            "fx": 141.760563,
+            "suggestedFx": 141.760563,
+            "margin": 0.11267606,
+            "fee": 0
+          },
+          "cost": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 63,
+            "fx": 159.76190476,
+            "fee": 0,
+            "feePct": 0,
+            "discount": 0.11267606
+          },
+          "durationDays": 0,
+          "dataGB": 0,
+          "dataUnlimited": false,
+          "smsNumber": 0,
+          "smsUnlimited": false,
+          "voiceMinutes": 0,
+          "voiceUnlimited": false,
+          "createdAt": "2026-05-19T14:23:34.578Z",
+          "updatedAt": "2026-08-22T00:00:00Z"
+        },
+        {
+          "enabled": true,
+          "offerId": "MOBILIS_DZ_02",
+          "country": "DZ",
+          "regions": [
+            "Middle East and North Africa"
+          ],
+          "brand": "MOBILIS",
+          "brandName": "MOBILIS",
+          "productType": "TOPUP",
+          "subTypes": [
+            "Mobile Top Up"
+          ],
+          "notes": "",
+          "shortNotes": "",
+          "priceType": "FIXED",
+          "send": {
+            "currency": "DZD",
+            "currencyDivisor": 100,
+            "fixed": 19965,
+            "fx": 1
+          },
+          "price": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 141,
+            "suggestedFixed": 141,
+            "fx": 141.595745,
+            "suggestedFx": 141.595745,
+            "margin": 0.10638298,
+            "fee": 0
+          },
+          "cost": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 126,
+            "fx": 158.45238095,
+            "fee": 0,
+            "feePct": 0,
+            "discount": 0.10638298
+          },
+          "durationDays": 0,
+          "dataGB": 0,
+          "dataUnlimited": false,
+          "smsNumber": 0,
+          "smsUnlimited": false,
+          "voiceMinutes": 0,
+          "voiceUnlimited": false,
+          "createdAt": "2026-05-19T14:23:34.578Z",
+          "updatedAt": "2026-08-22T00:00:00Z"
+        },
+        {
+          "enabled": true,
+          "offerId": "MOBILIS_DZ_03",
+          "country": "DZ",
+          "regions": [
+            "Middle East and North Africa"
+          ],
+          "brand": "MOBILIS",
+          "brandName": "MOBILIS",
+          "productType": "TOPUP",
+          "subTypes": [
+            "Mobile Top Up"
+          ],
+          "notes": "",
+          "shortNotes": "",
+          "priceType": "FIXED",
+          "send": {
+            "currency": "DZD",
+            "currencyDivisor": 100,
+            "fixed": 30030,
+            "fx": 1
+          },
+          "price": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 213,
+            "suggestedFixed": 213,
+            "fx": 140.985915,
+            "suggestedFx": 140.985915,
+            "margin": 0.10798122,
+            "fee": 0
+          },
+          "cost": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 190,
+            "fx": 158.05263158,
+            "fee": 0,
+            "feePct": 0,
+            "discount": 0.10798122
+          },
+          "durationDays": 0,
+          "dataGB": 0,
+          "dataUnlimited": false,
+          "smsNumber": 0,
+          "smsUnlimited": false,
+          "voiceMinutes": 0,
+          "voiceUnlimited": false,
+          "createdAt": "2026-05-19T14:23:34.578Z",
+          "updatedAt": "2026-08-22T00:00:00Z"
+        },
+        {
+          "enabled": true,
+          "offerId": "MOBILIS_DZ_04",
+          "country": "DZ",
+          "regions": [
+            "Middle East and North Africa"
+          ],
+          "brand": "MOBILIS",
+          "brandName": "MOBILIS",
+          "productType": "TOPUP",
+          "subTypes": [
+            "Mobile Top Up"
+          ],
+          "notes": "",
+          "shortNotes": "",
+          "priceType": "FIXED",
+          "send": {
+            "currency": "DZD",
+            "currencyDivisor": 100,
+            "fixed": 199980,
+            "fx": 1
+          },
+          "price": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 1417,
+            "suggestedFixed": 1417,
+            "fx": 141.129146,
+            "suggestedFx": 141.129146,
+            "margin": 0.10726888,
+            "fee": 0
+          },
+          "cost": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 1265,
+            "fx": 158.08695652,
+            "fee": 0,
+            "feePct": 0,
+            "discount": 0.10726888
+          },
+          "durationDays": 0,
+          "dataGB": 0,
+          "dataUnlimited": false,
+          "smsNumber": 0,
+          "smsUnlimited": false,
+          "voiceMinutes": 0,
+          "voiceUnlimited": false,
+          "createdAt": "2026-05-19T14:23:34.578Z",
+          "updatedAt": "2026-08-22T00:00:00Z"
+        },
+        {
+          "enabled": true,
+          "offerId": "MOBILIS_DZ_05",
+          "country": "DZ",
+          "regions": [
+            "Middle East and North Africa"
+          ],
+          "brand": "MOBILIS",
+          "brandName": "MOBILIS",
+          "productType": "TOPUP",
+          "subTypes": [
+            "Mobile Top Up"
+          ],
+          "notes": "",
+          "shortNotes": "",
+          "priceType": "FIXED",
+          "send": {
+            "currency": "DZD",
+            "currencyDivisor": 100,
+            "fixed": 37455,
+            "fx": 1
+          },
+          "price": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 265,
+            "suggestedFixed": 265,
+            "fx": 141.339623,
+            "suggestedFx": 141.339623,
+            "margin": 0.10566038,
+            "fee": 0
+          },
+          "cost": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 237,
+            "fx": 158.03797468,
+            "fee": 0,
+            "feePct": 0,
+            "discount": 0.10566038
+          },
+          "durationDays": 0,
+          "dataGB": 0,
+          "dataUnlimited": false,
+          "smsNumber": 0,
+          "smsUnlimited": false,
+          "voiceMinutes": 0,
+          "voiceUnlimited": false,
+          "createdAt": "2026-05-19T14:23:34.578Z",
+          "updatedAt": "2026-08-22T00:00:00Z"
+        },
+        {
+          "enabled": true,
+          "offerId": "MOBILIS_DZ_06",
+          "country": "DZ",
+          "regions": [
+            "Middle East and North Africa"
+          ],
+          "brand": "MOBILIS",
+          "brandName": "MOBILIS",
+          "productType": "TOPUP",
+          "subTypes": [
+            "Mobile Top Up"
+          ],
+          "notes": "",
+          "shortNotes": "",
+          "priceType": "FIXED",
+          "send": {
+            "currency": "DZD",
+            "currencyDivisor": 100,
+            "fixed": 39930,
+            "fx": 1
+          },
+          "price": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 283,
+            "suggestedFixed": 283,
+            "fx": 141.095406,
+            "suggestedFx": 141.095406,
+            "margin": 0.10600707,
+            "fee": 0
+          },
+          "cost": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 253,
+            "fx": 157.82608696,
+            "fee": 0,
+            "feePct": 0,
+            "discount": 0.10600707
+          },
+          "durationDays": 0,
+          "dataGB": 0,
+          "dataUnlimited": false,
+          "smsNumber": 0,
+          "smsUnlimited": false,
+          "voiceMinutes": 0,
+          "voiceUnlimited": false,
+          "createdAt": "2026-05-19T14:23:34.578Z",
+          "updatedAt": "2026-08-22T00:00:00Z"
+        },
+        {
+          "enabled": true,
+          "offerId": "MOBILIS_DZ_07",
+          "country": "DZ",
+          "regions": [
+            "Middle East and North Africa"
+          ],
+          "brand": "MOBILIS",
+          "brandName": "MOBILIS",
+          "productType": "TOPUP",
+          "subTypes": [
+            "Mobile Top Up"
+          ],
+          "notes": "",
+          "shortNotes": "",
+          "priceType": "FIXED",
+          "send": {
+            "currency": "DZD",
+            "currencyDivisor": 100,
+            "fixed": 49995,
+            "fx": 1
+          },
+          "price": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 354,
+            "suggestedFixed": 354,
+            "fx": 141.228814,
+            "suggestedFx": 141.228814,
+            "margin": 0.10734463,
+            "fee": 0
+          },
+          "cost": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 316,
+            "fx": 158.21202532,
+            "fee": 0,
+            "feePct": 0,
+            "discount": 0.10734463
+          },
+          "durationDays": 0,
+          "dataGB": 0,
+          "dataUnlimited": false,
+          "smsNumber": 0,
+          "smsUnlimited": false,
+          "voiceMinutes": 0,
+          "voiceUnlimited": false,
+          "createdAt": "2026-05-19T14:23:34.578Z",
+          "updatedAt": "2026-08-22T00:00:00Z"
+        },
+        {
+          "enabled": true,
+          "offerId": "MOBILIS_DZ_08",
+          "country": "DZ",
+          "regions": [
+            "Middle East and North Africa"
+          ],
+          "brand": "MOBILIS",
+          "brandName": "MOBILIS",
+          "productType": "TOPUP",
+          "subTypes": [
+            "Mobile Top Up"
+          ],
+          "notes": "",
+          "shortNotes": "",
+          "priceType": "FIXED",
+          "send": {
+            "currency": "DZD",
+            "currencyDivisor": 100,
+            "fixed": 75075,
+            "fx": 1
+          },
+          "price": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 531,
+            "suggestedFixed": 531,
+            "fx": 141.384181,
+            "suggestedFx": 141.384181,
+            "margin": 0.10734463,
+            "fee": 0
+          },
+          "cost": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 474,
+            "fx": 158.38607595,
+            "fee": 0,
+            "feePct": 0,
+            "discount": 0.10734463
+          },
+          "durationDays": 0,
+          "dataGB": 0,
+          "dataUnlimited": false,
+          "smsNumber": 0,
+          "smsUnlimited": false,
+          "voiceMinutes": 0,
+          "voiceUnlimited": false,
+          "createdAt": "2026-05-19T14:23:34.578Z",
+          "updatedAt": "2026-08-22T00:00:00Z"
+        },
+        {
+          "enabled": true,
+          "offerId": "MOBILIS_DZ_09",
+          "country": "DZ",
+          "regions": [
+            "Middle East and North Africa"
+          ],
+          "brand": "MOBILIS",
+          "brandName": "MOBILIS",
+          "productType": "TOPUP",
+          "subTypes": [
+            "Mobile Top Up"
+          ],
+          "notes": "",
+          "shortNotes": "",
+          "priceType": "FIXED",
+          "send": {
+            "currency": "DZD",
+            "currencyDivisor": 100,
+            "fixed": 99990,
+            "fx": 1
+          },
+          "price": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 708,
+            "suggestedFixed": 708,
+            "fx": 141.228814,
+            "suggestedFx": 141.228814,
+            "margin": 0.10734463,
+            "fee": 0
+          },
+          "cost": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 632,
+            "fx": 158.21202532,
+            "fee": 0,
+            "feePct": 0,
+            "discount": 0.10734463
+          },
+          "durationDays": 0,
+          "dataGB": 0,
+          "dataUnlimited": false,
+          "smsNumber": 0,
+          "smsUnlimited": false,
+          "voiceMinutes": 0,
+          "voiceUnlimited": false,
+          "createdAt": "2026-05-19T14:23:34.578Z",
+          "updatedAt": "2026-08-22T00:00:00Z"
+        },
+        {
+          "enabled": true,
+          "offerId": "MOBILIS_DZ_10",
+          "country": "DZ",
+          "regions": [
+            "Middle East and North Africa"
+          ],
+          "brand": "MOBILIS",
+          "brandName": "MOBILIS",
+          "productType": "TOPUP",
+          "subTypes": [
+            "Mobile Top Up"
+          ],
+          "notes": "",
+          "shortNotes": "",
+          "priceType": "FIXED",
+          "send": {
+            "currency": "DZD",
+            "currencyDivisor": 100,
+            "fixed": 149985,
+            "fx": 1
+          },
+          "price": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 1062,
+            "suggestedFixed": 1062,
+            "fx": 141.228814,
+            "suggestedFx": 141.228814,
+            "margin": 0.10734463,
+            "fee": 0
+          },
+          "cost": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 948,
+            "fx": 158.21202532,
+            "fee": 0,
+            "feePct": 0,
+            "discount": 0.10734463
+          },
+          "durationDays": 0,
+          "dataGB": 0,
+          "dataUnlimited": false,
+          "smsNumber": 0,
+          "smsUnlimited": false,
+          "voiceMinutes": 0,
+          "voiceUnlimited": false,
+          "createdAt": "2026-05-19T14:23:34.578Z",
+          "updatedAt": "2026-08-22T00:00:00Z"
+        },
+        {
+          "enabled": true,
+          "offerId": "OOREDOO_DZ_01",
+          "country": "DZ",
+          "regions": [
+            "Middle East and North Africa"
+          ],
+          "brand": "OOREDOO",
+          "brandName": "OOREDOO",
+          "productType": "TOPUP",
+          "subTypes": [
+            "Mobile Top Up"
+          ],
+          "notes": "",
+          "shortNotes": "",
+          "priceType": "FIXED",
+          "send": {
+            "currency": "DZD",
+            "currencyDivisor": 100,
+            "fixed": 10065,
+            "fx": 1
+          },
+          "price": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 73,
+            "suggestedFixed": 73,
+            "fx": 137.876712,
+            "suggestedFx": 137.876712,
+            "margin": 0.09589041,
+            "fee": 0
+          },
+          "cost": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 66,
+            "fx": 152.5,
+            "fee": 0,
+            "feePct": 0,
+            "discount": 0.09589041
+          },
+          "durationDays": 0,
+          "dataGB": 0,
+          "dataUnlimited": false,
+          "smsNumber": 0,
+          "smsUnlimited": false,
+          "voiceMinutes": 0,
+          "voiceUnlimited": false,
+          "createdAt": "2026-05-19T14:23:34.578Z",
+          "updatedAt": "2026-08-22T00:00:00Z"
+        },
+        {
+          "enabled": true,
+          "offerId": "OOREDOO_DZ_02",
+          "country": "DZ",
+          "regions": [
+            "Middle East and North Africa"
+          ],
+          "brand": "OOREDOO",
+          "brandName": "OOREDOO",
+          "productType": "TOPUP",
+          "subTypes": [
+            "Mobile Top Up"
+          ],
+          "notes": "",
+          "shortNotes": "",
+          "priceType": "FIXED",
+          "send": {
+            "currency": "DZD",
+            "currencyDivisor": 100,
+            "fixed": 19965,
+            "fx": 1
+          },
+          "price": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 146,
+            "suggestedFixed": 146,
+            "fx": 136.746575,
+            "suggestedFx": 136.746575,
+            "margin": 0.10958904,
+            "fee": 0
+          },
+          "cost": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 130,
+            "fx": 153.57692308,
+            "fee": 0,
+            "feePct": 0,
+            "discount": 0.10958904
+          },
+          "durationDays": 0,
+          "dataGB": 0,
+          "dataUnlimited": false,
+          "smsNumber": 0,
+          "smsUnlimited": false,
+          "voiceMinutes": 0,
+          "voiceUnlimited": false,
+          "createdAt": "2026-05-19T14:23:34.578Z",
+          "updatedAt": "2026-08-22T00:00:00Z"
+        },
+        {
+          "enabled": true,
+          "offerId": "OOREDOO_DZ_03",
+          "country": "DZ",
+          "regions": [
+            "Middle East and North Africa"
+          ],
+          "brand": "OOREDOO",
+          "brandName": "OOREDOO",
+          "productType": "TOPUP",
+          "subTypes": [
+            "Mobile Top Up"
+          ],
+          "notes": "",
+          "shortNotes": "",
+          "priceType": "FIXED",
+          "send": {
+            "currency": "DZD",
+            "currencyDivisor": 100,
+            "fixed": 30030,
+            "fx": 1
+          },
+          "price": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 219,
+            "suggestedFixed": 219,
+            "fx": 137.123288,
+            "suggestedFx": 137.123288,
+            "margin": 0.10502283,
+            "fee": 0
+          },
+          "cost": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 196,
+            "fx": 153.21428571,
+            "fee": 0,
+            "feePct": 0,
+            "discount": 0.10502283
+          },
+          "durationDays": 0,
+          "dataGB": 0,
+          "dataUnlimited": false,
+          "smsNumber": 0,
+          "smsUnlimited": false,
+          "voiceMinutes": 0,
+          "voiceUnlimited": false,
+          "createdAt": "2026-05-19T14:23:34.578Z",
+          "updatedAt": "2026-08-22T00:00:00Z"
+        },
+        {
+          "enabled": true,
+          "offerId": "OOREDOO_DZ_04",
+          "country": "DZ",
+          "regions": [
+            "Middle East and North Africa"
+          ],
+          "brand": "OOREDOO",
+          "brandName": "OOREDOO",
+          "productType": "TOPUP",
+          "subTypes": [
+            "Mobile Top Up"
+          ],
+          "notes": "",
+          "shortNotes": "",
+          "priceType": "FIXED",
+          "send": {
+            "currency": "DZD",
+            "currencyDivisor": 100,
+            "fixed": 199980,
+            "fx": 1
+          },
+          "price": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 1460,
+            "suggestedFixed": 1460,
+            "fx": 136.972603,
+            "suggestedFx": 136.972603,
+            "margin": 0.10753425,
+            "fee": 0
+          },
+          "cost": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 1303,
+            "fx": 153.47659248,
+            "fee": 0,
+            "feePct": 0,
+            "discount": 0.10753425
+          },
+          "durationDays": 0,
+          "dataGB": 0,
+          "dataUnlimited": false,
+          "smsNumber": 0,
+          "smsUnlimited": false,
+          "voiceMinutes": 0,
+          "voiceUnlimited": false,
+          "createdAt": "2026-05-19T14:23:34.578Z",
+          "updatedAt": "2026-08-22T00:00:00Z"
+        },
+        {
+          "enabled": true,
+          "offerId": "OOREDOO_DZ_05",
+          "country": "DZ",
+          "regions": [
+            "Middle East and North Africa"
+          ],
+          "brand": "OOREDOO",
+          "brandName": "OOREDOO",
+          "productType": "TOPUP",
+          "subTypes": [
+            "Mobile Top Up"
+          ],
+          "notes": "",
+          "shortNotes": "",
+          "priceType": "FIXED",
+          "send": {
+            "currency": "DZD",
+            "currencyDivisor": 100,
+            "fixed": 37455,
+            "fx": 1
+          },
+          "price": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 273,
+            "suggestedFixed": 273,
+            "fx": 137.197802,
+            "suggestedFx": 137.197802,
+            "margin": 0.10622711,
+            "fee": 0
+          },
+          "cost": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 244,
+            "fx": 153.50409836,
+            "fee": 0,
+            "feePct": 0,
+            "discount": 0.10622711
+          },
+          "durationDays": 0,
+          "dataGB": 0,
+          "dataUnlimited": false,
+          "smsNumber": 0,
+          "smsUnlimited": false,
+          "voiceMinutes": 0,
+          "voiceUnlimited": false,
+          "createdAt": "2026-05-19T14:23:34.578Z",
+          "updatedAt": "2026-08-22T00:00:00Z"
+        },
+        {
+          "enabled": true,
+          "offerId": "OOREDOO_DZ_06",
+          "country": "DZ",
+          "regions": [
+            "Middle East and North Africa"
+          ],
+          "brand": "OOREDOO",
+          "brandName": "OOREDOO",
+          "productType": "TOPUP",
+          "subTypes": [
+            "Mobile Top Up"
+          ],
+          "notes": "",
+          "shortNotes": "",
+          "priceType": "FIXED",
+          "send": {
+            "currency": "DZD",
+            "currencyDivisor": 100,
+            "fixed": 39930,
+            "fx": 1
+          },
+          "price": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 292,
+            "suggestedFixed": 292,
+            "fx": 136.746575,
+            "suggestedFx": 136.746575,
+            "margin": 0.10958904,
+            "fee": 0
+          },
+          "cost": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 260,
+            "fx": 153.57692308,
+            "fee": 0,
+            "feePct": 0,
+            "discount": 0.10958904
+          },
+          "durationDays": 0,
+          "dataGB": 0,
+          "dataUnlimited": false,
+          "smsNumber": 0,
+          "smsUnlimited": false,
+          "voiceMinutes": 0,
+          "voiceUnlimited": false,
+          "createdAt": "2026-05-19T14:23:34.578Z",
+          "updatedAt": "2026-08-22T00:00:00Z"
+        },
+        {
+          "enabled": true,
+          "offerId": "OOREDOO_DZ_07",
+          "country": "DZ",
+          "regions": [
+            "Middle East and North Africa"
+          ],
+          "brand": "OOREDOO",
+          "brandName": "OOREDOO",
+          "productType": "TOPUP",
+          "subTypes": [
+            "Mobile Top Up"
+          ],
+          "notes": "",
+          "shortNotes": "",
+          "priceType": "FIXED",
+          "send": {
+            "currency": "DZD",
+            "currencyDivisor": 100,
+            "fixed": 49995,
+            "fx": 1
+          },
+          "price": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 365,
+            "suggestedFixed": 365,
+            "fx": 136.972603,
+            "suggestedFx": 136.972603,
+            "margin": 0.10684932,
+            "fee": 0
+          },
+          "cost": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 326,
+            "fx": 153.35889571,
+            "fee": 0,
+            "feePct": 0,
+            "discount": 0.10684932
+          },
+          "durationDays": 0,
+          "dataGB": 0,
+          "dataUnlimited": false,
+          "smsNumber": 0,
+          "smsUnlimited": false,
+          "voiceMinutes": 0,
+          "voiceUnlimited": false,
+          "createdAt": "2026-05-19T14:23:34.578Z",
+          "updatedAt": "2026-08-22T00:00:00Z"
+        },
+        {
+          "enabled": true,
+          "offerId": "OOREDOO_DZ_08",
+          "country": "DZ",
+          "regions": [
+            "Middle East and North Africa"
+          ],
+          "brand": "OOREDOO",
+          "brandName": "OOREDOO",
+          "productType": "TOPUP",
+          "subTypes": [
+            "Mobile Top Up"
+          ],
+          "notes": "",
+          "shortNotes": "",
+          "priceType": "FIXED",
+          "send": {
+            "currency": "DZD",
+            "currencyDivisor": 100,
+            "fixed": 75075,
+            "fx": 1
+          },
+          "price": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 548,
+            "suggestedFixed": 548,
+            "fx": 136.998175,
+            "suggestedFx": 136.998175,
+            "margin": 0.10766423,
+            "fee": 0
+          },
+          "cost": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 489,
+            "fx": 153.52760736,
+            "fee": 0,
+            "feePct": 0,
+            "discount": 0.10766423
+          },
+          "durationDays": 0,
+          "dataGB": 0,
+          "dataUnlimited": false,
+          "smsNumber": 0,
+          "smsUnlimited": false,
+          "voiceMinutes": 0,
+          "voiceUnlimited": false,
+          "createdAt": "2026-05-19T14:23:34.578Z",
+          "updatedAt": "2026-08-22T00:00:00Z"
+        },
+        {
+          "enabled": true,
+          "offerId": "OOREDOO_DZ_09",
+          "country": "DZ",
+          "regions": [
+            "Middle East and North Africa"
+          ],
+          "brand": "OOREDOO",
+          "brandName": "OOREDOO",
+          "productType": "TOPUP",
+          "subTypes": [
+            "Mobile Top Up"
+          ],
+          "notes": "",
+          "shortNotes": "",
+          "priceType": "FIXED",
+          "send": {
+            "currency": "DZD",
+            "currencyDivisor": 100,
+            "fixed": 99990,
+            "fx": 1
+          },
+          "price": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 730,
+            "suggestedFixed": 730,
+            "fx": 136.972603,
+            "suggestedFx": 136.972603,
+            "margin": 0.10684932,
+            "fee": 0
+          },
+          "cost": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 652,
+            "fx": 153.35889571,
+            "fee": 0,
+            "feePct": 0,
+            "discount": 0.10684932
+          },
+          "durationDays": 0,
+          "dataGB": 0,
+          "dataUnlimited": false,
+          "smsNumber": 0,
+          "smsUnlimited": false,
+          "voiceMinutes": 0,
+          "voiceUnlimited": false,
+          "createdAt": "2026-05-19T14:23:34.578Z",
+          "updatedAt": "2026-08-22T00:00:00Z"
+        },
+        {
+          "enabled": true,
+          "offerId": "OOREDOO_DZ_10",
+          "country": "DZ",
+          "regions": [
+            "Middle East and North Africa"
+          ],
+          "brand": "OOREDOO",
+          "brandName": "OOREDOO",
+          "productType": "TOPUP",
+          "subTypes": [
+            "Mobile Top Up"
+          ],
+          "notes": "",
+          "shortNotes": "",
+          "priceType": "FIXED",
+          "send": {
+            "currency": "DZD",
+            "currencyDivisor": 100,
+            "fixed": 149985,
+            "fx": 1
+          },
+          "price": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 1062,
+            "suggestedFixed": 1062,
+            "fx": 141.228814,
+            "suggestedFx": 141.228814,
+            "margin": 0.10734463,
+            "fee": 0
+          },
+          "cost": {
+            "currency": "USD",
+            "currencyDivisor": 100,
+            "fixed": 948,
+            "fx": 158.21202532,
+            "fee": 0,
+            "feePct": 0,
+            "discount": 0.10734463
+          },
+          "durationDays": 0,
+          "dataGB": 0,
+          "dataUnlimited": false,
+          "smsNumber": 0,
+          "smsUnlimited": false,
+          "voiceMinutes": 0,
+          "voiceUnlimited": false,
+          "createdAt": "2026-05-19T14:23:34.578Z",
+          "updatedAt": "2026-08-22T00:00:00Z"
+        }
+      ]
+    }
+  },
+  "ding": {
+    "providerProducts": {
+      "MDDZ": {
+        "ResultCode": 3,
+        "ErrorCodes": [
+          {
+            "Code": "RateLimited"
+          }
+        ],
+        "Items": []
+      },
+      "DJDZ": {
+        "ResultCode": 3,
+        "ErrorCodes": [
+          {
+            "Code": "RateLimited"
+          }
+        ],
+        "Items": []
+      },
+      "OODZ": {
+        "ResultCode": 3,
+        "ErrorCodes": [
+          {
+            "Code": "RateLimited"
+          }
+        ],
+        "Items": []
+      }
+    }
+  }
+}

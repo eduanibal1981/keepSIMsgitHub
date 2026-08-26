@@ -1,11 +1,17 @@
-require('dotenv').config({ path: require('path').join(__dirname, '.env') });
+try { require('dotenv').config({ path: require('path').join(__dirname, '.env') }); } catch (_) {}
+
+const {
+    normalizeZenditEsimOffer,
+    fetchEsimCatalog: fetchZenditEsimApi,
+} = require('./providers/zendit');
+
+const {
+    normalizeEsimAccessOffer,
+    fetchEsimCatalog: fetchEsimAccessApi,
+} = require('./providers/esimaccess');
 
 const REFRESH_INTERVAL_MS = parseInt(process.env.ESIM_CATALOG_REFRESH_MS) || 6 * 60 * 60 * 1000; // 6 hours
 
-// eSIM Go pages the catalogue. The previous version of this worker issued one
-// unparameterised GET and kept whatever came back, which was page 1 of 28 —
-// 50 bundles out of 5,412, alphabetically truncated at DK. That is why the app
-// offered eSIMs in four countries when the supplier sells in 220.
 const CATALOG_PAGE_SIZE = parseInt(process.env.ESIM_CATALOG_PAGE_SIZE) || 200;
 const CATALOG_MAX_PAGES = parseInt(process.env.ESIM_CATALOG_MAX_PAGES) || 200; // runaway guard
 
@@ -14,9 +20,13 @@ const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const esimGoApiKey = process.env.ESIM_GO_API_KEY;
 const esimGoBaseUrl = process.env.ESIM_GO_BASE_URL || 'https://api.esim-go.com/v2.5';
 
-// eSIM Go grades unlimited bundles by throughput and sells the same
-// country/duration at three prices because of it. Comparing them on price
-// alone ranks a throttled plan above a full-speed one and calls it better.
+const zenditApiSecret = process.env.ZENDIT_API_SECRET;
+const zenditBaseUrl = process.env.ZENDIT_BASE_URL || 'https://api.zendit.io/v1';
+
+const esimAccessAccessCode = process.env.ESIM_ACCESS_ACCESS_CODE;
+const esimAccessSecretKey = process.env.ESIM_ACCESS_SECRET_KEY;
+const esimAccessBaseUrl = process.env.ESIM_ACCESS_BASE_URL || 'https://api.esimaccess.com/api/v1/open';
+
 const SPEED_TIER_BY_GROUP = {
     'Standard Fixed': 'fixed',
     'Standard Unlimited Lite': 'lite',
@@ -41,19 +51,12 @@ function esimCatalogRow(bundle, provider = 'esim_go') {
     const roamingEnabled = extractCountries(bundle.roamingEnabled);
     const allCountries = Array.from(new Set([...countries, ...roamingEnabled]));
 
-    // `unlimited: true` arrives with `dataAmount: -1`. Storing -1 would leave
-    // every $/GB and "how much data" calculation downstream to remember that
-    // one supplier's sentinel, so the flag carries the meaning and the number
-    // is normalised to 0.
     const rawData = parseInt(bundle.dataAmount);
     const isUnlimited = bundle.unlimited === true || (Number.isFinite(rawData) && rawData < 0);
     const dataAmountMb = isUnlimited ? 0 : (Number.isFinite(rawData) && rawData > 0 ? rawData : 0);
 
     const groups = Array.isArray(bundle.groups) ? bundle.groups : [];
     const bundleGroup = groups.length > 0 ? String(groups[0]) : null;
-    // Unknown group -> NULL, never a guessed tier. The column's CHECK would
-    // reject an invented value anyway, and a wrong tier is a false claim about
-    // speed the user paid for.
     const speedTier = bundleGroup ? (SPEED_TIER_BY_GROUP[bundleGroup] || null) : null;
 
     const firstWithRegion = (Array.isArray(bundle.countries) ? bundle.countries : [])
@@ -74,22 +77,18 @@ function esimCatalogRow(bundle, provider = 'esim_go') {
         bundle_group: bundleGroup,
         speed_tier: speedTier,
         region: region,
+        country_count: allCountries.length,
         is_active: true,
         updated_at: new Date().toISOString(),
     };
 }
 
 /**
- * Walks every page of the catalogue.
- *
- * Returns `{ bundles, complete }`. `complete` is false if any page failed, and
- * the caller MUST NOT treat an incomplete result as the full catalogue — the
- * retirement sweep below deactivates anything it did not see, so a half-read
- * catalogue would take most of the shop offline.
+ * Walks every page of the eSIM Go catalogue.
  */
 async function fetchEsimGoCatalogue() {
     if (!esimGoApiKey) {
-        console.warn('[worker_esim_catalog] ESIM_GO_API_KEY is not set in servers/.env. Skipping catalogue fetch.');
+        console.warn('[worker_esim_catalog] ESIM_GO_API_KEY is not set in servers/.env. Skipping eSIM Go catalogue fetch.');
         return { bundles: [], complete: false };
     }
 
@@ -115,8 +114,6 @@ async function fetchEsimGoCatalogue() {
         const batch = json.bundles || [];
         bundles.push(...batch);
 
-        // Trust the server's page count, but stop early on an empty page so a
-        // wrong pageCount cannot spin us to CATALOG_MAX_PAGES.
         pageCount = parseInt(json.pageCount) || 1;
         if (batch.length === 0) break;
         page++;
@@ -130,29 +127,60 @@ async function fetchEsimGoCatalogue() {
     return { bundles, complete: true };
 }
 
-let isRefreshing = false;
-
-async function refreshEsimCatalog() {
-    if (isRefreshing) return;
-    if (!supabaseUrl || !supabaseKey) {
-        console.error('[worker_esim_catalog] Error: SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set in servers/.env');
-        return;
+/**
+ * Walks every page of the Zendit eSIM catalogue.
+ */
+async function fetchZenditCatalogue() {
+    if (!zenditApiSecret) {
+        console.warn('[worker_esim_catalog] ZENDIT_API_SECRET is not set in servers/.env. Skipping Zendit catalogue fetch.');
+        return { offers: [], complete: false };
     }
 
-    isRefreshing = true;
-    const startedAt = Date.now();
-    const syncStartedIso = new Date().toISOString();
-    console.log('[worker_esim_catalog] Starting eSIM catalog refresh...');
+    const { offers, complete } = await fetchZenditEsimApi({
+        baseUrl: zenditBaseUrl,
+        apiSecret: zenditApiSecret,
+        limit: 100,
+        maxPages: CATALOG_MAX_PAGES,
+    });
 
-    const { createClient } = require('@supabase/supabase-js');
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    return { offers, complete };
+}
+
+/**
+ * Fetches every package from the eSIM Access catalogue.
+ */
+async function fetchEsimAccessCatalogue() {
+    if (!esimAccessAccessCode) {
+        console.warn('[worker_esim_catalog] ESIM_ACCESS_ACCESS_CODE is not set in servers/.env. Skipping eSIM Access catalogue fetch.');
+        return { offers: [], complete: false };
+    }
+
+    const { offers, complete } = await fetchEsimAccessApi({
+        baseUrl: esimAccessBaseUrl,
+        accessCode: esimAccessAccessCode,
+        secretKey: esimAccessSecretKey,
+    });
+
+    return { offers, complete };
+}
+
+let isRefreshing = false;
+
+async function syncSupplierCatalog(supabase, {
+    providerCode,
+    fetchFn,
+    mapRowFn,
+    syncStartedIso,
+}) {
+    const startedAt = Date.now();
+    console.log(`[worker_esim_catalog] Starting ${providerCode} catalog sync...`);
 
     try {
-        const { bundles: rawBundles, complete } = await fetchEsimGoCatalogue();
-        console.log(`[worker_esim_catalog] Fetched ${rawBundles.length} raw bundles from eSIM Go (complete=${complete}).`);
+        const { items, complete } = await fetchFn();
+        console.log(`[worker_esim_catalog] Fetched ${items.length} raw offers from ${providerCode} (complete=${complete}).`);
 
-        const rows = rawBundles
-            .map(b => esimCatalogRow(b, 'esim_go'))
+        const rows = items
+            .map(item => mapRowFn(item))
             .filter(r => r !== null && r.bundle_name && r.wholesale_price_usd > 0);
 
         if (rows.length > 0) {
@@ -164,36 +192,45 @@ async function refreshEsimCatalog() {
                     .upsert(chunk, { onConflict: 'provider, bundle_name' });
 
                 if (upsertError) {
-                    throw new Error(`Upsert chunk failed: ${upsertError.message}`);
+                    throw new Error(`Upsert chunk failed for ${providerCode}: ${upsertError.message}`);
                 }
             }
-            console.log(`[worker_esim_catalog] Upserted ${rows.length} eSIM offers.`);
+            console.log(`[worker_esim_catalog] Upserted ${rows.length} ${providerCode} eSIM offers.`);
         }
 
-        // ── Retirement sweep ────────────────────────────────────────────────
-        // Upsert alone can only ever add. A bundle eSIM Go withdraws would stay
-        // purchasable forever, and the first the buyer hears of it is a failed
-        // fulfilment after their wallet was debited.
-        //
-        // Gated on BOTH a complete walk and a non-empty result. Either alone is
-        // not enough: `complete` is true for a successful fetch that happens to
-        // return nothing, and that would retire the entire catalogue.
+        // Retirement sweep
         if (complete && rows.length > 0) {
             const { data: retired, error: retireError } = await supabase
                 .from('esim_offers_cache')
                 .update({ is_active: false, updated_at: new Date().toISOString() })
-                .eq('provider', 'esim_go')
+                .eq('provider', providerCode)
                 .eq('is_active', true)
                 .lt('updated_at', syncStartedIso)
                 .select('bundle_name');
 
             if (retireError) {
-                console.error(`[worker_esim_catalog] Retirement sweep failed: ${retireError.message}`);
+                console.error(`[worker_esim_catalog] Retirement sweep failed for ${providerCode}: ${retireError.message}`);
             } else if (retired && retired.length > 0) {
-                console.log(`[worker_esim_catalog] Retired ${retired.length} bundles no longer offered by eSIM Go.`);
+                console.log(`[worker_esim_catalog] Retired ${retired.length} bundles no longer offered by ${providerCode}.`);
             }
         } else if (!complete) {
-            console.warn('[worker_esim_catalog] Incomplete fetch — skipping retirement sweep so a partial read cannot take the catalogue offline.');
+            console.warn(`[worker_esim_catalog] Incomplete fetch for ${providerCode} — skipping retirement sweep.`);
+        }
+
+        // Derive supported countries list for the supplier
+        const { data: distinctCountries } = await supabase
+            .from('esim_offers_cache')
+            .select('countries')
+            .eq('provider', providerCode)
+            .eq('is_active', true);
+
+        const countrySet = new Set();
+        if (Array.isArray(distinctCountries)) {
+            for (const row of distinctCountries) {
+                if (Array.isArray(row.countries)) {
+                    for (const c of row.countries) countrySet.add(c);
+                }
+            }
         }
 
         await supabase.from('esim_suppliers').update({
@@ -201,18 +238,74 @@ async function refreshEsimCatalog() {
             last_sync_status: complete ? 'ok' : 'partial',
             last_sync_count: rows.length,
             last_sync_error: null,
-        }).eq('code', 'esim_go');
+            countries_supported: Array.from(countrySet).sort(),
+        }).eq('code', providerCode);
 
-        console.log(`[worker_esim_catalog] Refresh cycle complete in ${Date.now() - startedAt}ms.`);
+        console.log(`[worker_esim_catalog] ${providerCode} sync complete in ${Date.now() - startedAt}ms.`);
     } catch (err) {
-        console.error(`[worker_esim_catalog] Refresh failed: ${err.message}`);
+        console.error(`[worker_esim_catalog] ${providerCode} sync failed: ${err.message}`);
         try {
             await supabase.from('esim_suppliers').update({
                 last_sync_at: new Date().toISOString(),
                 last_sync_status: 'error',
                 last_sync_error: String(err.message).slice(0, 500),
-            }).eq('code', 'esim_go');
-        } catch (_) { /* status reporting must never mask the original failure */ }
+            }).eq('code', providerCode);
+        } catch (_) { /* ignore */ }
+    }
+}
+
+async function refreshEsimCatalog() {
+    if (isRefreshing) return;
+    if (!supabaseUrl || !supabaseKey) {
+        console.error('[worker_esim_catalog] Error: SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set in servers/.env');
+        return;
+    }
+
+    isRefreshing = true;
+    const startedAt = Date.now();
+    const syncStartedIso = new Date().toISOString();
+    console.log('[worker_esim_catalog] Starting unified eSIM catalog refresh...');
+
+    const { createClient } = require('@supabase/supabase-js');
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    try {
+        // 1. Sync eSIM Go
+        await syncSupplierCatalog(supabase, {
+            providerCode: 'esim_go',
+            fetchFn: async () => {
+                const { bundles, complete } = await fetchEsimGoCatalogue();
+                return { items: bundles, complete };
+            },
+            mapRowFn: (b) => esimCatalogRow(b, 'esim_go'),
+            syncStartedIso,
+        });
+
+        // 2. Sync Zendit
+        await syncSupplierCatalog(supabase, {
+            providerCode: 'zendit',
+            fetchFn: async () => {
+                const { offers, complete } = await fetchZenditCatalogue();
+                return { items: offers, complete };
+            },
+            mapRowFn: (o) => normalizeZenditEsimOffer(o),
+            syncStartedIso,
+        });
+
+        // 3. Sync eSIM Access
+        await syncSupplierCatalog(supabase, {
+            providerCode: 'esimaccess',
+            fetchFn: async () => {
+                const { offers, complete } = await fetchEsimAccessCatalogue();
+                return { items: offers, complete };
+            },
+            mapRowFn: (pkg) => normalizeEsimAccessOffer(pkg),
+            syncStartedIso,
+        });
+
+        console.log(`[worker_esim_catalog] Unified refresh cycle complete in ${Date.now() - startedAt}ms.`);
+    } catch (err) {
+        console.error(`[worker_esim_catalog] Unified refresh cycle exception: ${err.message}`);
     } finally {
         isRefreshing = false;
     }
@@ -228,5 +321,8 @@ if (require.main === module) {
 module.exports = {
     esimCatalogRow,
     fetchEsimGoCatalogue,
+    fetchZenditCatalogue,
+    fetchEsimAccessCatalogue,
     refreshEsimCatalog,
+    syncSupplierCatalog,
 };

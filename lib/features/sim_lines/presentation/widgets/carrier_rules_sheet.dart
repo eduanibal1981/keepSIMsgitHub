@@ -114,19 +114,40 @@ class CarrierRulesSheet extends ConsumerWidget {
               ),
             ),
 
-            Text(
-              l10n.carrierRulesSheetTitle,
-              style: AppTextStyles.headlineMedium.copyWith(
-                color: context.onSurfaceColor,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              countryName == null ? operator : '$operator · $countryName',
-              style: AppTextStyles.bodySmall.copyWith(
-                color: context.onSurfaceColor.withValues(alpha: 0.5),
-              ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.carrierRulesSheetTitle,
+                        style: AppTextStyles.headlineMedium.copyWith(
+                          color: context.onSurfaceColor,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        countryName == null
+                            ? operator
+                            : '$operator · $countryName',
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: context.onSurfaceColor.withValues(alpha: 0.5),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close_rounded),
+                  color: context.onSurfaceColor.withValues(alpha: 0.6),
+                  onPressed: () => Navigator.pop(context),
+                  tooltip: l10n.close,
+                  visualDensity: VisualDensity.compact,
+                ),
+              ],
             ),
             const SizedBox(height: 20),
 

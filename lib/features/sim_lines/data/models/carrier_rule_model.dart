@@ -65,6 +65,11 @@ abstract class CarrierRule with _$CarrierRule {
     @JsonKey(name: 'balance_validity_days') int? balanceValidityDays,
     @JsonKey(name: 'refill_interval_days_override') int? refillIntervalDaysOverride,
     @JsonKey(name: 'rule_source_url') String? ruleSourceUrl,
+    @JsonKey(name: 'sms_sender_ids') List<String>? smsSenderIds,
+    @JsonKey(name: 'sms_balance_regex') String? smsBalanceRegex,
+    @JsonKey(name: 'sms_expiry_regex') String? smsExpiryRegex,
+    @JsonKey(name: 'sms_keywords') List<String>? smsKeywords,
+    @JsonKey(name: 'sms_language') @Default('auto') String smsLanguage,
   }) = _CarrierRule;
 
   factory CarrierRule.fromJson(Map<String, dynamic> json) =>

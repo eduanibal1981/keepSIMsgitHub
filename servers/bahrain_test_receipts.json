@@ -1,0 +1,331 @@
+{
+  "timestamp": "2026-08-22T22:29:42.888Z",
+  "dtone": [
+    {
+      "carrier": "Batelco",
+      "name": "Batelco 2.25 BHD PIN",
+      "productId": 56728,
+      "recipient": "+97339000101",
+      "httpStatus": 201,
+      "response": {
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 2.25,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 2.25,
+              "total_including_tax": 2
+            },
+            "type": "CREDITS",
+            "unit": "BHD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "confirmation_date": "2026-08-22T22:29:41.412982000Z",
+        "confirmation_expiration_date": "2026-08-22T23:29:41.374777000Z",
+        "creation_date": "2026-08-22T22:29:41.374777000Z",
+        "credit_party_identifier": {
+          "mobile_number": "+97339000101"
+        },
+        "external_id": "dt_bh_test_1787437782894_56728",
+        "id": 2240793389,
+        "prices": {
+          "retail": {
+            "amount": 3.296,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 2.866,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "product": {
+          "description": "2.25 BHD PIN",
+          "id": 56728,
+          "name": "2.25 BHD PIN",
+          "operator": {
+            "country": {
+              "iso_code": "BHR",
+              "name": "Bahrain",
+              "regions": [
+                {
+                  "code": "BHR",
+                  "name": "Bahrain"
+                }
+              ]
+            },
+            "id": 1828,
+            "name": "Batelco PIN Bahrain",
+            "regions": null
+          },
+          "pin": {
+            "terms": null,
+            "usage_info": [
+              "To refill your account: *125*PIN# Send Or call 111 and follow voice instructions",
+              "For balance enquiry and account deactivation date: *122# Send",
+              " For assistance, please call Batelco on 196",
+              "IVR: 111"
+            ],
+            "validity": {
+              "quantity": 365,
+              "unit": "DAY"
+            }
+          },
+          "regions": null,
+          "service": {
+            "id": 1,
+            "name": "Mobile",
+            "subservice": {
+              "id": 11,
+              "name": "Airtime"
+            }
+          },
+          "tags": [
+            "AIRTIME"
+          ],
+          "type": "FIXED_VALUE_PIN_PURCHASE"
+        },
+        "promotions": null,
+        "rates": {
+          "base": 0.78506629448709,
+          "retail": 0.682645631067961,
+          "wholesale": 0.78506629448709
+        },
+        "status": {
+          "class": {
+            "id": 2,
+            "message": "CONFIRMED"
+          },
+          "id": 20000,
+          "message": "CONFIRMED"
+        }
+      }
+    },
+    {
+      "carrier": "Zain Bahrain",
+      "name": "Zain 1 BHD Airtime",
+      "productId": 58111,
+      "recipient": "+97336000101",
+      "httpStatus": 201,
+      "response": {
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 1,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 1,
+              "total_including_tax": 0.9
+            },
+            "type": "CREDITS",
+            "unit": "BHD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "confirmation_date": "2026-08-22T22:29:43.151827000Z",
+        "confirmation_expiration_date": "2026-08-22T23:29:43.125387000Z",
+        "creation_date": "2026-08-22T22:29:43.125387000Z",
+        "credit_party_identifier": {
+          "mobile_number": "+97336000101"
+        },
+        "external_id": "dt_bh_test_1787437784933_58111",
+        "id": 2240793390,
+        "prices": {
+          "retail": {
+            "amount": 1.466,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 1.274,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "product": {
+          "description": "",
+          "id": 58111,
+          "name": "1 BHD",
+          "operator": {
+            "country": {
+              "iso_code": "BHR",
+              "name": "Bahrain",
+              "regions": [
+                {
+                  "code": "BHR",
+                  "name": "Bahrain"
+                }
+              ]
+            },
+            "id": 1829,
+            "name": "Zain Bahrain",
+            "regions": null
+          },
+          "regions": null,
+          "service": {
+            "id": 1,
+            "name": "Mobile",
+            "subservice": {
+              "id": 11,
+              "name": "Airtime"
+            }
+          },
+          "tags": [
+            "AIRTIME"
+          ],
+          "type": "FIXED_VALUE_RECHARGE"
+        },
+        "promotions": null,
+        "rates": {
+          "base": 0.784929356357928,
+          "retail": 0.682128240109141,
+          "wholesale": 0.784929356357928
+        },
+        "status": {
+          "class": {
+            "id": 2,
+            "message": "CONFIRMED"
+          },
+          "id": 20000,
+          "message": "CONFIRMED"
+        }
+      }
+    }
+  ],
+  "reloadly": [
+    {
+      "carrier": "Batelco",
+      "name": "Batelco PIN ($3.05 USD)",
+      "operatorId": 22,
+      "recipient": "+97339000101",
+      "httpStatus": 200,
+      "response": {
+        "transactionId": 178437,
+        "status": "SUCCESSFUL",
+        "operatorTransactionId": null,
+        "customIdentifier": "rl_bh_test_1787437787407_22",
+        "recipientPhone": "97339000101",
+        "recipientEmail": null,
+        "senderPhone": null,
+        "countryCode": "BH",
+        "operatorId": 22,
+        "operatorName": "Batelco PIN Bahrain",
+        "discount": 0.06,
+        "discountCurrencyCode": "USD",
+        "requestedAmount": 3.05,
+        "requestedAmountCurrencyCode": "USD",
+        "deliveredAmount": 1.15,
+        "deliveredAmountCurrencyCode": "BHD",
+        "transactionDate": "2026-08-22 22:29:46",
+        "pinDetail": {
+          "serial": "581994",
+          "info1": "DIAL *611",
+          "info2": "DIAL *611",
+          "info3": "Dial *233* and PIN #",
+          "value": null,
+          "code": "773709732564404",
+          "ivr": "1-888-888-8888",
+          "validity": "90 days"
+        },
+        "fee": 0,
+        "balanceInfo": {
+          "oldBalance": 889.4234,
+          "newBalance": 886.4344,
+          "cost": 2.989,
+          "currencyCode": "USD",
+          "currencyName": "US Dollar",
+          "updatedAt": "2026-08-22 22:29:45"
+        }
+      }
+    },
+    {
+      "carrier": "Zain Bahrain",
+      "name": "Zain Direct Airtime ($1.55 USD)",
+      "operatorId": 1165,
+      "recipient": "+97336000101",
+      "httpStatus": 200,
+      "response": {
+        "transactionId": 178439,
+        "status": "SUCCESSFUL",
+        "operatorTransactionId": null,
+        "customIdentifier": "rl_bh_test_1787437789851_1165",
+        "recipientPhone": "97336000101",
+        "recipientEmail": null,
+        "senderPhone": null,
+        "countryCode": "BH",
+        "operatorId": 1165,
+        "operatorName": "Zain Bahrain",
+        "discount": 0,
+        "discountCurrencyCode": "USD",
+        "requestedAmount": 1.55,
+        "requestedAmountCurrencyCode": "USD",
+        "deliveredAmount": 0.58,
+        "deliveredAmountCurrencyCode": "BHD",
+        "transactionDate": "2026-08-22 22:29:48",
+        "pinDetail": null,
+        "fee": 0,
+        "balanceInfo": {
+          "oldBalance": 880.7344,
+          "newBalance": 879.1844,
+          "cost": 1.55,
+          "currencyCode": "USD",
+          "currencyName": "US Dollar",
+          "updatedAt": "2026-08-22 22:29:47"
+        }
+      }
+    }
+  ],
+  "zendit": [
+    {
+      "status": "checked",
+      "total": 0,
+      "data": {
+        "total": 0,
+        "limit": 100,
+        "offset": 0,
+        "list": []
+      }
+    }
+  ],
+  "ding": [
+    {
+      "status": "providers_mapped",
+      "items": [
+        {
+          "ProviderCode": "BVBH",
+          "CountryIso": "BH",
+          "Name": "Batelco Bahrain",
+          "ValidationRegex": "^973[0-9]{7,8}$|^0000000000$",
+          "RegionCodes": [
+            "BH"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/BV/BH.png"
+        },
+        {
+          "ProviderCode": "ZABH",
+          "CountryIso": "BH",
+          "Name": "Zain Bahrain",
+          "ValidationRegex": "^973[0-9]{7,8}$",
+          "CustomerCareNumber": "+00973 37797995",
+          "RegionCodes": [
+            "BH"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/ZA/BH.png"
+        }
+      ]
+    }
+  ]
+}

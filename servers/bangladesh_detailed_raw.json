@@ -1,0 +1,6436 @@
+{
+  "dtone": {
+    "operators": [
+      {
+        "country": {
+          "iso_code": "BGD",
+          "name": "Bangladesh",
+          "regions": [
+            {
+              "code": "BGD",
+              "name": "Bangladesh"
+            }
+          ]
+        },
+        "id": 249,
+        "name": "GrameenPhone Bangladesh",
+        "regions": null
+      },
+      {
+        "country": {
+          "iso_code": "BGD",
+          "name": "Bangladesh",
+          "regions": [
+            {
+              "code": "BGD",
+              "name": "Bangladesh"
+            }
+          ]
+        },
+        "id": 1446,
+        "name": "Robi Bangladesh",
+        "regions": null
+      },
+      {
+        "country": {
+          "iso_code": "BGD",
+          "name": "Bangladesh",
+          "regions": [
+            {
+              "code": "BGD",
+              "name": "Bangladesh"
+            }
+          ]
+        },
+        "id": 1447,
+        "name": "Banglalink Bangladesh",
+        "regions": null
+      },
+      {
+        "country": {
+          "iso_code": "BGD",
+          "name": "Bangladesh",
+          "regions": [
+            {
+              "code": "BGD",
+              "name": "Bangladesh"
+            }
+          ]
+        },
+        "id": 1448,
+        "name": "Teletalk Bangladesh",
+        "regions": null
+      },
+      {
+        "country": {
+          "iso_code": "BGD",
+          "name": "Bangladesh",
+          "regions": [
+            {
+              "code": "BGD",
+              "name": "Bangladesh"
+            }
+          ]
+        },
+        "id": 1449,
+        "name": "Airtel Bangladesh",
+        "regions": null
+      }
+    ]
+  },
+  "reloadly": {
+    "operators": [
+      {
+        "id": 26,
+        "operatorId": 26,
+        "name": "Airtel Bangladesh",
+        "bundle": false,
+        "data": false,
+        "pin": false,
+        "comboProduct": false,
+        "supportsLocalAmounts": true,
+        "supportsGeographicalRechargePlans": false,
+        "denominationType": "RANGE",
+        "senderCurrencyCode": "USD",
+        "senderCurrencySymbol": "$",
+        "destinationCurrencyCode": "BDT",
+        "destinationCurrencySymbol": "৳",
+        "commission": 0,
+        "internationalDiscount": 0,
+        "localDiscount": 0,
+        "mostPopularAmount": 15,
+        "mostPopularLocalAmount": null,
+        "minAmount": 0.18,
+        "maxAmount": 44.98,
+        "localMinAmount": 20,
+        "localMaxAmount": 5000,
+        "country": {
+          "isoName": "BD",
+          "name": "Bangladesh"
+        },
+        "fx": {
+          "rate": 111.1500015,
+          "currencyCode": "BDT"
+        },
+        "logoUrls": [
+          "https://s3.amazonaws.com/rld-operator/c46c5c05-6b34-49e2-a368-bbbad7836747-size-3.png",
+          "https://s3.amazonaws.com/rld-operator/c46c5c05-6b34-49e2-a368-bbbad7836747-size-1.png",
+          "https://s3.amazonaws.com/rld-operator/c46c5c05-6b34-49e2-a368-bbbad7836747-size-2.png"
+        ],
+        "fixedAmounts": [],
+        "fixedAmountsDescriptions": {},
+        "localFixedAmounts": [],
+        "localFixedAmountsDescriptions": {},
+        "suggestedAmounts": [
+          1,
+          5,
+          10,
+          15,
+          20,
+          25,
+          30,
+          35,
+          40
+        ],
+        "suggestedAmountsMap": {},
+        "fees": {
+          "international": 0,
+          "local": 0,
+          "localPercentage": 0,
+          "internationalPercentage": 0
+        },
+        "geographicalRechargePlans": [],
+        "promotions": [],
+        "status": "ACTIVE"
+      },
+      {
+        "id": 689,
+        "operatorId": 689,
+        "name": "Airtel Bangladesh Data",
+        "bundle": false,
+        "data": true,
+        "pin": false,
+        "comboProduct": false,
+        "supportsLocalAmounts": true,
+        "supportsGeographicalRechargePlans": false,
+        "denominationType": "FIXED",
+        "senderCurrencyCode": "USD",
+        "senderCurrencySymbol": "$",
+        "destinationCurrencyCode": "BDT",
+        "destinationCurrencySymbol": "৳",
+        "commission": 0,
+        "internationalDiscount": 0,
+        "localDiscount": 0,
+        "mostPopularAmount": 8.76,
+        "mostPopularLocalAmount": 98,
+        "minAmount": null,
+        "maxAmount": null,
+        "localMinAmount": null,
+        "localMaxAmount": null,
+        "country": {
+          "isoName": "BD",
+          "name": "Bangladesh"
+        },
+        "fx": {
+          "rate": 114,
+          "currencyCode": "BDT"
+        },
+        "logoUrls": [
+          "https://s3.amazonaws.com/rld-operator/c46c5c05-6b34-49e2-a368-bbbad7836747-size-3.png",
+          "https://s3.amazonaws.com/rld-operator/c46c5c05-6b34-49e2-a368-bbbad7836747-size-1.png",
+          "https://s3.amazonaws.com/rld-operator/c46c5c05-6b34-49e2-a368-bbbad7836747-size-2.png"
+        ],
+        "fixedAmounts": [
+          0.86,
+          1.12,
+          1.47,
+          1.74,
+          3.48,
+          7.01,
+          8.76
+        ],
+        "fixedAmountsDescriptions": {
+          "0.86": "1GB 7Days",
+          "1.12": "Data 3GB 7 days",
+          "1.47": "Data 8GB 7 days",
+          "1.74": "Data 18GB 7 days",
+          "3.48": "12GB 200Mins 30Days",
+          "7.01": "45GB 800MINS 30Days",
+          "8.76": "65GB 1500MINS 30Days"
+        },
+        "localFixedAmounts": [
+          98,
+          128,
+          168,
+          198,
+          397,
+          799,
+          999
+        ],
+        "localFixedAmountsDescriptions": {
+          "98.00": "1GB 7Days",
+          "128.00": "Data 3GB 7 days",
+          "168.00": "Data 8GB 7 days",
+          "198.00": "Data 18GB 7 days",
+          "397.00": "12GB 200Mins 30Days",
+          "799.00": "45GB 800MINS 30Days",
+          "999.00": "65GB 1500MINS 30Days"
+        },
+        "suggestedAmounts": [],
+        "suggestedAmountsMap": {},
+        "fees": {
+          "international": 0,
+          "local": 0,
+          "localPercentage": 0,
+          "internationalPercentage": 0
+        },
+        "geographicalRechargePlans": [],
+        "promotions": [],
+        "status": "ACTIVE"
+      },
+      {
+        "id": 28,
+        "operatorId": 28,
+        "name": "Banglalink Bangladesh",
+        "bundle": false,
+        "data": false,
+        "pin": false,
+        "comboProduct": false,
+        "supportsLocalAmounts": true,
+        "supportsGeographicalRechargePlans": false,
+        "denominationType": "RANGE",
+        "senderCurrencyCode": "USD",
+        "senderCurrencySymbol": "$",
+        "destinationCurrencyCode": "BDT",
+        "destinationCurrencySymbol": "৳",
+        "commission": 0,
+        "internationalDiscount": 0,
+        "localDiscount": 0,
+        "mostPopularAmount": 15,
+        "mostPopularLocalAmount": null,
+        "minAmount": 0.18,
+        "maxAmount": 44.98,
+        "localMinAmount": 20,
+        "localMaxAmount": 5000,
+        "country": {
+          "isoName": "BD",
+          "name": "Bangladesh"
+        },
+        "fx": {
+          "rate": 111.1500015,
+          "currencyCode": "BDT"
+        },
+        "logoUrls": [
+          "https://s3.amazonaws.com/rld-operator/67e3731e-d09b-4a02-99b7-0009c828fe3c-size-2.png",
+          "https://s3.amazonaws.com/rld-operator/67e3731e-d09b-4a02-99b7-0009c828fe3c-size-3.png",
+          "https://s3.amazonaws.com/rld-operator/67e3731e-d09b-4a02-99b7-0009c828fe3c-size-1.png"
+        ],
+        "fixedAmounts": [],
+        "fixedAmountsDescriptions": {},
+        "localFixedAmounts": [],
+        "localFixedAmountsDescriptions": {},
+        "suggestedAmounts": [
+          1,
+          5,
+          10,
+          15,
+          20,
+          25,
+          30,
+          35,
+          40
+        ],
+        "suggestedAmountsMap": {},
+        "fees": {
+          "international": 0,
+          "local": 0,
+          "localPercentage": 0,
+          "internationalPercentage": 0
+        },
+        "geographicalRechargePlans": [],
+        "promotions": [],
+        "status": "ACTIVE"
+      },
+      {
+        "id": 687,
+        "operatorId": 687,
+        "name": "Banglalink Bangladesh Data",
+        "bundle": false,
+        "data": true,
+        "pin": true,
+        "comboProduct": false,
+        "supportsLocalAmounts": true,
+        "supportsGeographicalRechargePlans": false,
+        "denominationType": "FIXED",
+        "senderCurrencyCode": "USD",
+        "senderCurrencySymbol": "$",
+        "destinationCurrencyCode": "BDT",
+        "destinationCurrencySymbol": "৳",
+        "commission": 0,
+        "internationalDiscount": 0,
+        "localDiscount": 0,
+        "mostPopularAmount": 4.38,
+        "mostPopularLocalAmount": 149,
+        "minAmount": null,
+        "maxAmount": null,
+        "localMinAmount": null,
+        "localMaxAmount": null,
+        "country": {
+          "isoName": "BD",
+          "name": "Bangladesh"
+        },
+        "fx": {
+          "rate": 114,
+          "currencyCode": "BDT"
+        },
+        "logoUrls": [
+          "https://s3.amazonaws.com/rld-operator/67e3731e-d09b-4a02-99b7-0009c828fe3c-size-2.png",
+          "https://s3.amazonaws.com/rld-operator/67e3731e-d09b-4a02-99b7-0009c828fe3c-size-3.png",
+          "https://s3.amazonaws.com/rld-operator/67e3731e-d09b-4a02-99b7-0009c828fe3c-size-1.png"
+        ],
+        "fixedAmounts": [
+          1.31,
+          1.75,
+          2.18,
+          2.62,
+          3.5,
+          4.38
+        ],
+        "fixedAmountsDescriptions": {
+          "1.31": "2GB 7Days",
+          "1.75": "15GB 7Days",
+          "2.18": "50GB 7Days",
+          "2.62": "3GB 30Days",
+          "3.50": "8GB 30Days",
+          "4.38": "15GB 200min 30Days"
+        },
+        "localFixedAmounts": [
+          149,
+          199,
+          249,
+          299,
+          399,
+          499
+        ],
+        "localFixedAmountsDescriptions": {
+          "149.00": "2GB 7Days",
+          "199.00": "15GB 7Days",
+          "249.00": "50GB 7Days",
+          "299.00": "3GB 30Days",
+          "399.00": "8GB 30Days",
+          "499.00": "15GB 200min 30Days"
+        },
+        "suggestedAmounts": [],
+        "suggestedAmountsMap": {},
+        "fees": {
+          "international": 0,
+          "local": 0,
+          "localPercentage": 0,
+          "internationalPercentage": 0
+        },
+        "geographicalRechargePlans": [],
+        "promotions": [],
+        "status": "ACTIVE"
+      },
+      {
+        "id": 23,
+        "operatorId": 23,
+        "name": "GrameenPhone Bangladesh",
+        "bundle": false,
+        "data": false,
+        "pin": false,
+        "comboProduct": false,
+        "supportsLocalAmounts": true,
+        "supportsGeographicalRechargePlans": false,
+        "denominationType": "RANGE",
+        "senderCurrencyCode": "USD",
+        "senderCurrencySymbol": "$",
+        "destinationCurrencyCode": "BDT",
+        "destinationCurrencySymbol": "৳",
+        "commission": 0,
+        "internationalDiscount": 0,
+        "localDiscount": 0,
+        "mostPopularAmount": 5,
+        "mostPopularLocalAmount": null,
+        "minAmount": 0.18,
+        "maxAmount": 8.77,
+        "localMinAmount": 20,
+        "localMaxAmount": 1000,
+        "country": {
+          "isoName": "BD",
+          "name": "Bangladesh"
+        },
+        "fx": {
+          "rate": 114,
+          "currencyCode": "BDT"
+        },
+        "logoUrls": [
+          "https://s3.amazonaws.com/rld-operator/b85e0ab1-1e92-41e5-a718-725511edf23c-size-1.png",
+          "https://s3.amazonaws.com/rld-operator/b85e0ab1-1e92-41e5-a718-725511edf23c-size-3.png",
+          "https://s3.amazonaws.com/rld-operator/b85e0ab1-1e92-41e5-a718-725511edf23c-size-2.png"
+        ],
+        "fixedAmounts": [],
+        "fixedAmountsDescriptions": {},
+        "localFixedAmounts": [],
+        "localFixedAmountsDescriptions": {},
+        "suggestedAmounts": [
+          1,
+          5
+        ],
+        "suggestedAmountsMap": {},
+        "fees": {
+          "international": 0,
+          "local": 0,
+          "localPercentage": 0,
+          "internationalPercentage": 0
+        },
+        "geographicalRechargePlans": [],
+        "promotions": [],
+        "status": "ACTIVE"
+      },
+      {
+        "id": 833,
+        "operatorId": 833,
+        "name": "GrameenPhone Bangladesh Data",
+        "bundle": false,
+        "data": true,
+        "pin": false,
+        "comboProduct": false,
+        "supportsLocalAmounts": true,
+        "supportsGeographicalRechargePlans": false,
+        "denominationType": "FIXED",
+        "senderCurrencyCode": "USD",
+        "senderCurrencySymbol": "$",
+        "destinationCurrencyCode": "BDT",
+        "destinationCurrencySymbol": "৳",
+        "commission": 0,
+        "internationalDiscount": 0,
+        "localDiscount": 0,
+        "mostPopularAmount": 7.88,
+        "mostPopularLocalAmount": 149,
+        "minAmount": null,
+        "maxAmount": null,
+        "localMinAmount": null,
+        "localMaxAmount": null,
+        "country": {
+          "isoName": "BD",
+          "name": "Bangladesh"
+        },
+        "fx": {
+          "rate": 114,
+          "currencyCode": "BDT"
+        },
+        "logoUrls": [
+          "https://s3.amazonaws.com/rld-operator/b85e0ab1-1e92-41e5-a718-725511edf23c-size-1.png",
+          "https://s3.amazonaws.com/rld-operator/b85e0ab1-1e92-41e5-a718-725511edf23c-size-3.png",
+          "https://s3.amazonaws.com/rld-operator/b85e0ab1-1e92-41e5-a718-725511edf23c-size-2.png"
+        ],
+        "fixedAmounts": [
+          1.31,
+          1.57,
+          1.74,
+          2.18,
+          2.7,
+          4.38,
+          7,
+          7.88
+        ],
+        "fixedAmountsDescriptions": {
+          "1.31": "2GB 80Mins 7Days",
+          "1.57": "10GB 7Days",
+          "1.74": "15GB 7days",
+          "2.18": "50GB 7Days",
+          "2.70": "Data 5GB 30days",
+          "4.38": "20GB 30Days",
+          "7.00": "150GB 30Days",
+          "7.88": "400GB 30Days"
+        },
+        "localFixedAmounts": [
+          149,
+          179,
+          198,
+          249,
+          308,
+          499,
+          798,
+          898
+        ],
+        "localFixedAmountsDescriptions": {
+          "149.00": "2GB 80Mins 7Days",
+          "179.00": "10GB 7Days",
+          "198.00": "15GB 7days",
+          "249.00": "50GB 7Days",
+          "308.00": "Data 5GB 30days",
+          "499.00": "20GB 30Days",
+          "798.00": "150GB 30Days",
+          "898.00": "400GB 30Days"
+        },
+        "suggestedAmounts": [],
+        "suggestedAmountsMap": {},
+        "fees": {
+          "international": 0,
+          "local": 0,
+          "localPercentage": 0,
+          "internationalPercentage": 0
+        },
+        "geographicalRechargePlans": [],
+        "promotions": [],
+        "status": "ACTIVE"
+      },
+      {
+        "id": 25,
+        "operatorId": 25,
+        "name": "Robi Bangladesh",
+        "bundle": false,
+        "data": false,
+        "pin": false,
+        "comboProduct": false,
+        "supportsLocalAmounts": true,
+        "supportsGeographicalRechargePlans": false,
+        "denominationType": "RANGE",
+        "senderCurrencyCode": "USD",
+        "senderCurrencySymbol": "$",
+        "destinationCurrencyCode": "BDT",
+        "destinationCurrencySymbol": "৳",
+        "commission": 0,
+        "internationalDiscount": 0,
+        "localDiscount": 0,
+        "mostPopularAmount": 15,
+        "mostPopularLocalAmount": null,
+        "minAmount": 0.18,
+        "maxAmount": 44.98,
+        "localMinAmount": 20,
+        "localMaxAmount": 5000,
+        "country": {
+          "isoName": "BD",
+          "name": "Bangladesh"
+        },
+        "fx": {
+          "rate": 111.1500015,
+          "currencyCode": "BDT"
+        },
+        "logoUrls": [
+          "https://s3.amazonaws.com/rld-operator/98e4f7a0-db7c-41b3-a905-1e1d86e7ab8d-size-3.png",
+          "https://s3.amazonaws.com/rld-operator/98e4f7a0-db7c-41b3-a905-1e1d86e7ab8d-size-1.png",
+          "https://s3.amazonaws.com/rld-operator/98e4f7a0-db7c-41b3-a905-1e1d86e7ab8d-size-2.png"
+        ],
+        "fixedAmounts": [],
+        "fixedAmountsDescriptions": {},
+        "localFixedAmounts": [],
+        "localFixedAmountsDescriptions": {},
+        "suggestedAmounts": [
+          1,
+          5,
+          10,
+          15,
+          20,
+          25,
+          30,
+          35,
+          40
+        ],
+        "suggestedAmountsMap": {},
+        "fees": {
+          "international": 0,
+          "local": 0,
+          "localPercentage": 0,
+          "internationalPercentage": 0
+        },
+        "geographicalRechargePlans": [],
+        "promotions": [],
+        "status": "ACTIVE"
+      },
+      {
+        "id": 835,
+        "operatorId": 835,
+        "name": "Robi Bangladesh Data",
+        "bundle": false,
+        "data": true,
+        "pin": false,
+        "comboProduct": false,
+        "supportsLocalAmounts": true,
+        "supportsGeographicalRechargePlans": false,
+        "denominationType": "FIXED",
+        "senderCurrencyCode": "USD",
+        "senderCurrencySymbol": "$",
+        "destinationCurrencyCode": "BDT",
+        "destinationCurrencySymbol": "৳",
+        "commission": 0,
+        "internationalDiscount": 0,
+        "localDiscount": 0,
+        "mostPopularAmount": 8.76,
+        "mostPopularLocalAmount": 68,
+        "minAmount": null,
+        "maxAmount": null,
+        "localMinAmount": null,
+        "localMaxAmount": null,
+        "country": {
+          "isoName": "BD",
+          "name": "Bangladesh"
+        },
+        "fx": {
+          "rate": 114,
+          "currencyCode": "BDT"
+        },
+        "logoUrls": [
+          "https://s3.amazonaws.com/rld-operator/98e4f7a0-db7c-41b3-a905-1e1d86e7ab8d-size-3.png",
+          "https://s3.amazonaws.com/rld-operator/98e4f7a0-db7c-41b3-a905-1e1d86e7ab8d-size-1.png",
+          "https://s3.amazonaws.com/rld-operator/98e4f7a0-db7c-41b3-a905-1e1d86e7ab8d-size-2.png"
+        ],
+        "fixedAmounts": [
+          0.6,
+          0.86,
+          1.47,
+          1.74,
+          2,
+          2.7,
+          3.5,
+          3.67,
+          4.37,
+          5.25,
+          5.42,
+          6.12,
+          8.76
+        ],
+        "fixedAmountsDescriptions": {
+          "0.60": " 3GB 1Day",
+          "0.86": " Data 3GB 3Days",
+          "1.47": " 7GB 7Days",
+          "1.74": " 15GB 7days",
+          "2.00": " 30GB 7Days",
+          "2.70": " Data 5GB 30Days",
+          "3.50": "  8GB 150MINS 30Days",
+          "3.67": " Data 12GB 30Days",
+          "4.37": " 18GB 30Days",
+          "5.25": " Data 40GB 30Days",
+          "5.42": " Data 35GB 30Days",
+          "6.12": " Data 60GB 30Days",
+          "8.76": " 50GB 1500MINS 30Days"
+        },
+        "localFixedAmounts": [
+          68,
+          98,
+          168,
+          198,
+          228,
+          308,
+          399,
+          418,
+          498,
+          598,
+          618,
+          698,
+          999
+        ],
+        "localFixedAmountsDescriptions": {
+          "68.00": " 3GB 1Day",
+          "98.00": " Data 3GB 3Days",
+          "168.00": " 7GB 7Days",
+          "198.00": " 15GB 7days",
+          "228.00": " 30GB 7Days",
+          "308.00": " Data 5GB 30Days",
+          "399.00": "  8GB 150MINS 30Days",
+          "418.00": " Data 12GB 30Days",
+          "498.00": " 18GB 30Days",
+          "598.00": " Data 40GB 30Days",
+          "618.00": " Data 35GB 30Days",
+          "698.00": " Data 60GB 30Days",
+          "999.00": " 50GB 1500MINS 30Days"
+        },
+        "suggestedAmounts": [],
+        "suggestedAmountsMap": {},
+        "fees": {
+          "international": 0,
+          "local": 0,
+          "localPercentage": 0,
+          "internationalPercentage": 0
+        },
+        "geographicalRechargePlans": [],
+        "promotions": [],
+        "status": "ACTIVE"
+      },
+      {
+        "id": 27,
+        "operatorId": 27,
+        "name": "Teletalk Bangladesh",
+        "bundle": false,
+        "data": false,
+        "pin": false,
+        "comboProduct": false,
+        "supportsLocalAmounts": true,
+        "supportsGeographicalRechargePlans": false,
+        "denominationType": "RANGE",
+        "senderCurrencyCode": "USD",
+        "senderCurrencySymbol": "$",
+        "destinationCurrencyCode": "BDT",
+        "destinationCurrencySymbol": "৳",
+        "commission": 2,
+        "internationalDiscount": 2,
+        "localDiscount": 0,
+        "mostPopularAmount": 15,
+        "mostPopularLocalAmount": null,
+        "minAmount": 0.18,
+        "maxAmount": 44.98,
+        "localMinAmount": 20,
+        "localMaxAmount": 5000,
+        "country": {
+          "isoName": "BD",
+          "name": "Bangladesh"
+        },
+        "fx": {
+          "rate": 111.1500015,
+          "currencyCode": "BDT"
+        },
+        "logoUrls": [
+          "https://s3.amazonaws.com/rld-operator/2bf523d1-988b-4042-b102-716f8559a2c9-size-3.png",
+          "https://s3.amazonaws.com/rld-operator/2bf523d1-988b-4042-b102-716f8559a2c9-size-2.png",
+          "https://s3.amazonaws.com/rld-operator/2bf523d1-988b-4042-b102-716f8559a2c9-size-1.png"
+        ],
+        "fixedAmounts": [],
+        "fixedAmountsDescriptions": {},
+        "localFixedAmounts": [],
+        "localFixedAmountsDescriptions": {},
+        "suggestedAmounts": [
+          1,
+          5,
+          10,
+          15,
+          20,
+          25,
+          30,
+          35,
+          40
+        ],
+        "suggestedAmountsMap": {},
+        "fees": {
+          "international": 0,
+          "local": 0,
+          "localPercentage": 0,
+          "internationalPercentage": 0
+        },
+        "geographicalRechargePlans": [],
+        "promotions": [],
+        "status": "ACTIVE"
+      }
+    ]
+  },
+  "zendit": {
+    "offers": [
+      {
+        "enabled": true,
+        "offerId": "AIRTEL_BD_001",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Airtel",
+        "brandName": "Airtel",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 5606,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 75,
+          "suggestedFixed": 75,
+          "fx": 74.746667,
+          "suggestedFx": 74.746667,
+          "margin": 0.28,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 54,
+          "fx": 103.81481481,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.28
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:53.684Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "AIRTEL_BD_002",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Airtel",
+        "brandName": "Airtel",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 11212,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 150,
+          "suggestedFixed": 150,
+          "fx": 74.746667,
+          "suggestedFx": 74.746667,
+          "margin": 0.28,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 108,
+          "fx": 103.81481481,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.28
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:43.793Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "AIRTEL_BD_003",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Airtel",
+        "brandName": "Airtel",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 16818,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 225,
+          "suggestedFixed": 225,
+          "fx": 74.746667,
+          "suggestedFx": 74.746667,
+          "margin": 0.28444444,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 161,
+          "fx": 104.45962733,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.28444444
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:48.749Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "AIRTEL_BD_004",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Airtel",
+        "brandName": "Airtel",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 22425,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 275,
+          "suggestedFixed": 275,
+          "fx": 81.545455,
+          "suggestedFx": 81.545455,
+          "margin": 0.21818182,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 215,
+          "fx": 104.30232558,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.21818182
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:43.793Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "AIRTEL_BD_005",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Airtel",
+        "brandName": "Airtel",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 28031,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 350,
+          "suggestedFixed": 350,
+          "fx": 80.088571,
+          "suggestedFx": 80.088571,
+          "margin": 0.23142857,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 269,
+          "fx": 104.20446097,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.23142857
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:46.356Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "AIRTEL_BD_006",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Airtel",
+        "brandName": "Airtel",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 33637,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 425,
+          "suggestedFixed": 425,
+          "fx": 79.145882,
+          "suggestedFx": 79.145882,
+          "margin": 0.24,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 323,
+          "fx": 104.13931889,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.24
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:46.356Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "AIRTEL_BD_007",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Airtel",
+        "brandName": "Airtel",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 39243,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 500,
+          "suggestedFixed": 500,
+          "fx": 78.486,
+          "suggestedFx": 78.486,
+          "margin": 0.248,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 376,
+          "fx": 104.36968085,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.248
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:43.793Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "AIRTEL_BD_008",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Airtel",
+        "brandName": "Airtel",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 44849,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 575,
+          "suggestedFixed": 575,
+          "fx": 77.998261,
+          "suggestedFx": 77.998261,
+          "margin": 0.25217391,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 430,
+          "fx": 104.3,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.25217391
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:56.256Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "AIRTEL_BD_009",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Airtel",
+        "brandName": "Airtel",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 50455,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 650,
+          "suggestedFixed": 650,
+          "fx": 77.623077,
+          "suggestedFx": 77.623077,
+          "margin": 0.25538462,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 484,
+          "fx": 104.24586777,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.25538462
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:52:01.419Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "AIRTEL_BD_010",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Airtel",
+        "brandName": "Airtel",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 56061,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 725,
+          "suggestedFixed": 725,
+          "fx": 77.325517,
+          "suggestedFx": 77.325517,
+          "margin": 0.25793103,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 538,
+          "fx": 104.20260223,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.25793103
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:48.749Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "AIRTEL_BD_011",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Airtel",
+        "brandName": "Airtel",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 61667,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 775,
+          "suggestedFixed": 775,
+          "fx": 79.570323,
+          "suggestedFx": 79.570323,
+          "margin": 0.23741935,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 591,
+          "fx": 104.34348562,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.23741935
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:51.238Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "AIRTEL_BD_012",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Airtel",
+        "brandName": "Airtel",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 67274,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 850,
+          "suggestedFixed": 850,
+          "fx": 79.145882,
+          "suggestedFx": 79.145882,
+          "margin": 0.24117647,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 645,
+          "fx": 104.30077519,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.24117647
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:53.684Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "AIRTEL_BD_013",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Airtel",
+        "brandName": "Airtel",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 72880,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 925,
+          "suggestedFixed": 925,
+          "fx": 78.789189,
+          "suggestedFx": 78.789189,
+          "margin": 0.24432432,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 699,
+          "fx": 104.26323319,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.24432432
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:43.793Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "AIRTEL_BD_014",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Airtel",
+        "brandName": "Airtel",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 78486,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 1000,
+          "suggestedFixed": 1000,
+          "fx": 78.486,
+          "suggestedFx": 78.486,
+          "margin": 0.247,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 753,
+          "fx": 104.2310757,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.247
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:51.238Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "AIRTEL_BD_015",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Airtel",
+        "brandName": "Airtel",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 84092,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 1075,
+          "suggestedFixed": 1075,
+          "fx": 78.225116,
+          "suggestedFx": 78.225116,
+          "margin": 0.25023256,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 806,
+          "fx": 104.3325062,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.25023256
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:43.793Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "AIRTEL_BD_016",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Airtel",
+        "brandName": "Airtel",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 89698,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 1150,
+          "suggestedFixed": 1150,
+          "fx": 77.998261,
+          "suggestedFx": 77.998261,
+          "margin": 0.25217391,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 860,
+          "fx": 104.3,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.25217391
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:46.356Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "AIRTEL_BD_017",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Airtel",
+        "brandName": "Airtel",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 95304,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 1225,
+          "suggestedFixed": 1225,
+          "fx": 77.799184,
+          "suggestedFx": 77.799184,
+          "margin": 0.25387755,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 914,
+          "fx": 104.27133479,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.25387755
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:46.356Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "AIRTEL_BD_018",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Airtel",
+        "brandName": "Airtel",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 100910,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 1275,
+          "suggestedFixed": 1275,
+          "fx": 79.145098,
+          "suggestedFx": 79.145098,
+          "margin": 0.24078431,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 968,
+          "fx": 104.24586777,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.24078431
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:53.684Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "AIRTEL_BD_DATA-ROW_N2",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Airtel",
+        "brandName": "Airtel",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Data"
+        ],
+        "notes": "15 GB 300 Minutes 30 Days",
+        "shortNotes": "15 GB 300 Minutes 30 Days",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 39700,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 400,
+          "suggestedFixed": 400,
+          "fx": 99.25,
+          "suggestedFx": 99.25,
+          "margin": 0.1025,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 359,
+          "fx": 110.58495822,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.1025
+        },
+        "durationDays": 30,
+        "dataGB": 15,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 300,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T15:52:46.71Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "AIRTEL_BD_DATA-ROW_N3",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Airtel",
+        "brandName": "Airtel",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Data"
+        ],
+        "notes": "8 GB 100 Minutes 30 Days",
+        "shortNotes": "8 GB 100 Minutes 30 Days",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 29700,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 300,
+          "suggestedFixed": 300,
+          "fx": 99,
+          "suggestedFx": 99,
+          "margin": 0.10333333,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 269,
+          "fx": 110.40892193,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.10333333
+        },
+        "durationDays": 30,
+        "dataGB": 8,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 100,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T15:52:46.71Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "AIRTEL_BD_DATA-ROW_N4",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Airtel",
+        "brandName": "Airtel",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Data"
+        ],
+        "notes": "10 GB 30 Days",
+        "shortNotes": "10 GB 30 Days",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 29900,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 300,
+          "suggestedFixed": 300,
+          "fx": 99.666667,
+          "suggestedFx": 99.666667,
+          "margin": 0.1,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 270,
+          "fx": 110.74074074,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.1
+        },
+        "durationDays": 30,
+        "dataGB": 10,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T15:52:46.71Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "BANGLALINK_BD_001",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Banglalink",
+        "brandName": "Banglalink",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 5624,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 70,
+          "suggestedFixed": 70,
+          "fx": 80.342857,
+          "suggestedFx": 80.342857,
+          "margin": 0.22857143,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 54,
+          "fx": 104.14814815,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.22857143
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:56.256Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "BANGLALINK_BD_002",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Banglalink",
+        "brandName": "Banglalink",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 11248,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 130,
+          "suggestedFixed": 130,
+          "fx": 86.523077,
+          "suggestedFx": 86.523077,
+          "margin": 0.16923077,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 108,
+          "fx": 104.14814815,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.16923077
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:58.829Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "BANGLALINK_BD_003",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Banglalink",
+        "brandName": "Banglalink",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 16872,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 200,
+          "suggestedFixed": 200,
+          "fx": 84.36,
+          "suggestedFx": 84.36,
+          "margin": 0.195,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 161,
+          "fx": 104.79503106,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.195
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:46.356Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "BANGLALINK_BD_004",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Banglalink",
+        "brandName": "Banglalink",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 22496,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 270,
+          "suggestedFixed": 270,
+          "fx": 83.318519,
+          "suggestedFx": 83.318519,
+          "margin": 0.2037037,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 215,
+          "fx": 104.63255814,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.2037037
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:52:01.419Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "BANGLALINK_BD_005",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Banglalink",
+        "brandName": "Banglalink",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 28120,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 330,
+          "suggestedFixed": 330,
+          "fx": 85.212121,
+          "suggestedFx": 85.212121,
+          "margin": 0.18484848,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 269,
+          "fx": 104.53531599,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.18484848
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:52:01.419Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "BANGLALINK_BD_006",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Banglalink",
+        "brandName": "Banglalink",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 33744,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 400,
+          "suggestedFixed": 400,
+          "fx": 84.36,
+          "suggestedFx": 84.36,
+          "margin": 0.1925,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 323,
+          "fx": 104.47058824,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.1925
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:48.749Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "BANGLALINK_BD_007",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Banglalink",
+        "brandName": "Banglalink",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 39368,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 470,
+          "suggestedFixed": 470,
+          "fx": 83.761702,
+          "suggestedFx": 83.761702,
+          "margin": 0.2,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 376,
+          "fx": 104.70212766,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.2
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:53.684Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "BANGLALINK_BD_010",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Banglalink",
+        "brandName": "Banglalink",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 56240,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 670,
+          "suggestedFixed": 670,
+          "fx": 83.940299,
+          "suggestedFx": 83.940299,
+          "margin": 0.19701493,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 538,
+          "fx": 104.53531599,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.19701493
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:56.256Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "BANGLALINK_BD_011",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Banglalink",
+        "brandName": "Banglalink",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 61864,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 730,
+          "suggestedFixed": 730,
+          "fx": 84.745205,
+          "suggestedFx": 84.745205,
+          "margin": 0.19041096,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 591,
+          "fx": 104.67681895,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.19041096
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:52:01.419Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "BANGLALINK_BD_012",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Banglalink",
+        "brandName": "Banglalink",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 67488,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 800,
+          "suggestedFixed": 800,
+          "fx": 84.36,
+          "suggestedFx": 84.36,
+          "margin": 0.19375,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 645,
+          "fx": 104.63255814,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.19375
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:52:04.212Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "BANGLALINK_BD_013",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Banglalink",
+        "brandName": "Banglalink",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 73112,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 870,
+          "suggestedFixed": 870,
+          "fx": 84.036782,
+          "suggestedFx": 84.036782,
+          "margin": 0.19655172,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 699,
+          "fx": 104.59513591,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.19655172
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:56.256Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "BANGLALINK_BD_014",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Banglalink",
+        "brandName": "Banglalink",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 78736,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 930,
+          "suggestedFixed": 930,
+          "fx": 84.662366,
+          "suggestedFx": 84.662366,
+          "margin": 0.19032258,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 753,
+          "fx": 104.56308101,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.19032258
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:46.356Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "BANGLALINK_BD_015",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Banglalink",
+        "brandName": "Banglalink",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 84360,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 1000,
+          "suggestedFixed": 1000,
+          "fx": 84.36,
+          "suggestedFx": 84.36,
+          "margin": 0.194,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 806,
+          "fx": 104.66501241,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.194
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:56.256Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "BANGLALINK_BD_016",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Banglalink",
+        "brandName": "Banglalink",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 89984,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 1070,
+          "suggestedFixed": 1070,
+          "fx": 84.097196,
+          "suggestedFx": 84.097196,
+          "margin": 0.19626168,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 860,
+          "fx": 104.63255814,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.19626168
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:46.356Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "BANGLALINK_BD_017",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Banglalink",
+        "brandName": "Banglalink",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 95608,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 1130,
+          "suggestedFixed": 1130,
+          "fx": 84.60885,
+          "suggestedFx": 84.60885,
+          "margin": 0.19115044,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 914,
+          "fx": 104.60393873,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.19115044
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:51.238Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "BANGLALINK_BD_018",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Banglalink",
+        "brandName": "Banglalink",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 101232,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 1200,
+          "suggestedFixed": 1200,
+          "fx": 84.36,
+          "suggestedFx": 84.36,
+          "margin": 0.19333333,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 968,
+          "fx": 104.5785124,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.19333333
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:56.256Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "BANGLALINK_BD_DATA1",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Banglalink",
+        "brandName": "Banglalink",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Bundle"
+        ],
+        "notes": "10 GB 200 Minutes 30 Days",
+        "shortNotes": "10 GB 200 Minutes 30 Days",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 49900,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 500,
+          "suggestedFixed": 500,
+          "fx": 99.8,
+          "suggestedFx": 99.8,
+          "margin": 0.096,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 452,
+          "fx": 110.39823009,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.096
+        },
+        "durationDays": 30,
+        "dataGB": 10,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 200,
+        "voiceUnlimited": false,
+        "createdAt": "2026-07-07T19:03:50.059Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "BANGLALINK_BD_DATA2",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Banglalink",
+        "brandName": "Banglalink",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Bundle"
+        ],
+        "notes": "Anynet 250 min, 30 days",
+        "shortNotes": "Anynet 250 min, 30 days",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 22700,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 250,
+          "suggestedFixed": 250,
+          "fx": 90.8,
+          "suggestedFx": 90.8,
+          "margin": 0.18,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 205,
+          "fx": 110.73170732,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.18
+        },
+        "durationDays": 30,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 250,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T15:52:46.71Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "BANGLALINK_BD_DATA3",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Banglalink",
+        "brandName": "Banglalink",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Bundle"
+        ],
+        "notes": "Anynet 350 min 30 days",
+        "shortNotes": "Anynet 350 min 30 days",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 31900,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 350,
+          "suggestedFixed": 350,
+          "fx": 91.142857,
+          "suggestedFx": 91.142857,
+          "margin": 0.17428571,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 289,
+          "fx": 110.38062284,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.17428571
+        },
+        "durationDays": 30,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 350,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T15:52:46.71Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "BANGLALINK_BD_DATA4",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Banglalink",
+        "brandName": "Banglalink",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Bundle"
+        ],
+        "notes": "5 GB 150 MINUTES 30 Days",
+        "shortNotes": "5 GB 150 MINUTES 30 Days",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 39900,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 400,
+          "suggestedFixed": 400,
+          "fx": 99.75,
+          "suggestedFx": 99.75,
+          "margin": 0.0975,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 361,
+          "fx": 110.52631579,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.0975
+        },
+        "durationDays": 30,
+        "dataGB": 5,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 150,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T15:52:46.71Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "BANGLALINK_BD_DATA5",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Banglalink",
+        "brandName": "Banglalink",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Bundle"
+        ],
+        "notes": "20 GB 300 MINUTES 30 Days",
+        "shortNotes": "20 GB 300 MINUTES 30 Days",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 61900,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 650,
+          "suggestedFixed": 650,
+          "fx": 95.230769,
+          "suggestedFx": 95.230769,
+          "margin": 0.13846154,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 560,
+          "fx": 110.53571429,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.13846154
+        },
+        "durationDays": 30,
+        "dataGB": 20,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 300,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T15:52:46.71Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "GRAMEENPHONE_BD_001",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "GrameenPhone",
+        "brandName": "Grameen Phone",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 5314,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 70,
+          "suggestedFixed": 70,
+          "fx": 75.914286,
+          "suggestedFx": 75.914286,
+          "margin": 0.31428571,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 48,
+          "fx": 110.70833333,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.31428571
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:51.238Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "GRAMEENPHONE_BD_002",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "GrameenPhone",
+        "brandName": "Grameen Phone",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 10735,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 130,
+          "suggestedFixed": 130,
+          "fx": 82.576923,
+          "suggestedFx": 82.576923,
+          "margin": 0.24615385,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 98,
+          "fx": 109.54081633,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.24615385
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:43.793Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "GRAMEENPHONE_BD_003",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "GrameenPhone",
+        "brandName": "Grameen Phone",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 16050,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 200,
+          "suggestedFixed": 200,
+          "fx": 80.25,
+          "suggestedFx": 80.25,
+          "margin": 0.27,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 146,
+          "fx": 109.93150685,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.27
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:43.793Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "GRAMEENPHONE_BD_004",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "GrameenPhone",
+        "brandName": "Grameen Phone",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 21471,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 270,
+          "suggestedFixed": 270,
+          "fx": 79.522222,
+          "suggestedFx": 79.522222,
+          "margin": 0.27407407,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 196,
+          "fx": 109.54591837,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.27407407
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:51.238Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "GRAMEENPHONE_BD_005",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "GrameenPhone",
+        "brandName": "Grameen Phone",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 26785,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 330,
+          "suggestedFixed": 330,
+          "fx": 81.166667,
+          "suggestedFx": 81.166667,
+          "margin": 0.26060606,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 244,
+          "fx": 109.77459016,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.26060606
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:56.256Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "GRAMEENPHONE_BD_006",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "GrameenPhone",
+        "brandName": "Grameen Phone",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 32206,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 400,
+          "suggestedFixed": 400,
+          "fx": 80.515,
+          "suggestedFx": 80.515,
+          "margin": 0.27,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 292,
+          "fx": 110.29452055,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.27
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:43.793Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "GRAMEENPHONE_BD_007",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "GrameenPhone",
+        "brandName": "Grameen Phone",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 37520,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 470,
+          "suggestedFixed": 470,
+          "fx": 79.829787,
+          "suggestedFx": 79.829787,
+          "margin": 0.27234043,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 342,
+          "fx": 109.70760234,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.27234043
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:52:01.419Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "GRAMEENPHONE_BD_010",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "GrameenPhone",
+        "brandName": "Grameen Phone",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 53570,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 670,
+          "suggestedFixed": 670,
+          "fx": 79.955224,
+          "suggestedFx": 79.955224,
+          "margin": 0.27164179,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 488,
+          "fx": 109.77459016,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.27164179
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:53.684Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "GRAMEENPHONE_BD_011",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "GrameenPhone",
+        "brandName": "Grameen Phone",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 58991,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 730,
+          "suggestedFixed": 730,
+          "fx": 80.809589,
+          "suggestedFx": 80.809589,
+          "margin": 0.26438356,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 537,
+          "fx": 109.85288641,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.26438356
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:43.793Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "GRAMEENPHONE_BD_012",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "GrameenPhone",
+        "brandName": "Grameen Phone",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 64305,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 800,
+          "suggestedFixed": 800,
+          "fx": 80.38125,
+          "suggestedFx": 80.38125,
+          "margin": 0.2675,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 586,
+          "fx": 109.73549488,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.2675
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:52:01.419Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "GRAMEENPHONE_BD_013",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "GrameenPhone",
+        "brandName": "Grameen Phone",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 69726,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 870,
+          "suggestedFixed": 870,
+          "fx": 80.144828,
+          "suggestedFx": 80.144828,
+          "margin": 0.27126437,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 634,
+          "fx": 109.97791798,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.27126437
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:51.238Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "GRAMEENPHONE_BD_014",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "GrameenPhone",
+        "brandName": "Grameen Phone",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 75041,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 930,
+          "suggestedFixed": 930,
+          "fx": 80.689247,
+          "suggestedFx": 80.689247,
+          "margin": 0.26451613,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 684,
+          "fx": 109.70906433,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.26451613
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:43.793Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "GRAMEENPHONE_BD_015",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "GrameenPhone",
+        "brandName": "Grameen Phone",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 80461,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 1000,
+          "suggestedFixed": 1000,
+          "fx": 80.461,
+          "suggestedFx": 80.461,
+          "margin": 0.268,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 732,
+          "fx": 109.91939891,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.268
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:58.829Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "GRAMEENPHONE_BD_016",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "GrameenPhone",
+        "brandName": "Grameen Phone",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 85776,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 1070,
+          "suggestedFixed": 1070,
+          "fx": 80.164486,
+          "suggestedFx": 80.164486,
+          "margin": 0.27009346,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 781,
+          "fx": 109.8284251,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.27009346
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:48.749Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "GRAMEENPHONE_BD_017",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "GrameenPhone",
+        "brandName": "Grameen Phone",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 91090,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 1130,
+          "suggestedFixed": 1130,
+          "fx": 80.610619,
+          "suggestedFx": 80.610619,
+          "margin": 0.26548673,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 830,
+          "fx": 109.74698795,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.26548673
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:53.684Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "GRAMEENPHONE_BD_DATA1_USD",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "GrameenPhone",
+        "brandName": "Grameen Phone",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Data"
+        ],
+        "notes": "Unlimited Internet for 30 Days(15 MBPS)",
+        "shortNotes": "Unlimited Internet for 30 Days(15 MBPS)",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 98800,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 950,
+          "suggestedFixed": 950,
+          "fx": 104,
+          "suggestedFx": 104,
+          "margin": 0.06105263,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 892,
+          "fx": 110.76233184,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.06105263
+        },
+        "durationDays": 30,
+        "dataGB": 0,
+        "dataUnlimited": true,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T15:52:46.71Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "GRAMEENPHONE_BD_DATA_005_USD",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "GrameenPhone",
+        "brandName": "Grameen Phone",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Data"
+        ],
+        "notes": "20 GB 30 days",
+        "shortNotes": "20 GB 30 days",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 49900,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 475,
+          "suggestedFixed": 475,
+          "fx": 105.052632,
+          "suggestedFx": 105.052632,
+          "margin": 0.05684211,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 448,
+          "fx": 111.38392857,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.05684211
+        },
+        "durationDays": 30,
+        "dataGB": 15,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T15:52:46.71Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "GRAMEENPHONE_BD_DATA_006_USD",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "GrameenPhone",
+        "brandName": "Grameen Phone",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Data"
+        ],
+        "notes": "20 GB 400 Minutes 30 Days",
+        "shortNotes": "20 GB 400 Minutes 30 Days",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 59800,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 575,
+          "suggestedFixed": 575,
+          "fx": 104,
+          "suggestedFx": 104,
+          "margin": 0.06608696,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 537,
+          "fx": 111.3594041,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.06608696
+        },
+        "durationDays": 30,
+        "dataGB": 15,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 400,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T15:52:46.71Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "GRAMEENPHONE_BD_DATA_007_USD",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "GrameenPhone",
+        "brandName": "Grameen Phone",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Data"
+        ],
+        "notes": "4 GB 7 Days",
+        "shortNotes": "4GB (30d)",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 14800,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 151,
+          "suggestedFixed": 151,
+          "fx": 98.013245,
+          "suggestedFx": 98.013245,
+          "margin": 0.1192053,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 133,
+          "fx": 111.27819549,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.1192053
+        },
+        "durationDays": 7,
+        "dataGB": 4,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T15:52:46.71Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "GRAMEENPHONE_BD_DATA_008_USD",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "GrameenPhone",
+        "brandName": "Grameen Phone",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Data"
+        ],
+        "notes": "6 GB 120 Min 7 Days",
+        "shortNotes": "6GB 120 Minutes (7d)",
+        "priceType": "FIXED",
+        "send": {
+          "currency": ""
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 221,
+          "suggestedFixed": 221,
+          "margin": 0.11312217,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 196,
+          "fx": 0,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.11312217
+        },
+        "durationDays": 7,
+        "dataGB": 6,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 120,
+        "voiceUnlimited": false,
+        "createdAt": "2025-08-28T09:54:15.016Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "GRAMEENPHONE_BD_DATA_N2_USD",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "GrameenPhone",
+        "brandName": "Grameen Phone",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Data"
+        ],
+        "notes": "200 Minutes 28 Days",
+        "shortNotes": "200 Minutes 28 Days",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 21800,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 225,
+          "suggestedFixed": 225,
+          "fx": 96.888889,
+          "suggestedFx": 96.888889,
+          "margin": 0.12,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 198,
+          "fx": 110.1010101,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.12
+        },
+        "durationDays": 28,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 200,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T15:52:46.71Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "GRAMEENPHONE_BD_DATA_N3_USD",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "GrameenPhone",
+        "brandName": "Grameen Phone",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Data"
+        ],
+        "notes": "240 Minutes 28 Days",
+        "shortNotes": "240 Minutes 28 Days",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 22800,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 225,
+          "suggestedFixed": 225,
+          "fx": 101.333333,
+          "suggestedFx": 101.333333,
+          "margin": 0.08888889,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 205,
+          "fx": 111.2195122,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.08888889
+        },
+        "durationDays": 28,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 220,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T15:52:46.71Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "GRAMEENPHONE_BD_DATA_N4_USD",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "GrameenPhone",
+        "brandName": "Grameen Phone",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Data"
+        ],
+        "notes": "300 Minutes 30 Days",
+        "shortNotes": "300 Minutes 30 Days",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 25900,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 250,
+          "suggestedFixed": 250,
+          "fx": 103.6,
+          "suggestedFx": 103.6,
+          "margin": 0.076,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 231,
+          "fx": 112.12121212,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.076
+        },
+        "durationDays": 30,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 300,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T15:52:46.71Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "GRAMEENPHONE_BD_DATA_N7_USD",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "GrameenPhone",
+        "brandName": "Grameen Phone",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Data"
+        ],
+        "notes": "320 Minutes 28 Days",
+        "shortNotes": "320 Minutes 28 Days",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 27900,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 275,
+          "suggestedFixed": 275,
+          "fx": 101.454545,
+          "suggestedFx": 101.454545,
+          "margin": 0.08727273,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 251,
+          "fx": 111.15537849,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.08727273
+        },
+        "durationDays": 28,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 320,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T15:52:46.71Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "GRAMEENPHONE_BD_DATA_N8_USD",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "GrameenPhone",
+        "brandName": "Grameen Phone",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Data"
+        ],
+        "notes": "350 Minutes 28 Days",
+        "shortNotes": "350 Minutes 28 Days",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 28800,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 275,
+          "suggestedFixed": 275,
+          "fx": 104.727273,
+          "suggestedFx": 104.727273,
+          "margin": 0.06181818,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 258,
+          "fx": 111.62790698,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.06181818
+        },
+        "durationDays": 28,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 350,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T15:52:46.71Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "GRAMEENPHONE_BD_DATA_N9_USD",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "GrameenPhone",
+        "brandName": "Grameen Phone",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Data"
+        ],
+        "notes": "7 GB 30 Days",
+        "shortNotes": "7 GB 30 Days",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 11900,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 125,
+          "suggestedFixed": 125,
+          "fx": 95.2,
+          "suggestedFx": 95.2,
+          "margin": 0.136,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 108,
+          "fx": 110.18518519,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.136
+        },
+        "durationDays": 7,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 140,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T15:52:46.71Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "ROBI_BD_001",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Robi",
+        "brandName": "Robi",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 5606,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 70,
+          "suggestedFixed": 70,
+          "fx": 80.085714,
+          "suggestedFx": 80.085714,
+          "margin": 0.22857143,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 54,
+          "fx": 103.81481481,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.22857143
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:43.793Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "ROBI_BD_002",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Robi",
+        "brandName": "Robi",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 11212,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 130,
+          "suggestedFixed": 130,
+          "fx": 86.246154,
+          "suggestedFx": 86.246154,
+          "margin": 0.16923077,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 108,
+          "fx": 103.81481481,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.16923077
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:43.793Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "ROBI_BD_003",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Robi",
+        "brandName": "Robi",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 16818,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 200,
+          "suggestedFixed": 200,
+          "fx": 84.09,
+          "suggestedFx": 84.09,
+          "margin": 0.195,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 161,
+          "fx": 104.45962733,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.195
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:56.256Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "ROBI_BD_004",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Robi",
+        "brandName": "Robi",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 22425,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 270,
+          "suggestedFixed": 270,
+          "fx": 83.055556,
+          "suggestedFx": 83.055556,
+          "margin": 0.2037037,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 215,
+          "fx": 104.30232558,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.2037037
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:52:04.212Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "ROBI_BD_005",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Robi",
+        "brandName": "Robi",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 28031,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 330,
+          "suggestedFixed": 330,
+          "fx": 84.942424,
+          "suggestedFx": 84.942424,
+          "margin": 0.18484848,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 269,
+          "fx": 104.20446097,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.18484848
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:58.829Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "ROBI_BD_006",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Robi",
+        "brandName": "Robi",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 33637,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 400,
+          "suggestedFixed": 400,
+          "fx": 84.0925,
+          "suggestedFx": 84.0925,
+          "margin": 0.1925,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 323,
+          "fx": 104.13931889,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.1925
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:48.749Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "ROBI_BD_007",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Robi",
+        "brandName": "Robi",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 39243,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 470,
+          "suggestedFixed": 470,
+          "fx": 83.495745,
+          "suggestedFx": 83.495745,
+          "margin": 0.2,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 376,
+          "fx": 104.36968085,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.2
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:51.238Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "ROBI_BD_010",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Robi",
+        "brandName": "Robi",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 56061,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 670,
+          "suggestedFixed": 670,
+          "fx": 83.673134,
+          "suggestedFx": 83.673134,
+          "margin": 0.19701493,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 538,
+          "fx": 104.20260223,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.19701493
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:58.829Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "ROBI_BD_011",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Robi",
+        "brandName": "Robi",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 61667,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 730,
+          "suggestedFixed": 730,
+          "fx": 84.475342,
+          "suggestedFx": 84.475342,
+          "margin": 0.19041096,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 591,
+          "fx": 104.34348562,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.19041096
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:58.829Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "ROBI_BD_012",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Robi",
+        "brandName": "Robi",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 67274,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 800,
+          "suggestedFixed": 800,
+          "fx": 84.0925,
+          "suggestedFx": 84.0925,
+          "margin": 0.19375,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 645,
+          "fx": 104.30077519,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.19375
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:56.256Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "ROBI_BD_013",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Robi",
+        "brandName": "Robi",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 72880,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 870,
+          "suggestedFixed": 870,
+          "fx": 83.770115,
+          "suggestedFx": 83.770115,
+          "margin": 0.19655172,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 699,
+          "fx": 104.26323319,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.19655172
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:56.256Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "ROBI_BD_014",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Robi",
+        "brandName": "Robi",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 78486,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 930,
+          "suggestedFixed": 930,
+          "fx": 84.393548,
+          "suggestedFx": 84.393548,
+          "margin": 0.19032258,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 753,
+          "fx": 104.2310757,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.19032258
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:51.238Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "ROBI_BD_015",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Robi",
+        "brandName": "Robi",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 84092,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 1000,
+          "suggestedFixed": 1000,
+          "fx": 84.092,
+          "suggestedFx": 84.092,
+          "margin": 0.194,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 806,
+          "fx": 104.3325062,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.194
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:46.356Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "ROBI_BD_016",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Robi",
+        "brandName": "Robi",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 89698,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 1070,
+          "suggestedFixed": 1070,
+          "fx": 83.829907,
+          "suggestedFx": 83.829907,
+          "margin": 0.19626168,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 860,
+          "fx": 104.3,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.19626168
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:46.356Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "ROBI_BD_017",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Robi",
+        "brandName": "Robi",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 95304,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 1130,
+          "suggestedFixed": 1130,
+          "fx": 84.339823,
+          "suggestedFx": 84.339823,
+          "margin": 0.19115044,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 914,
+          "fx": 104.27133479,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.19115044
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:48.749Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "ROBI_BD_018",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Robi",
+        "brandName": "Robi",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 100910,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 1200,
+          "suggestedFixed": 1200,
+          "fx": 84.091667,
+          "suggestedFx": 84.091667,
+          "margin": 0.19333333,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 968,
+          "fx": 104.24586777,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.19333333
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:51.238Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "ROBI_BD_DATA1_USD",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Robi",
+        "brandName": "Robi",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Data"
+        ],
+        "notes": "60GB 30 Days",
+        "shortNotes": "60GB (30d)",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 69800,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 713,
+          "suggestedFixed": 713,
+          "fx": 97.896213,
+          "suggestedFx": 97.896213,
+          "margin": 0.11360449,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 632,
+          "fx": 110.44303797,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.11360449
+        },
+        "durationDays": 30,
+        "dataGB": 60,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T15:52:46.71Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "ROBI_BD_DATAN1_USD",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Robi",
+        "brandName": "Robi",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Data"
+        ],
+        "notes": "3 GB+100 Min (30d)",
+        "shortNotes": "3 GB+100 Min (30d)",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 30900,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 320,
+          "suggestedFixed": 320,
+          "fx": 96.5625,
+          "suggestedFx": 96.5625,
+          "margin": 0.121875,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 281,
+          "fx": 109.96441281,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.121875
+        },
+        "durationDays": 30,
+        "dataGB": 3,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 100,
+        "voiceUnlimited": false,
+        "createdAt": "2025-11-18T18:33:41.639Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "ROBI_BD_DATAN2_USD",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Robi",
+        "brandName": "Robi",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Data"
+        ],
+        "notes": "6 GB+150 Min (30d)",
+        "shortNotes": "6 GB+150 Min (30d)",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 41900,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 430,
+          "suggestedFixed": 430,
+          "fx": 97.44186,
+          "suggestedFx": 97.44186,
+          "margin": 0.11627907,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 380,
+          "fx": 110.26315789,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.11627907
+        },
+        "durationDays": 30,
+        "dataGB": 6,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 150,
+        "voiceUnlimited": false,
+        "createdAt": "2025-11-18T18:33:41.639Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "ROBI_BD_DATAN3_USD",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Robi",
+        "brandName": "Robi",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Data"
+        ],
+        "notes": "16 GB+350 Min (30d)",
+        "shortNotes": "16 GB+350 Min (30d)",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 59900,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 625,
+          "suggestedFixed": 625,
+          "fx": 95.84,
+          "suggestedFx": 95.84,
+          "margin": 0.1312,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 543,
+          "fx": 110.31307551,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.1312
+        },
+        "durationDays": 30,
+        "dataGB": 16,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 350,
+        "voiceUnlimited": false,
+        "createdAt": "2025-11-18T18:33:41.639Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "TELETALK_BD_001",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "TeleTalk",
+        "brandName": "TeleTalk",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 5624,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 60,
+          "suggestedFixed": 60,
+          "fx": 93.733333,
+          "suggestedFx": 93.733333,
+          "margin": 0.1,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 54,
+          "fx": 104.14814815,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.1
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:58.829Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "TELETALK_BD_002",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "TeleTalk",
+        "brandName": "TeleTalk",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 11248,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 130,
+          "suggestedFixed": 130,
+          "fx": 86.523077,
+          "suggestedFx": 86.523077,
+          "margin": 0.16923077,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 108,
+          "fx": 104.14814815,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.16923077
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:58.829Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "TELETALK_BD_003",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "TeleTalk",
+        "brandName": "TeleTalk",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 16872,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 190,
+          "suggestedFixed": 190,
+          "fx": 88.8,
+          "suggestedFx": 88.8,
+          "margin": 0.15263158,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 161,
+          "fx": 104.79503106,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.15263158
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:46.356Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "TELETALK_BD_004",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "TeleTalk",
+        "brandName": "TeleTalk",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 22496,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 250,
+          "suggestedFixed": 250,
+          "fx": 89.984,
+          "suggestedFx": 89.984,
+          "margin": 0.14,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 215,
+          "fx": 104.63255814,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.14
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:53.684Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "TELETALK_BD_005",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "TeleTalk",
+        "brandName": "TeleTalk",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 28120,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 310,
+          "suggestedFixed": 310,
+          "fx": 90.709677,
+          "suggestedFx": 90.709677,
+          "margin": 0.13225806,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 269,
+          "fx": 104.53531599,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.13225806
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:43.793Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "TELETALK_BD_006",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "TeleTalk",
+        "brandName": "TeleTalk",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 33744,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 380,
+          "suggestedFixed": 380,
+          "fx": 88.8,
+          "suggestedFx": 88.8,
+          "margin": 0.15,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 323,
+          "fx": 104.47058824,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.15
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:43.793Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "TELETALK_BD_007",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "TeleTalk",
+        "brandName": "TeleTalk",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 39368,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 440,
+          "suggestedFixed": 440,
+          "fx": 89.472727,
+          "suggestedFx": 89.472727,
+          "margin": 0.14545455,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 376,
+          "fx": 104.70212766,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.14545455
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:51.238Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "TELETALK_BD_008",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "TeleTalk",
+        "brandName": "TeleTalk",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 44992,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 500,
+          "suggestedFixed": 500,
+          "fx": 89.984,
+          "suggestedFx": 89.984,
+          "margin": 0.14,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 430,
+          "fx": 104.63255814,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.14
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:48.749Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "TELETALK_BD_009",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "TeleTalk",
+        "brandName": "TeleTalk",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 50616,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 560,
+          "suggestedFixed": 560,
+          "fx": 90.385714,
+          "suggestedFx": 90.385714,
+          "margin": 0.13571429,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 484,
+          "fx": 104.5785124,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.13571429
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:51.238Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "TELETALK_BD_010",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "TeleTalk",
+        "brandName": "TeleTalk",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 56240,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 630,
+          "suggestedFixed": 630,
+          "fx": 89.269841,
+          "suggestedFx": 89.269841,
+          "margin": 0.14603175,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 538,
+          "fx": 104.53531599,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.14603175
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:51.238Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "TELETALK_BD_011",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "TeleTalk",
+        "brandName": "TeleTalk",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 61864,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 690,
+          "suggestedFixed": 690,
+          "fx": 89.657971,
+          "suggestedFx": 89.657971,
+          "margin": 0.14347826,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 591,
+          "fx": 104.67681895,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.14347826
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:53.684Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "TELETALK_BD_012",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "TeleTalk",
+        "brandName": "TeleTalk",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 67488,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 750,
+          "suggestedFixed": 750,
+          "fx": 89.984,
+          "suggestedFx": 89.984,
+          "margin": 0.14,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 645,
+          "fx": 104.63255814,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.14
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:58.829Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "TELETALK_BD_013",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "TeleTalk",
+        "brandName": "TeleTalk",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 73112,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 810,
+          "suggestedFixed": 810,
+          "fx": 90.261728,
+          "suggestedFx": 90.261728,
+          "margin": 0.13703704,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 699,
+          "fx": 104.59513591,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.13703704
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:58.829Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "TELETALK_BD_014",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "TeleTalk",
+        "brandName": "TeleTalk",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 78736,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 880,
+          "suggestedFixed": 880,
+          "fx": 89.472727,
+          "suggestedFx": 89.472727,
+          "margin": 0.14431818,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 753,
+          "fx": 104.56308101,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.14431818
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:52:01.419Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "TELETALK_BD_015",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "TeleTalk",
+        "brandName": "TeleTalk",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 84360,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 940,
+          "suggestedFixed": 940,
+          "fx": 89.744681,
+          "suggestedFx": 89.744681,
+          "margin": 0.14255319,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 806,
+          "fx": 104.66501241,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.14255319
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:51.238Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "TELETALK_BD_016",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "TeleTalk",
+        "brandName": "TeleTalk",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 89984,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 1000,
+          "suggestedFixed": 1000,
+          "fx": 89.984,
+          "suggestedFx": 89.984,
+          "margin": 0.14,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 860,
+          "fx": 104.63255814,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.14
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:56.256Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "TELETALK_BD_017",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "TeleTalk",
+        "brandName": "TeleTalk",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 95608,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 1060,
+          "suggestedFixed": 1060,
+          "fx": 90.196226,
+          "suggestedFx": 90.196226,
+          "margin": 0.13773585,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 914,
+          "fx": 104.60393873,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.13773585
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:51.238Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "TELETALK_BD_018",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "TeleTalk",
+        "brandName": "TeleTalk",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "FIXED",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "fixed": 101232,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 1130,
+          "suggestedFixed": 1130,
+          "fx": 89.585841,
+          "suggestedFx": 89.585841,
+          "margin": 0.14336283,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "fixed": 968,
+          "fx": 104.5785124,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.14336283
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:51.238Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "AIRTEL_BD_OPEN",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Airtel",
+        "brandName": "Airtel",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "RANGE",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "min": 1000,
+          "max": 100000,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "min": 13,
+          "max": 1284,
+          "fx": 77.88162,
+          "suggestedFx": 77.88162,
+          "margin": 0.2530064,
+          "increment": 1,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "min": 10,
+          "max": 959,
+          "fx": 104.26008969,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.2530064
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:56.256Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "BANGLALINK_BD_OPEN",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Banglalink",
+        "brandName": "Banglalink",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "RANGE",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "min": 1000,
+          "max": 100000,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "min": 12,
+          "max": 1203,
+          "fx": 83.12552,
+          "suggestedFx": 83.12552,
+          "margin": 0.20539153,
+          "increment": 1,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "min": 10,
+          "max": 956,
+          "fx": 104.61192351,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.20539153
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:51.238Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "GRAMEENPHONE_BD_OPEN",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "GrameenPhone",
+        "brandName": "Grameen Phone",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "RANGE",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "min": 2125,
+          "max": 93534,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "min": 27,
+          "max": 1182,
+          "fx": 79.13198,
+          "suggestedFx": 79.13198,
+          "margin": 0.27951531,
+          "increment": 1,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "min": 19,
+          "max": 852,
+          "fx": 109.83159091,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.27951531
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:52:01.419Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "ROBI_BD_OPEN",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "Robi",
+        "brandName": "Robi",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "RANGE",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "min": 1000,
+          "max": 100000,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "min": 12,
+          "max": 1190,
+          "fx": 84.033613,
+          "suggestedFx": 84.033613,
+          "margin": 0.19822459,
+          "increment": 1,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "min": 10,
+          "max": 954,
+          "fx": 104.80941704,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.19822459
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:52:01.419Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      },
+      {
+        "enabled": true,
+        "offerId": "TELETALK_BD_OPEN",
+        "country": "BD",
+        "regions": [
+          "South Asia"
+        ],
+        "brand": "TeleTalk",
+        "brandName": "TeleTalk",
+        "productType": "TOPUP",
+        "subTypes": [
+          "Mobile Top Up"
+        ],
+        "notes": "",
+        "shortNotes": "",
+        "priceType": "RANGE",
+        "send": {
+          "currency": "BDT",
+          "currencyDivisor": 100,
+          "min": 1000,
+          "max": 100000,
+          "fx": 1
+        },
+        "price": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "min": 11,
+          "max": 1123,
+          "fx": 89.047195,
+          "suggestedFx": 89.047195,
+          "margin": 0.14878542,
+          "increment": 1,
+          "fee": 0
+        },
+        "cost": {
+          "currency": "USD",
+          "currencyDivisor": 100,
+          "min": 10,
+          "max": 956,
+          "fx": 104.61192351,
+          "fee": 0,
+          "feePct": 0,
+          "discount": 0.14878542
+        },
+        "durationDays": 0,
+        "dataGB": 0,
+        "dataUnlimited": false,
+        "smsNumber": 0,
+        "smsUnlimited": false,
+        "voiceMinutes": 0,
+        "voiceUnlimited": false,
+        "createdAt": "2025-02-17T05:51:43.793Z",
+        "updatedAt": "2026-08-22T00:00:00Z"
+      }
+    ]
+  },
+  "ding": {
+    "providers": [],
+    "products": []
+  }
+}

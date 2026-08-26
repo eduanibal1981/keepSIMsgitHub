@@ -70,30 +70,16 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
     super.dispose();
   }
 
-  /// Re-reads the lines when one of this user's refills actually completes.
-  ///
-  /// "Last Refill: No refill yet" was shown on a Premium line whose first
-  /// pre-paid refill had already succeeded — `sim_lines.last_topup_at` was set
-  /// correctly in the database four seconds after the line was created, and
-  /// nothing in the app ever looked again. `simLinesControllerProvider` is
-  /// `keepAlive` and rebuilds only when the auth profile changes, so until
-  /// somebody pressed the refresh button the card kept rendering the row the
-  /// save had constructed locally. That affects every server-computed field on
-  /// the card, not just this one: the nightly forecast, an auto-rescue and a
-  /// scheduled refill are all invisible the same way.
-  ///
-  /// `topup_executions` is already in the `supabase_realtime` publication and
-  /// is SELECT-own for clients, so this receives only the caller's own rows.
-  /// Debounced because a worker completing a batch emits one event per row and
-  /// each would otherwise trigger its own refetch.
+  /// Re-reads the lines when one of this user's refills actually completes or lines update.
   void _subscribeToRefillActivity() {
     final userId = Supabase.instance.client.auth.currentUser?.id;
     if (userId == null) return;
 
+    _refillChannel?.unsubscribe();
     _refillChannel = Supabase.instance.client
         .channel('sim_lines_refill_activity_$userId')
         .onPostgresChanges(
-          event: PostgresChangeEvent.update,
+          event: PostgresChangeEvent.all,
           schema: 'public',
           table: 'topup_executions',
           filter: PostgresChangeFilter(
@@ -102,22 +88,32 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
             value: userId,
           ),
           callback: (payload) {
-            final status = payload.newRecord['status'] as String?;
-            if (status != 'success' && status != 'failed') return;
-            if (payload.oldRecord['status'] == status) return;
-
-            _refillRefreshDebounce?.cancel();
-            _refillRefreshDebounce = Timer(
-              const Duration(milliseconds: 800),
-              () {
-                if (!mounted) return;
-                ref.invalidate(simLinesControllerProvider);
-                ref.invalidate(scheduledTopupControllerProvider);
-              },
-            );
+            _triggerDebouncedRefresh();
+          },
+        )
+        .onPostgresChanges(
+          event: PostgresChangeEvent.all,
+          schema: 'public',
+          table: 'sim_lines',
+          filter: PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: 'user_id',
+            value: userId,
+          ),
+          callback: (payload) {
+            _triggerDebouncedRefresh();
           },
         )
         .subscribe();
+  }
+
+  void _triggerDebouncedRefresh() {
+    _refillRefreshDebounce?.cancel();
+    _refillRefreshDebounce = Timer(const Duration(milliseconds: 600), () {
+      if (!mounted) return;
+      ref.invalidate(simLinesControllerProvider);
+      ref.invalidate(scheduledTopupControllerProvider);
+    });
   }
 
   Future<void> _bulkToggleRefill(
@@ -564,68 +560,79 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
     HouseholdState? householdState, {
     required bool isShared,
   }) {
-    return ListView.builder(
-      padding: const EdgeInsets.all(16.0),
-      itemCount: isShared ? lines.length : lines.length + 1,
-      itemBuilder: (context, index) {
-        if (!isShared && index == 0) {
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 16.0),
-            child: _buildAddHeaderCard(context, lines.length),
-          );
-        }
-
-        final line = lines[isShared ? index : index - 1];
-        final country = countries.isEmpty
-            ? null
-            : countries.firstWhereOrNull((c) => c.id == line.countryId);
-
-        // Resolve carrier from the carriers list for this line's country.
-        final carriersAsync = line.countryId != null
-            ? ref.watch(carriersForCountryProvider(line.countryId!))
-            : null;
-        final allCarriers = carriersAsync?.value ?? <Carrier>[];
-        final carrier = allCarriers.firstWhereOrNull(
-          (c) => c.id == line.carrierId,
-        );
-
-        final isSelected = _selectedIds.contains(line.id);
-
-        return SimLineCard(
-          line: line,
-          index: isShared ? index : index - 1,
-          country: country,
-          carrier: carrier,
-          isShared: isShared,
-          isSelected: isSelected,
-          isSelectMode: _isSelectMode,
-          householdState: householdState,
-          onTap: () async {
-            if (_isSelectMode) {
-              setState(() {
-                if (isSelected) {
-                  _selectedIds.remove(line.id);
-                  if (_selectedIds.isEmpty) {
-                    _isSelectMode = false;
-                  }
-                } else {
-                  _selectedIds.add(line.id);
-                }
-              });
-            } else {
-              context.push('/sim-lines/detail/${line.id}');
-            }
-          },
-          onLongPress: () async {
-            if (!_isSelectMode) {
-              setState(() {
-                _isSelectMode = true;
-                _selectedIds.add(line.id);
-              });
-            }
-          },
-        );
+    return RefreshIndicator(
+      color: AppColors.primary,
+      onRefresh: () async {
+        await HapticHelper.mediumImpact();
+        ref.invalidate(simLinesControllerProvider);
+        ref.invalidate(scheduledTopupControllerProvider);
+        ref.invalidate(householdControllerProvider);
+        await HapticHelper.successFeedback();
       },
+      child: ListView.builder(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(16.0),
+        itemCount: isShared ? lines.length : lines.length + 1,
+        itemBuilder: (context, index) {
+          if (!isShared && index == 0) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 16.0),
+              child: _buildAddHeaderCard(context, lines.length),
+            );
+          }
+
+          final line = lines[isShared ? index : index - 1];
+          final country = countries.isEmpty
+              ? null
+              : countries.firstWhereOrNull((c) => c.id == line.countryId);
+
+          // Resolve carrier from the carriers list for this line's country.
+          final carriersAsync = line.countryId != null
+              ? ref.watch(carriersForCountryProvider(line.countryId!))
+              : null;
+          final allCarriers = carriersAsync?.value ?? <Carrier>[];
+          final carrier = allCarriers.firstWhereOrNull(
+            (c) => c.id == line.carrierId,
+          );
+
+          final isSelected = _selectedIds.contains(line.id);
+
+          return SimLineCard(
+            line: line,
+            index: isShared ? index : index - 1,
+            country: country,
+            carrier: carrier,
+            isShared: isShared,
+            isSelected: isSelected,
+            isSelectMode: _isSelectMode,
+            householdState: householdState,
+            onTap: () async {
+              if (_isSelectMode) {
+                setState(() {
+                  if (isSelected) {
+                    _selectedIds.remove(line.id);
+                    if (_selectedIds.isEmpty) {
+                      _isSelectMode = false;
+                    }
+                  } else {
+                    _selectedIds.add(line.id);
+                  }
+                });
+              } else {
+                context.push('/sim-lines/detail/${line.id}');
+              }
+            },
+            onLongPress: () async {
+              if (!_isSelectMode) {
+                setState(() {
+                  _isSelectMode = true;
+                  _selectedIds.add(line.id);
+                });
+              }
+            },
+          );
+        },
+      ),
     );
   }
 
@@ -696,7 +703,27 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
   /// Free tier when one already exists, and the database refuses a second one
   /// regardless. Duplicating the rule in a third place is how the three copies
   /// drifted apart in the first place.
-  void _checkLineLimitAndAdd(BuildContext context, int myLinesCount) {
-    context.push('/sim-lines/add');
+  Future<void> _checkLineLimitAndAdd(
+    BuildContext context,
+    int myLinesCount,
+  ) async {
+    await context.push('/sim-lines/add');
+    if (mounted) {
+      ref.invalidate(simLinesControllerProvider);
+      ref.invalidate(scheduledTopupControllerProvider);
+      // Auto-poll after 2.5s and 5.5s to seamlessly catch server worker refill completion
+      Timer(const Duration(milliseconds: 2500), () {
+        if (mounted) {
+          ref.invalidate(simLinesControllerProvider);
+          ref.invalidate(scheduledTopupControllerProvider);
+        }
+      });
+      Timer(const Duration(milliseconds: 5500), () {
+        if (mounted) {
+          ref.invalidate(simLinesControllerProvider);
+          ref.invalidate(scheduledTopupControllerProvider);
+        }
+      });
+    }
   }
 }

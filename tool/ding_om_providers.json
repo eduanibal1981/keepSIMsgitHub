@@ -1,0 +1,565 @@
+{
+  "ResultCode": 1,
+  "ErrorCodes": [],
+  "Items": [
+    {
+      "ProviderCode": "04CACDOM",
+      "CountryIso": "OM",
+      "Name": "Cafe Arabica Oman",
+      "ValidationRegex": "^968[0-9]{8}$|^0000000000$",
+      "CustomerCareNumber": "",
+      "RegionCodes": [
+        "OM"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/04CACD/OM.png"
+    },
+    {
+      "ProviderCode": "092A89OM",
+      "CountryIso": "OM",
+      "Name": "BEVERLY HILLS POLO CLUB Oman",
+      "ValidationRegex": "^968[0-9]{8}$|^0000000000$",
+      "CustomerCareNumber": "",
+      "RegionCodes": [
+        "OM"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/092A89/OM.png"
+    },
+    {
+      "ProviderCode": "157428OM",
+      "CountryIso": "OM",
+      "Name": "NBA 2K25 Oman",
+      "ValidationRegex": "^968[0-9]{8}$|^0000000000$",
+      "CustomerCareNumber": "",
+      "RegionCodes": [
+        "OM"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/157428/OM.png"
+    },
+    {
+      "ProviderCode": "17907FOM",
+      "CountryIso": "OM",
+      "Name": "ALDO Oman",
+      "ValidationRegex": "^968[0-9]{8}$|^0000000000$",
+      "CustomerCareNumber": "",
+      "RegionCodes": [
+        "OM"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/17907F/OM.png"
+    },
+    {
+      "ProviderCode": "18F054OM",
+      "CountryIso": "OM",
+      "Name": "Rewarble Oman",
+      "ValidationRegex": "^968[0-9]{8}$|^0000000000$",
+      "CustomerCareNumber": "",
+      "RegionCodes": [
+        "OM"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/18F054/OM.png"
+    },
+    {
+      "ProviderCode": "1B6E5DOM",
+      "CountryIso": "OM",
+      "Name": "Nida Al Harb Oman",
+      "ValidationRegex": "^968[0-9]{8}$|^0000000000$",
+      "CustomerCareNumber": "",
+      "RegionCodes": [
+        "OM"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/1B6E5D/OM.png"
+    },
+    {
+      "ProviderCode": "205E55OM",
+      "CountryIso": "OM",
+      "Name": "Dead Rising Oman",
+      "ValidationRegex": "^968[0-9]{8}$|^0000000000$",
+      "CustomerCareNumber": "",
+      "RegionCodes": [
+        "OM"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/205E55/OM.png"
+    },
+    {
+      "ProviderCode": "2AOM",
+      "CountryIso": "OM",
+      "Name": "Amazon Oman",
+      "ValidationRegex": "^968[0-9]{8}$|^0000000000$",
+      "CustomerCareNumber": "",
+      "RegionCodes": [
+        "OM"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/2A/OM.png"
+    },
+    {
+      "ProviderCode": "2DE4BAOM",
+      "CountryIso": "OM",
+      "Name": "CALL IT SPRING Oman",
+      "ValidationRegex": "^968[0-9]{8}$|^0000000000$",
+      "CustomerCareNumber": "",
+      "RegionCodes": [
+        "OM"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/2DE4BA/OM.png"
+    },
+    {
+      "ProviderCode": "377FC3OM",
+      "CountryIso": "OM",
+      "Name": "Diablo IV Oman",
+      "ValidationRegex": "^968[0-9]{8}$|^0000000000$",
+      "CustomerCareNumber": "",
+      "RegionCodes": [
+        "OM"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/377FC3/OM.png"
+    },
+    {
+      "ProviderCode": "4ROM",
+      "CountryIso": "OM",
+      "Name": "Roblox Oman",
+      "ValidationRegex": "^968[0-9]{8}$|^0000000000$",
+      "CustomerCareNumber": "",
+      "RegionCodes": [
+        "OM"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/4R/OM.png"
+    },
+    {
+      "ProviderCode": "5C900EOM",
+      "CountryIso": "OM",
+      "Name": "Bar B Q Tonight Oman",
+      "ValidationRegex": "^968[0-9]{8}$|^0000000000$",
+      "CustomerCareNumber": "",
+      "RegionCodes": [
+        "OM"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/5C900E/OM.png"
+    },
+    {
+      "ProviderCode": "5POM",
+      "CountryIso": "OM",
+      "Name": "Spacetoon go Oman",
+      "ValidationRegex": "^968[0-9]{8}$|^0000000000$",
+      "CustomerCareNumber": "",
+      "RegionCodes": [
+        "OM"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/5P/OM.png"
+    },
+    {
+      "ProviderCode": "5ROM",
+      "CountryIso": "OM",
+      "Name": "RIOT ACCESS MENA Oman",
+      "ValidationRegex": "^968[0-9]{8}$|^0000000000$",
+      "CustomerCareNumber": "",
+      "RegionCodes": [
+        "OM"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/5R/OM.png"
+    },
+    {
+      "ProviderCode": "621BD3OM",
+      "CountryIso": "OM",
+      "Name": "Al Mosafer Oman",
+      "ValidationRegex": "^968[0-9]{8}$|^0000000000$",
+      "CustomerCareNumber": "",
+      "RegionCodes": [
+        "OM"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/621BD3/OM.png"
+    },
+    {
+      "ProviderCode": "69C8BDOM",
+      "CountryIso": "OM",
+      "Name": "AEROPOSTALE Oman",
+      "ValidationRegex": "^968[0-9]{8}$|^0000000000$",
+      "CustomerCareNumber": "",
+      "RegionCodes": [
+        "OM"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/69C8BD/OM.png"
+    },
+    {
+      "ProviderCode": "74OM",
+      "CountryIso": "OM",
+      "Name": "Free Fire Oman",
+      "ValidationRegex": "^968[0-9]{8}$|^0000000000$",
+      "CustomerCareNumber": "",
+      "RegionCodes": [
+        "OM"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/74/OM.png"
+    },
+    {
+      "ProviderCode": "7532BDOM",
+      "CountryIso": "OM",
+      "Name": "ATHLETE'S CO Oman",
+      "ValidationRegex": "^968[0-9]{8}$|^0000000000$",
+      "CustomerCareNumber": "",
+      "RegionCodes": [
+        "OM"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/7532BD/OM.png"
+    },
+    {
+      "ProviderCode": "8D199COM",
+      "CountryIso": "OM",
+      "Name": "BIRKENSTOCK Oman",
+      "ValidationRegex": "^968[0-9]{8}$|^0000000000$",
+      "CustomerCareNumber": "",
+      "RegionCodes": [
+        "OM"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/8D199C/OM.png"
+    },
+    {
+      "ProviderCode": "9AOM",
+      "CountryIso": "OM",
+      "Name": "Babyshop Oman",
+      "ValidationRegex": "^968[0-9]{8}$|^0000000000$",
+      "CustomerCareNumber": "",
+      "RegionCodes": [
+        "OM"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/9A/OM.png"
+    },
+    {
+      "ProviderCode": "9CFF6COM",
+      "CountryIso": "OM",
+      "Name": "Ardene Oman",
+      "ValidationRegex": "^968[0-9]{8}$|^0000000000$",
+      "CustomerCareNumber": "",
+      "RegionCodes": [
+        "OM"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/9CFF6C/OM.png"
+    },
+    {
+      "ProviderCode": "9COM",
+      "CountryIso": "OM",
+      "Name": "Minecraft Oman",
+      "ValidationRegex": "^968[0-9]{6,12}$",
+      "CustomerCareNumber": "",
+      "RegionCodes": [
+        "OM"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/9C/OM.png"
+    },
+    {
+      "ProviderCode": "9DOM",
+      "CountryIso": "OM",
+      "Name": "Centrepoint Oman",
+      "ValidationRegex": "^968[0-9]{8}$|^0000000000$",
+      "CustomerCareNumber": "",
+      "RegionCodes": [
+        "OM"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/9D/OM.png"
+    },
+    {
+      "ProviderCode": "9POM",
+      "CountryIso": "OM",
+      "Name": "Talabat Oman",
+      "ValidationRegex": "^968[0-9]{8}$|^0000000000$",
+      "CustomerCareNumber": "",
+      "RegionCodes": [
+        "OM"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/9P/OM.png"
+    },
+    {
+      "ProviderCode": "A50AFBOM",
+      "CountryIso": "OM",
+      "Name": "CHARLES & KEITH Oman",
+      "ValidationRegex": "^968[0-9]{8}$|^0000000000$",
+      "CustomerCareNumber": "",
+      "RegionCodes": [
+        "OM"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/A50AFB/OM.png"
+    },
+    {
+      "ProviderCode": "A8F0CBOM",
+      "CountryIso": "OM",
+      "Name": "LifeAfter Oman",
+      "ValidationRegex": "^968[0-9]{8}$|^0000000000$",
+      "CustomerCareNumber": "",
+      "RegionCodes": [
+        "OM"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/A8F0CB/OM.png"
+    },
+    {
+      "ProviderCode": "AC50FDOM",
+      "CountryIso": "OM",
+      "Name": "ALDO ACCESSORIES Oman",
+      "ValidationRegex": "^968[0-9]{8}$|^0000000000$",
+      "CustomerCareNumber": "",
+      "RegionCodes": [
+        "OM"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/AC50FD/OM.png"
+    },
+    {
+      "ProviderCode": "C82854OM",
+      "CountryIso": "OM",
+      "Name": "Carpisa Oman",
+      "ValidationRegex": "^968[0-9]{8}$|^0000000000$",
+      "CustomerCareNumber": "",
+      "RegionCodes": [
+        "OM"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/C82854/OM.png"
+    },
+    {
+      "ProviderCode": "D87765OM",
+      "CountryIso": "OM",
+      "Name": "Paypal International Oman",
+      "ValidationRegex": "^968[0-9]{8}$|^0000000000$",
+      "CustomerCareNumber": "",
+      "RegionCodes": [
+        "OM"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/D87765/OM.png"
+    },
+    {
+      "ProviderCode": "E1531AOM",
+      "CountryIso": "OM",
+      "Name": "Gunfire Reborn Oman",
+      "ValidationRegex": "^968[0-9]{8}$|^0000000000$",
+      "CustomerCareNumber": "",
+      "RegionCodes": [
+        "OM"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/E1531A/OM.png"
+    },
+    {
+      "ProviderCode": "EB73A6OM",
+      "CountryIso": "OM",
+      "Name": "Swype Global Oman",
+      "ValidationRegex": "^968[0-9]{8}$|^0000000000$",
+      "CustomerCareNumber": "",
+      "RegionCodes": [
+        "OM"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/EB73A6/OM.png"
+    },
+    {
+      "ProviderCode": "I3OM",
+      "CountryIso": "OM",
+      "Name": "Razer Gold Digital Oman",
+      "ValidationRegex": "^968[0-9]{8}$|^0000000000$",
+      "CustomerCareNumber": "",
+      "RegionCodes": [
+        "OM"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/I3/OM.png"
+    },
+    {
+      "ProviderCode": "IAOM",
+      "CountryIso": "OM",
+      "Name": "App Store & iTunes Gift Card Oman",
+      "ValidationRegex": "^968[0-9]{8}$|^0000000000$",
+      "CustomerCareNumber": "",
+      "RegionCodes": [
+        "OM"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/IA/OM.png"
+    },
+    {
+      "ProviderCode": "OMOM",
+      "CountryIso": "OM",
+      "Name": "Omantel Oman",
+      "ValidationRegex": "^968[0-9]{8}$|^0000000000$",
+      "CustomerCareNumber": "",
+      "RegionCodes": [
+        "OM"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/OM/OM.png"
+    },
+    {
+      "ProviderCode": "OOOM",
+      "CountryIso": "OM",
+      "Name": "Ooredoo Oman",
+      "ValidationRegex": "^968[0-9]{8}$",
+      "CustomerCareNumber": "",
+      "RegionCodes": [
+        "OM"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/OO/OM.png"
+    },
+    {
+      "ProviderCode": "PGOM",
+      "CountryIso": "OM",
+      "Name": "PUBG Mobile Oman",
+      "ValidationRegex": "^968[0-9]{8}$|^0000000000$",
+      "CustomerCareNumber": "",
+      "RegionCodes": [
+        "OM"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/PG/OM.png"
+    },
+    {
+      "ProviderCode": "PNOM",
+      "CountryIso": "OM",
+      "Name": "Playstation Network Oman",
+      "ValidationRegex": "^968[0-9]{8}$|^0000000000$",
+      "CustomerCareNumber": "",
+      "RegionCodes": [
+        "OM"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/PN/OM.png"
+    },
+    {
+      "ProviderCode": "QBOM",
+      "CountryIso": "OM",
+      "Name": "BIGO Live Oman",
+      "ValidationRegex": "^968[0-9]{8}$|^0000000000$",
+      "CustomerCareNumber": "",
+      "RegionCodes": [
+        "OM"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/QB/OM.png"
+    },
+    {
+      "ProviderCode": "VFOM",
+      "CountryIso": "OM",
+      "Name": "Vodafone Oman",
+      "ValidationRegex": "^968[0-9]{8}$|^0000000000$",
+      "CustomerCareNumber": "",
+      "RegionCodes": [
+        "OM"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/VF/OM.png"
+    },
+    {
+      "ProviderCode": "Z9OM",
+      "CountryIso": "OM",
+      "Name": "Steam Oman",
+      "ValidationRegex": "^968[0-9]{8}$|^0000000000$",
+      "RegionCodes": [
+        "OM"
+      ],
+      "PaymentTypes": [
+        "Prepaid"
+      ],
+      "LogoUrl": "https://imagerepo.ding.com/logo/Z9/OM.png"
+    }
+  ]
+}

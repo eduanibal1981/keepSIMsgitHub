@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:go_router/go_router.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
@@ -302,6 +304,117 @@ class _SimLineExecutionsHistoryScreenState
                                       ? AppColors.textSecondaryDark
                                       : AppColors.textSecondaryLight,
                                   fontFamily: 'monospace',
+                                ),
+                              ),
+                            ],
+                            if (isSuccess && ex.pinCode != null && ex.pinCode!.isNotEmpty) ...[
+                              const SizedBox(height: 8),
+                              Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: (isDark ? Colors.amber : Colors.orange).withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: (isDark ? Colors.amber : Colors.orange).withValues(alpha: 0.35),
+                                  ),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.pin_outlined,
+                                          color: isDark ? Colors.amberAccent : Colors.orange.shade800,
+                                          size: 18,
+                                        ),
+                                        const SizedBox(width: 6),
+                                        Text(
+                                          'Recharge PIN Code',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 13,
+                                            color: isDark ? Colors.amberAccent : Colors.orange.shade900,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                            decoration: BoxDecoration(
+                                              color: isDark ? AppColors.darkSurface : Colors.white,
+                                              borderRadius: BorderRadius.circular(8),
+                                              border: Border.all(
+                                                color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                                              ),
+                                            ),
+                                            child: SelectableText(
+                                              ex.pinCode!,
+                                              style: const TextStyle(
+                                                fontFamily: 'monospace',
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w900,
+                                                letterSpacing: 1.5,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        IconButton.filledTonal(
+                                          icon: const Icon(Icons.copy_rounded, size: 18),
+                                          tooltip: 'Copy PIN',
+                                          onPressed: () {
+                                            Clipboard.setData(ClipboardData(text: ex.pinCode!));
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              const SnackBar(
+                                                content: Text('PIN copied to clipboard!'),
+                                                duration: Duration(seconds: 2),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                    if (ex.redeemInstructions != null && ex.redeemInstructions!.isNotEmpty) ...[
+                                      const SizedBox(height: 6),
+                                      Text(
+                                        ex.redeemInstructions!,
+                                        style: TextStyle(
+                                          fontSize: 11.5,
+                                          color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                                        ),
+                                      ),
+                                    ],
+                                    const SizedBox(height: 10),
+                                    SizedBox(
+                                      width: double.infinity,
+                                      child: ElevatedButton.icon(
+                                        icon: const Icon(Icons.phone_forwarded_rounded, size: 16),
+                                        label: Text(
+                                          '1-Tap Dial (*1400*${ex.pinCode}#)',
+                                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                                        ),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: isDark ? Colors.amber.shade700 : Colors.orange.shade700,
+                                          foregroundColor: Colors.white,
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                          padding: const EdgeInsets.symmetric(vertical: 10),
+                                        ),
+                                        onPressed: () async {
+                                          final dialString = '*1400*${ex.pinCode}#';
+                                          final uri = Uri.parse('tel:${Uri.encodeComponent(dialString)}');
+                                          if (await canLaunchUrl(uri)) {
+                                            await launchUrl(uri);
+                                          }
+                                        },
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],

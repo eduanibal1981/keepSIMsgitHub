@@ -1,0 +1,2171 @@
+{
+  "timestamp": "2026-08-22T22:29:38.324Z",
+  "dtone": {
+    "operators": [
+      {
+        "country": {
+          "iso_code": "QAT",
+          "name": "Qatar",
+          "regions": [
+            {
+              "code": "QAT",
+              "name": "Qatar"
+            }
+          ]
+        },
+        "id": 511,
+        "name": "Ooredoo Qatar",
+        "regions": null
+      },
+      {
+        "country": {
+          "iso_code": "QAT",
+          "name": "Qatar",
+          "regions": [
+            {
+              "code": "QAT",
+              "name": "Qatar"
+            }
+          ]
+        },
+        "id": 2722,
+        "name": "Vodafone PIN Qatar",
+        "regions": null
+      },
+      {
+        "country": {
+          "iso_code": "QAT",
+          "name": "Qatar",
+          "regions": [
+            {
+              "code": "QAT",
+              "name": "Qatar"
+            }
+          ]
+        },
+        "id": 3294,
+        "name": "Playstation Qatar",
+        "regions": null
+      },
+      {
+        "country": {
+          "iso_code": "QAT",
+          "name": "Qatar",
+          "regions": [
+            {
+              "code": "QAT",
+              "name": "Qatar"
+            }
+          ]
+        },
+        "id": 4595,
+        "name": "Free Fire Qatar",
+        "regions": null
+      }
+    ],
+    "products": [
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": "",
+            "amount": {
+              "base": 25,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 25,
+              "total_including_tax": 25
+            },
+            "type": "DATA",
+            "unit": "GB",
+            "unit_type": "DATA"
+          }
+        ],
+        "description": "25 GB for 28 days",
+        "destination": {
+          "amount": 150,
+          "unit": "QAR",
+          "unit_type": "CURRENCY"
+        },
+        "id": 1738,
+        "name": "Ooredoo PIN Qatar Internet 150 QAR",
+        "operator": {
+          "country": {
+            "iso_code": "QAT",
+            "name": "Qatar",
+            "regions": [
+              {
+                "code": "QAT",
+                "name": "Qatar"
+              }
+            ]
+          },
+          "id": 511,
+          "name": "Ooredoo Qatar",
+          "regions": null
+        },
+        "pin": {
+          "terms": null,
+          "usage_info": [
+            "Hala: To top up type *127*PIN# and dial. To check balance type *129# and dial. Data: To activate SMS PIN to 127. To check data balance SMS. Balance DC to 121. Help line:111 or 170. PIN supplied by ECONNECT",
+            "",
+            "",
+            "IVR: *127*PIN#"
+          ],
+          "validity": null
+        },
+        "prices": {
+          "retail": {
+            "amount": 22.119,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 19.233,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 7.7990953049446,
+          "retail": 6.7818066732978,
+          "wholesale": 7.7990953049446
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": null,
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 1,
+          "name": "Mobile",
+          "subservice": {
+            "id": 13,
+            "name": "Data"
+          }
+        },
+        "source": {
+          "amount": 19.233,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": [
+          "DATA"
+        ],
+        "type": "FIXED_VALUE_PIN_PURCHASE",
+        "validity": {
+          "quantity": 28,
+          "unit": "DAY"
+        }
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 10,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 10,
+              "total_including_tax": 10
+            },
+            "type": "CREDITS",
+            "unit": "QAR",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "description": "10 QAR",
+        "destination": {
+          "amount": 10,
+          "unit": "QAR",
+          "unit_type": "CURRENCY"
+        },
+        "id": 17355,
+        "name": "10 QAR",
+        "operator": {
+          "country": {
+            "iso_code": "QAT",
+            "name": "Qatar",
+            "regions": [
+              {
+                "code": "QAT",
+                "name": "Qatar"
+              }
+            ]
+          },
+          "id": 2722,
+          "name": "Vodafone PIN Qatar",
+          "regions": null
+        },
+        "pin": {
+          "terms": null,
+          "usage_info": [
+            "Balance: *129# Customer Care: 111",
+            "",
+            "",
+            "IVR: *127*PIN#"
+          ],
+          "validity": null
+        },
+        "prices": {
+          "retail": {
+            "amount": 1.483,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 1.289,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 7.7579519006982,
+          "retail": 6.7430883344572,
+          "wholesale": 7.7579519006982
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": null,
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 1,
+          "name": "Mobile",
+          "subservice": {
+            "id": 11,
+            "name": "Airtime"
+          }
+        },
+        "source": {
+          "amount": 1.289,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": [
+          "AIRTIME"
+        ],
+        "type": "FIXED_VALUE_PIN_PURCHASE",
+        "validity": {
+          "quantity": 60,
+          "unit": "DAY"
+        }
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 20,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 20,
+              "total_including_tax": 20
+            },
+            "type": "CREDITS",
+            "unit": "QAR",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "description": "20 QAR",
+        "destination": {
+          "amount": 20,
+          "unit": "QAR",
+          "unit_type": "CURRENCY"
+        },
+        "id": 17356,
+        "name": "20 QAR",
+        "operator": {
+          "country": {
+            "iso_code": "QAT",
+            "name": "Qatar",
+            "regions": [
+              {
+                "code": "QAT",
+                "name": "Qatar"
+              }
+            ]
+          },
+          "id": 2722,
+          "name": "Vodafone PIN Qatar",
+          "regions": null
+        },
+        "pin": {
+          "terms": null,
+          "usage_info": [
+            "Balance: *129# Customer Care: 111",
+            "",
+            "",
+            "IVR: *127*PIN#"
+          ],
+          "validity": null
+        },
+        "prices": {
+          "retail": {
+            "amount": 2.965,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 2.578,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 7.7579519006982,
+          "retail": 6.7453625632378,
+          "wholesale": 7.7579519006982
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": null,
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 1,
+          "name": "Mobile",
+          "subservice": {
+            "id": 11,
+            "name": "Airtime"
+          }
+        },
+        "source": {
+          "amount": 2.578,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": [
+          "AIRTIME"
+        ],
+        "type": "FIXED_VALUE_PIN_PURCHASE",
+        "validity": {
+          "quantity": 60,
+          "unit": "DAY"
+        }
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 200,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 200,
+              "total_including_tax": 200
+            },
+            "type": "CREDITS",
+            "unit": "QAR",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "description": "200 QAR",
+        "destination": {
+          "amount": 200,
+          "unit": "QAR",
+          "unit_type": "CURRENCY"
+        },
+        "id": 17361,
+        "name": "200 QAR",
+        "operator": {
+          "country": {
+            "iso_code": "QAT",
+            "name": "Qatar",
+            "regions": [
+              {
+                "code": "QAT",
+                "name": "Qatar"
+              }
+            ]
+          },
+          "id": 2722,
+          "name": "Vodafone PIN Qatar",
+          "regions": null
+        },
+        "pin": {
+          "terms": null,
+          "usage_info": [
+            "Balance: *129# Customer Care: 111",
+            "",
+            "",
+            "IVR: *127*PIN#"
+          ],
+          "validity": null
+        },
+        "prices": {
+          "retail": {
+            "amount": 29.643,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 25.776,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 7.7591558038485,
+          "retail": 6.7469554363593,
+          "wholesale": 7.7591558038485
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": null,
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 1,
+          "name": "Mobile",
+          "subservice": {
+            "id": 11,
+            "name": "Airtime"
+          }
+        },
+        "source": {
+          "amount": 25.776,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": [
+          "AIRTIME"
+        ],
+        "type": "FIXED_VALUE_PIN_PURCHASE",
+        "validity": {
+          "quantity": 180,
+          "unit": "DAY"
+        }
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 300,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 300,
+              "total_including_tax": 300
+            },
+            "type": "CREDITS",
+            "unit": "QAR",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "description": "300 QAR",
+        "destination": {
+          "amount": 300,
+          "unit": "QAR",
+          "unit_type": "CURRENCY"
+        },
+        "id": 17362,
+        "name": "300 QAR",
+        "operator": {
+          "country": {
+            "iso_code": "QAT",
+            "name": "Qatar",
+            "regions": [
+              {
+                "code": "QAT",
+                "name": "Qatar"
+              }
+            ]
+          },
+          "id": 2722,
+          "name": "Vodafone PIN Qatar",
+          "regions": null
+        },
+        "pin": {
+          "terms": null,
+          "usage_info": [
+            "Balance: *129# Customer Care: 111",
+            "",
+            "",
+            "IVR: *127*PIN#"
+          ],
+          "validity": null
+        },
+        "prices": {
+          "retail": {
+            "amount": 44.464,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 38.664,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 7.7591558038485,
+          "retail": 6.7470313062253,
+          "wholesale": 7.7591558038485
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": null,
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 1,
+          "name": "Mobile",
+          "subservice": {
+            "id": 11,
+            "name": "Airtime"
+          }
+        },
+        "source": {
+          "amount": 38.664,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": [
+          "AIRTIME"
+        ],
+        "type": "FIXED_VALUE_PIN_PURCHASE",
+        "validity": {
+          "quantity": 365,
+          "unit": "DAY"
+        }
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 10,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 10,
+              "total_including_tax": 10
+            },
+            "type": "CREDITS",
+            "unit": "USD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "description": "PlayStation Network - $10 PSN Card (Qatar Store)",
+        "destination": {
+          "amount": 10,
+          "unit": "USD",
+          "unit_type": "CURRENCY"
+        },
+        "id": 29339,
+        "name": "PlayStation Network - $10 PSN Card (Qatar Store)",
+        "operator": {
+          "country": {
+            "iso_code": "QAT",
+            "name": "Qatar",
+            "regions": [
+              {
+                "code": "QAT",
+                "name": "Qatar"
+              }
+            ]
+          },
+          "id": 3294,
+          "name": "Playstation Qatar",
+          "regions": null
+        },
+        "pin": {
+          "terms": null,
+          "usage_info": [
+            "Go to PlayStation Store and select your profile at the top of the screen. Select Redeem Code from the drop-down menu. Enter the 12-digit code and select Continue. The credit or content is now applied to your account.",
+            "IVR: Enter the 12-digit code and select Continue. "
+          ],
+          "validity": {
+            "quantity": 12,
+            "unit": "MONTH"
+          }
+        },
+        "prices": {
+          "retail": {
+            "amount": 5.905,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 5.134,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 1.9477989871445,
+          "retail": 1.6934801016088,
+          "wholesale": 1.9477989871445
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": null,
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 4,
+          "name": "Gift Cards",
+          "subservice": {
+            "id": 42,
+            "name": "Gaming"
+          }
+        },
+        "source": {
+          "amount": 5.134,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": null,
+        "type": "FIXED_VALUE_PIN_PURCHASE",
+        "validity": {
+          "quantity": 120,
+          "unit": "MONTH"
+        }
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 20,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 20,
+              "total_including_tax": 20
+            },
+            "type": "CREDITS",
+            "unit": "USD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "description": "PlayStation Network - $20 PSN Card (Qatar Store)",
+        "destination": {
+          "amount": 20,
+          "unit": "USD",
+          "unit_type": "CURRENCY"
+        },
+        "id": 29341,
+        "name": "PlayStation Network - $20 PSN Card (Qatar Store)",
+        "operator": {
+          "country": {
+            "iso_code": "QAT",
+            "name": "Qatar",
+            "regions": [
+              {
+                "code": "QAT",
+                "name": "Qatar"
+              }
+            ]
+          },
+          "id": 3294,
+          "name": "Playstation Qatar",
+          "regions": null
+        },
+        "pin": {
+          "terms": null,
+          "usage_info": [
+            "Go to PlayStation Store and select your profile at the top of the screen. Select Redeem Code from the drop-down menu. Enter the 12-digit code and select Continue. The credit or content is",
+            "IVR: Enter the 12-digit code and select Continue."
+          ],
+          "validity": {
+            "quantity": 12,
+            "unit": "MONTH"
+          }
+        },
+        "prices": {
+          "retail": {
+            "amount": 11.217,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 9.753,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 2.0506510817184,
+          "retail": 1.7831669044223,
+          "wholesale": 2.0506510817184
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": null,
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 4,
+          "name": "Gift Cards",
+          "subservice": {
+            "id": 42,
+            "name": "Gaming"
+          }
+        },
+        "source": {
+          "amount": 9.753,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": null,
+        "type": "FIXED_VALUE_PIN_PURCHASE",
+        "validity": {
+          "quantity": 120,
+          "unit": "MONTH"
+        }
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 30,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 30,
+              "total_including_tax": 30
+            },
+            "type": "CREDITS",
+            "unit": "USD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "description": "PlayStation Network - $30 PSN Card (Qatar Store)",
+        "destination": {
+          "amount": 30,
+          "unit": "USD",
+          "unit_type": "CURRENCY"
+        },
+        "id": 29342,
+        "name": "PlayStation Network - $30 PSN Card (Qatar Store)",
+        "operator": {
+          "country": {
+            "iso_code": "QAT",
+            "name": "Qatar",
+            "regions": [
+              {
+                "code": "QAT",
+                "name": "Qatar"
+              }
+            ]
+          },
+          "id": 3294,
+          "name": "Playstation Qatar",
+          "regions": null
+        },
+        "pin": {
+          "terms": null,
+          "usage_info": [
+            "Go to PlayStation Store and select your profile at the top of the screen. Select Redeem Code from the drop-down menu. Enter the 12-digit code and select Continue. The credit or content is now applied to your account.",
+            "IVR: Enter the 12-digit code and select Continue"
+          ],
+          "validity": {
+            "quantity": 12,
+            "unit": "MONTH"
+          }
+        },
+        "prices": {
+          "retail": {
+            "amount": 16.528,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 14.372,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 2.0873921514055,
+          "retail": 1.8151016456922,
+          "wholesale": 2.0873921514055
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": null,
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 4,
+          "name": "Gift Cards",
+          "subservice": {
+            "id": 42,
+            "name": "Gaming"
+          }
+        },
+        "source": {
+          "amount": 14.372,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": null,
+        "type": "FIXED_VALUE_PIN_PURCHASE",
+        "validity": {
+          "quantity": 120,
+          "unit": "MONTH"
+        }
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 40,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 40,
+              "total_including_tax": 40
+            },
+            "type": "CREDITS",
+            "unit": "USD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "description": "PlayStation Network - $40 PSN Card (Qatar Store)",
+        "destination": {
+          "amount": 40,
+          "unit": "USD",
+          "unit_type": "CURRENCY"
+        },
+        "id": 29343,
+        "name": "PlayStation Network - $40 PSN Card (Qatar Store)",
+        "operator": {
+          "country": {
+            "iso_code": "QAT",
+            "name": "Qatar",
+            "regions": [
+              {
+                "code": "QAT",
+                "name": "Qatar"
+              }
+            ]
+          },
+          "id": 3294,
+          "name": "Playstation Qatar",
+          "regions": null
+        },
+        "pin": {
+          "terms": null,
+          "usage_info": [
+            "Go to PlayStation Store and select your profile at the top of the screen. Select Redeem Code from the drop-down menu. Enter the 12-digit code and select Continue. The credit or content is now applied to your account.",
+            "IVR: Enter the 12-digit code and select Continue."
+          ],
+          "validity": {
+            "quantity": 12,
+            "unit": "MONTH"
+          }
+        },
+        "prices": {
+          "retail": {
+            "amount": 22.133,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 19.246,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 2.0783539436766,
+          "retail": 1.8072561333755,
+          "wholesale": 2.0783539436766
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": null,
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 4,
+          "name": "Gift Cards",
+          "subservice": {
+            "id": 42,
+            "name": "Gaming"
+          }
+        },
+        "source": {
+          "amount": 19.246,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": null,
+        "type": "FIXED_VALUE_PIN_PURCHASE",
+        "validity": {
+          "quantity": 120,
+          "unit": "MONTH"
+        }
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 50,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 50,
+              "total_including_tax": 50
+            },
+            "type": "CREDITS",
+            "unit": "USD",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "description": "PlayStation Network - $50 PSN Card (Qatar Store)",
+        "destination": {
+          "amount": 50,
+          "unit": "USD",
+          "unit_type": "CURRENCY"
+        },
+        "id": 29345,
+        "name": "PlayStation Network - $50 PSN Card (Qatar Store)",
+        "operator": {
+          "country": {
+            "iso_code": "QAT",
+            "name": "Qatar",
+            "regions": [
+              {
+                "code": "QAT",
+                "name": "Qatar"
+              }
+            ]
+          },
+          "id": 3294,
+          "name": "Playstation Qatar",
+          "regions": null
+        },
+        "pin": {
+          "terms": null,
+          "usage_info": [
+            "Go to PlayStation Store and select your profile at the top of the screen. Select Redeem Code from the drop-down menu. Enter the 12-digit code and select Continue. The credit or content is now applied to your account.",
+            "IVR: Enter the 12-digit code and select Continue"
+          ],
+          "validity": {
+            "quantity": 12,
+            "unit": "MONTH"
+          }
+        },
+        "prices": {
+          "retail": {
+            "amount": 28.774,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 25.02,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 1.9984012789768,
+          "retail": 1.7376798498645,
+          "wholesale": 1.9984012789768
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": null,
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 4,
+          "name": "Gift Cards",
+          "subservice": {
+            "id": 42,
+            "name": "Gaming"
+          }
+        },
+        "source": {
+          "amount": 25.02,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": null,
+        "type": "FIXED_VALUE_PIN_PURCHASE",
+        "validity": {
+          "quantity": 120,
+          "unit": "MONTH"
+        }
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 254.8,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 254.8,
+              "total_including_tax": 254.8
+            },
+            "type": "CREDITS",
+            "unit": "QAR",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "description": "PlayStation Network - $70 PSN Card (Qatar Store)",
+        "destination": {
+          "amount": 70,
+          "unit": "USD",
+          "unit_type": "CURRENCY"
+        },
+        "id": 29347,
+        "name": "PlayStation Network - $70 PSN Card (Qatar Store)",
+        "operator": {
+          "country": {
+            "iso_code": "QAT",
+            "name": "Qatar",
+            "regions": [
+              {
+                "code": "QAT",
+                "name": "Qatar"
+              }
+            ]
+          },
+          "id": 3294,
+          "name": "Playstation Qatar",
+          "regions": null
+        },
+        "pin": {
+          "terms": null,
+          "usage_info": [
+            "Go to PlayStation Store and select your profile at the top of the screen. Select Redeem Code from the drop-down menu. Enter the 12-digit code and select Continue. The credit or content is now applied to your account.",
+            "IVR: Enter the 12-digit code and select Continue."
+          ],
+          "validity": {
+            "quantity": 12,
+            "unit": "MONTH"
+          }
+        },
+        "prices": {
+          "retail": {
+            "amount": 38.512,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 33.488,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 2.0903010033445,
+          "retail": 1.8176152887412,
+          "wholesale": 2.0903010033445
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": null,
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 4,
+          "name": "Gift Cards",
+          "subservice": {
+            "id": 42,
+            "name": "Gaming"
+          }
+        },
+        "source": {
+          "amount": 33.488,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": null,
+        "type": "FIXED_VALUE_PIN_PURCHASE",
+        "validity": {
+          "quantity": 120,
+          "unit": "MONTH"
+        }
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": "",
+            "amount": {
+              "base": 12,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 12,
+              "total_including_tax": 12
+            },
+            "type": "DATA",
+            "unit": "GB",
+            "unit_type": "DATA"
+          }
+        ],
+        "description": "12 GB for 28 days",
+        "destination": {
+          "amount": 80,
+          "unit": "QAR",
+          "unit_type": "CURRENCY"
+        },
+        "id": 33349,
+        "name": "Ooredoo PIN Qatar Internet 80 QAR",
+        "operator": {
+          "country": {
+            "iso_code": "QAT",
+            "name": "Qatar",
+            "regions": [
+              {
+                "code": "QAT",
+                "name": "Qatar"
+              }
+            ]
+          },
+          "id": 511,
+          "name": "Ooredoo Qatar",
+          "regions": null
+        },
+        "pin": {
+          "terms": null,
+          "usage_info": [
+            "Hala: To top up type *127*PIN# and dial. To check balance type *129# and dial. Data: To activate SMS PIN to 127. To check data balance SMS. Balance DC to 121. Help line:111 or 170. PIN supplied by ECONNECT",
+            "",
+            "",
+            "IVR: *127*PIN#"
+          ],
+          "validity": null
+        },
+        "prices": {
+          "retail": {
+            "amount": 11.797,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 10.258,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 7.798791187366,
+          "retail": 6.7813850979062,
+          "wholesale": 7.798791187366
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": null,
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 1,
+          "name": "Mobile",
+          "subservice": {
+            "id": 13,
+            "name": "Data"
+          }
+        },
+        "source": {
+          "amount": 10.258,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": [
+          "DATA"
+        ],
+        "type": "FIXED_VALUE_PIN_PURCHASE",
+        "validity": {
+          "quantity": 28,
+          "unit": "DAY"
+        }
+      },
+      {
+        "availability_zones": [
+          "INTERNATIONAL"
+        ],
+        "benefits": [
+          {
+            "additional_information": null,
+            "amount": {
+              "base": 18.2,
+              "promotion_bonus": 0,
+              "total_excluding_tax": 18.2,
+              "total_including_tax": 18.2
+            },
+            "type": "CREDITS",
+            "unit": "QAR",
+            "unit_type": "CURRENCY"
+          }
+        ],
+        "description": "Free Fire - $5 (Qatari Store)",
+        "destination": {
+          "amount": 5,
+          "unit": "USD",
+          "unit_type": "CURRENCY"
+        },
+        "id": 47712,
+        "name": "Free Fire - $5 (Qatari Store)",
+        "operator": {
+          "country": {
+            "iso_code": "QAT",
+            "name": "Qatar",
+            "regions": [
+              {
+                "code": "QAT",
+                "name": "Qatar"
+              }
+            ]
+          },
+          "id": 4595,
+          "name": "Free Fire Qatar",
+          "regions": null
+        },
+        "pin": {
+          "terms": null,
+          "usage_info": [
+            "Please enter the pin to redeem the voucher."
+          ],
+          "validity": {
+            "quantity": 365,
+            "unit": "DAY"
+          }
+        },
+        "prices": {
+          "retail": {
+            "amount": 2.629,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          },
+          "wholesale": {
+            "amount": 2.286,
+            "fee": 0,
+            "unit": "OMR",
+            "unit_type": "CURRENCY"
+          }
+        },
+        "promotions": null,
+        "rates": {
+          "base": 2.1872265966754,
+          "retail": 1.90186382655,
+          "wholesale": 2.1872265966754
+        },
+        "regions": null,
+        "required_additional_identifier_fields": null,
+        "required_beneficiary_fields": null,
+        "required_credit_party_identifier_fields": null,
+        "required_debit_party_identifier_fields": null,
+        "required_sender_fields": null,
+        "required_statement_identifier_fields": null,
+        "service": {
+          "id": 4,
+          "name": "Gift Cards",
+          "subservice": {
+            "id": 42,
+            "name": "Gaming"
+          }
+        },
+        "source": {
+          "amount": 2.286,
+          "unit": "OMR",
+          "unit_type": "CURRENCY"
+        },
+        "tags": null,
+        "type": "FIXED_VALUE_PIN_PURCHASE",
+        "validity": {
+          "quantity": 730,
+          "unit": "DAY"
+        }
+      }
+    ]
+  },
+  "reloadly": {
+    "operators": [
+      {
+        "id": 396,
+        "operatorId": 396,
+        "name": "Ooredoo Qatar",
+        "bundle": false,
+        "data": false,
+        "pin": false,
+        "comboProduct": false,
+        "supportsLocalAmounts": true,
+        "supportsGeographicalRechargePlans": false,
+        "denominationType": "FIXED",
+        "senderCurrencyCode": "USD",
+        "senderCurrencySymbol": "$",
+        "destinationCurrencyCode": "QAR",
+        "destinationCurrencySymbol": "ر.ق.‏",
+        "commission": 1,
+        "internationalDiscount": 1,
+        "localDiscount": 0,
+        "mostPopularAmount": 80.32,
+        "mostPopularLocalAmount": 100,
+        "minAmount": null,
+        "maxAmount": null,
+        "localMinAmount": null,
+        "localMaxAmount": null,
+        "country": {
+          "isoName": "QA",
+          "name": "Qatar"
+        },
+        "fx": {
+          "rate": 2.49,
+          "currencyCode": "QAR"
+        },
+        "logoUrls": [
+          "https://s3.amazonaws.com/rld-operator/1177bb28-8325-47f2-9671-fc090c374d3c-size-2.png",
+          "https://s3.amazonaws.com/rld-operator/1177bb28-8325-47f2-9671-fc090c374d3c-size-3.png",
+          "https://s3.amazonaws.com/rld-operator/1177bb28-8325-47f2-9671-fc090c374d3c-size-1.png"
+        ],
+        "fixedAmounts": [
+          40.16,
+          80.32
+        ],
+        "fixedAmountsDescriptions": {
+          "40.16": "100 QAR",
+          "80.32": "200 QAR"
+        },
+        "localFixedAmounts": [
+          100,
+          200
+        ],
+        "localFixedAmountsDescriptions": {
+          "100.00": "100 QAR",
+          "200.00": "200 QAR"
+        },
+        "suggestedAmounts": [],
+        "suggestedAmountsMap": {},
+        "fees": {
+          "international": 0,
+          "local": 0,
+          "localPercentage": 0,
+          "internationalPercentage": 0
+        },
+        "geographicalRechargePlans": [],
+        "promotions": [],
+        "status": "ACTIVE"
+      },
+      {
+        "id": 395,
+        "operatorId": 395,
+        "name": "Vodafone PIN Qatar",
+        "bundle": false,
+        "data": false,
+        "pin": true,
+        "comboProduct": false,
+        "supportsLocalAmounts": false,
+        "supportsGeographicalRechargePlans": false,
+        "denominationType": "FIXED",
+        "senderCurrencyCode": "USD",
+        "senderCurrencySymbol": "$",
+        "destinationCurrencyCode": "QAR",
+        "destinationCurrencySymbol": "ر.ق.‏",
+        "commission": 1,
+        "internationalDiscount": 1,
+        "localDiscount": 0,
+        "mostPopularAmount": 17.8,
+        "mostPopularLocalAmount": null,
+        "minAmount": null,
+        "maxAmount": null,
+        "localMinAmount": null,
+        "localMaxAmount": null,
+        "country": {
+          "isoName": "QA",
+          "name": "Qatar"
+        },
+        "fx": {
+          "rate": 3.22,
+          "currencyCode": "QAR"
+        },
+        "logoUrls": [
+          "https://s3.amazonaws.com/rld-operator/a93e3c8d-1e9c-4028-a571-3a27de666151-size-1.png",
+          "https://s3.amazonaws.com/rld-operator/a93e3c8d-1e9c-4028-a571-3a27de666151-size-3.png",
+          "https://s3.amazonaws.com/rld-operator/a93e3c8d-1e9c-4028-a571-3a27de666151-size-2.png"
+        ],
+        "fixedAmounts": [
+          3.6,
+          6.2,
+          12.5,
+          17.8,
+          19.6,
+          23.2,
+          31,
+          35.6
+        ],
+        "fixedAmountsDescriptions": {},
+        "localFixedAmounts": [],
+        "localFixedAmountsDescriptions": {},
+        "suggestedAmounts": [],
+        "suggestedAmountsMap": {},
+        "fees": {
+          "international": 0,
+          "local": 0,
+          "localPercentage": 0,
+          "internationalPercentage": 0
+        },
+        "geographicalRechargePlans": [],
+        "promotions": [],
+        "status": "ACTIVE"
+      }
+    ]
+  },
+  "zendit": {
+    "offers": {
+      "message": "INVALID_VALUE: _offset: required",
+      "errorCode": "validation_error",
+      "fields": {}
+    }
+  },
+  "ding": {
+    "providers": {
+      "ResultCode": 1,
+      "ErrorCodes": [],
+      "Items": [
+        {
+          "ProviderCode": "0530D1QA",
+          "CountryIso": "QA",
+          "Name": "Al Mosafer Qatar",
+          "ValidationRegex": "^974[0-9]{8}$|^0000000000$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "QA"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/0530D1/QA.png"
+        },
+        {
+          "ProviderCode": "13E289QA",
+          "CountryIso": "QA",
+          "Name": "ALDO ACCESSORIES Qatar",
+          "ValidationRegex": "^974[0-9]{8}$|^0000000000$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "QA"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/13E289/QA.png"
+        },
+        {
+          "ProviderCode": "157428QA",
+          "CountryIso": "QA",
+          "Name": "NBA 2K25 Qatar",
+          "ValidationRegex": "^974[0-9]{8}$|^0000000000$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "QA"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/157428/QA.png"
+        },
+        {
+          "ProviderCode": "18F054QA",
+          "CountryIso": "QA",
+          "Name": "Rewarble Qatar",
+          "ValidationRegex": "^974[0-9]{8}$|^0000000000$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "QA"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/18F054/QA.png"
+        },
+        {
+          "ProviderCode": "1B6E5DQA",
+          "CountryIso": "QA",
+          "Name": "Nida Al Harb Qatar",
+          "ValidationRegex": "^974[0-9]{8}$|^0000000000$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "QA"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/1B6E5D/QA.png"
+        },
+        {
+          "ProviderCode": "1EB4C4QA",
+          "CountryIso": "QA",
+          "Name": "ALDO Qatar",
+          "ValidationRegex": "^974[0-9]{8}$|^0000000000$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "QA"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/1EB4C4/QA.png"
+        },
+        {
+          "ProviderCode": "205E55QA",
+          "CountryIso": "QA",
+          "Name": "Dead Rising Qatar",
+          "ValidationRegex": "^974[0-9]{8}$|^0000000000$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "QA"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/205E55/QA.png"
+        },
+        {
+          "ProviderCode": "259007QA",
+          "CountryIso": "QA",
+          "Name": "Breitling Qatar",
+          "ValidationRegex": "^974[0-9]{8}$|^0000000000$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "QA"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/259007/QA.png"
+        },
+        {
+          "ProviderCode": "2AQA",
+          "CountryIso": "QA",
+          "Name": "Amazon Qatar",
+          "ValidationRegex": "^974[0-9]{8}$|^0000000000$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "QA"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/2A/QA.png"
+        },
+        {
+          "ProviderCode": "2C3014QA",
+          "CountryIso": "QA",
+          "Name": "Carluccio's Qatar",
+          "ValidationRegex": "^974[0-9]{8}$|^0000000000$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "QA"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/2C3014/QA.png"
+        },
+        {
+          "ProviderCode": "377FC3QA",
+          "CountryIso": "QA",
+          "Name": "Diablo IV Qatar",
+          "ValidationRegex": "^974[0-9]{8}$|^0000000000$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "QA"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/377FC3/QA.png"
+        },
+        {
+          "ProviderCode": "3OQA",
+          "CountryIso": "QA",
+          "Name": "Anghami Plus Qatar",
+          "ValidationRegex": "^974[0-9]{8}$|^0000000000$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "QA"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/3O/QA.png"
+        },
+        {
+          "ProviderCode": "4AC70FQA",
+          "CountryIso": "QA",
+          "Name": "CALL IT SPRING Qatar",
+          "ValidationRegex": "^974[0-9]{8}$|^0000000000$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "QA"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/4AC70F/QA.png"
+        },
+        {
+          "ProviderCode": "4D55BFQA",
+          "CountryIso": "QA",
+          "Name": "Bugatti Qatar",
+          "ValidationRegex": "^974[0-9]{8}$|^0000000000$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "QA"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/4D55BF/QA.png"
+        },
+        {
+          "ProviderCode": "4RQA",
+          "CountryIso": "QA",
+          "Name": "Roblox Qatar",
+          "ValidationRegex": "^974[0-9]{8}$|^0000000000$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "QA"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/4R/QA.png"
+        },
+        {
+          "ProviderCode": "565D6CQA",
+          "CountryIso": "QA",
+          "Name": "Carrefour Qatar",
+          "ValidationRegex": "^974[0-9]{8}$|^0000000000$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "QA"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/565D6C/QA.png"
+        },
+        {
+          "ProviderCode": "5RQA",
+          "CountryIso": "QA",
+          "Name": "RIOT ACCESS MENA Qatar",
+          "ValidationRegex": "^974[0-9]{8}$|^0000000000$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "QA"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/5R/QA.png"
+        },
+        {
+          "ProviderCode": "64E723QA",
+          "CountryIso": "QA",
+          "Name": "ATHLETE'S CO Qatar",
+          "ValidationRegex": "^974[0-9]{8}$|^0000000000$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "QA"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/64E723/QA.png"
+        },
+        {
+          "ProviderCode": "679FC8QA",
+          "CountryIso": "QA",
+          "Name": "Aigner Qatar",
+          "ValidationRegex": "^974[0-9]{8}$|^0000000000$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "QA"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/679FC8/QA.png"
+        },
+        {
+          "ProviderCode": "79BEA4QA",
+          "CountryIso": "QA",
+          "Name": "Blue Salon Watches & Jewellery Qatar",
+          "ValidationRegex": "^974[0-9]{8}$|^0000000000$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "QA"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/79BEA4/QA.png"
+        },
+        {
+          "ProviderCode": "8415C3QA",
+          "CountryIso": "QA",
+          "Name": "Blue Salon Kids Qatar",
+          "ValidationRegex": "^974[0-9]{8}$|^0000000000$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "QA"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/8415C3/QA.png"
+        },
+        {
+          "ProviderCode": "9AQA",
+          "CountryIso": "QA",
+          "Name": "Babyshop Qatar",
+          "ValidationRegex": "^974[0-9]{8}$|^0000000000$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "QA"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/9A/QA.png"
+        },
+        {
+          "ProviderCode": "9BBF7BQA",
+          "CountryIso": "QA",
+          "Name": "American Tourister Qatar",
+          "ValidationRegex": "^974[0-9]{8}$|^0000000000$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "QA"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/9BBF7B/QA.png"
+        },
+        {
+          "ProviderCode": "9CQA",
+          "CountryIso": "QA",
+          "Name": "Minecraft Qatar",
+          "ValidationRegex": "^974[0-9]{6,12}$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "QA"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/9C/QA.png"
+        },
+        {
+          "ProviderCode": "9DQA",
+          "CountryIso": "QA",
+          "Name": "Centrepoint Qatar",
+          "ValidationRegex": "^974[0-9]{8}$|^0000000000$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "QA"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/9D/QA.png"
+        },
+        {
+          "ProviderCode": "9PQA",
+          "CountryIso": "QA",
+          "Name": "Talabat Qatar",
+          "ValidationRegex": "^974[0-9]{8}$|^0000000000$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "QA"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/9P/QA.png"
+        },
+        {
+          "ProviderCode": "A53AE6QA",
+          "CountryIso": "QA",
+          "Name": "Carpisa Qatar",
+          "ValidationRegex": "^974[0-9]{8}$|^0000000000$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "QA"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/A53AE6/QA.png"
+        },
+        {
+          "ProviderCode": "A8F0CBQA",
+          "CountryIso": "QA",
+          "Name": "LifeAfter Qatar",
+          "ValidationRegex": "^974[0-9]{8}$|^0000000000$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "QA"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/A8F0CB/QA.png"
+        },
+        {
+          "ProviderCode": "D87765QA",
+          "CountryIso": "QA",
+          "Name": "Paypal International Qatar",
+          "ValidationRegex": "^974[0-9]{8}$|^0000000000$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "QA"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/D87765/QA.png"
+        },
+        {
+          "ProviderCode": "D9A980QA",
+          "CountryIso": "QA",
+          "Name": "BIRKENSTOCK Qatar",
+          "ValidationRegex": "^974[0-9]{8}$|^0000000000$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "QA"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/D9A980/QA.png"
+        },
+        {
+          "ProviderCode": "E1531AQA",
+          "CountryIso": "QA",
+          "Name": "Gunfire Reborn Qatar",
+          "ValidationRegex": "^974[0-9]{8}$|^0000000000$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "QA"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/E1531A/QA.png"
+        },
+        {
+          "ProviderCode": "E273DFQA",
+          "CountryIso": "QA",
+          "Name": "CHARLES & KEITH Qatar",
+          "ValidationRegex": "^974[0-9]{8}$|^0000000000$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "QA"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/E273DF/QA.png"
+        },
+        {
+          "ProviderCode": "E7C87DQA",
+          "CountryIso": "QA",
+          "Name": "CALVIN KLEIN Qatar",
+          "ValidationRegex": "^974[0-9]{8}$|^0000000000$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "QA"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/E7C87D/QA.png"
+        },
+        {
+          "ProviderCode": "E90918QA",
+          "CountryIso": "QA",
+          "Name": "Carluccios Restaurant Qatar",
+          "ValidationRegex": "^974[0-9]{8}$|^0000000000$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "QA"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/E90918/QA.png"
+        },
+        {
+          "ProviderCode": "EB73A6QA",
+          "CountryIso": "QA",
+          "Name": "Swype Global Qatar",
+          "ValidationRegex": "^974[0-9]{8}$|^0000000000$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "QA"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/EB73A6/QA.png"
+        },
+        {
+          "ProviderCode": "EE8EE9QA",
+          "CountryIso": "QA",
+          "Name": "BEVERLY HILLS POLO CLUB Qatar",
+          "ValidationRegex": "^974[0-9]{8}$|^0000000000$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "QA"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/EE8EE9/QA.png"
+        },
+        {
+          "ProviderCode": "FD36B9QA",
+          "CountryIso": "QA",
+          "Name": "AEROPOSTALE Qatar",
+          "ValidationRegex": "^974[0-9]{8}$|^0000000000$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "QA"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/FD36B9/QA.png"
+        },
+        {
+          "ProviderCode": "I3QA",
+          "CountryIso": "QA",
+          "Name": "Razer Gold Digital Qatar",
+          "ValidationRegex": "^974[0-9]{8}$|^0000000000$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "QA"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/I3/QA.png"
+        },
+        {
+          "ProviderCode": "IAQA",
+          "CountryIso": "QA",
+          "Name": "App Store & iTunes Gift Card Qatar",
+          "ValidationRegex": "^974[0-9]{8}$|^0000000000$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "QA"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/IA/QA.png"
+        },
+        {
+          "ProviderCode": "IBQA",
+          "CountryIso": "QA",
+          "Name": "beIN Connect Qatar",
+          "ValidationRegex": "^974[0-9]{8}$|^0000000000$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "QA"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/IB/QA.png"
+        },
+        {
+          "ProviderCode": "OOQA",
+          "CountryIso": "QA",
+          "Name": "Ooredoo Qatar",
+          "ValidationRegex": "^974[0-9]{8}$|^0000000000$",
+          "RegionCodes": [
+            "QA"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/OO/QA.png"
+        },
+        {
+          "ProviderCode": "PGQA",
+          "CountryIso": "QA",
+          "Name": "PUBG Mobile Qatar",
+          "ValidationRegex": "^974[0-9]{8}$|^0000000000$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "QA"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/PG/QA.png"
+        },
+        {
+          "ProviderCode": "PNQA",
+          "CountryIso": "QA",
+          "Name": "PlayStation Network Qatar",
+          "ValidationRegex": "^974[0-9]{8}$|^0000000000$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "QA"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/PN/QA.png"
+        },
+        {
+          "ProviderCode": "VFQA",
+          "CountryIso": "QA",
+          "Name": "Vodafone Qatar",
+          "ValidationRegex": "^974[0-9]{8}$|^0000000000$",
+          "RegionCodes": [
+            "QA"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/VF/QA.png"
+        },
+        {
+          "ProviderCode": "X9QA",
+          "CountryIso": "QA",
+          "Name": "eSIM Qatar",
+          "ValidationRegex": "^974[0-9]{8}$|^0000000000$",
+          "RegionCodes": [
+            "QA"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/X9/QA.png"
+        },
+        {
+          "ProviderCode": "XUQA",
+          "CountryIso": "QA",
+          "Name": "Xbox Qatar",
+          "ValidationRegex": "^974[0-9]{6,12}$|^0000000000$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "QA"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/XU/QA.png"
+        },
+        {
+          "ProviderCode": "Z9QA",
+          "CountryIso": "QA",
+          "Name": "Steam Qatar",
+          "ValidationRegex": "^974[0-9]{8}$|^0000000000$",
+          "CustomerCareNumber": "",
+          "RegionCodes": [
+            "QA"
+          ],
+          "PaymentTypes": [
+            "Prepaid"
+          ],
+          "LogoUrl": "https://imagerepo.ding.com/logo/Z9/QA.png"
+        }
+      ]
+    },
+    "products": {
+      "ResultCode": 3,
+      "ErrorCodes": [
+        {
+          "Code": "RateLimited"
+        }
+      ],
+      "Items": []
+    }
+  }
+}

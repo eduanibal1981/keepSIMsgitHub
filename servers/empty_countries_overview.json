@@ -1,0 +1,316 @@
+{
+  "BH": {
+    "name": "Bahrain",
+    "iso2": "BH",
+    "iso3": "BHR",
+    "code": "+973",
+    "folder": "BHR",
+    "dtone": [
+      "Batelco PIN Bahrain (1828)",
+      "Zain Bahrain (1829)",
+      "Playstation GiftCard Bahrain (3292)"
+    ],
+    "reloadly": [
+      "Batelco PIN Bahrain (22) [FIXED]",
+      "Zain Bahrain (1165) [FIXED]"
+    ],
+    "zendit": []
+  },
+  "KW": {
+    "name": "Kuwait",
+    "iso2": "KW",
+    "iso3": "KWT",
+    "code": "+965",
+    "folder": "KW",
+    "dtone": [
+      "Ooredoo Kuwait (1811)",
+      "Zain Kuwait (1812)",
+      "STC Kuwait (1813)",
+      "Playstation Kuwait (3473)",
+      "Talabat Kuwait (4916)"
+    ],
+    "reloadly": [
+      "Ooredo Kuwait (1166) [RANGE]",
+      "STC Kuwait (267) [RANGE]",
+      "Zain Kuwait (268) [FIXED]"
+    ],
+    "zendit": []
+  },
+  "QA": {
+    "name": "Qatar",
+    "iso2": "QA",
+    "iso3": "QAT",
+    "code": "+974",
+    "folder": "QAT",
+    "dtone": [
+      "Ooredoo Qatar (511)",
+      "Vodafone PIN Qatar (2722)",
+      "Playstation Qatar (3294)",
+      "Free Fire Qatar (4595)"
+    ],
+    "reloadly": [
+      "Ooredoo Qatar (396) [FIXED]",
+      "Vodafone PIN Qatar (395) [FIXED]"
+    ],
+    "zendit": []
+  },
+  "JO": {
+    "name": "Jordan",
+    "iso2": "JO",
+    "iso3": "JOR",
+    "code": "+962",
+    "folder": "JOR",
+    "dtone": [
+      "Umniah Jordan (690)",
+      "Zain Jordan (2093)",
+      "Orange Jordan (3122)"
+    ],
+    "reloadly": [
+      "Umniah Jordan RTR (1150) [RANGE]",
+      "Zain Jordan (666) [FIXED]"
+    ],
+    "zendit": [
+      "Orange",
+      "Zain"
+    ]
+  },
+  "IQ": {
+    "name": "Iraq",
+    "iso2": "IQ",
+    "iso3": "IRQ",
+    "code": "+964",
+    "folder": "IRQ",
+    "dtone": [
+      "Asia Cell Telecom Iraq (42)",
+      "Korek Iraq (2096)",
+      "Zain Iraq (3817)"
+    ],
+    "reloadly": [
+      "Asia Cell Telecom Iraq (246) [FIXED]"
+    ],
+    "zendit": [
+      "AsiaCell"
+    ]
+  },
+  "LB": {
+    "name": "Lebanon",
+    "iso2": "LB",
+    "iso3": "LBN",
+    "code": "+961",
+    "folder": "LBN",
+    "dtone": [
+      "Alfa Lebanon USD (2793)",
+      "Touch Lebanon USD (2794)"
+    ],
+    "reloadly": [
+      "Alfa Lebanon PIN (1017) [FIXED]",
+      "Touch Lebanon PIN (276) [FIXED]"
+    ],
+    "zendit": [
+      "Alfa",
+      "Touch"
+    ]
+  },
+  "LK": {
+    "name": "Sri Lanka",
+    "iso2": "LK",
+    "iso3": "LKA",
+    "code": "+94",
+    "folder": "LKA",
+    "dtone": [
+      "Dialog Sri Lanka (360)",
+      "Mobitel Sri Lanka (409)",
+      "Hutchison Sri Lanka (1609)",
+      "Viber USD Sri Lanka (2743)"
+    ],
+    "reloadly": [
+      "Dialog Sri Lanka (472) [FIXED]",
+      "Dialog Sri Lanka Data  (1180) [FIXED]",
+      "Hutchison Sri Lanka (475) [RANGE]",
+      "Hutchison sri Lanka Data  (1181) [FIXED]",
+      "Mobitel Sri Lanka (471) [RANGE]"
+    ],
+    "zendit": [
+      "Dialog",
+      "Hutch",
+      "Mobitel"
+    ]
+  },
+  "NP": {
+    "name": "Nepal",
+    "iso2": "NP",
+    "iso3": "NPL",
+    "code": "+977",
+    "folder": "NPL",
+    "dtone": [
+      "NCell Nepal (1442)",
+      "NTC Nepal (1443)"
+    ],
+    "reloadly": [
+      "NCell Nepal (328) [RANGE]",
+      "NCell Nepal Data (1121) [FIXED]",
+      "NTC GSM Nepal (326) [RANGE]",
+      "NTC Nepal Data (1123) [FIXED]",
+      "Sibisu Nepal (1114) [RANGE]",
+      "SimTV Nepal Bundles (1120) [FIXED]",
+      "Smartcell Nepal (805) [FIXED]",
+      "UTL Nepal Data (1122) [FIXED]",
+      "WorldLink Nepal (1115) [RANGE]"
+    ],
+    "zendit": [
+      "Ncell",
+      "NTCGSM"
+    ]
+  },
+  "MA": {
+    "name": "Morocco",
+    "iso2": "MA",
+    "iso3": "MAR",
+    "code": "+212",
+    "folder": "MAR",
+    "dtone": [
+      "Orange Morocco (387)",
+      "Maroc Telecom Morocco (1533)",
+      "Inwi Morocco (1711)"
+    ],
+    "reloadly": [
+      "Inwi Morocco (312) [FIXED]",
+      "Inwi Morocco Data (308) [FIXED]",
+      "Maroc Telecom Morocco (311) [FIXED]",
+      "Maroc Telecom Morocco Data (310) [FIXED]",
+      "Orange Morocco (313) [RANGE]",
+      "Orange Morocco Bundles (690) [FIXED]",
+      "Orange Morocco Data (309) [FIXED]"
+    ],
+    "zendit": [
+      "Inwi",
+      "MarocTel",
+      "Orange"
+    ]
+  },
+  "DZ": {
+    "name": "Algeria",
+    "iso2": "DZ",
+    "iso3": "DZA",
+    "code": "+213",
+    "folder": "DZA",
+    "dtone": [
+      "Mobilis Algeria (4)",
+      "Djezzy Algeria (2074)",
+      "Ooredoo Algeria (2075)"
+    ],
+    "reloadly": [
+      "Djezzy Algeria (8) [FIXED]",
+      "Mobilis Algeria (6) [FIXED]",
+      "Ooredoo Algeria (7) [FIXED]"
+    ],
+    "zendit": [
+      "DJEZZY",
+      "MOBILIS",
+      "OOREDOO"
+    ]
+  },
+  "TN": {
+    "name": "Tunisia",
+    "iso2": "TN",
+    "iso3": "TUN",
+    "code": "+216",
+    "folder": "TUN",
+    "dtone": [
+      "Tunisie Telecom Tunisia (678)",
+      "Orange Tunisia (1530)",
+      "Ooredoo Tunisia (1532)"
+    ],
+    "reloadly": [
+      "Ooredoo Tunisia (508) [RANGE]",
+      "Orange Tunisia (506) [RANGE]",
+      "Tunisie Telecom Tunisia (507) [FIXED]"
+    ],
+    "zendit": [
+      "Ooredoo",
+      "Orange",
+      "TunisieTelecom"
+    ]
+  },
+  "DE": {
+    "name": "Germany",
+    "iso2": "DE",
+    "iso3": "DEU",
+    "code": "+49",
+    "folder": "DEU",
+    "dtone": [
+      "O2 Germany (451)",
+      "Deutsche Telekom Germany (602)",
+      "Vodafone Germany (D2) (718)",
+      "Lyca Germany (2121)",
+      "Ay Yildiz Germany (2135)",
+      "Congstar Germany (2139)",
+      "E-Plus Germany (2140)",
+      "MTV Mobile Germany (2144)",
+      "Ortel Germany (2146)",
+      "Otelo Germany (2148)",
+      "Vybe Mobile Germany (2159)",
+      "Lebara PIN Germany (2728)",
+      "Simyo Germany (2751)",
+      "Blau Germany (2754)",
+      "Fonic PIN Germany (2768)",
+      "Lifecell PIN Germany (2874)",
+      "BILDmobil PIN Germany (3111)",
+      "Klarmobil PIN Germany (3117)",
+      "Apple Germany (3991)",
+      "Flixbus GiftCard Germany (4203)",
+      "Amazon Germany (4354)",
+      "Google Play Giftcard Germany (4355)",
+      "Netflix Giftcard Germany (4357)",
+      "Nintendo Giftcard Germany (4358)",
+      "RTL TV Now Giftcard Germany (4359)",
+      "Playstation Giftcard Germany (4361)",
+      "Flexepin Germany (4438)",
+      "Razer Gold Germany (4726)",
+      "Libon Germany (4764)",
+      "Eneba Germany (4817)",
+      "Whitecalling Germany (4956)",
+      "Lebara Germany (6016)"
+    ],
+    "reloadly": [
+      "BILDMobil PIN Germany (848) [FIXED]",
+      "Blau PIN Germany (849) [FIXED]",
+      "Congstar PIN Germany (850) [FIXED]",
+      "Deutsche Telekom PIN Germany (664) [FIXED]",
+      "E-Plus PIN Germany (852) [FIXED]",
+      "FONIC PIN Germany (853) [FIXED]",
+      "Klarmobil PIN Germany (854) [FIXED]",
+      "Lebara Flexi Germany Bundles (857) [FIXED]",
+      "Lebara Germany Data (856) [FIXED]",
+      "Lebara Ghana PIN Germany (858) [FIXED]",
+      "Lebara Komplett Germany Bundles (859) [FIXED]",
+      "Lebara PIN Germany (855) [FIXED]",
+      "Lebara World Germany Bundles (861) [FIXED]",
+      "Lifecell Germany Bundles (863) [FIXED]",
+      "Lifecell PIN Germany (149) [FIXED]",
+      "Lycamobile AllNet Flat Germany Bundles (865) [FIXED]",
+      "Lycamobile AllNet Plus PIN Germany (866) [FIXED]",
+      "Lycamobile PIN Germany (864) [FIXED]",
+      "O2 PIN Germany (868) [FIXED]",
+      "Ortel PIN Germany (665) [FIXED]",
+      "Otelo PIN Germany (867) [FIXED]",
+      "SimGuthaben PIN Germany (870) [FIXED]",
+      "Simyo PIN Germany (871) [FIXED]",
+      "Tchibo Mobile PIN Germany (872) [FIXED]",
+      "Telekom PIN Germany (873) [FIXED]",
+      "Turkcell PIN Germany (874) [FIXED]",
+      "Vodafone PIN Germany (875) [FIXED]"
+    ],
+    "zendit": [
+      "AyYildiz",
+      "Blau",
+      "Congstar",
+      "Eplus",
+      "O2",
+      "Ortel",
+      "OTELO",
+      "Telekom",
+      "Vodafone"
+    ]
+  }
+}

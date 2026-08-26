@@ -22,8 +22,10 @@ import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/core/utils/build_context_extension.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
+import 'package:keep_sims/features/sim_lines/data/models/carrier_rule_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/line_rescue_policy.dart';
 import 'package:keep_sims/features/sim_lines/presentation/providers/rescue_policy_provider.dart';
+import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
 
 class SimInsuranceCard extends ConsumerWidget {
   const SimInsuranceCard({super.key, required this.line});
@@ -44,6 +46,38 @@ class SimInsuranceCard extends ConsumerWidget {
     final bool insured = policy?.isInsured ?? false;
     final bool isDark = context.isDarkMode;
     final Color accent = insured ? AppColors.success : AppColors.info;
+
+    // Fetch carrier rules to know exact validity days & cheapest top-up cost
+    final carrierRuleAsync =
+        (line.carrierId != null && line.carrierId!.isNotEmpty)
+        ? ref.watch(carrierRuleProvider(line.carrierId!))
+        : null;
+    final CarrierRule? rule = carrierRuleAsync?.value;
+
+    final int validityDays = (rule != null && rule.topupValidityDays > 0)
+        ? rule.topupValidityDays
+        : ((rule != null && rule.inactivityLimitDays > 0)
+              ? rule.inactivityLimitDays
+              : 90);
+    final int warnLeadDays =
+        ((policy?.warnLeadDays ?? 3) + (policy?.leadDays ?? 2)).clamp(
+          1,
+          validityDays,
+        );
+    final int triggerDays = (validityDays - warnLeadDays).clamp(
+      1,
+      validityDays,
+    );
+    final double minCost = (rule != null && rule.inappPricing > 0)
+        ? rule.inappPricing
+        : ((rule != null && rule.minimumTopupAmount > 0)
+              ? rule.minimumTopupAmount
+              : 1.0);
+    final bool isLimitBelowCheapest =
+        insured &&
+        policy != null &&
+        policy.maxUsd > 0 &&
+        policy.maxUsd < minCost;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
@@ -69,8 +103,11 @@ class SimInsuranceCard extends ConsumerWidget {
                     shape: BoxShape.circle,
                     color: accent.withValues(alpha: 0.15),
                   ),
-                  child: Icon(Icons.health_and_safety_outlined,
-                      color: accent, size: 22),
+                  child: Icon(
+                    Icons.health_and_safety_outlined,
+                    color: accent,
+                    size: 22,
+                  ),
                 ),
                 const SizedBox(width: 14),
                 Expanded(
@@ -100,27 +137,59 @@ class SimInsuranceCard extends ConsumerWidget {
                 ),
                 Switch(
                   value: insured,
-                  onChanged: policyAsync.isLoading
+                  onChanged:
+                      (policyAsync.isLoading ||
+                          ref.watch(rescuePolicyControllerProvider).isLoading)
                       ? null
                       : (bool on) => on
-                          ? _showCapPicker(context, ref, policy)
-                          : _save(context, ref, 0),
+                            ? _showCapPicker(context, ref, policy)
+                            : _save(context, ref, 0),
                 ),
               ],
             ),
             const SizedBox(height: 12),
             Text(
               insured
-                  ? 'If this line gets within ${policy!.leadDays} day(s) of running out, '
-                      'we warn you first and give you 24 hours. If you still have not '
-                      'topped up, we buy the cheapest top-up that keeps it alive — never '
-                      'more than \$${policy.maxUsd.toStringAsFixed(2)}, and never twice in the same month.'
-                  : 'Turn this on and we will keep this line alive for you: a warning '
-                      'first, then — only if you do not act within 24 hours — the '
-                      'smallest top-up that saves it, from your wallet.',
+                  ? 'If last known recharge is more than $triggerDays days ago, we warn you first. If no top-up is completed within 24 hours, we buy the cheapest top-up to keep your line alive — never more than your limit of \$${policy!.maxUsd.toStringAsFixed(2)}.'
+                  : 'If last known recharge is more than $triggerDays days ago, we warn you first. If no top-up is completed within 24 hours, we buy the cheapest top-up to keep your line alive up to your chosen limit.',
               style: AppTextStyles.bodySmall.copyWith(
-                color: context.onSurfaceColor.withValues(alpha: 0.65),
+                color: context.onSurfaceColor.withValues(alpha: 0.7),
+                height: 1.4,
               ),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '* ',
+                  style: AppTextStyles.caption.copyWith(
+                    color: isLimitBelowCheapest
+                        ? AppColors.warning
+                        : (isDark
+                              ? AppColors.textSecondaryDark
+                              : AppColors.textSecondaryLight),
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Expanded(
+                  child: Text(
+                    isLimitBelowCheapest
+                        ? 'Note: Your set limit (\$${policy.maxUsd.toStringAsFixed(2)}) is below the cheapest keep-alive top-up for this carrier (\$${minCost.toStringAsFixed(2)}). Please increase your limit so auto-rescue can protect your line.'
+                        : 'Note: If the set limit is below the cheapest top-up available for this carrier (\$${minCost.toStringAsFixed(2)}), auto-rescue cannot be executed.',
+                    style: AppTextStyles.caption.copyWith(
+                      color: isLimitBelowCheapest
+                          ? AppColors.warning
+                          : (isDark
+                                ? AppColors.textSecondaryDark
+                                : AppColors.textSecondaryLight),
+                      fontStyle: FontStyle.italic,
+                      fontSize: 11,
+                      height: 1.3,
+                    ),
+                  ),
+                ),
+              ],
             ),
             if (policy != null && policy.hasOutstandingWarning) ...<Widget>[
               const SizedBox(height: 12),
@@ -178,8 +247,10 @@ class SimInsuranceCard extends ConsumerWidget {
           Icon(icon, size: 14, color: tint),
           const SizedBox(width: 6),
           Flexible(
-            child: Text(text,
-                style: AppTextStyles.caption.copyWith(color: tint)),
+            child: Text(
+              text,
+              style: AppTextStyles.caption.copyWith(color: tint),
+            ),
           ),
         ],
       ),
@@ -187,7 +258,10 @@ class SimInsuranceCard extends ConsumerWidget {
   }
 
   void _showCapPicker(
-      BuildContext context, WidgetRef ref, LineRescuePolicy? policy) {
+    BuildContext context,
+    WidgetRef ref,
+    LineRescuePolicy? policy,
+  ) {
     showModalBottomSheet<void>(
       context: context,
       showDragHandle: true,
@@ -233,7 +307,10 @@ class SimInsuranceCard extends ConsumerWidget {
             ),
             if ((policy?.isInsured ?? false))
               ListTile(
-                leading: const Icon(Icons.block_rounded, color: Colors.redAccent),
+                leading: const Icon(
+                  Icons.block_rounded,
+                  color: Colors.redAccent,
+                ),
                 title: const Text('Turn SIM insurance off'),
                 onTap: () {
                   Navigator.of(sheetContext).pop();
@@ -260,8 +337,8 @@ class SimInsuranceCard extends ConsumerWidget {
         content: Text(
           result.success
               ? (cap > 0
-                  ? 'SIM insurance on — up to \$${cap.toStringAsFixed(2)} per rescue.'
-                  : 'SIM insurance off. This line will not be topped up automatically.')
+                    ? 'SIM insurance on — up to \$${cap.toStringAsFixed(2)} per rescue.'
+                    : 'SIM insurance off. This line will not be topped up automatically.')
               : (result.message ?? 'Could not change SIM insurance.'),
         ),
       ),

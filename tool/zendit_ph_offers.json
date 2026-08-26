@@ -1,0 +1,1430 @@
+[
+  {
+    "enabled": true,
+    "offerId": "DITO_PH_001",
+    "country": "PH",
+    "regions": [
+      "Southeast Asia"
+    ],
+    "brand": "Dito",
+    "brandName": "Dito",
+    "productType": "TOPUP",
+    "subTypes": [
+      "Mobile Top Up"
+    ],
+    "notes": "",
+    "shortNotes": "",
+    "priceType": "FIXED",
+    "send": {
+      "currency": "PHP",
+      "currencyDivisor": 100,
+      "fixed": 20000,
+      "fx": 1
+    },
+    "price": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 475,
+      "suggestedFixed": 475,
+      "fx": 42.105263,
+      "suggestedFx": 42.105263,
+      "margin": 0.04842105,
+      "fee": 0
+    },
+    "cost": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 452,
+      "fx": 44.24778761,
+      "fee": 0,
+      "feePct": 0,
+      "discount": 0.04842105
+    },
+    "durationDays": 0,
+    "dataGB": 0,
+    "dataUnlimited": false,
+    "smsNumber": 0,
+    "smsUnlimited": false,
+    "voiceMinutes": 0,
+    "voiceUnlimited": false,
+    "createdAt": "2025-02-17T05:51:53.684Z",
+    "updatedAt": "2026-08-22T00:00:00Z"
+  },
+  {
+    "enabled": true,
+    "offerId": "DITO_PH_002",
+    "country": "PH",
+    "regions": [
+      "Southeast Asia"
+    ],
+    "brand": "Dito",
+    "brandName": "Dito",
+    "productType": "TOPUP",
+    "subTypes": [
+      "Mobile Top Up"
+    ],
+    "notes": "",
+    "shortNotes": "",
+    "priceType": "FIXED",
+    "send": {
+      "currency": "PHP",
+      "currencyDivisor": 100,
+      "fixed": 30000,
+      "fx": 1
+    },
+    "price": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 702,
+      "suggestedFixed": 702,
+      "fx": 42.735043,
+      "suggestedFx": 42.735043,
+      "margin": 0.04985755,
+      "fee": 0
+    },
+    "cost": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 667,
+      "fx": 44.97751124,
+      "fee": 0,
+      "feePct": 0,
+      "discount": 0.04985755
+    },
+    "durationDays": 0,
+    "dataGB": 0,
+    "dataUnlimited": false,
+    "smsNumber": 0,
+    "smsUnlimited": false,
+    "voiceMinutes": 0,
+    "voiceUnlimited": false,
+    "createdAt": "2025-02-17T05:51:51.238Z",
+    "updatedAt": "2026-08-22T00:00:00Z"
+  },
+  {
+    "enabled": true,
+    "offerId": "DITO_PH_003",
+    "country": "PH",
+    "regions": [
+      "Southeast Asia"
+    ],
+    "brand": "Dito",
+    "brandName": "Dito",
+    "productType": "TOPUP",
+    "subTypes": [
+      "Mobile Top Up"
+    ],
+    "notes": "",
+    "shortNotes": "",
+    "priceType": "FIXED",
+    "send": {
+      "currency": "PHP",
+      "currencyDivisor": 100,
+      "fixed": 50000,
+      "fx": 1
+    },
+    "price": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 1166,
+      "suggestedFixed": 1166,
+      "fx": 42.881647,
+      "suggestedFx": 42.881647,
+      "margin": 0.04974271,
+      "fee": 0
+    },
+    "cost": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 1108,
+      "fx": 45.12635379,
+      "fee": 0,
+      "feePct": 0,
+      "discount": 0.04974271
+    },
+    "durationDays": 0,
+    "dataGB": 0,
+    "dataUnlimited": false,
+    "smsNumber": 0,
+    "smsUnlimited": false,
+    "voiceMinutes": 0,
+    "voiceUnlimited": false,
+    "createdAt": "2025-02-17T05:52:01.419Z",
+    "updatedAt": "2026-08-22T00:00:00Z"
+  },
+  {
+    "enabled": true,
+    "offerId": "DITO_PH_004",
+    "country": "PH",
+    "regions": [
+      "Southeast Asia"
+    ],
+    "brand": "Dito",
+    "brandName": "Dito",
+    "productType": "TOPUP",
+    "subTypes": [
+      "Mobile Top Up"
+    ],
+    "notes": "",
+    "shortNotes": "",
+    "priceType": "FIXED",
+    "send": {
+      "currency": "PHP",
+      "currencyDivisor": 100,
+      "fixed": 100000,
+      "fx": 1
+    },
+    "price": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 2332,
+      "suggestedFixed": 2332,
+      "fx": 42.881647,
+      "suggestedFx": 42.881647,
+      "margin": 0.05017153,
+      "fee": 0
+    },
+    "cost": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 2215,
+      "fx": 45.14672686,
+      "fee": 0,
+      "feePct": 0,
+      "discount": 0.05017153
+    },
+    "durationDays": 0,
+    "dataGB": 0,
+    "dataUnlimited": false,
+    "smsNumber": 0,
+    "smsUnlimited": false,
+    "voiceMinutes": 0,
+    "voiceUnlimited": false,
+    "createdAt": "2025-02-17T05:52:01.419Z",
+    "updatedAt": "2026-08-22T00:00:00Z"
+  },
+  {
+    "enabled": true,
+    "offerId": "GLOBE_PH_14_FEE",
+    "country": "PH",
+    "regions": [
+      "Southeast Asia"
+    ],
+    "brand": "Globe",
+    "brandName": "Globe",
+    "productType": "TOPUP",
+    "subTypes": [
+      "Mobile Top Up"
+    ],
+    "notes": "",
+    "shortNotes": "",
+    "priceType": "FIXED",
+    "send": {
+      "currency": "PHP",
+      "currencyDivisor": 100,
+      "fixed": 70000,
+      "fx": 1
+    },
+    "price": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 1358,
+      "suggestedFixed": 1358,
+      "fx": 51.546392,
+      "suggestedFx": 51.546392,
+      "margin": 0.05007364,
+      "fee": 0
+    },
+    "cost": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 1290,
+      "fx": 54.26356589,
+      "fee": 0,
+      "feePct": 0,
+      "discount": 0.05007364
+    },
+    "durationDays": 0,
+    "dataGB": 0,
+    "dataUnlimited": false,
+    "smsNumber": 0,
+    "smsUnlimited": false,
+    "voiceMinutes": 0,
+    "voiceUnlimited": false,
+    "createdAt": "2025-02-17T05:51:46.356Z",
+    "updatedAt": "2026-08-22T00:00:00Z"
+  },
+  {
+    "enabled": true,
+    "offerId": "GLOBE_PH_16_FEE",
+    "country": "PH",
+    "regions": [
+      "Southeast Asia"
+    ],
+    "brand": "Globe",
+    "brandName": "Globe",
+    "productType": "TOPUP",
+    "subTypes": [
+      "Mobile Top Up"
+    ],
+    "notes": "",
+    "shortNotes": "",
+    "priceType": "FIXED",
+    "send": {
+      "currency": "PHP",
+      "currencyDivisor": 100,
+      "fixed": 80000,
+      "fx": 1
+    },
+    "price": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 1553,
+      "suggestedFixed": 1553,
+      "fx": 51.5132,
+      "suggestedFx": 51.5132,
+      "margin": 0.05022537,
+      "fee": 0
+    },
+    "cost": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 1475,
+      "fx": 54.23728814,
+      "fee": 0,
+      "feePct": 0,
+      "discount": 0.05022537
+    },
+    "durationDays": 0,
+    "dataGB": 0,
+    "dataUnlimited": false,
+    "smsNumber": 0,
+    "smsUnlimited": false,
+    "voiceMinutes": 0,
+    "voiceUnlimited": false,
+    "createdAt": "2025-02-17T05:51:43.793Z",
+    "updatedAt": "2026-08-22T00:00:00Z"
+  },
+  {
+    "enabled": true,
+    "offerId": "GLOBE_PH_20_FEE",
+    "country": "PH",
+    "regions": [
+      "Southeast Asia"
+    ],
+    "brand": "Globe",
+    "brandName": "Globe",
+    "productType": "TOPUP",
+    "subTypes": [
+      "Mobile Top Up"
+    ],
+    "notes": "",
+    "shortNotes": "",
+    "priceType": "FIXED",
+    "send": {
+      "currency": "PHP",
+      "currencyDivisor": 100,
+      "fixed": 100000,
+      "fx": 1
+    },
+    "price": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 1941,
+      "suggestedFixed": 1941,
+      "fx": 51.519835,
+      "suggestedFx": 51.519835,
+      "margin": 0.04997424,
+      "fee": 0
+    },
+    "cost": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 1844,
+      "fx": 54.22993492,
+      "fee": 0,
+      "feePct": 0,
+      "discount": 0.04997424
+    },
+    "durationDays": 0,
+    "dataGB": 0,
+    "dataUnlimited": false,
+    "smsNumber": 0,
+    "smsUnlimited": false,
+    "voiceMinutes": 0,
+    "voiceUnlimited": false,
+    "createdAt": "2025-02-17T05:52:04.212Z",
+    "updatedAt": "2026-08-22T00:00:00Z"
+  },
+  {
+    "enabled": true,
+    "offerId": "GLOBE_PH_24_FEE",
+    "country": "PH",
+    "regions": [
+      "Southeast Asia"
+    ],
+    "brand": "Globe",
+    "brandName": "Globe",
+    "productType": "TOPUP",
+    "subTypes": [
+      "Mobile Top Up"
+    ],
+    "notes": "",
+    "shortNotes": "",
+    "priceType": "FIXED",
+    "send": {
+      "currency": "PHP",
+      "currencyDivisor": 100,
+      "fixed": 120000,
+      "fx": 1
+    },
+    "price": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 2329,
+      "suggestedFixed": 2329,
+      "fx": 51.524259,
+      "suggestedFx": 51.524259,
+      "margin": 0.05023615,
+      "fee": 0
+    },
+    "cost": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 2212,
+      "fx": 54.24954792,
+      "fee": 0,
+      "feePct": 0,
+      "discount": 0.05023615
+    },
+    "durationDays": 0,
+    "dataGB": 0,
+    "dataUnlimited": false,
+    "smsNumber": 0,
+    "smsUnlimited": false,
+    "voiceMinutes": 0,
+    "voiceUnlimited": false,
+    "createdAt": "2025-02-17T05:51:58.829Z",
+    "updatedAt": "2026-08-22T00:00:00Z"
+  },
+  {
+    "enabled": true,
+    "offerId": "GLOBE_PH_8_FEE",
+    "country": "PH",
+    "regions": [
+      "Southeast Asia"
+    ],
+    "brand": "Globe",
+    "brandName": "Globe",
+    "productType": "TOPUP",
+    "subTypes": [
+      "Mobile Top Up"
+    ],
+    "notes": "",
+    "shortNotes": "",
+    "priceType": "FIXED",
+    "send": {
+      "currency": "PHP",
+      "currencyDivisor": 100,
+      "fixed": 40000,
+      "fx": 1
+    },
+    "price": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 776,
+      "suggestedFixed": 776,
+      "fx": 51.546392,
+      "suggestedFx": 51.546392,
+      "margin": 0.05025773,
+      "fee": 0
+    },
+    "cost": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 737,
+      "fx": 54.27408412,
+      "fee": 0,
+      "feePct": 0,
+      "discount": 0.05025773
+    },
+    "durationDays": 0,
+    "dataGB": 0,
+    "dataUnlimited": false,
+    "smsNumber": 0,
+    "smsUnlimited": false,
+    "voiceMinutes": 0,
+    "voiceUnlimited": false,
+    "createdAt": "2025-02-17T05:51:43.793Z",
+    "updatedAt": "2026-08-22T00:00:00Z"
+  },
+  {
+    "enabled": true,
+    "offerId": "SMART_PH_10_FEE",
+    "country": "PH",
+    "regions": [
+      "Southeast Asia"
+    ],
+    "brand": "Smart",
+    "brandName": "Smart",
+    "productType": "TOPUP",
+    "subTypes": [
+      "Mobile Top Up"
+    ],
+    "notes": "",
+    "shortNotes": "",
+    "priceType": "FIXED",
+    "send": {
+      "currency": "PHP",
+      "currencyDivisor": 100,
+      "fixed": 50000,
+      "fx": 1
+    },
+    "price": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 1095,
+      "suggestedFixed": 1095,
+      "fx": 45.6621,
+      "suggestedFx": 45.6621,
+      "margin": 0.056621,
+      "fee": 0
+    },
+    "cost": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 1033,
+      "fx": 48.40271055,
+      "fee": 0,
+      "feePct": 0,
+      "discount": 0.056621
+    },
+    "durationDays": 0,
+    "dataGB": 0,
+    "dataUnlimited": false,
+    "smsNumber": 0,
+    "smsUnlimited": false,
+    "voiceMinutes": 0,
+    "voiceUnlimited": false,
+    "createdAt": "2025-02-17T05:51:43.793Z",
+    "updatedAt": "2026-08-22T00:00:00Z"
+  },
+  {
+    "enabled": true,
+    "offerId": "SMART_PH_16_FEE",
+    "country": "PH",
+    "regions": [
+      "Southeast Asia"
+    ],
+    "brand": "Smart",
+    "brandName": "Smart",
+    "productType": "TOPUP",
+    "subTypes": [
+      "Mobile Top Up"
+    ],
+    "notes": "",
+    "shortNotes": "",
+    "priceType": "FIXED",
+    "send": {
+      "currency": "PHP",
+      "currencyDivisor": 100,
+      "fixed": 80000,
+      "fx": 1
+    },
+    "price": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 1753,
+      "suggestedFixed": 1753,
+      "fx": 45.636052,
+      "suggestedFx": 45.636052,
+      "margin": 0.05647461,
+      "fee": 0
+    },
+    "cost": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 1654,
+      "fx": 48.36759371,
+      "fee": 0,
+      "feePct": 0,
+      "discount": 0.05647461
+    },
+    "durationDays": 0,
+    "dataGB": 0,
+    "dataUnlimited": false,
+    "smsNumber": 0,
+    "smsUnlimited": false,
+    "voiceMinutes": 0,
+    "voiceUnlimited": false,
+    "createdAt": "2025-02-17T05:51:51.238Z",
+    "updatedAt": "2026-08-22T00:00:00Z"
+  },
+  {
+    "enabled": true,
+    "offerId": "SMART_PH_20_FEE",
+    "country": "PH",
+    "regions": [
+      "Southeast Asia"
+    ],
+    "brand": "Smart",
+    "brandName": "Smart",
+    "productType": "TOPUP",
+    "subTypes": [
+      "Mobile Top Up"
+    ],
+    "notes": "",
+    "shortNotes": "",
+    "priceType": "FIXED",
+    "send": {
+      "currency": "PHP",
+      "currencyDivisor": 100,
+      "fixed": 100000,
+      "fx": 1
+    },
+    "price": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 2191,
+      "suggestedFixed": 2191,
+      "fx": 45.64126,
+      "suggestedFx": 45.64126,
+      "margin": 0.05659516,
+      "fee": 0
+    },
+    "cost": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 2067,
+      "fx": 48.37929366,
+      "fee": 0,
+      "feePct": 0,
+      "discount": 0.05659516
+    },
+    "durationDays": 0,
+    "dataGB": 0,
+    "dataUnlimited": false,
+    "smsNumber": 0,
+    "smsUnlimited": false,
+    "voiceMinutes": 0,
+    "voiceUnlimited": false,
+    "createdAt": "2025-02-17T05:51:43.793Z",
+    "updatedAt": "2026-08-22T00:00:00Z"
+  },
+  {
+    "enabled": true,
+    "offerId": "SMART_PH_6_FEE",
+    "country": "PH",
+    "regions": [
+      "Southeast Asia"
+    ],
+    "brand": "Smart",
+    "brandName": "Smart",
+    "productType": "TOPUP",
+    "subTypes": [
+      "Mobile Top Up"
+    ],
+    "notes": "",
+    "shortNotes": "",
+    "priceType": "FIXED",
+    "send": {
+      "currency": "PHP",
+      "currencyDivisor": 100,
+      "fixed": 30000,
+      "fx": 1
+    },
+    "price": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 657,
+      "suggestedFixed": 657,
+      "fx": 45.6621,
+      "suggestedFx": 45.6621,
+      "margin": 0.05631659,
+      "fee": 0
+    },
+    "cost": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 620,
+      "fx": 48.38709677,
+      "fee": 0,
+      "feePct": 0,
+      "discount": 0.05631659
+    },
+    "durationDays": 0,
+    "dataGB": 0,
+    "dataUnlimited": false,
+    "smsNumber": 0,
+    "smsUnlimited": false,
+    "voiceMinutes": 0,
+    "voiceUnlimited": false,
+    "createdAt": "2025-02-17T05:51:58.829Z",
+    "updatedAt": "2026-08-22T00:00:00Z"
+  },
+  {
+    "enabled": true,
+    "offerId": "SMART_PH_8_FEE",
+    "country": "PH",
+    "regions": [
+      "Southeast Asia"
+    ],
+    "brand": "Smart",
+    "brandName": "Smart",
+    "productType": "TOPUP",
+    "subTypes": [
+      "Mobile Top Up"
+    ],
+    "notes": "",
+    "shortNotes": "",
+    "priceType": "FIXED",
+    "send": {
+      "currency": "PHP",
+      "currencyDivisor": 100,
+      "fixed": 40000,
+      "fx": 1
+    },
+    "price": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 876,
+      "suggestedFixed": 876,
+      "fx": 45.6621,
+      "suggestedFx": 45.6621,
+      "margin": 0.05707763,
+      "fee": 0
+    },
+    "cost": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 826,
+      "fx": 48.42615012,
+      "fee": 0,
+      "feePct": 0,
+      "discount": 0.05707763
+    },
+    "durationDays": 0,
+    "dataGB": 0,
+    "dataUnlimited": false,
+    "smsNumber": 0,
+    "smsUnlimited": false,
+    "voiceMinutes": 0,
+    "voiceUnlimited": false,
+    "createdAt": "2025-02-17T05:51:51.238Z",
+    "updatedAt": "2026-08-22T00:00:00Z"
+  },
+  {
+    "enabled": true,
+    "offerId": "TNT_PH_001",
+    "country": "PH",
+    "regions": [
+      "Southeast Asia"
+    ],
+    "brand": "TNT",
+    "brandName": "SmartTalk n Text",
+    "productType": "TOPUP",
+    "subTypes": [
+      "Mobile Top Up"
+    ],
+    "notes": "",
+    "shortNotes": "",
+    "priceType": "FIXED",
+    "send": {
+      "currency": "PHP",
+      "currencyDivisor": 100,
+      "fixed": 31800,
+      "fx": 1
+    },
+    "price": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 570,
+      "suggestedFixed": 570,
+      "fx": 55.789474,
+      "suggestedFx": 55.789474,
+      "margin": 0.04912281,
+      "fee": 0
+    },
+    "cost": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 542,
+      "fx": 58.67158672,
+      "fee": 0,
+      "feePct": 0,
+      "discount": 0.04912281
+    },
+    "durationDays": 0,
+    "dataGB": 0,
+    "dataUnlimited": false,
+    "smsNumber": 0,
+    "smsUnlimited": false,
+    "voiceMinutes": 0,
+    "voiceUnlimited": false,
+    "createdAt": "2025-02-17T05:51:46.356Z",
+    "updatedAt": "2026-08-22T00:00:00Z"
+  },
+  {
+    "enabled": true,
+    "offerId": "TNT_PH_002",
+    "country": "PH",
+    "regions": [
+      "Southeast Asia"
+    ],
+    "brand": "TNT",
+    "brandName": "SmartTalk n Text",
+    "productType": "TOPUP",
+    "subTypes": [
+      "Mobile Top Up"
+    ],
+    "notes": "",
+    "shortNotes": "",
+    "priceType": "FIXED",
+    "send": {
+      "currency": "PHP",
+      "currencyDivisor": 100,
+      "fixed": 52980,
+      "fx": 1
+    },
+    "price": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 950,
+      "suggestedFixed": 950,
+      "fx": 55.768421,
+      "suggestedFx": 55.768421,
+      "margin": 0.04947368,
+      "fee": 0
+    },
+    "cost": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 903,
+      "fx": 58.67109635,
+      "fee": 0,
+      "feePct": 0,
+      "discount": 0.04947368
+    },
+    "durationDays": 0,
+    "dataGB": 0,
+    "dataUnlimited": false,
+    "smsNumber": 0,
+    "smsUnlimited": false,
+    "voiceMinutes": 0,
+    "voiceUnlimited": false,
+    "createdAt": "2025-02-17T05:51:48.749Z",
+    "updatedAt": "2026-08-22T00:00:00Z"
+  },
+  {
+    "enabled": true,
+    "offerId": "TNT_PH_003",
+    "country": "PH",
+    "regions": [
+      "Southeast Asia"
+    ],
+    "brand": "TNT",
+    "brandName": "SmartTalk n Text",
+    "productType": "TOPUP",
+    "subTypes": [
+      "Mobile Top Up"
+    ],
+    "notes": "",
+    "shortNotes": "",
+    "priceType": "FIXED",
+    "send": {
+      "currency": "PHP",
+      "currencyDivisor": 100,
+      "fixed": 105616,
+      "fx": 1
+    },
+    "price": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 1895,
+      "suggestedFixed": 1895,
+      "fx": 55.734037,
+      "suggestedFx": 55.734037,
+      "margin": 0.05013193,
+      "fee": 0
+    },
+    "cost": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 1800,
+      "fx": 58.67555556,
+      "fee": 0,
+      "feePct": 0,
+      "discount": 0.05013193
+    },
+    "durationDays": 0,
+    "dataGB": 0,
+    "dataUnlimited": false,
+    "smsNumber": 0,
+    "smsUnlimited": false,
+    "voiceMinutes": 0,
+    "voiceUnlimited": false,
+    "createdAt": "2025-02-17T05:51:53.684Z",
+    "updatedAt": "2026-08-22T00:00:00Z"
+  },
+  {
+    "enabled": true,
+    "offerId": "TNT_PH_004",
+    "country": "PH",
+    "regions": [
+      "Southeast Asia"
+    ],
+    "brand": "TNT",
+    "brandName": "SmartTalk n Text",
+    "productType": "TOPUP",
+    "subTypes": [
+      "Mobile Top Up"
+    ],
+    "notes": "",
+    "shortNotes": "",
+    "priceType": "FIXED",
+    "send": {
+      "currency": "PHP",
+      "currencyDivisor": 100,
+      "fixed": 79442,
+      "fx": 1
+    },
+    "price": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 1425,
+      "suggestedFixed": 1425,
+      "fx": 55.748772,
+      "suggestedFx": 55.748772,
+      "margin": 0.04982456,
+      "fee": 0
+    },
+    "cost": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 1354,
+      "fx": 58.67208272,
+      "fee": 0,
+      "feePct": 0,
+      "discount": 0.04982456
+    },
+    "durationDays": 0,
+    "dataGB": 0,
+    "dataUnlimited": false,
+    "smsNumber": 0,
+    "smsUnlimited": false,
+    "voiceMinutes": 0,
+    "voiceUnlimited": false,
+    "createdAt": "2025-02-17T05:51:48.749Z",
+    "updatedAt": "2026-08-22T00:00:00Z"
+  },
+  {
+    "enabled": true,
+    "offerId": "TOUCHMOBILE_PH_001",
+    "country": "PH",
+    "regions": [
+      "Southeast Asia"
+    ],
+    "brand": "TouchMobile",
+    "brandName": "Touch Mobile",
+    "productType": "TOPUP",
+    "subTypes": [
+      "Mobile Top Up"
+    ],
+    "notes": "",
+    "shortNotes": "",
+    "priceType": "FIXED",
+    "send": {
+      "currency": "PHP",
+      "currencyDivisor": 100,
+      "fixed": 15000,
+      "fx": 1
+    },
+    "price": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 357,
+      "suggestedFixed": 357,
+      "fx": 42.016807,
+      "suggestedFx": 42.016807,
+      "margin": 0.05042017,
+      "fee": 0
+    },
+    "cost": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 339,
+      "fx": 44.24778761,
+      "fee": 0,
+      "feePct": 0,
+      "discount": 0.05042017
+    },
+    "durationDays": 0,
+    "dataGB": 0,
+    "dataUnlimited": false,
+    "smsNumber": 0,
+    "smsUnlimited": false,
+    "voiceMinutes": 0,
+    "voiceUnlimited": false,
+    "createdAt": "2025-02-17T05:51:51.238Z",
+    "updatedAt": "2026-08-22T00:00:00Z"
+  },
+  {
+    "enabled": true,
+    "offerId": "TOUCHMOBILE_PH_002",
+    "country": "PH",
+    "regions": [
+      "Southeast Asia"
+    ],
+    "brand": "TouchMobile",
+    "brandName": "Touch Mobile",
+    "productType": "TOPUP",
+    "subTypes": [
+      "Mobile Top Up"
+    ],
+    "notes": "",
+    "shortNotes": "",
+    "priceType": "FIXED",
+    "send": {
+      "currency": "PHP",
+      "currencyDivisor": 100,
+      "fixed": 20000,
+      "fx": 1
+    },
+    "price": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 469,
+      "suggestedFixed": 469,
+      "fx": 42.643923,
+      "suggestedFx": 42.643923,
+      "margin": 0.05117271,
+      "fee": 0
+    },
+    "cost": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 445,
+      "fx": 44.94382022,
+      "fee": 0,
+      "feePct": 0,
+      "discount": 0.05117271
+    },
+    "durationDays": 0,
+    "dataGB": 0,
+    "dataUnlimited": false,
+    "smsNumber": 0,
+    "smsUnlimited": false,
+    "voiceMinutes": 0,
+    "voiceUnlimited": false,
+    "createdAt": "2025-02-17T05:51:56.256Z",
+    "updatedAt": "2026-08-22T00:00:00Z"
+  },
+  {
+    "enabled": true,
+    "offerId": "TOUCHMOBILE_PH_003",
+    "country": "PH",
+    "regions": [
+      "Southeast Asia"
+    ],
+    "brand": "TouchMobile",
+    "brandName": "Touch Mobile",
+    "productType": "TOPUP",
+    "subTypes": [
+      "Mobile Top Up"
+    ],
+    "notes": "",
+    "shortNotes": "",
+    "priceType": "FIXED",
+    "send": {
+      "currency": "PHP",
+      "currencyDivisor": 100,
+      "fixed": 35000,
+      "fx": 1
+    },
+    "price": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 825,
+      "suggestedFixed": 825,
+      "fx": 42.424242,
+      "suggestedFx": 42.424242,
+      "margin": 0.04969697,
+      "fee": 0
+    },
+    "cost": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 784,
+      "fx": 44.64285714,
+      "fee": 0,
+      "feePct": 0,
+      "discount": 0.04969697
+    },
+    "durationDays": 0,
+    "dataGB": 0,
+    "dataUnlimited": false,
+    "smsNumber": 0,
+    "smsUnlimited": false,
+    "voiceMinutes": 0,
+    "voiceUnlimited": false,
+    "createdAt": "2025-02-17T05:51:53.684Z",
+    "updatedAt": "2026-08-22T00:00:00Z"
+  },
+  {
+    "enabled": true,
+    "offerId": "TOUCHMOBILE_PH_004",
+    "country": "PH",
+    "regions": [
+      "Southeast Asia"
+    ],
+    "brand": "TouchMobile",
+    "brandName": "Touch Mobile",
+    "productType": "TOPUP",
+    "subTypes": [
+      "Mobile Top Up"
+    ],
+    "notes": "",
+    "shortNotes": "",
+    "priceType": "FIXED",
+    "send": {
+      "currency": "PHP",
+      "currencyDivisor": 100,
+      "fixed": 45000,
+      "fx": 1
+    },
+    "price": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 1039,
+      "suggestedFixed": 1039,
+      "fx": 43.310876,
+      "suggestedFx": 43.310876,
+      "margin": 0.05004812,
+      "fee": 0
+    },
+    "cost": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 987,
+      "fx": 45.59270517,
+      "fee": 0,
+      "feePct": 0,
+      "discount": 0.05004812
+    },
+    "durationDays": 0,
+    "dataGB": 0,
+    "dataUnlimited": false,
+    "smsNumber": 0,
+    "smsUnlimited": false,
+    "voiceMinutes": 0,
+    "voiceUnlimited": false,
+    "createdAt": "2025-02-17T05:51:51.238Z",
+    "updatedAt": "2026-08-22T00:00:00Z"
+  },
+  {
+    "enabled": true,
+    "offerId": "TOUCHMOBILE_PH_005",
+    "country": "PH",
+    "regions": [
+      "Southeast Asia"
+    ],
+    "brand": "TouchMobile",
+    "brandName": "Touch Mobile",
+    "productType": "TOPUP",
+    "subTypes": [
+      "Mobile Top Up"
+    ],
+    "notes": "",
+    "shortNotes": "",
+    "priceType": "FIXED",
+    "send": {
+      "currency": "PHP",
+      "currencyDivisor": 100,
+      "fixed": 50000,
+      "fx": 1
+    },
+    "price": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 1161,
+      "suggestedFixed": 1161,
+      "fx": 43.066322,
+      "suggestedFx": 43.066322,
+      "margin": 0.04995693,
+      "fee": 0
+    },
+    "cost": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 1103,
+      "fx": 45.33091568,
+      "fee": 0,
+      "feePct": 0,
+      "discount": 0.04995693
+    },
+    "durationDays": 0,
+    "dataGB": 0,
+    "dataUnlimited": false,
+    "smsNumber": 0,
+    "smsUnlimited": false,
+    "voiceMinutes": 0,
+    "voiceUnlimited": false,
+    "createdAt": "2025-02-17T05:51:43.793Z",
+    "updatedAt": "2026-08-22T00:00:00Z"
+  },
+  {
+    "enabled": true,
+    "offerId": "TOUCHMOBILE_PH_006",
+    "country": "PH",
+    "regions": [
+      "Southeast Asia"
+    ],
+    "brand": "TouchMobile",
+    "brandName": "Touch Mobile",
+    "productType": "TOPUP",
+    "subTypes": [
+      "Mobile Top Up"
+    ],
+    "notes": "",
+    "shortNotes": "",
+    "priceType": "FIXED",
+    "send": {
+      "currency": "PHP",
+      "currencyDivisor": 100,
+      "fixed": 55000,
+      "fx": 1
+    },
+    "price": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 1284,
+      "suggestedFixed": 1284,
+      "fx": 42.834891,
+      "suggestedFx": 42.834891,
+      "margin": 0.05062305,
+      "fee": 0
+    },
+    "cost": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 1219,
+      "fx": 45.11894996,
+      "fee": 0,
+      "feePct": 0,
+      "discount": 0.05062305
+    },
+    "durationDays": 0,
+    "dataGB": 0,
+    "dataUnlimited": false,
+    "smsNumber": 0,
+    "smsUnlimited": false,
+    "voiceMinutes": 0,
+    "voiceUnlimited": false,
+    "createdAt": "2025-02-17T05:51:43.793Z",
+    "updatedAt": "2026-08-22T00:00:00Z"
+  },
+  {
+    "enabled": true,
+    "offerId": "TOUCHMOBILE_PH_007",
+    "country": "PH",
+    "regions": [
+      "Southeast Asia"
+    ],
+    "brand": "TouchMobile",
+    "brandName": "Touch Mobile",
+    "productType": "TOPUP",
+    "subTypes": [
+      "Mobile Top Up"
+    ],
+    "notes": "",
+    "shortNotes": "",
+    "priceType": "FIXED",
+    "send": {
+      "currency": "PHP",
+      "currencyDivisor": 100,
+      "fixed": 60000,
+      "fx": 1
+    },
+    "price": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 1385,
+      "suggestedFixed": 1385,
+      "fx": 43.3213,
+      "suggestedFx": 43.3213,
+      "margin": 0.04981949,
+      "fee": 0
+    },
+    "cost": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 1316,
+      "fx": 45.59270517,
+      "fee": 0,
+      "feePct": 0,
+      "discount": 0.04981949
+    },
+    "durationDays": 0,
+    "dataGB": 0,
+    "dataUnlimited": false,
+    "smsNumber": 0,
+    "smsUnlimited": false,
+    "voiceMinutes": 0,
+    "voiceUnlimited": false,
+    "createdAt": "2025-02-17T05:52:01.419Z",
+    "updatedAt": "2026-08-22T00:00:00Z"
+  },
+  {
+    "enabled": true,
+    "offerId": "TOUCHMOBILE_PH_008",
+    "country": "PH",
+    "regions": [
+      "Southeast Asia"
+    ],
+    "brand": "TouchMobile",
+    "brandName": "Touch Mobile",
+    "productType": "TOPUP",
+    "subTypes": [
+      "Mobile Top Up"
+    ],
+    "notes": "",
+    "shortNotes": "",
+    "priceType": "FIXED",
+    "send": {
+      "currency": "PHP",
+      "currencyDivisor": 100,
+      "fixed": 70000,
+      "fx": 1
+    },
+    "price": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 1620,
+      "suggestedFixed": 1620,
+      "fx": 43.209877,
+      "suggestedFx": 43.209877,
+      "margin": 0.05,
+      "fee": 0
+    },
+    "cost": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 1539,
+      "fx": 45.48408057,
+      "fee": 0,
+      "feePct": 0,
+      "discount": 0.05
+    },
+    "durationDays": 0,
+    "dataGB": 0,
+    "dataUnlimited": false,
+    "smsNumber": 0,
+    "smsUnlimited": false,
+    "voiceMinutes": 0,
+    "voiceUnlimited": false,
+    "createdAt": "2025-02-17T05:51:43.793Z",
+    "updatedAt": "2026-08-22T00:00:00Z"
+  },
+  {
+    "enabled": true,
+    "offerId": "TOUCHMOBILE_PH_009",
+    "country": "PH",
+    "regions": [
+      "Southeast Asia"
+    ],
+    "brand": "TouchMobile",
+    "brandName": "Touch Mobile",
+    "productType": "TOPUP",
+    "subTypes": [
+      "Mobile Top Up"
+    ],
+    "notes": "",
+    "shortNotes": "",
+    "priceType": "FIXED",
+    "send": {
+      "currency": "PHP",
+      "currencyDivisor": 100,
+      "fixed": 90000,
+      "fx": 1
+    },
+    "price": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 2078,
+      "suggestedFixed": 2078,
+      "fx": 43.310876,
+      "suggestedFx": 43.310876,
+      "margin": 0.05004812,
+      "fee": 0
+    },
+    "cost": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 1974,
+      "fx": 45.59270517,
+      "fee": 0,
+      "feePct": 0,
+      "discount": 0.05004812
+    },
+    "durationDays": 0,
+    "dataGB": 0,
+    "dataUnlimited": false,
+    "smsNumber": 0,
+    "smsUnlimited": false,
+    "voiceMinutes": 0,
+    "voiceUnlimited": false,
+    "createdAt": "2025-02-17T05:51:48.749Z",
+    "updatedAt": "2026-08-22T00:00:00Z"
+  },
+  {
+    "enabled": true,
+    "offerId": "TOUCHMOBILE_PH_010",
+    "country": "PH",
+    "regions": [
+      "Southeast Asia"
+    ],
+    "brand": "TouchMobile",
+    "brandName": "Touch Mobile",
+    "productType": "TOPUP",
+    "subTypes": [
+      "Mobile Top Up"
+    ],
+    "notes": "",
+    "shortNotes": "",
+    "priceType": "FIXED",
+    "send": {
+      "currency": "PHP",
+      "currencyDivisor": 100,
+      "fixed": 100000,
+      "fx": 1
+    },
+    "price": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 2312,
+      "suggestedFixed": 2312,
+      "fx": 43.252595,
+      "suggestedFx": 43.252595,
+      "margin": 0.04974048,
+      "fee": 0
+    },
+    "cost": {
+      "currency": "USD",
+      "currencyDivisor": 100,
+      "fixed": 2197,
+      "fx": 45.51661356,
+      "fee": 0,
+      "feePct": 0,
+      "discount": 0.04974048
+    },
+    "durationDays": 0,
+    "dataGB": 0,
+    "dataUnlimited": false,
+    "smsNumber": 0,
+    "smsUnlimited": false,
+    "voiceMinutes": 0,
+    "voiceUnlimited": false,
+    "createdAt": "2025-02-17T05:51:56.256Z",
+    "updatedAt": "2026-08-22T00:00:00Z"
+  }
+]

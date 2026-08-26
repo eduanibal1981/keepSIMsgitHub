@@ -25,6 +25,7 @@ import 'package:keep_sims/features/wallet/controller/wallet_controller.dart';
 import 'package:keep_sims/features/sim_lines/presentation/providers/api_offers_providers.dart';
 import 'package:keep_sims/features/sim_lines/data/models/usage_forecast_model.dart';
 import 'package:keep_sims/features/sim_lines/presentation/providers/usage_forecast_provider.dart';
+import 'package:keep_sims/features/sim_lines/presentation/widgets/provider_badge.dart';
 
 class ScheduledTopupSheet extends ConsumerStatefulWidget {
   final String simLineId;
@@ -646,14 +647,32 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                                               MainAxisAlignment.spaceBetween,
                                           children: [
                                             Expanded(
-                                              child: Text(
-                                                name,
-                                                style: AppTextStyles.labelLarge
-                                                    .copyWith(
-                                                  color:
-                                                      AppColors.textPrimaryDark,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    name,
+                                                    style: AppTextStyles
+                                                        .labelLarge
+                                                        .copyWith(
+                                                      color: AppColors
+                                                          .textPrimaryDark,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                  if (offer['provider'] !=
+                                                      null) ...[
+                                                    const SizedBox(height: 4),
+                                                    ProviderBadge(
+                                                      provider:
+                                                          offer['provider']
+                                                              as String?,
+                                                      showFullName: true,
+                                                    ),
+                                                  ],
+                                                ],
                                               ),
                                             ),
                                             Text(
@@ -1260,9 +1279,20 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
             ),
             const SizedBox(height: 12),
           ],
-          Text(
-            'Custom Amount ($currency)',
-            style: AppTextStyles.labelLarge.copyWith(color: AppColors.textPrimaryDark),
+          Row(
+            children: [
+              Text(
+                'Custom Amount ($currency)',
+                style: AppTextStyles.labelLarge.copyWith(color: AppColors.textPrimaryDark),
+              ),
+              if (offer['provider'] != null) ...[
+                const SizedBox(width: 8),
+                ProviderBadge(
+                  provider: offer['provider'] as String?,
+                  showFullName: true,
+                ),
+              ],
+            ],
           ),
           const SizedBox(height: 8),
           TextFormField(

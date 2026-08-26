@@ -10,9 +10,13 @@ _LineRescuePolicy _$LineRescuePolicyFromJson(Map<String, dynamic> json) =>
     _LineRescuePolicy(
       simLineId: json['sim_line_id'] as String,
       userId: json['user_id'] as String,
-      maxUsd: (json['max_usd'] as num?)?.toDouble() ?? 0.0,
-      leadDays: (json['lead_days'] as num?)?.toInt() ?? 2,
-      warnLeadDays: (json['warn_lead_days'] as num?)?.toInt() ?? 3,
+      maxUsd: json['max_usd'] == null ? 0.0 : _parseDouble(json['max_usd']),
+      leadDays: json['lead_days'] == null
+          ? 2
+          : _parseLeadDays(json['lead_days']),
+      warnLeadDays: json['warn_lead_days'] == null
+          ? 3
+          : _parseWarnLeadDays(json['warn_lead_days']),
       lastWarnedAt: json['last_warned_at'] == null
           ? null
           : DateTime.parse(json['last_warned_at'] as String),
@@ -20,7 +24,9 @@ _LineRescuePolicy _$LineRescuePolicyFromJson(Map<String, dynamic> json) =>
           ? null
           : DateTime.parse(json['last_rescue_at'] as String),
       lastRescueExecutionId: json['last_rescue_execution_id'] as String?,
-      rescueCount: (json['rescue_count'] as num?)?.toInt() ?? 0,
+      rescueCount: json['rescue_count'] == null
+          ? 0
+          : _parseRescueCount(json['rescue_count']),
       createdAt: json['created_at'] == null
           ? null
           : DateTime.parse(json['created_at'] as String),

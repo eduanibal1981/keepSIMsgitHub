@@ -1,0 +1,77 @@
+[
+  {
+    "country": {
+      "iso_code": "OMN",
+      "name": "Oman",
+      "regions": [
+        {
+          "code": "OMN",
+          "name": "Oman"
+        }
+      ]
+    },
+    "id": 2695,
+    "name": "Omantel PIN Oman",
+    "regions": null
+  },
+  {
+    "country": {
+      "iso_code": "OMN",
+      "name": "Oman",
+      "regions": [
+        {
+          "code": "OMN",
+          "name": "Oman"
+        }
+      ]
+    },
+    "id": 2697,
+    "name": "Renna PIN Oman",
+    "regions": null
+  },
+  {
+    "country": {
+      "iso_code": "OMN",
+      "name": "Oman",
+      "regions": [
+        {
+          "code": "OMN",
+          "name": "Oman"
+        }
+      ]
+    },
+    "id": 2883,
+    "name": "Ooredoo PIN Oman",
+    "regions": null
+  },
+  {
+    "country": {
+      "iso_code": "OMN",
+      "name": "Oman",
+      "regions": [
+        {
+          "code": "OMN",
+          "name": "Oman"
+        }
+      ]
+    },
+    "id": 3296,
+    "name": "Playstation Giftcard Oman",
+    "regions": null
+  },
+  {
+    "country": {
+      "iso_code": "OMN",
+      "name": "Oman",
+      "regions": [
+        {
+          "code": "OMN",
+          "name": "Oman"
+        }
+      ]
+    },
+    "id": 3444,
+    "name": "Red Bull Oman",
+    "regions": null
+  }
+]

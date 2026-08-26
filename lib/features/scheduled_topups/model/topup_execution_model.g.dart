@@ -34,6 +34,9 @@ _TopupExecution _$TopupExecutionFromJson(Map<String, dynamic> json) =>
       createdAt: json['created_at'] == null
           ? null
           : DateTime.parse(json['created_at'] as String),
+      pinCode: json['pin_code'] as String?,
+      pinSerial: json['pin_serial'] as String?,
+      redeemInstructions: json['redeem_instructions'] as String?,
     );
 
 Map<String, dynamic> _$TopupExecutionToJson(_TopupExecution instance) =>
@@ -56,4 +59,7 @@ Map<String, dynamic> _$TopupExecutionToJson(_TopupExecution instance) =>
       'executed_at': instance.executedAt?.toIso8601String(),
       'completed_at': instance.completedAt?.toIso8601String(),
       'created_at': instance.createdAt?.toIso8601String(),
+      'pin_code': instance.pinCode,
+      'pin_serial': instance.pinSerial,
+      'redeem_instructions': instance.redeemInstructions,
     };

@@ -1,0 +1,2798 @@
+[
+  {
+    "availability_zones": [
+      "INTERNATIONAL"
+    ],
+    "benefits": [
+      {
+        "additional_information": null,
+        "amount": {
+          "base": 1,
+          "promotion_bonus": 0,
+          "total_excluding_tax": 1,
+          "total_including_tax": 1
+        },
+        "type": "CREDITS",
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    ],
+    "description": "1 OMR",
+    "destination": {
+      "amount": 1,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "id": 17091,
+    "name": "1 OMR",
+    "operator": {
+      "country": {
+        "iso_code": "OMN",
+        "name": "Oman",
+        "regions": [
+          {
+            "code": "OMN",
+            "name": "Oman"
+          }
+        ]
+      },
+      "id": 2695,
+      "name": "Omantel PIN Oman",
+      "regions": null
+    },
+    "pin": {
+      "terms": null,
+      "usage_info": [
+        "To recharge your account: Call 1233 and follow the instructions or Dial *101*recharge pin#",
+        "To check your credit balance: Dial *100#",
+        "",
+        "IVR: 1233"
+      ],
+      "validity": null
+    },
+    "prices": {
+      "retail": {
+        "amount": 1.427,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      },
+      "wholesale": {
+        "amount": 1.24,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    },
+    "promotions": null,
+    "rates": {
+      "base": 0.8064516129032,
+      "retail": 0.7007708479327,
+      "wholesale": 0.8064516129032
+    },
+    "regions": null,
+    "required_additional_identifier_fields": null,
+    "required_beneficiary_fields": null,
+    "required_credit_party_identifier_fields": null,
+    "required_debit_party_identifier_fields": null,
+    "required_sender_fields": null,
+    "required_statement_identifier_fields": null,
+    "service": {
+      "id": 1,
+      "name": "Mobile",
+      "subservice": {
+        "id": 11,
+        "name": "Airtime"
+      }
+    },
+    "source": {
+      "amount": 1.24,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "tags": [
+      "AIRTIME"
+    ],
+    "type": "FIXED_VALUE_PIN_PURCHASE",
+    "validity": {
+      "quantity": 6,
+      "unit": "MONTH"
+    }
+  },
+  {
+    "availability_zones": [
+      "INTERNATIONAL"
+    ],
+    "benefits": [
+      {
+        "additional_information": null,
+        "amount": {
+          "base": 3,
+          "promotion_bonus": 0,
+          "total_excluding_tax": 3,
+          "total_including_tax": 3
+        },
+        "type": "CREDITS",
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    ],
+    "description": "3 OMR",
+    "destination": {
+      "amount": 3,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "id": 17092,
+    "name": "3 OMR",
+    "operator": {
+      "country": {
+        "iso_code": "OMN",
+        "name": "Oman",
+        "regions": [
+          {
+            "code": "OMN",
+            "name": "Oman"
+          }
+        ]
+      },
+      "id": 2695,
+      "name": "Omantel PIN Oman",
+      "regions": null
+    },
+    "pin": {
+      "terms": null,
+      "usage_info": [
+        "To recharge your account: Call 1233 and follow the instructions or Dial *101*recharge pin#",
+        "To check your credit balance: Dial *100#",
+        "",
+        "IVR: 1233"
+      ],
+      "validity": null
+    },
+    "prices": {
+      "retail": {
+        "amount": 4.279,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      },
+      "wholesale": {
+        "amount": 3.72,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    },
+    "promotions": null,
+    "rates": {
+      "base": 0.8064516129032,
+      "retail": 0.7010983874737,
+      "wholesale": 0.8064516129032
+    },
+    "regions": null,
+    "required_additional_identifier_fields": null,
+    "required_beneficiary_fields": null,
+    "required_credit_party_identifier_fields": null,
+    "required_debit_party_identifier_fields": null,
+    "required_sender_fields": null,
+    "required_statement_identifier_fields": null,
+    "service": {
+      "id": 1,
+      "name": "Mobile",
+      "subservice": {
+        "id": 11,
+        "name": "Airtime"
+      }
+    },
+    "source": {
+      "amount": 3.72,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "tags": [
+      "AIRTIME"
+    ],
+    "type": "FIXED_VALUE_PIN_PURCHASE",
+    "validity": {
+      "quantity": 6,
+      "unit": "MONTH"
+    }
+  },
+  {
+    "availability_zones": [
+      "INTERNATIONAL"
+    ],
+    "benefits": [
+      {
+        "additional_information": null,
+        "amount": {
+          "base": 5,
+          "promotion_bonus": 0,
+          "total_excluding_tax": 5,
+          "total_including_tax": 5
+        },
+        "type": "CREDITS",
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    ],
+    "description": "5 OMR",
+    "destination": {
+      "amount": 5,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "id": 17093,
+    "name": "5 OMR",
+    "operator": {
+      "country": {
+        "iso_code": "OMN",
+        "name": "Oman",
+        "regions": [
+          {
+            "code": "OMN",
+            "name": "Oman"
+          }
+        ]
+      },
+      "id": 2695,
+      "name": "Omantel PIN Oman",
+      "regions": null
+    },
+    "pin": {
+      "terms": null,
+      "usage_info": [
+        "To recharge your account: Call 1233 and follow the instructions or Dial *101*recharge pin#",
+        "To check your credit balance: Dial *100#",
+        "",
+        "IVR: 1233"
+      ],
+      "validity": null
+    },
+    "prices": {
+      "retail": {
+        "amount": 7.13,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      },
+      "wholesale": {
+        "amount": 6.199,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    },
+    "promotions": null,
+    "rates": {
+      "base": 0.8065817067269,
+      "retail": 0.7013606396409,
+      "wholesale": 0.8065817067269
+    },
+    "regions": null,
+    "required_additional_identifier_fields": null,
+    "required_beneficiary_fields": null,
+    "required_credit_party_identifier_fields": null,
+    "required_debit_party_identifier_fields": null,
+    "required_sender_fields": null,
+    "required_statement_identifier_fields": null,
+    "service": {
+      "id": 1,
+      "name": "Mobile",
+      "subservice": {
+        "id": 11,
+        "name": "Airtime"
+      }
+    },
+    "source": {
+      "amount": 6.199,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "tags": [
+      "AIRTIME"
+    ],
+    "type": "FIXED_VALUE_PIN_PURCHASE",
+    "validity": {
+      "quantity": 6,
+      "unit": "MONTH"
+    }
+  },
+  {
+    "availability_zones": [
+      "INTERNATIONAL"
+    ],
+    "benefits": [
+      {
+        "additional_information": null,
+        "amount": {
+          "base": 10,
+          "promotion_bonus": 0,
+          "total_excluding_tax": 10,
+          "total_including_tax": 10
+        },
+        "type": "CREDITS",
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    ],
+    "description": "10 OMR",
+    "destination": {
+      "amount": 10,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "id": 17094,
+    "name": "10 OMR",
+    "operator": {
+      "country": {
+        "iso_code": "OMN",
+        "name": "Oman",
+        "regions": [
+          {
+            "code": "OMN",
+            "name": "Oman"
+          }
+        ]
+      },
+      "id": 2695,
+      "name": "Omantel PIN Oman",
+      "regions": null
+    },
+    "pin": {
+      "terms": null,
+      "usage_info": [
+        "To recharge your account: Call 1233 and follow the instructions or Dial *101*recharge pin#",
+        "To check your credit balance: Dial *100#",
+        "",
+        "IVR: 1233"
+      ],
+      "validity": null
+    },
+    "prices": {
+      "retail": {
+        "amount": 14.257,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      },
+      "wholesale": {
+        "amount": 12.397,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    },
+    "promotions": null,
+    "rates": {
+      "base": 0.8066467693797,
+      "retail": 0.7014098337659,
+      "wholesale": 0.8066467693797
+    },
+    "regions": null,
+    "required_additional_identifier_fields": null,
+    "required_beneficiary_fields": null,
+    "required_credit_party_identifier_fields": null,
+    "required_debit_party_identifier_fields": null,
+    "required_sender_fields": null,
+    "required_statement_identifier_fields": null,
+    "service": {
+      "id": 1,
+      "name": "Mobile",
+      "subservice": {
+        "id": 11,
+        "name": "Airtime"
+      }
+    },
+    "source": {
+      "amount": 12.397,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "tags": [
+      "AIRTIME"
+    ],
+    "type": "FIXED_VALUE_PIN_PURCHASE",
+    "validity": {
+      "quantity": 6,
+      "unit": "MONTH"
+    }
+  },
+  {
+    "availability_zones": [
+      "INTERNATIONAL"
+    ],
+    "benefits": [
+      {
+        "additional_information": null,
+        "amount": {
+          "base": 1,
+          "promotion_bonus": 0,
+          "total_excluding_tax": 1,
+          "total_including_tax": 1
+        },
+        "type": "CREDITS",
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    ],
+    "description": "1 OMR",
+    "destination": {
+      "amount": 1,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "id": 17106,
+    "name": "1 OMR",
+    "operator": {
+      "country": {
+        "iso_code": "OMN",
+        "name": "Oman",
+        "regions": [
+          {
+            "code": "OMN",
+            "name": "Oman"
+          }
+        ]
+      },
+      "id": 2697,
+      "name": "Renna PIN Oman",
+      "regions": null
+    },
+    "pin": {
+      "terms": null,
+      "usage_info": [
+        "To recharge your account: Dial *180*recharge pin#",
+        "To check your credit balance: Dial *181*2#",
+        "",
+        "IVR: 180"
+      ],
+      "validity": null
+    },
+    "prices": {
+      "retail": {
+        "amount": 1.418,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      },
+      "wholesale": {
+        "amount": 1.233,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    },
+    "promotions": null,
+    "rates": {
+      "base": 0.8110300081103,
+      "retail": 0.7052186177715,
+      "wholesale": 0.8110300081103
+    },
+    "regions": null,
+    "required_additional_identifier_fields": null,
+    "required_beneficiary_fields": null,
+    "required_credit_party_identifier_fields": null,
+    "required_debit_party_identifier_fields": null,
+    "required_sender_fields": null,
+    "required_statement_identifier_fields": null,
+    "service": {
+      "id": 1,
+      "name": "Mobile",
+      "subservice": {
+        "id": 11,
+        "name": "Airtime"
+      }
+    },
+    "source": {
+      "amount": 1.233,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "tags": [
+      "AIRTIME"
+    ],
+    "type": "FIXED_VALUE_PIN_PURCHASE",
+    "validity": {
+      "quantity": 6,
+      "unit": "MONTH"
+    }
+  },
+  {
+    "availability_zones": [
+      "INTERNATIONAL"
+    ],
+    "benefits": [
+      {
+        "additional_information": null,
+        "amount": {
+          "base": 1.5,
+          "promotion_bonus": 0,
+          "total_excluding_tax": 1.5,
+          "total_including_tax": 1.5
+        },
+        "type": "CREDITS",
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    ],
+    "description": "1.5 OMR",
+    "destination": {
+      "amount": 1.5,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "id": 17107,
+    "name": "1.5 OMR",
+    "operator": {
+      "country": {
+        "iso_code": "OMN",
+        "name": "Oman",
+        "regions": [
+          {
+            "code": "OMN",
+            "name": "Oman"
+          }
+        ]
+      },
+      "id": 2697,
+      "name": "Renna PIN Oman",
+      "regions": null
+    },
+    "pin": {
+      "terms": null,
+      "usage_info": [
+        "To recharge your account: Dial *180*recharge pin#",
+        "To check your credit balance: Dial *181*2#",
+        "",
+        "IVR: 180"
+      ],
+      "validity": null
+    },
+    "prices": {
+      "retail": {
+        "amount": 2.128,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      },
+      "wholesale": {
+        "amount": 1.849,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    },
+    "promotions": null,
+    "rates": {
+      "base": 0.8112493239589,
+      "retail": 0.7052186177715,
+      "wholesale": 0.8112493239589
+    },
+    "regions": null,
+    "required_additional_identifier_fields": null,
+    "required_beneficiary_fields": null,
+    "required_credit_party_identifier_fields": null,
+    "required_debit_party_identifier_fields": null,
+    "required_sender_fields": null,
+    "required_statement_identifier_fields": null,
+    "service": {
+      "id": 1,
+      "name": "Mobile",
+      "subservice": {
+        "id": 11,
+        "name": "Airtime"
+      }
+    },
+    "source": {
+      "amount": 1.849,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "tags": [
+      "AIRTIME"
+    ],
+    "type": "FIXED_VALUE_PIN_PURCHASE",
+    "validity": {
+      "quantity": 6,
+      "unit": "MONTH"
+    }
+  },
+  {
+    "availability_zones": [
+      "INTERNATIONAL"
+    ],
+    "benefits": [
+      {
+        "additional_information": null,
+        "amount": {
+          "base": 3,
+          "promotion_bonus": 0,
+          "total_excluding_tax": 3,
+          "total_including_tax": 3
+        },
+        "type": "CREDITS",
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    ],
+    "description": "3 OMR",
+    "destination": {
+      "amount": 3,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "id": 17108,
+    "name": "3 OMR",
+    "operator": {
+      "country": {
+        "iso_code": "OMN",
+        "name": "Oman",
+        "regions": [
+          {
+            "code": "OMN",
+            "name": "Oman"
+          }
+        ]
+      },
+      "id": 2697,
+      "name": "Renna PIN Oman",
+      "regions": null
+    },
+    "pin": {
+      "terms": null,
+      "usage_info": [
+        "To recharge your account: Dial *180*recharge pin#",
+        "To check your credit balance: Dial *181*2#",
+        "",
+        "IVR: 180"
+      ],
+      "validity": null
+    },
+    "prices": {
+      "retail": {
+        "amount": 4.252,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      },
+      "wholesale": {
+        "amount": 3.697,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    },
+    "promotions": null,
+    "rates": {
+      "base": 0.8114687584528,
+      "retail": 0.7055503292568,
+      "wholesale": 0.8114687584528
+    },
+    "regions": null,
+    "required_additional_identifier_fields": null,
+    "required_beneficiary_fields": null,
+    "required_credit_party_identifier_fields": null,
+    "required_debit_party_identifier_fields": null,
+    "required_sender_fields": null,
+    "required_statement_identifier_fields": null,
+    "service": {
+      "id": 1,
+      "name": "Mobile",
+      "subservice": {
+        "id": 11,
+        "name": "Airtime"
+      }
+    },
+    "source": {
+      "amount": 3.697,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "tags": [
+      "AIRTIME"
+    ],
+    "type": "FIXED_VALUE_PIN_PURCHASE",
+    "validity": {
+      "quantity": 6,
+      "unit": "MONTH"
+    }
+  },
+  {
+    "availability_zones": [
+      "INTERNATIONAL"
+    ],
+    "benefits": [
+      {
+        "additional_information": null,
+        "amount": {
+          "base": 5,
+          "promotion_bonus": 0,
+          "total_excluding_tax": 5,
+          "total_including_tax": 5
+        },
+        "type": "CREDITS",
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    ],
+    "description": "5 OMR",
+    "destination": {
+      "amount": 5,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "id": 17109,
+    "name": "5 OMR",
+    "operator": {
+      "country": {
+        "iso_code": "OMN",
+        "name": "Oman",
+        "regions": [
+          {
+            "code": "OMN",
+            "name": "Oman"
+          }
+        ]
+      },
+      "id": 2697,
+      "name": "Renna PIN Oman",
+      "regions": null
+    },
+    "pin": {
+      "terms": null,
+      "usage_info": [
+        "To recharge your account: Dial *180*recharge pin#",
+        "To check your credit balance: Dial *181*2#",
+        "",
+        "IVR: 180"
+      ],
+      "validity": null
+    },
+    "prices": {
+      "retail": {
+        "amount": 7.086,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      },
+      "wholesale": {
+        "amount": 6.161,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    },
+    "promotions": null,
+    "rates": {
+      "base": 0.8115565654926,
+      "retail": 0.7056167090037,
+      "wholesale": 0.8115565654926
+    },
+    "regions": null,
+    "required_additional_identifier_fields": null,
+    "required_beneficiary_fields": null,
+    "required_credit_party_identifier_fields": null,
+    "required_debit_party_identifier_fields": null,
+    "required_sender_fields": null,
+    "required_statement_identifier_fields": null,
+    "service": {
+      "id": 1,
+      "name": "Mobile",
+      "subservice": {
+        "id": 11,
+        "name": "Airtime"
+      }
+    },
+    "source": {
+      "amount": 6.161,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "tags": [
+      "AIRTIME"
+    ],
+    "type": "FIXED_VALUE_PIN_PURCHASE",
+    "validity": {
+      "quantity": 6,
+      "unit": "MONTH"
+    }
+  },
+  {
+    "availability_zones": [
+      "INTERNATIONAL"
+    ],
+    "benefits": [
+      {
+        "additional_information": null,
+        "amount": {
+          "base": 7,
+          "promotion_bonus": 0,
+          "total_excluding_tax": 7,
+          "total_including_tax": 7
+        },
+        "type": "CREDITS",
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    ],
+    "description": "7 OMR",
+    "destination": {
+      "amount": 7,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "id": 17110,
+    "name": "7 OMR",
+    "operator": {
+      "country": {
+        "iso_code": "OMN",
+        "name": "Oman",
+        "regions": [
+          {
+            "code": "OMN",
+            "name": "Oman"
+          }
+        ]
+      },
+      "id": 2697,
+      "name": "Renna PIN Oman",
+      "regions": null
+    },
+    "pin": {
+      "terms": null,
+      "usage_info": [
+        "To recharge your account: Dial *180*recharge pin#",
+        "To check your credit balance: Dial *181*2#",
+        "",
+        "IVR: 180"
+      ],
+      "validity": null
+    },
+    "prices": {
+      "retail": {
+        "amount": 9.919,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      },
+      "wholesale": {
+        "amount": 8.625,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    },
+    "promotions": null,
+    "rates": {
+      "base": 0.8115942028986,
+      "retail": 0.7057163020466,
+      "wholesale": 0.8115942028986
+    },
+    "regions": null,
+    "required_additional_identifier_fields": null,
+    "required_beneficiary_fields": null,
+    "required_credit_party_identifier_fields": null,
+    "required_debit_party_identifier_fields": null,
+    "required_sender_fields": null,
+    "required_statement_identifier_fields": null,
+    "service": {
+      "id": 1,
+      "name": "Mobile",
+      "subservice": {
+        "id": 11,
+        "name": "Airtime"
+      }
+    },
+    "source": {
+      "amount": 8.625,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "tags": [
+      "AIRTIME"
+    ],
+    "type": "FIXED_VALUE_PIN_PURCHASE",
+    "validity": {
+      "quantity": 6,
+      "unit": "MONTH"
+    }
+  },
+  {
+    "availability_zones": [
+      "INTERNATIONAL"
+    ],
+    "benefits": [
+      {
+        "additional_information": null,
+        "amount": {
+          "base": 10,
+          "promotion_bonus": 0,
+          "total_excluding_tax": 10,
+          "total_including_tax": 10
+        },
+        "type": "CREDITS",
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    ],
+    "description": "10 OMR",
+    "destination": {
+      "amount": 10,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "id": 17111,
+    "name": "10 OMR",
+    "operator": {
+      "country": {
+        "iso_code": "OMN",
+        "name": "Oman",
+        "regions": [
+          {
+            "code": "OMN",
+            "name": "Oman"
+          }
+        ]
+      },
+      "id": 2697,
+      "name": "Renna PIN Oman",
+      "regions": null
+    },
+    "pin": {
+      "terms": null,
+      "usage_info": [
+        "To recharge your account: Dial *180*recharge pin#",
+        "To check your credit balance: Dial *181*2#",
+        "",
+        "IVR: 180"
+      ],
+      "validity": null
+    },
+    "prices": {
+      "retail": {
+        "amount": 14.17,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      },
+      "wholesale": {
+        "amount": 12.321,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    },
+    "promotions": null,
+    "rates": {
+      "base": 0.8116224332441,
+      "retail": 0.7057163020466,
+      "wholesale": 0.8116224332441
+    },
+    "regions": null,
+    "required_additional_identifier_fields": null,
+    "required_beneficiary_fields": null,
+    "required_credit_party_identifier_fields": null,
+    "required_debit_party_identifier_fields": null,
+    "required_sender_fields": null,
+    "required_statement_identifier_fields": null,
+    "service": {
+      "id": 1,
+      "name": "Mobile",
+      "subservice": {
+        "id": 11,
+        "name": "Airtime"
+      }
+    },
+    "source": {
+      "amount": 12.321,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "tags": [
+      "AIRTIME"
+    ],
+    "type": "FIXED_VALUE_PIN_PURCHASE",
+    "validity": {
+      "quantity": 6,
+      "unit": "MONTH"
+    }
+  },
+  {
+    "availability_zones": [
+      "INTERNATIONAL"
+    ],
+    "benefits": [
+      {
+        "additional_information": null,
+        "amount": {
+          "base": 20,
+          "promotion_bonus": 0,
+          "total_excluding_tax": 20,
+          "total_including_tax": 20
+        },
+        "type": "CREDITS",
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    ],
+    "description": "20 OMR",
+    "destination": {
+      "amount": 20,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "id": 17112,
+    "name": "20 OMR",
+    "operator": {
+      "country": {
+        "iso_code": "OMN",
+        "name": "Oman",
+        "regions": [
+          {
+            "code": "OMN",
+            "name": "Oman"
+          }
+        ]
+      },
+      "id": 2697,
+      "name": "Renna PIN Oman",
+      "regions": null
+    },
+    "pin": {
+      "terms": null,
+      "usage_info": [
+        "To recharge your account: Dial *180*recharge pin#",
+        "To check your credit balance: Dial *181*2#",
+        "",
+        "IVR: 180"
+      ],
+      "validity": null
+    },
+    "prices": {
+      "retail": {
+        "amount": 28.338,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      },
+      "wholesale": {
+        "amount": 24.641,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    },
+    "promotions": null,
+    "rates": {
+      "base": 0.8116553711294,
+      "retail": 0.7057661091114,
+      "wholesale": 0.8116553711294
+    },
+    "regions": null,
+    "required_additional_identifier_fields": null,
+    "required_beneficiary_fields": null,
+    "required_credit_party_identifier_fields": null,
+    "required_debit_party_identifier_fields": null,
+    "required_sender_fields": null,
+    "required_statement_identifier_fields": null,
+    "service": {
+      "id": 1,
+      "name": "Mobile",
+      "subservice": {
+        "id": 11,
+        "name": "Airtime"
+      }
+    },
+    "source": {
+      "amount": 24.641,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "tags": [
+      "AIRTIME"
+    ],
+    "type": "FIXED_VALUE_PIN_PURCHASE",
+    "validity": {
+      "quantity": 6,
+      "unit": "MONTH"
+    }
+  },
+  {
+    "availability_zones": [
+      "INTERNATIONAL"
+    ],
+    "benefits": [
+      {
+        "additional_information": null,
+        "amount": {
+          "base": 1,
+          "promotion_bonus": 0,
+          "total_excluding_tax": 1,
+          "total_including_tax": 1
+        },
+        "type": "CREDITS",
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    ],
+    "description": "1 OMR",
+    "destination": {
+      "amount": 1,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "id": 18802,
+    "name": "1 OMR",
+    "operator": {
+      "country": {
+        "iso_code": "OMN",
+        "name": "Oman",
+        "regions": [
+          {
+            "code": "OMN",
+            "name": "Oman"
+          }
+        ]
+      },
+      "id": 2883,
+      "name": "Ooredoo PIN Oman",
+      "regions": null
+    },
+    "pin": {
+      "terms": null,
+      "usage_info": [
+        "To recharge your PIN, Dial *115*3*Recharge code#",
+        "IVR: 115"
+      ],
+      "validity": null
+    },
+    "prices": {
+      "retail": {
+        "amount": 1.413,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      },
+      "wholesale": {
+        "amount": 1.228,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    },
+    "promotions": null,
+    "rates": {
+      "base": 0.814332247557,
+      "retail": 0.7077140835103,
+      "wholesale": 0.814332247557
+    },
+    "regions": null,
+    "required_additional_identifier_fields": null,
+    "required_beneficiary_fields": null,
+    "required_credit_party_identifier_fields": null,
+    "required_debit_party_identifier_fields": null,
+    "required_sender_fields": null,
+    "required_statement_identifier_fields": null,
+    "service": {
+      "id": 1,
+      "name": "Mobile",
+      "subservice": {
+        "id": 11,
+        "name": "Airtime"
+      }
+    },
+    "source": {
+      "amount": 1.228,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "tags": [
+      "AIRTIME"
+    ],
+    "type": "FIXED_VALUE_PIN_PURCHASE",
+    "validity": null
+  },
+  {
+    "availability_zones": [
+      "INTERNATIONAL"
+    ],
+    "benefits": [
+      {
+        "additional_information": null,
+        "amount": {
+          "base": 2,
+          "promotion_bonus": 0,
+          "total_excluding_tax": 2,
+          "total_including_tax": 2
+        },
+        "type": "CREDITS",
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    ],
+    "description": "2 OMR",
+    "destination": {
+      "amount": 2,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "id": 18803,
+    "name": "2 OMR",
+    "operator": {
+      "country": {
+        "iso_code": "OMN",
+        "name": "Oman",
+        "regions": [
+          {
+            "code": "OMN",
+            "name": "Oman"
+          }
+        ]
+      },
+      "id": 2883,
+      "name": "Ooredoo PIN Oman",
+      "regions": null
+    },
+    "pin": {
+      "terms": null,
+      "usage_info": [
+        "To recharge your PIN, Dial *115*3*Recharge code#",
+        "IVR: 115"
+      ],
+      "validity": null
+    },
+    "prices": {
+      "retail": {
+        "amount": 2.825,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      },
+      "wholesale": {
+        "amount": 2.456,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    },
+    "promotions": null,
+    "rates": {
+      "base": 0.814332247557,
+      "retail": 0.7079646017699,
+      "wholesale": 0.814332247557
+    },
+    "regions": null,
+    "required_additional_identifier_fields": null,
+    "required_beneficiary_fields": null,
+    "required_credit_party_identifier_fields": null,
+    "required_debit_party_identifier_fields": null,
+    "required_sender_fields": null,
+    "required_statement_identifier_fields": null,
+    "service": {
+      "id": 1,
+      "name": "Mobile",
+      "subservice": {
+        "id": 11,
+        "name": "Airtime"
+      }
+    },
+    "source": {
+      "amount": 2.456,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "tags": [
+      "AIRTIME"
+    ],
+    "type": "FIXED_VALUE_PIN_PURCHASE",
+    "validity": null
+  },
+  {
+    "availability_zones": [
+      "INTERNATIONAL"
+    ],
+    "benefits": [
+      {
+        "additional_information": null,
+        "amount": {
+          "base": 5,
+          "promotion_bonus": 0,
+          "total_excluding_tax": 5,
+          "total_including_tax": 5
+        },
+        "type": "CREDITS",
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    ],
+    "description": "5 OMR",
+    "destination": {
+      "amount": 5,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "id": 18804,
+    "name": "5 OMR",
+    "operator": {
+      "country": {
+        "iso_code": "OMN",
+        "name": "Oman",
+        "regions": [
+          {
+            "code": "OMN",
+            "name": "Oman"
+          }
+        ]
+      },
+      "id": 2883,
+      "name": "Ooredoo PIN Oman",
+      "regions": null
+    },
+    "pin": {
+      "terms": null,
+      "usage_info": [
+        "To recharge your PIN, Dial *115*3*Recharge code#",
+        "IVR: 115"
+      ],
+      "validity": null
+    },
+    "prices": {
+      "retail": {
+        "amount": 7.057,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      },
+      "wholesale": {
+        "amount": 6.136,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    },
+    "promotions": null,
+    "rates": {
+      "base": 0.8148631029987,
+      "retail": 0.7085163667281,
+      "wholesale": 0.8148631029987
+    },
+    "regions": null,
+    "required_additional_identifier_fields": null,
+    "required_beneficiary_fields": null,
+    "required_credit_party_identifier_fields": null,
+    "required_debit_party_identifier_fields": null,
+    "required_sender_fields": null,
+    "required_statement_identifier_fields": null,
+    "service": {
+      "id": 1,
+      "name": "Mobile",
+      "subservice": {
+        "id": 11,
+        "name": "Airtime"
+      }
+    },
+    "source": {
+      "amount": 6.136,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "tags": [
+      "AIRTIME"
+    ],
+    "type": "FIXED_VALUE_PIN_PURCHASE",
+    "validity": null
+  },
+  {
+    "availability_zones": [
+      "INTERNATIONAL"
+    ],
+    "benefits": [
+      {
+        "additional_information": null,
+        "amount": {
+          "base": 10,
+          "promotion_bonus": 0,
+          "total_excluding_tax": 10,
+          "total_including_tax": 10
+        },
+        "type": "CREDITS",
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    ],
+    "description": "10 OMR",
+    "destination": {
+      "amount": 10,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "id": 18805,
+    "name": "10 OMR",
+    "operator": {
+      "country": {
+        "iso_code": "OMN",
+        "name": "Oman",
+        "regions": [
+          {
+            "code": "OMN",
+            "name": "Oman"
+          }
+        ]
+      },
+      "id": 2883,
+      "name": "Ooredoo PIN Oman",
+      "regions": null
+    },
+    "pin": {
+      "terms": null,
+      "usage_info": [
+        "To recharge your PIN, Dial *115*3*Recharge code#",
+        "IVR: 115"
+      ],
+      "validity": null
+    },
+    "prices": {
+      "retail": {
+        "amount": 14.112,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      },
+      "wholesale": {
+        "amount": 12.271,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    },
+    "promotions": null,
+    "rates": {
+      "base": 0.8149295085975,
+      "retail": 0.7086167800454,
+      "wholesale": 0.8149295085975
+    },
+    "regions": null,
+    "required_additional_identifier_fields": null,
+    "required_beneficiary_fields": null,
+    "required_credit_party_identifier_fields": null,
+    "required_debit_party_identifier_fields": null,
+    "required_sender_fields": null,
+    "required_statement_identifier_fields": null,
+    "service": {
+      "id": 1,
+      "name": "Mobile",
+      "subservice": {
+        "id": 11,
+        "name": "Airtime"
+      }
+    },
+    "source": {
+      "amount": 12.271,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "tags": [
+      "AIRTIME"
+    ],
+    "type": "FIXED_VALUE_PIN_PURCHASE",
+    "validity": null
+  },
+  {
+    "availability_zones": [
+      "INTERNATIONAL"
+    ],
+    "benefits": [
+      {
+        "additional_information": null,
+        "amount": {
+          "base": 1,
+          "promotion_bonus": 0,
+          "total_excluding_tax": 1,
+          "total_including_tax": 1
+        },
+        "type": "CREDITS",
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    ],
+    "description": "1",
+    "destination": {
+      "amount": 1,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "id": 28165,
+    "name": "Red Bull PIN Oman - 1 OMR",
+    "operator": {
+      "country": {
+        "iso_code": "OMN",
+        "name": "Oman",
+        "regions": [
+          {
+            "code": "OMN",
+            "name": "Oman"
+          }
+        ]
+      },
+      "id": 3444,
+      "name": "Red Bull Oman",
+      "regions": null
+    },
+    "pin": {
+      "terms": null,
+      "usage_info": [
+        "To recharge your account: Dial *600* recharge pin #",
+        "To check your credit balance: Dial *600*11#",
+        "",
+        "IVR: 1233"
+      ],
+      "validity": null
+    },
+    "prices": {
+      "retail": {
+        "amount": 1.415,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      },
+      "wholesale": {
+        "amount": 1.23,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    },
+    "promotions": null,
+    "rates": {
+      "base": 0.8130081300813,
+      "retail": 0.7067137809187,
+      "wholesale": 0.8130081300813
+    },
+    "regions": null,
+    "required_additional_identifier_fields": null,
+    "required_beneficiary_fields": null,
+    "required_credit_party_identifier_fields": null,
+    "required_debit_party_identifier_fields": null,
+    "required_sender_fields": null,
+    "required_statement_identifier_fields": null,
+    "service": {
+      "id": 1,
+      "name": "Mobile",
+      "subservice": {
+        "id": 11,
+        "name": "Airtime"
+      }
+    },
+    "source": {
+      "amount": 1.23,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "tags": [
+      "AIRTIME"
+    ],
+    "type": "FIXED_VALUE_PIN_PURCHASE",
+    "validity": {
+      "quantity": 6,
+      "unit": "MONTH"
+    }
+  },
+  {
+    "availability_zones": [
+      "INTERNATIONAL"
+    ],
+    "benefits": [
+      {
+        "additional_information": null,
+        "amount": {
+          "base": 3,
+          "promotion_bonus": 0,
+          "total_excluding_tax": 3,
+          "total_including_tax": 3
+        },
+        "type": "CREDITS",
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    ],
+    "description": "3",
+    "destination": {
+      "amount": 3,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "id": 28166,
+    "name": "Red Bull PIN Oman - 3 OMR",
+    "operator": {
+      "country": {
+        "iso_code": "OMN",
+        "name": "Oman",
+        "regions": [
+          {
+            "code": "OMN",
+            "name": "Oman"
+          }
+        ]
+      },
+      "id": 3444,
+      "name": "Red Bull Oman",
+      "regions": null
+    },
+    "pin": {
+      "terms": null,
+      "usage_info": [
+        "To recharge your account: Dial *600* recharge pin #",
+        "To check your credit balance: Dial *600*11#",
+        "",
+        "IVR: 1233"
+      ],
+      "validity": null
+    },
+    "prices": {
+      "retail": {
+        "amount": 4.243,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      },
+      "wholesale": {
+        "amount": 3.689,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    },
+    "promotions": null,
+    "rates": {
+      "base": 0.8132285172133,
+      "retail": 0.7070469007778,
+      "wholesale": 0.8132285172133
+    },
+    "regions": null,
+    "required_additional_identifier_fields": null,
+    "required_beneficiary_fields": null,
+    "required_credit_party_identifier_fields": null,
+    "required_debit_party_identifier_fields": null,
+    "required_sender_fields": null,
+    "required_statement_identifier_fields": null,
+    "service": {
+      "id": 1,
+      "name": "Mobile",
+      "subservice": {
+        "id": 11,
+        "name": "Airtime"
+      }
+    },
+    "source": {
+      "amount": 3.689,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "tags": [
+      "AIRTIME"
+    ],
+    "type": "FIXED_VALUE_PIN_PURCHASE",
+    "validity": {
+      "quantity": 6,
+      "unit": "MONTH"
+    }
+  },
+  {
+    "availability_zones": [
+      "INTERNATIONAL"
+    ],
+    "benefits": [
+      {
+        "additional_information": null,
+        "amount": {
+          "base": 5,
+          "promotion_bonus": 0,
+          "total_excluding_tax": 5,
+          "total_including_tax": 5
+        },
+        "type": "CREDITS",
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    ],
+    "description": "5",
+    "destination": {
+      "amount": 5,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "id": 28168,
+    "name": "Red Bull PIN Oman - 5 OMR",
+    "operator": {
+      "country": {
+        "iso_code": "OMN",
+        "name": "Oman",
+        "regions": [
+          {
+            "code": "OMN",
+            "name": "Oman"
+          }
+        ]
+      },
+      "id": 3444,
+      "name": "Red Bull Oman",
+      "regions": null
+    },
+    "pin": {
+      "terms": null,
+      "usage_info": [
+        "To recharge your account: Dial *600* recharge pin #",
+        "To check your credit balance: Dial *600*11#",
+        "",
+        "IVR: 1233"
+      ],
+      "validity": null
+    },
+    "prices": {
+      "retail": {
+        "amount": 7.071,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      },
+      "wholesale": {
+        "amount": 6.148,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    },
+    "promotions": null,
+    "rates": {
+      "base": 0.8132726089785,
+      "retail": 0.7071135624381,
+      "wholesale": 0.8132726089785
+    },
+    "regions": null,
+    "required_additional_identifier_fields": null,
+    "required_beneficiary_fields": null,
+    "required_credit_party_identifier_fields": null,
+    "required_debit_party_identifier_fields": null,
+    "required_sender_fields": null,
+    "required_statement_identifier_fields": null,
+    "service": {
+      "id": 1,
+      "name": "Mobile",
+      "subservice": {
+        "id": 11,
+        "name": "Airtime"
+      }
+    },
+    "source": {
+      "amount": 6.148,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "tags": [
+      "AIRTIME"
+    ],
+    "type": "FIXED_VALUE_PIN_PURCHASE",
+    "validity": {
+      "quantity": 6,
+      "unit": "MONTH"
+    }
+  },
+  {
+    "availability_zones": [
+      "INTERNATIONAL"
+    ],
+    "benefits": [
+      {
+        "additional_information": null,
+        "amount": {
+          "base": 10,
+          "promotion_bonus": 0,
+          "total_excluding_tax": 10,
+          "total_including_tax": 10
+        },
+        "type": "CREDITS",
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    ],
+    "description": "10",
+    "destination": {
+      "amount": 10,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "id": 28170,
+    "name": "Red Bull PIN Oman - 10 OMR",
+    "operator": {
+      "country": {
+        "iso_code": "OMN",
+        "name": "Oman",
+        "regions": [
+          {
+            "code": "OMN",
+            "name": "Oman"
+          }
+        ]
+      },
+      "id": 3444,
+      "name": "Red Bull Oman",
+      "regions": null
+    },
+    "pin": {
+      "terms": null,
+      "usage_info": [
+        "To recharge your account: Dial *600* recharge pin #",
+        "To check your credit balance: Dial *600*11#",
+        "",
+        "IVR: 1233"
+      ],
+      "validity": null
+    },
+    "prices": {
+      "retail": {
+        "amount": 14.14,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      },
+      "wholesale": {
+        "amount": 12.295,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    },
+    "promotions": null,
+    "rates": {
+      "base": 0.8133387555917,
+      "retail": 0.7072135785007,
+      "wholesale": 0.8133387555917
+    },
+    "regions": null,
+    "required_additional_identifier_fields": null,
+    "required_beneficiary_fields": null,
+    "required_credit_party_identifier_fields": null,
+    "required_debit_party_identifier_fields": null,
+    "required_sender_fields": null,
+    "required_statement_identifier_fields": null,
+    "service": {
+      "id": 1,
+      "name": "Mobile",
+      "subservice": {
+        "id": 11,
+        "name": "Airtime"
+      }
+    },
+    "source": {
+      "amount": 12.295,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "tags": [
+      "AIRTIME"
+    ],
+    "type": "FIXED_VALUE_PIN_PURCHASE",
+    "validity": {
+      "quantity": 6,
+      "unit": "MONTH"
+    }
+  },
+  {
+    "availability_zones": [
+      "INTERNATIONAL"
+    ],
+    "benefits": [
+      {
+        "additional_information": null,
+        "amount": {
+          "base": 5.73,
+          "promotion_bonus": 0,
+          "total_excluding_tax": 5.73,
+          "total_including_tax": 5.73
+        },
+        "type": "CREDITS",
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    ],
+    "description": "PlayStation Network - $15 PSN Card (Omani Store)",
+    "destination": {
+      "amount": 15,
+      "unit": "USD",
+      "unit_type": "CURRENCY"
+    },
+    "id": 29328,
+    "name": "PlayStation Network - $15 PSN Card (Omani Store)",
+    "operator": {
+      "country": {
+        "iso_code": "OMN",
+        "name": "Oman",
+        "regions": [
+          {
+            "code": "OMN",
+            "name": "Oman"
+          }
+        ]
+      },
+      "id": 3296,
+      "name": "Playstation Giftcard Oman",
+      "regions": null
+    },
+    "pin": {
+      "terms": null,
+      "usage_info": [
+        "Go to PlayStation Store and select your profile at the top of the screen. Select Redeem Code from the drop-down menu. Enter the 12-digit code and select Continue. The credit or content is now applied to your account.",
+        "IVR: -"
+      ],
+      "validity": {
+        "quantity": 12,
+        "unit": "MONTH"
+      }
+    },
+    "prices": {
+      "retail": {
+        "amount": 8.484,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      },
+      "wholesale": {
+        "amount": 7.377,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    },
+    "promotions": null,
+    "rates": {
+      "base": 2.0333468889793,
+      "retail": 1.7680339462518,
+      "wholesale": 2.0333468889793
+    },
+    "regions": null,
+    "required_additional_identifier_fields": null,
+    "required_beneficiary_fields": null,
+    "required_credit_party_identifier_fields": null,
+    "required_debit_party_identifier_fields": null,
+    "required_sender_fields": null,
+    "required_statement_identifier_fields": null,
+    "service": {
+      "id": 4,
+      "name": "Gift Cards",
+      "subservice": {
+        "id": 42,
+        "name": "Gaming"
+      }
+    },
+    "source": {
+      "amount": 7.377,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "tags": null,
+    "type": "FIXED_VALUE_PIN_PURCHASE",
+    "validity": {
+      "quantity": 12,
+      "unit": "MONTH"
+    }
+  },
+  {
+    "availability_zones": [
+      "INTERNATIONAL"
+    ],
+    "benefits": [
+      {
+        "additional_information": null,
+        "amount": {
+          "base": 1.5,
+          "promotion_bonus": 0,
+          "total_excluding_tax": 1.5,
+          "total_including_tax": 1.5
+        },
+        "type": "CREDITS",
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    ],
+    "description": "1.5 OMR",
+    "destination": {
+      "amount": 1.5,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "id": 42648,
+    "name": "1.5 OMR",
+    "operator": {
+      "country": {
+        "iso_code": "OMN",
+        "name": "Oman",
+        "regions": [
+          {
+            "code": "OMN",
+            "name": "Oman"
+          }
+        ]
+      },
+      "id": 2695,
+      "name": "Omantel PIN Oman",
+      "regions": null
+    },
+    "pin": {
+      "terms": null,
+      "usage_info": [
+        "To recharge your account call 1233 and follow the instructions or dial *101*recharge pin# . To check your credit balance dial *100# .",
+        "IVR: 1233"
+      ],
+      "validity": {
+        "quantity": 180,
+        "unit": "DAY"
+      }
+    },
+    "prices": {
+      "retail": {
+        "amount": 2.14,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      },
+      "wholesale": {
+        "amount": 1.86,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    },
+    "promotions": null,
+    "rates": {
+      "base": 0.8064516129032,
+      "retail": 0.7009345794393,
+      "wholesale": 0.8064516129032
+    },
+    "regions": null,
+    "required_additional_identifier_fields": null,
+    "required_beneficiary_fields": null,
+    "required_credit_party_identifier_fields": null,
+    "required_debit_party_identifier_fields": null,
+    "required_sender_fields": null,
+    "required_statement_identifier_fields": null,
+    "service": {
+      "id": 1,
+      "name": "Mobile",
+      "subservice": {
+        "id": 11,
+        "name": "Airtime"
+      }
+    },
+    "source": {
+      "amount": 1.86,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "tags": [
+      "AIRTIME"
+    ],
+    "type": "FIXED_VALUE_PIN_PURCHASE",
+    "validity": {
+      "quantity": 6,
+      "unit": "MONTH"
+    }
+  },
+  {
+    "availability_zones": [
+      "INTERNATIONAL"
+    ],
+    "benefits": [
+      {
+        "additional_information": null,
+        "amount": {
+          "base": 2,
+          "promotion_bonus": 0,
+          "total_excluding_tax": 2,
+          "total_including_tax": 2
+        },
+        "type": "CREDITS",
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    ],
+    "description": "2 OMR",
+    "destination": {
+      "amount": 2,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "id": 42649,
+    "name": "2 OMR",
+    "operator": {
+      "country": {
+        "iso_code": "OMN",
+        "name": "Oman",
+        "regions": [
+          {
+            "code": "OMN",
+            "name": "Oman"
+          }
+        ]
+      },
+      "id": 2695,
+      "name": "Omantel PIN Oman",
+      "regions": null
+    },
+    "pin": {
+      "terms": null,
+      "usage_info": [
+        "To recharge your account call 1233 and follow the instructions or dial *101*recharge pin# . To check your credit balance dial *100# .",
+        "IVR: 1233"
+      ],
+      "validity": {
+        "quantity": 180,
+        "unit": "DAY"
+      }
+    },
+    "prices": {
+      "retail": {
+        "amount": 2.853,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      },
+      "wholesale": {
+        "amount": 2.48,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    },
+    "promotions": null,
+    "rates": {
+      "base": 0.8064516129032,
+      "retail": 0.7010164738871,
+      "wholesale": 0.8064516129032
+    },
+    "regions": null,
+    "required_additional_identifier_fields": null,
+    "required_beneficiary_fields": null,
+    "required_credit_party_identifier_fields": null,
+    "required_debit_party_identifier_fields": null,
+    "required_sender_fields": null,
+    "required_statement_identifier_fields": null,
+    "service": {
+      "id": 1,
+      "name": "Mobile",
+      "subservice": {
+        "id": 11,
+        "name": "Airtime"
+      }
+    },
+    "source": {
+      "amount": 2.48,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "tags": [
+      "AIRTIME"
+    ],
+    "type": "FIXED_VALUE_PIN_PURCHASE",
+    "validity": {
+      "quantity": 6,
+      "unit": "MONTH"
+    }
+  },
+  {
+    "availability_zones": [
+      "INTERNATIONAL"
+    ],
+    "benefits": [
+      {
+        "additional_information": null,
+        "amount": {
+          "base": 0.3,
+          "promotion_bonus": 0,
+          "total_excluding_tax": 0.3,
+          "total_including_tax": 0.3
+        },
+        "type": "CREDITS",
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    ],
+    "description": "0.3 OMR",
+    "destination": {
+      "amount": 0.3,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "id": 42651,
+    "name": "0.3 OMR",
+    "operator": {
+      "country": {
+        "iso_code": "OMN",
+        "name": "Oman",
+        "regions": [
+          {
+            "code": "OMN",
+            "name": "Oman"
+          }
+        ]
+      },
+      "id": 2697,
+      "name": "Renna PIN Oman",
+      "regions": null
+    },
+    "pin": {
+      "terms": null,
+      "usage_info": [
+        "To recharge your account: Dial *180*recharge pin#",
+        "To check your credit balance: Dial *181*2#",
+        "",
+        "IVR: 180"
+      ],
+      "validity": {
+        "quantity": 180,
+        "unit": "DAY"
+      }
+    },
+    "prices": {
+      "retail": {
+        "amount": 0.426,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      },
+      "wholesale": {
+        "amount": 0.37,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    },
+    "promotions": null,
+    "rates": {
+      "base": 0.8108108108108,
+      "retail": 0.7042253521127,
+      "wholesale": 0.8108108108108
+    },
+    "regions": null,
+    "required_additional_identifier_fields": null,
+    "required_beneficiary_fields": null,
+    "required_credit_party_identifier_fields": null,
+    "required_debit_party_identifier_fields": null,
+    "required_sender_fields": null,
+    "required_statement_identifier_fields": null,
+    "service": {
+      "id": 1,
+      "name": "Mobile",
+      "subservice": {
+        "id": 11,
+        "name": "Airtime"
+      }
+    },
+    "source": {
+      "amount": 0.37,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "tags": [
+      "AIRTIME"
+    ],
+    "type": "FIXED_VALUE_PIN_PURCHASE",
+    "validity": null
+  },
+  {
+    "availability_zones": [
+      "INTERNATIONAL"
+    ],
+    "benefits": [
+      {
+        "additional_information": null,
+        "amount": {
+          "base": 0.3,
+          "promotion_bonus": 0,
+          "total_excluding_tax": 0.3,
+          "total_including_tax": 0.3
+        },
+        "type": "CREDITS",
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    ],
+    "description": "0.3 OMR",
+    "destination": {
+      "amount": 0.3,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "id": 42652,
+    "name": "Red Bull PIN Oman - 0.3 OMR",
+    "operator": {
+      "country": {
+        "iso_code": "OMN",
+        "name": "Oman",
+        "regions": [
+          {
+            "code": "OMN",
+            "name": "Oman"
+          }
+        ]
+      },
+      "id": 3444,
+      "name": "Red Bull Oman",
+      "regions": null
+    },
+    "pin": {
+      "terms": null,
+      "usage_info": [
+        "To recharge your account: dial * 600 * recharge pin # , to check your credit balance: dial *600*11#",
+        "IVR: 1233"
+      ],
+      "validity": {
+        "quantity": 180,
+        "unit": "DAY"
+      }
+    },
+    "prices": {
+      "retail": {
+        "amount": 0.425,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      },
+      "wholesale": {
+        "amount": 0.369,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    },
+    "promotions": null,
+    "rates": {
+      "base": 0.8130081300813,
+      "retail": 0.7058823529412,
+      "wholesale": 0.8130081300813
+    },
+    "regions": null,
+    "required_additional_identifier_fields": null,
+    "required_beneficiary_fields": null,
+    "required_credit_party_identifier_fields": null,
+    "required_debit_party_identifier_fields": null,
+    "required_sender_fields": null,
+    "required_statement_identifier_fields": null,
+    "service": {
+      "id": 1,
+      "name": "Mobile",
+      "subservice": {
+        "id": 11,
+        "name": "Airtime"
+      }
+    },
+    "source": {
+      "amount": 0.369,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "tags": [
+      "AIRTIME"
+    ],
+    "type": "FIXED_VALUE_PIN_PURCHASE",
+    "validity": null
+  },
+  {
+    "availability_zones": [
+      "INTERNATIONAL"
+    ],
+    "benefits": [
+      {
+        "additional_information": null,
+        "amount": {
+          "base": 0.5,
+          "promotion_bonus": 0,
+          "total_excluding_tax": 0.5,
+          "total_including_tax": 0.5
+        },
+        "type": "CREDITS",
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    ],
+    "description": "0.5 OMR",
+    "destination": {
+      "amount": 0.5,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "id": 44308,
+    "name": "Red Bull PIN Oman - 0.5 OMR",
+    "operator": {
+      "country": {
+        "iso_code": "OMN",
+        "name": "Oman",
+        "regions": [
+          {
+            "code": "OMN",
+            "name": "Oman"
+          }
+        ]
+      },
+      "id": 3444,
+      "name": "Red Bull Oman",
+      "regions": null
+    },
+    "pin": {
+      "terms": null,
+      "usage_info": [
+        "To recharge your account: dial * 600 * recharge pin # , to check your credit balance: dial *600*11#",
+        "IVR: 1233"
+      ],
+      "validity": null
+    },
+    "prices": {
+      "retail": {
+        "amount": 0.708,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      },
+      "wholesale": {
+        "amount": 0.615,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    },
+    "promotions": null,
+    "rates": {
+      "base": 0.8130081300813,
+      "retail": 0.7062146892655,
+      "wholesale": 0.8130081300813
+    },
+    "regions": null,
+    "required_additional_identifier_fields": null,
+    "required_beneficiary_fields": null,
+    "required_credit_party_identifier_fields": null,
+    "required_debit_party_identifier_fields": null,
+    "required_sender_fields": null,
+    "required_statement_identifier_fields": null,
+    "service": {
+      "id": 1,
+      "name": "Mobile",
+      "subservice": {
+        "id": 11,
+        "name": "Airtime"
+      }
+    },
+    "source": {
+      "amount": 0.615,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "tags": [
+      "AIRTIME"
+    ],
+    "type": "FIXED_VALUE_PIN_PURCHASE",
+    "validity": null
+  },
+  {
+    "availability_zones": [
+      "INTERNATIONAL"
+    ],
+    "benefits": [
+      {
+        "additional_information": null,
+        "amount": {
+          "base": 19.12,
+          "promotion_bonus": 0,
+          "total_excluding_tax": 19.12,
+          "total_including_tax": 19.12
+        },
+        "type": "CREDITS",
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    ],
+    "description": "Playstation Network Giftcard Oman 50 USD",
+    "destination": {
+      "amount": 50,
+      "unit": "USD",
+      "unit_type": "CURRENCY"
+    },
+    "id": 44387,
+    "name": "Playstation Network Giftcard Oman 50 USD",
+    "operator": {
+      "country": {
+        "iso_code": "OMN",
+        "name": "Oman",
+        "regions": [
+          {
+            "code": "OMN",
+            "name": "Oman"
+          }
+        ]
+      },
+      "id": 3296,
+      "name": "Playstation Giftcard Oman",
+      "regions": null
+    },
+    "pin": {
+      "terms": null,
+      "usage_info": [
+        "Go to PlayStation Store and select your profile at the top of the screen. Select Redeem Code from the drop-down menu. Enter the 12-digit code and select Continue. The credit or content is now applied to your account."
+      ],
+      "validity": {
+        "quantity": 12,
+        "unit": "MONTH"
+      }
+    },
+    "prices": {
+      "retail": {
+        "amount": 25.989,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      },
+      "wholesale": {
+        "amount": 22.599,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    },
+    "promotions": null,
+    "rates": {
+      "base": 2.2124872781982,
+      "retail": 1.9238908769095,
+      "wholesale": 2.2124872781982
+    },
+    "regions": null,
+    "required_additional_identifier_fields": null,
+    "required_beneficiary_fields": null,
+    "required_credit_party_identifier_fields": null,
+    "required_debit_party_identifier_fields": null,
+    "required_sender_fields": null,
+    "required_statement_identifier_fields": null,
+    "service": {
+      "id": 4,
+      "name": "Gift Cards",
+      "subservice": {
+        "id": 42,
+        "name": "Gaming"
+      }
+    },
+    "source": {
+      "amount": 22.599,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "tags": null,
+    "type": "FIXED_VALUE_PIN_PURCHASE",
+    "validity": {
+      "quantity": 24,
+      "unit": "MONTH"
+    }
+  },
+  {
+    "availability_zones": [
+      "INTERNATIONAL"
+    ],
+    "benefits": [
+      {
+        "additional_information": "150 Flexi Minutes/Wi-Fi Calling + 20 Minutes GCC Roaming Pass",
+        "amount": {
+          "base": 150,
+          "promotion_bonus": 0,
+          "total_excluding_tax": 150,
+          "total_including_tax": 150
+        },
+        "type": "TALKTIME",
+        "unit": "MINUTES",
+        "unit_type": "TIME"
+      },
+      {
+        "additional_information": "Data Allowance: 8GB + 3GB\nKhareef Offer: 1 GB\nSocial Pass: 3GB\nGCC Roaming Pass: 1GB GCC",
+        "amount": {
+          "base": 11,
+          "promotion_bonus": 0,
+          "total_excluding_tax": 11,
+          "total_including_tax": 11
+        },
+        "type": "DATA",
+        "unit": "GB",
+        "unit_type": "DATA"
+      }
+    ],
+    "description": "Data Allowance: 8GB + 3GB\nFlexi Minutes/Wi-Fi Calling: 150 Minutes\nKhareef Offer: 1GB\nSocial Pass: 3GB\nGCC Roaming Pass: 1GB & 20 Minutes\nValidity:4 Weeks",
+    "destination": {
+      "amount": 8,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "id": 67392,
+    "name": "Hayyak 8",
+    "operator": {
+      "country": {
+        "iso_code": "OMN",
+        "name": "Oman",
+        "regions": [
+          {
+            "code": "OMN",
+            "name": "Oman"
+          }
+        ]
+      },
+      "id": 2695,
+      "name": "Omantel PIN Oman",
+      "regions": null
+    },
+    "pin": {
+      "terms": "Website Link - https://www.omantel.om/en/personal/mobile-prepaid\n\nGeneral:\n\nAll Plans are 5% VAT inclusive.\n \nNew Hayyak plans are available for both new and existing prepaid customers.\n \nFree Passes can be availed at any time during the validity of the plan: \n \nRoaming Pass 1: Applicable in GCC on Hayyak-21, Hayyak-16, Hayyak-13 and Hayyak-11. \n \nSocial Pass 1: Applicable for WhatsApp, X, Facebook, Snapchat, and Instagram on Hayyak-21, Hayyak-16, and Hayyak-13.\n \n Social Pass 2: Applicable for WhatsApp, X, Facebook, Snapchat, Instagram, and YouTube on Hayyak-11, Hayyak-8, and Hayyak-5.\n \nData Rollover: Customers can roll over unused data and minutes to the next month by re-subscribing to the same plan within 3 days of expiry.\n \nSubscribing to a new Hayyak plan within the validity period will not result in the loss of remaining data and voice minutes from the existing plan.\n \nVoice Flexi minutes are applicable for local calls and international calls to Bangladesh, India, and Pakistan.\n \nNew Hayyak plans support local Voice over Wi-Fi at no extra charge.\n \nData usage is local only and not applicable while roaming.\n \nUpon exceeding the allocated voice minutes, pay-as-you-go (PAYG) tariffs will apply (National rate: 44 Bz/min).\n \nUpon exceeding the allocated voice minutes, pay-as-you-go (PAYG) tariffs will apply (National rate: 44 Bz/min). Upon expiry of the plan, extra usage charges will apply (PAYG national rate: 51.2 Bz/MB).\n \nPAYG national SMS tariff applies at 10 Bz/SMS.",
+      "usage_info": [
+        "To recharge your account: : Dial *666*4* PIN NUMBER # CALL ,To check your credit balance: Dial *100#"
+      ],
+      "validity": {
+        "quantity": 730,
+        "unit": "DAY"
+      }
+    },
+    "prices": {
+      "retail": {
+        "amount": 11.076,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      },
+      "wholesale": {
+        "amount": 9.631,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    },
+    "promotions": null,
+    "rates": {
+      "base": 0.8306510227391,
+      "retail": 0.7222824124233,
+      "wholesale": 0.8306510227391
+    },
+    "regions": null,
+    "required_additional_identifier_fields": null,
+    "required_beneficiary_fields": null,
+    "required_credit_party_identifier_fields": null,
+    "required_debit_party_identifier_fields": null,
+    "required_sender_fields": null,
+    "required_statement_identifier_fields": null,
+    "service": {
+      "id": 1,
+      "name": "Mobile",
+      "subservice": {
+        "id": 12,
+        "name": "Bundle"
+      }
+    },
+    "source": {
+      "amount": 9.631,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "tags": [
+      "BUNDLE"
+    ],
+    "type": "FIXED_VALUE_PIN_PURCHASE",
+    "validity": {
+      "quantity": 4,
+      "unit": "WEEK"
+    }
+  },
+  {
+    "availability_zones": [
+      "INTERNATIONAL"
+    ],
+    "benefits": [
+      {
+        "additional_information": "50 Flexi Minutes/Wi-Fi Calling",
+        "amount": {
+          "base": 50,
+          "promotion_bonus": 0,
+          "total_excluding_tax": 50,
+          "total_including_tax": 50
+        },
+        "type": "TALKTIME",
+        "unit": "MINUTES",
+        "unit_type": "TIME"
+      },
+      {
+        "additional_information": "Data Allowance: 3.5GB + 1.5GB\nKhareef Offer: 1 GB\nSocial Pass: 1.5GB",
+        "amount": {
+          "base": 5,
+          "promotion_bonus": 0,
+          "total_excluding_tax": 5,
+          "total_including_tax": 5
+        },
+        "type": "DATA",
+        "unit": "GB",
+        "unit_type": "DATA"
+      }
+    ],
+    "description": "Data Allowance: 3.5GB + 1.5GB\nFlexi Minutes/Wi-Fi Calling: 50 Minutes\nKhareef Offer: 1GB\nSocial Pass: 1.5GB\nValidity:4 Weeks",
+    "destination": {
+      "amount": 5,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "id": 67393,
+    "name": "Hayyak 5",
+    "operator": {
+      "country": {
+        "iso_code": "OMN",
+        "name": "Oman",
+        "regions": [
+          {
+            "code": "OMN",
+            "name": "Oman"
+          }
+        ]
+      },
+      "id": 2695,
+      "name": "Omantel PIN Oman",
+      "regions": null
+    },
+    "pin": {
+      "terms": "Website Link - https://www.omantel.om/en/personal/mobile-prepaid\n\nGeneral:\n\nAll Plans are 5% VAT inclusive.\n \nNew Hayyak plans are available for both new and existing prepaid customers.\n \nFree Passes can be availed at any time during the validity of the plan: \n \nRoaming Pass 1: Applicable in GCC on Hayyak-21, Hayyak-16, Hayyak-13 and Hayyak-11. \n \nSocial Pass 1: Applicable for WhatsApp, X, Facebook, Snapchat, and Instagram on Hayyak-21, Hayyak-16, and Hayyak-13.\n \n Social Pass 2: Applicable for WhatsApp, X, Facebook, Snapchat, Instagram, and YouTube on Hayyak-11, Hayyak-8, and Hayyak-5.\n \nData Rollover: Customers can roll over unused data and minutes to the next month by re-subscribing to the same plan within 3 days of expiry.\n \nSubscribing to a new Hayyak plan within the validity period will not result in the loss of remaining data and voice minutes from the existing plan.\n \nVoice Flexi minutes are applicable for local calls and international calls to Bangladesh, India, and Pakistan.\n \nNew Hayyak plans support local Voice over Wi-Fi at no extra charge.\n \nData usage is local only and not applicable while roaming.\n \nUpon exceeding the allocated voice minutes, pay-as-you-go (PAYG) tariffs will apply (National rate: 44 Bz/min).\n \nUpon exceeding the allocated voice minutes, pay-as-you-go (PAYG) tariffs will apply (National rate: 44 Bz/min). Upon expiry of the plan, extra usage charges will apply (PAYG national rate: 51.2 Bz/MB).\n \nPAYG national SMS tariff applies at 10 Bz/SMS.",
+      "usage_info": [
+        "To recharge your account: : Dial *666*4* PIN NUMBER # CALL ,To check your credit balance: Dial *100#"
+      ],
+      "validity": {
+        "quantity": 730,
+        "unit": "DAY"
+      }
+    },
+    "prices": {
+      "retail": {
+        "amount": 6.924,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      },
+      "wholesale": {
+        "amount": 6.02,
+        "fee": 0,
+        "unit": "OMR",
+        "unit_type": "CURRENCY"
+      }
+    },
+    "promotions": null,
+    "rates": {
+      "base": 0.8305647840532,
+      "retail": 0.7221259387637,
+      "wholesale": 0.8305647840532
+    },
+    "regions": null,
+    "required_additional_identifier_fields": null,
+    "required_beneficiary_fields": null,
+    "required_credit_party_identifier_fields": null,
+    "required_debit_party_identifier_fields": null,
+    "required_sender_fields": null,
+    "required_statement_identifier_fields": null,
+    "service": {
+      "id": 1,
+      "name": "Mobile",
+      "subservice": {
+        "id": 12,
+        "name": "Bundle"
+      }
+    },
+    "source": {
+      "amount": 6.02,
+      "unit": "OMR",
+      "unit_type": "CURRENCY"
+    },
+    "tags": [
+      "BUNDLE"
+    ],
+    "type": "FIXED_VALUE_PIN_PURCHASE",
+    "validity": {
+      "quantity": 4,
+      "unit": "WEEK"
+    }
+  }
+]
