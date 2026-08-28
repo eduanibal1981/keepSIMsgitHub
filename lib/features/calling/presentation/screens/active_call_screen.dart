@@ -31,9 +31,9 @@ class ActiveCallScreen extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.12),
+                  color: AppColors.primary.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+                  border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -43,7 +43,9 @@ class ActiveCallScreen extends ConsumerWidget {
                       height: 8,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: callState.status == 'in_progress' ? AppColors.secondary : AppColors.warning,
+                        color: callState.status == 'in_progress'
+                            ? AppColors.secondary
+                            : AppColors.warning,
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -75,7 +77,7 @@ class ActiveCallScreen extends ConsumerWidget {
                   gradient: AppColors.primaryGradient,
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.primary.withOpacity(0.35),
+                      color: AppColors.primary.withValues(alpha: 0.35),
                       blurRadius: 30,
                       spreadRadius: 4,
                     ),
@@ -147,7 +149,7 @@ class ActiveCallScreen extends ConsumerWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppColors.error.withOpacity(0.15),
+                    color: AppColors.error.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: AppColors.error),
                   ),
@@ -160,7 +162,7 @@ class ActiveCallScreen extends ConsumerWidget {
                 const SizedBox(height: 20),
               ],
 
-              // In-call action buttons (Mute, Speaker, Keypad, Hangup)
+              // In-call action buttons (Mute, Speaker)
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [

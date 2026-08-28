@@ -6,8 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:keep_sims/features/calling/data/models/call_rate_model.dart';
 import 'package:keep_sims/features/calling/data/models/call_record_model.dart';
 import 'package:keep_sims/features/calling/data/repositories/calling_repository.dart';
-import 'package:keep_sims/features/wallet/providers/wallet_provider.dart';
-import 'package:keep_sims/features/sim_lines/presentation/providers/sim_lines_provider.dart';
+import 'package:keep_sims/features/wallet/controller/wallet_controller.dart';
 
 final callRatesProvider = FutureProvider<List<CallRate>>((ref) async {
   return ref.watch(callingRepositoryProvider).getActiveCallRates();
@@ -22,7 +21,7 @@ class ActiveCallState {
   final String destinationNumber;
   final String userCallbackNumber;
   final CallRate? rate;
-  final String status; // 'initiating', 'ringing', 'in_progress', 'ended', 'failed'
+  final String status; // 'idle', 'initiating', 'ringing', 'in_progress', 'ended', 'failed'
   final int durationSeconds;
   final double estimatedCost;
   final String? errorMessage;
@@ -69,12 +68,16 @@ class ActiveCallState {
   }
 }
 
-class CallingController extends StateNotifier<ActiveCallState> {
-  final CallingRepository _repository;
-  final Ref _ref;
+class CallingController extends Notifier<ActiveCallState> {
   Timer? _timer;
 
-  CallingController(this._repository, this._ref) : super(const ActiveCallState());
+  @override
+  ActiveCallState build() {
+    ref.onDispose(() {
+      _stopDurationTicker();
+    });
+    return const ActiveCallState();
+  }
 
   void toggleMute() {
     state = state.copyWith(isMuted: !state.isMuted);
@@ -98,7 +101,8 @@ class CallingController extends StateNotifier<ActiveCallState> {
     );
 
     try {
-      final res = await _repository.initiateCall(
+      final repository = ref.read(callingRepositoryProvider);
+      final res = await repository.initiateCall(
         destinationNumber: destinationNumber,
         userCallbackNumber: userCallbackNumber,
         simLineId: simLineId,
@@ -110,7 +114,6 @@ class CallingController extends StateNotifier<ActiveCallState> {
         status: 'ringing',
       );
 
-      // Start duration counter simulation / ticker
       _startDurationTicker();
     } catch (e) {
       _stopDurationTicker();
@@ -124,8 +127,7 @@ class CallingController extends StateNotifier<ActiveCallState> {
   void _startDurationTicker() {
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (state.status == 'ringing' && timer.tick >= 6) {
-        // Transition to in-progress when connected
+      if (state.status == 'ringing' && timer.tick >= 5) {
         state = state.copyWith(status: 'in_progress');
       }
 
@@ -149,24 +151,15 @@ class CallingController extends StateNotifier<ActiveCallState> {
   void endCall() {
     _stopDurationTicker();
     state = state.copyWith(status: 'ended');
-    _ref.invalidate(walletProvider);
-    _ref.invalidate(callHistoryStreamProvider);
+    ref.invalidate(walletControllerProvider);
+    ref.invalidate(callHistoryStreamProvider);
   }
 
   void reset() {
     _stopDurationTicker();
     state = const ActiveCallState();
   }
-
-  @override
-  void dispose() {
-    _stopDurationTicker();
-    super.dispose();
-  }
 }
 
 final callingControllerProvider =
-    StateNotifierProvider<CallingController, ActiveCallState>((ref) {
-  final repo = ref.watch(callingRepositoryProvider);
-  return CallingController(repo, ref);
-});
+    NotifierProvider<CallingController, ActiveCallState>(CallingController.new);

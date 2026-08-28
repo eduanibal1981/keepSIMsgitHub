@@ -36,7 +36,8 @@ class CallHistoryTile extends StatelessWidget {
             height: 44,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: (isCompleted ? AppColors.secondary : AppColors.error).withOpacity(0.15),
+              color: (isCompleted ? AppColors.secondary : AppColors.error)
+                  .withValues(alpha: 0.15),
             ),
             alignment: Alignment.center,
             child: Text(record.flagEmoji, style: const TextStyle(fontSize: 20)),
@@ -76,7 +77,7 @@ class CallHistoryTile extends StatelessWidget {
                       style: const TextStyle(color: Colors.white70, fontSize: 12),
                     ),
                     const SizedBox(width: 8),
-                    Text('•', style: TextStyle(color: Colors.white.withOpacity(0.3))),
+                    Text('•', style: TextStyle(color: Colors.white.withValues(alpha: 0.3))),
                     const SizedBox(width: 8),
                     Text(
                       isCompleted ? record.formattedDuration : record.status,
@@ -89,7 +90,10 @@ class CallHistoryTile extends StatelessWidget {
                     const Spacer(),
                     Text(
                       timeStr,
-                      style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 11),
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.4),
+                        fontSize: 11,
+                      ),
                     ),
                   ],
                 ),

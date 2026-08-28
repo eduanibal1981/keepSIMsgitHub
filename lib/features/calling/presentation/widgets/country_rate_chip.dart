@@ -25,7 +25,9 @@ class CountryRateChip extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary.withOpacity(0.18) : AppColors.darkCard,
+          color: isSelected
+              ? AppColors.primary.withValues(alpha: 0.18)
+              : AppColors.darkCard,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected ? AppColors.primary : AppColors.darkBorder,

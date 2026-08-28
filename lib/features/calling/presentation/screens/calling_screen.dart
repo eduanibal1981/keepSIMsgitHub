@@ -10,8 +10,8 @@ import 'package:keep_sims/features/calling/presentation/controllers/calling_cont
 import 'package:keep_sims/features/calling/presentation/widgets/country_rate_chip.dart';
 import 'package:keep_sims/features/calling/presentation/widgets/dialpad_widget.dart';
 import 'package:keep_sims/features/calling/presentation/widgets/call_history_tile.dart';
-import 'package:keep_sims/features/wallet/providers/wallet_provider.dart';
-import 'package:keep_sims/features/sim_lines/presentation/providers/sim_lines_provider.dart';
+import 'package:keep_sims/features/wallet/controller/wallet_controller.dart';
+import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
 
 class CallingScreen extends ConsumerStatefulWidget {
   const CallingScreen({super.key});
@@ -84,7 +84,8 @@ class _CallingScreenState extends ConsumerState<CallingScreen> with SingleTicker
       return;
     }
 
-    final simLines = ref.read(simLinesProvider).asData?.value ?? [];
+    final simLinesAsync = ref.read(simLinesControllerProvider);
+    final simLines = simLinesAsync.asData?.value ?? [];
     final defaultCallback = simLines.isNotEmpty ? simLines.first.phoneNumber : '+96891234567';
 
     ref.read(callingControllerProvider.notifier).startCall(
@@ -98,8 +99,8 @@ class _CallingScreenState extends ConsumerState<CallingScreen> with SingleTicker
 
   @override
   Widget build(BuildContext context) {
-    final walletAsync = ref.watch(walletProvider);
-    final walletBalance = walletAsync.asData?.value?.balance ?? 0.0;
+    final walletAsync = ref.watch(walletControllerProvider);
+    final walletBalance = walletAsync.asData?.value?.wallet.balance ?? 0.0;
     final ratesAsync = ref.watch(callRatesProvider);
 
     return Scaffold(
@@ -164,7 +165,7 @@ class _CallingScreenState extends ConsumerState<CallingScreen> with SingleTicker
                       child: ListView.separated(
                         scrollDirection: Axis.horizontal,
                         itemCount: rates.length,
-                        separatorBuilder: (_, __) => const SizedBox(width: 10),
+                        separatorBuilder: (_, _) => const SizedBox(width: 10),
                         itemBuilder: (context, idx) {
                           final r = rates[idx];
                           final isSelected = _detectedRate?.id == r.id;
@@ -182,7 +183,7 @@ class _CallingScreenState extends ConsumerState<CallingScreen> with SingleTicker
                       ),
                     ),
                     loading: () => const SizedBox(height: 58),
-                    error: (_, __) => const SizedBox.shrink(),
+                    error: (_, _) => const SizedBox.shrink(),
                   ),
 
                   const SizedBox(height: 20),
@@ -264,7 +265,7 @@ class _CallingScreenState extends ConsumerState<CallingScreen> with SingleTicker
                         gradient: AppColors.accentGradient,
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.secondary.withOpacity(0.4),
+                            color: AppColors.secondary.withValues(alpha: 0.4),
                             blurRadius: 20,
                             spreadRadius: 2,
                           ),
@@ -290,7 +291,7 @@ class _CallingScreenState extends ConsumerState<CallingScreen> with SingleTicker
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.phone_missed, color: Colors.white.withOpacity(0.3), size: 54),
+                          Icon(Icons.phone_missed, color: Colors.white.withValues(alpha: 0.3), size: 54),
                           const SizedBox(height: 12),
                           const Text(
                             'No call history yet',
