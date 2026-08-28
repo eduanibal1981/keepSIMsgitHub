@@ -21,107 +21,52 @@ and supplier accounts are live, so treat all data as production.
 
 ---
 
-## 2. Local project folder
-
-`C:\Users\abdal\Work\KeepSIMs\keep_sims` — the Flutter app **and** the worker source and the
-SQL, all in one repo.
-
-| path | what it is |
-|---|---|
-| `lib/` | Flutter app. Feature-first: `lib/features/<feature>/{data,domain,presentation}`, shared code in `lib/core/`. Riverpod for state. Dashboard header displays geo-detected country flag avatar with interactive location & refresh dialog; Protection Console (`sim_line_detail_screen.dart`) includes a narrow "Traveling Tomorrow" toggle row to switch between Home Mode (`isHomeMode = true`) and Travel Mode (`isHomeMode = false`), dynamically transforming the label into a "Buy eSIM" or "Buy Cheapest Package" action button when switched ON. |
-| `lib/core/supabase_client.dart` | Supabase URL + anon key (compile-time overridable). The anon key ships in the APK — **treat it as public**. |
-| `supabase/migrations/*.sql` | Schema history. Naming convention: `<timestamp>_<phase>_<description>.sql` with **round manual timestamps**. |
-| `supabase/functions/<slug>/index.ts` | Edge Function sources (Deno). |
-| `supabase/tests/*.sql` | Live SQL test suites. Each is `BEGIN … ROLLBACK`. |
-| `servers/` | Node workers that run on the GCE VM (see §5) + `providers/{zendit,dtone}.js` + `offer_validation.js`. |
-| `ecosystem.config.js` | pm2 process list. ⚠️ Lists **5** apps; the VM reportedly runs **7** (adds `worker-offers-cache`, plus an unmanaged Baileys process). Trust the VM's `pm2 list`, not this file. |
-| `doc/` | The real documentation. Start with `PRODUCTION_PLAN.md` (the phase-by-phase plan, sessions A1→E6) and `PRODUCTION_PLAN_REVIEW.md` (an independent audit + the Phase F plan). |
-| `doc/RLS_MATRIX.md` | Intended table/function privileges. **It has been wrong before** — verify against `pg_proc.proacl` / `information_schema` rather than believing it. |
-| `test/` | Flutter unit tests (73 passing). |
-| `tool/` | Dev scripts incl. `verify_release_bundle.dart`. Not covered by its own scanner. |
-| `android/` | `app/build.gradle.kts` release signing (fails loud without `key.properties`). `google-services.json` is **untracked by owner choice** — a fresh clone will not build without it. |
-| `.mcp.json` | Declares the Supabase MCP server for this project. |
-
-**Root-level clutter to ignore:** `all_code.txt`, `analyze_output.txt`, `build_verbose.txt`,
-`test_*.js`, `*.py`, `keep_sims.rar`, the `KeepSIMs_*Dashboard*.html/png` mockups,
-`admin_dashboard.html`. These are historical scratch files, not part of the build.
-
-**Sibling repo, separate folder:** `C:\Users\abdal\Work\KeepSIMs\keep_sims_admin` (admin Flutter
-app, `github.com/eduanibal1981/keepsims_admin`). *Moved off `G:\` — corrected 2026-08-04; the old
-`G:\KeepSIMs` path no longer exists.* `keep_sims_daemon` beside it is an empty `dart create`
-skeleton, **not** a worker or a task-script runner.
 
 ---
 
-## 3. GitHub
+## 2. Shared Tools & MCP Integration
 
-| repo | remote | local clone |
-|---|---|---|
-| App (this one) | `https://github.com/eduanibal1981/keepSIMsgitHub.git` | yes |
-| Backend | `github.com/eduanibal1981/keepsims-backend` | **none on this machine** — the VM (`/home/abdal/keepsims_backend`) and GitHub are canonical. Push from the VM via a git bundle. |
-| Admin | `github.com/eduanibal1981/keepsims_admin` | `G:\KeepSIMs\keep_sims_admin` |
+All AI agent tools and MCP (Model Context Protocol) servers are configured globally to support both **IntelliJ IDEA 2026.2.1** and **Antigravity IDE** without IDE-specific socket or pipe lockups.
 
-Branch is `main`; this project commits directly to it.
+### Active MCP Tool Registry
+The configuration resides in `~/.gemini/config/mcp_config.json` and `~/.gemini/antigravity/mcp_config.json`:
 
-**Pushing works as of 2026-07-29.** The owner ran `gh auth login` + `gh auth setup-git`, which
-put an absolute-path credential helper in global git config, so plain `git push` works from an
-agent shell with no PATH tricks. (`gh` itself may not be on PATH — use
-`C:\Program Files\GitHub CLI\gh.exe` for direct `gh` calls.)
+| MCP Server | Type | Purpose | Projects |
+|---|---|---|---|
+| **`supabase` / `supabase-project-saveSIMDB`** | HTTP / SSE | Direct PostgreSQL queries, table schemas, migration checks, and logs | Both (`keep_sims` & `keep_sims_admin`) |
+| **`cloudrun`** | Node / NPX | Deployment, service status, and container inspection on Google Cloud Run | Shared backend services |
+| **`paypal-mcp-server`** | NPX (Sandbox) | Invoicing, subscription plans, disputes, and payment transaction verification | Payment processing |
+| **`dart-mcp-server`** | Dart SDK | Static analysis, code diagnostics, and workspace symbol resolution | Both Flutter codebases |
 
-**🚨 Verify every push independently.** This project has a documented history of agents
-reporting commit hashes that do not exist and pushes that never happened. Rules:
-
-```bash
-git cat-file -t <hash>              # does the commit exist at all?
-git ls-remote --heads origin main   # what does the REMOTE actually have?
-```
-
-Never claim a push based on `git log`. A second source (`gh api repos/eduanibal1981/keepSIMsgitHub/commits/main`) is cheap.
+> [!IMPORTANT]
+> **Cross-IDE Compatibility Rule**: IDE-specific named pipe proxies (e.g. `datacloud-mcp-*-antigravityide`) are decoupled from global configuration to ensure seamless execution in IntelliJ IDEA.
 
 ---
 
-## 4. Supabase — the backend
+## 3. Project Configuration & Keys
 
-Project ref **`zwxswagokhgbuzrrbnhr`**, URL `https://zwxswagokhgbuzrrbnhr.supabase.co`.
+### Customer App (`keep_sims`)
+* **Path:** `c:\Users\abdal\Work\KeepSIMs\keep_sims`
+* **Target Audience:** End-users (eSIM purchase, device management, top-ups).
+* **Supabase Access:** Uses Supabase Anon key with Row Level Security (RLS) policies scoped to authenticated user IDs (`auth.uid()`).
+* **Payment Flow:** PayPal client SDK & payment webhooks.
 
-Access is via the **Supabase MCP server** (declared in `.mcp.json`). Tools you will use:
-`list_tables`, `execute_sql`, `apply_migration`, `list_migrations`, `list_edge_functions`,
-`deploy_edge_function`, `get_logs`, `get_advisors`. MCP connects as **`postgres`** with no JWT
-claims — so it bypasses RLS and every `auth.uid()`-based guard. To test as a real user you must
-either impersonate in-transaction (`SET LOCAL ROLE authenticated` + `set_config('request.jwt.claims', …)`)
-or go over HTTP with a real JWT.
+### Admin Portal (`keep_sims_admin`)
+* **Path:** `c:\Users\abdal\Work\KeepSIMs\keep_sims_admin`
+* **Target Audience:** System Administrators & Support team.
+* **Supabase Access:** Authenticated admin role with administrative tables access (`sim_cards`, `orders`, `transactions`).
+* **Environment:** Configured in `.env` and `lib/core/supabase_client.dart`.
 
-⚠️ **The local Supabase CLI is logged into a DIFFERENT account** and cannot see this project.
-You cannot set Edge Function secrets or delete functions from here — those are owner tasks.
+---
 
-**What lives where:**
+## 4. IntelliJ IDEA & Antigravity Agent Workflow
 
-- **Tables + RLS** — the money tables (`wallets`, `wallet_transactions`, `topup_executions`,
-  `esim_orders`, `plan_payments`, `paypal_orders`) are read-own, client-write-denied.
-- **SECURITY DEFINER RPCs** — every write to money goes through one. This is the security
-  perimeter, and it is where the bugs have been: a `GRANT` to `anon`/`authenticated` on one of
-  these is an immediate money hole. Supabase blanket-grants `EXECUTE` on new public functions,
-  and `GRANT … TO service_role` does **not** remove that — you must `REVOKE`.
-- **14 Edge Functions**, all ACTIVE. `verify_jwt: false` ones are the webhooks/health endpoints
-  (they do their own signature or secret check): `dispatch-alert`, `paypal-webhook` v10,
-  `waba-webhook`, `sms-webhook`, `twilio-voice-webhook`, `purge-accounts` v8, `health` v2.
-  `verify_jwt: true`: `create-paypal-order` v4, `capture-paypal-order` v2, `wallet_transact`,
-  `fetch_zendit_offers`, `detect-country`, `delete_account`, `execute_zendit_recharge` v6
-  (a 410 tombstone the owner still needs to delete in the dashboard).
-- **8 pg_cron jobs**: hourly notifications, `reap-stuck-executions` (*/5), refill pipeline
-  health (:30), `purge-deleted-accounts-hourly`, `check-rate-limit-health` (:30),
-  `prune-rate-limit-data` (3am), `reap-stale-esim-orders-hourly`, `check-worker-heartbeat` (*/10).
-- **Vault** — secrets read by DB functions (`dispatch_shared_secret`, via `get_internal_secret()`).
-- **Edge Function secrets** — dashboard-only (owner). PayPal, FCM, OneSignal, Resend, WABA, Twilio.
-- **`system_configs` table** — non-secret tunable business values (fee percentages, offline
-  numbers, markup). Deliberately DB-editable so prices change without an app release. Columns
-  are `config_key` / `config_value`.
-
-**Migration discipline (learned the hard way — 4 separate drifts):** if you change schema, ship
-a `.sql` file in `supabase/migrations/` **and** register it. `apply_migration` stamps the
-version with *today's* date, but this repo uses future-dated round timestamps — check that the
-registered version sorts **after** the migration you are correcting, or a replay will undo your
-fix. Verify with `list_migrations`.
+When developing in **IntelliJ IDEA 2026.2.1**:
+1. **Agent Model:** Gemini 3.7 Flash (High) / Gemini Pro.
+2. **Context Scope:** Both projects (`keep_sims` and `keep_sims_admin`) can be opened as individual projects or attached modules.
+3. **Hot Reload / Debugging:**
+    * Flutter plugin in IntelliJ IDEA handles execution for Windows, Android, and Web targets.
+    * Agent can review and update code in real-time across both codebases.
 
 ---
 

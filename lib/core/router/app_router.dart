@@ -40,6 +40,8 @@ import 'package:keep_sims/features/esim/presentation/screens/esim_screen.dart';
 import 'package:keep_sims/features/esim/presentation/screens/esim_plans_screen.dart';
 import 'package:keep_sims/features/price_watch/presentation/screens/price_watch_screen.dart';
 import 'package:keep_sims/features/roam_calculator/presentation/screens/roam_calculator_screen.dart';
+import 'package:keep_sims/features/calling/presentation/screens/calling_screen.dart';
+import 'package:keep_sims/features/calling/presentation/screens/active_call_screen.dart';
 
 part 'app_router.g.dart';
 
@@ -50,6 +52,8 @@ abstract final class AppRoutes {
   static const String emailAuth = '/email-auth';
   static const String onboarding = '/onboarding';
   static const String home = '/home';
+  static const String calling = '/calling';
+  static const String callingActive = '/calling/active';
   static const String simLines = '/sim-lines';
   static const String simLineDetail = '/sim-lines/detail/:id';
   static const String simLineExecutions = '/sim-lines/detail/:id/executions';
@@ -74,6 +78,7 @@ abstract final class AppRoutes {
   static const String esimPriceWatch = '/esim/price-watch';
   static const String esimRoamCalculator = '/esim/roam-calculator';
 }
+
 
 @riverpod
 class SplashCompleted extends _$SplashCompleted {
@@ -187,6 +192,18 @@ RouterConfig<Object> appRouter(Ref ref) {
             path: AppRoutes.home,
             name: 'home',
             builder: (context, state) => const DashboardScreen(),
+          ),
+          GoRoute(
+            path: AppRoutes.calling,
+            name: 'calling',
+            builder: (context, state) => const CallingScreen(),
+            routes: [
+              GoRoute(
+                path: 'active',
+                name: 'callingActive',
+                builder: (context, state) => const ActiveCallScreen(),
+              ),
+            ],
           ),
           GoRoute(
             path: AppRoutes.simLines,

@@ -1473,23 +1473,37 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           children: [
             _buildQuickActionCard(
               context,
+              icon: Icons.phone_in_talk_rounded,
+              label: 'Intl Call',
+              color: const Color(0xFF4CD7F6),
+              subtitle: 'Pay/sec',
+              onTap: () async {
+                await HapticHelper.lightTick();
+                if (context.mounted) {
+                  context.push(AppRoutes.calling);
+                }
+              },
+            ),
+            const SizedBox(width: 10),
+            _buildQuickActionCard(
+              context,
               assetIcon: 'assets/images/esim.png',
               label: 'eSIM',
               color: const Color(0xFF6366F1),
               enabled: true,
-              subtitle: isEsimSupported ? null : 'Test mode (emulator)',
+              subtitle: isEsimSupported ? null : 'Test mode',
               onTap: () async {
                 await HapticHelper.lightTick();
                 if (context.mounted) {
                   context.push(
                     isEsimSupported
                         ? AppRoutes.esim
-                        : '${AppRoutes.esim}?test_mode=true',
+                        : '\${AppRoutes.esim}?test_mode=true',
                   );
                 }
               },
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 10),
             _buildQuickActionCard(
               context,
               icon: Icons.account_balance_wallet_rounded,
