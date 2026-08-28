@@ -100,7 +100,7 @@ class _CallingScreenState extends ConsumerState<CallingScreen> with SingleTicker
   @override
   Widget build(BuildContext context) {
     final walletAsync = ref.watch(walletControllerProvider);
-    final walletBalance = walletAsync.asData?.value?.wallet.balance ?? 0.0;
+    final walletBalance = walletAsync.asData?.value.wallet.balance ?? 0.0;
     final ratesAsync = ref.watch(callRatesProvider);
 
     return Scaffold(
