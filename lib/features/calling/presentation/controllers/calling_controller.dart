@@ -117,9 +117,15 @@ class CallingController extends Notifier<ActiveCallState> {
       _startDurationTicker();
     } catch (e) {
       _stopDurationTicker();
+      String rawMsg = e.toString().replaceAll('Exception: ', '').replaceAll('FunctionException', '');
+      if (rawMsg.contains('non-verified numbers') || rawMsg.contains('account level D60')) {
+        rawMsg = 'Telnyx Trial Restriction: Number must be verified in Telnyx portal or upgrade to full account.';
+      } else if (rawMsg.contains('insufficient_funds')) {
+        rawMsg = 'Insufficient wallet balance. Please top up your wallet.';
+      }
       state = state.copyWith(
         status: 'failed',
-        errorMessage: e.toString().replaceAll('Exception: ', ''),
+        errorMessage: rawMsg,
       );
     }
   }

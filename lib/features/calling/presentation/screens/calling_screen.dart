@@ -10,6 +10,7 @@ import 'package:keep_sims/features/calling/presentation/controllers/calling_cont
 import 'package:keep_sims/features/calling/presentation/widgets/country_rate_chip.dart';
 import 'package:keep_sims/features/calling/presentation/widgets/dialpad_widget.dart';
 import 'package:keep_sims/features/calling/presentation/widgets/call_history_tile.dart';
+import 'package:keep_sims/core/router/app_router.dart';
 import 'package:keep_sims/features/wallet/controller/wallet_controller.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
 
@@ -20,7 +21,8 @@ class CallingScreen extends ConsumerStatefulWidget {
   ConsumerState<CallingScreen> createState() => _CallingScreenState();
 }
 
-class _CallingScreenState extends ConsumerState<CallingScreen> with SingleTickerProviderStateMixin {
+class _CallingScreenState extends ConsumerState<CallingScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final TextEditingController _dialNumberController = TextEditingController();
   CallRate? _detectedRate;
@@ -79,22 +81,24 @@ class _CallingScreenState extends ConsumerState<CallingScreen> with SingleTicker
     final dest = _dialNumberController.text.trim();
     if (dest.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter an international phone number')),
+        const SnackBar(
+          content: Text('Please enter an international phone number'),
+        ),
       );
       return;
     }
 
-    final simLinesAsync = ref.read(simLinesControllerProvider);
-    final simLines = simLinesAsync.asData?.value ?? [];
-    final defaultCallback = simLines.isNotEmpty ? simLines.first.phoneNumber : '+96891234567';
+    final formattedNumber = dest.startsWith('+') ? dest : '+$dest';
 
-    ref.read(callingControllerProvider.notifier).startCall(
-      destinationNumber: dest.startsWith('+') ? dest : '+$dest',
-      userCallbackNumber: defaultCallback,
-      rate: _detectedRate,
-    );
+    ref
+        .read(callingControllerProvider.notifier)
+        .startCall(
+          destinationNumber: formattedNumber,
+          userCallbackNumber: formattedNumber,
+          rate: _detectedRate,
+        );
 
-    context.push('/calling/active');
+    context.push(AppRoutes.callingActive);
   }
 
   @override
@@ -124,7 +128,11 @@ class _CallingScreenState extends ConsumerState<CallingScreen> with SingleTicker
             ),
             child: Row(
               children: [
-                const Icon(Icons.account_balance_wallet, color: AppColors.primary, size: 16),
+                const Icon(
+                  Icons.account_balance_wallet,
+                  color: AppColors.primary,
+                  size: 16,
+                ),
                 const SizedBox(width: 6),
                 Text(
                   '\$${walletBalance.toStringAsFixed(2)}',
@@ -191,7 +199,10 @@ class _CallingScreenState extends ConsumerState<CallingScreen> with SingleTicker
                   // Phone Number Display with Live Rate Badge
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.darkCard,
                       borderRadius: BorderRadius.circular(20),
@@ -203,7 +214,10 @@ class _CallingScreenState extends ConsumerState<CallingScreen> with SingleTicker
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text(_detectedRate!.flagEmoji, style: const TextStyle(fontSize: 16)),
+                              Text(
+                                _detectedRate!.flagEmoji,
+                                style: const TextStyle(fontSize: 16),
+                              ),
                               const SizedBox(width: 6),
                               Text(
                                 '${_detectedRate!.countryName} • \$${_detectedRate!.ratePerMinute.toStringAsFixed(3)}/min (\$${_detectedRate!.ratePerSecond.toStringAsFixed(4)}/s)',
@@ -225,7 +239,9 @@ class _CallingScreenState extends ConsumerState<CallingScreen> with SingleTicker
                                     ? 'Enter number (e.g. +20...)'
                                     : _dialNumberController.text,
                                 style: TextStyle(
-                                  color: _dialNumberController.text.isEmpty ? Colors.white30 : Colors.white,
+                                  color: _dialNumberController.text.isEmpty
+                                      ? Colors.white30
+                                      : Colors.white,
                                   fontSize: 26,
                                   fontWeight: FontWeight.w700,
                                   letterSpacing: 1.2,
@@ -235,7 +251,10 @@ class _CallingScreenState extends ConsumerState<CallingScreen> with SingleTicker
                             ),
                             if (_dialNumberController.text.isNotEmpty)
                               IconButton(
-                                icon: const Icon(Icons.backspace_outlined, color: Colors.white70),
+                                icon: const Icon(
+                                  Icons.backspace_outlined,
+                                  color: Colors.white70,
+                                ),
                                 onPressed: _onDeletePressed,
                               ),
                           ],
@@ -271,7 +290,11 @@ class _CallingScreenState extends ConsumerState<CallingScreen> with SingleTicker
                           ),
                         ],
                       ),
-                      child: const Icon(Icons.phone, color: Colors.white, size: 32),
+                      child: const Icon(
+                        Icons.phone,
+                        color: Colors.white,
+                        size: 32,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -291,16 +314,27 @@ class _CallingScreenState extends ConsumerState<CallingScreen> with SingleTicker
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.phone_missed, color: Colors.white.withValues(alpha: 0.3), size: 54),
+                          Icon(
+                            Icons.phone_missed,
+                            color: Colors.white.withValues(alpha: 0.3),
+                            size: 54,
+                          ),
                           const SizedBox(height: 12),
                           const Text(
                             'No call history yet',
-                            style: TextStyle(color: Colors.white70, fontSize: 16, fontWeight: FontWeight.w600),
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                           const SizedBox(height: 6),
                           const Text(
                             'Make your first pay-per-second international call!',
-                            style: TextStyle(color: Colors.white38, fontSize: 13),
+                            style: TextStyle(
+                              color: Colors.white38,
+                              fontSize: 13,
+                            ),
                           ),
                         ],
                       ),
@@ -325,7 +359,12 @@ class _CallingScreenState extends ConsumerState<CallingScreen> with SingleTicker
                   );
                 },
                 loading: () => const Center(child: CircularProgressIndicator()),
-                error: (err, _) => Center(child: Text('Error: $err', style: const TextStyle(color: Colors.red))),
+                error: (err, _) => Center(
+                  child: Text(
+                    'Error: $err',
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                ),
               );
             },
           ),

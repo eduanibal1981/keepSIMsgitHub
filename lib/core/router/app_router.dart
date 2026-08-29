@@ -184,6 +184,13 @@ RouterConfig<Object> appRouter(Ref ref) {
         builder: (context, state) => const OnboardingScreen(),
       ),
 
+      // ── Active International Call (Full-Screen Overlay) ─────
+      GoRoute(
+        path: AppRoutes.callingActive,
+        name: 'callingActive',
+        builder: (context, state) => const ActiveCallScreen(),
+      ),
+
       // ── Main App Shell ─────────────────────────────────────
       ShellRoute(
         builder: (context, state, child) => AppShell(child: child),
@@ -197,13 +204,6 @@ RouterConfig<Object> appRouter(Ref ref) {
             path: AppRoutes.calling,
             name: 'calling',
             builder: (context, state) => const CallingScreen(),
-            routes: [
-              GoRoute(
-                path: 'active',
-                name: 'callingActive',
-                builder: (context, state) => const ActiveCallScreen(),
-              ),
-            ],
           ),
           GoRoute(
             path: AppRoutes.simLines,

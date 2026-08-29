@@ -82,10 +82,6 @@ serve(async (req: Request) => {
       return jsonResponse({ success: false, errorMessage: "destinationNumber is required" }, 400);
     }
 
-    if (!userCallbackNumber || typeof userCallbackNumber !== "string") {
-      return jsonResponse({ success: false, errorMessage: "userCallbackNumber is required for two-way callback" }, 400);
-    }
-
     // 1. Check user wallet balance
     const wallet = await fetchUserWallet(userId);
     const balance = Number(wallet?.balance ?? 0);
@@ -104,7 +100,6 @@ serve(async (req: Request) => {
     if (rateRes.ok && Array.isArray(rateRes.body) && rateRes.body.length > 0) {
       rateData = rateRes.body[0];
     } else {
-      // Fallback global default rate
       rateData = {
         country_code: "GLOBAL",
         country_name: "International Destination",
@@ -115,14 +110,15 @@ serve(async (req: Request) => {
     }
 
     // 3. Create initial pending call record
+    const callerIdNumber = userCallbackNumber || destinationNumber;
     const insertCallRes = await fetch(`${SUPABASE_URL}/rest/v1/call_records`, {
       method: "POST",
       headers: { ...serviceHeaders, "Prefer": "return=representation" },
       body: JSON.stringify({
         user_id: userId,
         sim_line_id: simLineId || null,
-        call_type: "two_way_callback",
-        caller_number: userCallbackNumber,
+        call_type: "outbound_direct",
+        caller_number: callerIdNumber,
         destination_number: destinationNumber,
         destination_country_code: rateData.country_code,
         destination_country_name: rateData.country_name,
@@ -138,7 +134,7 @@ serve(async (req: Request) => {
 
     const callRecord = (await insertCallRes.json())[0];
 
-    // 4. Fetch Telnyx Credentials & Call Control Configuration
+    // 4. Fetch Telnyx Configuration
     const telnyxApiKey = await fetchSystemConfig("TELNYX_API_KEY");
     const telnyxAppId = await fetchSystemConfig("TELNYX_CALL_CONTROL_APP_ID", "3036680705380714233");
     const defaultCallerId = await fetchSystemConfig("TELNYX_DEFAULT_CALLER_ID", "+18337746746");
@@ -152,12 +148,12 @@ serve(async (req: Request) => {
       callRecordId: callRecord.id,
       userId: userId,
       destinationNumber: destinationNumber,
-      userCallbackNumber: userCallbackNumber,
+      userCallbackNumber: callerIdNumber,
       ratePerMinute: rateData.rate_per_minute_usd,
       countryCode: rateData.country_code,
     }));
 
-    // 6. Initiate Leg A (dial the user first)
+    // 6. Initiate Call to the Destination Number directly
     const telnyxRes = await fetch("https://api.telnyx.com/v2/calls", {
       method: "POST",
       headers: {
@@ -166,8 +162,8 @@ serve(async (req: Request) => {
       },
       body: JSON.stringify({
         connection_id: telnyxAppId,
-        to: userCallbackNumber,
-        from: defaultCallerId,
+        to: destinationNumber,
+        from: callerIdNumber || defaultCallerId,
         client_state: clientState,
         timeout_secs: 30,
         answering_machine_detection: "detect",
@@ -178,7 +174,6 @@ serve(async (req: Request) => {
 
     if (!telnyxRes.ok) {
       const errDetail = telnyxJson.errors?.[0]?.detail || JSON.stringify(telnyxJson);
-      // Update record to failed
       await fetch(`${SUPABASE_URL}/rest/v1/call_records?id=eq.${callRecord.id}`, {
         method: "PATCH",
         headers: serviceHeaders,
@@ -194,7 +189,6 @@ serve(async (req: Request) => {
     const callControlId = telnyxCallData.call_control_id;
     const callSessionId = telnyxCallData.call_session_id;
 
-    // Update call record with Telnyx IDs
     await fetch(`${SUPABASE_URL}/rest/v1/call_records?id=eq.${callRecord.id}`, {
       method: "PATCH",
       headers: serviceHeaders,
@@ -215,7 +209,7 @@ serve(async (req: Request) => {
         ratePerMinute: rateData.rate_per_minute_usd,
         ratePerSecond: (rateData.rate_per_minute_usd / 60).toFixed(5),
       },
-      userCallbackNumber,
+      callerId: callerIdNumber,
       walletBalance: balance,
     }, 200);
 
