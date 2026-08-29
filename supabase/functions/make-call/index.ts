@@ -109,8 +109,27 @@ serve(async (req: Request) => {
       };
     }
 
-    // 3. Create initial pending call record
-    const callerIdNumber = userCallbackNumber || destinationNumber;
+    // 3. Fetch Telnyx Configuration
+    const telnyxApiKey = await fetchSystemConfig("TELNYX_API_KEY");
+    const telnyxAppId = await fetchSystemConfig("TELNYX_CALL_CONTROL_APP_ID", "3036680705380714233");
+    const defaultCallerId = await fetchSystemConfig("TELNYX_DEFAULT_CALLER_ID", "+18337746746");
+
+    if (!telnyxApiKey) {
+      return jsonResponse({ success: false, errorMessage: "Telnyx Voice is not configured on this server" }, 500);
+    }
+
+    // 4. Determine Caller ID (From number):
+    // If calling someone else -> use verified user phone number so recipient sees user ID.
+    // If calling own phone (destination == userCallbackNumber) -> use defaultCallerId to avoid carrier self-loop block.
+    const cleanDest = destinationNumber.replace(/\s+/g, "");
+    const cleanUser = (userCallbackNumber || "").replace(/\s+/g, "");
+    
+    let fromNumber = defaultCallerId;
+    if (cleanUser && cleanUser !== cleanDest) {
+      fromNumber = cleanUser;
+    }
+
+    // 5. Create initial pending call record
     const insertCallRes = await fetch(`${SUPABASE_URL}/rest/v1/call_records`, {
       method: "POST",
       headers: { ...serviceHeaders, "Prefer": "return=representation" },
@@ -118,8 +137,8 @@ serve(async (req: Request) => {
         user_id: userId,
         sim_line_id: simLineId || null,
         call_type: "outbound_direct",
-        caller_number: callerIdNumber,
-        destination_number: destinationNumber,
+        caller_number: fromNumber,
+        destination_number: cleanDest,
         destination_country_code: rateData.country_code,
         destination_country_name: rateData.country_name,
         rate_per_minute_usd: rateData.rate_per_minute_usd,
@@ -134,26 +153,17 @@ serve(async (req: Request) => {
 
     const callRecord = (await insertCallRes.json())[0];
 
-    // 4. Fetch Telnyx Configuration
-    const telnyxApiKey = await fetchSystemConfig("TELNYX_API_KEY");
-    const telnyxAppId = await fetchSystemConfig("TELNYX_CALL_CONTROL_APP_ID", "3036680705380714233");
-    const defaultCallerId = await fetchSystemConfig("TELNYX_DEFAULT_CALLER_ID", "+18337746746");
-
-    if (!telnyxApiKey) {
-      return jsonResponse({ success: false, errorMessage: "Telnyx Voice is not configured on this server" }, 500);
-    }
-
-    // 5. Build client state payload
+    // 6. Build client state payload
     const clientState = btoa(JSON.stringify({
       callRecordId: callRecord.id,
       userId: userId,
-      destinationNumber: destinationNumber,
-      userCallbackNumber: callerIdNumber,
+      destinationNumber: cleanDest,
+      userCallbackNumber: fromNumber,
       ratePerMinute: rateData.rate_per_minute_usd,
       countryCode: rateData.country_code,
     }));
 
-    // 6. Initiate Call to the Destination Number directly
+    // 7. Initiate Call to the Destination Number
     const telnyxRes = await fetch("https://api.telnyx.com/v2/calls", {
       method: "POST",
       headers: {
@@ -162,8 +172,8 @@ serve(async (req: Request) => {
       },
       body: JSON.stringify({
         connection_id: telnyxAppId,
-        to: destinationNumber,
-        from: callerIdNumber || defaultCallerId,
+        to: cleanDest,
+        from: fromNumber,
         client_state: clientState,
         timeout_secs: 30,
         answering_machine_detection: "detect",
@@ -203,13 +213,13 @@ serve(async (req: Request) => {
       callId: callRecord.id,
       status: "initiated",
       destination: {
-        number: destinationNumber,
+        number: cleanDest,
         countryName: rateData.country_name,
         countryCode: rateData.country_code,
         ratePerMinute: rateData.rate_per_minute_usd,
         ratePerSecond: (rateData.rate_per_minute_usd / 60).toFixed(5),
       },
-      callerId: callerIdNumber,
+      callerId: fromNumber,
       walletBalance: balance,
     }, 200);
 
