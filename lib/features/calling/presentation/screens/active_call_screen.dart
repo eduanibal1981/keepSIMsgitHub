@@ -84,7 +84,7 @@ class ActiveCallScreen extends ConsumerWidget {
                       Container(
                         width: 96,
                         height: 96,
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           shape: BoxShape.circle,
                           gradient: AppColors.primaryGradient,
                         ),

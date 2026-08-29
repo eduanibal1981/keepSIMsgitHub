@@ -12,7 +12,6 @@ import 'package:keep_sims/features/calling/presentation/widgets/dialpad_widget.d
 import 'package:keep_sims/features/calling/presentation/widgets/call_history_tile.dart';
 import 'package:keep_sims/core/router/app_router.dart';
 import 'package:keep_sims/features/wallet/controller/wallet_controller.dart';
-import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
 
 class CallingScreen extends ConsumerStatefulWidget {
   const CallingScreen({super.key});
