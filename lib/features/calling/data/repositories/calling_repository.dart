@@ -2,14 +2,12 @@
 library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:keep_sims/core/providers.dart';
+import 'package:keep_sims/core/supabase_client.dart';
 import 'package:keep_sims/features/calling/data/models/call_rate_model.dart';
 import 'package:keep_sims/features/calling/data/models/call_record_model.dart';
 import 'package:keep_sims/features/calling/data/models/caller_id_model.dart';
 
 final callingRepositoryProvider = Provider<CallingRepository>((ref) {
-  final supabase = ref.watch(supabaseClientProvider);
   return CallingRepository(supabase);
 });
 
