@@ -12,6 +12,18 @@ final callingRepositoryProvider = Provider<CallingRepository>((ref) {
   return CallingRepository(supabase);
 });
 
+class CallerIdRequestResult {
+  final bool isAlreadyVerified;
+  final String message;
+  final String phoneNumber;
+
+  const CallerIdRequestResult({
+    required this.isAlreadyVerified,
+    required this.message,
+    required this.phoneNumber,
+  });
+}
+
 class CallingRepository {
   final SupabaseClient _supabase;
 
@@ -77,20 +89,28 @@ class CallingRepository {
     return list.map((e) => CallerIdModel.fromJson(e)).toList();
   }
 
-  /// Request SMS OTP to verify user's phone number
-  Future<String> requestCallerIdVerification(String phoneNumber) async {
+  /// Request SMS or Voice Call OTP to verify user's phone number
+  Future<CallerIdRequestResult> requestCallerIdVerification(
+    String phoneNumber, {
+    String method = 'sms',
+  }) async {
     final res = await _supabase.functions.invoke(
       'manage-caller-id',
       body: {
         'action': 'request_verification',
         'phoneNumber': phoneNumber,
+        'method': method,
       },
     );
     final data = res.data;
     if (res.status != 200 || data == null || data['success'] != true) {
-      throw Exception(data?['errorMessage'] ?? 'Failed to send SMS code');
+      throw Exception(data?['errorMessage'] ?? 'Failed to send verification code');
     }
-    return data['message'] as String? ?? 'Code sent';
+    return CallerIdRequestResult(
+      isAlreadyVerified: data['isAlreadyVerified'] as bool? ?? false,
+      message: data['message'] as String? ?? 'Code sent',
+      phoneNumber: data['phoneNumber'] as String? ?? phoneNumber,
+    );
   }
 
   /// Submit OTP to verify and activate Caller ID

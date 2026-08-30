@@ -43,6 +43,20 @@ async function fetchSystemConfig(key: string, defaultVal: string = ""): Promise<
   return rows[0]?.config_value ?? defaultVal;
 }
 
+async function checkIsNumberVerifiedOnTelnyx(telnyxApiKey: string, cleanNumber: string): Promise<boolean> {
+  try {
+    const res = await fetch("https://api.telnyx.com/v2/verified_numbers", {
+      headers: { "Authorization": `Bearer ${telnyxApiKey}` },
+    });
+    if (!res.ok) return false;
+    const json = await res.json();
+    const list = json.data as Array<{ phone_number: string }>;
+    return list.some(item => item.phone_number.replace(/\s+/g, "") === cleanNumber.replace(/\s+/g, ""));
+  } catch (_) {
+    return false;
+  }
+}
+
 serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -54,22 +68,55 @@ serve(async (req: Request) => {
       return jsonResponse({ success: false, errorMessage: "Unauthorized" }, 401);
     }
 
-    const { action, phoneNumber, code, label } = await req.json();
+    const { action, phoneNumber, code, method, label } = await req.json();
     const telnyxApiKey = await fetchSystemConfig("TELNYX_API_KEY");
 
     if (!telnyxApiKey) {
       return jsonResponse({ success: false, errorMessage: "Telnyx API key not configured" }, 500);
     }
 
-    // ── 1. Request SMS Verification ──
+    // ── 1. Request Verification (SMS or Call) ──
     if (action === "request_verification") {
       if (!phoneNumber || typeof phoneNumber !== "string") {
         return jsonResponse({ success: false, errorMessage: "phoneNumber is required" }, 400);
       }
 
-      const cleanNumber = phoneNumber.trim().startsWith("+") ? phoneNumber.trim() : `+${phoneNumber.trim()}`;
+      const cleanNumber = phoneNumber.trim().startsWith("+") ? phoneNumber.trim().replace(/\s+/g, "") : `+${phoneNumber.trim().replace(/\s+/g, "")}`;
 
-      // Call Telnyx Verified Numbers API
+      // Check if already verified on Telnyx
+      const alreadyVerified = await checkIsNumberVerifiedOnTelnyx(telnyxApiKey, cleanNumber);
+      if (alreadyVerified) {
+        // Set other caller IDs for user to false
+        await fetch(`${SUPABASE_URL}/rest/v1/user_caller_ids?user_id=eq.${userId}`, {
+          method: "PATCH",
+          headers: serviceHeaders,
+          body: JSON.stringify({ is_default: false }),
+        });
+
+        // Upsert as verified and default
+        await fetch(`${SUPABASE_URL}/rest/v1/user_caller_ids`, {
+          method: "POST",
+          headers: { ...serviceHeaders, "Prefer": "resolution=merge-duplicates" },
+          body: JSON.stringify({
+            user_id: userId,
+            phone_number: cleanNumber,
+            label: label || "Mobile Number",
+            is_verified: true,
+            is_default: true,
+            verified_at: new Date().toISOString(),
+          }),
+        });
+
+        return jsonResponse({
+          success: true,
+          isAlreadyVerified: true,
+          message: `${cleanNumber} is verified and activated as your Outbound Caller ID!`,
+          phoneNumber: cleanNumber,
+        }, 200);
+      }
+
+      // Not verified yet -> Call Telnyx Verified Numbers API with specified method (sms or call)
+      const verifyMethod = method === "call" ? "call" : "sms";
       const telnyxRes = await fetch("https://api.telnyx.com/v2/verified_numbers", {
         method: "POST",
         headers: {
@@ -78,7 +125,7 @@ serve(async (req: Request) => {
         },
         body: JSON.stringify({
           phone_number: cleanNumber,
-          verification_method: "sms",
+          verification_method: verifyMethod,
         }),
       });
 
@@ -89,13 +136,10 @@ serve(async (req: Request) => {
         return jsonResponse({ success: false, errorMessage: errDetail }, telnyxRes.status);
       }
 
-      // Upsert record in database
+      // Upsert record in database as pending
       await fetch(`${SUPABASE_URL}/rest/v1/user_caller_ids`, {
         method: "POST",
-        headers: {
-          ...serviceHeaders,
-          "Prefer": "resolution=merge-duplicates",
-        },
+        headers: { ...serviceHeaders, "Prefer": "resolution=merge-duplicates" },
         body: JSON.stringify({
           user_id: userId,
           phone_number: cleanNumber,
@@ -106,7 +150,10 @@ serve(async (req: Request) => {
 
       return jsonResponse({
         success: true,
-        message: `Verification code sent via SMS to ${cleanNumber}`,
+        isAlreadyVerified: false,
+        message: verifyMethod === "call" 
+          ? `Calling ${cleanNumber} with your 6-digit verification code...`
+          : `Verification code sent via SMS to ${cleanNumber}`,
         phoneNumber: cleanNumber,
       }, 200);
     }
@@ -117,7 +164,7 @@ serve(async (req: Request) => {
         return jsonResponse({ success: false, errorMessage: "phoneNumber and code are required" }, 400);
       }
 
-      const cleanNumber = phoneNumber.trim().startsWith("+") ? phoneNumber.trim() : `+${phoneNumber.trim()}`;
+      const cleanNumber = phoneNumber.trim().startsWith("+") ? phoneNumber.trim().replace(/\s+/g, "") : `+${phoneNumber.trim().replace(/\s+/g, "")}`;
       const encodedNumber = encodeURIComponent(cleanNumber);
 
       const telnyxRes = await fetch(`https://api.telnyx.com/v2/verified_numbers/${encodedNumber}/actions/verify`, {
@@ -134,8 +181,12 @@ serve(async (req: Request) => {
       const telnyxJson = await telnyxRes.json();
 
       if (!telnyxRes.ok) {
-        const errDetail = telnyxJson.errors?.[0]?.detail || "Invalid or expired verification code";
-        return jsonResponse({ success: false, errorMessage: errDetail }, 400);
+        // If it failed because already verified on Telnyx
+        const alreadyVerified = await checkIsNumberVerifiedOnTelnyx(telnyxApiKey, cleanNumber);
+        if (!alreadyVerified) {
+          const errDetail = telnyxJson.errors?.[0]?.detail || "Invalid or expired verification code";
+          return jsonResponse({ success: false, errorMessage: errDetail }, 400);
+        }
       }
 
       // Set other caller IDs for this user to is_default = false
@@ -185,7 +236,7 @@ serve(async (req: Request) => {
       if (!phoneNumber) {
         return jsonResponse({ success: false, errorMessage: "phoneNumber is required" }, 400);
       }
-      const cleanNumber = phoneNumber.trim().startsWith("+") ? phoneNumber.trim() : `+${phoneNumber.trim()}`;
+      const cleanNumber = phoneNumber.trim().startsWith("+") ? phoneNumber.trim().replace(/\s+/g, "") : `+${phoneNumber.trim().replace(/\s+/g, "")}`;
       const encodedNumber = encodeURIComponent(cleanNumber);
 
       await fetch(`${SUPABASE_URL}/rest/v1/user_caller_ids?user_id=eq.${userId}`, {
