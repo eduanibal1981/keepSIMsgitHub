@@ -5,6 +5,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:keep_sims/features/calling/data/models/call_rate_model.dart';
 import 'package:keep_sims/features/calling/data/models/call_record_model.dart';
+import 'package:keep_sims/features/calling/data/models/caller_id_model.dart';
 import 'package:keep_sims/features/calling/data/repositories/calling_repository.dart';
 import 'package:keep_sims/features/wallet/controller/wallet_controller.dart';
 
@@ -14,6 +15,10 @@ final callRatesProvider = FutureProvider<List<CallRate>>((ref) async {
 
 final callHistoryStreamProvider = StreamProvider<List<CallRecord>>((ref) {
   return ref.watch(callingRepositoryProvider).watchUserCallHistory();
+});
+
+final userCallerIdsProvider = FutureProvider<List<CallerIdModel>>((ref) async {
+  return ref.watch(callingRepositoryProvider).getUserCallerIds();
 });
 
 class ActiveCallState {

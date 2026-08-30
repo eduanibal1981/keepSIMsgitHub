@@ -10,6 +10,7 @@ import 'package:keep_sims/features/calling/presentation/controllers/calling_cont
 import 'package:keep_sims/features/calling/presentation/widgets/country_rate_chip.dart';
 import 'package:keep_sims/features/calling/presentation/widgets/dialpad_widget.dart';
 import 'package:keep_sims/features/calling/presentation/widgets/call_history_tile.dart';
+import 'package:keep_sims/features/calling/presentation/widgets/verify_caller_id_sheet.dart';
 import 'package:keep_sims/core/router/app_router.dart';
 import 'package:keep_sims/features/wallet/controller/wallet_controller.dart';
 
@@ -20,8 +21,7 @@ class CallingScreen extends ConsumerStatefulWidget {
   ConsumerState<CallingScreen> createState() => _CallingScreenState();
 }
 
-class _CallingScreenState extends ConsumerState<CallingScreen>
-    with SingleTickerProviderStateMixin {
+class _CallingScreenState extends ConsumerState<CallingScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final TextEditingController _dialNumberController = TextEditingController();
   CallRate? _detectedRate;
@@ -76,6 +76,15 @@ class _CallingScreenState extends ConsumerState<CallingScreen>
     _detectedRate = matched;
   }
 
+  void _openCallerIdVerification([String? initialNumber]) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => VerifyCallerIdSheet(initialNumber: initialNumber),
+    );
+  }
+
   void _startCall() {
     final dest = _dialNumberController.text.trim();
     if (dest.isEmpty) {
@@ -89,13 +98,16 @@ class _CallingScreenState extends ConsumerState<CallingScreen>
 
     final formattedNumber = dest.startsWith('+') ? dest : '+$dest';
 
-    ref
-        .read(callingControllerProvider.notifier)
-        .startCall(
-          destinationNumber: formattedNumber,
-          userCallbackNumber: formattedNumber,
-          rate: _detectedRate,
-        );
+    // Get active caller ID if verified
+    final callerIdsAsync = ref.read(userCallerIdsProvider);
+    final callerIds = callerIdsAsync.asData?.value ?? [];
+    final activeCallerId = callerIds.where((c) => c.isVerified && c.isDefault).firstOrNull?.phoneNumber;
+
+    ref.read(callingControllerProvider.notifier).startCall(
+      destinationNumber: formattedNumber,
+      userCallbackNumber: activeCallerId ?? formattedNumber,
+      rate: _detectedRate,
+    );
 
     context.push(AppRoutes.callingActive);
   }
@@ -105,6 +117,10 @@ class _CallingScreenState extends ConsumerState<CallingScreen>
     final walletAsync = ref.watch(walletControllerProvider);
     final walletBalance = walletAsync.asData?.value.wallet.balance ?? 0.0;
     final ratesAsync = ref.watch(callRatesProvider);
+    final callerIdsAsync = ref.watch(userCallerIdsProvider);
+
+    final callerIds = callerIdsAsync.asData?.value ?? [];
+    final activeCallerId = callerIds.where((c) => c.isVerified && c.isDefault).firstOrNull;
 
     return Scaffold(
       backgroundColor: AppColors.darkBg,
@@ -127,11 +143,7 @@ class _CallingScreenState extends ConsumerState<CallingScreen>
             ),
             child: Row(
               children: [
-                const Icon(
-                  Icons.account_balance_wallet,
-                  color: AppColors.primary,
-                  size: 16,
-                ),
+                const Icon(Icons.account_balance_wallet, color: AppColors.primary, size: 16),
                 const SizedBox(width: 6),
                 Text(
                   '\$${walletBalance.toStringAsFixed(2)}',
@@ -162,10 +174,88 @@ class _CallingScreenState extends ConsumerState<CallingScreen>
           // ── Tab 1: Dialpad & Live Rates ──
           SingleChildScrollView(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               child: Column(
                 children: [
-                  // Popular Country Rates Carousel / Row
+                  // ── Caller ID Status Banner ──
+                  GestureDetector(
+                    onTap: () => _openCallerIdVerification(activeCallerId?.phoneNumber),
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      margin: const EdgeInsets.only(bottom: 14),
+                      decoration: BoxDecoration(
+                        color: (activeCallerId != null ? AppColors.secondary : AppColors.primary)
+                            .withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: (activeCallerId != null ? AppColors.secondary : AppColors.primary)
+                              .withValues(alpha: 0.35),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            activeCallerId != null ? Icons.verified_user_rounded : Icons.shield_outlined,
+                            color: activeCallerId != null ? AppColors.secondary : AppColors.primary,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(
+                                      activeCallerId != null ? 'Outgoing Caller ID' : 'Caller ID: KeepSIMs Gateway',
+                                      style: TextStyle(
+                                        color: activeCallerId != null ? Colors.white : Colors.white70,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    if (activeCallerId != null) ...[
+                                      const SizedBox(width: 6),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.secondary.withValues(alpha: 0.2),
+                                          borderRadius: BorderRadius.circular(6),
+                                        ),
+                                        child: const Text('VERIFIED', style: TextStyle(color: AppColors.secondary, fontSize: 9, fontWeight: FontWeight.bold)),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                                Text(
+                                  activeCallerId != null
+                                      ? activeCallerId.phoneNumber
+                                      : 'Tap to show your real phone number on calls',
+                                  style: TextStyle(
+                                    color: activeCallerId != null ? AppColors.secondary : AppColors.primary,
+                                    fontSize: activeCallerId != null ? 14 : 11,
+                                    fontWeight: activeCallerId != null ? FontWeight.bold : FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: AppColors.darkCard,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: AppColors.darkBorder),
+                            ),
+                            child: const Icon(Icons.edit, color: Colors.white70, size: 14),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  // Popular Country Rates Carousel
                   ratesAsync.when(
                     data: (rates) => SizedBox(
                       height: 58,
@@ -193,15 +283,12 @@ class _CallingScreenState extends ConsumerState<CallingScreen>
                     error: (_, _) => const SizedBox.shrink(),
                   ),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
 
                   // Phone Number Display with Live Rate Badge
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
                       color: AppColors.darkCard,
                       borderRadius: BorderRadius.circular(20),
@@ -213,10 +300,7 @@ class _CallingScreenState extends ConsumerState<CallingScreen>
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text(
-                                _detectedRate!.flagEmoji,
-                                style: const TextStyle(fontSize: 16),
-                              ),
+                              Text(_detectedRate!.flagEmoji, style: const TextStyle(fontSize: 16)),
                               const SizedBox(width: 6),
                               Text(
                                 '${_detectedRate!.countryName} • \$${_detectedRate!.ratePerMinute.toStringAsFixed(3)}/min (\$${_detectedRate!.ratePerSecond.toStringAsFixed(4)}/s)',
@@ -238,9 +322,7 @@ class _CallingScreenState extends ConsumerState<CallingScreen>
                                     ? 'Enter number (e.g. +20...)'
                                     : _dialNumberController.text,
                                 style: TextStyle(
-                                  color: _dialNumberController.text.isEmpty
-                                      ? Colors.white30
-                                      : Colors.white,
+                                  color: _dialNumberController.text.isEmpty ? Colors.white30 : Colors.white,
                                   fontSize: 26,
                                   fontWeight: FontWeight.w700,
                                   letterSpacing: 1.2,
@@ -250,10 +332,7 @@ class _CallingScreenState extends ConsumerState<CallingScreen>
                             ),
                             if (_dialNumberController.text.isNotEmpty)
                               IconButton(
-                                icon: const Icon(
-                                  Icons.backspace_outlined,
-                                  color: Colors.white70,
-                                ),
+                                icon: const Icon(Icons.backspace_outlined, color: Colors.white70),
                                 onPressed: _onDeletePressed,
                               ),
                           ],
@@ -262,7 +341,7 @@ class _CallingScreenState extends ConsumerState<CallingScreen>
                     ),
                   ),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
 
                   // Dialpad Keys
                   DialpadWidget(
@@ -270,14 +349,14 @@ class _CallingScreenState extends ConsumerState<CallingScreen>
                     onDeletePressed: _onDeletePressed,
                   ),
 
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 14),
 
                   // Call Initiation Button
                   GestureDetector(
                     onTap: _startCall,
                     child: Container(
-                      width: 72,
-                      height: 72,
+                      width: 70,
+                      height: 70,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         gradient: AppColors.accentGradient,
@@ -289,14 +368,10 @@ class _CallingScreenState extends ConsumerState<CallingScreen>
                           ),
                         ],
                       ),
-                      child: const Icon(
-                        Icons.phone,
-                        color: Colors.white,
-                        size: 32,
-                      ),
+                      child: const Icon(Icons.phone, color: Colors.white, size: 30),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 14),
                 ],
               ),
             ),
@@ -313,27 +388,16 @@ class _CallingScreenState extends ConsumerState<CallingScreen>
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(
-                            Icons.phone_missed,
-                            color: Colors.white.withValues(alpha: 0.3),
-                            size: 54,
-                          ),
+                          Icon(Icons.phone_missed, color: Colors.white.withValues(alpha: 0.3), size: 54),
                           const SizedBox(height: 12),
                           const Text(
                             'No call history yet',
-                            style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
+                            style: TextStyle(color: Colors.white70, fontSize: 16, fontWeight: FontWeight.w600),
                           ),
                           const SizedBox(height: 6),
                           const Text(
                             'Make your first pay-per-second international call!',
-                            style: TextStyle(
-                              color: Colors.white38,
-                              fontSize: 13,
-                            ),
+                            style: TextStyle(color: Colors.white38, fontSize: 13),
                           ),
                         ],
                       ),
@@ -358,12 +422,7 @@ class _CallingScreenState extends ConsumerState<CallingScreen>
                   );
                 },
                 loading: () => const Center(child: CircularProgressIndicator()),
-                error: (err, _) => Center(
-                  child: Text(
-                    'Error: $err',
-                    style: const TextStyle(color: Colors.red),
-                  ),
-                ),
+                error: (err, _) => Center(child: Text('Error: $err', style: const TextStyle(color: Colors.red))),
               );
             },
           ),

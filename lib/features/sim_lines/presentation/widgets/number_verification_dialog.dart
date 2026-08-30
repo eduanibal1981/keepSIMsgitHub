@@ -142,10 +142,14 @@ class _NumberVerificationDialogState
         return _buildTriggeringUI();
       case LineVerificationStatus.ringing:
         return _buildRingingUI();
+      case LineVerificationStatus.sendingSms:
+        return _buildSendingSmsUI();
+      case LineVerificationStatus.awaitingDlr:
+        return _buildAwaitingDlrUI(state);
       case LineVerificationStatus.success:
-        return _buildSuccessUI();
+        return _buildSuccessUI(state);
       case LineVerificationStatus.failure:
-        return _buildFailureUI(state.errorMessage);
+        return _buildFailureUI(state);
     }
   }
 
@@ -179,21 +183,55 @@ class _NumberVerificationDialogState
         ),
         const SizedBox(height: 12),
         Text(
-          'We will trigger an instant, self-disconnecting missed call to this number to verify if the line is active and registered on the carrier network.',
+          'Choose a verification method to test if your SIM line is actively attached to a cellular network.',
           textAlign: TextAlign.center,
           style: AppTextStyles.bodyMedium.copyWith(
             color: AppColors.textSecondaryDark,
             height: 1.5,
           ),
         ),
-        const SizedBox(height: 32),
+        const SizedBox(height: 28),
+
+        // 1. Silent SMS Verification Button (verifySMS0)
         ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.primary,
             foregroundColor: Colors.white,
             elevation: 8,
             shadowColor: AppColors.primary.withValues(alpha: 0.4),
-            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+          ),
+          onPressed: () {
+            HapticHelper.mediumImpact();
+            ref
+                .read(
+                  lineVerificationControllerProvider(widget.simLineId).notifier,
+                )
+                .startSmsVerification(widget.phoneNumber);
+          },
+          child: const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.sms_rounded, size: 20),
+              SizedBox(width: 8),
+              Text(
+                'Verify via Silent SMS (verifySMS0)',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+
+        // 2. Missed Call Verification Button
+        OutlinedButton(
+          style: OutlinedButton.styleFrom(
+            foregroundColor: Colors.white70,
+            side: BorderSide(color: Colors.white.withValues(alpha: 0.2)),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),
@@ -209,11 +247,11 @@ class _NumberVerificationDialogState
           child: const Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.radar_rounded, size: 20),
+              Icon(Icons.phone_callback_rounded, size: 18, color: Colors.white70),
               SizedBox(width: 8),
               Text(
-                'Start Verification',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                'Verify via Missed Call',
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
               ),
             ],
           ),
@@ -381,7 +419,169 @@ class _NumberVerificationDialogState
     );
   }
 
-  Widget _buildSuccessUI() {
+  Widget _buildSendingSmsUI() {
+    return Column(
+      children: [
+        const SizedBox(
+          width: 80,
+          height: 80,
+          child: CircularProgressIndicator(
+            strokeWidth: 4,
+            valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryLight),
+          ),
+        ),
+        const SizedBox(height: 28),
+        Text(
+          'Dispatching Silent Ping...',
+          style: AppTextStyles.titleLarge.copyWith(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Text(
+          'Connecting to global telecom gateway to transmit silent cellular packet to ${widget.phoneNumber}.',
+          textAlign: TextAlign.center,
+          style: AppTextStyles.bodySmall.copyWith(
+            color: AppColors.textSecondaryDark,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAwaitingDlrUI(LineVerificationState state) {
+    return Column(
+      children: [
+        // Pulsating radar animation for SMS
+        SizedBox(
+          width: 140,
+          height: 140,
+          child: AnimatedBuilder(
+            animation: _radarController,
+            builder: (context, child) {
+              return Stack(
+                alignment: Alignment.center,
+                children: [
+                  for (int i = 0; i < 3; i++)
+                    Opacity(
+                      opacity:
+                          (1.0 - ((_radarController.value + i / 3.0) % 1.0)) *
+                          0.4,
+                      child: Transform.scale(
+                        scale:
+                            1.0 +
+                            (((_radarController.value + i / 3.0) % 1.0) * 1.5),
+                        child: Container(
+                          width: 80,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: AppColors.primaryLight.withValues(alpha: 0.8),
+                              width: 1.5,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  Container(
+                    width: 76,
+                    height: 76,
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.2),
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: AppColors.primaryLight,
+                        width: 2.5,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.primary.withValues(alpha: 0.4),
+                          blurRadius: 15,
+                          spreadRadius: 2,
+                        ),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.mark_email_read_rounded,
+                      size: 32,
+                      color: AppColors.primaryLight,
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: 24),
+        Text(
+          'Awaiting Carrier Handshake...',
+          style: AppTextStyles.titleLarge.copyWith(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          widget.phoneNumber,
+          style: AppTextStyles.bodyMedium.copyWith(
+            color: AppColors.primaryLight,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 16),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.04),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+          ),
+          child: const Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                width: 12,
+                height: 12,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    AppColors.primaryLight,
+                  ),
+                ),
+              ),
+              SizedBox(width: 10),
+              Text(
+                'Tracking Delivery Receipt (DLR)...',
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 20),
+        Text(
+          'Monitoring real-time carrier signaling ACK. If the line is active, the tower will confirm packet receipt.',
+          textAlign: TextAlign.center,
+          style: AppTextStyles.bodySmall.copyWith(
+            color: AppColors.textSecondaryDark,
+            height: 1.4,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSuccessUI(LineVerificationState state) {
+    final isSms = state.verificationChannel == 'telnyx_sms_dlr';
+    final carrierText = state.carrierName != null
+        ? ' via ${state.carrierName}'
+        : '';
+
     return Column(
       children: [
         Container(
@@ -414,7 +614,9 @@ class _NumberVerificationDialogState
         ),
         const SizedBox(height: 12),
         Text(
-          'Your SIM line is active on carrier networks. Health status updated to 100% and Shield is optimized.',
+          isSms
+              ? 'SIM line confirmed active on carrier network$carrierText. Health status updated to 100% and Shield is optimized.'
+              : 'Your SIM line is active on carrier networks. Health status updated to 100% and Shield is optimized.',
           textAlign: TextAlign.center,
           style: AppTextStyles.bodyMedium.copyWith(
             color: AppColors.textSecondaryDark,
@@ -444,7 +646,9 @@ class _NumberVerificationDialogState
     );
   }
 
-  Widget _buildFailureUI(String? errorMessage) {
+  Widget _buildFailureUI(LineVerificationState state) {
+    final isSms = state.verificationChannel == 'telnyx_sms_dlr';
+
     return Column(
       children: [
         Container(
@@ -477,7 +681,7 @@ class _NumberVerificationDialogState
         ),
         const SizedBox(height: 12),
         Text(
-          errorMessage ??
+          state.errorMessage ??
               'No response received. Please check if the SIM card is properly inserted and has active coverage.',
           textAlign: TextAlign.center,
           style: AppTextStyles.bodyMedium.copyWith(
@@ -518,20 +722,17 @@ class _NumberVerificationDialogState
                 ),
                 onPressed: () {
                   HapticHelper.mediumImpact();
-                  ref
-                      .read(
-                        lineVerificationControllerProvider(
-                          widget.simLineId,
-                        ).notifier,
-                      )
-                      .reset();
-                  ref
-                      .read(
-                        lineVerificationControllerProvider(
-                          widget.simLineId,
-                        ).notifier,
-                      )
-                      .startVerification(widget.phoneNumber);
+                  final notifier = ref.read(
+                    lineVerificationControllerProvider(
+                      widget.simLineId,
+                    ).notifier,
+                  );
+                  notifier.reset();
+                  if (isSms) {
+                    notifier.startSmsVerification(widget.phoneNumber);
+                  } else {
+                    notifier.startVerification(widget.phoneNumber);
+                  }
                 },
                 child: const Text(
                   'Retry',

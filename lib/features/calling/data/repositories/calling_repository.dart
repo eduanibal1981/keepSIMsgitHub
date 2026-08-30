@@ -3,11 +3,13 @@ library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:keep_sims/core/supabase_client.dart';
+import 'package:keep_sims/core/providers.dart';
 import 'package:keep_sims/features/calling/data/models/call_rate_model.dart';
 import 'package:keep_sims/features/calling/data/models/call_record_model.dart';
+import 'package:keep_sims/features/calling/data/models/caller_id_model.dart';
 
 final callingRepositoryProvider = Provider<CallingRepository>((ref) {
+  final supabase = ref.watch(supabaseClientProvider);
   return CallingRepository(supabase);
 });
 
@@ -16,65 +18,18 @@ class CallingRepository {
 
   CallingRepository(this._supabase);
 
-  /// Fetch all active call rates
+  /// Fetch all active destination call rates
   Future<List<CallRate>> getActiveCallRates() async {
     final res = await _supabase
         .from('call_rates')
-        .select()
+        .select('*')
         .eq('is_active', true)
-        .order('country_name', ascending: true);
+        .order('country_name');
 
-    final list = res as List<dynamic>;
-    return list.map((e) => CallRate.fromJson(e as Map<String, dynamic>)).toList();
+    return (res as List).map((e) => CallRate.fromJson(e)).toList();
   }
 
-  /// Resolve rate for a specific phone number
-  Future<CallRate?> getRateForNumber(String phoneNumber) async {
-    try {
-      final res = await _supabase.rpc(
-        'get_call_rate_for_number',
-        params: {'p_phone_number': phoneNumber},
-      );
-      if (res is List && res.isNotEmpty) {
-        return CallRate.fromJson(res.first as Map<String, dynamic>);
-      }
-      return null;
-    } catch (_) {
-      return null;
-    }
-  }
-
-  /// Fetch user's call history
-  Future<List<CallRecord>> getUserCallHistory() async {
-    final userId = _supabase.auth.currentUser?.id;
-    if (userId == null) return [];
-
-    final res = await _supabase
-        .from('call_records')
-        .select()
-        .eq('user_id', userId)
-        .order('created_at', ascending: false)
-        .limit(30);
-
-    final list = res as List<dynamic>;
-    return list.map((e) => CallRecord.fromJson(e as Map<String, dynamic>)).toList();
-  }
-
-  /// Stream of user's active/recent calls
-  Stream<List<CallRecord>> watchUserCallHistory() {
-    final userId = _supabase.auth.currentUser?.id;
-    if (userId == null) return Stream.value([]);
-
-    return _supabase
-        .from('call_records')
-        .stream(primaryKey: ['id'])
-        .eq('user_id', userId)
-        .order('created_at', ascending: false)
-        .limit(30)
-        .map((rows) => rows.map((e) => CallRecord.fromJson(e)).toList());
-  }
-
-  /// Initiate a call via make-call Supabase Edge Function
+  /// Initiate an international call via make-call edge function
   Future<Map<String, dynamic>> initiateCall({
     required String destinationNumber,
     required String userCallbackNumber,
@@ -89,11 +44,81 @@ class CallingRepository {
       },
     );
 
-    if (response.status != 200) {
-      final err = response.data?['errorMessage'] ?? 'Failed to initiate call (${response.status})';
-      throw Exception(err);
+    final data = response.data;
+    if (response.status != 200 || data == null || data['success'] != true) {
+      final msg = data?['errorMessage'] ?? 'Failed to initiate call (status ${response.status})';
+      throw Exception(msg);
     }
 
-    return response.data as Map<String, dynamic>;
+    return Map<String, dynamic>.from(data);
+  }
+
+  /// Watch user's call history in real-time
+  Stream<List<CallRecord>> watchUserCallHistory() {
+    final userId = _supabase.auth.currentUser?.id;
+    if (userId == null) return const Stream.empty();
+
+    return _supabase
+        .from('call_records')
+        .stream(primaryKey: ['id'])
+        .eq('user_id', userId)
+        .order('started_at', ascending: false)
+        .limit(50)
+        .map((list) => list.map((e) => CallRecord.fromJson(e)).toList());
+  }
+
+  /// List user's verified Caller IDs
+  Future<List<CallerIdModel>> getUserCallerIds() async {
+    final res = await _supabase.functions.invoke(
+      'manage-caller-id',
+      body: {'action': 'list'},
+    );
+    if (res.status != 200 || res.data == null) return [];
+    final list = res.data['callerIds'] as List? ?? [];
+    return list.map((e) => CallerIdModel.fromJson(e)).toList();
+  }
+
+  /// Request SMS OTP to verify user's phone number
+  Future<String> requestCallerIdVerification(String phoneNumber) async {
+    final res = await _supabase.functions.invoke(
+      'manage-caller-id',
+      body: {
+        'action': 'request_verification',
+        'phoneNumber': phoneNumber,
+      },
+    );
+    final data = res.data;
+    if (res.status != 200 || data == null || data['success'] != true) {
+      throw Exception(data?['errorMessage'] ?? 'Failed to send SMS code');
+    }
+    return data['message'] as String? ?? 'Code sent';
+  }
+
+  /// Submit OTP to verify and activate Caller ID
+  Future<String> verifyCallerIdCode(String phoneNumber, String code) async {
+    final res = await _supabase.functions.invoke(
+      'manage-caller-id',
+      body: {
+        'action': 'verify_code',
+        'phoneNumber': phoneNumber,
+        'code': code,
+      },
+    );
+    final data = res.data;
+    if (res.status != 200 || data == null || data['success'] != true) {
+      throw Exception(data?['errorMessage'] ?? 'Invalid or expired code');
+    }
+    return data['message'] as String? ?? 'Verified successfully!';
+  }
+
+  /// Set default caller ID
+  Future<void> setDefaultCallerId(String phoneNumber) async {
+    await _supabase.functions.invoke(
+      'manage-caller-id',
+      body: {
+        'action': 'set_default',
+        'phoneNumber': phoneNumber,
+      },
+    );
   }
 }

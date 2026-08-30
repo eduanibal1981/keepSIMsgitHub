@@ -5,6 +5,7 @@ import 'package:keep_sims/features/sim_lines/data/models/carrier_self_service_mo
 import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/line_activity_log_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/payment_method_model.dart';
+import 'package:keep_sims/features/sim_lines/data/datasources/telnyx_verification_service.dart';
 
 abstract class SimLinesRepository {
   Future<List<SimLine>> getSimLines();
@@ -34,7 +35,9 @@ abstract class SimLinesRepository {
   });
   Future<String?> triggerMissedCall(String phoneNumber);
   Future<bool> checkCallStatus(String callSid);
-  Future<void> confirmLineVerification(String simLineId);
+  Future<String?> triggerSmsVerification(String phoneNumber);
+  Future<TelnyxSmsResult> checkSmsDeliveryStatus(String messageId);
+  Future<void> confirmLineVerification(String simLineId, {String channel = 'twilio_missed_call', String? carrierName});
   Future<void> cancelCall(String callSid);
   Future<List<Map<String, dynamic>>> fetchZenditOffers(String countryId, String carrierId);
 

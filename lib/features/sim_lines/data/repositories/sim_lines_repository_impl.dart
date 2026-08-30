@@ -11,6 +11,7 @@ import 'package:keep_sims/features/sim_lines/data/models/line_activity_log_model
 import 'package:keep_sims/features/sim_lines/data/models/payment_method_model.dart';
 import 'package:keep_sims/features/sim_lines/domain/repositories/sim_lines_repository.dart';
 import 'package:keep_sims/features/sim_lines/data/datasources/twilio_verification_service.dart';
+import 'package:keep_sims/features/sim_lines/data/datasources/telnyx_verification_service.dart';
 import 'package:keep_sims/core/services/connectivity_service.dart';
 import 'package:keep_sims/core/services/device_identity_service.dart';
 import 'package:keep_sims/core/services/local_cache_service.dart';
@@ -731,11 +732,36 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
   }
 
   @override
-  Future<void> confirmLineVerification(String simLineId) async {
+  Future<String?> triggerSmsVerification(String phoneNumber) async {
+    return TelnyxVerificationService.sendVerificationSms(phoneNumber);
+  }
+
+  @override
+  Future<TelnyxSmsResult> checkSmsDeliveryStatus(String messageId) async {
+    return TelnyxVerificationService.fetchMessageStatus(messageId);
+  }
+
+  @override
+  Future<void> confirmLineVerification(
+    String simLineId, {
+    String channel = 'twilio_missed_call',
+    String? carrierName,
+  }) async {
     try {
       final userId = _supabase.auth.currentUser?.id;
       if (userId == null) {
         throw Exception('No authenticated user session found.');
+      }
+
+      try {
+        await _supabase.rpc('confirm_line_verification', params: {
+          'p_sim_line_id': simLineId,
+          'p_channel': channel,
+          'p_carrier_name': carrierName,
+        });
+        return;
+      } catch (rpcErr) {
+        // Fallback to direct client table update if RPC unavailable
       }
 
       // Update SIM Line verification_status and health score
@@ -748,16 +774,22 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
           })
           .eq('id', simLineId);
 
+      final channelName =
+          channel == 'telnyx_sms_dlr' ? 'Telnyx Silent SMS (DLR)' : 'Missed Call';
+      final carrierDetail =
+          carrierName != null ? ' on $carrierName' : '';
+
       // Insert verification log
       await _supabase.from('line_activity_log').insert({
         'sim_line_id': simLineId,
         'user_id': userId,
         'event_type': 'health_update',
         'description':
-            'SIM line verified active via Twilio Missed Call check. Health optimized to 100.',
+            'SIM line verified active via $channelName$carrierDetail. Health optimized to 100.',
         'metadata': {
           'verified_at': DateTime.now().toIso8601String(),
-          'channel': 'twilio_missed_call',
+          'channel': channel,
+          if (carrierName != null) 'carrier_name': carrierName,
         },
       });
     } on PostgrestException catch (e) {

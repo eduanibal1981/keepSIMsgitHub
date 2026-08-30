@@ -31,18 +31,6 @@ async function resolveUserId(req: Request): Promise<string | null> {
   return user?.id ?? null;
 }
 
-async function rpc(name: string, args: Record<string, unknown>): Promise<{ ok: boolean; body: any }> {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${name}`, {
-    method: "POST",
-    headers: serviceHeaders,
-    body: JSON.stringify(args),
-  });
-  const text = await res.text();
-  let body: any = text;
-  try { body = JSON.parse(text); } catch (_) { /* raw text */ }
-  return { ok: res.ok, body };
-}
-
 async function fetchSystemConfig(key: string, defaultVal: string = ""): Promise<string> {
   const envVal = Deno.env.get(key);
   if (envVal) return envVal;
@@ -63,6 +51,16 @@ async function fetchUserWallet(userId: string): Promise<any | null> {
   if (!res.ok) return null;
   const rows = await res.json();
   return rows[0] ?? null;
+}
+
+async function fetchUserDefaultCallerId(userId: string): Promise<string | null> {
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/user_caller_ids?user_id=eq.${userId}&is_verified=eq.true&is_default=eq.true&select=phone_number`,
+    { headers: serviceHeaders },
+  );
+  if (!res.ok) return null;
+  const rows = await res.json();
+  return rows[0]?.phone_number ?? null;
 }
 
 serve(async (req: Request) => {
@@ -112,21 +110,23 @@ serve(async (req: Request) => {
     // 3. Fetch Telnyx Configuration
     const telnyxApiKey = await fetchSystemConfig("TELNYX_API_KEY");
     const telnyxAppId = await fetchSystemConfig("TELNYX_CALL_CONTROL_APP_ID", "3036680705380714233");
-    const defaultCallerId = await fetchSystemConfig("TELNYX_DEFAULT_CALLER_ID", "+18337746746");
+    const defaultCallerId = await fetchSystemConfig("TELNYX_DEFAULT_CALLER_ID", "+17543180369");
 
     if (!telnyxApiKey) {
       return jsonResponse({ success: false, errorMessage: "Telnyx Voice is not configured on this server" }, 500);
     }
 
-    // 4. Determine Caller ID (From number):
-    // If calling someone else -> use verified user phone number so recipient sees user ID.
-    // If calling own phone (destination == userCallbackNumber) -> use defaultCallerId to avoid carrier self-loop block.
+    // 4. Resolve Verified Caller ID
     const cleanDest = destinationNumber.replace(/\s+/g, "");
-    const cleanUser = (userCallbackNumber || "").replace(/\s+/g, "");
-    
+    const userVerifiedNumber = await fetchUserDefaultCallerId(userId);
+
+    // If user has a verified phone number, present it as Caller ID!
+    // If calling their own phone, fallback to default gateway to prevent telecom self-loop block.
     let fromNumber = defaultCallerId;
-    if (cleanUser && cleanUser !== cleanDest) {
-      fromNumber = cleanUser;
+    if (userVerifiedNumber && userVerifiedNumber !== cleanDest) {
+      fromNumber = userVerifiedNumber;
+    } else if (userCallbackNumber && userCallbackNumber !== cleanDest) {
+      fromNumber = userCallbackNumber;
     }
 
     // 5. Create initial pending call record
