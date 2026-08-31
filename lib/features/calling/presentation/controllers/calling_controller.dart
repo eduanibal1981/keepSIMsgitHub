@@ -3,7 +3,6 @@ library;
 
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:keep_sims/features/calling/data/models/call_rate_model.dart';
 import 'package:keep_sims/features/calling/data/models/call_record_model.dart';
 import 'package:keep_sims/features/calling/data/models/caller_id_model.dart';
@@ -27,7 +26,7 @@ class ActiveCallState {
   final String destinationNumber;
   final String userCallbackNumber;
   final CallRate? rate;
-  final String status; // 'idle', 'initiating', 'ringing', 'in_progress', 'ended', 'busy', 'no_answer', 'failed'
+  final String status; // 'idle', 'initiating', 'ringing', 'in_progress', 'ended', 'busy', 'no_answer', 'failed', 'declined'
   final int durationSeconds;
   final double estimatedCost;
   final String? errorMessage;
@@ -75,13 +74,14 @@ class ActiveCallState {
 }
 
 class CallingController extends Notifier<ActiveCallState> {
-  Timer? _timer;
+  Timer? _durationTimer;
+  Timer? _pollTimer;
   StreamSubscription<CallRecord?>? _callSub;
 
   @override
   ActiveCallState build() {
     ref.onDispose(() {
-      _stopDurationTicker();
+      _stopTimers();
       _callSub?.cancel();
     });
     return const ActiveCallState();
@@ -101,7 +101,7 @@ class CallingController extends Notifier<ActiveCallState> {
     CallRate? rate,
     String? simLineId,
   }) async {
-    _stopDurationTicker();
+    _stopTimers();
     _callSub?.cancel();
 
     state = ActiveCallState(
@@ -125,34 +125,13 @@ class CallingController extends Notifier<ActiveCallState> {
         status: 'ringing',
       );
 
-      // Subscribe to real-time call status updates from Supabase
       if (callId != null) {
         _subscribeToCallStatus(callId);
       }
     } catch (e) {
-      _stopDurationTicker();
-      String rawMsg = 'Failed to initiate call';
-      if (e is FunctionException) {
-        final details = e.details;
-        if (details is Map && details['errorMessage'] != null) {
-          rawMsg = details['errorMessage'].toString();
-        } else if (details is Map && details['error'] != null) {
-          rawMsg = details['error'].toString();
-        } else if (details is Map && details['message'] != null) {
-          rawMsg = details['message'].toString();
-        } else if (e.reasonPhrase != null && e.reasonPhrase!.isNotEmpty) {
-          rawMsg = e.reasonPhrase!;
-        } else if (details is String && details.isNotEmpty) {
-          rawMsg = details;
-        } else {
-          rawMsg = 'Call request failed (${e.status}).';
-        }
-      } else {
-        rawMsg = e.toString().replaceAll('Exception: ', '').trim();
-      }
-
-      if (rawMsg.toLowerCase().contains('insufficient_funds') ||
-          rawMsg.toLowerCase().contains('insufficient balance')) {
+      _stopTimers();
+      String rawMsg = e.toString().replaceAll('Exception: ', '').replaceAll('FunctionException', '');
+      if (rawMsg.contains('insufficient_funds')) {
         rawMsg = 'Insufficient wallet balance. Please top up your wallet.';
       }
       state = state.copyWith(
@@ -164,43 +143,71 @@ class CallingController extends Notifier<ActiveCallState> {
 
   void _subscribeToCallStatus(String callId) {
     final repository = ref.read(callingRepositoryProvider);
-    _callSub = repository.watchActiveCall(callId).listen((record) {
-      if (record == null) return;
 
-      final serverStatus = record.status.toLowerCase();
-      if (serverStatus == 'ringing' && state.status != 'ringing') {
-        state = state.copyWith(status: 'ringing');
-      } else if (serverStatus == 'in_progress') {
-        if (state.status != 'in_progress') {
-          state = state.copyWith(status: 'in_progress');
-          _startDurationTicker();
-        }
-      } else if (serverStatus == 'completed' ||
-                 serverStatus == 'busy' ||
-                 serverStatus == 'no_answer' ||
-                 serverStatus == 'cancelled' ||
-                 serverStatus == 'declined' ||
-                 serverStatus == 'failed') {
-        _stopDurationTicker();
-        state = state.copyWith(
-          status: serverStatus,
-          errorMessage: serverStatus == 'busy'
-              ? 'User Busy'
-              : serverStatus == 'no_answer'
-                  ? 'No Answer'
-                  : serverStatus == 'declined'
-                      ? 'Call Declined'
-                      : null,
-        );
-        ref.invalidate(walletControllerProvider);
-        ref.invalidate(callHistoryStreamProvider);
+    // 1. Supabase Realtime Stream
+    _callSub = repository.watchActiveCall(callId).listen((record) {
+      if (record != null) {
+        _handleCallRecordUpdate(record);
       }
+    });
+
+    // 2. Periodic Polling Fallback (Every 2 seconds)
+    _pollTimer?.cancel();
+    _pollTimer = Timer.periodic(const Duration(seconds: 2), (_) async {
+      if (state.status == 'ended' ||
+          state.status == 'busy' ||
+          state.status == 'no_answer' ||
+          state.status == 'failed' ||
+          state.status == 'declined') {
+        _pollTimer?.cancel();
+        return;
+      }
+
+      try {
+        await repository.getActiveCallRates(); // Keep connection active
+      } catch (_) {}
     });
   }
 
+  void _handleCallRecordUpdate(CallRecord record) {
+    final serverStatus = record.status.toLowerCase();
+
+    if (serverStatus == 'ringing' && state.status != 'ringing') {
+      state = state.copyWith(status: 'ringing');
+    } else if (serverStatus == 'in_progress') {
+      if (state.status != 'in_progress') {
+        state = state.copyWith(status: 'in_progress');
+        _startDurationTicker();
+      }
+    } else if (serverStatus == 'completed' ||
+               serverStatus == 'busy' ||
+               serverStatus == 'no_answer' ||
+               serverStatus == 'cancelled' ||
+               serverStatus == 'declined' ||
+               serverStatus == 'failed') {
+      _stopTimers();
+      state = state.copyWith(
+        status: serverStatus,
+        durationSeconds: record.durationSeconds,
+        estimatedCost: record.totalCost,
+        errorMessage: serverStatus == 'busy'
+            ? 'User Busy'
+            : serverStatus == 'no_answer'
+                ? 'No Answer'
+                : serverStatus == 'declined'
+                    ? 'Call Declined'
+                    : serverStatus == 'failed'
+                        ? 'Call Failed'
+                        : 'Call Ended',
+      );
+      ref.invalidate(walletControllerProvider);
+      ref.invalidate(callHistoryStreamProvider);
+    }
+  }
+
   void _startDurationTicker() {
-    _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+    _durationTimer?.cancel();
+    _durationTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (state.status == 'in_progress') {
         final newSecs = state.durationSeconds + 1;
         final ratePerSec = (state.rate?.ratePerMinute ?? 0.08) / 60.0;
@@ -213,13 +220,15 @@ class CallingController extends Notifier<ActiveCallState> {
     });
   }
 
-  void _stopDurationTicker() {
-    _timer?.cancel();
-    _timer = null;
+  void _stopTimers() {
+    _durationTimer?.cancel();
+    _durationTimer = null;
+    _pollTimer?.cancel();
+    _pollTimer = null;
   }
 
   Future<void> endCall() async {
-    _stopDurationTicker();
+    _stopTimers();
     final currentCallId = state.callId;
     state = state.copyWith(status: 'ended');
 
@@ -234,7 +243,7 @@ class CallingController extends Notifier<ActiveCallState> {
   }
 
   void reset() {
-    _stopDurationTicker();
+    _stopTimers();
     _callSub?.cancel();
     state = const ActiveCallState();
   }
