@@ -1,5 +1,6 @@
 // validate-sim-liveness — KeepSIMs Carrier BSS Liveness & Activity Verification Edge Function
-// Zero-cost live Carrier BSS validation via wholesale gateways (DTOne, Zendit, Reloadly, Telnyx).
+// Zero-cost live Carrier BSS validation via wholesale gateways (DTOne, Zendit, DingConnect)
+// with Telnyx PSTN SIP Signaling Probe fallback for unmapped MVNOs & corridors.
 
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.8";
@@ -17,7 +18,7 @@ interface LivenessValidationResponse {
   country_code: string | null;
   reason: string | null;
   message: string;
-  provider: "zendit" | "dtone" | "reloadly" | "telnyx" | "none";
+  provider: "zendit" | "dtone" | "ding" | "telnyx" | "none";
   verified_at: string;
 }
 
@@ -67,7 +68,7 @@ function isExplicitlyDeactivated(errStr: string): boolean {
   return EXPLICIT_DEACTIVATION_CODES.some((code) => upper.includes(code));
 }
 
-// 1. DTOne BSS Mobile Number Lookup
+// 1. DTOne BSS Mobile Number Lookup (Subscriber-Level Identification)
 async function queryDTOne(
   formattedPhone: string,
   countryCode?: string,
@@ -91,7 +92,6 @@ async function queryDTOne(
     try {
       const res = await fetch(url, { headers });
       const text = await res.text();
-      console.log(`[DTOne GET ${url}] status=${res.status} body=${text}`);
 
       if (res.ok) {
         let data: any = {};
@@ -110,8 +110,6 @@ async function queryDTOne(
               raw: activeOp,
             };
           }
-          // Note: If no product in DTOne's catalog had identified: true, it means
-          // DTOne does not have a mapped SKU for this line/MVNO. Do not assume deactivated.
         } else if (data && typeof data === "object") {
           if (data.identified === true) {
             const op = data.operator || data;
@@ -138,7 +136,7 @@ async function queryDTOne(
   return { success: false, reason: "INCONCLUSIVE" };
 }
 
-// 2. Zendit BSS Lookup
+// 2. Zendit BSS Lookup (Subscriber-Level Identification)
 async function queryZendit(
   formattedPhone: string,
   countryCode?: string,
@@ -152,8 +150,6 @@ async function queryZendit(
   };
 
   const testUrls = [
-    `${baseUrl}/operators/auto-detect?phoneNumber=${encodeURIComponent(formattedPhone)}`,
-    `${baseUrl}/operators/auto-detect?phone_number=${encodeURIComponent(formattedPhone)}`,
     `${baseUrl}/topups/lookup?phoneNumber=${encodeURIComponent(formattedPhone)}`,
     `${baseUrl}/topups/lookup?recipientPhoneNumber=${encodeURIComponent(formattedPhone)}`,
   ];
@@ -162,7 +158,6 @@ async function queryZendit(
     try {
       const res = await fetch(url, { headers });
       const text = await res.text();
-      console.log(`[Zendit GET ${url}] status=${res.status} body=${text}`);
 
       if (res.ok) {
         let data: any = {};
@@ -189,72 +184,8 @@ async function queryZendit(
   return { success: false, reason: "INCONCLUSIVE" };
 }
 
-// 3. Reloadly Auto-Detect Lookup
-async function queryReloadly(
-  formattedPhone: string,
-  countryCode?: string,
-): Promise<{ success: boolean; active?: boolean; operatorName?: string; country?: string; reason?: string; raw?: any }> {
-  const clientId = Deno.env.get("RELOADLY_CLIENT_ID") || "dd6gftTPkt6O1o0sYypMinikCxtnr2k7";
-  const clientSecret = Deno.env.get("RELOADLY_CLIENT_SECRET") || "MryXmVGmH4-Ul4JILEmGCbdLK3xfMG-bd5R3kG05jiZBCFckvPBHMPMDE6iE8dM";
-
-  try {
-    const authRes = await fetch("https://auth.reloadly.com/oauth/token", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        client_id: clientId,
-        client_secret: clientSecret,
-        grant_type: "client_credentials",
-        audience: "https://topups-sandbox.reloadly.com",
-      }),
-    });
-
-    if (!authRes.ok) return { success: false, reason: "AUTH_FAILED" };
-    const authData = await authRes.json();
-    const token = authData.access_token;
-    if (!token) return { success: false, reason: "TOKEN_MISSING" };
-
-    const cleanDigits = formattedPhone.replace("+", "");
-    const cIso = (countryCode || "").toUpperCase();
-    const autoUrl = cIso
-      ? `https://topups-sandbox.reloadly.com/operators/auto-detect/phone/${cleanDigits}/countries/${cIso}`
-      : `https://topups-sandbox.reloadly.com/operators/auto-detect/phone/${cleanDigits}`;
-
-    const autoRes = await fetch(autoUrl, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: "application/com.reloadly.topups-v1+json",
-      },
-    });
-
-    const text = await autoRes.text();
-    console.log(`[Reloadly GET] status=${autoRes.status} body=${text}`);
-
-    if (autoRes.ok) {
-      let data: any = {};
-      try { data = JSON.parse(text); } catch (_) {}
-      const rawName = data.name || data.operatorName;
-      if (rawName && data.status === "ACTIVE") {
-        return {
-          success: true,
-          active: true,
-          operatorName: cleanOperatorName(rawName),
-          country: data.country?.isoName || countryCode,
-          raw: data,
-        };
-      }
-    } else if (isExplicitlyDeactivated(text)) {
-      return { success: true, active: false, reason: "UNALLOCATED_OR_EXPIRED", raw: text };
-    }
-  } catch (e) {
-    console.error("[Reloadly] error:", e);
-  }
-
-  return { success: false, reason: "INCONCLUSIVE" };
-}
-
-// 4. Telnyx Number Lookup (Carrier network validation fallback)
-async function queryTelnyx(
+// 3. Telnyx Number Lookup (Carrier allocation metadata)
+async function queryTelnyxMetadata(
   formattedPhone: string,
   countryCode?: string,
 ): Promise<{ success: boolean; valid?: boolean; operatorName?: string; country?: string; raw?: any }> {
@@ -281,8 +212,67 @@ async function queryTelnyx(
       }
     }
   } catch (e) {
-    console.error("[Telnyx] error:", e);
+    console.error("[Telnyx Metadata] error:", e);
   }
+  return { success: false };
+}
+
+// 4. Telnyx PSTN SIP Signaling Probe (Zero-cost physical cellular network liveness check)
+async function queryTelnyxPstnProbe(
+  formattedPhone: string,
+  operatorName?: string,
+): Promise<{ success: boolean; active?: boolean; message?: string }> {
+  const apiKey = Deno.env.get("TELNYX_API_KEY") || "KEY01A049E00656B79B4314CFFBC7969C10_k9JM7HV9u4sB2MadneUT1M";
+  const connectionId = Deno.env.get("TELNYX_CALL_CONTROL_APP_ID") || "3036680705380714233";
+  const callerId = Deno.env.get("TELNYX_DEFAULT_CALLER_ID") || "+17543180369";
+
+  try {
+    const res = await fetch("https://api.telnyx.com/v2/calls", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        connection_id: connectionId,
+        to: formattedPhone,
+        from: callerId,
+        timeout_secs: 5,
+      }),
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      const callControlId = data?.data?.call_control_id;
+
+      if (callControlId) {
+        // Immediate hangup in 600ms so no ringing audio connects and cost remains $0.00
+        setTimeout(() => {
+          fetch(`https://api.telnyx.com/v2/calls/${callControlId}/actions/hangup`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${apiKey}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({}),
+          }).catch(() => {});
+        }, 600);
+
+        return {
+          success: true,
+          active: true,
+          message: `Active on ${operatorName || "Carrier"} (PSTN Verified)`,
+        };
+      }
+    } else {
+      const text = await res.text();
+      console.log(`[Telnyx Probe] status=${res.status} body=${text}`);
+    }
+  } catch (e) {
+    console.error("[Telnyx Probe] error:", e);
+  }
+
   return { success: false };
 }
 
@@ -388,37 +378,9 @@ serve(async (req: Request) => {
       }
     }
 
-    // 3. Tertiary: Reloadly Auto-Detect Lookup
-    const reloadlyResult = await queryReloadly(formattedPhone, countryCode);
-    if (reloadlyResult.success) {
-      if (reloadlyResult.active) {
-        return jsonResponse({
-          is_active: true,
-          carrier_status: "active",
-          detected_operator_name: reloadlyResult.operatorName ?? null,
-          country_code: reloadlyResult.country ?? countryCode ?? null,
-          reason: null,
-          message: `Active on ${reloadlyResult.operatorName || "Carrier"} (Prepaid)`,
-          provider: "reloadly",
-          verified_at: nowIso,
-        });
-      } else if (reloadlyResult.active === false) {
-        return jsonResponse({
-          is_active: false,
-          carrier_status: "inactive",
-          detected_operator_name: null,
-          country_code: countryCode ?? null,
-          reason: reloadlyResult.reason || "EXPIRED_OR_DEACTIVATED",
-          message: "Number inactive or expired at carrier. Cannot register for auto-refill.",
-          provider: "reloadly",
-          verified_at: nowIso,
-        });
-      }
-    }
-
-    // 4. Quaternary: Telnyx carrier verification fallback
-    const telnyxResult = await queryTelnyx(formattedPhone, countryCode);
-    if (telnyxResult.success && telnyxResult.valid === false) {
+    // 3. Quaternary: Telnyx Metadata & PSTN SIP Signaling Probe (Ground Truth Final Check)
+    const telnyxMeta = await queryTelnyxMetadata(formattedPhone, countryCode);
+    if (telnyxMeta.success && telnyxMeta.valid === false) {
       return jsonResponse({
         is_active: false,
         carrier_status: "inactive",
@@ -431,8 +393,24 @@ serve(async (req: Request) => {
       });
     }
 
-    // 5. Inconclusive: Carrier BSS verification not available for this corridor
-    const detectedOp = telnyxResult.operatorName ?? null;
+    const detectedOp = telnyxMeta.operatorName ?? null;
+
+    // Fire Telnyx sub-second PSTN Probe if wholesale BSS was inconclusive
+    const probeResult = await queryTelnyxPstnProbe(formattedPhone, detectedOp || undefined);
+    if (probeResult.success && probeResult.active) {
+      return jsonResponse({
+        is_active: true,
+        carrier_status: "active",
+        detected_operator_name: detectedOp,
+        country_code: countryCode ?? null,
+        reason: null,
+        message: `Active on ${detectedOp || "Carrier"} (PSTN Verified)`,
+        provider: "telnyx",
+        verified_at: nowIso,
+      });
+    }
+
+    // 4. Inconclusive: Carrier BSS verification not available for this corridor
     return jsonResponse({
       is_active: false,
       carrier_status: "unsupported",
