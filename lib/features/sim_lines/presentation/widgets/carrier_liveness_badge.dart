@@ -5,13 +5,14 @@ import 'package:keep_sims/core/utils/build_context_extension.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_liveness_result.dart';
 
 /// An interactive Carrier BSS Liveness & Activity Verification Badge.
-/// Displays live verification status directly from wholesale B2B gateways (DTOne, Zendit, Ding).
-/// Includes a manual "Check Line" button and clear guidance labels.
+/// Displays live verification status directly from wholesale B2B gateways (DTOne & Zendit).
+/// Provides an explicit "Check Line" button and a "Verify via Call or SMS" fallback for unmapped MVNOs.
 class CarrierLivenessBadge extends StatelessWidget {
   final SimLivenessResult? result;
   final bool isLoading;
   final VoidCallback? onCheck;
   final VoidCallback? onRetry;
+  final VoidCallback? onOtpVerify;
 
   const CarrierLivenessBadge({
     super.key,
@@ -19,6 +20,7 @@ class CarrierLivenessBadge extends StatelessWidget {
     this.isLoading = false,
     this.onCheck,
     this.onRetry,
+    this.onOtpVerify,
   });
 
   @override
@@ -190,7 +192,7 @@ class CarrierLivenessBadge extends StatelessWidget {
       titleText = result!.message.isNotEmpty
           ? result!.message
           : 'Carrier verification unavailable for this corridor';
-      subtitleText = 'Could not verify active status with carrier. If this SIM has expired without refills, auto-refills will fail.';
+      subtitleText = 'Could not verify active status with carrier BSS. You can verify this line with a quick Voice Call or SMS code.';
     } else {
       return const SizedBox.shrink();
     }
@@ -201,57 +203,90 @@ class CarrierLivenessBadge extends StatelessWidget {
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
       margin: const EdgeInsets.only(top: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         color: cardBg,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: borderColor, width: 1.2),
       ),
-      child: Row(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 2),
-            child: Icon(iconData, color: iconColor, size: 18),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  titleText,
-                  style: AppTextStyles.caption.copyWith(
-                    color: isDark ? Colors.white : Colors.black87,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 13,
-                  ),
-                ),
-                if (subtitleText.isNotEmpty) ...[
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitleText,
-                    style: AppTextStyles.caption.copyWith(
-                      color: isDark
-                          ? AppColors.textSecondaryDark
-                          : AppColors.textSecondaryLight,
-                      fontSize: 11,
-                      height: 1.3,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: Icon(iconData, color: iconColor, size: 18),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      titleText,
+                      style: AppTextStyles.caption.copyWith(
+                        color: isDark ? Colors.white : Colors.black87,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                      ),
                     ),
-                  ),
-                ],
-              ],
-            ),
+                    if (subtitleText.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        subtitleText,
+                        style: AppTextStyles.caption.copyWith(
+                          color: isDark
+                              ? AppColors.textSecondaryDark
+                              : AppColors.textSecondaryLight,
+                          fontSize: 11,
+                          height: 1.3,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              if (effectiveRetry != null)
+                IconButton(
+                  icon: Icon(Icons.refresh_rounded, size: 18, color: iconColor),
+                  onPressed: effectiveRetry,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  tooltip: 'Re-verify carrier status',
+                ),
+            ],
           ),
-          if (effectiveRetry != null)
-            IconButton(
-              icon: Icon(Icons.refresh_rounded, size: 18, color: iconColor),
-              onPressed: effectiveRetry,
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-              tooltip: 'Re-verify carrier status',
+
+          // Fallback OTP Action Button for Inconclusive / Unsupported Corridors (e.g. FRiENDi Oman)
+          if (isUnsupported && onOtpVerify != null) ...[
+            const SizedBox(height: 10),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: onOtpVerify,
+                icon: const Icon(Icons.phone_in_talk_rounded, size: 15),
+                label: const Text('Verify via Voice Call or SMS Code'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFF59E0B),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  minimumSize: const Size(0, 36),
+                  textStyle: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  elevation: 0,
+                ),
+              ),
             ),
+          ],
         ],
       ),
     );

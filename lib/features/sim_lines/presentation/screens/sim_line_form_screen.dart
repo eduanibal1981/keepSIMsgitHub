@@ -26,6 +26,7 @@ import 'package:keep_sims/features/sim_lines/presentation/widgets/carrier_activi
 import 'package:keep_sims/features/sim_lines/presentation/widgets/carrier_rules_sheet.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_liveness_result.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/carrier_liveness_badge.dart';
+import 'package:keep_sims/features/sim_lines/presentation/widgets/sim_otp_verification_sheet.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '../../data/models/carrier_rule_model.dart';
@@ -161,6 +162,37 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
           _isCheckingLiveness = false;
         });
       }
+    }
+  }
+
+  Future<void> _openOtpVerification() async {
+    if (!mounted || _selectedCountry == null) return;
+    String localNumber = _phoneController.text.trim();
+    if (localNumber.startsWith('0')) {
+      localNumber = localNumber.substring(1);
+    }
+    if (localNumber.length < 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter your complete phone number first.'),
+          backgroundColor: AppColors.warning,
+        ),
+      );
+      return;
+    }
+
+    final fullNumber = '${_selectedCountry!.dialingCode}$localNumber';
+    final result = await SimOtpVerificationSheet.show(
+      context,
+      fullPhoneNumber: fullNumber,
+      carrierName: _selectedCarrier?.name,
+      countryCode: _selectedCountry?.isoCode,
+    );
+
+    if (result != null && mounted) {
+      setState(() {
+        _livenessResult = result;
+      });
     }
   }
 
@@ -373,6 +405,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                       isLoading: _isCheckingLiveness,
                       onCheck: _triggerLivenessCheck,
                       onRetry: _triggerLivenessCheck,
+                      onOtpVerify: _openOtpVerification,
                     ),
                     const SizedBox(height: 24),
 

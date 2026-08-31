@@ -34,6 +34,7 @@ import 'package:keep_sims/features/sim_lines/presentation/widgets/carrier_activi
 import 'package:keep_sims/features/sim_lines/presentation/widgets/carrier_rules_sheet.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_liveness_result.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/carrier_liveness_badge.dart';
+import 'package:keep_sims/features/sim_lines/presentation/widgets/sim_otp_verification_sheet.dart';
 import 'package:keep_sims/l10n/app_localizations.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
@@ -205,6 +206,37 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           _isCheckingLiveness = false;
         });
       }
+    }
+  }
+
+  Future<void> _openSimOtpVerification() async {
+    if (!mounted || _selectedSimCountry == null) return;
+    String localNumber = _simPhoneController.text.trim();
+    if (localNumber.startsWith('0')) {
+      localNumber = localNumber.substring(1);
+    }
+    if (localNumber.length < 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter your complete phone number first.'),
+          backgroundColor: AppColors.warning,
+        ),
+      );
+      return;
+    }
+
+    final fullNumber = '${_selectedSimCountry!.dialingCode}$localNumber';
+    final result = await SimOtpVerificationSheet.show(
+      context,
+      fullPhoneNumber: fullNumber,
+      carrierName: _selectedSimCarrier?.name,
+      countryCode: _selectedSimCountry?.isoCode,
+    );
+
+    if (result != null && mounted) {
+      setState(() {
+        _simLivenessResult = result;
+      });
     }
   }
 
@@ -1149,6 +1181,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             isLoading: _isCheckingLiveness,
             onCheck: _triggerSimLivenessCheck,
             onRetry: _triggerSimLivenessCheck,
+            onOtpVerify: _openSimOtpVerification,
           ),
           const SizedBox(height: 24),
 

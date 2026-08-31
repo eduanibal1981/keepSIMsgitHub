@@ -1005,10 +1005,82 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
         } catch (_) {}
       }
       return SimLivenessResult(
+  @override
+  Future<Map<String, dynamic>> sendSimOtp({
+    required String phoneNumber,
+    required String channel,
+    String? countryCode,
+  }) async {
+    final cleanPhone = phoneNumber.trim();
+    try {
+      final response = await _supabase.functions.invoke(
+        'send-sim-otp',
+        body: {
+          'phoneNumber': cleanPhone,
+          'channel': channel,
+          if (countryCode != null && countryCode.isNotEmpty)
+            'countryCode': countryCode,
+        },
+      );
+
+      if (response.data != null) {
+        final Map<String, dynamic> data = response.data is String
+            ? jsonDecode(response.data as String) as Map<String, dynamic>
+            : (response.data as Map<String, dynamic>);
+        return data;
+      }
+      return {'success': false, 'message': 'Unexpected response from server.'};
+    } catch (e) {
+      return {'success': false, 'message': e.toString()};
+    }
+  }
+
+  @override
+  Future<SimLivenessResult> verifySimOtp({
+    required String phoneNumber,
+    required String code,
+    String? operatorName,
+    String? countryCode,
+  }) async {
+    final cleanPhone = phoneNumber.trim();
+    final cacheKey = 'liveness_$cleanPhone';
+
+    try {
+      final response = await _supabase.functions.invoke(
+        'verify-sim-otp',
+        body: {
+          'phoneNumber': cleanPhone,
+          'code': code.trim(),
+          if (operatorName != null && operatorName.isNotEmpty)
+            'operatorName': operatorName,
+          if (countryCode != null && countryCode.isNotEmpty)
+            'countryCode': countryCode,
+        },
+      );
+
+      if (response.data != null) {
+        final Map<String, dynamic> data = response.data is String
+            ? jsonDecode(response.data as String) as Map<String, dynamic>
+            : (response.data as Map<String, dynamic>);
+
+        final result = SimLivenessResult.fromJson(data);
+        if (result.isActive) {
+          await _cache.writeJson(cacheKey, data);
+        }
+        return result;
+      }
+
+      return SimLivenessResult(
         isActive: false,
         carrierStatus: 'unsupported',
-        reason: e.toString(),
-        message: 'Carrier verification unavailable for this corridor.',
+        message: 'Could not verify code. Please try again.',
+        verifiedAt: DateTime.now(),
+      );
+    } catch (e) {
+      return SimLivenessResult(
+        isActive: false,
+        carrierStatus: 'unsupported',
+        message: 'Verification failed: $e',
         verifiedAt: DateTime.now(),
       );
     }

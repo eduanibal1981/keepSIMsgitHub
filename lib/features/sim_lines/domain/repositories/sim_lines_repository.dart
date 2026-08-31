@@ -11,6 +11,17 @@ import 'package:keep_sims/features/sim_lines/data/datasources/telnyx_verificatio
 abstract class SimLinesRepository {
   Future<List<SimLine>> getSimLines();
   Future<SimLivenessResult> validateSimLiveness(String phoneNumber, {String? countryCode});
+  Future<Map<String, dynamic>> sendSimOtp({
+    required String phoneNumber,
+    required String channel,
+    String? countryCode,
+  });
+  Future<SimLivenessResult> verifySimOtp({
+    required String phoneNumber,
+    required String code,
+    String? operatorName,
+    String? countryCode,
+  });
   Future<SimLine> addSimLine(SimLine line);
   Future<SimLine> updateSimLine(SimLine line);
   Future<void> deleteSimLine(String id);
