@@ -86,27 +86,39 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
 
   void _onPhoneInputChanged() {
     _livenessDebounce?.cancel();
-    final text = _phoneController.text.trim();
-    if (text.length >= 6 && _selectedCountry != null) {
-      _livenessDebounce = Timer(const Duration(milliseconds: 700), () {
-        _triggerLivenessCheck();
+    // Clear previous verification result so user can explicitly verify the updated digits
+    if (_livenessResult != null) {
+      setState(() {
+        _livenessResult = null;
       });
-    } else if (text.length < 6) {
-      if (_livenessResult != null) {
-        setState(() {
-          _livenessResult = null;
-        });
-      }
     }
   }
 
   Future<void> _triggerLivenessCheck() async {
-    if (!mounted || _selectedCountry == null) return;
+    if (!mounted) return;
+    if (_selectedCountry == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select a country first.'),
+          backgroundColor: AppColors.warning,
+        ),
+      );
+      return;
+    }
+
     String localNumber = _phoneController.text.trim();
     if (localNumber.startsWith('0')) {
       localNumber = localNumber.substring(1);
     }
-    if (localNumber.length < 6) return;
+    if (localNumber.length < 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter your complete phone number first.'),
+          backgroundColor: AppColors.warning,
+        ),
+      );
+      return;
+    }
 
     final fullNumber = '${_selectedCountry!.dialingCode}$localNumber';
 
@@ -143,6 +155,14 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
           }
         }
       }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _isCheckingLiveness = false;
+        });
+      }
+    }
+  }
     } catch (_) {
       if (mounted) {
         setState(() {
@@ -359,6 +379,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                     CarrierLivenessBadge(
                       result: _livenessResult,
                       isLoading: _isCheckingLiveness,
+                      onCheck: _triggerLivenessCheck,
                       onRetry: _triggerLivenessCheck,
                     ),
                     const SizedBox(height: 24),
@@ -1353,11 +1374,10 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                                       onTap: () {
                                         setState(() {
                                           _selectedCountry = c;
-                                          _selectedCarrier =
-                                              null; // Reset carrier
+                                          _selectedCarrier = null; // Reset carrier
+                                          _livenessResult = null; // Reset verification
                                         });
                                         Navigator.pop(context);
-                                        _triggerLivenessCheck();
                                       },
                                     ),
                                   );

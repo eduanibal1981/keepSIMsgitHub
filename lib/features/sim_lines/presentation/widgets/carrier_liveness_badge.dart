@@ -4,17 +4,20 @@ import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/core/utils/build_context_extension.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_liveness_result.dart';
 
-/// A real-time Carrier BSS Liveness & Activity Verification Badge.
-/// Displays live verification status directly from wholesale B2B gateways (Zendit & DTOne).
+/// An interactive Carrier BSS Liveness & Activity Verification Badge.
+/// Displays live verification status directly from wholesale B2B gateways (DTOne, Zendit, Ding).
+/// Includes a manual "Check Line" button and clear guidance labels.
 class CarrierLivenessBadge extends StatelessWidget {
   final SimLivenessResult? result;
   final bool isLoading;
+  final VoidCallback? onCheck;
   final VoidCallback? onRetry;
 
   const CarrierLivenessBadge({
     super.key,
     this.result,
     this.isLoading = false,
+    this.onCheck,
     this.onRetry,
   });
 
@@ -22,36 +25,52 @@ class CarrierLivenessBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = context.isDarkMode;
 
+    // 1. Loading State
     if (isLoading) {
       return Container(
         margin: const EdgeInsets.only(top: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
-          color: (isDark ? AppColors.darkCard : Colors.white).withValues(alpha: 0.8),
+          color: (isDark ? AppColors.darkCard : Colors.white).withValues(alpha: 0.9),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: (isDark ? AppColors.primaryLight : AppColors.lightPrimary).withValues(alpha: 0.3),
+            color: (isDark ? AppColors.primaryLight : AppColors.lightPrimary).withValues(alpha: 0.35),
             width: 1.2,
           ),
         ),
         child: Row(
           children: [
             const SizedBox(
-              width: 16,
-              height: 16,
+              width: 18,
+              height: 18,
               child: CircularProgressIndicator(
                 strokeWidth: 2,
                 color: AppColors.primary,
               ),
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: 12),
             Expanded(
-              child: Text(
-                'Checking carrier line status...',
-                style: AppTextStyles.caption.copyWith(
-                  color: isDark ? AppColors.primaryLight : AppColors.lightPrimary,
-                  fontWeight: FontWeight.w600,
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Verifying line with carrier...',
+                    style: AppTextStyles.caption.copyWith(
+                      color: isDark ? AppColors.primaryLight : AppColors.lightPrimary,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'Connecting to carrier BSS registry',
+                    style: AppTextStyles.caption.copyWith(
+                      color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                      fontSize: 10.5,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -59,10 +78,81 @@ class CarrierLivenessBadge extends StatelessWidget {
       );
     }
 
+    // 2. Unchecked State: Show prompt & "Check Line" Action Button
     if (result == null) {
-      return const SizedBox.shrink();
+      return Container(
+        margin: const EdgeInsets.only(top: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: isDark
+              ? AppColors.darkCard.withValues(alpha: 0.7)
+              : const Color(0xFFF1F5F9),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: (isDark ? AppColors.darkBorder : const Color(0xFFCBD5E1)).withValues(alpha: 0.8),
+            width: 1.2,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.verified_user_outlined,
+              size: 20,
+              color: isDark ? AppColors.primaryLight : AppColors.lightPrimary,
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Carrier Liveness Check',
+                    style: AppTextStyles.caption.copyWith(
+                      color: isDark ? Colors.white : Colors.black87,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 12,
+                    ),
+                  ),
+                  const SizedBox(height: 1),
+                  Text(
+                    'Tap "Check Line" to verify carrier status',
+                    style: AppTextStyles.caption.copyWith(
+                      color: isDark
+                          ? AppColors.textSecondaryDark
+                          : AppColors.textSecondaryLight,
+                      fontSize: 10.5,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (onCheck != null)
+              ElevatedButton.icon(
+                onPressed: onCheck,
+                icon: const Icon(Icons.bolt_rounded, size: 14),
+                label: const Text('Check Line'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  minimumSize: const Size(0, 32),
+                  textStyle: const TextStyle(
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  elevation: 0,
+                ),
+              ),
+          ],
+        ),
+      );
     }
 
+    // 3. Checked State: Result Badges (Active, Inactive, Unsupported)
     final status = result!.carrierStatus.toLowerCase();
     final isActive = status == 'active' && result!.isActive;
     final isInactive = status == 'inactive';
@@ -104,6 +194,8 @@ class CarrierLivenessBadge extends StatelessWidget {
     } else {
       return const SizedBox.shrink();
     }
+
+    final effectiveRetry = onRetry ?? onCheck;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
@@ -152,10 +244,10 @@ class CarrierLivenessBadge extends StatelessWidget {
               ],
             ),
           ),
-          if (onRetry != null && (isInactive || isUnsupported))
+          if (effectiveRetry != null)
             IconButton(
-              icon: Icon(Icons.refresh_rounded, size: 16, color: iconColor),
-              onPressed: onRetry,
+              icon: Icon(Icons.refresh_rounded, size: 18, color: iconColor),
+              onPressed: effectiveRetry,
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
               tooltip: 'Re-verify carrier status',

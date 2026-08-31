@@ -130,27 +130,39 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   void _onSimPhoneChanged() {
     _livenessDebounce?.cancel();
-    final text = _simPhoneController.text.trim();
-    if (text.length >= 6 && _selectedSimCountry != null) {
-      _livenessDebounce = Timer(const Duration(milliseconds: 700), () {
-        _triggerSimLivenessCheck();
+    // Clear previous verification result so user can explicitly verify the updated digits
+    if (_simLivenessResult != null) {
+      setState(() {
+        _simLivenessResult = null;
       });
-    } else if (text.length < 6) {
-      if (_simLivenessResult != null) {
-        setState(() {
-          _simLivenessResult = null;
-        });
-      }
     }
   }
 
   Future<void> _triggerSimLivenessCheck() async {
-    if (!mounted || _selectedSimCountry == null) return;
+    if (!mounted) return;
+    if (_selectedSimCountry == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select a country first.'),
+          backgroundColor: AppColors.warning,
+        ),
+      );
+      return;
+    }
+
     String localNumber = _simPhoneController.text.trim();
     if (localNumber.startsWith('0')) {
       localNumber = localNumber.substring(1);
     }
-    if (localNumber.length < 6) return;
+    if (localNumber.length < 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter your complete phone number first.'),
+          backgroundColor: AppColors.warning,
+        ),
+      );
+      return;
+    }
 
     final fullNumber = '${_selectedSimCountry!.dialingCode}$localNumber';
 
@@ -1028,8 +1040,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     setState(() {
                       _selectedSimCountry = val;
                       _selectedSimCarrier = null; // Reset carrier
+                      _simLivenessResult = null; // Reset verification
                     });
-                    _triggerSimLivenessCheck();
                   }
                 },
               ),
@@ -1135,6 +1147,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           CarrierLivenessBadge(
             result: _simLivenessResult,
             isLoading: _isCheckingLiveness,
+            onCheck: _triggerSimLivenessCheck,
             onRetry: _triggerSimLivenessCheck,
           ),
           const SizedBox(height: 24),
