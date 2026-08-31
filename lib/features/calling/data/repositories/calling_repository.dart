@@ -108,6 +108,12 @@ class CallingRepository {
         .map((list) => list.map((e) => CallRecord.fromJson(e)).toList());
   }
 
+  /// List user's verified Caller IDs
+  Future<List<CallerIdModel>> getUserCallerIds() async {
+    final res = await getCallerIdList();
+    return res.callerIds;
+  }
+
   /// List user's verified Caller IDs and system gateway
   Future<CallerIdListResult> getCallerIdList() async {
     final res = await _supabase.functions.invoke(
