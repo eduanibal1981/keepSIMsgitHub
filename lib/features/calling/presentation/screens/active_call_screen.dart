@@ -31,6 +31,27 @@ class ActiveCallScreen extends ConsumerWidget {
         callState.status == 'declined' ||
         callState.status == 'failed';
 
+    final String statusBadgeText;
+    if (isConnected) {
+      statusBadgeText = 'CALL CONNECTED';
+    } else if (isRinging) {
+      statusBadgeText = 'RINGING...';
+    } else if (isConnecting) {
+      statusBadgeText = 'CALLING...';
+    } else if (callState.status == 'busy') {
+      statusBadgeText = 'LINE BUSY';
+    } else if (callState.status == 'no_answer') {
+      statusBadgeText = 'NO ANSWER';
+    } else if (callState.status == 'declined') {
+      statusBadgeText = 'CALL DECLINED';
+    } else if (callState.status == 'cancelled') {
+      statusBadgeText = 'CALL CANCELLED';
+    } else if (callState.status == 'failed') {
+      statusBadgeText = 'CALL FAILED';
+    } else {
+      statusBadgeText = 'CALL ENDED';
+    }
+
     return Scaffold(
       backgroundColor: const Color(0xFF0D141C),
       body: SafeArea(
@@ -46,68 +67,92 @@ class ActiveCallScreen extends ConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         // ── Top Connection Status Badge ──
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: isConnected
-                                ? AppColors.secondary.withValues(alpha: 0.15)
-                                : isRinging
-                                    ? AppColors.primary.withValues(alpha: 0.15)
-                                    : isEnded
-                                        ? AppColors.error.withValues(alpha: 0.15)
-                                        : Colors.white.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                              color: isConnected
-                                  ? AppColors.secondary
-                                  : isRinging
-                                      ? AppColors.primary
-                                      : isEnded
-                                          ? AppColors.error
-                                          : Colors.white24,
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                width: 8,
-                                height: 8,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: isConnected
+                                    ? AppColors.secondary.withValues(alpha: 0.15)
+                                    : isRinging
+                                        ? AppColors.primary.withValues(alpha: 0.15)
+                                        : isEnded
+                                            ? AppColors.error.withValues(alpha: 0.15)
+                                            : Colors.white.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
                                   color: isConnected
                                       ? AppColors.secondary
                                       : isRinging
                                           ? AppColors.primary
                                           : isEnded
                                               ? AppColors.error
-                                              : Colors.white70,
+                                              : Colors.white24,
                                 ),
                               ),
-                              const SizedBox(width: 8),
-                              Text(
-                                isConnected
-                                    ? 'CALL CONNECTED'
-                                    : isRinging
-                                        ? 'RINGING...'
-                                        : isConnecting
-                                            ? 'CALLING...'
-                                            : (callState.errorMessage ?? 'CALL ENDED').toUpperCase(),
-                                style: TextStyle(
-                                  color: isConnected
-                                      ? AppColors.secondary
-                                      : isRinging
-                                          ? AppColors.primary
-                                          : isEnded
-                                              ? AppColors.error
-                                              : Colors.white70,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: 0.8,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Container(
+                                    width: 8,
+                                    height: 8,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: isConnected
+                                          ? AppColors.secondary
+                                          : isRinging
+                                              ? AppColors.primary
+                                              : isEnded
+                                                  ? AppColors.error
+                                                  : Colors.white70,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    statusBadgeText,
+                                    style: TextStyle(
+                                      color: isConnected
+                                          ? AppColors.secondary
+                                          : isRinging
+                                              ? AppColors.primary
+                                              : isEnded
+                                                  ? AppColors.error
+                                                  : Colors.white70,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700,
+                                      letterSpacing: 0.8,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            if (callState.errorMessage != null &&
+                                callState.errorMessage!.isNotEmpty &&
+                                isEnded) ...[
+                              const SizedBox(height: 10),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: AppColors.error.withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(color: AppColors.error.withValues(alpha: 0.3)),
+                                ),
+                                child: Text(
+                                  callState.errorMessage!,
+                                  textAlign: TextAlign.center,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    color: AppColors.error,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
                               ),
                             ],
-                          ),
+                          ],
                         ),
 
                         const SizedBox(height: 20),

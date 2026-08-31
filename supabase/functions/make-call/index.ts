@@ -100,7 +100,6 @@ serve(async (req: Request) => {
         return jsonResponse({ success: false, errorMessage: "callId is required for hangup" }, 400);
       }
 
-      // Fetch call record to get call_control_id
       const recRes = await fetch(`${SUPABASE_URL}/rest/v1/call_records?id=eq.${callId}&user_id=eq.${userId}&select=*`, {
         headers: serviceHeaders,
       });
@@ -170,8 +169,6 @@ serve(async (req: Request) => {
     const cleanDest = destinationNumber.replace(/\s+/g, "");
     const userVerifiedNumber = await fetchUserDefaultCallerId(userId);
 
-    // If user has a verified phone number, present it as Caller ID!
-    // If calling their own phone, fallback to default gateway to prevent telecom self-loop block.
     let fromNumber = defaultCallerId;
     if (userVerifiedNumber && userVerifiedNumber !== cleanDest) {
       fromNumber = userVerifiedNumber;
@@ -179,7 +176,7 @@ serve(async (req: Request) => {
       fromNumber = userCallbackNumber;
     }
 
-    // 5. Create initial pending call record
+    // 5. Create initial pending call record with valid status "initiated"
     const insertCallRes = await fetch(`${SUPABASE_URL}/rest/v1/call_records`, {
       method: "POST",
       headers: { ...serviceHeaders, "Prefer": "return=representation" },
@@ -192,7 +189,7 @@ serve(async (req: Request) => {
         destination_country_code: rateData.country_code,
         destination_country_name: rateData.country_name,
         rate_per_minute_usd: rateData.rate_per_minute_usd,
-        status: "initiating",
+        status: "initiated",
       }),
     });
 
@@ -261,7 +258,7 @@ serve(async (req: Request) => {
     return jsonResponse({
       success: true,
       callId: callRecord.id,
-      status: "initiating",
+      status: "initiated",
       destination: {
         number: cleanDest,
         countryName: rateData.country_name,

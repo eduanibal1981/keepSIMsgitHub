@@ -3,6 +3,7 @@ library;
 
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:keep_sims/features/calling/data/models/call_rate_model.dart';
 import 'package:keep_sims/features/calling/data/models/call_record_model.dart';
 import 'package:keep_sims/features/calling/data/models/caller_id_model.dart';
@@ -130,8 +131,28 @@ class CallingController extends Notifier<ActiveCallState> {
       }
     } catch (e) {
       _stopDurationTicker();
-      String rawMsg = e.toString().replaceAll('Exception: ', '').replaceAll('FunctionException', '');
-      if (rawMsg.contains('insufficient_funds')) {
+      String rawMsg = 'Failed to initiate call';
+      if (e is FunctionException) {
+        final details = e.details;
+        if (details is Map && details['errorMessage'] != null) {
+          rawMsg = details['errorMessage'].toString();
+        } else if (details is Map && details['error'] != null) {
+          rawMsg = details['error'].toString();
+        } else if (details is Map && details['message'] != null) {
+          rawMsg = details['message'].toString();
+        } else if (e.reasonPhrase != null && e.reasonPhrase!.isNotEmpty) {
+          rawMsg = e.reasonPhrase!;
+        } else if (details is String && details.isNotEmpty) {
+          rawMsg = details;
+        } else {
+          rawMsg = 'Call request failed (${e.status}).';
+        }
+      } else {
+        rawMsg = e.toString().replaceAll('Exception: ', '').trim();
+      }
+
+      if (rawMsg.toLowerCase().contains('insufficient_funds') ||
+          rawMsg.toLowerCase().contains('insufficient balance')) {
         rawMsg = 'Insufficient wallet balance. Please top up your wallet.';
       }
       state = state.copyWith(
