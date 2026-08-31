@@ -3942,3 +3942,34 @@ event the card shows the client's idea of the row. Harmless for the fields on th
 the realtime refresh covers the case that mattered — but it is the reason to reach for a re-read
 before adding any new server-computed column to that card. The SIM line **detail** screen has its
 own `simLineDetailControllerProvider` and is not covered by this subscription.
+
+---
+
+## 13. Phase K — International Calling & Outbound Caller ID Management (Live 2026-08-31)
+
+### 13.1 Overview & Architecture
+International App-to-Phone Calling is implemented as a pay-per-second VoIP service using **Telnyx Voice API** orchestrated by Supabase Edge Functions and PostgreSQL.
+
+* **No Physical SIM Required**: The app dials over IP (Wi-Fi or cellular data) from any device (Android emulator, physical phone, tablet).
+* **Dual Caller ID Routing Architecture**:
+  1. **KeepSIMs Voice Gateway (`+1 754 318 0369`)**: Dedicated global gateway DID configured in `system_configs.TELNYX_DEFAULT_CALLER_ID`. Bypasses domestic in-country CLI spoofing firewalls enforced by carriers in Oman (Omantel, Ooredoo, Vodafone) and other GCC countries.
+  2. **Personal Verified Numbers**: Allows subscribers to present their real mobile number (e.g., `+968 9399 0492`) after completing 6-digit SMS or Voice Call OTP verification via Telnyx Verified Numbers API.
+* **Per-Second Billing Engine**:
+  * Unanswered, busy, declined, or network announcement calls are billed at **$0.0000** (0 cents).
+  * Answered calls are billed per-second based on the active `call_rates` table (`rate_per_minute / 60.0`), atomically debited from the user's wallet upon call completion.
+
+### 13.2 Edge Functions Deployed
+* **`make-call` (v7)**: Initiates outbound Telnyx Call Control sessions with `connection_id: 3036680705380714233`, sets initial status to `'initiated'`, and handles user hangup actions (`action: 'hangup'`).
+* **`telnyx-cdr` (v2)**: Webhook endpoint processing Telnyx Call Control events (`call.initiated`, `call.ringing`, `call.answered`, `call.hangup`). Automatically updates `call_records` table and executes atomic wallet deductions on answered calls.
+* **`manage-caller-id` (v3)**: Handles OTP verification (SMS and Voice Call), checks pre-verified Telnyx numbers, lists user caller IDs, switches active defaults, and allows number deletion.
+
+### 13.3 Realtime & Database Hardening
+* **Postgres Constraint Expansion**: Updated `call_records_status_check` to accept `ARRAY['initiating', 'initiated', 'ringing', 'in_progress', 'completed', 'busy', 'failed', 'no_answer', 'cancelled', 'declined']`.
+* **Supabase Realtime Publication**: Added `public.call_records` and `public.user_caller_ids` to `supabase_realtime` so Flutter client streams receive live carrier status transitions instantly.
+* **Controller Resilience**: Added a 2-second polling fallback in `CallingController` alongside the Realtime stream to ensure the UI transitions out of `RINGING...` even if WebSocket connections experience packet drop.
+
+### 13.4 UI & UX Capabilities
+* **`CallerIdPickerSheet`**: Bottom modal allowing one-tap switching between KeepSIMs Voice Gateway and any verified personal numbers, number deletion, and launching the SMS/Voice OTP verification sheet.
+* **Dialer Screen (`CallingScreen`)**: Dynamic top banner displaying active Outbound Caller ID with status badge (`DEFAULT` vs `VERIFIED`), country rate chips, live dialpad, and recent call history.
+* **Active Call Screen (`ActiveCallScreen`)**: Displays carrier status badges (`RINGING...`, `CALL CONNECTED`, `CALL ENDED`), live per-second cost counter, mute/speaker toggles, and instant hangup button.
+
