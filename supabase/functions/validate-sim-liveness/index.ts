@@ -1,5 +1,5 @@
 // validate-sim-liveness — KeepSIMs Carrier BSS Liveness & Activity Verification Edge Function
-// Zero-cost live Carrier BSS validation via wholesale gateways (DTOne, Zendit, DingConnect, Telnyx metadata).
+// Zero-cost live Carrier BSS validation via wholesale gateways (DTOne & Zendit BSS).
 
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.8";
@@ -17,7 +17,7 @@ interface LivenessValidationResponse {
   country_code: string | null;
   reason: string | null;
   message: string;
-  provider: "zendit" | "dtone" | "ding" | "telnyx" | "none";
+  provider: "zendit" | "dtone" | "telnyx" | "none";
   verified_at: string;
 }
 
@@ -184,35 +184,7 @@ async function queryZendit(
   return { success: false, reason: "INCONCLUSIVE" };
 }
 
-// 3. DingConnect Account Lookup
-async function queryDing(
-  formattedPhone: string,
-  countryCode?: string,
-): Promise<{ success: boolean; active?: boolean; operatorName?: string; country?: string; reason?: string }> {
-  const dingKey = Deno.env.get("DING_API_KEY") || "GREvSGrfbMT6Cm2V8IQFPd";
-  try {
-    const res = await fetch(`https://api.dingconnect.com/api/V1/GetAccountLookup?AccountNumber=${encodeURIComponent(formattedPhone)}`, {
-      headers: { api_key: dingKey },
-    });
-    if (res.ok) {
-      const data = await res.json();
-      if (data.ResultCode === 1 && Array.isArray(data.Items) && data.Items.length > 0) {
-        const item = data.Items[0];
-        return {
-          success: true,
-          active: true,
-          operatorName: item.ProviderCode ? cleanOperatorName(item.ProviderCode) : undefined,
-          country: data.CountryIso || countryCode,
-        };
-      }
-    }
-  } catch (e) {
-    console.error("[Ding] error:", e);
-  }
-  return { success: false, reason: "INCONCLUSIVE" };
-}
-
-// 4. Telnyx Number Lookup (Carrier network allocation metadata)
+// 3. Telnyx Number Lookup (Carrier network allocation metadata)
 async function queryTelnyxMetadata(
   formattedPhone: string,
   countryCode?: string,
@@ -291,7 +263,7 @@ serve(async (req: Request) => {
 
     const formattedPhone = formatMsisdn(phoneNumber);
 
-    // 1. Primary: DTOne BSS Lookup
+    // 1. Primary: DTOne BSS Lookup (Direct Live Subscriber Verification)
     const dtoneResult = await queryDTOne(formattedPhone, countryCode);
     if (dtoneResult.success) {
       if (dtoneResult.active) {
@@ -319,7 +291,7 @@ serve(async (req: Request) => {
       }
     }
 
-    // 2. Secondary: Zendit BSS Lookup
+    // 2. Secondary: Zendit BSS Lookup (Direct Live Subscriber Verification)
     const zenditResult = await queryZendit(formattedPhone, countryCode);
     if (zenditResult.success) {
       if (zenditResult.active) {
@@ -347,22 +319,7 @@ serve(async (req: Request) => {
       }
     }
 
-    // 3. Tertiary: DingConnect Account Lookup
-    const dingResult = await queryDing(formattedPhone, countryCode);
-    if (dingResult.success && dingResult.active) {
-      return jsonResponse({
-        is_active: true,
-        carrier_status: "active",
-        detected_operator_name: dingResult.operatorName ?? null,
-        country_code: dingResult.country ?? countryCode ?? null,
-        reason: null,
-        message: `Active on ${dingResult.operatorName || "Carrier"} (Prepaid)`,
-        provider: "ding",
-        verified_at: nowIso,
-      });
-    }
-
-    // 4. Quaternary: Telnyx Metadata Validation
+    // 3. Telnyx Metadata (Carrier range and brand detection)
     const telnyxMeta = await queryTelnyxMetadata(formattedPhone, countryCode);
     if (telnyxMeta.success && telnyxMeta.valid === false) {
       return jsonResponse({
@@ -379,8 +336,8 @@ serve(async (req: Request) => {
 
     const detectedOp = telnyxMeta.operatorName ?? null;
 
-    // 5. Inconclusive: Carrier BSS verification not available for this corridor
-    // (Ensures unmapped or dead lines are never falsely reported as active)
+    // 4. Inconclusive: Carrier BSS verification not available for this unmapped/dead corridor
+    // (Prevents dead or disconnected numbers like 90634453 from being falsely marked active)
     return jsonResponse({
       is_active: false,
       carrier_status: "unsupported",

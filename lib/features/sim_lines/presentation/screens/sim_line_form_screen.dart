@@ -163,14 +163,6 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
       }
     }
   }
-    } catch (_) {
-      if (mounted) {
-        setState(() {
-          _isCheckingLiveness = false;
-        });
-      }
-    }
-  }
 
   void _prepopulate(List<SimLine> lines, List<Country> countries) {
     if (_hasPrepopulated || !_isEdit || countries.isEmpty) return;
