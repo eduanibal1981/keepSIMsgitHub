@@ -70,6 +70,7 @@ serve(async (req: Request) => {
 
     const { action, phoneNumber, code, method, label } = await req.json();
     const telnyxApiKey = await fetchSystemConfig("TELNYX_API_KEY");
+    const defaultGateway = await fetchSystemConfig("TELNYX_DEFAULT_CALLER_ID", "+17543180369");
 
     if (!telnyxApiKey) {
       return jsonResponse({ success: false, errorMessage: "Telnyx API key not configured" }, 500);
@@ -181,7 +182,6 @@ serve(async (req: Request) => {
       const telnyxJson = await telnyxRes.json();
 
       if (!telnyxRes.ok) {
-        // If it failed because already verified on Telnyx
         const alreadyVerified = await checkIsNumberVerifiedOnTelnyx(telnyxApiKey, cleanNumber);
         if (!alreadyVerified) {
           const errDetail = telnyxJson.errors?.[0]?.detail || "Invalid or expired verification code";
@@ -222,7 +222,6 @@ serve(async (req: Request) => {
         { headers: serviceHeaders },
       );
       const rows = res.ok ? await res.json() : [];
-      const defaultGateway = await fetchSystemConfig("TELNYX_DEFAULT_CALLER_ID", "+17543180369");
 
       return jsonResponse({
         success: true,
@@ -231,19 +230,32 @@ serve(async (req: Request) => {
       }, 200);
     }
 
-    // ── 4. Set Default Caller ID ──
+    // ── 4. Set Default / Switch Caller ID ──
     if (action === "set_default") {
       if (!phoneNumber) {
         return jsonResponse({ success: false, errorMessage: "phoneNumber is required" }, 400);
       }
-      const cleanNumber = phoneNumber.trim().startsWith("+") ? phoneNumber.trim().replace(/\s+/g, "") : `+${phoneNumber.trim().replace(/\s+/g, "")}`;
-      const encodedNumber = encodeURIComponent(cleanNumber);
 
+      // Clear all defaults
       await fetch(`${SUPABASE_URL}/rest/v1/user_caller_ids?user_id=eq.${userId}`, {
         method: "PATCH",
         headers: serviceHeaders,
         body: JSON.stringify({ is_default: false }),
       });
+
+      // If user selected Gateway
+      if (phoneNumber === "gateway" || phoneNumber === defaultGateway) {
+        return jsonResponse({
+          success: true,
+          message: "KeepSIMs Gateway set as Outbound Caller ID",
+          isGateway: true,
+          activeCallerId: defaultGateway,
+        }, 200);
+      }
+
+      // User selected one of their verified numbers
+      const cleanNumber = phoneNumber.trim().startsWith("+") ? phoneNumber.trim().replace(/\s+/g, "") : `+${phoneNumber.trim().replace(/\s+/g, "")}`;
+      const encodedNumber = encodeURIComponent(cleanNumber);
 
       await fetch(`${SUPABASE_URL}/rest/v1/user_caller_ids?user_id=eq.${userId}&phone_number=eq.${encodedNumber}`, {
         method: "PATCH",
@@ -251,7 +263,28 @@ serve(async (req: Request) => {
         body: JSON.stringify({ is_default: true }),
       });
 
-      return jsonResponse({ success: true, message: "Default caller ID updated" }, 200);
+      return jsonResponse({
+        success: true,
+        message: `${cleanNumber} set as your Outbound Caller ID`,
+        isGateway: false,
+        activeCallerId: cleanNumber,
+      }, 200);
+    }
+
+    // ── 5. Delete Caller ID ──
+    if (action === "delete") {
+      if (!phoneNumber) {
+        return jsonResponse({ success: false, errorMessage: "phoneNumber is required" }, 400);
+      }
+      const cleanNumber = phoneNumber.trim().startsWith("+") ? phoneNumber.trim().replace(/\s+/g, "") : `+${phoneNumber.trim().replace(/\s+/g, "")}`;
+      const encodedNumber = encodeURIComponent(cleanNumber);
+
+      await fetch(`${SUPABASE_URL}/rest/v1/user_caller_ids?user_id=eq.${userId}&phone_number=eq.${encodedNumber}`, {
+        method: "DELETE",
+        headers: serviceHeaders,
+      });
+
+      return jsonResponse({ success: true, message: "Caller ID removed" }, 200);
     }
 
     return jsonResponse({ success: false, errorMessage: "Invalid action" }, 400);

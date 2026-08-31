@@ -10,7 +10,7 @@ import 'package:keep_sims/features/calling/presentation/controllers/calling_cont
 import 'package:keep_sims/features/calling/presentation/widgets/country_rate_chip.dart';
 import 'package:keep_sims/features/calling/presentation/widgets/dialpad_widget.dart';
 import 'package:keep_sims/features/calling/presentation/widgets/call_history_tile.dart';
-import 'package:keep_sims/features/calling/presentation/widgets/verify_caller_id_sheet.dart';
+import 'package:keep_sims/features/calling/presentation/widgets/caller_id_picker_sheet.dart';
 import 'package:keep_sims/core/router/app_router.dart';
 import 'package:keep_sims/features/wallet/controller/wallet_controller.dart';
 
@@ -64,7 +64,6 @@ class _CallingScreenState extends ConsumerState<CallingScreen> with SingleTicker
     final ratesAsync = ref.read(callRatesProvider);
     final rates = ratesAsync.asData?.value ?? [];
 
-    // Find longest matching prefix
     CallRate? matched;
     int maxLen = 0;
     for (final r in rates) {
@@ -76,12 +75,12 @@ class _CallingScreenState extends ConsumerState<CallingScreen> with SingleTicker
     _detectedRate = matched;
   }
 
-  void _openCallerIdVerification([String? initialNumber]) {
+  void _openCallerIdPicker() {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => VerifyCallerIdSheet(initialNumber: initialNumber),
+      builder: (context) => const CallerIdPickerSheet(),
     );
   }
 
@@ -105,7 +104,7 @@ class _CallingScreenState extends ConsumerState<CallingScreen> with SingleTicker
 
     ref.read(callingControllerProvider.notifier).startCall(
       destinationNumber: formattedNumber,
-      userCallbackNumber: activeCallerId ?? formattedNumber,
+      userCallbackNumber: activeCallerId ?? '+17543180369',
       rate: _detectedRate,
     );
 
@@ -117,10 +116,11 @@ class _CallingScreenState extends ConsumerState<CallingScreen> with SingleTicker
     final walletAsync = ref.watch(walletControllerProvider);
     final walletBalance = walletAsync.asData?.value.wallet.balance ?? 0.0;
     final ratesAsync = ref.watch(callRatesProvider);
-    final callerIdsAsync = ref.watch(userCallerIdsProvider);
+    final callerIdListAsync = ref.watch(callerIdListProvider);
 
-    final callerIds = callerIdsAsync.asData?.value ?? [];
+    final callerIds = callerIdListAsync.asData?.value.callerIds ?? [];
     final activeCallerId = callerIds.where((c) => c.isVerified && c.isDefault).firstOrNull;
+    final gatewayNumber = callerIdListAsync.asData?.value.defaultGatewayNumber ?? '+17543180369';
 
     return Scaffold(
       backgroundColor: AppColors.darkBg,
@@ -177,9 +177,9 @@ class _CallingScreenState extends ConsumerState<CallingScreen> with SingleTicker
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               child: Column(
                 children: [
-                  // ── Caller ID Status Banner ──
+                  // ── Switchable Caller ID Status Banner ──
                   GestureDetector(
-                    onTap: () => _openCallerIdVerification(activeCallerId?.phoneNumber),
+                    onTap: _openCallerIdPicker,
                     child: Container(
                       width: double.infinity,
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -208,34 +208,39 @@ class _CallingScreenState extends ConsumerState<CallingScreen> with SingleTicker
                                 Row(
                                   children: [
                                     Text(
-                                      activeCallerId != null ? 'Outgoing Caller ID' : 'Caller ID: KeepSIMs Gateway',
+                                      activeCallerId != null ? 'Outgoing Caller ID' : 'Outgoing Caller ID: KeepSIMs Gateway',
                                       style: TextStyle(
                                         color: activeCallerId != null ? Colors.white : Colors.white70,
                                         fontSize: 12,
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),
-                                    if (activeCallerId != null) ...[
-                                      const SizedBox(width: 6),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                        decoration: BoxDecoration(
-                                          color: AppColors.secondary.withValues(alpha: 0.2),
-                                          borderRadius: BorderRadius.circular(6),
-                                        ),
-                                        child: const Text('VERIFIED', style: TextStyle(color: AppColors.secondary, fontSize: 9, fontWeight: FontWeight.bold)),
+                                    const SizedBox(width: 6),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: (activeCallerId != null ? AppColors.secondary : AppColors.primary).withValues(alpha: 0.2),
+                                        borderRadius: BorderRadius.circular(6),
                                       ),
-                                    ],
+                                      child: Text(
+                                        activeCallerId != null ? 'VERIFIED' : 'DEFAULT',
+                                        style: TextStyle(
+                                          color: activeCallerId != null ? AppColors.secondary : AppColors.primary,
+                                          fontSize: 9,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
                                   ],
                                 ),
                                 Text(
                                   activeCallerId != null
                                       ? activeCallerId.phoneNumber
-                                      : 'Tap to show your real phone number on calls',
+                                      : gatewayNumber,
                                   style: TextStyle(
                                     color: activeCallerId != null ? AppColors.secondary : AppColors.primary,
-                                    fontSize: activeCallerId != null ? 14 : 11,
-                                    fontWeight: activeCallerId != null ? FontWeight.bold : FontWeight.w500,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
                               ],
@@ -248,7 +253,7 @@ class _CallingScreenState extends ConsumerState<CallingScreen> with SingleTicker
                               shape: BoxShape.circle,
                               border: Border.all(color: AppColors.darkBorder),
                             ),
-                            child: const Icon(Icons.edit, color: Colors.white70, size: 14),
+                            child: const Icon(Icons.swap_horiz_rounded, color: Colors.white70, size: 16),
                           ),
                         ],
                       ),

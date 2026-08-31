@@ -24,6 +24,16 @@ class CallerIdRequestResult {
   });
 }
 
+class CallerIdListResult {
+  final List<CallerIdModel> callerIds;
+  final String defaultGatewayNumber;
+
+  const CallerIdListResult({
+    required this.callerIds,
+    required this.defaultGatewayNumber,
+  });
+}
+
 class CallingRepository {
   final SupabaseClient _supabase;
 
@@ -98,15 +108,21 @@ class CallingRepository {
         .map((list) => list.map((e) => CallRecord.fromJson(e)).toList());
   }
 
-  /// List user's verified Caller IDs
-  Future<List<CallerIdModel>> getUserCallerIds() async {
+  /// List user's verified Caller IDs and system gateway
+  Future<CallerIdListResult> getCallerIdList() async {
     final res = await _supabase.functions.invoke(
       'manage-caller-id',
       body: {'action': 'list'},
     );
-    if (res.status != 200 || res.data == null) return [];
+    if (res.status != 200 || res.data == null) {
+      return const CallerIdListResult(callerIds: [], defaultGatewayNumber: '+17543180369');
+    }
     final list = res.data['callerIds'] as List? ?? [];
-    return list.map((e) => CallerIdModel.fromJson(e)).toList();
+    final gateway = res.data['defaultGatewayNumber'] as String? ?? '+17543180369';
+    return CallerIdListResult(
+      callerIds: list.map((e) => CallerIdModel.fromJson(e)).toList(),
+      defaultGatewayNumber: gateway,
+    );
   }
 
   /// Request SMS or Voice Call OTP to verify user's phone number
@@ -150,12 +166,23 @@ class CallingRepository {
     return data['message'] as String? ?? 'Verified successfully!';
   }
 
-  /// Set default caller ID
+  /// Switch default caller ID (to a verified number or 'gateway')
   Future<void> setDefaultCallerId(String phoneNumber) async {
     await _supabase.functions.invoke(
       'manage-caller-id',
       body: {
         'action': 'set_default',
+        'phoneNumber': phoneNumber,
+      },
+    );
+  }
+
+  /// Delete a verified caller ID
+  Future<void> deleteCallerId(String phoneNumber) async {
+    await _supabase.functions.invoke(
+      'manage-caller-id',
+      body: {
+        'action': 'delete',
         'phoneNumber': phoneNumber,
       },
     );
