@@ -64,6 +64,26 @@ class CallingRepository {
     return Map<String, dynamic>.from(data);
   }
 
+  /// Hangup / terminate active call
+  Future<void> endCall(String callId) async {
+    await _supabase.functions.invoke(
+      'make-call',
+      body: {
+        'action': 'hangup',
+        'callId': callId,
+      },
+    );
+  }
+
+  /// Watch active call record status in real-time
+  Stream<CallRecord?> watchActiveCall(String callId) {
+    return _supabase
+        .from('call_records')
+        .stream(primaryKey: ['id'])
+        .eq('id', callId)
+        .map((list) => list.isNotEmpty ? CallRecord.fromJson(list.first) : null);
+  }
+
   /// Watch user's call history in real-time
   Stream<List<CallRecord>> watchUserCallHistory() {
     final userId = _supabase.auth.currentUser?.id;

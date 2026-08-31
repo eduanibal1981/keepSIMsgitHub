@@ -26,7 +26,7 @@ class ActiveCallState {
   final String destinationNumber;
   final String userCallbackNumber;
   final CallRate? rate;
-  final String status; // 'idle', 'initiating', 'ringing', 'in_progress', 'ended', 'failed'
+  final String status; // 'idle', 'initiating', 'ringing', 'in_progress', 'ended', 'busy', 'no_answer', 'failed'
   final int durationSeconds;
   final double estimatedCost;
   final String? errorMessage;
@@ -75,11 +75,13 @@ class ActiveCallState {
 
 class CallingController extends Notifier<ActiveCallState> {
   Timer? _timer;
+  StreamSubscription<CallRecord?>? _callSub;
 
   @override
   ActiveCallState build() {
     ref.onDispose(() {
       _stopDurationTicker();
+      _callSub?.cancel();
     });
     return const ActiveCallState();
   }
@@ -98,6 +100,9 @@ class CallingController extends Notifier<ActiveCallState> {
     CallRate? rate,
     String? simLineId,
   }) async {
+    _stopDurationTicker();
+    _callSub?.cancel();
+
     state = ActiveCallState(
       destinationNumber: destinationNumber,
       userCallbackNumber: userCallbackNumber,
@@ -119,13 +124,14 @@ class CallingController extends Notifier<ActiveCallState> {
         status: 'ringing',
       );
 
-      _startDurationTicker();
+      // Subscribe to real-time call status updates from Supabase
+      if (callId != null) {
+        _subscribeToCallStatus(callId);
+      }
     } catch (e) {
       _stopDurationTicker();
       String rawMsg = e.toString().replaceAll('Exception: ', '').replaceAll('FunctionException', '');
-      if (rawMsg.contains('non-verified numbers') || rawMsg.contains('account level D60')) {
-        rawMsg = 'Telnyx Trial Restriction: Number must be verified in Telnyx portal or upgrade to full account.';
-      } else if (rawMsg.contains('insufficient_funds')) {
+      if (rawMsg.contains('insufficient_funds')) {
         rawMsg = 'Insufficient wallet balance. Please top up your wallet.';
       }
       state = state.copyWith(
@@ -135,13 +141,45 @@ class CallingController extends Notifier<ActiveCallState> {
     }
   }
 
+  void _subscribeToCallStatus(String callId) {
+    final repository = ref.read(callingRepositoryProvider);
+    _callSub = repository.watchActiveCall(callId).listen((record) {
+      if (record == null) return;
+
+      final serverStatus = record.status.toLowerCase();
+      if (serverStatus == 'ringing' && state.status != 'ringing') {
+        state = state.copyWith(status: 'ringing');
+      } else if (serverStatus == 'in_progress') {
+        if (state.status != 'in_progress') {
+          state = state.copyWith(status: 'in_progress');
+          _startDurationTicker();
+        }
+      } else if (serverStatus == 'completed' ||
+                 serverStatus == 'busy' ||
+                 serverStatus == 'no_answer' ||
+                 serverStatus == 'cancelled' ||
+                 serverStatus == 'declined' ||
+                 serverStatus == 'failed') {
+        _stopDurationTicker();
+        state = state.copyWith(
+          status: serverStatus,
+          errorMessage: serverStatus == 'busy'
+              ? 'User Busy'
+              : serverStatus == 'no_answer'
+                  ? 'No Answer'
+                  : serverStatus == 'declined'
+                      ? 'Call Declined'
+                      : null,
+        );
+        ref.invalidate(walletControllerProvider);
+        ref.invalidate(callHistoryStreamProvider);
+      }
+    });
+  }
+
   void _startDurationTicker() {
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (state.status == 'ringing' && timer.tick >= 5) {
-        state = state.copyWith(status: 'in_progress');
-      }
-
       if (state.status == 'in_progress') {
         final newSecs = state.durationSeconds + 1;
         final ratePerSec = (state.rate?.ratePerMinute ?? 0.08) / 60.0;
@@ -159,15 +197,24 @@ class CallingController extends Notifier<ActiveCallState> {
     _timer = null;
   }
 
-  void endCall() {
+  Future<void> endCall() async {
     _stopDurationTicker();
+    final currentCallId = state.callId;
     state = state.copyWith(status: 'ended');
+
+    if (currentCallId != null) {
+      try {
+        await ref.read(callingRepositoryProvider).endCall(currentCallId);
+      } catch (_) {}
+    }
+
     ref.invalidate(walletControllerProvider);
     ref.invalidate(callHistoryStreamProvider);
   }
 
   void reset() {
     _stopDurationTicker();
+    _callSub?.cancel();
     state = const ActiveCallState();
   }
 }

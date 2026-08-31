@@ -31,6 +31,18 @@ async function resolveUserId(req: Request): Promise<string | null> {
   return user?.id ?? null;
 }
 
+async function rpc(name: string, args: Record<string, unknown>): Promise<{ ok: boolean; body: any }> {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${name}`, {
+    method: "POST",
+    headers: serviceHeaders,
+    body: JSON.stringify(args),
+  });
+  const text = await res.text();
+  let body: any = text;
+  try { body = JSON.parse(text); } catch (_) { /* raw text */ }
+  return { ok: res.ok, body };
+}
+
 async function fetchSystemConfig(key: string, defaultVal: string = ""): Promise<string> {
   const envVal = Deno.env.get(key);
   if (envVal) return envVal;
@@ -74,8 +86,51 @@ serve(async (req: Request) => {
       return jsonResponse({ success: false, errorMessage: "Unauthorized. Please sign in." }, 401);
     }
 
-    const { destinationNumber, userCallbackNumber, simLineId } = await req.json();
+    const body = await req.json();
+    const { action, callId, destinationNumber, userCallbackNumber, simLineId } = body;
+    const telnyxApiKey = await fetchSystemConfig("TELNYX_API_KEY");
 
+    if (!telnyxApiKey) {
+      return jsonResponse({ success: false, errorMessage: "Telnyx Voice is not configured on this server" }, 500);
+    }
+
+    // ── HANGUP ACTION ──
+    if (action === "hangup") {
+      if (!callId) {
+        return jsonResponse({ success: false, errorMessage: "callId is required for hangup" }, 400);
+      }
+
+      // Fetch call record to get call_control_id
+      const recRes = await fetch(`${SUPABASE_URL}/rest/v1/call_records?id=eq.${callId}&user_id=eq.${userId}&select=*`, {
+        headers: serviceHeaders,
+      });
+      const records = recRes.ok ? await recRes.json() : [];
+      const record = records[0];
+
+      if (record?.telnyx_call_control_id_leg_a) {
+        await fetch(`https://api.telnyx.com/v2/calls/${record.telnyx_call_control_id_leg_a}/actions/hangup`, {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${telnyxApiKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({}),
+        });
+      }
+
+      await fetch(`${SUPABASE_URL}/rest/v1/call_records?id=eq.${callId}`, {
+        method: "PATCH",
+        headers: serviceHeaders,
+        body: JSON.stringify({
+          status: "completed",
+          ended_at: new Date().toISOString(),
+        }),
+      });
+
+      return jsonResponse({ success: true, message: "Call terminated" }, 200);
+    }
+
+    // ── INITIATE OUTBOUND CALL ──
     if (!destinationNumber || typeof destinationNumber !== "string") {
       return jsonResponse({ success: false, errorMessage: "destinationNumber is required" }, 400);
     }
@@ -108,13 +163,8 @@ serve(async (req: Request) => {
     }
 
     // 3. Fetch Telnyx Configuration
-    const telnyxApiKey = await fetchSystemConfig("TELNYX_API_KEY");
     const telnyxAppId = await fetchSystemConfig("TELNYX_CALL_CONTROL_APP_ID", "3036680705380714233");
     const defaultCallerId = await fetchSystemConfig("TELNYX_DEFAULT_CALLER_ID", "+17543180369");
-
-    if (!telnyxApiKey) {
-      return jsonResponse({ success: false, errorMessage: "Telnyx Voice is not configured on this server" }, 500);
-    }
 
     // 4. Resolve Verified Caller ID
     const cleanDest = destinationNumber.replace(/\s+/g, "");
@@ -142,7 +192,7 @@ serve(async (req: Request) => {
         destination_country_code: rateData.country_code,
         destination_country_name: rateData.country_name,
         rate_per_minute_usd: rateData.rate_per_minute_usd,
-        status: "initiated",
+        status: "initiating",
       }),
     });
 
@@ -211,7 +261,7 @@ serve(async (req: Request) => {
     return jsonResponse({
       success: true,
       callId: callRecord.id,
-      status: "initiated",
+      status: "initiating",
       destination: {
         number: cleanDest,
         countryName: rateData.country_name,
