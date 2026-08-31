@@ -1,6 +1,5 @@
 // validate-sim-liveness — KeepSIMs Carrier BSS Liveness & Activity Verification Edge Function
-// Zero-cost live Carrier BSS validation via wholesale gateways (DTOne, Zendit, DingConnect)
-// with Telnyx PSTN SIP Signaling Probe fallback for unmapped MVNOs & corridors.
+// Zero-cost live Carrier BSS validation via wholesale gateways (DTOne, Zendit, DingConnect, Telnyx metadata).
 
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.8";
@@ -61,6 +60,7 @@ const EXPLICIT_DEACTIVATION_CODES = [
   "NUMBER_DISCONNECTED",
   "SUSPENDED",
   "INVALID_MSISDN_DEACTIVATED",
+  "UNALLOCATED_NUMBER",
 ];
 
 function isExplicitlyDeactivated(errStr: string): boolean {
@@ -184,7 +184,35 @@ async function queryZendit(
   return { success: false, reason: "INCONCLUSIVE" };
 }
 
-// 3. Telnyx Number Lookup (Carrier allocation metadata)
+// 3. DingConnect Account Lookup
+async function queryDing(
+  formattedPhone: string,
+  countryCode?: string,
+): Promise<{ success: boolean; active?: boolean; operatorName?: string; country?: string; reason?: string }> {
+  const dingKey = Deno.env.get("DING_API_KEY") || "GREvSGrfbMT6Cm2V8IQFPd";
+  try {
+    const res = await fetch(`https://api.dingconnect.com/api/V1/GetAccountLookup?AccountNumber=${encodeURIComponent(formattedPhone)}`, {
+      headers: { api_key: dingKey },
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.ResultCode === 1 && Array.isArray(data.Items) && data.Items.length > 0) {
+        const item = data.Items[0];
+        return {
+          success: true,
+          active: true,
+          operatorName: item.ProviderCode ? cleanOperatorName(item.ProviderCode) : undefined,
+          country: data.CountryIso || countryCode,
+        };
+      }
+    }
+  } catch (e) {
+    console.error("[Ding] error:", e);
+  }
+  return { success: false, reason: "INCONCLUSIVE" };
+}
+
+// 4. Telnyx Number Lookup (Carrier network allocation metadata)
 async function queryTelnyxMetadata(
   formattedPhone: string,
   countryCode?: string,
@@ -214,65 +242,6 @@ async function queryTelnyxMetadata(
   } catch (e) {
     console.error("[Telnyx Metadata] error:", e);
   }
-  return { success: false };
-}
-
-// 4. Telnyx PSTN SIP Signaling Probe (Zero-cost physical cellular network liveness check)
-async function queryTelnyxPstnProbe(
-  formattedPhone: string,
-  operatorName?: string,
-): Promise<{ success: boolean; active?: boolean; message?: string }> {
-  const apiKey = Deno.env.get("TELNYX_API_KEY") || "KEY01A049E00656B79B4314CFFBC7969C10_k9JM7HV9u4sB2MadneUT1M";
-  const connectionId = Deno.env.get("TELNYX_CALL_CONTROL_APP_ID") || "3036680705380714233";
-  const callerId = Deno.env.get("TELNYX_DEFAULT_CALLER_ID") || "+17543180369";
-
-  try {
-    const res = await fetch("https://api.telnyx.com/v2/calls", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify({
-        connection_id: connectionId,
-        to: formattedPhone,
-        from: callerId,
-        timeout_secs: 5,
-      }),
-    });
-
-    if (res.ok) {
-      const data = await res.json();
-      const callControlId = data?.data?.call_control_id;
-
-      if (callControlId) {
-        // Immediate hangup in 600ms so no ringing audio connects and cost remains $0.00
-        setTimeout(() => {
-          fetch(`https://api.telnyx.com/v2/calls/${callControlId}/actions/hangup`, {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${apiKey}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({}),
-          }).catch(() => {});
-        }, 600);
-
-        return {
-          success: true,
-          active: true,
-          message: `Active on ${operatorName || "Carrier"} (PSTN Verified)`,
-        };
-      }
-    } else {
-      const text = await res.text();
-      console.log(`[Telnyx Probe] status=${res.status} body=${text}`);
-    }
-  } catch (e) {
-    console.error("[Telnyx Probe] error:", e);
-  }
-
   return { success: false };
 }
 
@@ -378,7 +347,22 @@ serve(async (req: Request) => {
       }
     }
 
-    // 3. Quaternary: Telnyx Metadata & PSTN SIP Signaling Probe (Ground Truth Final Check)
+    // 3. Tertiary: DingConnect Account Lookup
+    const dingResult = await queryDing(formattedPhone, countryCode);
+    if (dingResult.success && dingResult.active) {
+      return jsonResponse({
+        is_active: true,
+        carrier_status: "active",
+        detected_operator_name: dingResult.operatorName ?? null,
+        country_code: dingResult.country ?? countryCode ?? null,
+        reason: null,
+        message: `Active on ${dingResult.operatorName || "Carrier"} (Prepaid)`,
+        provider: "ding",
+        verified_at: nowIso,
+      });
+    }
+
+    // 4. Quaternary: Telnyx Metadata Validation
     const telnyxMeta = await queryTelnyxMetadata(formattedPhone, countryCode);
     if (telnyxMeta.success && telnyxMeta.valid === false) {
       return jsonResponse({
@@ -395,22 +379,8 @@ serve(async (req: Request) => {
 
     const detectedOp = telnyxMeta.operatorName ?? null;
 
-    // Fire Telnyx sub-second PSTN Probe if wholesale BSS was inconclusive
-    const probeResult = await queryTelnyxPstnProbe(formattedPhone, detectedOp || undefined);
-    if (probeResult.success && probeResult.active) {
-      return jsonResponse({
-        is_active: true,
-        carrier_status: "active",
-        detected_operator_name: detectedOp,
-        country_code: countryCode ?? null,
-        reason: null,
-        message: `Active on ${detectedOp || "Carrier"} (PSTN Verified)`,
-        provider: "telnyx",
-        verified_at: nowIso,
-      });
-    }
-
-    // 4. Inconclusive: Carrier BSS verification not available for this corridor
+    // 5. Inconclusive: Carrier BSS verification not available for this corridor
+    // (Ensures unmapped or dead lines are never falsely reported as active)
     return jsonResponse({
       is_active: false,
       carrier_status: "unsupported",
