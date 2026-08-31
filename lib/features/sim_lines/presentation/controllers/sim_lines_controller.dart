@@ -8,6 +8,7 @@ import 'package:keep_sims/features/sim_lines/data/models/carrier_rule_model.dart
 import 'package:keep_sims/features/sim_lines/data/models/carrier_self_service_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/line_activity_log_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/payment_method_model.dart';
+import 'package:keep_sims/features/sim_lines/data/models/sim_liveness_result.dart';
 import 'package:keep_sims/features/sim_lines/data/repositories/sim_lines_repository_impl.dart';
 import 'package:keep_sims/features/sim_lines/domain/repositories/sim_lines_repository.dart';
 import 'package:keep_sims/features/scheduled_topups/controller/scheduled_topup_controller.dart';
@@ -76,6 +77,10 @@ class SimLinesController extends _$SimLinesController {
     String planType = 'free',
     DateTime? planExpiresAt,
     String? carrierRuleId,
+    bool isCarrierVerified = false,
+    String carrierStatus = 'pending',
+    String? detectedOperatorName,
+    DateTime? carrierVerifiedAt,
   }) async {
     final userId = ref.read(authControllerProvider).value?.id;
     if (userId == null) {
@@ -127,6 +132,10 @@ class SimLinesController extends _$SimLinesController {
         carrierRuleId: carrierRuleId,
         isHomeMode: isHome,
         protectionPaused: isHome,
+        isCarrierVerified: isCarrierVerified,
+        carrierStatus: carrierStatus,
+        detectedOperatorName: detectedOperatorName,
+        carrierVerifiedAt: carrierVerifiedAt,
       );
 
       final added = await repo.addSimLine(newLine);
@@ -769,4 +778,15 @@ Future<List<PaymentMethod>> paymentMethods(Ref ref) async {
 @riverpod
 Future<List<Country>> supportedCountries(Ref ref) {
   return ref.watch(simLinesRepositoryProvider).getSupportedCountries();
+}
+
+@riverpod
+Future<SimLivenessResult> simLivenessValidation(
+  Ref ref, {
+  required String phoneNumber,
+  String? countryCode,
+}) {
+  return ref
+      .watch(simLinesRepositoryProvider)
+      .validateSimLiveness(phoneNumber, countryCode: countryCode);
 }

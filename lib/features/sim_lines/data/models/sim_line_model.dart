@@ -39,6 +39,12 @@ abstract class SimLine with _$SimLine {
     @JsonKey(name: 'household_id') String? householdId,
     @JsonKey(name: 'plan_type') @Default('free') String planType,
     @JsonKey(name: 'plan_expires_at') DateTime? planExpiresAt,
+    @JsonKey(name: 'is_carrier_verified') @Default(false) bool isCarrierVerified,
+    @JsonKey(name: 'carrier_status')
+    @Default('pending')
+    String carrierStatus,
+    @JsonKey(name: 'detected_operator_name') String? detectedOperatorName,
+    @JsonKey(name: 'carrier_verified_at') DateTime? carrierVerifiedAt,
     @JsonKey(name: 'created_at') DateTime? createdAt,
     @JsonKey(name: 'updated_at') DateTime? updatedAt,
   }) = _SimLine;
@@ -90,6 +96,10 @@ extension SimLineWritablePayload on SimLine {
       'is_home_mode': isHomeMode,
       'protection_paused': protectionPaused,
       'requires_protection_at_home': requiresProtectionAtHome,
+      'is_carrier_verified': isCarrierVerified,
+      'carrier_status': carrierStatus,
+      'detected_operator_name': detectedOperatorName,
+      'carrier_verified_at': carrierVerifiedAt?.toIso8601String(),
       'updated_at': DateTime.now().toIso8601String(),
     };
   }

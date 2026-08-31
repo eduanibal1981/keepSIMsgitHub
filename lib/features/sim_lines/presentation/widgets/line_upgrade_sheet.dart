@@ -11,6 +11,8 @@ import 'package:keep_sims/features/sim_lines/data/models/carrier_rule_model.dart
 import 'package:keep_sims/features/sim_lines/domain/plan_payment.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/carrier_activity_notice.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/carrier_rules_sheet.dart';
+import 'package:keep_sims/features/sim_lines/data/models/sim_liveness_result.dart';
+import 'package:keep_sims/features/sim_lines/presentation/widgets/carrier_liveness_badge.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_line_detail_controller.dart';
 import 'package:keep_sims/core/utils/build_context_extension.dart';
@@ -98,6 +100,19 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
       carrierRule = ruleAsync.value;
       isRuleLoading = ruleAsync.isLoading;
     }
+
+    final livenessAsync = ref.watch(
+      simLivenessValidationProvider(phoneNumber: widget.simLine.phoneNumber),
+    );
+    final livenessResult = livenessAsync.value ??
+        (widget.simLine.isCarrierVerified
+            ? SimLivenessResult(
+                isActive: widget.simLine.carrierStatus == 'active',
+                carrierStatus: widget.simLine.carrierStatus,
+                detectedOperatorName: widget.simLine.detectedOperatorName,
+                verifiedAt: widget.simLine.carrierVerifiedAt,
+              )
+            : null);
 
     // Determine which plans to show (only upgrades)
     final availablePlans = <String>[];
@@ -219,7 +234,19 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
                   color: context.onSurfaceColor.withValues(alpha: 0.45),
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 12),
+
+              // Live carrier BSS liveness badge
+              CarrierLivenessBadge(
+                result: livenessResult,
+                isLoading: livenessAsync.isLoading,
+                onRetry: () => ref.invalidate(
+                  simLivenessValidationProvider(
+                    phoneNumber: widget.simLine.phoneNumber,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
 
               // i7: before the prices, say whether refilling this carrier can
               // work at all.
@@ -285,6 +312,20 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
                             );
                             final l = AppLocalizations.of(context)!;
 
+                            if (livenessResult?.carrierStatus == 'inactive') {
+                              messenger.showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    livenessResult!.message.isNotEmpty
+                                        ? livenessResult.message
+                                        : 'This SIM number is inactive or expired at the carrier. Cannot upgrade.',
+                                  ),
+                                  backgroundColor: AppColors.error,
+                                ),
+                              );
+                              return;
+                            }
+
                             if (tier == 'premium' && carrierRule == null) {
                               messenger.showSnackBar(
                                 const SnackBar(
@@ -326,6 +367,10 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
                               planExpiresAt: DateTime.now().add(
                                 const Duration(days: 365),
                               ),
+                              isCarrierVerified: livenessResult?.isActive ?? widget.simLine.isCarrierVerified,
+                              carrierStatus: livenessResult?.carrierStatus ?? widget.simLine.carrierStatus,
+                              detectedOperatorName: livenessResult?.detectedOperatorName ?? widget.simLine.detectedOperatorName,
+                              carrierVerifiedAt: livenessResult != null ? DateTime.now() : widget.simLine.carrierVerifiedAt,
                             );
 
                             Future<void> commitUpgrade() async {

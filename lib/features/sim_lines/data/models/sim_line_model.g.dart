@@ -38,6 +38,12 @@ _SimLine _$SimLineFromJson(Map<String, dynamic> json) => _SimLine(
   planExpiresAt: json['plan_expires_at'] == null
       ? null
       : DateTime.parse(json['plan_expires_at'] as String),
+  isCarrierVerified: json['is_carrier_verified'] as bool? ?? false,
+  carrierStatus: json['carrier_status'] as String? ?? 'pending',
+  detectedOperatorName: json['detected_operator_name'] as String?,
+  carrierVerifiedAt: json['carrier_verified_at'] == null
+      ? null
+      : DateTime.parse(json['carrier_verified_at'] as String),
   createdAt: json['created_at'] == null
       ? null
       : DateTime.parse(json['created_at'] as String),
@@ -69,6 +75,10 @@ Map<String, dynamic> _$SimLineToJson(_SimLine instance) => <String, dynamic>{
   'household_id': instance.householdId,
   'plan_type': instance.planType,
   'plan_expires_at': instance.planExpiresAt?.toIso8601String(),
+  'is_carrier_verified': instance.isCarrierVerified,
+  'carrier_status': instance.carrierStatus,
+  'detected_operator_name': instance.detectedOperatorName,
+  'carrier_verified_at': instance.carrierVerifiedAt?.toIso8601String(),
   'created_at': instance.createdAt?.toIso8601String(),
   'updated_at': instance.updatedAt?.toIso8601String(),
 };

@@ -34,7 +34,7 @@ final class SimLinesControllerProvider
 }
 
 String _$simLinesControllerHash() =>
-    r'9fa47d79e428efa050843e4019df63203770df6c';
+    r'18cfffebb44942838b8f9f0210bd03bd96e82763';
 
 abstract class _$SimLinesController extends $AsyncNotifier<List<SimLine>> {
   FutureOr<List<SimLine>> build();
@@ -536,3 +536,95 @@ final class SupportedCountriesProvider
 
 String _$supportedCountriesHash() =>
     r'a25db646dc2dd8068078c7fd94561b4fb26ebfdf';
+
+@ProviderFor(simLivenessValidation)
+final simLivenessValidationProvider = SimLivenessValidationFamily._();
+
+final class SimLivenessValidationProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<SimLivenessResult>,
+          SimLivenessResult,
+          FutureOr<SimLivenessResult>
+        >
+    with
+        $FutureModifier<SimLivenessResult>,
+        $FutureProvider<SimLivenessResult> {
+  SimLivenessValidationProvider._({
+    required SimLivenessValidationFamily super.from,
+    required ({String phoneNumber, String? countryCode}) super.argument,
+  }) : super(
+         retry: null,
+         name: r'simLivenessValidationProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$simLivenessValidationHash();
+
+  @override
+  String toString() {
+    return r'simLivenessValidationProvider'
+        ''
+        '$argument';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<SimLivenessResult> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<SimLivenessResult> create(Ref ref) {
+    final argument =
+        this.argument as ({String phoneNumber, String? countryCode});
+    return simLivenessValidation(
+      ref,
+      phoneNumber: argument.phoneNumber,
+      countryCode: argument.countryCode,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is SimLivenessValidationProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$simLivenessValidationHash() =>
+    r'550f8aff571c91c6efe4b5e43766a82990c7b1c2';
+
+final class SimLivenessValidationFamily extends $Family
+    with
+        $FunctionalFamilyOverride<
+          FutureOr<SimLivenessResult>,
+          ({String phoneNumber, String? countryCode})
+        > {
+  SimLivenessValidationFamily._()
+    : super(
+        retry: null,
+        name: r'simLivenessValidationProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  SimLivenessValidationProvider call({
+    required String phoneNumber,
+    String? countryCode,
+  }) => SimLivenessValidationProvider._(
+    argument: (phoneNumber: phoneNumber, countryCode: countryCode),
+    from: this,
+  );
+
+  @override
+  String toString() => r'simLivenessValidationProvider';
+}

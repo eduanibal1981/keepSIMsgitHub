@@ -4,6 +4,8 @@
 /// Collects user details, country, currency, protection tier, and smart preferences.
 library;
 
+import 'dart:async';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:keep_sims/core/result.dart';
@@ -30,6 +32,8 @@ import 'package:keep_sims/features/sim_lines/domain/plan_payment.dart';
 import 'package:keep_sims/features/sim_lines/domain/refill_pricing.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/carrier_activity_notice.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/carrier_rules_sheet.dart';
+import 'package:keep_sims/features/sim_lines/data/models/sim_liveness_result.dart';
+import 'package:keep_sims/features/sim_lines/presentation/widgets/carrier_liveness_badge.dart';
 import 'package:keep_sims/l10n/app_localizations.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
@@ -57,6 +61,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   Country? _selectedSimCountry;
   Carrier? _selectedSimCarrier;
   final String _selectedSimIcon = 'sim_card';
+  SimLivenessResult? _simLivenessResult;
+  bool _isCheckingLiveness = false;
+  Timer? _livenessDebounce;
 
   // Step 5 Data
   final bool _isPowerUser = false;
@@ -100,6 +107,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   @override
   void initState() {
     super.initState();
+    _simPhoneController.addListener(_onSimPhoneChanged);
     // Pre-fill user name from auth profile if available
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final profile = ref.read(authControllerProvider).value;
@@ -111,11 +119,81 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   @override
   void dispose() {
+    _livenessDebounce?.cancel();
+    _simPhoneController.removeListener(_onSimPhoneChanged);
     _pageController.dispose();
     _nameController.dispose();
     _simPhoneController.dispose();
     _simNicknameController.dispose();
     super.dispose();
+  }
+
+  void _onSimPhoneChanged() {
+    _livenessDebounce?.cancel();
+    final text = _simPhoneController.text.trim();
+    if (text.length >= 6 && _selectedSimCountry != null) {
+      _livenessDebounce = Timer(const Duration(milliseconds: 700), () {
+        _triggerSimLivenessCheck();
+      });
+    } else if (text.length < 6) {
+      if (_simLivenessResult != null) {
+        setState(() {
+          _simLivenessResult = null;
+        });
+      }
+    }
+  }
+
+  Future<void> _triggerSimLivenessCheck() async {
+    if (!mounted || _selectedSimCountry == null) return;
+    String localNumber = _simPhoneController.text.trim();
+    if (localNumber.startsWith('0')) {
+      localNumber = localNumber.substring(1);
+    }
+    if (localNumber.length < 6) return;
+
+    final fullNumber = '${_selectedSimCountry!.dialingCode}$localNumber';
+
+    setState(() {
+      _isCheckingLiveness = true;
+    });
+
+    try {
+      final repo = ref.read(simLinesRepositoryProvider);
+      final result = await repo.validateSimLiveness(
+        fullNumber,
+        countryCode: _selectedSimCountry?.isoCode,
+      );
+
+      if (mounted) {
+        setState(() {
+          _simLivenessResult = result;
+          _isCheckingLiveness = false;
+        });
+
+        // Auto-match carrier if not yet chosen
+        if (_selectedSimCarrier == null &&
+            result.detectedOperatorName != null &&
+            _selectedSimCountry != null) {
+          final carriers = ref.read(carriersForCountryProvider(_selectedSimCountry!.id)).value ?? [];
+          final opLower = result.detectedOperatorName!.toLowerCase();
+          final matched = carriers.firstWhereOrNull(
+            (c) => opLower.contains(c.name.toLowerCase()) || c.name.toLowerCase().contains(opLower),
+          );
+          if (matched != null) {
+            setState(() {
+              _selectedSimCarrier = matched;
+            });
+          }
+        }
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _isCheckingLiveness = false;
+        });
+      }
+    }
   }
 
   void _nextPage() {
@@ -148,6 +226,19 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Please select a carrier for your first SIM card.'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+          return;
+        }
+        if (_simLivenessResult != null && _simLivenessResult!.carrierStatus == 'inactive') {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                _simLivenessResult!.message.isNotEmpty
+                    ? _simLivenessResult!.message
+                    : 'Number inactive or expired at carrier. Cannot register for auto-refill.',
+              ),
               backgroundColor: AppColors.error,
             ),
           );
@@ -285,6 +376,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     : _selectedTier,
                 planExpiresAt: planExpiresAt,
                 carrierRuleId: carrierRuleId,
+                isCarrierVerified: _simLivenessResult?.isActive ?? false,
+                carrierStatus: _simLivenessResult?.carrierStatus ?? 'pending',
+                detectedOperatorName: _simLivenessResult?.detectedOperatorName,
+                carrierVerifiedAt: _simLivenessResult != null ? DateTime.now() : null,
               );
         } on PremiumRefillQueueException catch (e) {
           // The line exists and the plan is paid for — only the pre-paid
@@ -934,6 +1029,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       _selectedSimCountry = val;
                       _selectedSimCarrier = null; // Reset carrier
                     });
+                    _triggerSimLivenessCheck();
                   }
                 },
               ),
@@ -943,7 +1039,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
           // Phone Number Input
           Text(
-            'SIM Phone Number',
+            'SIM Card Phone Number',
             style: AppTextStyles.bodyMedium.copyWith(
               color: context.onSurfaceColor,
               fontWeight: FontWeight.w600,
@@ -1035,6 +1131,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 ),
               ),
             ],
+          ),
+          CarrierLivenessBadge(
+            result: _simLivenessResult,
+            isLoading: _isCheckingLiveness,
+            onRetry: _triggerSimLivenessCheck,
           ),
           const SizedBox(height: 24),
 

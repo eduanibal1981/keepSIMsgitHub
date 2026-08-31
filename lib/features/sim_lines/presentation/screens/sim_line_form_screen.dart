@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -23,6 +24,8 @@ import 'package:keep_sims/features/sim_lines/domain/plan_payment.dart';
 import 'package:keep_sims/features/sim_lines/presentation/providers/api_offers_providers.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/carrier_activity_notice.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/carrier_rules_sheet.dart';
+import 'package:keep_sims/features/sim_lines/data/models/sim_liveness_result.dart';
+import 'package:keep_sims/features/sim_lines/presentation/widgets/carrier_liveness_badge.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '../../data/models/carrier_rule_model.dart';
@@ -51,6 +54,10 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
   bool _hasPrepopulated = false;
   bool _isSaving = false;
 
+  SimLivenessResult? _livenessResult;
+  bool _isCheckingLiveness = false;
+  Timer? _livenessDebounce;
+
   /// The yearly base service fee both paid tiers carry, from
   /// `system_configs.BASE_SERVICE_FEE_USD` (C3c). Display only — the charge
   /// paths await the real rows via [PlanPayment].
@@ -65,13 +72,84 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
   void initState() {
     super.initState();
     _isEdit = widget.id != null;
+    _phoneController.addListener(_onPhoneInputChanged);
   }
 
   @override
   void dispose() {
+    _livenessDebounce?.cancel();
+    _phoneController.removeListener(_onPhoneInputChanged);
     _phoneController.dispose();
     _nicknameController.dispose();
     super.dispose();
+  }
+
+  void _onPhoneInputChanged() {
+    _livenessDebounce?.cancel();
+    final text = _phoneController.text.trim();
+    if (text.length >= 6 && _selectedCountry != null) {
+      _livenessDebounce = Timer(const Duration(milliseconds: 700), () {
+        _triggerLivenessCheck();
+      });
+    } else if (text.length < 6) {
+      if (_livenessResult != null) {
+        setState(() {
+          _livenessResult = null;
+        });
+      }
+    }
+  }
+
+  Future<void> _triggerLivenessCheck() async {
+    if (!mounted || _selectedCountry == null) return;
+    String localNumber = _phoneController.text.trim();
+    if (localNumber.startsWith('0')) {
+      localNumber = localNumber.substring(1);
+    }
+    if (localNumber.length < 6) return;
+
+    final fullNumber = '${_selectedCountry!.dialingCode}$localNumber';
+
+    setState(() {
+      _isCheckingLiveness = true;
+    });
+
+    try {
+      final repo = ref.read(simLinesRepositoryProvider);
+      final result = await repo.validateSimLiveness(
+        fullNumber,
+        countryCode: _selectedCountry?.isoCode,
+      );
+
+      if (mounted) {
+        setState(() {
+          _livenessResult = result;
+          _isCheckingLiveness = false;
+        });
+
+        // Auto-match carrier if not yet selected and active
+        if (_selectedCarrier == null &&
+            result.detectedOperatorName != null &&
+            _selectedCountry != null) {
+          final carriers = ref.read(carriersForCountryProvider(_selectedCountry!.id)).value ?? [];
+          final opLower = result.detectedOperatorName!.toLowerCase();
+          final matched = carriers.firstWhereOrNull(
+            (c) => opLower.contains(c.name.toLowerCase()) || c.name.toLowerCase().contains(opLower),
+          );
+          if (matched != null) {
+            setState(() {
+              _selectedCarrier = matched;
+            });
+          }
+        }
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _isCheckingLiveness = false;
+        });
+      }
+    }
   }
 
   void _prepopulate(List<SimLine> lines, List<Country> countries) {
@@ -99,11 +177,16 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
       _phoneController.text = line.phoneNumber;
     }
 
-    _hasPrepopulated = true;
-  }
+    if (line.isCarrierVerified) {
+      _livenessResult = SimLivenessResult(
+        isActive: line.carrierStatus == 'active',
+        carrierStatus: line.carrierStatus,
+        detectedOperatorName: line.detectedOperatorName,
+        verifiedAt: line.carrierVerifiedAt,
+      );
+    }
 
-  void _onPhoneChanged(String val, List<Country> countries) {
-    // Basic auto-detection no longer needed since country is chosen first.
+    _hasPrepopulated = true;
   }
 
   @override
@@ -272,6 +355,11 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                           ),
                         ),
                       ],
+                    ),
+                    CarrierLivenessBadge(
+                      result: _livenessResult,
+                      isLoading: _isCheckingLiveness,
+                      onRetry: _triggerLivenessCheck,
                     ),
                     const SizedBox(height: 24),
 
@@ -1269,6 +1357,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                                               null; // Reset carrier
                                         });
                                         Navigator.pop(context);
+                                        _triggerLivenessCheck();
                                       },
                                     ),
                                   );
@@ -1314,6 +1403,20 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
         const SnackBar(
           content: Text(
             'This phone number is already protected in your account.',
+          ),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+
+    if (_livenessResult != null && _livenessResult!.carrierStatus == 'inactive') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            _livenessResult!.message.isNotEmpty
+                ? _livenessResult!.message
+                : 'This SIM number is inactive or expired at the carrier. Cannot register for auto-refill.',
           ),
           backgroundColor: AppColors.error,
         ),
@@ -1399,6 +1502,10 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                   : selectedPlanType,
               planExpiresAt: planExpiresAt,
               carrierRuleId: carrierRuleId,
+              isCarrierVerified: _livenessResult?.isActive ?? line.isCarrierVerified,
+              carrierStatus: _livenessResult?.carrierStatus ?? line.carrierStatus,
+              detectedOperatorName: _livenessResult?.detectedOperatorName ?? line.detectedOperatorName,
+              carrierVerifiedAt: _livenessResult != null ? DateTime.now() : line.carrierVerifiedAt,
             );
 
             await ref
@@ -1421,6 +1528,10 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                       : selectedPlanType,
                   planExpiresAt: planExpiresAt,
                   carrierRuleId: carrierRuleId,
+                  isCarrierVerified: _livenessResult?.isActive ?? false,
+                  carrierStatus: _livenessResult?.carrierStatus ?? 'pending',
+                  detectedOperatorName: _livenessResult?.detectedOperatorName,
+                  carrierVerifiedAt: _livenessResult != null ? DateTime.now() : null,
                 );
           }
 

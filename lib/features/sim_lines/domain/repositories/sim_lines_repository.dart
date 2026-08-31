@@ -5,10 +5,12 @@ import 'package:keep_sims/features/sim_lines/data/models/carrier_self_service_mo
 import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/line_activity_log_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/payment_method_model.dart';
+import 'package:keep_sims/features/sim_lines/data/models/sim_liveness_result.dart';
 import 'package:keep_sims/features/sim_lines/data/datasources/telnyx_verification_service.dart';
 
 abstract class SimLinesRepository {
   Future<List<SimLine>> getSimLines();
+  Future<SimLivenessResult> validateSimLiveness(String phoneNumber, {String? countryCode});
   Future<SimLine> addSimLine(SimLine line);
   Future<SimLine> updateSimLine(SimLine line);
   Future<void> deleteSimLine(String id);

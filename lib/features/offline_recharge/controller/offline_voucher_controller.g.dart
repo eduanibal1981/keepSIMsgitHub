@@ -138,7 +138,7 @@ final class OfflineVoucherStateControllerProvider
 }
 
 String _$offlineVoucherStateControllerHash() =>
-    r'048f485f32da7d072f4a3913514f83f4ca4e9fd5';
+    r'55984358bb5261786f744bc7418700f3e9e1f175';
 
 /// The server's voucher picture. Kept separate from the on-device vault so a
 /// screen can render "you owe $2.50" from the cache with no signal while the

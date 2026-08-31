@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -9,6 +10,7 @@ import 'package:keep_sims/features/sim_lines/data/models/carrier_self_service_mo
 import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/line_activity_log_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/payment_method_model.dart';
+import 'package:keep_sims/features/sim_lines/data/models/sim_liveness_result.dart';
 import 'package:keep_sims/features/sim_lines/domain/repositories/sim_lines_repository.dart';
 import 'package:keep_sims/features/sim_lines/data/datasources/twilio_verification_service.dart';
 import 'package:keep_sims/features/sim_lines/data/datasources/telnyx_verification_service.dart';
@@ -938,6 +940,77 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
       throw Exception('Failed to record manual recharge: ${e.message}');
     } catch (e) {
       throw Exception('Error recording manual recharge: $e');
+    }
+  }
+
+  @override
+  Future<SimLivenessResult> validateSimLiveness(
+    String phoneNumber, {
+    String? countryCode,
+  }) async {
+    final cleanPhone = phoneNumber.trim();
+    final cacheKey = 'liveness_$cleanPhone';
+
+    if (_connectivity.isOffline) {
+      final cached = _cache.readJson(cacheKey);
+      if (cached is Map<String, dynamic>) {
+        try {
+          return SimLivenessResult.fromJson(cached);
+        } catch (_) {}
+      }
+      return SimLivenessResult(
+        isActive: false,
+        carrierStatus: 'unsupported',
+        message: 'Cannot verify carrier liveness while offline.',
+        verifiedAt: DateTime.now(),
+      );
+    }
+
+    try {
+      final response = await _supabase.functions.invoke(
+        'validate-sim-liveness',
+        body: {
+          'phoneNumber': cleanPhone,
+          if (countryCode != null && countryCode.isNotEmpty)
+            'countryCode': countryCode,
+        },
+      );
+
+      if (response.status == 200 && response.data != null) {
+        final Map<String, dynamic> data = response.data is String
+            ? jsonDecode(response.data as String) as Map<String, dynamic>
+            : (response.data as Map<String, dynamic>);
+
+        final result = SimLivenessResult.fromJson(data);
+        await _cache.writeJson(cacheKey, data);
+        return result;
+      } else if (response.data != null) {
+        final Map<String, dynamic> data = response.data is String
+            ? jsonDecode(response.data as String) as Map<String, dynamic>
+            : (response.data as Map<String, dynamic>);
+        return SimLivenessResult.fromJson(data);
+      }
+
+      return SimLivenessResult(
+        isActive: false,
+        carrierStatus: 'unsupported',
+        message: 'Carrier validation returned unexpected status: ${response.status}',
+        verifiedAt: DateTime.now(),
+      );
+    } catch (e) {
+      final cached = _cache.readJson(cacheKey);
+      if (cached is Map<String, dynamic>) {
+        try {
+          return SimLivenessResult.fromJson(cached);
+        } catch (_) {}
+      }
+      return SimLivenessResult(
+        isActive: false,
+        carrierStatus: 'unsupported',
+        reason: e.toString(),
+        message: 'Carrier verification unavailable for this corridor.',
+        verifiedAt: DateTime.now(),
+      );
     }
   }
 }
