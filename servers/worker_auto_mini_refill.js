@@ -405,47 +405,81 @@ async function executeRefill(execution) {
 
     } catch (error) {
         console.error(`Failed to execute refill ${execution.id}:`, error.message);
-        await markExecutionFailed(execution.id, error.message);
 
         // Failure handling protocol:
-        // 1. Cancel remaining orphaned pending executions for this schedule so broken executions do not fire.
+        // 1. Issue wallet refund for the CURRENT failed execution amount.
+        const refundAmount = parseFloat(execution.amount || execution.base_cost_usd || 0);
+        if (execution.user_id && refundAmount > 0) {
+            const { error: refundError } = await supabase.rpc('credit_wallet_for_refund', {
+                p_user_id: execution.user_id,
+                p_sim_line_id: execution.sim_line_id,
+                p_amount: refundAmount,
+                p_description: `Refund for failed auto refill execution ${execution.id}`,
+                p_reference_id: `refund_exec_${execution.id}`
+            });
+            if (refundError) {
+                if (refundError.code === '23505' || (refundError.message || '').includes('duplicate key')) {
+                    console.log(`[refund] Refund for execution ${execution.id} already recorded. Skipping.`);
+                } else {
+                    console.error(`[refund] Wallet refund failed for execution ${execution.id}:`, refundError.message);
+                    throw new Error(`Refund failed for execution ${execution.id}: ${refundError.message}`);
+                }
+            } else {
+                console.log(`[refund] Refunded ${refundAmount} USD to user ${execution.user_id} for failed execution ${execution.id}`);
+            }
+        }
+
+        // 2. Cancel remaining orphaned pending executions for this schedule so broken executions do not fire.
+        // Also refund those cancelled-but-already-debited SIBLING executions.
         if (execution.scheduled_topup_id) {
             try {
-                await supabase
+                // Fetch siblings first to know who and what to refund
+                const { data: siblings, error: sibError } = await supabase
+                    .from('topup_executions')
+                    .select('id, amount, base_cost_usd, user_id, sim_line_id')
+                    .eq('scheduled_topup_id', execution.scheduled_topup_id)
+                    .eq('status', 'pending');
+                    
+                if (sibError) throw new Error(`Failed to fetch sibling executions: ${sibError.message}`);
+
+                // Refund all siblings BEFORE cancelling them
+                if (siblings && siblings.length > 0) {
+                    for (const sib of siblings) {
+                        const sibAmount = parseFloat(sib.amount || sib.base_cost_usd || 0);
+                        if (sib.user_id && sibAmount > 0) {
+                            const { error: sibRefundErr } = await supabase.rpc('credit_wallet_for_refund', {
+                                p_user_id: sib.user_id,
+                                p_sim_line_id: sib.sim_line_id,
+                                p_amount: sibAmount,
+                                p_description: `Refund for cancelled scheduled execution ${sib.id}`,
+                                p_reference_id: `refund_exec_${sib.id}`
+                            });
+                            if (sibRefundErr && !(sibRefundErr.code === '23505' || (sibRefundErr.message || '').includes('duplicate key'))) {
+                                throw new Error(`Refund failed for sibling execution ${sib.id}: ${sibRefundErr.message}`);
+                            }
+                        }
+                    }
+                    console.log(`[cleanup] Refunded ${siblings.length} sibling pending executions for schedule ${execution.scheduled_topup_id}`);
+                }
+
+                // Now safe to cancel them
+                const { error: cancelError } = await supabase
                     .from('topup_executions')
                     .update({ status: 'cancelled', completed_at: new Date().toISOString() })
                     .eq('scheduled_topup_id', execution.scheduled_topup_id)
                     .eq('status', 'pending');
+                
+                if (cancelError) throw new Error(`Failed to cancel sibling executions: ${cancelError.message}`);
 
-                await supabase
+                const { error: pauseError } = await supabase
                     .from('scheduled_topups')
                     .update({ status: 'paused', is_active: false })
                     .eq('id', execution.scheduled_topup_id);
+                    
+                if (pauseError) throw new Error(`Failed to pause schedule: ${pauseError.message}`);
             } catch (cleanErr) {
-                console.warn(`[cleanup] Failed to cancel pending executions for schedule ${execution.scheduled_topup_id}:`, cleanErr.message);
-            }
-        }
-
-        // 2. Issue wallet refund for the failed execution amount.
-        const refundAmount = parseFloat(execution.amount || execution.base_cost_usd || 0);
-        if (execution.user_id && refundAmount > 0) {
-            try {
-                const { error: refundError } = await supabase.rpc('credit_wallet_for_refund', {
-                    p_user_id: execution.user_id,
-                    p_sim_line_id: execution.sim_line_id,
-                    p_amount: refundAmount,
-                    p_description: `Refund for failed auto refill execution ${execution.id}`,
-                    p_reference_id: `refund_exec_${execution.id}`
-                });
-                if (refundError) {
-                    if (!refundError.message?.includes('duplicate key') && refundError.code !== '23505') {
-                        console.warn(`[refund] Wallet refund failed for execution ${execution.id}:`, refundError.message);
-                    }
-                } else {
-                    console.log(`[refund] Refunded ${refundAmount} USD to user ${execution.user_id} for failed execution ${execution.id}`);
-                }
-            } catch (refErr) {
-                console.warn(`[refund] Wallet refund error:`, refErr.message);
+                console.error(`[cleanup] Failed to process pending executions for schedule ${execution.scheduled_topup_id}:`, cleanErr.message);
+                throw cleanErr; // Rethrow to prevent marking main execution failed and losing state
             }
         }
 
@@ -465,6 +499,9 @@ async function executeRefill(execution) {
                 console.warn(`[notif] Failed to create failure notification: ${notifErr.message}`);
             }
         }
+
+        // 4. Finally, mark the execution itself as failed
+        await markExecutionFailed(execution.id, error.message);
     }
 }
 

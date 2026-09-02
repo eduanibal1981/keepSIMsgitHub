@@ -464,6 +464,7 @@ async function executeRefill(execution) {
                         message: `Refund of ${amount} USD failed for execution ${execution.id} (user ${userId}): ${refundError.message}`,
                         details: { execution_id: execution.id, user_id: userId, amount: amount }
                     });
+                    throw new Error(`Refund failed for execution ${execution.id}: ${refundError.message}`);
                 }
             } else {
                 console.log(`Refund successful.`);
