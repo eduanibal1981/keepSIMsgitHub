@@ -12,6 +12,7 @@ const zenditProvider = require('./providers/zendit');
 const dtoneProvider = require('./providers/dtone');
 const reloadlyProvider = require('./providers/reloadly');
 const dingProvider = require('./providers/ding');
+const { validateSubscriberLiveness } = require('./sim_liveness_service');
 
 const EXECUTION_TYPE = 'refill_custom';
 const BATCH_SIZE = 10;
@@ -176,6 +177,20 @@ async function executeRefill(execution) {
             await getCarrierDetails(execution.sim_line_id, executionProvider);
         const activeProvider = provider;
 
+        // ── Pre-Flight BSS Health Check Gate ─────────────────────────────────────
+        // Confirm subscriber line is not barred, suspended, or deactivated before
+        // touching supplier balances or executing a doomed refill.
+        const liveness = await validateSubscriberLiveness({
+            phoneNumber,
+            countryCode
+        });
+
+        if (liveness.status === 'inactive') {
+            console.warn(`[pre-flight] REJECTED: SIM line ${execution.sim_line_id} (${phoneNumber}) is INACTIVE / BARRED at carrier: ${liveness.reason}`);
+            await handlePreflightFailure(execution, liveness, phoneNumber);
+            return;
+        }
+
         // Validation
         const chargedUsd = chargedOfferPriceUsd(execution);
         let topups;
@@ -259,6 +274,10 @@ async function executeRefill(execution) {
                 }
 
                 if (!pollRes.isSuccess) {
+                    if (pollRes.isFailed === false) {
+                        console.warn(`[refill] Ding auto custom refill for ${phoneNumber} is still in-progress/indeterminate (${pollRes.status}). Postponing settlement for next cycle.`);
+                        return;
+                    }
                     throw new Error(`Ding auto custom refill failed: ${pollRes.errorMsg || pollRes.status}`);
                 }
 
@@ -292,6 +311,10 @@ async function executeRefill(execution) {
                 // against the same external_id, so a retry cannot double-charge.
                 // A false success is not recoverable at all.
                 if (!pollRes.isSuccess) {
+                    if (pollRes.isFailed === false) {
+                        console.warn(`[refill] DTOne auto custom refill for ${phoneNumber} is still in-progress/indeterminate (${pollRes.status}). Postponing settlement for next cycle.`);
+                        return;
+                    }
                     throw new Error(`DTone auto custom refill failed: ${pollRes.errorMsg || pollRes.status}`);
                 }
 
@@ -320,6 +343,10 @@ async function executeRefill(execution) {
                 });
 
                 if (!pollRes.isSuccess) {
+                    if (pollRes.isFailed === false) {
+                        console.warn(`[refill] Reloadly auto custom refill for ${phoneNumber} is still in-progress/indeterminate (${pollRes.status}). Postponing settlement for next cycle.`);
+                        return;
+                    }
                     throw new Error(`Reloadly auto custom refill failed: ${pollRes.errorMsg || pollRes.status}`);
                 }
 
@@ -350,6 +377,10 @@ async function executeRefill(execution) {
                 // against the same external_id, so a retry cannot double-charge.
                 // A false success is not recoverable at all.
                 if (!pollRes.isSuccess) {
+                    if (pollRes.isFailed === false) {
+                        console.warn(`[refill] Zendit auto custom refill for ${phoneNumber} is still in-progress/indeterminate (${pollRes.status}). Postponing settlement for next cycle.`);
+                        return;
+                    }
                     throw new Error(`Zendit auto custom refill failed: ${pollRes.errorMsg || pollRes.status}`);
                 }
 
@@ -400,58 +431,10 @@ async function executeRefill(execution) {
             }
         }
 
-        // 2. Cancel remaining orphaned pending executions for this schedule so broken executions do not fire.
-        // Also refund those cancelled-but-already-debited SIBLING executions.
+        // 2. Keep future scheduled sibling executions in 'pending' status per user policy.
+        // We avoid cancelling later scheduled refills so the rest of the recurring schedule is preserved.
         if (execution.scheduled_topup_id) {
-            try {
-                // Fetch siblings first to know who and what to refund
-                const { data: siblings, error: sibError } = await supabase
-                    .from('topup_executions')
-                    .select('id, amount, base_cost_usd, user_id, sim_line_id')
-                    .eq('scheduled_topup_id', execution.scheduled_topup_id)
-                    .eq('status', 'pending');
-                    
-                if (sibError) throw new Error(`Failed to fetch sibling executions: ${sibError.message}`);
-
-                // Refund all siblings BEFORE cancelling them
-                if (siblings && siblings.length > 0) {
-                    for (const sib of siblings) {
-                        const sibAmount = parseFloat(sib.amount || sib.base_cost_usd || 0);
-                        if (sib.user_id && sibAmount > 0) {
-                            const { error: sibRefundErr } = await supabase.rpc('credit_wallet_for_refund', {
-                                p_user_id: sib.user_id,
-                                p_sim_line_id: sib.sim_line_id,
-                                p_amount: sibAmount,
-                                p_description: `Refund for cancelled scheduled execution ${sib.id}`,
-                                p_reference_id: `refund_exec_${sib.id}`
-                            });
-                            if (sibRefundErr && !(sibRefundErr.code === '23505' || (sibRefundErr.message || '').includes('duplicate key'))) {
-                                throw new Error(`Refund failed for sibling execution ${sib.id}: ${sibRefundErr.message}`);
-                            }
-                        }
-                    }
-                    console.log(`[cleanup] Refunded ${siblings.length} sibling pending executions for schedule ${execution.scheduled_topup_id}`);
-                }
-
-                // Now safe to cancel them
-                const { error: cancelError } = await supabase
-                    .from('topup_executions')
-                    .update({ status: 'cancelled', completed_at: new Date().toISOString() })
-                    .eq('scheduled_topup_id', execution.scheduled_topup_id)
-                    .eq('status', 'pending');
-                
-                if (cancelError) throw new Error(`Failed to cancel sibling executions: ${cancelError.message}`);
-
-                const { error: pauseError } = await supabase
-                    .from('scheduled_topups')
-                    .update({ status: 'paused', is_active: false })
-                    .eq('id', execution.scheduled_topup_id);
-                    
-                if (pauseError) throw new Error(`Failed to pause schedule: ${pauseError.message}`);
-            } catch (cleanErr) {
-                console.error(`[cleanup] Failed to process pending executions for schedule ${execution.scheduled_topup_id}:`, cleanErr.message);
-                throw cleanErr; // Rethrow to prevent marking main execution failed and losing state
-            }
+            console.log(`[refill] Kept future scheduled executions pending for schedule ${execution.scheduled_topup_id}`);
         }
 
         // 3. User notification & customer support reference logging
@@ -486,6 +469,53 @@ async function markExecutionFailed(executionId, reason) {
     if (error) {
         console.error(`Failed to update database status to failed:`, error.message);
     }
+}
+
+async function handlePreflightFailure(execution, liveness, phoneNumber) {
+    const failureReason = `PREFLIGHT_INACTIVE: ${liveness.reason || liveness.message || 'Carrier reports line inactive'}`;
+    console.error(`[pre-flight] Aborting custom refill ${execution.id} for ${phoneNumber}: ${failureReason}`);
+
+    // 1. Issue wallet refund for the CURRENT execution amount so user funds are protected
+    const refundAmount = parseFloat(execution.amount || execution.base_cost_usd || 0);
+    if (execution.user_id && refundAmount > 0) {
+        const { error: refundError } = await supabase.rpc('credit_wallet_for_refund', {
+            p_user_id: execution.user_id,
+            p_sim_line_id: execution.sim_line_id,
+            p_amount: refundAmount,
+            p_description: `Refund for pre-flight check failure on custom refill ${execution.id} (${liveness.reason || 'Inactive SIM'})`,
+            p_reference_id: `refund_exec_${execution.id}`
+        });
+        if (refundError && refundError.code !== '23505' && !(refundError.message || '').includes('duplicate key')) {
+            console.error(`[refund] Wallet refund failed for execution ${execution.id}:`, refundError.message);
+        } else {
+            console.log(`[refund] Preserved ${refundAmount} USD to wallet for user ${execution.user_id} (refill ${execution.id})`);
+        }
+    }
+
+    // 2. Keep future scheduled sibling executions in 'pending' status per user policy.
+    // Avoid cancelling later scheduled refills so the recurring schedule is preserved.
+    if (execution.scheduled_topup_id) {
+        console.log(`[pre-flight] Kept future scheduled executions pending for schedule ${execution.scheduled_topup_id}`);
+    }
+
+    // 3. User notification specifically explaining the carrier line status
+    if (execution.user_id) {
+        try {
+            await supabase.from('notifications').insert({
+                user_id: execution.user_id,
+                category: 'system',
+                title: 'Auto-Refill Issue — SIM Line Inactive',
+                body: `Your scheduled recharge for ${phoneNumber} could not be completed because your carrier reports the line as inactive, barred, or disconnected. Your funds remain safe in your wallet, and later scheduled refills remain pending. Please reactivate your line with the carrier.`,
+                sim_line_id: execution.sim_line_id,
+                action_url: `/sim-lines/${execution.sim_line_id}`
+            });
+        } catch (notifErr) {
+            console.warn(`[notif] Failed to send pre-flight notification: ${notifErr.message}`);
+        }
+    }
+
+    // 4. Mark execution as failed with preflight reason
+    await markExecutionFailed(execution.id, failureReason);
 }
 
 let pollTimer = null;

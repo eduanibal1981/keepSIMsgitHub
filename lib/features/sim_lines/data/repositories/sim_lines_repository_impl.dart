@@ -1005,6 +1005,14 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
         } catch (_) {}
       }
       return SimLivenessResult(
+        isActive: false,
+        carrierStatus: 'unsupported',
+        message: 'Carrier validation failed: $e',
+        verifiedAt: DateTime.now(),
+      );
+    }
+  }
+
   @override
   Future<Map<String, dynamic>> sendSimOtp({
     required String phoneNumber,

@@ -34,6 +34,8 @@ serve(async (req) => {
 
     const body = await req.json();
     const userId = body.user_id;
+    const confirmUserId = body.confirm_user_id;
+    const isAdminDirectPurge = body.admin_purge === true;
 
     if (!userId) {
       return new Response(
@@ -42,18 +44,32 @@ serve(async (req) => {
       );
     }
 
-    // Refuse any user_id whose account_deletions.status <> 'purged'
-    const { data: deletionRecord } = await adminClient
-      .from("account_deletions")
-      .select("status")
-      .eq("user_id", userId)
-      .maybeSingle();
+    // If an admin triggers direct purge, enforce that confirm_user_id matches user_id
+    if (isAdminDirectPurge) {
+      if (!confirmUserId || confirmUserId !== userId) {
+        return new Response(
+          JSON.stringify({
+            success: false,
+            error: "BAD_REQUEST: Admin direct purge requires confirm_user_id to match user_id exactly",
+          }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      console.log(`[purge-accounts] Admin manual purge authorized for user: ${userId}`);
+    } else {
+      // Standard automated purge flow: Refuse any user_id whose account_deletions.status <> 'purged'
+      const { data: deletionRecord } = await adminClient
+        .from("account_deletions")
+        .select("status")
+        .eq("user_id", userId)
+        .maybeSingle();
 
-    if (!deletionRecord || deletionRecord.status !== "purged") {
-      return new Response(
-        JSON.stringify({ success: false, error: "FORBIDDEN: Account status is not purged" }),
-        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      if (!deletionRecord || deletionRecord.status !== "purged") {
+        return new Response(
+          JSON.stringify({ success: false, error: "FORBIDDEN: Account status is not purged" }),
+          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
     }
 
     // 1. Storage Objects Cleanup across buckets
@@ -71,7 +87,6 @@ serve(async (req) => {
     }
 
     // 2. Auth User Admin Deletion
-    // Primary method: standard Supabase Auth Admin API
     const { error: deleteError } = await adminClient.auth.admin.deleteUser(userId);
     let authDeleted = false;
 
@@ -85,7 +100,6 @@ serve(async (req) => {
         authDeleted = true; // Idempotent success
       } else {
         console.warn("auth.admin.deleteUser failed, attempting guarded SQL RPC fallback:", deleteError);
-        // Fallback method: guarded SQL RPC (bypasses GoTrue 500 error on synthetic test users)
         const { error: rpcError } = await adminClient.rpc("delete_auth_user_by_id", {
           p_user_id: userId,
         });
@@ -94,7 +108,6 @@ serve(async (req) => {
           authDeleted = true;
         } else {
           console.error("delete_auth_user_by_id fallback failed:", rpcError);
-          // Check if user still exists in auth.users
           const { data: userExists } = await adminClient.rpc("check_auth_user_exists", {
             p_user_id: userId,
           });
@@ -113,24 +126,51 @@ serve(async (req) => {
       }
     }
 
-    // 3. Mark account_deletions row as auth_deleted
+    // 3. Update or Insert account_deletions row
     if (authDeleted) {
-      const { error: updateErr } = await adminClient
+      const { data: existingRecord } = await adminClient
         .from("account_deletions")
-        .update({
-          status: "auth_deleted",
-          auth_deleted_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        })
-        .eq("user_id", userId);
+        .select("id")
+        .eq("user_id", userId)
+        .maybeSingle();
 
-      if (updateErr) {
-        console.error("Failed to update account_deletions status to auth_deleted:", updateErr);
+      if (existingRecord) {
+        await adminClient
+          .from("account_deletions")
+          .update({
+            status: "auth_deleted",
+            auth_deleted_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          })
+          .eq("user_id", userId);
+      } else if (isAdminDirectPurge) {
+        await adminClient
+          .from("account_deletions")
+          .insert({
+            user_id: userId,
+            status: "auth_deleted",
+            requested_at: new Date().toISOString(),
+            purged_at: new Date().toISOString(),
+            auth_deleted_at: new Date().toISOString(),
+            de_identified_at: new Date().toISOString(),
+          });
+      }
+
+      // Log in admin_audit_log if admin direct purge
+      if (isAdminDirectPurge) {
+        await adminClient.rpc("admin_log", {
+          p_action: "user.purge_account",
+          p_target_type: "user",
+          p_target_id: userId,
+          p_before: {},
+          p_after: { status: "auth_deleted" },
+          p_reason: body.reason || "Manual admin purge with user_id verification challenge",
+        });
       }
     }
 
     return new Response(
-      JSON.stringify({ success: true, user_id: userId, status: "auth_deleted" }),
+      JSON.stringify({ success: true, user_id: userId, status: "auth_deleted", admin_purged: isAdminDirectPurge }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err: any) {

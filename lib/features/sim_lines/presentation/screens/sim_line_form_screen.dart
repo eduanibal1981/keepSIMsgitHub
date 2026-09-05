@@ -95,16 +95,18 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
     }
   }
 
-  Future<void> _triggerLivenessCheck() async {
-    if (!mounted) return;
+  Future<SimLivenessResult?> _triggerLivenessCheck({bool showMissingError = true}) async {
+    if (!mounted) return null;
     if (_selectedCountry == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please select a country first.'),
-          backgroundColor: AppColors.warning,
-        ),
-      );
-      return;
+      if (showMissingError) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please select a country first.'),
+            backgroundColor: AppColors.warning,
+          ),
+        );
+      }
+      return null;
     }
 
     String localNumber = _phoneController.text.trim();
@@ -112,13 +114,15 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
       localNumber = localNumber.substring(1);
     }
     if (localNumber.length < 6) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter your complete phone number first.'),
-          backgroundColor: AppColors.warning,
-        ),
-      );
-      return;
+      if (showMissingError) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please enter your complete phone number first.'),
+            backgroundColor: AppColors.warning,
+          ),
+        );
+      }
+      return null;
     }
 
     final fullNumber = '${_selectedCountry!.dialingCode}$localNumber';
@@ -156,13 +160,113 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
           }
         }
       }
+      return result;
     } catch (_) {
       if (mounted) {
         setState(() {
           _isCheckingLiveness = false;
         });
       }
+      return null;
     }
+  }
+
+  Future<void> _onTierSelected(String tierKey) async {
+    if (tierKey == 'free') {
+      setState(() {
+        _selectedTier = 'free';
+      });
+      return;
+    }
+
+    final planLabel = tierKey == 'premium' ? 'Premium Plan' : 'Standard Plan';
+
+    // 1. If we already checked this number:
+    if (_livenessResult != null) {
+      if (_livenessResult!.carrierStatus == 'inactive') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              _livenessResult!.message.isNotEmpty
+                  ? _livenessResult!.message
+                  : 'This SIM number is inactive or expired at the carrier. Cannot select $planLabel.',
+            ),
+            backgroundColor: AppColors.error,
+          ),
+        );
+        return;
+      }
+
+      final isConfirmedActive = _livenessResult!.isActive || _livenessResult!.carrierStatus == 'active';
+      if (!isConfirmedActive) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Carrier verification is unconfirmed for this line. Please verify via Voice Call or SMS Code first before selecting $planLabel.',
+            ),
+            backgroundColor: AppColors.warning,
+            action: SnackBarAction(
+              label: 'Verify Now',
+              textColor: Colors.white,
+              onPressed: _openOtpVerification,
+            ),
+            duration: const Duration(seconds: 5),
+          ),
+        );
+        return;
+      }
+
+      setState(() {
+        _selectedTier = tierKey;
+      });
+      return;
+    }
+
+    // 2. Otherwise, perform the live lookup automatically (same as Check Line button)
+    final result = await _triggerLivenessCheck(showMissingError: true);
+    if (!mounted) return;
+
+    if (result == null) {
+      // User hasn't typed complete phone number or country yet
+      return;
+    }
+
+    if (result.carrierStatus == 'inactive') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            result.message.isNotEmpty
+                ? result.message
+                : 'This SIM number is inactive or expired at the carrier. Cannot select $planLabel.',
+          ),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+
+    final isConfirmedActive = result.isActive || result.carrierStatus == 'active';
+    if (!isConfirmedActive) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Carrier verification is unconfirmed for this line. Please verify via Voice Call or SMS Code first before selecting $planLabel.',
+          ),
+          backgroundColor: AppColors.warning,
+          action: SnackBarAction(
+            label: 'Verify Now',
+            textColor: Colors.white,
+            onPressed: _openOtpVerification,
+          ),
+          duration: const Duration(seconds: 5),
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      _selectedTier = tierKey;
+    });
   }
 
   Future<void> _openOtpVerification() async {
@@ -1095,16 +1199,14 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
         final isSelected = _selectedTier == tier['key'];
         final isDisabled = tier['key'] == 'free' && _isFreePlanDisabled;
 
+        final isChecking = _isCheckingLiveness && (tier['key'] == 'standard' || tier['key'] == 'premium');
+
         return Container(
           margin: const EdgeInsets.only(bottom: 12),
           child: InkWell(
-            onTap: isDisabled
+            onTap: isDisabled || _isCheckingLiveness
                 ? null
-                : () {
-                    setState(() {
-                      _selectedTier = tier['key']!;
-                    });
-                  },
+                : () => _onTierSelected(tier['key']!),
             borderRadius: BorderRadius.circular(16),
             child: Opacity(
               opacity: isDisabled ? 0.5 : 1.0,
@@ -1138,22 +1240,33 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                 ),
                 child: Row(
                   children: [
-                    Radio<String>(
-                      value: tier['key']!,
-                      groupValue: _selectedTier,
-                      activeColor: isDark
-                          ? AppColors.primaryLight
-                          : AppColors.lightPrimary,
-                      onChanged: isDisabled
-                          ? null
-                          : (val) {
-                              if (val != null) {
-                                setState(() {
-                                  _selectedTier = val;
-                                });
-                              }
-                            },
-                    ),
+                    if (isChecking)
+                      Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: isDark ? AppColors.primaryLight : AppColors.lightPrimary,
+                          ),
+                        ),
+                      )
+                    else
+                      Radio<String>(
+                        value: tier['key']!,
+                        groupValue: _selectedTier,
+                        activeColor: isDark
+                            ? AppColors.primaryLight
+                            : AppColors.lightPrimary,
+                        onChanged: isDisabled || _isCheckingLiveness
+                            ? null
+                            : (val) {
+                                if (val != null) {
+                                  _onTierSelected(val);
+                                }
+                              },
+                      ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Column(
@@ -1455,18 +1568,54 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
       return;
     }
 
-    if (_livenessResult != null && _livenessResult!.carrierStatus == 'inactive') {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            _livenessResult!.message.isNotEmpty
-                ? _livenessResult!.message
-                : 'This SIM number is inactive or expired at the carrier. Cannot register for auto-refill.',
-          ),
-          backgroundColor: AppColors.error,
-        ),
-      );
-      return;
+    if (_selectedTier != 'free') {
+      if (_livenessResult == null) {
+        final res = await _triggerLivenessCheck(showMissingError: true);
+        if (!mounted) return;
+        final isConfirmed = res != null && (res.isActive || res.carrierStatus == 'active');
+        if (!isConfirmed) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                res?.carrierStatus == 'inactive'
+                    ? (res?.message.isNotEmpty == true ? res!.message : 'This SIM number is inactive or expired at the carrier.')
+                    : 'Carrier verification is unconfirmed for this line. Please verify via Voice Call or SMS code first, or select the Free Plan.',
+              ),
+              backgroundColor: AppColors.error,
+              action: (res != null && res.carrierStatus != 'inactive')
+                  ? SnackBarAction(
+                      label: 'Verify Now',
+                      textColor: Colors.white,
+                      onPressed: _openOtpVerification,
+                    )
+                  : null,
+            ),
+          );
+          return;
+        }
+      } else {
+        final isConfirmed = _livenessResult!.isActive || _livenessResult!.carrierStatus == 'active';
+        if (!isConfirmed) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                _livenessResult!.carrierStatus == 'inactive'
+                    ? (_livenessResult!.message.isNotEmpty ? _livenessResult!.message : 'This SIM number is inactive or expired at the carrier.')
+                    : 'Carrier verification is unconfirmed for this line. Please verify via Voice Call or SMS code first, or select the Free Plan.',
+              ),
+              backgroundColor: AppColors.error,
+              action: _livenessResult!.carrierStatus != 'inactive'
+                  ? SnackBarAction(
+                      label: 'Verify Now',
+                      textColor: Colors.white,
+                      onPressed: _openOtpVerification,
+                    )
+                  : null,
+            ),
+          );
+          return;
+        }
+      }
     }
 
     setState(() {

@@ -1,0 +1,39 @@
+<TASK>
+Fix a money-loss bug in the auto-refill failure path: when a wallet-funded top-up (including premium-plan auto-refill) fails due to a provider issue, the wallet was already debited, the execution is marked failed/cancelled in the DB, but the user's money is NOT always refunded. Make wallet money movement consistent with execution outcome: a user must never permanently lose wallet funds for an execution that did not deliver.
+</TASK>
+
+<SYMPTOM>
+User buys a premium plan; the auto-refill fails (provider issue). Database shows the topup execution marked cancelled/failed, but the wallet debit made earlier is never returned. The failure notification even claims "Any charged funds have been refunded to your wallet", which can be false today.
+</SYMPTOM>
+
+<KNOWN CODE PATHS (start here, then follow the money)>
+- servers/worker_auto_mini_refill.js and servers/worker_auto_custom_refill.js: catch block cancels sibling pending executions + pauses the schedule, then calls supabase.rpc('credit_wallet_for_refund', ...) with p_amount = execution.amount || execution.base_cost_usd || 0. If both fields are null/0 the refund is silently SKIPPED while the user was still debited. Verify what amount was actually debited for premium-plan auto-refills (may include premium margin/fee and differ from execution.amount).
+- servers/worker_instant_refill.js: same failure-path pattern, verify it too.
+- supabase/migrations/20260716022000_b2_debit_wallet_reference_id.sql, 20260716023000_b2_drop_legacy_wallet_fns_add_reconciliation.sql, 20260716000000_revoke_client_wallet_writes.sql: wallet RPCs (debit/credit, reference-id idempotency, reconciliation).
+- Find WHERE the debit happens: grep for wallet_transact / debit_wallet_for_topup across servers/, supabase/migrations/, supabase/functions/ and lib/. Determine at which point of the premium-plan + scheduled auto-refill flow the wallet is charged (execution creation? plan purchase? update_execution_status RPC?).
+- Premium plan billing: plan_payments table and the C3 plan-billing migrations; how a premium plan purchase triggers scheduled auto-refills and which amount is debited per execution.
+</KNOWN CODE PATHS>
+
+<REQUIRED FIX BEHAVIOR>
+1. Refund must fire for EVERY failed/cancelled execution that had a wallet debit, using the amount actually debited (store or look up the debited amount, do not guess from execution.amount||base_cost_usd when they can diverge).
+2. Refund must be idempotent (reference-id based, e.g. refund_exec_<id>); a retried worker must not double-credit.
+3. The user-facing notification must state the truth (refund issued vs refund failed), and a refund failure must be loudly logged/visible (e.g. system_alerts or an ops table) rather than console.warn only.
+4. Keep the existing behavior of cancelling sibling pending executions and pausing the schedule on provider failure.
+5. If a DB migration is required, add a new migration file under supabase/migrations/ following the existing naming convention; do not edit already-applied migrations.
+</REQUIRED FIX BEHAVIOR>
+
+<CONSTRAINTS>
+- Do NOT modify these files (they hold unrelated uncommitted work): doc/PRODUCTION_PLAN_REVIEW.md, lib/features/sim_lines/data/datasources/telnyx_verification_service.dart, lib/features/sim_lines/data/datasources/twilio_verification_service.dart, lib/features/sim_lines/data/repositories/sim_lines_repository_impl.dart, lib/whatsapp_service.dart, supabase/functions/telnyx-cdr/index.ts, supabase/functions/liveness-verification/, supabase/functions/send-whatsapp-alert/, mcp_config.json, .zcode/.
+- Do NOT commit. The orchestrator commits.
+- Match existing code style in the workers (console.warn/log conventions, supabase-js patterns) and migration style.
+</CONSTRAINTS>
+
+<GATES>
+- `node --check servers/worker_auto_mini_refill.js` and the same for every other .js file you modify — all must pass.
+- If you add/modify a migration: it must be syntactically valid SQL and idempotent-safe (IF NOT EXISTS / guard patterns consistent with existing migrations).
+- If you touch any Dart file (avoid if possible): `flutter analyze` must show no new issues.
+</GATES>
+
+<REPORT>
+Reply with: (a) root cause in 2-4 sentences (where the debit happens, why the refund was skipped), (b) files touched with one-line purpose each, (c) how idempotency and amount-accuracy are guaranteed, (d) gate results, (e) any follow-up you recommend but did not do.
+</REPORT>

@@ -1,0 +1,57 @@
+<task>
+Fix a money-handling bug in the KeepSIMs backend workers (Node.js, Supabase).
+
+Reported bug: A user buys a premium plan. An auto-refill (scheduled topup) execution later fails due to a PROVIDER issue (e.g., Ding / DTOne / Reloadly / Zendit error). The topup execution ends up marked as `cancelled`/`canceled` in the database, but the money that was debited from the user's wallet for that topup is never refunded. The user loses money on a failed topup.
+</task>
+
+<context>
+Repo root: the current workspace is the KeepSIMs monorepo. The deployed backend workers live in `servers/` at the repo root:
+- `servers/worker_auto_mini_refill.js` — scheduled auto refills (fixed/mini packages)
+- `servers/worker_auto_custom_refill.js` — scheduled auto refills (custom amounts)
+- `servers/worker_instant_refill.js` — instant refills
+- `servers/providers/` — provider client wrappers (ding, dtone, reloadly, zendit)
+
+Money flow (verified from code):
+1. Worker claims executions via RPC `claim_due_executions` / `claim_instant_executions` (defined in Postgres, some in `supabase/migrations/*.sql`).
+2. Wallet debit happens either inside the claim RPC or via RPC `debit_wallet_for_topup` (see `servers/worker_instant_refill.js` around lines 228-251).
+3. On provider success: RPC `update_execution_status` with `p_status: 'success'`.
+4. On provider failure: the worker marks `topup_executions` rows `status: 'cancelled'` directly and refunds via RPC `credit_wallet_for_refund` with `p_reference_id: 'refund_exec_' + execution.id` (see failure handlers around `servers/worker_auto_mini_refill.js` lines 410-450, `servers/worker_auto_custom_refill.js` lines 380-420, `servers/worker_instant_refill.js` lines 440-480). There is also an RPC `update_execution_failed`.
+
+Useful reference docs in the repo: `doc/ADD_SIM_PREMIUM_EGYPT_VODAFONE_WORKFLOW.md` (documents the `update_execution_status` RPC contract), `doc/KeepSIMs_database_Scenarios.md` (money path: claim -> debit -> provider -> update status), and the SQL migration `supabase/migrations/20260717080000_c3b2_scheduled_write_rpcs.sql` (schedule cleanup sets `status = 'cancelled'` in several places). The premium plan purchase + wallet purchase migration is `supabase/migrations/20260820000000_j8_premium_plan_pricing_and_wallet_purchase.sql`.
+
+IMPORTANT: the Postgres RPC definitions (`claim_due_executions`, `claim_instant_executions`, `debit_wallet_for_topup`, `credit_wallet_for_refund`, `update_execution_status`, `update_execution_failed`) may NOT all exist in the repo migrations — some were applied directly to the production database. If you conclude the root cause is inside a DB RPC, DO NOT try to connect to any database. Instead write the corrected SQL as a new idempotent migration file under `supabase/migrations/` and clearly flag it in your report as requiring manual deployment.
+</context>
+
+<investigation-goals>
+Find the exact path where a provider-failed auto refill for a premium plan leaves the wallet debited with the topup execution marked cancelled. Specifically check:
+1. Every code path that sets a topup execution / scheduled topup to `cancelled`/`canceled` (note BOTH spellings — a status-string mismatch like 'canceled' vs 'cancelled' between writer and any refund/status-check logic is a prime suspect).
+2. Whether the refund call in each failure handler can silently fail: the current code catches refund errors and only `console.warn`s; duplicate-key (23505) on `p_reference_id` is swallowed as "already refunded" without verifying that claim.
+3. Whether `refundAmount = execution.amount || execution.base_cost_usd` can be 0/NULL at refund time (amount field missing on claimed executions) causing the refund to be skipped entirely due to the `refundAmount > 0` guard.
+4. Whether the schedule-cleanup path (cancelling sibling pending executions of a schedule, worker lines ~410-425 and migration c3b2) refunds those cancelled-but-already-debited executions, or drops them.
+5. Whether `update_execution_failed` (called in the outer catch) refunds, or whether executions that fail BEFORE the wallet-debit flag is set vs AFTER can diverge (see `worker_instant_refill.js` `walletDebited` flag usage).
+6. Whether premium plan auto-refill executions go through a different path (e.g. `queue_premium_refill_executions`, supplier stamping) that skips one of the refund branches.
+</investigation-goals>
+
+<requirements>
+- Primary fix must live in the `servers/*.js` worker files (these are deployable via git pull + `pm2 restart`). Keep the fix style consistent with the existing code (Supabase JS client, `.rpc()` calls, console warn/log patterns).
+- Make refunds robust: verify the refund actually credited the wallet (or make the failure loud/persistent, e.g. rethrow into the existing `update_execution_failed` path or a retry) rather than silently swallowing errors.
+- Normalize the cancelled/canceled status spelling consistently with what the rest of the codebase and DB queries expect — check which spelling existing queries filter on before choosing.
+- If a sibling pending execution is cancelled by the cleanup path and it was already wallet-debited, it must be refunded too.
+- Do NOT touch Flutter/Dart code (`lib/`, `test/`), the admin dashboard, or unrelated workers (`server_baileys.js`, `server_tg.js`, `server_ww.js`, `worker_esim_catalog.js`, `worker_offers_cache.js`, `worker_voucher_stock.js`) unless a one-line status-constant fix is required there — if so, flag it in the report.
+- Do NOT commit anything. Leave the working tree changes for the orchestrator to review and commit.
+- Do NOT connect to any database, VM, or remote service. Static analysis only.
+</requirements>
+
+<verification>
+- Run `node --check servers/worker_auto_mini_refill.js`, `node --check servers/worker_auto_custom_refill.js`, and `node --check servers/worker_instant_refill.js` — all must pass with no output.
+- Re-read your diff and trace at least one full failure scenario end-to-end (claim -> debit -> provider throws -> cancelled status -> refund credited) to confirm the wallet is made whole in every branch.
+</verification>
+
+<report>
+In your final message report:
+1. ROOT CAUSE: the precise defect(s) found, with file:line references of the buggy code before your change.
+2. CHANGES: every file you modified or created, and a one-line summary per change.
+3. SCENARIOS COVERED: which failure paths now guarantee a refund, and any path you intentionally left alone.
+4. RISKS / FOLLOW-UPS: anything needing manual action (e.g. a SQL migration to run on production DB, an existing DB row that needs a manual refund, PM2 worker names to restart).
+5. GATES: the exact verification commands you ran and their results.
+</report>

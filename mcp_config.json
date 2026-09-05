@@ -1,0 +1,81 @@
+{
+  "mcpServers": {
+    "cloudrun": {
+      "args": [
+        "-y",
+        "@google-cloud/cloud-run-mcp"
+      ],
+      "command": "npx"
+    },
+    "dart-mcp-server": {
+      "args": [
+        "mcp-server"
+      ],
+      "command": "dart",
+      "disabled": true,
+      "disabledTools": [
+        "stop_app",
+        "hover",
+        "signature_help",
+        "resolve_workspace_symbol",
+        "analyze_files",
+        "pub",
+        "create_project"
+      ]
+    },
+    "paypal-mcp-server": {
+      "args": [
+        "-y",
+        "@paypal/mcp",
+        "--tools=all"
+      ],
+      "command": "npx",
+      "env": {
+        "PAYPAL_ACCESS_TOKEN": "A21AAINyOdKsZA433ODs86J1Hb2gFOLCoNBoICmkJE8uJryxyeLBs073o5dppF-x7Im4F9G4ffkGNZE1eAF_QIdFt896rIECg",
+        "PAYPAL_ENVIRONMENT": "SANDBOX"
+      }
+    },
+    "supabase": {
+      "serverUrl": "https://mcp.supabase.com/mcp"
+    },
+    "supabase-project-invbausherrecording": {
+      "args": [
+        "-y",
+        "@supabase/mcp-server-supabase@latest",
+        "--access-token",
+        "sbp_a0139096808a4d3e2d39a29ec15d0339e64dddf5",
+        "--project-ref",
+        "gyshsorklnpudckucpva"
+      ],
+      "command": "npx.cmd",
+      "disabled": true
+    },
+    "supabase-project-kafaaproject": {
+      "serverUrl": "https://mcp.supabase.com/mcp?project_ref=onzmwoajiyennqtjcjez"
+    },
+    "supabase-project-saveSIMDB": {
+      "serverUrl": "https://mcp.supabase.com/mcp?project_ref=zwxswagokhgbuzrrbnhr"
+    },
+    "notebooks": {
+      "command": "node",
+      "args": [
+        "c:\\Users\\abdal\\.antigravity-ide\\extensions\\googlecloudtools.datacloud-0.10.0-universal\\mcp_servers\\cli\\mcp_proxy_bundle.js",
+        "notebooks-antigravityide"
+      ]
+    },
+    "visualization": {
+      "command": "node",
+      "args": [
+        "c:\\Users\\abdal\\.antigravity-ide\\extensions\\googlecloudtools.datacloud-0.10.0-universal\\mcp_servers\\cli\\mcp_proxy_bundle.js",
+        "visualization-antigravityide"
+      ]
+    },
+    "data-agent-kit": {
+      "command": "node",
+      "args": [
+        "c:\\Users\\abdal\\.antigravity-ide\\extensions\\googlecloudtools.datacloud-0.10.0-universal\\mcp_servers\\cli\\mcp_proxy_bundle.js",
+        "dataAgentKit-antigravityide"
+      ]
+    }
+  }
+}

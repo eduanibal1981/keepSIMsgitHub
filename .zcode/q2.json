@@ -1,0 +1,1 @@
+{"name": "execute_sql", "arguments": {"query": "select count(*) filter (where rowsecurity) as tables_with_rls, count(*) filter (where not rowsecurity) as tables_without_rls, count(*) as total from pg_tables where schemaname='public'"}}

@@ -3973,3 +3973,28 @@ International App-to-Phone Calling is implemented as a pay-per-second VoIP servi
 * **Dialer Screen (`CallingScreen`)**: Dynamic top banner displaying active Outbound Caller ID with status badge (`DEFAULT` vs `VERIFIED`), country rate chips, live dialpad, and recent call history.
 * **Active Call Screen (`ActiveCallScreen`)**: Displays carrier status badges (`RINGING...`, `CALL CONNECTED`, `CALL ENDED`), live per-second cost counter, mute/speaker toggles, and instant hangup button.
 
+---
+
+## 14. Phase L — Security Hardening: Client Secret Isolation & Webhook Ingestion (Live 2026-09-02)
+
+### 14.1 Mobile Client Secret Isolation (Twilio, Telnyx, WhatsApp)
+* **Vulnerability Resolved**: Twilio Account SID/Auth Token, Telnyx API Keys, and WhatsApp alert secrets were previously hardcoded in Flutter datasources (`twilio_verification_service.dart`, `telnyx_verification_service.dart`, `whatsapp_service.dart`), allowing anyone decompiling the APK/IPA to extract live telephony credentials.
+* **Remediation Implemented**:
+  1. **New Edge Functions Deployed**:
+     * `liveness-verification`: Authenticates mobile users via Supabase JWT and proxies Twilio Missed Call requests (`twilio_trigger_call`, `twilio_fetch_status`, `twilio_cancel_call`) and Telnyx Handshake SMS (`telnyx_send_sms`, `telnyx_fetch_status`).
+     * `send-whatsapp-alert`: Authenticates mobile users and dispatches alerts to the country-specific or default WhatsApp VPS backend using server secrets.
+  2. **Client Datasource Refactor**:
+     * `TwilioVerificationService`, `TelnyxVerificationService`, and `WhatsAppService` converted to serverless proxy callers via `supabase.functions.invoke()`.
+     * Zero credentials or API secrets shipped in mobile binaries.
+  3. **Backend Worker Independence**:
+     * Backend automation workers running on the remote VM (`34.185.194.90`) continue using isolated environment variables stored in `/home/abdal/keepsims_backend/.env`.
+
+### 14.2 `telnyx-cdr` Webhook Authentication & Wallet Protection
+* **Vulnerability Resolved**: The public webhook endpoint `/telnyx-cdr` previously accepted unauthenticated POST requests and trusted `client_state` fields (`userId`, `ratePerMinute`, `duration`) directly from the request body to execute wallet deductions.
+* **Remediation Implemented**:
+  1. **Ed25519 Webhook Signature Verification**: Webhooks now verify `telnyx-signature-ed25519` and `telnyx-timestamp` headers against `TELNYX_PUBLIC_KEY` via `tweetnacl`. Invalid or missing signatures are immediately rejected with `401 Unauthorized`.
+  2. **Replay Attack Defense**: Rejects any webhook payload with timestamp drift exceeding 300 seconds (5 minutes).
+  3. **Database as Source of Truth**: Pricing rates (`rate_per_minute_usd`) and `user_id` are loaded directly from the database record in `public.call_records`, completely ignoring all client-controllable pricing parameters.
+  4. **Idempotent Wallet Debit**: Execution relies on PostgreSQL `debit_wallet_for_call` RPC function with `call_record_id` reference to guarantee callers cannot be double-billed on webhook retries.
+
+

@@ -1,5 +1,5 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:flutter/foundation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 enum TwilioCallStatus {
   queued,
@@ -14,62 +14,47 @@ enum TwilioCallStatus {
 }
 
 class TwilioVerificationService {
-  static const String _accountSid = 'ACb6df4af349214929b8fc9796c3b6490e';
-  static const String _authToken = '0bf6edf400be1b8fef90eb0898dd5a97';
-  static const String _fromNumber = '+18676755999';
-
-  /// Triggers a phone call to the recipient and rejects it immediately on ring.
+  /// Triggers a phone call to the recipient and rejects it immediately on ring via Edge Function.
   /// Returns the call SID on success, or null on failure.
   static Future<String?> triggerMissedCall(String toPhoneNumber) async {
-    final url = Uri.parse(
-      'https://api.twilio.com/2010-04-01/Accounts/$_accountSid/Calls.json',
-    );
-
-    final basicAuth =
-        'Basic ${base64Encode(utf8.encode('$_accountSid:$_authToken'))}';
-
     try {
-      final response = await http.post(
-        url,
-        headers: {
-          'Authorization': basicAuth,
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
+      final supabase = Supabase.instance.client;
+      final response = await supabase.functions.invoke(
+        'liveness-verification',
         body: {
-          'To': toPhoneNumber,
-          'From': _fromNumber,
-          'Twiml': '<Response><Reject/></Response>',
+          'action': 'twilio_trigger_call',
+          'phoneNumber': toPhoneNumber,
         },
       );
 
-      if (response.statusCode == 201 || response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        return data['sid'] as String?;
+      if (response.status == 200) {
+        final data = response.data;
+        if (data is Map && data['success'] == true) {
+          return data['sid'] as String?;
+        }
       }
       return null;
     } catch (e) {
+      debugPrint('[TwilioVerificationService] triggerMissedCall error: $e');
       return null;
     }
   }
 
-  /// Fetches the status of a call by its SID.
+  /// Fetches the status of a call by its SID via Edge Function.
   static Future<TwilioCallStatus> fetchCallStatus(String callSid) async {
-    final url = Uri.parse(
-      'https://api.twilio.com/2010-04-01/Accounts/$_accountSid/Calls/$callSid.json',
-    );
-
-    final basicAuth =
-        'Basic ${base64Encode(utf8.encode('$_accountSid:$_authToken'))}';
-
     try {
-      final response = await http.get(
-        url,
-        headers: {'Authorization': basicAuth},
+      final supabase = Supabase.instance.client;
+      final response = await supabase.functions.invoke(
+        'liveness-verification',
+        body: {
+          'action': 'twilio_fetch_status',
+          'callSid': callSid,
+        },
       );
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final statusStr = (data['status'] as String? ?? '').toLowerCase();
+      if (response.status == 200) {
+        final data = response.data;
+        final statusStr = ((data is Map ? data['status'] : null) as String? ?? '').toLowerCase();
 
         switch (statusStr) {
           case 'queued':
@@ -94,30 +79,30 @@ class TwilioVerificationService {
       }
       return TwilioCallStatus.unknown;
     } catch (e) {
+      debugPrint('[TwilioVerificationService] fetchCallStatus error: $e');
       return TwilioCallStatus.unknown;
     }
   }
 
-  /// Cancels an ongoing call to stop it from ringing.
+  /// Cancels an ongoing call via Edge Function to stop it from ringing.
   static Future<bool> cancelCall(String callSid) async {
-    final url = Uri.parse(
-      'https://api.twilio.com/2010-04-01/Accounts/$_accountSid/Calls/$callSid.json',
-    );
-
-    final basicAuth =
-        'Basic ${base64Encode(utf8.encode('$_accountSid:$_authToken'))}';
-
     try {
-      final response = await http.post(
-        url,
-        headers: {
-          'Authorization': basicAuth,
-          'Content-Type': 'application/x-www-form-urlencoded',
+      final supabase = Supabase.instance.client;
+      final response = await supabase.functions.invoke(
+        'liveness-verification',
+        body: {
+          'action': 'twilio_cancel_call',
+          'callSid': callSid,
         },
-        body: {'Status': 'canceled'},
       );
-      return response.statusCode == 200;
+
+      if (response.status == 200) {
+        final data = response.data;
+        return data is Map && data['success'] == true;
+      }
+      return false;
     } catch (e) {
+      debugPrint('[TwilioVerificationService] cancelCall error: $e');
       return false;
     }
   }

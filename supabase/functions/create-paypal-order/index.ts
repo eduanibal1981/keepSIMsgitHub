@@ -183,6 +183,26 @@ serve(async (req) => {
       }
 
       finalAmountUsd = Number(quotedPrice);
+
+      // Pre-Purchase Liveness Gate: Refuse Premium order creation if the SIM is already marked inactive
+      if (simLineId && plan === "premium") {
+        const { data: lineData } = await adminClient
+          .from("sim_lines")
+          .select("phone_number, carrier_status, is_carrier_verified")
+          .eq("id", simLineId)
+          .maybeSingle();
+
+        if (lineData && lineData.carrier_status === "inactive") {
+          return new Response(
+            JSON.stringify({
+              success: false,
+              code: "KS422",
+              error: "This SIM line is inactive or barred by the carrier network. Premium subscription refills cannot keep an inactive line alive. Please reactivate your SIM line before purchasing.",
+            }),
+            { status: 422, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+      }
     } else {
       // Deposit path
       const requestedAmount = Number(body.amount_usd);
