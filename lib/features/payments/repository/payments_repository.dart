@@ -59,37 +59,14 @@ class PaymentsRepository implements PaymentsContract {
         );
       }
 
-      // Check if this will be the first card
-      final countRes = await _client
-          .from('payment_methods')
-          .select('id')
-          .eq('user_id', userId);
-      final isFirst = (countRes as List).isEmpty;
-
-      // Mock gateway payment token
-      final token =
-          'tok_${provider.toLowerCase()}_${DateTime.now().millisecondsSinceEpoch % 100000}';
-      final label = '$provider ending in $lastFour';
-
-      final methodMap = {
-        'user_id': userId,
-        'type': 'card',
-        'provider': provider,
-        'label': label,
-        'token': token,
-        'is_default': isFirst,
-        'last_four': lastFour,
-        'expiry_month': expiryMonth,
-        'expiry_year': expiryYear,
-      };
-
-      final response = await _client
-          .from('payment_methods')
-          .insert(methodMap)
-          .select()
-          .single();
-
-      return Success(PaymentMethod.fromJson(response));
+      // Direct card token vaulting without a certified gateway is not supported.
+      // Card funding is performed securely through PayPal hosted checkout.
+      return const Failure(
+        AppFailure.validation(
+          message:
+              'Direct card storage is not supported. Please use PayPal to fund your wallet using a card.',
+        ),
+      );
     } on PostgrestException catch (e) {
       return Failure(AppFailure.server(message: e.message));
     } catch (e) {

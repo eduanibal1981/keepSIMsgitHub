@@ -27,6 +27,7 @@ import 'package:keep_sims/features/sim_lines/data/models/country_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/carrier_model.dart';
 
 import '../../../sim_lines/data/models/carrier_rule_model.dart';
+import 'package:keep_sims/core/providers.dart';
 import 'package:keep_sims/core/providers/app_config_provider.dart';
 import 'package:keep_sims/features/sim_lines/domain/plan_payment.dart';
 import 'package:keep_sims/features/sim_lines/domain/refill_pricing.dart';
@@ -618,50 +619,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
     final isPaid = _selectedTier != 'free';
     if (isPaid) {
-      // Standard bills wallet-first (C3c): the wallet gateway is free while
-      // PayPal's fixed fee eats 23% of a standalone service-fee charge. The
-      // wallet debit is priced server-side by pay_plan_fee_from_wallet.
-      if (_selectedTier == 'standard') {
-        try {
-          if (await PlanPayment.tryStandardFromWallet(ref)) {
-            if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(AppLocalizations.of(context)!.planFeePaidFromWallet),
-                  backgroundColor: AppColors.success,
-                ),
-              );
-            }
-            await commitSubmit();
-            return;
-          }
-        } catch (e) {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Payment failed: $e'),
-                backgroundColor: AppColors.error,
-              ),
-            );
-          }
-          return;
-        }
-      }
-
-      // PayPal fallback (and the premium path): Standard is the service fee
-      // grossed up so it survives PayPal's cut; premium is the fee plus a
-      // pre-paid year of refills, grossed up once — see _premiumYearlyTotal.
-      double amountToCharge = await PlanPayment.standardPayPalTotal(ref);
-      String? premiumRuleId;
+      CarrierRule? premiumRule;
       if (_selectedTier == 'premium' && hasSimDetails) {
         final rule = await ref
             .read(simLinesRepositoryProvider)
             .getCarrierRule(_selectedSimCarrier!.id);
         if (rule != null) {
-          // i7: refuse before PayPal is ever invoked. commitSubmit()'s guard
-          // only runs in the PayPal onSuccess callback — by then the charge
-          // has already been taken, which is the charged-but-no-line shape
-          // this codebase has paid for once already.
           if (CarrierActivityNotice.blocksPremium(rule)) {
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -677,54 +640,121 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             }
             return;
           }
-          amountToCharge = await _premiumYearlyTotal(rule);
-          // J8: the server prices the charge, and for Premium it needs to know
-          // WHICH carrier. There is no sim line yet — it is created in
-          // commitSubmit(), after the payment — so without this the quote fell
-          // back to a generic carrier and billed a number this screen never
-          // showed. Sending it makes the charge equal the quote above.
-          premiumRuleId = rule.id;
+          premiumRule = rule;
         }
       }
 
-      amountToCharge = double.parse(amountToCharge.toStringAsFixed(2));
+      final double planFee = double.parse(
+        (_selectedTier == 'premium' && premiumRule != null
+                ? await PlanPayment.premiumWalletTotal(ref, premiumRule)
+                : await ref.read(baseServiceFeeUsdProvider.future))
+            .toStringAsFixed(2),
+      );
+
+      // Standard and Premium both bill wallet-first
+      try {
+        if (await PlanPayment.tryPlanFromWallet(
+          ref,
+          plan: _selectedTier,
+          rule: premiumRule,
+        )) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(AppLocalizations.of(context)!.planFeePaidFromWallet),
+                backgroundColor: AppColors.success,
+              ),
+            );
+          }
+          await commitSubmit();
+          return;
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Payment failed: $e'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
+        return;
+      }
+
+      // Wallet cannot cover it: compute shortfall deposit (minimum $5.00)
+      double walletBalance = 0.0;
+      final walletRead = await ref.read(walletRepositoryProvider).getWallet();
+      if (walletRead case Success(data: final w)) {
+        walletBalance = w.balance;
+      }
+
+      final shortfall = PlanPayment.calculateShortfall(
+        fee: planFee,
+        availableBalance: walletBalance,
+      );
 
       final authGuard = ref.read(paymentAuthGuardProvider);
       final authResult = await authGuard.confirmPayment(
-        reason: 'Authenticate to confirm plan payment',
+        reason: 'Authenticate to confirm plan deposit',
       );
       if (authResult != BiometricResult.success) {
         return;
       }
 
       if (mounted) {
-        // Everything recorded from here on belongs to this purchase.
-        final chargeStartedAt = DateTime.now().toUtc();
         final navigator = Navigator.of(context);
+        final messenger = ScaffoldMessenger.of(context);
 
         navigator.push(
           MaterialPageRoute(
             builder: (_) => PayPalCheckoutScreen(
-              initialAmount: amountToCharge,
-              paymentReason: 'Payment for $_selectedTier plan',
-              paymentKind: 'plan',
+              initialAmount: shortfall,
+              paymentReason: 'Wallet deposit for $_selectedTier plan',
+              paymentKind: 'deposit',
               plan: _selectedTier,
-              carrierRuleId: premiumRuleId,
+              carrierRuleId: premiumRule?.id,
               onSuccess: () async {
                 navigator.pop();
-                // The `plan_payments` row a plan charge produces is what
-                // `has_paid_premium_entitlement` reads, and it can land after
-                // checkout reports success — on the client-driven capture
-                // fallback it is not written at that point at all. Creating the
-                // premium line first asks the refill queue to trust a payment
-                // it cannot see yet, and it answers KS403.
-                if (_selectedTier == 'premium') {
-                  await PlanPayment.waitForPlanPayment(
+                try {
+                  await PlanPayment.waitForWalletCredit(
                     ref,
-                    since: chargeStartedAt,
+                    atLeast: planFee,
+                  );
+
+                  final paid = await PlanPayment.tryPlanFromWallet(
+                    ref,
+                    plan: _selectedTier,
+                    rule: premiumRule,
+                  );
+
+                  if (paid) {
+                    messenger.showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          AppLocalizations.of(context)!.planFeePaidFromWallet,
+                        ),
+                        backgroundColor: AppColors.success,
+                      ),
+                    );
+                    await commitSubmit();
+                  } else {
+                    messenger.showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Deposit received! Please try activating again from your wallet balance.',
+                        ),
+                        backgroundColor: AppColors.warning,
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  messenger.showSnackBar(
+                    SnackBar(
+                      content: Text('Plan activation failed: $e'),
+                      backgroundColor: AppColors.error,
+                    ),
                   );
                 }
-                await commitSubmit();
               },
             ),
           ),

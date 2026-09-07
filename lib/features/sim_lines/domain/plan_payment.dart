@@ -24,6 +24,17 @@ import 'package:keep_sims/features/wallet/controller/wallet_controller.dart';
 class PlanPayment {
   const PlanPayment._();
 
+  /// Calculates the shortfall deposit needed to fund the wallet for a plan fee.
+  /// Enforces minimum deposit of $5.00. Returns 0.0 if available balance covers fee.
+  static double calculateShortfall({
+    required double fee,
+    required double availableBalance,
+  }) {
+    final diff = fee - availableBalance;
+    if (diff <= 0.001) return 0.0;
+    return diff < 5.00 ? 5.00 : double.parse(diff.toStringAsFixed(2));
+  }
+
   /// What the PayPal fallback bills so exactly the service fee survives
   /// PayPal's percentage + fixed cut.
   static Future<double> standardPayPalTotal(WidgetRef ref) async {

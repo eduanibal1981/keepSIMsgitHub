@@ -1887,38 +1887,6 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
           return;
         }
 
-        // The wallet cannot cover it, so the plan is bought through PayPal as a
-        // PLAN charge — not as a wallet deposit.
-        //
-        // That distinction is the whole of C3c's contract and this screen was
-        // the one place breaking it. A deposit is credited to the payer's
-        // wallet at its FULL captured value (`paypal-webhook` passes `gross` to
-        // `credit_wallet_for_deposit`), so routing a plan purchase through a
-        // deposit hands the subscriber every cent they paid and leaves KeepSIMs
-        // paying PayPal's cut — $0.81 on a $9.52 Premium year, and $0.57 of a
-        // $2.50 Standard fee, which is 23%. Worse, the sheet computed a
-        // grossed-up total, printed it on the button, and then pushed checkout
-        // with the *un*-grossed figure, so PayPal charged $9.52 against a
-        // button that said $10.36.
-        //
-        // A plan charge is priced server-side by `quote_plan_price` from the
-        // same `plan_price_net` the wallet rail uses, grossed up once for the
-        // gateway. The figure below is the client's copy of that quote, shown
-        // for confirmation; the server still decides what is billed.
-        final planPayPalTotal = double.parse(
-          (selectedPlanType == 'premium'
-                  ? await PlanPayment.premiumYearlyTotal(
-                      ref,
-                      premiumRule!,
-                      simLineId: widget.id,
-                    )
-                  : await PlanPayment.standardPayPalTotal(ref))
-              .toStringAsFixed(2),
-        );
-        final paypalFee = double.parse(
-          (planPayPalTotal - basePlanFee).toStringAsFixed(2),
-        );
-
         // Read from the repository, not `walletControllerProvider.value` — the
         // provider hands back the pre-refresh balance after an invalidate.
         double walletBalance = 0.0;
@@ -1927,14 +1895,18 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
           walletBalance = w.balance;
         }
 
+        final shortfall = PlanPayment.calculateShortfall(
+          fee: basePlanFee,
+          availableBalance: walletBalance,
+        );
+
         // Show dialog with detailed breakdown!
         setState(() => _isSaving = false);
-        final shouldPay = await _showPayPalPlanChargeDialog(
+        final shouldPay = await _showShortfallDepositDialog(
           context: context,
           currentBalance: walletBalance,
           basePlanFee: basePlanFee,
-          paypalFee: paypalFee,
-          grossTotalToCharge: planPayPalTotal,
+          depositAmount: shortfall,
           planName: selectedPlanType == 'premium' ? 'Premium' : 'Standard',
         );
 
@@ -1943,82 +1915,69 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
         // Biometric / Mock Security Verification (Interactive with 4-digit token fallback)
         final paypalAuthOk = await authGuard.confirmPaymentInteractive(
           context,
-          reason: 'Authenticate to pay for the $selectedPlanType plan via PayPal',
+          reason: 'Authenticate to deposit \$${shortfall.toStringAsFixed(2)} for the $selectedPlanType plan',
           confirmationToken: confirmationToken,
         );
         if (!paypalAuthOk) return;
 
-        // Anything recorded from here on belongs to this purchase.
-        final chargeStartedAt = DateTime.now().toUtc();
-
         if (mounted) {
-          // Captured from *this* screen's context, before the route is pushed.
-          // The builder's parameter used to be called `context` too, which
-          // shadowed `State.context`, so every lookup inside `onSuccess` ran
-          // against the PayPal route — an element that is deactivated the
-          // instant the first line pops it. `mounted` refers to this State and
-          // stayed true, so the guards passed straight into
-          // `ScaffoldMessenger.of(<deactivated>)`, which throws "Looking up a
-          // deactivated widget's ancestor is unsafe" *after* the plan fee had
-          // been debited and before the line was ever created.
           final navigator = Navigator.of(context);
           final messenger = ScaffoldMessenger.of(context);
 
           navigator.push(
             MaterialPageRoute(
               builder: (_) => PayPalCheckoutScreen(
-                initialAmount: planPayPalTotal,
+                initialAmount: shortfall,
                 paymentReason:
-                    '${selectedPlanType == 'premium' ? 'Premium' : 'Standard'} '
-                    'protection plan — 1 year',
-                paymentKind: 'plan',
+                    'Wallet deposit for ${selectedPlanType == 'premium' ? 'Premium' : 'Standard'} plan',
+                paymentKind: 'deposit',
                 plan: selectedPlanType,
-                // Null on a new line: the row does not exist yet, which is
-                // exactly why the carrier rule id has to travel instead.
                 simLineId: _isEdit ? widget.id : null,
                 carrierRuleId: carrierRuleId,
                 onSuccess: () async {
                   navigator.pop(); // pop PayPal screen
                   setState(() => _isSaving = true);
 
-                  // Every await below is a network call with no timeout of its
-                  // own. `_isSaving` blanks the whole form behind a spinner, so
-                  // one stalled socket used to leave the screen unusable with no
-                  // way back — hence the outer bound and the finally.
                   try {
-                    // A plan charge becomes an entitlement only when the
-                    // `plan_payments` row lands, and checkout can report
-                    // success first — always on the client-driven capture
-                    // fallback, which writes no payment row at all. Creating a
-                    // Premium line before then asks the refill queue to trust a
-                    // payment it cannot see, and it answers KS403.
-                    //
-                    // Committed either way once the wait is over: the charge is
-                    // already made and a plan charge carries no idempotency
-                    // reference, so the worst outcome must be "plan active,
-                    // refills pending", never a second payment.
-                    await PlanPayment.waitForPlanPayment(
+                    // Wait for wallet deposit to land
+                    await PlanPayment.waitForWalletCredit(
                       ref,
-                      since: chargeStartedAt,
+                      atLeast: basePlanFee,
                     );
 
+                    // Pay the plan fee directly from the funded wallet
+                    final paid = await PlanPayment.tryPlanFromWallet(
+                      ref,
+                      plan: selectedPlanType,
+                      rule: premiumRule,
+                      simLineId: _isEdit ? widget.id : null,
+                    );
+
+                    if (!paid) {
+                      messenger.showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'Deposit received! Please tap Save again to activate your plan from your wallet balance.',
+                          ),
+                          backgroundColor: AppColors.warning,
+                        ),
+                      );
+                      setState(() => _isSaving = false);
+                      return;
+                    }
+
                     messenger.showSnackBar(
-                      const SnackBar(
+                      SnackBar(
                         content: Text(
-                          'Payment received. Activating your plan…',
+                          AppLocalizations.of(context)!.planFeePaidFromWallet,
                         ),
                         backgroundColor: AppColors.success,
                       ),
                     );
 
-                    // Paid by this point, so a save that stalls must surface as
-                    // a retryable error rather than an endless spinner.
+                    // Paid by this point, proceed with line creation/update
                     await commitSave().timeout(const Duration(seconds: 45));
                   } catch (e, stack) {
-                    // The fee is already debited here, so a failure at this
-                    // point is a money event, not a UI hiccup. Report it with
-                    // enough context to identify the call that failed —
-                    // several of these have been invisible in the device log.
                     await Sentry.captureException(
                       e,
                       stackTrace: stack,
@@ -2038,9 +1997,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                         duration: const Duration(seconds: 10),
                       ),
                     );
-                  } finally {
-                    // commitSave pops the form on success; guard for that.
-                    if (mounted) setState(() => _isSaving = false);
+                    setState(() => _isSaving = false);
                   }
                 },
               ),
@@ -2075,15 +2032,15 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
   // grossed-up total that was never charged: the button said $10.36 while
   // checkout was opened for $9.52, because the caller passed the *net*. The
   // breakdown now describes exactly one thing — the PayPal charge for the plan.
-  Future<bool?> _showPayPalPlanChargeDialog({
+  Future<bool?> _showShortfallDepositDialog({
     required BuildContext context,
     required double currentBalance,
     required double basePlanFee,
-    required double grossTotalToCharge,
-    required double paypalFee,
+    required double depositAmount,
     required String planName,
   }) {
     final isDark = context.isDarkMode;
+    final remainder = (currentBalance + depositAmount) - basePlanFee;
 
     return showModalBottomSheet<bool>(
       context: context,
@@ -2130,7 +2087,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Pay with PayPal',
+                          'Add Funds & Activate',
                           style: AppTextStyles.titleMedium.copyWith(
                             fontWeight: FontWeight.bold,
                             color: context.onSurfaceColor,
@@ -2188,7 +2145,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'PayPal Processing Fee:',
+                          'Current Wallet Balance:',
                           style: TextStyle(
                             color: isDark
                                 ? AppColors.textSecondaryDark
@@ -2196,7 +2153,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                           ),
                         ),
                         Text(
-                          '+\$${paypalFee.toStringAsFixed(2)}',
+                          '\$${currentBalance.toStringAsFixed(2)}',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: isDark
@@ -2211,11 +2168,11 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text(
-                          'Total PayPal Charge:',
+                          'Required Deposit:',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         Text(
-                          '\$${grossTotalToCharge.toStringAsFixed(2)}',
+                          '\$${depositAmount.toStringAsFixed(2)}',
                           style: const TextStyle(
                             fontWeight: FontWeight.w900,
                             fontSize: 17,
@@ -2244,11 +2201,8 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        'Breakdown: \$${basePlanFee.toStringAsFixed(2)} plan '
-                        '+ \$${paypalFee.toStringAsFixed(2)} PayPal fee. This '
-                        'is charged by PayPal for the plan itself, so nothing '
-                        'passes through your wallet.'
-                        '${currentBalance > 0 ? ' Your \$${currentBalance.toStringAsFixed(2)} balance stays untouched — top it up to \$${basePlanFee.toStringAsFixed(2)} and save the PayPal fee.' : ''}',
+                        'Minimum PayPal deposit is \$5.00. Funds will be deposited to your wallet, then \$${basePlanFee.toStringAsFixed(2)} will be debited for your plan.'
+                        '${remainder > 0.001 ? ' Remaining \$${remainder.toStringAsFixed(2)} stays in your wallet for future refills or services.' : ''}',
                         style: AppTextStyles.caption.copyWith(
                           color: context.onSurfaceColor.withValues(alpha: 0.85),
                           fontSize: 12,
@@ -2278,7 +2232,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                       const Icon(Icons.payment_rounded, size: 20),
                       const SizedBox(width: 8),
                       Text(
-                        'Pay \$${grossTotalToCharge.toStringAsFixed(2)} via PayPal & Activate',
+                        'Deposit \$${depositAmount.toStringAsFixed(2)} & Activate Plan',
                         style: const TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.bold,

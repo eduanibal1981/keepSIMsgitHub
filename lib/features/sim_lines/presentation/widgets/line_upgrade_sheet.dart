@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:keep_sims/features/payments/presentation/screens/paypal_checkout_screen.dart';
 import 'package:keep_sims/core/services/biometric_auth_service.dart';
+import 'package:keep_sims/core/providers.dart';
+import 'package:keep_sims/core/result.dart';
 import 'package:keep_sims/core/providers/app_config_provider.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
@@ -427,90 +429,113 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
                             // service fee, billed wallet-first; premium is the
                             // fee plus a pre-paid year of refills in ONE PayPal
                             // charge, same math as onboarding.
-                            double totalAmount;
-                            String reason =
-                                '$planName Plan upgrade for $lineNickname (${widget.simLine.phoneNumber})';
-                            if (tier == 'standard') {
-                              try {
-                                if (await PlanPayment.tryStandardFromWallet(
-                                  ref,
-                                  simLineId: widget.simLine.id,
-                                )) {
-                                  await commitUpgrade();
-                                  messenger.showSnackBar(
-                                    SnackBar(
-                                      content: Text(l.planFeePaidFromWallet),
-                                      backgroundColor: AppColors.success,
-                                    ),
-                                  );
-                                  navigator.pop();
-                                  return;
-                                }
-                              } catch (e) {
-                                messenger.showSnackBar(
-                                  SnackBar(
-                                    content: Text('Payment failed: $e'),
-                                    backgroundColor: AppColors.error,
-                                  ),
-                                );
-                                return;
-                              }
-                              totalAmount =
-                                  await PlanPayment.standardPayPalTotal(ref);
-                            } else {
-                              totalAmount = await PlanPayment.premiumYearlyTotal(
-                                ref,
-                                carrierRule!,
-                              );
-                            }
-                            totalAmount = double.parse(
-                              totalAmount.toStringAsFixed(2),
+                            final double planFee = double.parse(
+                              (tier == 'standard'
+                                      ? await ref.read(baseServiceFeeUsdProvider.future)
+                                      : await PlanPayment.premiumWalletTotal(ref, carrierRule!))
+                                  .toStringAsFixed(2),
                             );
 
+                            try {
+                              if (await PlanPayment.tryPlanFromWallet(
+                                ref,
+                                plan: tier,
+                                rule: carrierRule,
+                                simLineId: widget.simLine.id,
+                              )) {
+                                await commitUpgrade();
+                                messenger.showSnackBar(
+                                  SnackBar(
+                                    content: Text(l.planFeePaidFromWallet),
+                                    backgroundColor: AppColors.success,
+                                  ),
+                                );
+                                navigator.pop();
+                                return;
+                              }
+                            } catch (e) {
+                              messenger.showSnackBar(
+                                SnackBar(
+                                  content: Text('Payment failed: $e'),
+                                  backgroundColor: AppColors.error,
+                                ),
+                              );
+                              return;
+                            }
+
+                            // Read available wallet balance
+                            double walletBalance = 0.0;
+                            final walletRead = await ref.read(walletRepositoryProvider).getWallet();
+                            if (walletRead case Success(data: final w)) {
+                              walletBalance = w.balance;
+                            }
+
+                            final shortfall = PlanPayment.calculateShortfall(
+                              fee: planFee,
+                              availableBalance: walletBalance,
+                            );
+
+                            if (!mounted) return;
                             final authGuard = ref.read(paymentAuthGuardProvider);
                             final authOk = await authGuard.confirmPaymentInteractive(
                               context,
-                              reason: 'Authenticate to confirm plan upgrade',
+                              reason: 'Authenticate to deposit \$${shortfall.toStringAsFixed(2)} for plan upgrade',
                             );
                             if (!authOk) {
                               return;
                             }
 
-                            // Anything recorded from here on belongs to this
-                            // purchase — see the wait in onSuccess.
-                            final chargeStartedAt = DateTime.now().toUtc();
-
                             navigator.pop();
-                            // Navigate directly to PayPal payment
+                            // Navigate directly to PayPal deposit
                             navigator.push(
                               MaterialPageRoute(
                                 builder: (_) => PayPalCheckoutScreen(
-                                  initialAmount: totalAmount,
-                                  paymentReason: reason,
-                                  paymentKind: 'plan',
-                                  plan: _selectedPlan,
+                                  initialAmount: shortfall,
+                                  paymentReason: 'Wallet deposit for $planName plan upgrade ($lineNickname)',
+                                  paymentKind: 'deposit',
+                                  plan: tier,
                                   simLineId: widget.simLine.id,
                                   carrierRuleId: carrierRule?.id,
                                   onSuccess: () async {
-                                    // A `kind: 'plan'` charge becomes an
-                                    // entitlement only when the
-                                    // `plan_payments` row lands, and checkout
-                                    // can report success first — always on the
-                                    // client-driven capture fallback, which
-                                    // writes no payment row at all. Upgrading
-                                    // before then asks the refill queue to
-                                    // trust a payment it cannot see, and it
-                                    // answers KS403.
-                                    //
-                                    // Committed either way once the wait is
-                                    // over: the charge is already made, so the
-                                    // worst case must be "plan active, refills
-                                    // pending" rather than a second payment.
-                                    await PlanPayment.waitForPlanPayment(
-                                      ref,
-                                      since: chargeStartedAt,
-                                    );
-                                    await commitUpgrade();
+                                    try {
+                                      await PlanPayment.waitForWalletCredit(
+                                        ref,
+                                        atLeast: planFee,
+                                      );
+
+                                      final paid = await PlanPayment.tryPlanFromWallet(
+                                        ref,
+                                        plan: tier,
+                                        rule: carrierRule,
+                                        simLineId: widget.simLine.id,
+                                      );
+
+                                      if (paid) {
+                                        await commitUpgrade();
+                                        messenger.showSnackBar(
+                                          SnackBar(
+                                            content: Text(l.planFeePaidFromWallet),
+                                            backgroundColor: AppColors.success,
+                                          ),
+                                        );
+                                      } else {
+                                        messenger.showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              'Deposit received! Please try upgrading again from your wallet balance.',
+                                            ),
+                                            backgroundColor: AppColors.warning,
+                                          ),
+                                        );
+                                      }
+                                    } catch (e) {
+                                      messenger.showSnackBar(
+                                        SnackBar(
+                                          content: Text('Plan upgrade failed: $e'),
+                                          backgroundColor: AppColors.error,
+                                        ),
+                                      );
+                                    }
                                   },
                                 ),
                               ),

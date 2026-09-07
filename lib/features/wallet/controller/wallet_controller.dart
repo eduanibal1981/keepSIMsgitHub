@@ -20,22 +20,26 @@ class WalletState {
   final Wallet wallet;
   final List<WalletTransaction> transactions;
   final bool isSubmitting;
+  final Map<String, dynamic>? summary;
 
   const WalletState({
     required this.wallet,
     required this.transactions,
     this.isSubmitting = false,
+    this.summary,
   });
 
   WalletState copyWith({
     Wallet? wallet,
     List<WalletTransaction>? transactions,
     bool? isSubmitting,
+    Map<String, dynamic>? summary,
   }) {
     return WalletState(
       wallet: wallet ?? this.wallet,
       transactions: transactions ?? this.transactions,
       isSubmitting: isSubmitting ?? this.isSubmitting,
+      summary: summary ?? this.summary,
     );
   }
 }
@@ -54,14 +58,25 @@ class WalletController extends _$WalletController {
 
     final repo = ref.watch(walletRepositoryProvider);
 
-    // 2. Fetch Wallet + Transaction Ledger parallelly
-    final walletResult = await repo.getWallet();
-    final txsResult = await repo.getTransactions();
+    // 2. Fetch Wallet + Transaction Ledger + Summary in parallel
+    final walletFuture = repo.getWallet();
+    final txsFuture = repo.getTransactions();
+    final summaryFuture = repo.getWalletSummary();
+
+    final (walletResult, txsResult, summaryResult) = await (
+      walletFuture,
+      txsFuture,
+      summaryFuture,
+    ).wait;
 
     // 3. Pattern match sealed clean architecture results
     switch ((walletResult, txsResult)) {
       case (Success(data: final wallet), Success(data: final txs)):
-        return WalletState(wallet: wallet, transactions: txs);
+        Map<String, dynamic>? summary;
+        if (summaryResult case Success(data: final s)) {
+          summary = s;
+        }
+        return WalletState(wallet: wallet, transactions: txs, summary: summary);
       case (Failure(error: final f), _):
         throw Exception(f.message);
       case (_, Failure(error: final f)):
@@ -229,6 +244,43 @@ class WalletController extends _$WalletController {
         // Revert submitting state
         state = AsyncData(current.copyWith(isSubmitting: false));
         // We throw so UI can catch and show snackbar for validation errors like insufficient funds
+        throw Exception(f.message);
+    }
+  }
+
+  /// Quotes the eligible unused paid deposit refund to the original payment source.
+  Future<Map<String, dynamic>> quoteRefund() async {
+    final repo = ref.read(walletRepositoryProvider);
+    final result = await repo.quoteRefund();
+    switch (result) {
+      case Success(data: final quote):
+        return quote;
+      case Failure(error: final f):
+        throw Exception(f.message);
+    }
+  }
+
+  /// Requests a refund of eligible unused paid funds.
+  Future<Map<String, dynamic>> requestRefund({
+    required double amount,
+    String? reason,
+  }) async {
+    final current = state.value;
+    if (current != null) {
+      state = AsyncData(current.copyWith(isSubmitting: true));
+    }
+
+    final repo = ref.read(walletRepositoryProvider);
+    final result = await repo.requestRefund(amount: amount, reason: reason);
+
+    switch (result) {
+      case Success(data: final res):
+        ref.invalidateSelf();
+        return res;
+      case Failure(error: final f):
+        if (current != null) {
+          state = AsyncData(current.copyWith(isSubmitting: false));
+        }
         throw Exception(f.message);
     }
   }

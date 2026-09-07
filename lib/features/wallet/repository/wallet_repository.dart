@@ -211,7 +211,7 @@ class WalletRepository implements WalletContract {
             .limit(1);
 
         if ((rows as List).isNotEmpty) {
-          return getWallet();
+          return await getWallet();
         }
         await Future.delayed(const Duration(seconds: 3));
       }
@@ -350,7 +350,7 @@ class WalletRepository implements WalletContract {
         return Failure(AppFailure.server(message: result.message));
       }
 
-      return getWallet();
+      return await getWallet();
     } on PostgrestException catch (e) {
       if (e.message.contains('Insufficient wallet balance')) {
         return const Failure(
@@ -425,6 +425,98 @@ class WalletRepository implements WalletContract {
       return Success(result);
     } on PostgrestException catch (e) {
       return Failure(AppFailure.server(message: e.message));
+    } catch (e) {
+      return Failure(AppFailure.unknown(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Result<Map<String, dynamic>>> getWalletSummary() async {
+    if (_connectivity.isOffline) {
+      final cached = _cache.readJson('cached_wallet_summary');
+      if (cached is Map<String, dynamic>) {
+        return Success(cached);
+      }
+      return const Failure(
+        AppFailure.server(
+          message: 'No internet connection and no cached summary.',
+        ),
+      );
+    }
+    try {
+      final res = await _walletTransact({'action': 'summary'});
+      if (res['success'] == true && res['summary'] is Map<String, dynamic>) {
+        final summary = res['summary'] as Map<String, dynamic>;
+        await _cache.writeJson('cached_wallet_summary', summary);
+        return Success(summary);
+      }
+      return Failure(
+        AppFailure.server(
+          message:
+              res['errorMessage']?.toString() ??
+              'Failed to fetch wallet summary.',
+        ),
+      );
+    } catch (e) {
+      return Failure(AppFailure.unknown(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Result<Map<String, dynamic>>> quoteRefund() async {
+    if (_connectivity.isOffline) {
+      return const Failure(
+        AppFailure.network(
+          message: 'Internet connection required to quote refund.',
+        ),
+      );
+    }
+    try {
+      final res = await _walletTransact({'action': 'quote_refund'});
+      if (res['success'] == true && res['quote'] is Map<String, dynamic>) {
+        return Success(res['quote'] as Map<String, dynamic>);
+      }
+      return Failure(
+        AppFailure.server(
+          message: res['errorMessage']?.toString() ?? 'Failed to quote refund.',
+        ),
+      );
+    } catch (e) {
+      return Failure(AppFailure.unknown(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Result<Map<String, dynamic>>> requestRefund({
+    required double amount,
+    String? reason,
+  }) async {
+    if (_connectivity.isOffline) {
+      return const Failure(
+        AppFailure.network(
+          message: 'Internet connection required to request refund.',
+        ),
+      );
+    }
+    try {
+      final res = await _walletTransact({
+        'action': 'request_refund',
+        'amount': amount,
+        'description': reason ?? 'Customer requested refund',
+      });
+      if (res['success'] == true && res['result'] is Map<String, dynamic>) {
+        await _cache.remove('cached_wallet');
+        await _cache.remove('cached_wallet_transactions');
+        await _cache.remove('cached_wallet_summary');
+        return Success(res['result'] as Map<String, dynamic>);
+      }
+      return Failure(
+        AppFailure.server(
+          message:
+              res['errorMessage']?.toString() ??
+              'Failed to submit refund request.',
+        ),
+      );
     } catch (e) {
       return Failure(AppFailure.unknown(message: e.toString()));
     }

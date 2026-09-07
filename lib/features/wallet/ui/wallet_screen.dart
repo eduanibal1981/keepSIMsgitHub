@@ -16,6 +16,7 @@ import '../controller/wallet_controller.dart';
 import '../model/wallet_model.dart';
 import '../model/gift_transfer_model.dart';
 import 'gift_credit_sheet.dart';
+import 'refund_funds_sheet.dart';
 import 'package:keep_sims/core/widgets/shimmer_loading.dart';
 import 'package:keep_sims/core/widgets/error_state.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
@@ -475,75 +476,116 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
   }
 
   Widget _buildQuickActionButtons(BuildContext context, bool isOffline) {
-    return Row(
+    return Column(
       children: [
-        Expanded(
-          child: Opacity(
-            opacity: isOffline ? 0.5 : 1.0,
-            child: _buildActionButton(
-              icon: Icons.add_circle_rounded,
-              label: AppLocalizations.of(context)!.depositFunds,
-              color: context.isDarkMode
-                  ? AppColors.primaryLight
-                  : AppColors.lightPrimary,
-              onTap: isOffline
-                  ? () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            'Wallet deposits require an active internet connection.',
-                          ),
-                          backgroundColor: AppColors.error,
-                        ),
-                      );
-                    }
-                  : () => _showDepositModalSheet(context),
-            ),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Opacity(
-            opacity: isOffline ? 0.5 : 1.0,
-            child: _buildActionButton(
-              icon: Icons.card_giftcard_rounded,
-              label: 'Send Credit',
-              color: context.isDarkMode
-                  ? AppColors.primaryLight
-                  : AppColors.lightPrimary,
-              onTap: isOffline
-                  ? () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            'Sending credit requires an active internet connection.',
-                          ),
-                          backgroundColor: AppColors.error,
-                        ),
-                      );
-                    }
-                  : () => _showGiftSheet(context),
-            ),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _buildActionButton(
-            icon: Icons.history_edu_rounded,
-            label: 'Export Ledger',
-            color: context.isDarkMode
-                ? AppColors.secondaryLight
-                : AppColors.lightSecondary,
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Ledger history exported as CSV.'),
+        Row(
+          children: [
+            Expanded(
+              child: Opacity(
+                opacity: isOffline ? 0.5 : 1.0,
+                child: _buildActionButton(
+                  icon: Icons.add_circle_rounded,
+                  label: AppLocalizations.of(context)!.depositFunds,
+                  color: context.isDarkMode
+                      ? AppColors.primaryLight
+                      : AppColors.lightPrimary,
+                  onTap: isOffline
+                      ? () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Wallet deposits require an active internet connection.',
+                              ),
+                              backgroundColor: AppColors.error,
+                            ),
+                          );
+                        }
+                      : () => _showDepositModalSheet(context),
                 ),
-              );
-            },
-          ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Opacity(
+                opacity: isOffline ? 0.5 : 1.0,
+                child: _buildActionButton(
+                  icon: Icons.undo_rounded,
+                  label: 'Refund Funds',
+                  color: Colors.orangeAccent,
+                  onTap: isOffline
+                      ? () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Refunds require an active internet connection.',
+                              ),
+                              backgroundColor: AppColors.error,
+                            ),
+                          );
+                        }
+                      : () => _showRefundSheet(context),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: Opacity(
+                opacity: isOffline ? 0.5 : 1.0,
+                child: _buildActionButton(
+                  icon: Icons.card_giftcard_rounded,
+                  label: 'Send Credit',
+                  color: context.isDarkMode
+                      ? AppColors.primaryLight
+                      : AppColors.lightPrimary,
+                  onTap: isOffline
+                      ? () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Sending credit requires an active internet connection.',
+                              ),
+                              backgroundColor: AppColors.error,
+                            ),
+                          );
+                        }
+                      : () => _showGiftSheet(context),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildActionButton(
+                icon: Icons.history_edu_rounded,
+                label: 'Export Ledger',
+                color: context.isDarkMode
+                    ? AppColors.secondaryLight
+                    : AppColors.lightSecondary,
+                onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Ledger history exported as CSV.'),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ],
+    );
+  }
+
+  // ── Refund Funds ─────────────────────────────────────────────
+  void _showRefundSheet(BuildContext context) {
+    showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => const RefundFundsSheet(),
     );
   }
 

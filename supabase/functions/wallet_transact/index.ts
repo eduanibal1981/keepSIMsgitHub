@@ -63,48 +63,19 @@ async function ensureWallet(userId: string): Promise<any> {
   let wallet = await fetchWallet(userId);
 
   if (!wallet) {
-    const insertRes = await fetch(`${SUPABASE_URL}/rest/v1/wallets`, {
-      method: 'POST',
-      headers: { ...serviceHeaders, 'Prefer': 'return=representation' },
-      body: JSON.stringify({ user_id: userId, balance: 45.20, currency: 'USD' }),
-    });
-    if (!insertRes.ok) {
-      throw new Error(`Failed to create wallet: ${await insertRes.text()}`);
-    }
-    wallet = (await insertRes.json())[0];
-  }
-
-  const txRes = await fetch(
-    `${SUPABASE_URL}/rest/v1/wallet_transactions?user_id=eq.${userId}&select=id&limit=1`,
-    { headers: serviceHeaders },
-  );
-  const existing = txRes.ok ? await txRes.json() : [];
-  if (existing.length === 0) {
-    await fetch(`${SUPABASE_URL}/rest/v1/wallet_transactions`, {
-      method: 'POST',
-      headers: serviceHeaders,
-      body: JSON.stringify([
-        {
-          user_id: userId, wallet_id: wallet.id, amount: 43.20,
-          balance_before: 0.00, balance_after: 43.20,
-          type: 'deposit', status: 'completed',
-          description: 'Welcome Credit', reference_id: 'welcome_bonus',
-        },
-        {
-          user_id: userId, wallet_id: wallet.id, amount: 2.00,
-          balance_before: 43.20, balance_after: 45.20,
-          type: 'referral_credit', status: 'completed',
-          description: 'Referral Reward', reference_id: 'referral_bonus',
-        },
-      ]),
-    });
-    if ((wallet.balance ?? 0) !== 45.20) {
-      const alignRes = await fetch(`${SUPABASE_URL}/rest/v1/wallets?id=eq.${wallet.id}`, {
-        method: 'PATCH',
+    const rpcRes = await rpc('ensure_wallet_v2', { p_user_id: userId });
+    if (rpcRes.ok && rpcRes.body) {
+      wallet = rpcRes.body;
+    } else {
+      const insertRes = await fetch(`${SUPABASE_URL}/rest/v1/wallets`, {
+        method: 'POST',
         headers: { ...serviceHeaders, 'Prefer': 'return=representation' },
-        body: JSON.stringify({ balance: 45.20 }),
+        body: JSON.stringify({ user_id: userId, balance: 0.00, currency: 'USD' }),
       });
-      if (alignRes.ok) wallet = (await alignRes.json())[0] ?? wallet;
+      if (!insertRes.ok) {
+        throw new Error(`Failed to create wallet: ${await insertRes.text()}`);
+      }
+      wallet = (await insertRes.json())[0];
     }
   }
 
@@ -127,6 +98,28 @@ serve(async (req) => {
     if (action === 'ensure') {
       const wallet = await ensureWallet(userId);
       return jsonResponse({ success: true, wallet }, 200);
+    }
+
+    if (action === 'summary') {
+      const summaryRes = await rpc('get_wallet_summary', { p_user_id: userId });
+      if (summaryRes.ok) {
+        return jsonResponse({ success: true, summary: summaryRes.body }, 200);
+      }
+      return jsonResponse({ success: false, errorMessage: 'Failed to fetch summary' }, 500);
+    }
+
+    if (action === 'quote_refund') {
+      const quoteRes = await rpc('quote_wallet_refund', { p_user_id: userId });
+      return jsonResponse({ success: quoteRes.ok, quote: quoteRes.body }, quoteRes.ok ? 200 : 400);
+    }
+
+    if (action === 'request_refund') {
+      const reqRes = await rpc('request_wallet_refund', {
+        p_user_id: userId,
+        p_amount: Number(amount),
+        p_reason: typeof description === 'string' ? description : 'Customer requested refund',
+      });
+      return jsonResponse({ success: reqRes.ok, result: reqRes.body }, reqRes.ok ? 200 : 400);
     }
 
     if (action !== 'deduct') {

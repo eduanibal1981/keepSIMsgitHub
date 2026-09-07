@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
-import 'package:keep_sims/features/sim_lines/data/models/payment_method_model.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
 import 'package:keep_sims/features/wallet/controller/wallet_controller.dart';
 import 'package:go_router/go_router.dart';
@@ -16,6 +15,8 @@ import 'package:keep_sims/core/services/biometric_auth_service.dart';
 import 'package:keep_sims/core/utils/error_formatter.dart';
 import 'package:keep_sims/core/fx/money.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/provider_badge.dart';
+
+import 'package:keep_sims/features/sim_lines/domain/plan_payment.dart';
 
 class ManualRefillBottomSheet extends ConsumerStatefulWidget {
   final SimLine simLine;
@@ -31,7 +32,6 @@ class _ManualRefillBottomSheetState
     extends ConsumerState<ManualRefillBottomSheet> {
   Map<String, dynamic>? _selectedOffer;
   bool _isLoading = false;
-  PaymentMethod? _selectedPaymentMethod;
   String _categoryFilter = 'all';
   String _sortBy = 'price_asc';
 
@@ -39,7 +39,6 @@ class _ManualRefillBottomSheetState
   int? _rangeValue;
   double _rangeFinalPriceUsd = 0.0;
   double _rangeBaseCostUsd = 0.0;
-  double _rangeGatewayFee = 0.0;
   double _rangeAppFee = 0.0;
 
   @override
@@ -57,13 +56,13 @@ class _ManualRefillBottomSheetState
   double get _minAppFeeUsd =>
       ref.watch(minAppFeeUsdProvider).value ?? kDefaultMinAppFeeUsd;
 
-  RefillQuote _quote(double baseCostUsd, PaymentMethod? pm) =>
+  RefillQuote _quote(double baseCostUsd) =>
       RefillPricing.quote(
         baseCostUsd: baseCostUsd,
         appFeePercent: _appFeePercent,
         minAppFeeUsd: _minAppFeeUsd,
-        gatewayFeePercentage: pm?.feePercentage ?? 0,
-        gatewayFeeFixed: pm?.feeFixed ?? 0,
+        gatewayFeePercentage: 0,
+        gatewayFeeFixed: 0,
       );
 
   Future<void> _handleRefill() async {
@@ -78,10 +77,7 @@ class _ManualRefillBottomSheetState
           : (_selectedOffer!['baseCostUsd'] as num).toDouble();
       final offerId = _selectedOffer!['offerId'] as String;
 
-      final pm = _selectedPaymentMethod;
-      final paymentCode = pm?.code ?? 'wallet';
-
-      final totalAmount = _quote(baseCostUsd, pm).total;
+      final totalAmount = _quote(baseCostUsd).total;
 
       final authGuard = ref.read(paymentAuthGuardProvider);
       final authResult = await authGuard.confirmPayment(
@@ -94,55 +90,13 @@ class _ManualRefillBottomSheetState
         return;
       }
 
-      // Wallet refills are debited server-side by worker_instant_refill, which
-      // fails the execution outright when the balance is short. Catching it here
-      // means the user gets a top-up prompt instead of a queued request that
-      // turns into a failure notification a few seconds later.
-      if (paymentCode == 'wallet') {
-        final balance = ref.read(walletControllerProvider).value?.wallet.balance;
-        if (balance != null && balance < totalAmount) {
-          if (!mounted) return;
-          setState(() => _isLoading = false);
-          await _promptTopUp(balance, totalAmount);
-          return;
-        }
-      }
-
-      if (paymentCode == 'paypal') {
+      // Wallet is the single payment rail. If balance is insufficient,
+      // prompt shortfall deposit via PayPal to fund the wallet.
+      final balance = ref.read(walletControllerProvider).value?.wallet.balance ?? 0.0;
+      if (balance < totalAmount) {
         if (!mounted) return;
-        Navigator.of(context).pop();
-
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => PayPalCheckoutScreen(
-              initialAmount: totalAmount,
-              paymentReason: 'Manual Refill for ${widget.simLine.phoneNumber}',
-              paymentKind: 'deposit',
-              onSuccess: () async {
-                try {
-                  await ref
-                      .read(simLinesControllerProvider.notifier)
-                      .performManualRefill(
-                        widget.simLine,
-                        paymentCode,
-                        offerId: offerId,
-                        displayBaseUsd: baseCostUsd,
-                        amountUsd: isRange ? _rangeBaseCostUsd : null,
-                      );
-                } catch (e) {
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(RateLimitErrorFormatter.format(e, context)),
-                        backgroundColor: AppColors.error,
-                      ),
-                    );
-                  }
-                }
-              },
-            ),
-          ),
-        );
+        setState(() => _isLoading = false);
+        await _promptTopUp(balance, totalAmount);
         return;
       }
 
@@ -150,7 +104,7 @@ class _ManualRefillBottomSheetState
           .read(simLinesControllerProvider.notifier)
           .performManualRefill(
             widget.simLine,
-            paymentCode,
+            'wallet',
             offerId: offerId,
             displayBaseUsd: baseCostUsd,
             amountUsd: isRange ? _rangeBaseCostUsd : null,
@@ -159,23 +113,14 @@ class _ManualRefillBottomSheetState
       if (!mounted) return;
       Navigator.of(context).pop();
 
-      if (paymentCode != 'wallet') {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Redirecting to Payment Gateway...'),
-            backgroundColor: AppColors.primary,
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Successfully requested Refill for ${widget.simLine.phoneNumber}',
           ),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Successfully requested Refill for ${widget.simLine.phoneNumber}',
-            ),
-            backgroundColor: AppColors.success,
-          ),
-        );
-      }
+          backgroundColor: AppColors.success,
+        ),
+      );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -191,13 +136,16 @@ class _ManualRefillBottomSheetState
 
   /// Shown instead of queuing a refill the wallet cannot cover.
   Future<void> _promptTopUp(double balance, double required) async {
-    final shortfall = required - balance;
-    final goToWallet = await showDialog<bool>(
+    final shortfall = PlanPayment.calculateShortfall(
+      fee: required,
+      availableBalance: balance,
+    );
+    final topUpViaDeposit = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
         backgroundColor: AppColors.darkSurface,
         title: Text(
-          'Not enough balance',
+          'Insufficient Wallet Balance',
           style: AppTextStyles.titleMedium.copyWith(
             color: AppColors.textPrimaryDark,
             fontWeight: FontWeight.bold,
@@ -205,8 +153,8 @@ class _ManualRefillBottomSheetState
         ),
         content: Text(
           'This refill costs \$${required.toStringAsFixed(2)} but your wallet '
-          'has \$${balance.toStringAsFixed(2)}. Add at least '
-          '\$${shortfall.toStringAsFixed(2)} to continue.',
+          'has \$${balance.toStringAsFixed(2)}.\n\n'
+          'Deposit \$${shortfall.toStringAsFixed(2)} to your wallet now to proceed with this refill.',
           style: AppTextStyles.bodyMedium.copyWith(
             color: AppColors.textSecondaryDark,
           ),
@@ -224,9 +172,9 @@ class _ManualRefillBottomSheetState
           ElevatedButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
-            child: const Text(
-              'Top up wallet',
-              style: TextStyle(
+            child: Text(
+              'Deposit \$${shortfall.toStringAsFixed(2)} & Refill',
+              style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
               ),
@@ -236,17 +184,32 @@ class _ManualRefillBottomSheetState
       ),
     );
 
-    if (goToWallet == true && mounted) {
-      Navigator.of(context).pop();
-      context.push(AppRoutes.wallet);
+    if (topUpViaDeposit == true && mounted) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => PayPalCheckoutScreen(
+            initialAmount: shortfall,
+            paymentReason: 'Refill Shortfall Deposit for ${widget.simLine.phoneNumber}',
+            paymentKind: 'deposit',
+            onSuccess: () async {
+              // Refresh wallet balance
+              ref.invalidate(walletControllerProvider);
+              await ref.read(walletControllerProvider.future);
+              // Resume refill
+              if (mounted) {
+                _handleRefill();
+              }
+            },
+          ),
+        ),
+      );
     }
   }
 
   void _calculateRangeFees() {
     if (_rangeBaseCostUsd == 0) return;
-    final q = _quote(_rangeBaseCostUsd, _selectedPaymentMethod);
+    final q = _quote(_rangeBaseCostUsd);
     setState(() {
-      _rangeGatewayFee = q.gatewayFee;
       _rangeAppFee = q.appFee;
       _rangeFinalPriceUsd = q.total;
     });
@@ -255,7 +218,6 @@ class _ManualRefillBottomSheetState
   @override
   Widget build(BuildContext context) {
     final walletState = ref.watch(walletControllerProvider);
-    final paymentMethodsAsync = ref.watch(paymentMethodsProvider);
 
     return Container(
       padding: EdgeInsets.only(
@@ -320,7 +282,7 @@ class _ManualRefillBottomSheetState
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Wallet Balance',
+                          'Payment Rail • KeepSIMs Wallet',
                           style: AppTextStyles.labelSmall.copyWith(
                             color: AppColors.textTertiaryDark,
                           ),
@@ -361,12 +323,12 @@ class _ManualRefillBottomSheetState
                       context.push(AppRoutes.wallet);
                     },
                     icon: const Icon(
-                      Icons.open_in_new,
+                      Icons.add_circle_outline,
                       size: 14,
                       color: AppColors.primary,
                     ),
                     label: Text(
-                      'Open',
+                      'Top Up',
                       style: AppTextStyles.labelMedium.copyWith(
                         color: AppColors.primary,
                         fontWeight: FontWeight.bold,
@@ -385,74 +347,6 @@ class _ManualRefillBottomSheetState
                   ),
                 ],
               ),
-            ),
-            const SizedBox(height: 16),
-            paymentMethodsAsync.when(
-              data: (methods) {
-                if (methods.isEmpty) return const SizedBox.shrink();
-
-                if (_selectedPaymentMethod == null) {
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    setState(() => _selectedPaymentMethod = methods.first);
-                    if (_rangeValue != null) _calculateRangeFees();
-                  });
-                }
-
-                return Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.darkCard,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.darkBorder),
-                  ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<PaymentMethod>(
-                      value: _selectedPaymentMethod,
-                      isExpanded: true,
-                      dropdownColor: AppColors.darkCard,
-                      icon: const Icon(
-                        Icons.arrow_drop_down,
-                        color: AppColors.primary,
-                      ),
-                      items: methods.map((pm) {
-                        return DropdownMenuItem(
-                          value: pm,
-                          child: Row(
-                            children: [
-                              Icon(
-                                pm.code == 'wallet'
-                                    ? Icons.account_balance_wallet
-                                    : Icons.credit_card,
-                                color: AppColors.primary,
-                                size: 20,
-                              ),
-                              const SizedBox(width: 12),
-                              Text(
-                                pm.name,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      }).toList(),
-                      onChanged: (val) {
-                        if (val != null) {
-                          setState(() => _selectedPaymentMethod = val);
-                          if (_rangeValue != null) _calculateRangeFees();
-                        }
-                      },
-                    ),
-                  ),
-                );
-              },
-              loading: () => const SizedBox.shrink(),
-              error: (_, _) => const SizedBox.shrink(),
             ),
             const SizedBox(height: 24),
             Row(
@@ -560,10 +454,7 @@ class _ManualRefillBottomSheetState
                                     final baseCost =
                                         (offer['baseCostUsd'] as num)
                                             .toDouble();
-                                    final q = _quote(
-                                      baseCost,
-                                      _selectedPaymentMethod,
-                                    );
+                                    final q = _quote(baseCost);
                                     final gatewayFee = q.gatewayFee;
                                     final appFee = q.appFee;
                                     final finalPrice = q.total;
@@ -648,13 +539,12 @@ class _ManualRefillBottomSheetState
     if (offer['isRange'] == true) {
       return _rangeValue == null
           ? 'Enter valid amount'
-          : 'Confirm \$${_rangeFinalPriceUsd.toStringAsFixed(2)} Refill';
+          : 'Refill \$${_rangeFinalPriceUsd.toStringAsFixed(2)} with Wallet';
     }
     final total = _quote(
       (offer['baseCostUsd'] as num).toDouble(),
-      _selectedPaymentMethod,
     ).total;
-    return 'Confirm \$${total.toStringAsFixed(2)} Refill';
+    return 'Refill \$${total.toStringAsFixed(2)} with Wallet';
   }
 
   Widget _buildRangeUI(
@@ -789,7 +679,6 @@ class _ManualRefillBottomSheetState
                   _rangeValue = null;
                   _rangeFinalPriceUsd = 0.0;
                   _rangeBaseCostUsd = 0.0;
-                  _rangeGatewayFee = 0.0;
                   _rangeAppFee = 0.0;
                 });
               }
@@ -800,7 +689,7 @@ class _ManualRefillBottomSheetState
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: Text(
-                'Base: \$${_rangeBaseCostUsd.toStringAsFixed(2)} | Gateway: \$${_rangeGatewayFee.toStringAsFixed(2)} | App Fee: \$${_rangeAppFee.toStringAsFixed(2)}',
+                'Base: \$${_rangeBaseCostUsd.toStringAsFixed(2)} | App Fee: \$${_rangeAppFee.toStringAsFixed(2)}',
                 style: AppTextStyles.labelSmall.copyWith(
                   color: AppColors.textTertiaryDark,
                 ),
@@ -1052,7 +941,6 @@ class _ManualRefillBottomSheetState
           _rangeValue = null;
           _rangeFinalPriceUsd = 0.0;
           _rangeBaseCostUsd = 0.0;
-          _rangeGatewayFee = 0.0;
           _rangeAppFee = 0.0;
         });
       },
@@ -1199,7 +1087,7 @@ class _ManualRefillBottomSheetState
             ApproxLocalText(finalPrice),
             const SizedBox(height: 2),
             Text(
-              'Base: \$${baseCost.toStringAsFixed(2)} | Fees: \$${gatewayFee.toStringAsFixed(2)} | App: \$${appFee.toStringAsFixed(2)}',
+              'Base: \$${baseCost.toStringAsFixed(2)} | App Fee: \$${appFee.toStringAsFixed(2)}',
               style: AppTextStyles.labelSmall.copyWith(
                 color: AppColors.textTertiaryDark,
               ),

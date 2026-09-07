@@ -80,7 +80,7 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen>
   /// is fine and offers the manual check instead.
   static const int _slowApprovalSeconds = 25;
 
-  static const List<double> _presetAmounts = [10.0, 20.0, 50.0, 100.0];
+  static const List<double> _presetAmounts = [5.0, 10.0, 20.0, 50.0];
 
   @override
   void initState() {
@@ -88,7 +88,7 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen>
     WidgetsBinding.instance.addObserver(this);
     _listenForReturnDeepLink();
     final amt = widget.initialAmount ?? 10.0;
-    _selectedDepositAmount = amt < 1.00 ? 1.00 : amt;
+    _selectedDepositAmount = amt < 5.00 ? 5.00 : amt;
     _amountController.text = _selectedDepositAmount.toStringAsFixed(2);
     Future.microtask(() {
       ref.read(analyticsServiceProvider).logRechargeFunnelStep(
@@ -206,7 +206,7 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen>
     }
 
     final rawAmt = double.tryParse(_amountController.text) ?? _selectedDepositAmount;
-    final effectiveAmt = rawAmt < 1.00 ? 1.00 : rawAmt;
+    final effectiveAmt = rawAmt < 5.00 ? 5.00 : rawAmt;
 
     setState(() {
       _status = PayPalCheckoutStatus.creatingOrder;
@@ -225,7 +225,7 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen>
         'create-paypal-order',
         headers: await identity.appCheckHeaders(),
         body: {
-          'kind': widget.paymentKind,
+          'kind': 'deposit',
           'plan': widget.plan,
           'sim_line_id': widget.simLineId,
           'carrier_rule_id': widget.carrierRuleId,
@@ -461,8 +461,8 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen>
     final isDeposit = widget.paymentKind == 'deposit';
 
     final rawAmt = double.tryParse(_amountController.text) ?? _selectedDepositAmount;
-    final hasRemainder = isDeposit && rawAmt > 0 && rawAmt < 1.00;
-    final remainderAmount = hasRemainder ? (1.00 - rawAmt) : 0.0;
+    final hasRemainder = isDeposit && rawAmt > 0 && rawAmt < 5.00;
+    final remainderAmount = hasRemainder ? (5.00 - rawAmt) : 0.0;
 
     return Scaffold(
       backgroundColor: context.scaffoldBackgroundColor,
@@ -549,7 +549,7 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen>
                         Padding(
                           padding: const EdgeInsets.only(top: 8.0),
                           child: Text(
-                            'Minimum PayPal charge is \$1.00 — \$${remainderAmount.toStringAsFixed(2)} remainder will stay in your wallet balance.',
+                            'Minimum PayPal deposit is \$5.00 — \$${remainderAmount.toStringAsFixed(2)} remainder will stay in your wallet balance.',
                             textAlign: TextAlign.center,
                             style: AppTextStyles.bodySmall.copyWith(
                               color: AppColors.warning,

@@ -67,4 +67,17 @@ abstract interface class WalletContract {
     String? note,
     String? referenceId,
   });
+
+  /// Fetches comprehensive summary including posted, held, available, and refundable funds.
+  Future<Result<Map<String, dynamic>>> getWalletSummary();
+
+  /// Quotes eligible unused paid deposit refund to original payment source.
+  Future<Result<Map<String, dynamic>>> quoteRefund();
+
+  /// Requests a refund of eligible unused paid funds.
+  Future<Result<Map<String, dynamic>>> requestRefund({
+    required double amount,
+    String? reason,
+  });
 }
+

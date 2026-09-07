@@ -145,96 +145,46 @@ serve(async (req) => {
 
     let finalAmountUsd = 0;
 
-    if (kind === "plan") {
-      if (!plan || (plan !== "standard" && plan !== "premium")) {
-        return new Response(
-          JSON.stringify({ success: false, error: "BAD_REQUEST: Invalid plan type" }),
-          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-
-      // Server-side plan quote (BLOCKER 1 fix: NEVER accept client amount for plans)
-      const { data: quotedPrice, error: quoteErr } = await adminClient.rpc("quote_plan_price", {
-        p_sim_line_id: simLineId || null,
-        p_plan: plan,
-        p_gateway: "paypal",
-        p_carrier_rule_id: carrierRuleId || null,
-      });
-
-      if (quoteErr || !quotedPrice) {
-        // J8: this now also refuses (KS422) a Premium year for a carrier whose
-        // inactivity clock only resets on human usage, and refuses outright
-        // when no carrier rule can be resolved — cases that used to be quoted a
-        // fictional price and billed. The message is user-facing on purpose;
-        // the old blanket "Unable to calculate plan price" hid a refusal that
-        // the subscriber can act on.
-        console.error("quote_plan_price failed:", quoteErr);
-        const refused = quoteErr?.code === "KS422";
-        return new Response(
-          JSON.stringify({
-            success: false,
-            code: refused ? "KS422" : undefined,
-            error: refused
-              ? quoteErr?.message
-              : "FAILED: Unable to calculate plan price",
-          }),
-          { status: refused ? 400 : 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-
-      finalAmountUsd = Number(quotedPrice);
-
-      // Pre-Purchase Liveness Gate: Refuse Premium order creation if the SIM is already marked inactive
-      if (simLineId && plan === "premium") {
-        const { data: lineData } = await adminClient
-          .from("sim_lines")
-          .select("phone_number, carrier_status, is_carrier_verified")
-          .eq("id", simLineId)
-          .maybeSingle();
-
-        if (lineData && lineData.carrier_status === "inactive") {
-          return new Response(
-            JSON.stringify({
-              success: false,
-              code: "KS422",
-              error: "This SIM line is inactive or barred by the carrier network. Premium subscription refills cannot keep an inactive line alive. Please reactivate your SIM line before purchasing.",
-            }),
-            { status: 422, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-          );
-        }
-      }
-    } else {
-      // Deposit path
-      const requestedAmount = Number(body.amount_usd);
-
-      // Read min / max deposit bounds from system_configs
-      const { data: minConfig } = await adminClient
-        .from("system_configs")
-        .select("config_value")
-        .eq("config_key", "PAYPAL_MIN_DEPOSIT_USD")
-        .maybeSingle();
-
-      const { data: maxConfig } = await adminClient
-        .from("system_configs")
-        .select("config_value")
-        .eq("config_key", "PAYPAL_MAX_DEPOSIT_USD")
-        .maybeSingle();
-
-      const minDeposit = Number(minConfig?.config_value || 1.00);
-      const maxDeposit = Number(maxConfig?.config_value || 500.00);
-
-      if (isNaN(requestedAmount) || requestedAmount < minDeposit || requestedAmount > maxDeposit) {
-        return new Response(
-          JSON.stringify({
-            success: false,
-            error: `BAD_REQUEST: Deposit amount must be between $${minDeposit.toFixed(2)} and $${maxDeposit.toFixed(2)}`,
-          }),
-          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-
-      finalAmountUsd = Number(requestedAmount.toFixed(2));
+    if (kind !== "deposit") {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          code: "DIRECT_PURCHASE_DEPRECATED",
+          error: "Direct checkout is deprecated. All purchases are now fulfilled through the KeepSIMs wallet. Please add funds to your wallet to continue.",
+        }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
+
+    // Deposit path: Enforce USD 5.00 minimum deposit
+    const requestedAmount = Number(body.amount_usd);
+
+    const { data: minConfig } = await adminClient
+      .from("system_configs")
+      .select("config_value")
+      .eq("config_key", "PAYPAL_MIN_DEPOSIT_USD")
+      .maybeSingle();
+
+    const { data: maxConfig } = await adminClient
+      .from("system_configs")
+      .select("config_value")
+      .eq("config_key", "PAYPAL_MAX_DEPOSIT_USD")
+      .maybeSingle();
+
+    const minDeposit = Math.max(5.00, Number(minConfig?.config_value || 5.00));
+    const maxDeposit = Number(maxConfig?.config_value || 500.00);
+
+    if (isNaN(requestedAmount) || requestedAmount < minDeposit || requestedAmount > maxDeposit) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: `BAD_REQUEST: Deposit amount must be between $${minDeposit.toFixed(2)} and $${maxDeposit.toFixed(2)}`,
+        }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    finalAmountUsd = Number(requestedAmount.toFixed(2));
 
     // ── G10: device risk, last checkpoint before an order exists at PayPal ───
     // Assessed here rather than at capture time because this is the only point

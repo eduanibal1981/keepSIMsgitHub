@@ -7,6 +7,7 @@ import 'package:keep_sims/features/esim/data/repositories/esim_provider_factory.
 import 'package:keep_sims/features/esim/domain/entities/esim_plan.dart';
 import 'package:keep_sims/features/esim/presentation/widgets/esim_order_status_modal.dart';
 import 'package:keep_sims/core/services/biometric_auth_service.dart';
+import 'package:keep_sims/features/payments/presentation/screens/paypal_checkout_screen.dart';
 
 class EsimCheckoutSheet extends ConsumerStatefulWidget {
   final EsimPlan plan;
@@ -312,7 +313,27 @@ class _EsimCheckoutSheetState extends ConsumerState<EsimCheckoutSheet> {
           ElevatedButton(
             onPressed: (_isSubmitting || _isLoadingWallet)
                 ? null
-                : _handleConfirmPurchase,
+                : (hasSufficientBalance
+                    ? _handleConfirmPurchase
+                    : () {
+                        final shortfall = widget.plan.priceUsd - _walletBalance;
+                        final depositAmount = shortfall < 5.00 ? 5.00 : shortfall;
+                        final navigator = Navigator.of(context);
+                        navigator.push(
+                          MaterialPageRoute(
+                            builder: (_) => PayPalCheckoutScreen(
+                              initialAmount: depositAmount,
+                              paymentReason:
+                                  'Add funds for eSIM ${widget.plan.name}',
+                              paymentKind: 'deposit',
+                              onSuccess: () async {
+                                navigator.pop();
+                                _fetchWalletBalance();
+                              },
+                            ),
+                          ),
+                        );
+                      }),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.teal,
               foregroundColor: Colors.white,
@@ -333,7 +354,11 @@ class _EsimCheckoutSheetState extends ConsumerState<EsimCheckoutSheet> {
                 : Text(
                     hasSufficientBalance
                         ? 'Confirm & Pay \$${widget.plan.priceUsd.toStringAsFixed(2)}'
-                        : 'Insufficient Balance',
+                        : () {
+                            final shortfall = widget.plan.priceUsd - _walletBalance;
+                            final depositAmount = shortfall < 5.00 ? 5.00 : shortfall;
+                            return 'Add \$${depositAmount.toStringAsFixed(2)} & Continue';
+                          }(),
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,

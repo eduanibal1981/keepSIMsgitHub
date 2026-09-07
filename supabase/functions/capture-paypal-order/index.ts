@@ -224,6 +224,29 @@ serve(async (req) => {
       })
       .eq("order_id", orderId);
 
+    // Credit wallet immediately and idempotently upon confirmed capture
+    if (existingOrder.kind === "deposit") {
+      const captureObj = resData.purchase_units?.[0]?.payments?.captures?.[0];
+      const captureId = captureObj?.id || orderId;
+      const grossAmount = Number(captureObj?.amount?.value || existingOrder.amount_usd);
+
+      try {
+        await adminClient.rpc("credit_wallet_for_deposit", {
+          p_user_id: user.id,
+          p_amount: grossAmount,
+          p_description: `PayPal deposit (order ${orderId})`,
+          p_reference_id: `paypal_${captureId}`,
+          p_metadata: {
+            order_id: orderId,
+            paypal_capture_id: captureId,
+            source: "capture_endpoint",
+          },
+        });
+      } catch (creditErr) {
+        console.warn("Direct credit during capture error (will be picked up by webhook/reconciler):", creditErr);
+      }
+    }
+
     return new Response(
       JSON.stringify({ success: true, order_id: orderId, status: "captured" }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
