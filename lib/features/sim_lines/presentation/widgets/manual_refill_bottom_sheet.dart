@@ -145,16 +145,17 @@ class _ManualRefillBottomSheetState
       builder: (dialogContext) => AlertDialog(
         backgroundColor: AppColors.darkSurface,
         title: Text(
-          'Insufficient Wallet Balance',
+          'Refill Your Wallet',
           style: AppTextStyles.titleMedium.copyWith(
             color: AppColors.textPrimaryDark,
             fontWeight: FontWeight.bold,
           ),
         ),
         content: Text(
-          'This refill costs \$${required.toStringAsFixed(2)} but your wallet '
+          'This refill costs \$${required.toStringAsFixed(2)} but your KeepSIMs Wallet '
           'has \$${balance.toStringAsFixed(2)}.\n\n'
-          'Deposit \$${shortfall.toStringAsFixed(2)} to your wallet now to proceed with this refill.',
+          'Deposit \$${shortfall.toStringAsFixed(2)} to your wallet now to proceed with this refill.\n\n'
+          '(Your wallet balance belongs to your account and funds all your SIM lines).',
           style: AppTextStyles.bodyMedium.copyWith(
             color: AppColors.textSecondaryDark,
           ),
@@ -173,7 +174,7 @@ class _ManualRefillBottomSheetState
             onPressed: () => Navigator.of(dialogContext).pop(true),
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
             child: Text(
-              'Deposit \$${shortfall.toStringAsFixed(2)} & Refill',
+              'Refill Wallet (\$${shortfall.toStringAsFixed(2)})',
               style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
@@ -189,8 +190,9 @@ class _ManualRefillBottomSheetState
         MaterialPageRoute(
           builder: (context) => PayPalCheckoutScreen(
             initialAmount: shortfall,
-            paymentReason: 'Refill Shortfall Deposit for ${widget.simLine.phoneNumber}',
+            paymentReason: 'Refill for ${widget.simLine.nickname ?? widget.simLine.phoneNumber}',
             paymentKind: 'deposit',
+            simLineId: widget.simLine.id,
             onSuccess: () async {
               // Refresh wallet balance
               ref.invalidate(walletControllerProvider);

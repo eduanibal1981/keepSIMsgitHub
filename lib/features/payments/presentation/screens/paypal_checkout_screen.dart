@@ -467,7 +467,7 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen>
     return Scaffold(
       backgroundColor: context.scaffoldBackgroundColor,
       appBar: AppBar(
-        title: Text(l10n.payPalCheckoutTitle),
+        title: Text(isDeposit ? 'Refill Your Wallet' : l10n.payPalCheckoutTitle),
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
@@ -489,15 +489,39 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen>
                 ),
                 child: Column(
                   children: [
-                    const Icon(Icons.payment_rounded, size: 44, color: Color(0xFF003087)),
+                    Icon(
+                      isDeposit
+                          ? Icons.account_balance_wallet_rounded
+                          : Icons.payment_rounded,
+                      size: 44,
+                      color: const Color(0xFF003087),
+                    ),
                     const SizedBox(height: 12),
                     Text(
-                      widget.paymentReason ?? l10n.payPalWalletTopUp,
+                      isDeposit
+                          ? 'Refill Your Wallet'
+                          : (widget.paymentReason ?? l10n.payPalWalletTopUp),
                       style: AppTextStyles.titleMedium.copyWith(
                         fontWeight: FontWeight.bold,
                         color: context.onSurfaceColor,
                       ),
                     ),
+                    if (isDeposit) ...[
+                      const SizedBox(height: 6),
+                      Text(
+                        widget.paymentReason != null &&
+                                widget.paymentReason!.isNotEmpty &&
+                                widget.paymentReason != 'KeepSIMs Wallet Top-up'
+                            ? 'Deposit to account wallet for: ${widget.paymentReason}\n(Wallet balance is shared across all your SIM lines)'
+                            : 'Funds are credited to your account wallet and can be used for any SIM line.',
+                        textAlign: TextAlign.center,
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: isDark
+                              ? AppColors.textSecondaryDark
+                              : AppColors.textSecondaryLight,
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: 12),
                     if (isDeposit) ...[
                       // Preset Amount Chips (Defect #1 fix)
@@ -575,7 +599,7 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen>
                 ),
               ),
               const SizedBox(height: 24),
-              _buildStatusWidget(isDark, l10n),
+              _buildStatusWidget(isDark, l10n, isDeposit),
               const Spacer(),
               if (_status == PayPalCheckoutStatus.idle || _status == PayPalCheckoutStatus.failed)
                 SizedBox(
@@ -596,7 +620,9 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen>
                         const Icon(Icons.lock_rounded, size: 20),
                         const SizedBox(width: 8),
                         Text(
-                          l10n.payPalPaySecurely,
+                          isDeposit
+                              ? 'Refill Wallet with PayPal'
+                              : l10n.payPalPaySecurely,
                           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                       ],
@@ -679,11 +705,13 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen>
     );
   }
 
-  Widget _buildStatusWidget(bool isDark, AppLocalizations l10n) {
+  Widget _buildStatusWidget(bool isDark, AppLocalizations l10n, bool isDeposit) {
     switch (_status) {
       case PayPalCheckoutStatus.idle:
         return Text(
-          l10n.payPalRedirectInfo,
+          isDeposit
+              ? 'You will be redirected to PayPal to authorize your deposit.\nFunds will be credited directly to your KeepSIMs Wallet.'
+              : l10n.payPalRedirectInfo,
           textAlign: TextAlign.center,
           style: AppTextStyles.bodyMedium.copyWith(
             color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
