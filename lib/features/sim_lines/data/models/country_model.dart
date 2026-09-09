@@ -40,6 +40,15 @@ abstract class Country with _$Country {
     @JsonKey(name: 'is_supported', fromJson: _parseBoolDefaultTrue)
     @Default(true)
     bool isSupported,
+    @JsonKey(name: 'sms_verify_cost', fromJson: _parseDoubleNullable)
+    @Default(0.0)
+    double? smsVerifyCost,
+    @JsonKey(name: 'call_verify_cost', fromJson: _parseDoubleNullable)
+    @Default(0.0)
+    double? callVerifyCost,
+    @JsonKey(name: 'verification_price_version')
+    @Default(1)
+    int verificationPriceVersion,
   }) = _Country;
 
   factory Country.fromJson(Map<String, dynamic> json) =>

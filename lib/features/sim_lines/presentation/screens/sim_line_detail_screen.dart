@@ -24,6 +24,8 @@ import 'package:keep_sims/features/scheduled_topups/controller/scheduled_topup_c
 import 'package:keep_sims/features/wallet/controller/wallet_controller.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/number_verification_dialog.dart';
+import 'package:keep_sims/features/sim_lines/presentation/widgets/last_recharge_panel.dart';
+import 'package:keep_sims/features/sim_lines/presentation/widgets/live_verification_panel.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/manual_refill_bottom_sheet.dart';
 import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import 'package:keep_sims/core/router/app_router.dart';
@@ -34,7 +36,6 @@ import 'package:keep_sims/features/sim_lines/presentation/widgets/depletion_fore
 import 'package:keep_sims/features/sim_lines/presentation/widgets/sim_insurance_card.dart';
 import 'package:keep_sims/features/sim_lines/presentation/providers/usage_forecast_provider.dart';
 import 'package:keep_sims/features/home_widget/presentation/live_activity_pin_button.dart';
-import 'package:keep_sims/features/sim_lines/presentation/widgets/manual_recharge_dialog.dart';
 import 'package:keep_sims/core/services/esim_capability_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -79,6 +80,9 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
         ref.invalidate(walletControllerProvider);
         ref.invalidate(simLineActivityLogsProvider(widget.id));
         ref.invalidate(topupExecutionsForLineProvider(widget.id));
+        ref.invalidate(simLinesControllerProvider);
+        ref.invalidate(scheduledTopupControllerProvider);
+        ref.invalidate(simLineDetailControllerProvider(widget.id));
       }
     });
   }
@@ -213,13 +217,6 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                   (c) => c.id == detailState.simLine.countryId,
                   orElse: () => countries.first,
                 );
-
-          bool isHomeCountry = false;
-          if (user?.homeCountryCode != null && country != null) {
-            isHomeCountry =
-                user!.homeCountryCode!.toUpperCase() ==
-                country.isoCode.toUpperCase();
-          }
 
           final isPremium =
               detailState.simLine.protectionTier.toLowerCase() == 'premium';
@@ -725,107 +722,21 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
             ],
           ),
 
-          // ── Last Recharge Date & Manual Log/Edit Bar ───────────────────────
+          // ── Separated Last Recharge and Live Verification Panels ─────────
           const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.04),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-              ),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.history_rounded,
-                  size: 16,
-                  color: isDark ? AppColors.primaryLight : AppColors.lightPrimary,
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Last Recharge',
-                        style: AppTextStyles.caption.copyWith(
-                          color: isDark
-                              ? AppColors.textSecondaryDark
-                              : AppColors.textSecondaryLight,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      Text(
-                        line.lastTopupAt != null
-                            ? '${DateFormat('MMM dd, yyyy').format(line.lastTopupAt!.toLocal())} (${_formatDaysAgo(line.lastTopupAt!.toLocal())})'
-                            : 'No recharge recorded yet',
-                        style: AppTextStyles.bodySmall.copyWith(
-                          color: context.onSurfaceColor,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                if (!_isViewer)
-                  InkWell(
-                    onTap: () async {
-                      await HapticHelper.lightTick();
-                      if (context.mounted) {
-                        ManualRechargeDialog.show(
-                          context: context,
-                          simLine: line,
-                        );
-                      }
-                    },
-                    borderRadius: BorderRadius.circular(8),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 5,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            Icons.edit_calendar_rounded,
-                            size: 13,
-                            color: AppColors.primary,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            'Update',
-                            style: AppTextStyles.caption.copyWith(
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-              ],
-            ),
+          LastRechargePanel(
+            simLine: line,
+            isViewer: _isViewer,
+          ),
+          const SizedBox(height: 10),
+          LiveVerificationPanel(
+            simLine: line,
+            isViewer: _isViewer,
+            onVerifyTap: () => _handleVerifyLineActivity(context, line),
           ),
         ],
       ),
     );
-  }
-
-  String _formatDaysAgo(DateTime date) {
-    final now = DateTime.now();
-    final diff = now.difference(date).inDays;
-    if (diff == 0) return 'Today';
-    if (diff == 1) return 'Yesterday';
-    if (diff < 0) return 'Scheduled';
-    return '$diff days ago';
   }
 
   /// "If you travel tomorrow…" — a *shopping* prompt, not a mode switch.
@@ -1116,8 +1027,6 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
     bool isVerified,
   ) {
     final isDark = context.isDarkMode;
-    final String homeCountryName = country?.name ?? 'Home';
-    final userProfile = ref.read(authControllerProvider).value;
     final bool isBasic = tier == 'basic';
 
     final List<Widget> activeTiles = [];
@@ -1157,8 +1066,8 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
 
     if (!_isViewer) {
       String testSubtitle = AppLocalizations.of(context)!.verifyLineReachable;
-      if (tier == 'standard' && isVerified) {
-        testSubtitle = AppLocalizations.of(context)!.checkCompleted1x;
+      if (line.verificationStatus == 'verified') {
+        testSubtitle = 'Reachability confirmed via ring';
       }
       activeTiles.add(
         _buildQuickActionTile(
@@ -1168,38 +1077,10 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
           icon: Icons.radar,
           iconColor: AppColors.success,
           onTap: () {
-            if (tier == 'basic') {
-              LineUpgradeSheet.show(context: context, simLine: line);
-            } else if (tier == 'standard' && isVerified) {
-              ScaffoldMessenger.of(context).hideCurrentSnackBar();
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    AppLocalizations.of(context)!.starterPlan1xCompleted,
-                  ),
-                  showCloseIcon: true,
-                  duration: const Duration(seconds: 6),
-                  action: SnackBarAction(
-                    label: AppLocalizations.of(context)!.upgrade,
-                    textColor: Colors.amber,
-                    onPressed: () =>
-                        LineUpgradeSheet.show(context: context, simLine: line),
-                  ),
-                ),
-              );
-            } else {
-              _handleVerifyLineActivity(context, line);
-            }
+            _handleVerifyLineActivity(context, line);
           },
         ),
       );
-    }
-
-    bool isHomeCountry = false;
-    if (userProfile?.homeCountryCode != null && country != null) {
-      isHomeCountry =
-          userProfile!.homeCountryCode!.toUpperCase() ==
-          country.isoCode.toUpperCase();
     }
 
     if (!_isViewer) {
@@ -1633,34 +1514,47 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
     final isConfigured = schedule != null;
     final isDark = context.isDarkMode;
 
+    final isPremium = line.protectionTier.toLowerCase() == 'premium';
+
     if (!isConfigured) {
+      final cardColor = isPremium ? AppColors.primary : AppColors.healthRed;
+      final icon = isPremium ? Icons.notifications_active_outlined : Icons.warning_amber_rounded;
+      final title = isPremium
+          ? 'Auto-Notify: Active with Premium'
+          : AppLocalizations.of(context)!.autoNotifyDisabled;
+      final description = isPremium
+          ? 'Expiry alerts and low-balance refill reminders are included with your Premium plan.'
+          : AppLocalizations.of(context)!.noActiveAlertSchedule;
+
       return GlassCard(
         padding: const EdgeInsets.all(20),
-        isActive: false,
-        activeColor: AppColors.healthRed,
+        isActive: isPremium,
+        activeColor: cardColor,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                const Icon(
-                  Icons.warning_amber_rounded,
-                  color: AppColors.healthRed,
+                Icon(
+                  icon,
+                  color: cardColor,
                   size: 28,
                 ),
                 const SizedBox(width: 12),
-                Text(
-                  AppLocalizations.of(context)!.autoNotifyDisabled,
-                  style: AppTextStyles.titleLarge.copyWith(
-                    color: context.onSurfaceColor,
-                    fontWeight: FontWeight.bold,
+                Expanded(
+                  child: Text(
+                    title,
+                    style: AppTextStyles.titleLarge.copyWith(
+                      color: context.onSurfaceColor,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 8),
             Text(
-              AppLocalizations.of(context)!.noActiveAlertSchedule,
+              description,
               style: AppTextStyles.bodySmall.copyWith(
                 color: isDark
                     ? AppColors.textSecondaryDark
@@ -1884,6 +1778,15 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
     final dateFormat = DateFormat('MMM dd, yyyy');
     final isDark = context.isDarkMode;
 
+    final nextMiniRefill = executions?.firstWhereOrNull(
+      (e) => (e.executionType == 'refill_mini' || e.executionType == 'refill_custom') &&
+             (e.status == 'pending' || e.status == 'awaiting_funds'),
+    );
+    final walletState = ref.watch(walletControllerProvider).value;
+    final availableBalance = walletState?.wallet.balance ?? 0.0;
+    final isLowBalance = nextMiniRefill != null && availableBalance < nextMiniRefill.amount;
+    final isAwaitingFunds = nextMiniRefill?.status == 'awaiting_funds';
+
     // Premium Mini Refill Toggle Card
     final isMiniActive = miniSchedule?.isActive ?? false;
     final includedNextRefillDate = miniSchedule != null
@@ -1990,6 +1893,80 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                     : AppColors.textSecondaryLight,
               ),
             ),
+            if (isLowBalance || isAwaitingFunds) ...[
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                decoration: BoxDecoration(
+                  color: (isDark ? Colors.amber : Colors.orange).withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: (isDark ? Colors.amber : Colors.orange).withValues(alpha: 0.35),
+                    width: 1,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      isAwaitingFunds ? Icons.warning_amber_rounded : Icons.account_balance_wallet_outlined,
+                      size: 20,
+                      color: isDark ? Colors.amberAccent : Colors.orange.shade800,
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            isAwaitingFunds
+                                ? 'Auto-Refill Awaiting Wallet Credit'
+                                : 'Low Wallet Balance (\$${availableBalance.toStringAsFixed(2)})',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: isDark ? Colors.amberAccent : Colors.orange.shade900,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            isAwaitingFunds
+                                ? 'Refill of \$${(nextMiniRefill!.amount).toStringAsFixed(2)} is waiting for wallet credit. Top up now to process.'
+                                : 'Next recharge requires \$${(nextMiniRefill!.amount).toStringAsFixed(2)} on $includedNextRefillDate. Please top up your wallet.',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    InkWell(
+                      onTap: () {
+                        HapticHelper.lightTick();
+                        context.push('/wallet');
+                      },
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: isDark ? Colors.amber.withValues(alpha: 0.25) : Colors.orange.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          'Add Funds',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: isDark ? Colors.amberAccent : Colors.orange.shade900,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
             if (hasActivePinExecution) ...[
               const SizedBox(height: 12),
               Container(

@@ -73,9 +73,13 @@ async function queryDTOne(
   formattedPhone: string,
   countryCode?: string,
 ): Promise<{ success: boolean; active?: boolean; operatorName?: string; country?: string; reason?: string; raw?: any }> {
-  const apiKey = Deno.env.get("DTONE_API_KEY") || "2b05ef8e-87af-4c60-baa8-1bcc70f7e8a2";
-  const apiSecret = Deno.env.get("DTONE_API_SECRET") || "963d8def-45d4-4bf9-8b11-9732f545784f";
+  const apiKey = Deno.env.get("DTONE_API_KEY");
+  const apiSecret = Deno.env.get("DTONE_API_SECRET");
   const baseUrl = Deno.env.get("DTONE_BASE_URL") || "https://preprod-dvs-api.dtone.com/v1";
+
+  if (!apiKey || !apiSecret) {
+    return { success: false, reason: "DTONE_CREDS_NOT_CONFIGURED" };
+  }
 
   const authHeader = `Basic ${btoa(`${apiKey}:${apiSecret}`)}`;
   const headers = {
@@ -268,12 +272,12 @@ serve(async (req: Request) => {
     if (dtoneResult.success) {
       if (dtoneResult.active) {
         return jsonResponse({
-          is_active: true,
-          carrier_status: "active",
+          is_active: false,
+          carrier_status: "unverified",
           detected_operator_name: dtoneResult.operatorName ?? null,
           country_code: dtoneResult.country ?? countryCode ?? null,
           reason: null,
-          message: `Active on ${dtoneResult.operatorName || "Carrier"} (Prepaid)`,
+          message: `${dtoneResult.operatorName || "Carrier"} detected (Line activity not verified)`,
           provider: "dtone",
           verified_at: nowIso,
         });
@@ -284,24 +288,24 @@ serve(async (req: Request) => {
           detected_operator_name: null,
           country_code: countryCode ?? null,
           reason: dtoneResult.reason,
-          message: "Number inactive or expired at carrier. Cannot register for auto-refill.",
+          message: "Number reported inactive or disconnected by network.",
           provider: "dtone",
           verified_at: nowIso,
         });
       }
     }
 
-    // 2. Secondary: Zendit BSS Lookup (Direct Live Subscriber Verification)
+    // 2. Secondary: Zendit BSS Lookup (Carrier Range & Operator Identification)
     const zenditResult = await queryZendit(formattedPhone, countryCode);
     if (zenditResult.success) {
-      if (zenditResult.active) {
+      if (zenditResult.active || zenditResult.operatorName) {
         return jsonResponse({
-          is_active: true,
-          carrier_status: "active",
+          is_active: false,
+          carrier_status: "unverified",
           detected_operator_name: zenditResult.operatorName ?? null,
           country_code: zenditResult.country ?? countryCode ?? null,
           reason: null,
-          message: `Active on ${zenditResult.operatorName || "Carrier"} (Prepaid)`,
+          message: `${zenditResult.operatorName || "Carrier"} detected (Line activity not verified)`,
           provider: "zendit",
           verified_at: nowIso,
         });
@@ -312,7 +316,7 @@ serve(async (req: Request) => {
           detected_operator_name: null,
           country_code: countryCode ?? null,
           reason: zenditResult.reason,
-          message: "Number inactive or expired at carrier. Cannot register for auto-refill.",
+          message: "Number reported inactive or disconnected by network.",
           provider: "zendit",
           verified_at: nowIso,
         });

@@ -12,7 +12,6 @@ import 'package:keep_sims/features/sim_lines/data/models/sim_liveness_result.dar
 import 'package:keep_sims/features/sim_lines/data/repositories/sim_lines_repository_impl.dart';
 import 'package:keep_sims/features/sim_lines/domain/repositories/sim_lines_repository.dart';
 import 'package:keep_sims/features/scheduled_topups/controller/scheduled_topup_controller.dart';
-import 'package:keep_sims/features/wallet/controller/wallet_controller.dart';
 import 'package:keep_sims/core/providers.dart';
 import 'package:keep_sims/features/scheduled_topups/model/scheduled_topup_model.dart';
 import 'package:keep_sims/core/result.dart';
@@ -45,8 +44,14 @@ class PremiumRefillQueueException implements Exception {
 
 @Riverpod(keepAlive: true)
 class SimLinesController extends _$SimLinesController {
+  Timer? _pendingPollTimer;
+
   @override
   FutureOr<List<SimLine>> build() async {
+    ref.onDispose(() {
+      _pendingPollTimer?.cancel();
+    });
+
     final authProfile = ref.watch(authControllerProvider);
     final profileValue = authProfile.value;
     if (profileValue == null) {
@@ -64,13 +69,49 @@ class SimLinesController extends _$SimLinesController {
       return aName.compareTo(bName);
     });
 
+    // If any line is in pending verification state, schedule a short periodic poll
+    // to ensure the dashboard reflects the active state immediately upon backend completion.
+    final hasPending = lines.any((l) => l.carrierStatus == 'pending' || l.status == 'pending');
+    if (hasPending) {
+      _schedulePendingCheck();
+    }
+
     return lines;
   }
 
-  Future<void> addSimLine({
+  void _schedulePendingCheck() {
+    _pendingPollTimer?.cancel();
+    _pendingPollTimer = Timer(const Duration(seconds: 3), () async {
+      final authProfile = ref.read(authControllerProvider).value;
+      if (authProfile == null) return;
+
+      try {
+        final repo = ref.read(simLinesRepositoryProvider);
+        final freshLines = await repo.getSimLines();
+        final hasPending = freshLines.any((l) => l.carrierStatus == 'pending' || l.status == 'pending');
+
+        freshLines.sort((a, b) {
+          final aName = (a.nickname ?? a.phoneNumber).toLowerCase();
+          final bName = (b.nickname ?? b.phoneNumber).toLowerCase();
+          return aName.compareTo(bName);
+        });
+
+        state = AsyncData(freshLines);
+        ref.invalidate(scheduledTopupControllerProvider);
+
+        if (hasPending) {
+          _schedulePendingCheck();
+        }
+      } catch (_) {
+        _schedulePendingCheck();
+      }
+    });
+  }
+
+  Future<SimLine> addSimLine({
     required String phoneNumber,
     String? nickname,
-    required String avatarIcon,
+    String avatarIcon = 'sim_card',
     String? countryId,
     String? carrierId,
     required String protectionTier,
@@ -81,6 +122,7 @@ class SimLinesController extends _$SimLinesController {
     String carrierStatus = 'pending',
     String? detectedOperatorName,
     DateTime? carrierVerifiedAt,
+    bool isDraft = false,
   }) async {
     final userId = ref.read(authControllerProvider).value?.id;
     if (userId == null) {
@@ -88,13 +130,9 @@ class SimLinesController extends _$SimLinesController {
     }
 
     final previousList = state.value ?? [];
-    // Set only when the line itself was created but its pre-paid refills were
-    // not. Raised after the state assignment below, so the list still carries
-    // the line that really exists.
-    PremiumRefillQueueException? queueFailure;
     SimLine? addedLine;
     state = const AsyncLoading<List<SimLine>>().copyWithPrevious(state);
-    state = await AsyncValue.guard(() async {
+    final nextState = await AsyncValue.guard(() async {
       final repo = ref.read(simLinesRepositoryProvider);
 
       final countries = ref.read(supportedCountriesProvider).value ?? [];
@@ -155,7 +193,12 @@ class SimLinesController extends _$SimLinesController {
         );
       }
 
-      // Auto-configure Scheduled Topups
+      // If draft line (e.g. during Premium setup before recharge confirmation), do not create schedules yet
+      if (isDraft) {
+        return [added, ...previousList];
+      }
+
+      // Auto-configure Scheduled Topups for non-draft lines
       int frequencyDays = 30;
       double topupAmount = 0.0;
       String? offerId;
@@ -167,11 +210,6 @@ class SimLinesController extends _$SimLinesController {
           topupAmount = rule.minimumTopupAmount;
           offerId = rule.offerId;
           offerValue = rule.offerValue;
-          print(
-            '[addSimLine] Found rule by ID: $carrierRuleId. offerId: $offerId, offerValue: $offerValue, validity: $frequencyDays, amount: $topupAmount',
-          );
-        } else {
-          print('[addSimLine] Rule NOT found by ID: $carrierRuleId');
         }
       } else if (added.carrierId != null) {
         final rule = await repo.getCarrierRule(added.carrierId!);
@@ -180,30 +218,12 @@ class SimLinesController extends _$SimLinesController {
           topupAmount = rule.minimumTopupAmount;
           offerId = rule.offerId;
           offerValue = rule.offerValue;
-          print(
-            '[addSimLine] Found rule by Carrier ID: ${added.carrierId}. offerId: $offerId, offerValue: $offerValue, validity: $frequencyDays, amount: $topupAmount',
-          );
-        } else {
-          print(
-            '[addSimLine] Rule NOT found by Carrier ID: ${added.carrierId}',
-          );
         }
       }
 
       final topupNotifier = ref.read(scheduledTopupControllerProvider.notifier);
 
-      // All plans (Free/Basic, Standard, Premium) get Auto-Notify.
-      //
-      // No safety re-adjustment here. `frequencyDays` is now
-      // CarrierRule.refillIntervalDays, which has already had the margin taken
-      // out of the carrier's deactivation window. The 90→85 / 30→28 / 14→13
-      // mapping that used to sit here belongs to the *chip labels* a user picks
-      // in the schedule sheet, where the number means "the carrier's window".
-      // Applying it to an already-adjusted interval subtracts the margin twice
-      // and desynchronises this schedule from the pre-paid executions
-      // queue_premium_refill_executions lays down at the un-remapped interval.
       final notifyDelay = frequencyDays;
-
       final nextExecTime = DateTime.now().toUtc().add(
         Duration(days: notifyDelay),
       );
@@ -242,10 +262,8 @@ class SimLinesController extends _$SimLinesController {
         );
         final result = await topupNotifier.saveSchedule(refillSchedule);
 
-        // C3b-2: the plan year's mini refills are queued and priced
-        // server-side from carrier_rules in one call.
         if (result is Success<ScheduledTopup> && planExpiresAt != null) {
-          queueFailure = await _queuePremiumRefills(
+          await _queuePremiumRefills(
             repo,
             simLineId: added.id,
             scheduledTopupId: result.data.id,
@@ -271,17 +289,18 @@ class SimLinesController extends _$SimLinesController {
       return [added, ...previousList];
     });
 
-    // Automatically poll after 2.5s, 5.5s, and 10s to pick up the initial refill
-    // completed asynchronously by the server worker.
-    if ((planType == 'premium' || planType == 'standard') &&
+    state = nextState;
+    if (nextState.hasError) {
+      throw nextState.error!;
+    }
+
+    if (!isDraft &&
+        (planType == 'premium' || planType == 'standard') &&
         addedLine != null) {
       schedulePostRefillCheck(addedLine!.id);
     }
 
-    // Raised last, and only once the list above already holds the new line: the
-    // row exists and the plan has been paid for, so the caller must not treat
-    // this as "nothing happened".
-    if (queueFailure != null) throw queueFailure!;
+    return addedLine!;
   }
 
   /// Queues the pre-paid year, returning the failure instead of throwing.
@@ -320,7 +339,7 @@ class SimLinesController extends _$SimLinesController {
     final previousList = state.value ?? [];
     PremiumRefillQueueException? queueFailure;
     state = const AsyncLoading<List<SimLine>>().copyWithPrevious(state);
-    state = await AsyncValue.guard(() async {
+    final nextState = await AsyncValue.guard(() async {
       final repo = ref.read(simLinesRepositoryProvider);
       final updated = await repo.updateSimLine(line);
 
@@ -446,12 +465,15 @@ class SimLinesController extends _$SimLinesController {
           .toList();
     });
 
+    state = nextState;
+    if (nextState.hasError) {
+      throw nextState.error!;
+    }
+
     if (line.planType == 'premium' || line.planType == 'standard') {
       schedulePostRefillCheck(line.id);
     }
 
-    // See addSimLine: the upgrade itself landed, only the pre-paid queue did
-    // not, and the two must not read as the same failure.
     if (queueFailure != null) throw queueFailure!;
   }
 

@@ -24,9 +24,9 @@ void main() {
 
       await widgetTester.pump();
 
-      expect(find.text('PayPal Checkout'), findsOneWidget);
-      expect(find.text('Manual Refill Top-up'), findsOneWidget);
-      expect(find.text('Pay Securely with PayPal'), findsOneWidget);
+      expect(find.text('Refill Your Wallet'), findsWidgets);
+      expect(find.textContaining('Manual Refill Top-up'), findsOneWidget);
+      expect(find.text('Refill Wallet with PayPal'), findsOneWidget);
     });
 
     testWidgets('renders plan payment kind correctly', (widgetTester) async {
@@ -61,12 +61,10 @@ void main() {
       expect(grossUp, 3.10);
     });
 
-    // i7: Orange Egypt's rule used to carry a 30-day bundle cycle, which billed
-    // 13 refills a year. Egypt's NTRA-aligned rule is a 90-day validity window
-    // with a 90-day quarantine, so refill_interval_days(90) = 76 and the plan
-    // year pre-pays 5. The per-refill override and the gross-up are unchanged —
-    // only how many of them the subscriber is charged for.
-    test(r'Premium plan calculation for Orange Egypt (override $4.30, 90-day window = 5 refills) matches SQL ($25.35)', () {
+    // Under the Pay-Per-Refill architecture, Premium initial charge covers
+    // 1st qualifying refill ($4.30) + $2.50 annual fee = $6.80 net,
+    // grossed up to $7.55 for PayPal. Future refills are billed from wallet as due.
+    test(r'Premium plan initial charge for Orange Egypt (override $4.30 + $2.50 fee) matches SQL ($7.55)', () {
       final perRefill = RefillPricing.premiumRefillPrice(
         minimumTopupAmount: 3.59,
         appFeePercent: 3.0,
@@ -87,7 +85,7 @@ void main() {
         gatewayFeeFixed: 0.49,
         inappPricingOverride: 4.30,
       );
-      expect(total, 25.35);
+      expect(total, 7.55);
     });
   });
 }

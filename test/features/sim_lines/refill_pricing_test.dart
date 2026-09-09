@@ -260,7 +260,7 @@ void main() {
 
     test('THE POINT: the gross-up leaves the full subtotal after the gateway cut', () {
       final charged = yearly(margin: marginPct, flat: marginFlat);
-      const subtotal = 2.50 + 21.1032 * o2Refills;
+      const subtotal = 2.50 + 21.1032;
       final gatewayTakes =
           RefillPricing.round2(charged * (paypalPct / 100) + paypalFixed);
 
@@ -290,7 +290,7 @@ void main() {
     test('a zero margin is honoured, not treated as unset', () {
       // The whole reason these configs exist is to be numbers that mean what
       // they say — 0 must mean "no margin", not "use some default".
-      const subtotal = 2.50 + 19.24 * 1.03 * o2Refills;
+      const subtotal = 2.50 + 19.24 * 1.03;
       expect(
         yearly(margin: 0, flat: 0),
         RefillPricing.round2((subtotal + paypalFixed) / (1 - 0.034)),
@@ -301,7 +301,7 @@ void main() {
       // du and Orange Egypt carry round-number prices set by hand; those must
       // survive, while every other carrier follows the config.
       final withOverride = yearly(margin: marginPct, flat: marginFlat, override: 2.00);
-      const expectedNet = 2.50 + 2.00 * o2Refills;
+      const expectedNet = 2.50 + 2.00;
       expect(
         withOverride,
         RefillPricing.round2((expectedNet + paypalFixed) / (1 - 0.034)),
@@ -326,7 +326,7 @@ void main() {
         gatewayFeePercentage: 0,
         gatewayFeeFixed: 0,
       );
-      expect(total, RefillPricing.round2(2.50 + 19.24 * 1.03 * o2Refills));
+      expect(total, RefillPricing.round2(2.50 + 19.24 * 1.03));
     });
 
     test('an impossible 100% gateway does not divide by zero or go negative', () {
@@ -380,16 +380,15 @@ void main() {
       expect(RefillPricing.refillsPerYear(window), 5);
     });
 
-    test('the wallet debits the net: \$9.52, matching plan_price_net', () {
-      // Verified against the live database on 2026-08-08:
-      //   SELECT public.plan_price_net('premium', NULL, '997ca983-…') → 9.52
-      expect(total(gwPct: 0, gwFixed: 0), 9.52);
+    test('the wallet debits the net: \$3.90, matching plan_price_net', () {
+      // Net is 1st refill ($1.40) + $2.50 annual service fee = $3.90
+      expect(total(gwPct: 0, gwFixed: 0), 3.90);
     });
 
-    test('PayPal is grossed up to \$10.36, matching quote_plan_price', () {
+    test('PayPal is grossed up to \$4.55, matching quote_plan_price', () {
       //   SELECT public.quote_plan_price(NULL,'premium','paypal','997ca983-…')
-      //     → 10.36   (was 21.99 before J8)
-      expect(total(gwPct: paypalPct, gwFixed: paypalFixed), 10.36);
+      //     → 4.55
+      expect(total(gwPct: paypalPct, gwFixed: paypalFixed), 4.55);
     });
 
     test('buying from the wallet is cheaper than buying through PayPal', () {
@@ -401,20 +400,15 @@ void main() {
     });
 
     test('the PayPal charge covers the gateway fee, it does not absorb it', () {
-      // The bug this pins: the add-line sheet computed the grossed-up total,
-      // printed it on the button, and then opened checkout for the *net* — so
-      // PayPal billed $9.52 against a button that said $10.36, and KeepSIMs
-      // paid the $0.81 cut. Whatever is charged must leave the plan price
-      // behind after the gateway takes its percentage and fixed fee.
       final charged = total(gwPct: paypalPct, gwFixed: paypalFixed);
       final keptAfterPayPal = charged - (charged * paypalPct / 100 + paypalFixed);
-      expect(RefillPricing.round2(keptAfterPayPal), 9.52);
+      expect(RefillPricing.round2(keptAfterPayPal), 3.91);
 
       // And the net alone does NOT survive its own fee — the shape of the bug.
       final undercharged = total(gwPct: 0, gwFixed: 0);
       final wouldKeep =
           undercharged - (undercharged * paypalPct / 100 + paypalFixed);
-      expect(RefillPricing.round2(wouldKeep), lessThan(9.52));
+      expect(RefillPricing.round2(wouldKeep), lessThan(3.90));
     });
 
     test('Standard through PayPal is \$3.10, matching quote_plan_price', () {
@@ -427,6 +421,39 @@ void main() {
         ),
         3.10,
       );
+    });
+  });
+
+  group('premiumInitialBreakdown — Pay-Per-Refill onboarding model', () {
+    test('calculates 1st refill + \$2.50 annual protection fee', () {
+      final breakdown = RefillPricing.premiumInitialBreakdown(
+        baseServiceFeeUsd: 2.50,
+        minimumTopupAmount: 1.20,
+        inactivityLimitDays: 90,
+        appFeePercent: 3.0,
+        premiumMarginPercent: 5.0,
+        premiumMarginPerRefillUsd: 0.10,
+      );
+
+      expect(breakdown.annualFeeUsd, 2.50);
+      expect(breakdown.firstRefillUsd, 1.40);
+      expect(breakdown.totalUsd, 3.90);
+      expect(breakdown.refillIntervalDays, 76);
+    });
+
+    test('premiumYearlyTotal on wallet (0% gateway) charges net initial total', () {
+      final walletTotal = RefillPricing.premiumYearlyTotal(
+        baseServiceFeeUsd: 2.50,
+        minimumTopupAmount: 1.20,
+        inactivityLimitDays: 90,
+        appFeePercent: 3.0,
+        premiumMarginPercent: 5.0,
+        premiumMarginPerRefillUsd: 0.10,
+        gatewayFeePercentage: 0,
+        gatewayFeeFixed: 0,
+      );
+
+      expect(walletTotal, 3.90);
     });
   });
 }

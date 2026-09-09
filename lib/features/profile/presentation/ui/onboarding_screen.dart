@@ -140,7 +140,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     }
   }
 
-  Future<SimLivenessResult?> _triggerSimLivenessCheck({bool showMissingError = true}) async {
+  Future<SimLivenessResult?> _triggerSimLivenessCheck({
+    bool showMissingError = true,
+  }) async {
     if (!mounted) return null;
     if (_selectedSimCountry == null) {
       if (showMissingError) {
@@ -193,10 +195,16 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         if (_selectedSimCarrier == null &&
             result.detectedOperatorName != null &&
             _selectedSimCountry != null) {
-          final carriers = ref.read(carriersForCountryProvider(_selectedSimCountry!.id)).value ?? [];
+          final carriers =
+              ref
+                  .read(carriersForCountryProvider(_selectedSimCountry!.id))
+                  .value ??
+              [];
           final opLower = result.detectedOperatorName!.toLowerCase();
           final matched = carriers.firstWhereOrNull(
-            (c) => opLower.contains(c.name.toLowerCase()) || c.name.toLowerCase().contains(opLower),
+            (c) =>
+                opLower.contains(c.name.toLowerCase()) ||
+                c.name.toLowerCase().contains(opLower),
           );
           if (matched != null) {
             setState(() {
@@ -242,7 +250,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         return;
       }
 
-      final isConfirmedActive = _simLivenessResult!.isActive || _simLivenessResult!.carrierStatus == 'active';
+      final isConfirmedActive =
+          _simLivenessResult!.isActive ||
+          _simLivenessResult!.carrierStatus == 'active';
       if (!isConfirmedActive) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -290,7 +300,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       return;
     }
 
-    final isConfirmedActive = result.isActive || result.carrierStatus == 'active';
+    final isConfirmedActive =
+        result.isActive || result.carrierStatus == 'active';
     if (!isConfirmedActive) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -384,13 +395,16 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           if (_simLivenessResult == null) {
             final res = await _triggerSimLivenessCheck(showMissingError: true);
             if (!mounted) return;
-            final isConfirmed = res != null && (res.isActive || res.carrierStatus == 'active');
+            final isConfirmed =
+                res != null && (res.isActive || res.carrierStatus == 'active');
             if (!isConfirmed) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(
                     res?.carrierStatus == 'inactive'
-                        ? (res?.message.isNotEmpty == true ? res!.message : 'Number inactive or expired at carrier.')
+                        ? (res?.message.isNotEmpty == true
+                              ? res!.message
+                              : 'Number inactive or expired at carrier.')
                         : 'Carrier verification is unconfirmed for this line. Please verify via Voice Call or SMS code first, or select the Free Plan.',
                   ),
                   backgroundColor: AppColors.error,
@@ -406,13 +420,17 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               return;
             }
           } else {
-            final isConfirmed = _simLivenessResult!.isActive || _simLivenessResult!.carrierStatus == 'active';
+            final isConfirmed =
+                _simLivenessResult!.isActive ||
+                _simLivenessResult!.carrierStatus == 'active';
             if (!isConfirmed) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(
                     _simLivenessResult!.carrierStatus == 'inactive'
-                        ? (_simLivenessResult!.message.isNotEmpty ? _simLivenessResult!.message : 'Number inactive or expired at carrier.')
+                        ? (_simLivenessResult!.message.isNotEmpty
+                              ? _simLivenessResult!.message
+                              : 'Number inactive or expired at carrier.')
                         : 'Carrier verification is unconfirmed for this line. Please verify via Voice Call or SMS code first, or select the Free Plan.',
                   ),
                   backgroundColor: AppColors.error,
@@ -564,7 +582,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 isCarrierVerified: _simLivenessResult?.isActive ?? false,
                 carrierStatus: _simLivenessResult?.carrierStatus ?? 'pending',
                 detectedOperatorName: _simLivenessResult?.detectedOperatorName,
-                carrierVerifiedAt: _simLivenessResult != null ? DateTime.now() : null,
+                carrierVerifiedAt: _simLivenessResult != null
+                    ? DateTime.now()
+                    : null,
               );
         } on PremiumRefillQueueException catch (e) {
           // The line exists and the plan is paid for — only the pre-paid
@@ -661,7 +681,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(AppLocalizations.of(context)!.planFeePaidFromWallet),
+                content: Text(
+                  AppLocalizations.of(context)!.planFeePaidFromWallet,
+                ),
                 backgroundColor: AppColors.success,
               ),
             );
@@ -716,10 +738,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               onSuccess: () async {
                 navigator.pop();
                 try {
-                  await PlanPayment.waitForWalletCredit(
-                    ref,
-                    atLeast: planFee,
-                  );
+                  await PlanPayment.waitForWalletCredit(ref, atLeast: planFee);
 
                   final paid = await PlanPayment.tryPlanFromWallet(
                     ref,
@@ -1476,8 +1495,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           // i7: above the tiers, not below them — if this carrier cannot be
           // protected by refilling, the user should know before they read a
           // price. Mirrors sim_line_form_screen.dart.
-          if (premiumRule != null)
-            CarrierActivityNotice(rule: premiumRule),
+          if (premiumRule != null) CarrierActivityNotice(rule: premiumRule),
           _buildTierGrid(premiumRule, isPremiumLoading),
           const SizedBox(height: 24),
           _buildDynamicBillingSection(
@@ -1896,7 +1914,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                                     vertical: 2,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: Colors.amberAccent.withValues(alpha: 0.1),
+                                    color: Colors.amberAccent.withValues(
+                                      alpha: 0.1,
+                                    ),
                                     borderRadius: BorderRadius.circular(6),
                                     border: Border.all(
                                       color: Colors.amberAccent.withValues(
@@ -2318,7 +2338,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         final isSelected = _selectedTier == tier['key'];
         final isDisabled = tier['key'] == 'free' && _isFreePlanDisabled;
 
-        final isChecking = _isCheckingLiveness && (tier['key'] == 'standard' || tier['key'] == 'premium');
+        final isChecking =
+            _isCheckingLiveness &&
+            (tier['key'] == 'standard' || tier['key'] == 'premium');
 
         return Container(
           margin: const EdgeInsets.only(bottom: 12),
@@ -2349,7 +2371,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       ? null
                       : [
                           BoxShadow(
-                            color: AppColors.lightPrimary.withValues(alpha: 0.04),
+                            color: AppColors.lightPrimary.withValues(
+                              alpha: 0.04,
+                            ),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
@@ -2365,7 +2389,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                           height: 20,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            color: isDark ? AppColors.primaryLight : AppColors.lightPrimary,
+                            color: isDark
+                                ? AppColors.primaryLight
+                                : AppColors.lightPrimary,
                           ),
                         ),
                       )
@@ -2556,7 +2582,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   border: Border.all(color: cardBorderColor, width: 2),
                   boxShadow: [
                     BoxShadow(
-                      color: accentColor.withValues(alpha: isDark ? 0.05 : 0.08),
+                      color: accentColor.withValues(
+                        alpha: isDark ? 0.05 : 0.08,
+                      ),
                       blurRadius: 15,
                       spreadRadius: 1,
                     ),
@@ -2603,7 +2631,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                             Text(
                               billingPeriod,
                               style: AppTextStyles.caption.copyWith(
-                                color: context.onSurfaceColor.withValues(alpha: 0.5),
+                                color: context.onSurfaceColor.withValues(
+                                  alpha: 0.5,
+                                ),
                                 fontSize: 10,
                               ),
                               textAlign: TextAlign.end,
@@ -2671,7 +2701,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                             Text(
                               'Loading auto-refill pricing...',
                               style: AppTextStyles.caption.copyWith(
-                                color: context.onSurfaceColor.withValues(alpha: 0.5),
+                                color: context.onSurfaceColor.withValues(
+                                  alpha: 0.5,
+                                ),
                                 fontStyle: FontStyle.italic,
                               ),
                             ),

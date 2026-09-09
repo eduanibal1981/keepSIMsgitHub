@@ -27,6 +27,20 @@ class RefillQuote {
   });
 }
 
+class PremiumInitialBreakdown {
+  final double annualFeeUsd;
+  final double firstRefillUsd;
+  final double totalUsd;
+  final int refillIntervalDays;
+
+  const PremiumInitialBreakdown({
+    required this.annualFeeUsd,
+    required this.firstRefillUsd,
+    required this.totalUsd,
+    required this.refillIntervalDays,
+  });
+}
+
 class RefillPricing {
   const RefillPricing._();
 
@@ -161,10 +175,42 @@ class RefillPricing {
     return round2((net + gatewayFeeFixed) / (1 - pct));
   }
 
-  /// The single up-front charge for a year of premium.
-  ///
-  /// The gateway fee is applied once here via [grossUpTotal], so the margin
-  /// above survives contact with the gateway instead of being eaten by it.
+
+  /// Breakdown of the initial Premium checkout: Annual fee + 1st SIM recharge.
+  /// Subsequent refills are billed from the wallet only when due.
+  static PremiumInitialBreakdown premiumInitialBreakdown({
+    required double baseServiceFeeUsd,
+    required double minimumTopupAmount,
+    required int inactivityLimitDays,
+    int? refillIntervalDaysOverride,
+    required double appFeePercent,
+    required double premiumMarginPercent,
+    required double premiumMarginPerRefillUsd,
+    double? inappPricingOverride,
+  }) {
+    final perRefill = round2(
+      premiumRefillPrice(
+        minimumTopupAmount: minimumTopupAmount,
+        appFeePercent: appFeePercent,
+        premiumMarginPercent: premiumMarginPercent,
+        premiumMarginPerRefillUsd: premiumMarginPerRefillUsd,
+        inappPricingOverride: inappPricingOverride,
+      ),
+    );
+    final interval = refillIntervalDays(
+      inactivityLimitDays,
+      override: refillIntervalDaysOverride,
+    );
+    return PremiumInitialBreakdown(
+      annualFeeUsd: round2(baseServiceFeeUsd),
+      firstRefillUsd: perRefill,
+      totalUsd: round2(baseServiceFeeUsd + perRefill),
+      refillIntervalDays: interval,
+    );
+  }
+
+  /// The initial up-front charge for Premium onboarding (Annual fee + 1st SIM recharge).
+  /// Future scheduled refills are billed individually from the wallet as they fall due.
   static double premiumYearlyTotal({
     required double baseServiceFeeUsd,
     required double minimumTopupAmount,
@@ -184,13 +230,8 @@ class RefillPricing {
       premiumMarginPerRefillUsd: premiumMarginPerRefillUsd,
       inappPricingOverride: inappPricingOverride,
     );
-    final net =
-        baseServiceFeeUsd +
-        perRefill *
-            refillsPerYear(
-              inactivityLimitDays,
-              override: refillIntervalDaysOverride,
-            );
+    // PAY-PER-REFILL: 1st refill + annual service fee
+    final net = baseServiceFeeUsd + perRefill;
 
     return grossUpTotal(
       net: net,

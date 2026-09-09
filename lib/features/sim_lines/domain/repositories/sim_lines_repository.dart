@@ -7,6 +7,7 @@ import 'package:keep_sims/features/sim_lines/data/models/line_activity_log_model
 import 'package:keep_sims/features/sim_lines/data/models/payment_method_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_liveness_result.dart';
 import 'package:keep_sims/features/sim_lines/data/datasources/telnyx_verification_service.dart';
+import 'package:keep_sims/features/sim_lines/data/models/line_verification_quote_model.dart';
 
 abstract class SimLinesRepository {
   Future<List<SimLine>> getSimLines();
@@ -52,6 +53,13 @@ abstract class SimLinesRepository {
   Future<TelnyxSmsResult> checkSmsDeliveryStatus(String messageId);
   Future<void> confirmLineVerification(String simLineId, {String channel = 'twilio_missed_call', String? carrierName});
   Future<void> cancelCall(String callSid);
+  Future<LineVerificationQuote> quoteLineVerification(String simLineId);
+  Future<Map<String, dynamic>> startLineVerification({
+    required String simLineId,
+    required String method,
+    String? idempotencyKey,
+  });
+  Future<Map<String, dynamic>> getLineVerificationAttemptStatus(String attemptId);
   Future<List<Map<String, dynamic>>> fetchZenditOffers(String countryId, String carrierId);
 
   /// I1: every offer this line can actually buy, across every enabled supplier,

@@ -17,6 +17,9 @@ import 'package:keep_sims/features/scheduled_topups/model/topup_execution_model.
 import 'package:keep_sims/features/scheduled_topups/model/scheduled_topup_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
+import 'package:collection/collection.dart';
+import 'package:go_router/go_router.dart';
+import 'package:keep_sims/features/wallet/controller/wallet_controller.dart';
 import 'package:keep_sims/l10n/app_localizations.dart';
 
 class PremiumRefillConfigSheet extends ConsumerStatefulWidget {
@@ -60,7 +63,9 @@ class _PremiumRefillConfigSheetState
   Widget build(BuildContext context) {
     final isDark = context.isDarkMode;
     final l10n = AppLocalizations.of(context)!;
-    final executionsAsync = ref.watch(topupExecutionsForLineProvider(widget.simLineId));
+    final executionsAsync = ref.watch(
+      topupExecutionsForLineProvider(widget.simLineId),
+    );
 
     final simLines = ref.watch(simLinesControllerProvider).value ?? [];
     final currentLine = simLines.cast<SimLine?>().firstWhere(
@@ -99,22 +104,40 @@ class _PremiumRefillConfigSheetState
           height: 300,
           child: Center(child: CircularProgressIndicator()),
         ),
-        error: (err, stack) => SizedBox(
-          height: 300,
-          child: Center(child: Text('Error: $err')),
-        ),
+        error: (err, stack) =>
+            SizedBox(height: 300, child: Center(child: Text('Error: $err'))),
         data: (executions) {
-          final miniRefills = executions
-              .where((e) => e.executionType == 'refill_mini' && e.status == 'pending')
-              .toList()
-            ..sort((a, b) => (a.executionTime ?? DateTime.now()).compareTo(b.executionTime ?? DateTime.now()));
+          final miniRefills =
+              executions
+                  .where(
+                    (e) =>
+                        e.executionType == 'refill_mini' &&
+                        (e.status == 'pending' || e.status == 'awaiting_funds'),
+                  )
+                  .toList()
+                ..sort(
+                  (a, b) => (a.executionTime ?? DateTime.now()).compareTo(
+                    b.executionTime ?? DateTime.now(),
+                  ),
+                );
 
           if (_editedDates == null) {
             _editedDates = {
-              for (var exec in miniRefills) exec.id: exec.executionTime ?? DateTime.now(),
+              for (var exec in miniRefills)
+                exec.id: exec.executionTime ?? DateTime.now(),
             };
             _cachedExecutions = miniRefills;
           }
+
+          final walletState = ref.watch(walletControllerProvider).value;
+          final availableBalance = walletState?.wallet.balance ?? 0.0;
+          final firstPendingExec = _cachedExecutions?.firstWhereOrNull(
+            (e) => e.status == 'pending' || e.status == 'awaiting_funds',
+          );
+          final isLowBalance =
+              firstPendingExec != null &&
+              availableBalance < firstPendingExec.amount;
+          final isAwaitingFunds = firstPendingExec?.status == 'awaiting_funds';
 
           return SingleChildScrollView(
             child: Column(
@@ -168,7 +191,9 @@ class _PremiumRefillConfigSheetState
                           Text(
                             widget.simNickname,
                             style: AppTextStyles.bodyMedium.copyWith(
-                              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                              color: isDark
+                                  ? AppColors.textSecondaryDark
+                                  : AppColors.textSecondaryLight,
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -186,85 +211,238 @@ class _PremiumRefillConfigSheetState
                       child: Text(
                         'No executions scheduled',
                         style: AppTextStyles.bodyMedium.copyWith(
-                          color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                          color: isDark
+                              ? AppColors.textSecondaryDark
+                              : AppColors.textSecondaryLight,
                         ),
                       ),
                     ),
                   )
                 else ...[
+                  if (isLowBalance || isAwaitingFunds)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 12,
+                      ),
+                      margin: const EdgeInsets.only(bottom: 16),
+                      decoration: BoxDecoration(
+                        color: (isDark ? Colors.amber : Colors.orange)
+                            .withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: (isDark ? Colors.amber : Colors.orange)
+                              .withValues(alpha: 0.35),
+                          width: 1,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            isAwaitingFunds
+                                ? Icons.warning_amber_rounded
+                                : Icons.account_balance_wallet_outlined,
+                            size: 22,
+                            color: isDark
+                                ? Colors.amberAccent
+                                : Colors.orange.shade800,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  isAwaitingFunds
+                                      ? 'Auto-Refill Awaiting Wallet Credit'
+                                      : 'Wallet Balance Low (\$${availableBalance.toStringAsFixed(2)})',
+                                  style: TextStyle(
+                                    fontSize: 12.5,
+                                    fontWeight: FontWeight.bold,
+                                    color: isDark
+                                        ? Colors.amberAccent
+                                        : Colors.orange.shade900,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  isAwaitingFunds
+                                      ? 'Refill of \$${firstPendingExec!.amount.toStringAsFixed(2)} is waiting for wallet credit.'
+                                      : 'Next refill requires \$${firstPendingExec!.amount.toStringAsFixed(2)}. Top up to maintain protection.',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: isDark
+                                        ? AppColors.textSecondaryDark
+                                        : AppColors.textSecondaryLight,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                              context.push('/wallet');
+                            },
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                              backgroundColor: isDark
+                                  ? Colors.amber.withValues(alpha: 0.2)
+                                  : Colors.orange.withValues(alpha: 0.15),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            child: Text(
+                              'Add Funds',
+                              style: TextStyle(
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.bold,
+                                color: isDark
+                                    ? Colors.amberAccent
+                                    : Colors.orange.shade900,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ListView.separated(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: _cachedExecutions!.length,
-                    separatorBuilder: (context, index) => const SizedBox(height: 12),
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 12),
                     itemBuilder: (context, index) {
                       final exec = _cachedExecutions![index];
                       final currentDate = _editedDates![exec.id]!;
-                      final formattedDate = DateFormat('yyyy-MM-dd').format(currentDate);
+                      final formattedDate = DateFormat(
+                        'yyyy-MM-dd',
+                      ).format(currentDate);
 
                       return Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 14,
+                        ),
                         decoration: BoxDecoration(
                           color: isDark
                               ? AppColors.darkSurface.withValues(alpha: 0.5)
                               : Colors.grey.shade100,
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                            color: isDark
+                                ? AppColors.darkBorder
+                                : AppColors.lightBorder,
                           ),
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
-                                  l10n.refillExecutionNum(index + 1),
-                                  style: AppTextStyles.bodyLarge.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: context.onSurfaceColor,
-                                  ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      index == 0
+                                          ? 'Next auto Recharge:'
+                                          : l10n.refillExecutionNum(index + 1),
+                                      style: AppTextStyles.bodyLarge.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: context.onSurfaceColor,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      formattedDate,
+                                      style: AppTextStyles.bodyMedium.copyWith(
+                                        color: isDark
+                                            ? AppColors.textSecondaryDark
+                                            : AppColors.textSecondaryLight,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  formattedDate,
-                                  style: AppTextStyles.bodyMedium.copyWith(
-                                    color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                                OutlinedButton.icon(
+                                  onPressed: () async {
+                                    final selectedDate = await showDatePicker(
+                                      context: context,
+                                      initialDate:
+                                          currentDate.isBefore(DateTime.now())
+                                          ? DateTime.now().add(
+                                              const Duration(minutes: 5),
+                                            )
+                                          : currentDate,
+                                      firstDate: DateTime.now(),
+                                      lastDate: DateTime.now().add(
+                                        const Duration(days: 365),
+                                      ),
+                                    );
+                                    if (selectedDate != null) {
+                                      setState(() {
+                                        _editedDates![exec.id] = DateTime(
+                                          selectedDate.year,
+                                          selectedDate.month,
+                                          selectedDate.day,
+                                          currentDate.hour,
+                                          currentDate.minute,
+                                          currentDate.second,
+                                        );
+                                      });
+                                    }
+                                  },
+                                  icon: const Icon(
+                                    Icons.edit_calendar_rounded,
+                                    size: 16,
+                                  ),
+                                  label: Text(l10n.changeDate),
+                                  style: OutlinedButton.styleFrom(
+                                    foregroundColor: AppColors.primaryLight,
+                                    side: const BorderSide(
+                                      color: AppColors.primaryLight,
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 8,
+                                    ),
                                   ),
                                 ),
                               ],
                             ),
-                            OutlinedButton.icon(
-                              onPressed: () async {
-                                final selectedDate = await showDatePicker(
-                                  context: context,
-                                  initialDate: currentDate.isBefore(DateTime.now())
-                                      ? DateTime.now().add(const Duration(minutes: 5))
-                                      : currentDate,
-                                  firstDate: DateTime.now(),
-                                  lastDate: DateTime.now().add(const Duration(days: 365)),
-                                );
-                                if (selectedDate != null) {
-                                  setState(() {
-                                    _editedDates![exec.id] = DateTime(
-                                      selectedDate.year,
-                                      selectedDate.month,
-                                      selectedDate.day,
-                                      currentDate.hour,
-                                      currentDate.minute,
-                                      currentDate.second,
-                                    );
-                                  });
-                                }
-                              },
-                              icon: const Icon(Icons.edit_calendar_rounded, size: 16),
-                              label: Text(l10n.changeDate),
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: AppColors.primaryLight,
-                                side: const BorderSide(color: AppColors.primaryLight),
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                              ),
+                            const SizedBox(height: 10),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Icon(
+                                  Icons.account_balance_wallet_outlined,
+                                  size: 14,
+                                  color: isDark
+                                      ? AppColors.primaryLight
+                                      : AppColors.primary,
+                                ),
+                                const SizedBox(width: 6),
+                                Expanded(
+                                  child: Text(
+                                    exec.amount > 0
+                                        ? 'Keep at least \$${exec.amount.toStringAsFixed(2)} in your wallet to ensure auto-recharge keeps your line active.'
+                                        : 'Keep funds in your wallet to ensure auto-recharge keeps your line active.',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      color: isDark
+                                          ? AppColors.textSecondaryDark
+                                          : AppColors.textSecondaryLight,
+                                      height: 1.3,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
@@ -282,7 +460,8 @@ class _PremiumRefillConfigSheetState
                           onPressed: _isSaving
                               ? null
                               : () {
-                                  if (schedule == null || currentLine == null) return;
+                                  if (schedule == null || currentLine == null)
+                                    return;
                                   final frequencyDays = schedule.frequencyDays;
                                   final nextTopupDue = currentLine.nextTopupDue;
 
@@ -298,15 +477,28 @@ class _PremiumRefillConfigSheetState
                                     } else if (frequencyDays == 14) {
                                       bufferDays = 1;
                                     }
-                                    baseDate = nextTopupDue.subtract(Duration(days: bufferDays));
+                                    baseDate = nextTopupDue.subtract(
+                                      Duration(days: bufferDays),
+                                    );
                                   }
 
                                   setState(() {
-                                    for (int i = 0; i < _cachedExecutions!.length; i++) {
+                                    for (
+                                      int i = 0;
+                                      i < _cachedExecutions!.length;
+                                      i++
+                                    ) {
                                       final exec = _cachedExecutions![i];
-                                      DateTime defaultDate = baseDate.add(Duration(days: i * frequencyDays));
-                                      if (i == 0 && defaultDate.isBefore(DateTime.now())) {
-                                        defaultDate = DateTime.now().toUtc().add(const Duration(minutes: 5));
+                                      DateTime defaultDate = baseDate.add(
+                                        Duration(days: i * frequencyDays),
+                                      );
+                                      if (i == 0 &&
+                                          defaultDate.isBefore(
+                                            DateTime.now(),
+                                          )) {
+                                        defaultDate = DateTime.now()
+                                            .toUtc()
+                                            .add(const Duration(minutes: 5));
                                       }
                                       _editedDates![exec.id] = defaultDate;
                                     }
@@ -318,13 +510,17 @@ class _PremiumRefillConfigSheetState
                               borderRadius: BorderRadius.circular(16),
                             ),
                             side: BorderSide(
-                              color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                              color: isDark
+                                  ? AppColors.darkBorder
+                                  : AppColors.lightBorder,
                             ),
                           ),
                           child: Text(
                             l10n.resetToDefault,
                             style: TextStyle(
-                              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                              color: isDark
+                                  ? AppColors.textSecondaryDark
+                                  : AppColors.textSecondaryLight,
                             ),
                           ),
                         ),
@@ -341,14 +537,24 @@ class _PremiumRefillConfigSheetState
                                   });
                                   try {
                                     final result = await ref
-                                        .read(scheduledTopupControllerProvider.notifier)
-                                        .updateMiniRefillDates(widget.simLineId, _editedDates!);
+                                        .read(
+                                          scheduledTopupControllerProvider
+                                              .notifier,
+                                        )
+                                        .updateMiniRefillDates(
+                                          widget.simLineId,
+                                          _editedDates!,
+                                        );
 
                                     if (result is Success<void>) {
                                       if (context.mounted) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
                                           SnackBar(
-                                            content: Text(l10n.refillDateUpdated),
+                                            content: Text(
+                                              l10n.refillDateUpdated,
+                                            ),
                                             backgroundColor: AppColors.success,
                                           ),
                                         );
@@ -359,9 +565,15 @@ class _PremiumRefillConfigSheetState
                                     }
                                   } catch (e) {
                                     if (context.mounted) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
                                         SnackBar(
-                                          content: Text(l10n.failedToUpdateRefillDate(e.toString())),
+                                          content: Text(
+                                            l10n.failedToUpdateRefillDate(
+                                              e.toString(),
+                                            ),
+                                          ),
                                           backgroundColor: AppColors.error,
                                         ),
                                       );

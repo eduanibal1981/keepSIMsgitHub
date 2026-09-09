@@ -162,7 +162,7 @@ async function getCarrierDetails(simLineId, preferredProvider = null) {
 async function executeRefill(execution) {
     console.log(`[executeRefill] Processing Instant Refill Execution ID: ${execution.id}`);
     
-    let walletDebited = false;
+    let walletHoldId = null;
     const userId = execution.user_id;
     const amount = parseFloat(execution.amount);
     const paymentGateway = execution.payment_gateway_code || 'wallet';
@@ -173,12 +173,21 @@ async function executeRefill(execution) {
         ? execution.api_provider.toLowerCase()
         : null;
 
+    let activeProvider = executionProvider;
+
     try {
         // Codes are resolved FOR the supplier we are about to call, so the
         // carrier code and the API being called can no longer disagree.
         const { phoneNumber, countryCode, carrierCode, provider } =
             await getCarrierDetails(execution.sim_line_id, executionProvider);
-        const activeProvider = provider;
+        activeProvider = provider;
+
+        if (!execution.api_provider && activeProvider) {
+            await supabase
+                .from('topup_executions')
+                .update({ api_provider: activeProvider })
+                .eq('id', execution.id);
+        }
 
         // Validation
         const chargedUsd = chargedOfferPriceUsd(execution);
@@ -225,30 +234,26 @@ async function executeRefill(execution) {
             throw mismatchErr;
         }
 
-        // Wallet Debit
+        // Wallet Hold Reservation
         if (paymentGateway === 'wallet') {
-            console.log(`Debiting wallet for user ${userId}, amount: ${amount} USD...`);
-            const { data: debitSuccess, error: debitError } = await supabase
-                .rpc('debit_wallet_for_topup', {
+            console.log(`Reserving wallet funds for user ${userId}, amount: ${amount} USD...`);
+            const { data: reservedHoldId, error: holdError } = await supabase
+                .rpc('reserve_wallet_funds', {
                     p_user_id: userId,
-                    p_sim_line_id: execution.sim_line_id,
                     p_amount: amount,
-                    p_description: `Instant Mobile Refill for SIM Line (${execution.sim_line_id})`,
-                    p_reference_id: `exec_${execution.id}`
+                    p_order_type: 'refill_instant',
+                    p_order_reference_id: `exec_${execution.id}`,
+                    p_reason: `Instant Mobile Refill for SIM Line (${execution.sim_line_id})`
                 });
 
-            if (debitError) {
-                throw new Error(`Wallet debit failed: ${debitError.message}`);
+            if (holdError) {
+                throw new Error(`Wallet reservation failed: ${holdError.message}`);
             }
 
-            if (!debitSuccess) {
-                throw new Error('Insufficient wallet balance');
-            }
-
-            walletDebited = true;
-            console.log(`Wallet debited successfully for execution ${execution.id}`);
+            walletHoldId = reservedHoldId;
+            console.log(`Wallet hold reserved successfully: ${walletHoldId}`);
         } else {
-            console.log(`Payment gateway is ${paymentGateway}; bypassing wallet debit.`);
+            console.log(`Payment gateway is ${paymentGateway}; bypassing wallet reservation.`);
         }
 
         // Execute Purchase
@@ -420,6 +425,26 @@ async function executeRefill(execution) {
                 }
             }
 
+            // Capture wallet hold on success
+            if (walletHoldId) {
+                console.log(`Capturing wallet hold ${walletHoldId} for execution ${execution.id}...`);
+                const { error: captureError } = await supabase
+                    .rpc('capture_wallet_hold', {
+                        p_hold_id: walletHoldId,
+                        p_txn_type: 'topup_debit',
+                        p_description: `Instant Mobile Refill for SIM Line (${execution.sim_line_id})`,
+                        p_metadata: {
+                            execution_id: execution.id,
+                            sim_line_id: execution.sim_line_id,
+                            provider: activeProvider,
+                            transaction_id: purchaseResult.transactionId || externalId
+                        }
+                    });
+                if (captureError) {
+                    console.error(`Failed to capture wallet hold ${walletHoldId}:`, captureError.message);
+                }
+            }
+
             // Mark execution as success
             const { error: updateError } = await supabase
                 .rpc('update_execution_status', { 
@@ -444,38 +469,26 @@ async function executeRefill(execution) {
     } catch (error) {
         console.error(`Failed to execute refill ${execution.id}:`, error.message);
         
-        // Rollback (Refund) on Failure
-        if (paymentGateway === 'wallet' && walletDebited) {
-            console.log(`Attempting to refund wallet for failed execution ${execution.id}...`);
-            const { error: refundError } = await supabase.rpc('credit_wallet_for_refund', {
-                p_user_id: userId,
-                p_sim_line_id: execution.sim_line_id,
-                p_amount: amount,
-                p_description: `Refund for failed instant refill execution ${execution.id}`,
-                p_reference_id: `refund_exec_${execution.id}`
-            });
-            if (refundError) {
-                if (refundError.code === '23505' || (refundError.message || '').includes('duplicate key')) {
-                    console.log(`Refund for execution ${execution.id} already recorded. Skipping.`);
-                } else {
-                    console.error(`Refund failed:`, refundError.message);
-                    await supabase.from('system_alerts').insert({
-                        kind: 'refund_failed',
-                        message: `Refund of ${amount} USD failed for execution ${execution.id} (user ${userId}): ${refundError.message}`,
-                        details: { execution_id: execution.id, user_id: userId, amount: amount }
-                    });
-                    throw new Error(`Refund failed for execution ${execution.id}: ${refundError.message}`);
-                }
+        // Release wallet hold on failure
+        if (walletHoldId) {
+            console.log(`Releasing wallet hold ${walletHoldId} for failed execution ${execution.id}...`);
+            const { error: releaseError } = await supabase
+                .rpc('release_wallet_hold', {
+                    p_hold_id: walletHoldId,
+                    p_reason: `Refill failed: ${error.message}`
+                });
+            if (releaseError) {
+                console.error(`Failed to release wallet hold ${walletHoldId}:`, releaseError.message);
             } else {
-                console.log(`Refund successful.`);
+                console.log(`Wallet hold ${walletHoldId} released successfully.`);
             }
         }
 
-        await markExecutionFailed(execution.id, error.message);
+        await markExecutionFailed(execution.id, error.message, activeProvider);
     }
 }
 
-async function markExecutionFailed(executionId, reason) {
+async function markExecutionFailed(executionId, reason, provider = null) {
     const { error } = await supabase
         .rpc('update_execution_failed', { 
             p_id: executionId,
@@ -484,6 +497,15 @@ async function markExecutionFailed(executionId, reason) {
         
     if (error) {
         console.error(`Failed to update database status to failed:`, error.message);
+    }
+
+    if (provider) {
+        try {
+            await supabase
+                .from('topup_executions')
+                .update({ api_provider: provider })
+                .eq('id', executionId);
+        } catch (_) {}
     }
 }
 

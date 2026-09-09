@@ -432,5 +432,200 @@ class PlanPayment {
     }
     return null;
   }
+  /// Queries the database RPC `quote_premium_breakdown` to fetch the itemized quote
+  /// ($2.50 annual protection fee + 1st SIM recharge cost = total today).
+  static Future<PremiumInitialBreakdown?> fetchPremiumBreakdown({
+    String? carrierRuleId,
+    String? simLineId,
+  }) async {
+    try {
+      final client = Supabase.instance.client;
+      final response = await client.rpc('quote_premium_breakdown', params: {
+        'p_carrier_rule_id': carrierRuleId,
+        'p_sim_line_id': simLineId,
+      }).timeout(const Duration(seconds: 10));
+
+      if (response is Map) {
+        final annualFee = (response['annual_fee_usd'] as num?)?.toDouble() ?? 2.50;
+        final firstRefill = (response['first_refill_cost_usd'] as num?)?.toDouble() ?? 0.0;
+        final total = (response['total_charge_usd'] as num?)?.toDouble() ?? (annualFee + firstRefill);
+        final interval = (response['refill_interval_days'] as num?)?.toInt() ?? 30;
+        return PremiumInitialBreakdown(
+          annualFeeUsd: annualFee,
+          firstRefillUsd: firstRefill,
+          totalUsd: total,
+          refillIntervalDays: interval,
+        );
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  /// Calculates synchronous itemized breakdown for build() rendering.
+  static PremiumInitialBreakdown premiumBreakdownSync(WidgetRef ref, CarrierRule rule) {
+    return RefillPricing.premiumInitialBreakdown(
+      baseServiceFeeUsd:
+          ref.watch(baseServiceFeeUsdProvider).value ?? kDefaultBaseServiceFeeUsd,
+      minimumTopupAmount: rule.minimumTopupAmount,
+      inactivityLimitDays: rule.inactivityLimitDays,
+      refillIntervalDaysOverride: rule.refillIntervalDaysOverride,
+      appFeePercent:
+          ref.watch(appFeePercentProvider).value ?? kDefaultAppFeePercent,
+      premiumMarginPercent: ref.watch(premiumMarginPercentProvider).value ?? 0,
+      premiumMarginPerRefillUsd:
+          ref.watch(premiumMarginPerRefillUsdProvider).value ?? 0,
+      inappPricingOverride: overrideFor(rule),
+    );
+  }
+
+  /// Creates a SIM setup order tracking the onboarding/upgrade intent and hold requirements.
+  static Future<Map<String, dynamic>?> createSimSetupOrder({
+    required String phoneNumber,
+    required String plan,
+    String? carrierRuleId,
+    String? countryCode,
+    String? carrierCode,
+    String? simLineId,
+  }) async {
+    try {
+      final client = Supabase.instance.client;
+      final response = await client.rpc('create_sim_setup_order', params: {
+        'p_phone_number': phoneNumber,
+        'p_plan': plan,
+        'p_carrier_rule_id': carrierRuleId,
+        'p_country_code': countryCode,
+        'p_carrier_code': carrierCode,
+        'p_sim_line_id': simLineId,
+      }).timeout(const Duration(seconds: 10));
+      if (response is Map) {
+        return Map<String, dynamic>.from(response);
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  /// Fetches authoritative server quote for SIM setup (Pay-Per-Refill model + Free eligibility).
+  static Future<SimSetupQuote?> fetchSimSetupQuote({
+    required String phoneNumber,
+    required String plan,
+    String? carrierRuleId,
+    String? simLineId,
+  }) async {
+    try {
+      final client = Supabase.instance.client;
+      final response = await client.rpc('quote_sim_setup', params: {
+        'p_phone_number': phoneNumber,
+        'p_plan': plan,
+        'p_carrier_rule_id': carrierRuleId,
+        'p_sim_line_id': simLineId,
+      }).timeout(const Duration(seconds: 10));
+
+      if (response is Map) {
+        return SimSetupQuote.fromJson(Map<String, dynamic>.from(response));
+      }
+    } catch (e) {
+      // Failed to fetch quote
+    }
+    return null;
+  }
+
+  /// Reserves the dual holds (or single fee hold) in wallet_holds atomically.
+  static Future<Map<String, dynamic>> reserveSimSetupHolds(String orderId) async {
+    final client = Supabase.instance.client;
+    final response = await client.rpc('reserve_sim_setup_holds', params: {
+      'p_order_id': orderId,
+    }).timeout(const Duration(seconds: 10));
+    return Map<String, dynamic>.from(response as Map);
+  }
+
+  /// Dispatches the setup verification execution via the topup_executions queue.
+  static Future<Map<String, dynamic>> dispatchSimSetupVerification({
+    required String orderId,
+    required String simLineId,
+  }) async {
+    final client = Supabase.instance.client;
+    final response = await client.rpc('dispatch_sim_setup_verification', params: {
+      'p_order_id': orderId,
+      'p_sim_line_id': simLineId,
+    }).timeout(const Duration(seconds: 10));
+    return Map<String, dynamic>.from(response as Map);
+  }
+
+  /// Finalizes setup order state based on execution delivery and captures holds server-side.
+  static Future<Map<String, dynamic>> finalizeSimSetupOrder(
+    String orderId, {
+    String? simLineId,
+  }) async {
+    final client = Supabase.instance.client;
+    final params = <String, dynamic>{'p_order_id': orderId};
+    if (simLineId != null) {
+      params['p_sim_line_id'] = simLineId;
+    }
+    final response = await client.rpc('finalize_sim_setup_order', params: params).timeout(const Duration(seconds: 10));
+    return Map<String, dynamic>.from(response as Map);
+  }
+
+  /// Cancels setup order and releases any active holds.
+  static Future<Map<String, dynamic>> cancelSimSetupOrder(
+    String orderId, {
+    String reason = 'Cancelled by user',
+  }) async {
+    final client = Supabase.instance.client;
+    final response = await client.rpc('cancel_sim_setup_order', params: {
+      'p_order_id': orderId,
+      'p_reason': reason,
+    }).timeout(const Duration(seconds: 10));
+    return Map<String, dynamic>.from(response as Map);
+  }
+
+  /// Atomically falls back a failed setup to 6-month Free ($0) or Standard ($2.50).
+  static Future<Map<String, dynamic>> fallbackSimSetupToReminders({
+    required String orderId,
+    required String simLineId,
+    required String fallbackPlan,
+  }) async {
+    final client = Supabase.instance.client;
+    final response = await client.rpc('fallback_sim_setup_to_reminders', params: {
+      'p_order_id': orderId,
+      'p_sim_line_id': simLineId,
+      'p_fallback_plan': fallbackPlan,
+    }).timeout(const Duration(seconds: 10));
+    return Map<String, dynamic>.from(response as Map);
+  }
 }
+
+/// Unified, server-persisted quote for SIM setup and onboarding.
+class SimSetupQuote {
+  final String plan;
+  final String phoneNumber;
+  final double annualFeeUsd;
+  final double firstRefillCostUsd;
+  final double totalChargeUsd;
+  final int refillIntervalDays;
+  final bool freeEligible;
+
+  const SimSetupQuote({
+    required this.plan,
+    required this.phoneNumber,
+    required this.annualFeeUsd,
+    required this.firstRefillCostUsd,
+    required this.totalChargeUsd,
+    required this.refillIntervalDays,
+    required this.freeEligible,
+  });
+
+  factory SimSetupQuote.fromJson(Map<String, dynamic> json) {
+    return SimSetupQuote(
+      plan: json['plan']?.toString() ?? 'standard',
+      phoneNumber: json['phone_number']?.toString() ?? '',
+      annualFeeUsd: (json['annual_fee_usd'] as num?)?.toDouble() ?? 2.50,
+      firstRefillCostUsd: (json['first_refill_cost_usd'] as num?)?.toDouble() ?? 0.0,
+      totalChargeUsd: (json['total_charge_usd'] as num?)?.toDouble() ?? 2.50,
+      refillIntervalDays: (json['refill_interval_days'] as num?)?.toInt() ?? 30,
+      freeEligible: json['free_eligible'] as bool? ?? true,
+    );
+  }
+}
+
+
 

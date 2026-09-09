@@ -90,7 +90,7 @@ async function queryDTOne(formattedPhone, countryCode, timeoutMs = 8000) {
 
       if (res.ok) {
         let data = {};
-        try { data = JSON.parse(text); } catch (_) {}
+        try { data = JSON.parse(text); } catch (_) { }
 
         if (Array.isArray(data)) {
           const activeOp = data.find(item => item.identified === true);
@@ -164,7 +164,7 @@ async function queryZendit(formattedPhone, countryCode, timeoutMs = 8000) {
 
       if (res.ok) {
         let data = {};
-        try { data = JSON.parse(text); } catch (_) {}
+        try { data = JSON.parse(text); } catch (_) { }
         const rawName = data.name || data.brand || data.operator?.name || data.operator?.brand || (data.list && data.list[0]?.brand);
         const cCode = data.country || data.countryCode || (data.list && data.list[0]?.country) || countryCode;
         if (rawName) {

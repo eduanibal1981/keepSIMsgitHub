@@ -167,23 +167,23 @@ class CarrierLivenessBadge extends StatelessWidget {
     String titleText;
     String subtitleText;
 
-    if (isActive) {
-      cardBg = const Color(0xFF10B981).withValues(alpha: isDark ? 0.12 : 0.08);
-      borderColor = const Color(0xFF10B981).withValues(alpha: isDark ? 0.4 : 0.3);
-      iconColor = const Color(0xFF10B981);
-      iconData = Icons.check_circle_rounded;
+    if (isActive || (status == 'unverified' && result!.detectedOperatorName != null)) {
       final op = result!.detectedOperatorName;
+      cardBg = (isDark ? AppColors.darkCard : Colors.white).withValues(alpha: 0.9);
+      borderColor = (isDark ? AppColors.primaryLight : AppColors.lightPrimary).withValues(alpha: 0.4);
+      iconColor = isDark ? AppColors.primaryLight : AppColors.lightPrimary;
+      iconData = Icons.cell_tower_rounded;
       titleText = op != null && op.isNotEmpty
-          ? 'Active on $op (Prepaid)'
-          : 'Carrier Line Active (Prepaid)';
-      subtitleText = 'Carrier BSS confirmed • Ready for auto-refill protection';
+          ? '$op detected'
+          : 'Carrier Identified';
+      subtitleText = 'Network recognized. Line validity is confirmed upon your first successful recharge.';
     } else if (isInactive) {
       cardBg = AppColors.error.withValues(alpha: isDark ? 0.15 : 0.08);
       borderColor = AppColors.error.withValues(alpha: isDark ? 0.5 : 0.35);
       iconColor = AppColors.error;
       iconData = Icons.cancel_rounded;
-      titleText = 'Number inactive or expired at carrier';
-      subtitleText = 'Cannot register for auto-refill. Carrier indicates line is deactivated or recycled.';
+      titleText = 'Number reported inactive or disconnected';
+      subtitleText = 'Carrier network indicates line is inactive. Recharges cannot be delivered.';
     } else if (isUnsupported) {
       cardBg = const Color(0xFFF59E0B).withValues(alpha: isDark ? 0.12 : 0.08);
       borderColor = const Color(0xFFF59E0B).withValues(alpha: isDark ? 0.4 : 0.3);
@@ -191,8 +191,8 @@ class CarrierLivenessBadge extends StatelessWidget {
       iconData = Icons.info_outline_rounded;
       titleText = result!.message.isNotEmpty
           ? result!.message
-          : 'Carrier verification unavailable for this corridor';
-      subtitleText = 'Could not verify active status with carrier BSS. You can verify this line with a quick Voice Call or SMS code.';
+          : 'Carrier lookup inconclusive';
+      subtitleText = 'Carrier network could not be automatically identified. You can proceed or test line reachability.';
     } else {
       return const SizedBox.shrink();
     }

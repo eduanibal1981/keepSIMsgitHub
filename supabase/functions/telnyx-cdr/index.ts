@@ -154,6 +154,60 @@ serve(async (req: Request) => {
     // Resolve callRecordId from client_state or payload
     const clientCallRecordId = clientState?.callRecordId;
 
+    // ── 1B. Real Live Verification Handler (Missed Call) Fallback ──
+    if (clientState?.attemptId) {
+      const attemptId = clientState.attemptId;
+      console.log(`[telnyx-cdr] Processing line verification attempt ${attemptId}, event: ${eventType}`);
+      const telnyxApiKey = Deno.env.get("TELNYX_API_KEY") || "KEY01A049E00656B79B4314CFFBC7969C10_k9JM7HV9u4sB2MadneUT1M";
+
+      if (eventType === "call.ringing" || eventType === "call.answered") {
+        if (callControlId) {
+          try {
+            await fetch(`https://api.telnyx.com/v2/calls/${callControlId}/actions/hangup`, {
+              method: "POST",
+              headers: { "Authorization": `Bearer ${telnyxApiKey}`, "Content-Type": "application/json" },
+              body: JSON.stringify({}),
+            });
+          } catch (_) {}
+        }
+        await rpc("settle_line_verification_attempt", {
+          p_attempt_id: attemptId,
+          p_outcome: "succeeded",
+          p_carrier_name: null,
+          p_error_message: null,
+        });
+        return new Response(JSON.stringify({ status: "verification_succeeded" }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200,
+        });
+      } else if (eventType === "call.hangup") {
+        const hangupCause = payload?.hangup_cause || "call_ended";
+        // Check if already succeeded
+        const checkRes = await fetch(`${SUPABASE_URL}/rest/v1/line_verification_attempts?id=eq.${encodeURIComponent(attemptId)}&select=outcome`, {
+          headers: serviceHeaders,
+        });
+        if (checkRes.ok) {
+          const attempts = await checkRes.json();
+          if (attempts[0] && attempts[0].outcome !== "succeeded") {
+            await rpc("settle_line_verification_attempt", {
+              p_attempt_id: attemptId,
+              p_outcome: "failed",
+              p_carrier_name: null,
+              p_error_message: `Call ended without ringing: ${hangupCause}`,
+            });
+          }
+        }
+        return new Response(JSON.stringify({ status: "verification_hangup" }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200,
+        });
+      }
+      return new Response(JSON.stringify({ status: "verification_event_acknowledged" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
+    }
+
     // ── 2. Look up the verified Call Record from Database (SOURCE OF TRUTH) ──
     let dbRecord: any = null;
     if (clientCallRecordId) {

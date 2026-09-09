@@ -11,6 +11,7 @@ import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/line_activity_log_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/payment_method_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_liveness_result.dart';
+import 'package:keep_sims/features/sim_lines/data/models/line_verification_quote_model.dart';
 import 'package:keep_sims/features/sim_lines/domain/repositories/sim_lines_repository.dart';
 import 'package:keep_sims/features/sim_lines/data/datasources/twilio_verification_service.dart';
 import 'package:keep_sims/features/sim_lines/data/datasources/telnyx_verification_service.dart';
@@ -802,6 +803,129 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
   @override
   Future<void> cancelCall(String callSid) async {
     await TwilioVerificationService.cancelCall(callSid);
+  }
+
+  Future<void> _ensureValidSession() async {
+    try {
+      final session = _supabase.auth.currentSession;
+      if (session != null && session.isExpired) {
+        await _supabase.auth.refreshSession();
+      }
+    } catch (_) {
+      // Continue and let the operation proceed or fail with auth exception
+    }
+  }
+
+  @override
+  Future<LineVerificationQuote> quoteLineVerification(String simLineId) async {
+    try {
+      await _ensureValidSession();
+      final res = await _supabase.rpc(
+        'quote_line_verification',
+        params: {'p_sim_line_id': simLineId},
+      );
+      return LineVerificationQuote.fromJson(Map<String, dynamic>.from(res as Map));
+    } on PostgrestException catch (e) {
+      if (e.message.toLowerCase().contains('jwt') || e.message.toLowerCase().contains('token')) {
+        try {
+          await _supabase.auth.refreshSession();
+          final retryRes = await _supabase.rpc(
+            'quote_line_verification',
+            params: {'p_sim_line_id': simLineId},
+          );
+          return LineVerificationQuote.fromJson(Map<String, dynamic>.from(retryRes as Map));
+        } catch (_) {}
+      }
+      throw Exception('Failed to generate verification quote: ${e.message}');
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> startLineVerification({
+    required String simLineId,
+    required String method,
+    String? idempotencyKey,
+  }) async {
+    try {
+      await _ensureValidSession();
+      final response = await _supabase.functions.invoke(
+        'liveness-verification',
+        body: {
+          'action': 'start',
+          'simLineId': simLineId,
+          'method': method,
+          if (idempotencyKey != null) 'idempotencyKey': idempotencyKey,
+        },
+      );
+      final data = response.data;
+      if (data is Map<String, dynamic>) {
+        if (data['error'] != null) {
+          throw Exception(data['error']);
+        }
+        return data;
+      }
+      throw Exception('Unexpected response starting verification: $data');
+    } catch (e) {
+      if (e.toString().toLowerCase().contains('jwt') || e.toString().toLowerCase().contains('unauthorized')) {
+        try {
+          await _supabase.auth.refreshSession();
+          final retryResp = await _supabase.functions.invoke(
+            'liveness-verification',
+            body: {
+              'action': 'start',
+              'simLineId': simLineId,
+              'method': method,
+              if (idempotencyKey != null) 'idempotencyKey': idempotencyKey,
+            },
+          );
+          final data = retryResp.data;
+          if (data is Map<String, dynamic>) {
+            if (data['error'] != null) {
+              throw Exception(data['error']);
+            }
+            return data;
+          }
+        } catch (_) {}
+      }
+      throw Exception(e.toString());
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> getLineVerificationAttemptStatus(String attemptId) async {
+    try {
+      await _ensureValidSession();
+      final response = await _supabase.functions.invoke(
+        'liveness-verification',
+        body: {
+          'action': 'status',
+          'attemptId': attemptId,
+        },
+      );
+      final data = response.data;
+      if (data is Map<String, dynamic>) {
+        return data;
+      }
+      throw Exception('Unexpected response fetching attempt status: $data');
+    } catch (e) {
+      if (e.toString().toLowerCase().contains('jwt') || e.toString().toLowerCase().contains('unauthorized')) {
+        try {
+          await _supabase.auth.refreshSession();
+          final retryResp = await _supabase.functions.invoke(
+            'liveness-verification',
+            body: {
+              'action': 'status',
+              'attemptId': attemptId,
+            },
+          );
+          final data = retryResp.data;
+          if (data is Map<String, dynamic>) {
+            return data;
+          }
+        } catch (_) {}
+      }
+      throw Exception(e.toString());
+    }
   }
 
   /// Offers for a carrier in the add-line flow, which has no SIM line id yet.

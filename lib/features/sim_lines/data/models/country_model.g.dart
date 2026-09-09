@@ -19,6 +19,14 @@ _Country _$CountryFromJson(Map<String, dynamic> json) => _Country(
   isSupported: json['is_supported'] == null
       ? true
       : _parseBoolDefaultTrue(json['is_supported']),
+  smsVerifyCost: json['sms_verify_cost'] == null
+      ? 0.0
+      : _parseDoubleNullable(json['sms_verify_cost']),
+  callVerifyCost: json['call_verify_cost'] == null
+      ? 0.0
+      : _parseDoubleNullable(json['call_verify_cost']),
+  verificationPriceVersion:
+      (json['verification_price_version'] as num?)?.toInt() ?? 1,
 );
 
 Map<String, dynamic> _$CountryToJson(_Country instance) => <String, dynamic>{
@@ -30,4 +38,7 @@ Map<String, dynamic> _$CountryToJson(_Country instance) => <String, dynamic>{
   'currency_code': instance.currencyCode,
   'avg_sim_replacement_cost': instance.avgSimReplacementCost,
   'is_supported': instance.isSupported,
+  'sms_verify_cost': instance.smsVerifyCost,
+  'call_verify_cost': instance.callVerifyCost,
+  'verification_price_version': instance.verificationPriceVersion,
 };

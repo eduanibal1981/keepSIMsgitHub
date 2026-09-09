@@ -21,7 +21,7 @@ final class LineVerificationControllerProvider
   }) : super(
          retry: null,
          name: r'lineVerificationControllerProvider',
-         isAutoDispose: true,
+         isAutoDispose: false,
          dependencies: null,
          $allTransitiveDependencies: null,
        );
@@ -61,7 +61,7 @@ final class LineVerificationControllerProvider
 }
 
 String _$lineVerificationControllerHash() =>
-    r'36ea7eb2b5d90a9008c57fda012ea577c6a7b0e8';
+    r'4ea10abe4656cf93798fbb8930fc9156dc118d73';
 
 final class LineVerificationControllerFamily extends $Family
     with
@@ -78,7 +78,7 @@ final class LineVerificationControllerFamily extends $Family
         name: r'lineVerificationControllerProvider',
         dependencies: null,
         $allTransitiveDependencies: null,
-        isAutoDispose: true,
+        isAutoDispose: false,
       );
 
   LineVerificationControllerProvider call(String simLineId) =>

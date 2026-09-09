@@ -1,29 +1,62 @@
 import 'dart:async';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:keep_sims/features/sim_lines/data/datasources/telnyx_verification_service.dart';
 import 'package:keep_sims/features/sim_lines/data/repositories/sim_lines_repository_impl.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/line_verification_state.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
 
 part 'line_verification_controller.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 class LineVerificationController extends _$LineVerificationController {
   Timer? _pollingTimer;
   int _secondsElapsed = 0;
-  static const int _maxPollSeconds = 15;
-  static const int _maxSmsPollSeconds = 24;
+  static const int _maxPollSeconds = 45;
 
   @override
   LineVerificationState build(String simLineId) {
     ref.onDispose(() {
       _pollingTimer?.cancel();
     });
-    return const LineVerificationState.idle();
+
+    // Auto-load live verification quote on mount
+    Future.microtask(() => loadQuote());
+    return const LineVerificationState.loadingQuote();
   }
 
-  /// Triggers a phone verification via Twilio Missed Call.
-  Future<void> startVerification(String phoneNumber) async {
+  /// Fetches real-time pricing and plan allowances from the backend.
+  Future<void> loadQuote() async {
+    state = state.copyWith(
+      status: LineVerificationStatus.loadingQuote,
+      errorMessage: null,
+    );
+
+    try {
+      final repo = ref.read(simLinesRepositoryProvider);
+      final quote = await repo.quoteLineVerification(simLineId);
+
+      // If there is already an in-flight check running for this line, resume monitoring it!
+      if (quote.inFlightAttemptId != null && quote.inFlightAttemptId!.isNotEmpty) {
+        final attemptId = quote.inFlightAttemptId!;
+        state = LineVerificationState.awaitingDlr(
+          attemptId,
+          attemptId: attemptId,
+          quote: quote,
+        );
+        _startAttemptPolling(attemptId, 'sms');
+        return;
+      }
+
+      state = LineVerificationState.quoteReady(quote);
+    } catch (e) {
+      state = LineVerificationState.failure(
+        e.toString().replaceAll('Exception: ', ''),
+      );
+    }
+  }
+
+  /// Triggers a verification check via backend Edge Function.
+  /// Method: 'sms' (Silent SMS verifySMS0) or 'missed_call' (Twilio voice ring).
+  Future<void> startVerification(String method) async {
     if (state.status == LineVerificationStatus.triggering ||
         state.status == LineVerificationStatus.ringing ||
         state.status == LineVerificationStatus.sendingSms ||
@@ -31,161 +64,148 @@ class LineVerificationController extends _$LineVerificationController {
       return;
     }
 
-    state = const LineVerificationState.triggering();
+    final normalizedMethod = (method == 'voice' || method == 'missed_call') ? 'voice' : 'sms';
+    final quote = state.quote;
+    final channel = normalizedMethod == 'sms' ? 'telnyx_sms_dlr' : 'telnyx_missed_call';
 
-    final repo = ref.read(simLinesRepositoryProvider);
-    final callSid = await repo.triggerMissedCall(phoneNumber);
+    state = LineVerificationState.triggering(
+      channel: channel,
+      quote: quote,
+    );
 
-    if (callSid == null) {
-      state = const LineVerificationState.failure(
-        'Failed to connect with Twilio networks. Please check your phone number configuration and try again.',
-        channel: 'twilio_missed_call',
+    try {
+      final repo = ref.read(simLinesRepositoryProvider);
+      final result = await repo.startLineVerification(
+        simLineId: simLineId,
+        method: normalizedMethod,
       );
-      return;
-    }
 
-    state = LineVerificationState.ringing(callSid);
-    _startCallPolling(callSid);
-  }
+      final attemptId = result['attemptId'] as String?;
+      final providerSid = result['providerSid'] as String? ?? attemptId ?? '';
 
-  /// Start polling the status of the call.
-  void _startCallPolling(String callSid) {
-    _pollingTimer?.cancel();
-    _secondsElapsed = 0;
-
-    _pollingTimer = Timer.periodic(const Duration(seconds: 1), (timer) async {
-      _secondsElapsed++;
-
-      if (_secondsElapsed > _maxPollSeconds) {
-        timer.cancel();
-        state = const LineVerificationState.failure(
-          'Verification timed out. No response received from the phone line. Please ensure your SIM card is inserted and active.',
-          channel: 'twilio_missed_call',
+      if (attemptId == null) {
+        state = LineVerificationState.failure(
+          'Failed to initialize telecom verification session.',
+          channel: channel,
+          quote: quote,
         );
         return;
       }
 
-      final repo = ref.read(simLinesRepositoryProvider);
-      final isCallActive = await repo.checkCallStatus(callSid);
-
-      if (isCallActive) {
-        timer.cancel();
-
-        // Wait 2 seconds to let the phone ring once/twice
-        await Future.delayed(const Duration(seconds: 2));
-
-        // Cancel the call to stop ringing immediately
-        await repo.cancelCall(callSid);
-
-        // Successfully verified, confirm and update DB!
-        try {
-          await repo.confirmLineVerification(
-            simLineId,
-            channel: 'twilio_missed_call',
-          );
-          state = const LineVerificationState.success(
-            channel: 'twilio_missed_call',
-          );
-
-          // Refresh the sim lines list in background
-          ref.invalidate(simLinesControllerProvider);
-        } catch (e) {
-          state = LineVerificationState.failure(
-            e.toString(),
-            channel: 'twilio_missed_call',
-          );
-        }
+      if (normalizedMethod == 'sms') {
+        state = LineVerificationState.awaitingDlr(
+          providerSid,
+          attemptId: attemptId,
+          quote: quote,
+        );
+      } else {
+        state = LineVerificationState.ringing(
+          providerSid,
+          attemptId: attemptId,
+          quote: quote,
+        );
       }
-    });
-  }
 
-  /// Triggers a silent verification ping via Telnyx SMS (verifySMS0).
-  Future<void> startSmsVerification(String phoneNumber) async {
-    if (state.status == LineVerificationStatus.triggering ||
-        state.status == LineVerificationStatus.ringing ||
-        state.status == LineVerificationStatus.sendingSms ||
-        state.status == LineVerificationStatus.awaitingDlr) {
-      return;
-    }
-
-    state = const LineVerificationState.sendingSms();
-
-    final repo = ref.read(simLinesRepositoryProvider);
-    final messageId = await repo.triggerSmsVerification(phoneNumber);
-
-    if (messageId == null) {
-      state = const LineVerificationState.failure(
-        'Failed to dispatch verification SMS via telecom gateway. Please verify the phone number format.',
-        channel: 'telnyx_sms_dlr',
+      _startAttemptPolling(attemptId, normalizedMethod);
+    } catch (e) {
+      state = LineVerificationState.failure(
+        e.toString().replaceAll('Exception: ', ''),
+        channel: channel,
+        quote: quote,
       );
-      return;
     }
-
-    state = LineVerificationState.awaitingDlr(messageId);
-    _startSmsPolling(messageId);
   }
 
-  /// Start polling the Delivery Receipt (DLR) status of the sent SMS.
-  void _startSmsPolling(String messageId) {
+  /// Polls the database/edge function for the final carrier delivery receipt / ring callback.
+  void _startAttemptPolling(String attemptId, String method) {
     _pollingTimer?.cancel();
     _secondsElapsed = 0;
+
+    final channel = method == 'sms' ? 'telnyx_sms_dlr' : 'telnyx_missed_call';
 
     _pollingTimer = Timer.periodic(const Duration(seconds: 2), (timer) async {
       _secondsElapsed += 2;
 
       final repo = ref.read(simLinesRepositoryProvider);
-      final result = await repo.checkSmsDeliveryStatus(messageId);
+      try {
+        final result = await repo.getLineVerificationAttemptStatus(attemptId);
+        final status = result['status'] as String?;
+        final outcome = result['outcome'] as String? ?? status;
+        final carrier = result['carrierName'] as String? ??
+            result['carrier_name'] as String? ??
+            result['carrier'] as String?;
 
-      // If carrier delivery or network dispatch is confirmed
-      if (result.status == TelnyxSmsDeliveryStatus.delivered ||
-          (result.status == TelnyxSmsDeliveryStatus.sent && _secondsElapsed >= 4)) {
-        timer.cancel();
-
-        try {
-          await repo.confirmLineVerification(
-            simLineId,
-            channel: 'telnyx_sms_dlr',
-            carrierName: result.carrierName,
-          );
+        if (outcome == 'succeeded' ||
+            status == 'succeeded' ||
+            result['isSuccess'] == true) {
+          timer.cancel();
 
           state = LineVerificationState.success(
-            channel: 'telnyx_sms_dlr',
-            carrier: result.carrierName,
+            channel: channel,
+            carrier: carrier,
+            quote: state.quote,
+            attemptId: attemptId,
           );
 
+          // Invalidate SIM line controllers to reflect new verification timestamp and health score
           ref.invalidate(simLinesControllerProvider);
-        } catch (e) {
+          return;
+        }
+
+        if (outcome == 'failed' ||
+            status == 'failed' ||
+            status == 'timed_out' ||
+            outcome == 'inconclusive') {
+          timer.cancel();
+
+          final errorMsg = result['errorMessage'] as String? ??
+              result['error_message'] as String? ??
+              (method == 'sms'
+                  ? 'SMS delivery failed. The destination carrier indicated this SIM line is unprovisioned, off, or disconnected.'
+                  : 'Verification call failed. The line did not ring or was unavailable on the cellular network.');
+
           state = LineVerificationState.failure(
-            e.toString(),
-            channel: 'telnyx_sms_dlr',
+            errorMsg,
+            channel: channel,
+            quote: state.quote,
+            attemptId: attemptId,
+          );
+          return;
+        }
+
+        if (_secondsElapsed >= _maxPollSeconds) {
+          timer.cancel();
+
+          state = LineVerificationState.failure(
+            method == 'sms'
+                ? 'SMS delivery receipt timed out. Please ensure the SIM card is powered on and within network coverage.'
+                : 'Call verification timed out. No network ring was detected within the timeout window.',
+            channel: channel,
+            quote: state.quote,
+            attemptId: attemptId,
           );
         }
-        return;
-      }
-
-      if (result.status == TelnyxSmsDeliveryStatus.failed ||
-          result.status == TelnyxSmsDeliveryStatus.undelivered) {
-        timer.cancel();
-        state = const LineVerificationState.failure(
-          'SMS delivery failed. The destination carrier indicated this SIM line is unprovisioned, off, or disconnected.',
-          channel: 'telnyx_sms_dlr',
-        );
-        return;
-      }
-
-      if (_secondsElapsed > _maxSmsPollSeconds) {
-        timer.cancel();
-        state = const LineVerificationState.failure(
-          'SMS delivery receipt timed out. Please ensure the SIM card is powered on and within network coverage.',
-          channel: 'telnyx_sms_dlr',
-        );
+      } catch (e) {
+        if (_secondsElapsed >= _maxPollSeconds) {
+          timer.cancel();
+          state = LineVerificationState.failure(
+            'Verification tracking error: $e',
+            channel: channel,
+            quote: state.quote,
+            attemptId: attemptId,
+          );
+        }
       }
     });
   }
 
-  /// Resets the controller back to idle.
+  /// Backwards compatibility methods
+  Future<void> startSmsVerification([String? _]) => startVerification('sms');
+  Future<void> startMissedCallVerification([String? _]) => startVerification('voice');
+
+  /// Resets the controller and reloads quote.
   void reset() {
     _pollingTimer?.cancel();
-    state = const LineVerificationState.idle();
+    loadQuote();
   }
 }

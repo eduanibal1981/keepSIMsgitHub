@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/core/utils/build_context_extension.dart';
-import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/country_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/carrier_model.dart';
@@ -17,17 +16,14 @@ import 'package:keep_sims/core/services/biometric_auth_service.dart';
 import 'package:keep_sims/features/sim_lines/data/repositories/sim_lines_repository_impl.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
 import 'package:keep_sims/features/notifications/presentation/controllers/notification_settings_controller.dart';
-import 'package:keep_sims/core/providers.dart';
+import 'package:keep_sims/features/scheduled_topups/controller/scheduled_topup_controller.dart';
 import 'package:keep_sims/core/providers/app_config_provider.dart';
-import 'package:keep_sims/core/result.dart';
 import 'package:keep_sims/features/sim_lines/domain/plan_payment.dart';
-import 'package:keep_sims/features/sim_lines/presentation/providers/api_offers_providers.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/carrier_activity_notice.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/carrier_rules_sheet.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_liveness_result.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/carrier_liveness_badge.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/sim_otp_verification_sheet.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '../../data/models/carrier_rule_model.dart';
 
@@ -50,6 +46,8 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
   String _selectedIcon = 'sim_card';
   String _selectedTier = 'free'; // default to free
   bool _isFreePlanDisabled = false;
+  SimSetupQuote? _serverQuote;
+  bool _isLoadingQuote = false;
 
   bool _isEdit = false;
   bool _hasPrepopulated = false;
@@ -58,6 +56,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
   SimLivenessResult? _livenessResult;
   bool _isCheckingLiveness = false;
   Timer? _livenessDebounce;
+  Timer? _quoteDebounce;
 
   /// The yearly base service fee both paid tiers carry, from
   /// `system_configs.BASE_SERVICE_FEE_USD` (C3c). Display only — the charge
@@ -79,6 +78,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
   @override
   void dispose() {
     _livenessDebounce?.cancel();
+    _quoteDebounce?.cancel();
     _phoneController.removeListener(_onPhoneInputChanged);
     _phoneController.dispose();
     _nicknameController.dispose();
@@ -87,10 +87,51 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
 
   void _onPhoneInputChanged() {
     _livenessDebounce?.cancel();
+    _quoteDebounce?.cancel();
     // Clear previous verification result so user can explicitly verify the updated digits
     if (_livenessResult != null) {
       setState(() {
         _livenessResult = null;
+      });
+    }
+    _quoteDebounce = Timer(const Duration(milliseconds: 600), () {
+      _updateServerQuote();
+    });
+  }
+
+  Future<void> _updateServerQuote() async {
+    if (!mounted || _selectedCountry == null) return;
+    String localNumber = _phoneController.text.trim();
+    if (localNumber.startsWith('0')) {
+      localNumber = localNumber.substring(1);
+    }
+    if (localNumber.length < 6) return;
+
+    final fullNumber = '${_selectedCountry!.dialingCode}$localNumber';
+    String? ruleId;
+    if (_selectedCarrier != null) {
+      final rule = ref.read(carrierRuleProvider(_selectedCarrier!.id)).value;
+      ruleId = rule?.id;
+    }
+
+    setState(() {
+      _isLoadingQuote = true;
+    });
+
+    final quote = await PlanPayment.fetchSimSetupQuote(
+      phoneNumber: fullNumber,
+      plan: _selectedTier,
+      carrierRuleId: ruleId,
+      simLineId: _isEdit ? widget.id : null,
+    );
+
+    if (mounted) {
+      setState(() {
+        _serverQuote = quote;
+        _isLoadingQuote = false;
+        if (quote != null && !quote.freeEligible && _selectedTier == 'free') {
+          _selectedTier = 'standard';
+        }
       });
     }
   }
@@ -157,6 +198,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
             setState(() {
               _selectedCarrier = matched;
             });
+            _updateServerQuote();
           }
         }
       }
@@ -173,9 +215,21 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
 
   Future<void> _onTierSelected(String tierKey) async {
     if (tierKey == 'free') {
+      if (_serverQuote != null && !_serverQuote!.freeEligible) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'This phone number has already used its 6-month Free Plan grant. Please select Standard or Premium.',
+            ),
+            backgroundColor: AppColors.warning,
+          ),
+        );
+        return;
+      }
       setState(() {
         _selectedTier = 'free';
       });
+      _updateServerQuote();
       return;
     }
 
@@ -219,6 +273,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
       setState(() {
         _selectedTier = tierKey;
       });
+      _updateServerQuote();
       return;
     }
 
@@ -267,6 +322,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
     setState(() {
       _selectedTier = tierKey;
     });
+    _updateServerQuote();
   }
 
   Future<void> _openOtpVerification() async {
@@ -335,21 +391,15 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
     }
 
     _hasPrepopulated = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) => _updateServerQuote());
   }
 
   @override
   Widget build(BuildContext context) {
     final lines = ref.watch(simLinesControllerProvider).value ?? [];
     final countries = ref.watch(supportedCountriesProvider).value ?? [];
-    final user = ref.watch(authControllerProvider).value;
-    final globalTier = user?.subscriptionTier ?? 'standard';
     final notificationChannels =
         ref.watch(notificationChannelsControllerProvider).value ?? [];
-
-    final existingLinesCount = _isEdit
-        ? lines.where((l) => l.id != widget.id).length
-        : lines.length;
-    final lineOrdinalPosition = existingLinesCount + 1;
 
     if (_isEdit && !_hasPrepopulated) {
       _prepopulate(lines, countries);
@@ -374,6 +424,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
         );
         if (matched != null) {
           _selectedCarrier = matched;
+          WidgetsBinding.instance.addPostFrameCallback((_) => _updateServerQuote());
         }
       }
     }
@@ -781,6 +832,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
             setState(() {
               _selectedCarrier = carrier;
             });
+            _updateServerQuote();
           },
           decoration: const InputDecoration(border: InputBorder.none),
           validator: (value) {
@@ -913,18 +965,24 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
     final isDark = context.isDarkMode;
     final bool isStandard = selectedTier == 'standard';
     final bool isPremium = selectedTier == 'premium';
-    final bool isFree = selectedTier == 'free';
 
     String planName = 'Free Plan';
     Color planColor = isDark ? Colors.blueAccent : Colors.blue;
     String billingDesc =
-        'This line is protected for free. Basic alerts only. No auto-refills.';
+        'This line is protected for free for 6 months. Basic alerts only. No auto-refills.';
     String billingRate = 'FREE';
+
+    final annualFee = _serverQuote?.annualFeeUsd ?? _baseServiceFeeUsd;
+    final firstRefill = _serverQuote?.firstRefillCostUsd ?? (premiumRule?.minimumTopupAmount ?? 0.59);
+    final totalDue = _serverQuote?.totalChargeUsd ?? (annualFee + firstRefill);
+    final bool showPremiumBreakdown = isPremium &&
+        (_serverQuote != null || premiumRule != null) &&
+        !CarrierActivityNotice.blocksPremium(premiumRule);
 
     if (isPremium) {
       planName = 'Premium Plan';
       planColor = isDark ? Colors.purpleAccent : Colors.purple;
-      if (isPremiumLoading) {
+      if (isPremiumLoading || _isLoadingQuote) {
         billingDesc = 'Loading premium pricing rules for this carrier...';
         billingRate = '$_feePerYearLabel + ...';
       } else if (CarrierActivityNotice.blocksPremium(premiumRule)) {
@@ -936,49 +994,10 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
             'Standard Plan.';
         planColor = isDark ? AppColors.error : Colors.redAccent;
         billingRate = 'Not Supported';
-      } else if (premiumRule != null) {
-        final paypalQuoteAsync = ref.watch(
-          quotedPlanPriceProvider(
-            QuotedPlanPriceParams(
-              simLineId: widget.id,
-              plan: 'premium',
-              gateway: 'paypal',
-              carrierRuleId: premiumRule.id,
-            ),
-          ),
-        );
-        final walletQuoteAsync = ref.watch(
-          quotedPlanPriceProvider(
-            QuotedPlanPriceParams(
-              simLineId: widget.id,
-              plan: 'premium',
-              gateway: 'wallet',
-              carrierRuleId: premiumRule.id,
-            ),
-          ),
-        );
-
-        final yearlyTotal =
-            paypalQuoteAsync.value ??
-            PlanPayment.premiumYearlyTotalSync(ref, premiumRule);
-
-        final netPlanTotal =
-            walletQuoteAsync.value ??
-            PlanPayment.premiumWalletTotalSync(ref, premiumRule);
-
-        final refillsCount = premiumRule.refillsPerYear > 0
-            ? premiumRule.refillsPerYear
-            : 1;
-        final perRefillPrice =
-            (netPlanTotal - _baseServiceFeeUsd) / refillsCount;
-
-        final cur = premiumRule.inappPricingCurrency.toUpperCase();
+      } else if (_serverQuote != null || premiumRule != null) {
+        billingRate = '\$${totalDue.toStringAsFixed(2)} Today';
         billingDesc =
-            'Fully automated top-ups. ${yearlyTotal.toStringAsFixed(2)} $cur charged once for the year — '
-            '\$${_baseServiceFeeUsd.toStringAsFixed(2)} service plus '
-            '${premiumRule.refillsPerYear} refills of '
-            '${perRefillPrice.toStringAsFixed(2)} $cur, one every ${premiumRule.refillIntervalDays} days.';
-        billingRate = '$_feePerYearLabel + Refill';
+            'Includes your 1st SIM recharge to verify the line immediately. Future refills are billed individually from your wallet balance when due.';
       } else {
         billingDesc =
             'Premium auto-refill is not yet supported for this carrier. Please choose the Standard Plan.';
@@ -989,8 +1008,16 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
       planName = 'Standard Plan';
       planColor = isDark ? AppColors.primary : AppColors.lightPrimary;
       billingDesc =
-          'Automated tracking & notifications. You will be billed $_feePerYearLabel for this line.';
-      billingRate = _feePerYearLabel;
+          'Automated tracking & expiry alerts. You will be billed \$${annualFee.toStringAsFixed(2)}/yr for this line.';
+      billingRate = '\$${annualFee.toStringAsFixed(2)}/yr';
+    } else {
+      if (_serverQuote != null && !_serverQuote!.freeEligible) {
+        planName = 'Free Plan (Ineligible)';
+        planColor = isDark ? AppColors.error : Colors.redAccent;
+        billingDesc =
+            'This phone number has already utilized its 6-month Free Plan grant. Please choose the Standard or Premium Plan.';
+        billingRate = 'LIMIT REACHED';
+      }
     }
 
     return Container(
@@ -1063,6 +1090,144 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
               height: 1.4,
             ),
           ),
+          if (showPremiumBreakdown) ...[
+            const SizedBox(height: 14),
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: planColor.withValues(alpha: isDark ? 0.12 : 0.06),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: planColor.withValues(alpha: 0.25),
+                  width: 1,
+                ),
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Annual Protection Fee',
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: context.onSurfaceColor,
+                        ),
+                      ),
+                      Text(
+                        '\$${annualFee.toStringAsFixed(2)}',
+                        style: AppTextStyles.bodySmall.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: context.onSurfaceColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            '1st SIM Recharge (Live Verification)',
+                            style: AppTextStyles.bodySmall.copyWith(
+                              color: context.onSurfaceColor,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          const Icon(
+                            Icons.check_circle_outline_rounded,
+                            size: 14,
+                            color: AppColors.success,
+                          ),
+                        ],
+                      ),
+                      Text(
+                        '\$${firstRefill.toStringAsFixed(2)}',
+                        style: AppTextStyles.bodySmall.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: context.onSurfaceColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8),
+                    child: Divider(height: 1),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Total Due Today',
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: context.onSurfaceColor,
+                        ),
+                      ),
+                      Text(
+                        '\$${totalDue.toStringAsFixed(2)} USD',
+                        style: AppTextStyles.titleMedium.copyWith(
+                          fontWeight: FontWeight.w900,
+                          color: planColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 10),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(
+                  Icons.shield_outlined,
+                  size: 16,
+                  color: AppColors.success,
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    'Only successful recharges are charged. If verification fails, 100% of your funds are returned to your wallet balance immediately.',
+                    style: AppTextStyles.caption.copyWith(
+                      color: isDark
+                          ? AppColors.textSecondaryDark
+                          : AppColors.textSecondaryLight,
+                      fontSize: 11,
+                      height: 1.3,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+          if (isStandard) ...[
+            const SizedBox(height: 10),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.phone_in_talk_outlined,
+                  size: 16,
+                  color: planColor,
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    'Includes automated network reachability check by phone ring (zero talk-time deduction).',
+                    style: AppTextStyles.caption.copyWith(
+                      color: isDark
+                          ? AppColors.textSecondaryDark
+                          : AppColors.textSecondaryLight,
+                      fontSize: 11,
+                      height: 1.3,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
           // i8: the price above is only half the story. This opens the carrier's
           // actual deactivation window, its grace period, what a top-up has to
           // be worth — and an opinion on whether to buy anything at all.
@@ -1157,13 +1322,11 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
 
   Widget _buildTierGrid(CarrierRule? premiumRule, bool isPremiumLoading) {
     final isDark = context.isDarkMode;
-    final currentLines = ref.read(simLinesControllerProvider).value ?? [];
 
-    // Check if free plan should be disabled
-    final hasFreeLine = currentLines.any(
-      (l) => l.planType == 'free' && l.id != widget.id,
-    );
-    _isFreePlanDisabled = hasFreeLine;
+    // Free plan is disabled if the server quote indicates this phone number
+    // has already used its global 6-month Free Plan grant.
+    final bool freeLimitReached = _serverQuote != null && !_serverQuote!.freeEligible;
+    _isFreePlanDisabled = freeLimitReached;
 
     // if free is disabled and currently selected, auto-select standard
     if (_isFreePlanDisabled && _selectedTier == 'free') {
@@ -1180,7 +1343,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
       {
         'key': 'free',
         'name': 'Free Plan',
-        'desc': 'Limited to 1 line. Basic alerts.',
+        'desc': '6 Months Free Protection (1 per phone number). Basic alerts.',
       },
       {
         'key': 'standard',
@@ -1283,7 +1446,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                           const SizedBox(height: 4),
                           Text(
                             tier['desc']! +
-                                (isDisabled ? ' (Limit Reached)' : ''),
+                                (isDisabled ? ' (Already used for this number)' : ''),
                             style: TextStyle(
                               color: isDark
                                   ? AppColors.textSecondaryDark
@@ -1515,6 +1678,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                                           _selectedCarrier = null; // Reset carrier
                                           _livenessResult = null; // Reset verification
                                         });
+                                        _updateServerQuote();
                                         Navigator.pop(context);
                                       },
                                     ),
@@ -1568,56 +1732,6 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
       return;
     }
 
-    if (_selectedTier != 'free') {
-      if (_livenessResult == null) {
-        final res = await _triggerLivenessCheck(showMissingError: true);
-        if (!mounted) return;
-        final isConfirmed = res != null && (res.isActive || res.carrierStatus == 'active');
-        if (!isConfirmed) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                res?.carrierStatus == 'inactive'
-                    ? (res?.message.isNotEmpty == true ? res!.message : 'This SIM number is inactive or expired at the carrier.')
-                    : 'Carrier verification is unconfirmed for this line. Please verify via Voice Call or SMS code first, or select the Free Plan.',
-              ),
-              backgroundColor: AppColors.error,
-              action: (res != null && res.carrierStatus != 'inactive')
-                  ? SnackBarAction(
-                      label: 'Verify Now',
-                      textColor: Colors.white,
-                      onPressed: _openOtpVerification,
-                    )
-                  : null,
-            ),
-          );
-          return;
-        }
-      } else {
-        final isConfirmed = _livenessResult!.isActive || _livenessResult!.carrierStatus == 'active';
-        if (!isConfirmed) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                _livenessResult!.carrierStatus == 'inactive'
-                    ? (_livenessResult!.message.isNotEmpty ? _livenessResult!.message : 'This SIM number is inactive or expired at the carrier.')
-                    : 'Carrier verification is unconfirmed for this line. Please verify via Voice Call or SMS code first, or select the Free Plan.',
-              ),
-              backgroundColor: AppColors.error,
-              action: _livenessResult!.carrierStatus != 'inactive'
-                  ? SnackBarAction(
-                      label: 'Verify Now',
-                      textColor: Colors.white,
-                      onPressed: _openOtpVerification,
-                    )
-                  : null,
-            ),
-          );
-          return;
-        }
-      }
-    }
-
     setState(() {
       _isSaving = true;
     });
@@ -1625,21 +1739,15 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
     try {
       final selectedPlanType = _selectedTier;
       String? carrierRuleId;
-      CarrierRule? premiumRule;
-      DateTime? planExpiresAt;
 
-      // Ensure premium lines have pricing
-      if (selectedPlanType == 'premium' &&
-          _selectedCountry != null &&
-          _selectedCarrier != null) {
+      if (selectedPlanType == 'premium') {
+        if (_selectedCarrier == null) {
+          throw Exception('Please select a carrier before choosing the Premium plan.');
+        }
         final rule = await ref
             .read(simLinesRepositoryProvider)
             .getCarrierRule(_selectedCarrier!.id);
         if (rule != null) {
-          // i7: last gate before payment. queue_premium_refill_executions
-          // raises KS422 for these carriers, and by the time it does, the
-          // yearly charge has already been taken — the charged-but-no-line
-          // shape this codebase has paid for before. Refuse here instead.
           if (CarrierActivityNotice.blocksPremium(rule)) {
             throw Exception(
               'This carrier only resets its inactivity clock on a call, SMS or '
@@ -1648,7 +1756,6 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
             );
           }
           carrierRuleId = rule.id;
-          premiumRule = rule;
         } else {
           throw Exception(
             'Premium pricing not configured for this carrier. Please select Standard plan.',
@@ -1656,158 +1763,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
         }
       }
 
-      // Premium is priced from the carrier rule and cannot be charged without
-      // one — on both rails, and on the server too (`plan_price_net` raises
-      // rather than invent a carrier). Saying so here keeps it a sentence the
-      // subscriber can act on instead of a null-check crash further down.
-      if (selectedPlanType == 'premium' && premiumRule == null) {
-        throw Exception(
-          'Please choose the country and carrier for this line before selecting '
-          'the Premium plan — its price comes from the carrier\'s own rules.',
-        );
-      }
-
-      if (selectedPlanType != 'free') {
-        planExpiresAt = DateTime.now().add(const Duration(days: 365));
-      }
-
-      Future<void> commitSave() async {
-        try {
-          if (_isEdit) {
-            // Fetch current line copy to update
-            final line = currentLines.firstWhereOrNull(
-              (l) => l.id == widget.id,
-            );
-            if (line == null) {
-              throw StateError('SIM line not found for ID: ${widget.id}');
-            }
-
-            final updatedLine = line.copyWith(
-              phoneNumber: fullPhoneNumber,
-              nickname: _nicknameController.text.isNotEmpty
-                  ? _nicknameController.text
-                  : null,
-              avatarIcon: _selectedIcon,
-              countryId: _selectedCountry?.id,
-              carrierId: _selectedCarrier?.id,
-              planType: selectedPlanType,
-              protectionTier: selectedPlanType == 'free'
-                  ? 'basic'
-                  : selectedPlanType,
-              planExpiresAt: planExpiresAt,
-              carrierRuleId: carrierRuleId,
-              isCarrierVerified: _livenessResult?.isActive ?? line.isCarrierVerified,
-              carrierStatus: _livenessResult?.carrierStatus ?? line.carrierStatus,
-              detectedOperatorName: _livenessResult?.detectedOperatorName ?? line.detectedOperatorName,
-              carrierVerifiedAt: _livenessResult != null ? DateTime.now() : line.carrierVerifiedAt,
-            );
-
-            await ref
-                .read(simLinesControllerProvider.notifier)
-                .updateSimLine(updatedLine);
-          } else {
-            await ref
-                .read(simLinesControllerProvider.notifier)
-                .addSimLine(
-                  phoneNumber: fullPhoneNumber,
-                  nickname: _nicknameController.text.isNotEmpty
-                      ? _nicknameController.text
-                      : null,
-                  avatarIcon: _selectedIcon,
-                  countryId: _selectedCountry?.id,
-                  carrierId: _selectedCarrier?.id,
-                  planType: selectedPlanType,
-                  protectionTier: selectedPlanType == 'free'
-                      ? 'basic'
-                      : selectedPlanType,
-                  planExpiresAt: planExpiresAt,
-                  carrierRuleId: carrierRuleId,
-                  isCarrierVerified: _livenessResult?.isActive ?? false,
-                  carrierStatus: _livenessResult?.carrierStatus ?? 'pending',
-                  detectedOperatorName: _livenessResult?.detectedOperatorName,
-                  carrierVerifiedAt: _livenessResult != null ? DateTime.now() : null,
-                );
-          }
-
-          // Both controller methods wrap their work in `AsyncValue.guard`, so a
-          // rejected insert lands in the provider's state instead of throwing.
-          // Without this the form would announce "saved successfully" and pop
-          // over a line that was never created — and by this point the plan fee
-          // has already been debited.
-          final saved = ref.read(simLinesControllerProvider);
-          if (saved.hasError) {
-            throw Exception(saved.error.toString());
-          }
-
-          // The line exists, so the fee it paid for is spent. Until this runs
-          // the reference stays on disk and the next attempt replays it instead
-          // of billing again.
-          await PlanPayment.consumePendingFee(ref);
-          ref.read(simLinesControllerProvider.notifier).schedulePostRefillCheck();
-
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('SIM line saved successfully.'),
-                backgroundColor: AppColors.success,
-              ),
-            );
-            Navigator.pop(context); // Close the form
-          }
-        } on PremiumRefillQueueException catch (e, stack) {
-          // The line was created and the plan was paid for; only the pre-paid
-          // refill queue is missing. Reporting this as "failed to save" is what
-          // left an unpaid-looking premium line in production with no way for
-          // its owner to retry — the phone number is taken, so a second attempt
-          // can only collide with the row that already exists.
-          //
-          // The fee is spent either way: the reference must be consumed here
-          // too, or the next line the user adds replays it and is created for
-          // free.
-          await PlanPayment.consumePendingFee(ref);
-          await Sentry.captureException(
-            e.cause,
-            stackTrace: stack,
-            withScope: (scope) {
-              scope.setTag('flow', 'premium_refill_queue');
-              scope.setContexts('premium_queue', {
-                'sim_line_id': e.simLineId,
-                'carrier_rule_id': carrierRuleId,
-              });
-            },
-          );
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  'Your line was saved and your payment was recorded, but the '
-                  'automatic refills could not be scheduled: $e\n'
-                  'Please contact support — do not add the line again.',
-                ),
-                backgroundColor: AppColors.warning,
-                duration: const Duration(seconds: 12),
-              ),
-            );
-            Navigator.pop(context);
-          }
-        } catch (e) {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Failed to save SIM line: $e'),
-                backgroundColor: AppColors.error,
-              ),
-            );
-            setState(() {
-              _isSaving = false;
-            });
-          }
-        }
-      }
-
-      // Charge only when the plan is newly set or changed to a paid tier.
-      // Before C3c this charged on EVERY save of a paid line — renaming a
-      // Standard line's nickname billed the service fee again.
+      // Check if newly chosen plan needs payment
       final originalPlan = _isEdit
           ? currentLines
                 .firstWhereOrNull((l) => l.id == widget.id)
@@ -1818,211 +1774,569 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
       final needsCharge =
           selectedPlanType != 'free' && originalPlan != selectedPlanType;
 
-      if (needsCharge) {
-        // What this plan costs on the wallet rail. Priced here only to size the
-        // top-up and fill in the breakdown sheet — `pay_plan_fee_from_wallet`
-        // prices the debit itself, server-side, from the same formula
-        // (`plan_price_net`, J8).
-        final double basePlanFee = double.parse(
-          (selectedPlanType == 'premium'
-                  ? await PlanPayment.premiumWalletTotal(ref, premiumRule!)
-                  : await ref.read(baseServiceFeeUsdProvider.future))
-              .toStringAsFixed(2),
+      Future<SimLine> commitSave({
+        required String planType,
+        required String protectionTier,
+        DateTime? planExpiresAt,
+        bool isCarrierVerified = false,
+        String carrierStatus = 'pending',
+        String? verificationStatus,
+        DateTime? lastTopupDate,
+        bool isDraft = false,
+      }) async {
+        if (_isEdit) {
+          final line = currentLines.firstWhereOrNull((l) => l.id == widget.id);
+          if (line == null) {
+            throw StateError('SIM line not found for ID: ${widget.id}');
+          }
+          final updatedLine = line.copyWith(
+            phoneNumber: fullPhoneNumber,
+            nickname: _nicknameController.text.isNotEmpty
+                ? _nicknameController.text
+                : null,
+            avatarIcon: _selectedIcon,
+            countryId: _selectedCountry?.id,
+            carrierId: _selectedCarrier?.id,
+            planType: planType,
+            protectionTier: protectionTier,
+            planExpiresAt: planExpiresAt,
+            carrierRuleId: carrierRuleId,
+            isCarrierVerified: isCarrierVerified,
+            carrierStatus: carrierStatus,
+            verificationStatus: verificationStatus ?? line.verificationStatus,
+            lastTopupAt: lastTopupDate ?? line.lastTopupAt,
+            carrierVerifiedAt: isCarrierVerified ? DateTime.now() : line.carrierVerifiedAt,
+          );
+          await ref
+              .read(simLinesControllerProvider.notifier)
+              .updateSimLine(updatedLine);
+          return updatedLine;
+        } else {
+          final created = await ref
+              .read(simLinesControllerProvider.notifier)
+              .addSimLine(
+                phoneNumber: fullPhoneNumber,
+                nickname: _nicknameController.text.isNotEmpty
+                    ? _nicknameController.text
+                    : null,
+                avatarIcon: _selectedIcon,
+                countryId: _selectedCountry?.id,
+                carrierId: _selectedCarrier?.id,
+                planType: planType,
+                protectionTier: protectionTier,
+                planExpiresAt: planExpiresAt,
+                carrierRuleId: carrierRuleId,
+                isCarrierVerified: isCarrierVerified,
+                carrierStatus: carrierStatus,
+                carrierVerifiedAt: isCarrierVerified ? DateTime.now() : null,
+                isDraft: isDraft,
+              );
+          return created;
+        }
+      }
+
+      if (!needsCharge) {
+        // Free plan or existing unchanged paid plan
+        if (selectedPlanType == 'free' && _serverQuote != null && !_serverQuote!.freeEligible) {
+          throw Exception(
+            'This phone number has already utilized its 6-month Free Plan grant. Please choose Standard or Premium.',
+          );
+        }
+
+        await commitSave(
+          planType: selectedPlanType,
+          protectionTier: selectedPlanType == 'free' ? 'basic' : selectedPlanType,
+          planExpiresAt: selectedPlanType == 'free'
+              ? DateTime.now().add(const Duration(days: 180))
+              : DateTime.now().add(const Duration(days: 365)),
+        );
+        ref.invalidate(simLinesControllerProvider);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                selectedPlanType == 'free'
+                    ? 'SIM line saved with 6 Months Free Plan.'
+                    : 'SIM line saved successfully.',
+              ),
+              backgroundColor: AppColors.success,
+            ),
+          );
+          Navigator.pop(context);
+        }
+        return;
+      }
+
+      // ── Handle Setup Order & Reservation ──
+      final orderRes = await PlanPayment.createSimSetupOrder(
+        phoneNumber: fullPhoneNumber,
+        plan: selectedPlanType,
+        carrierRuleId: carrierRuleId,
+        countryCode: _selectedCountry?.isoCode,
+        carrierCode: _selectedCarrier?.name,
+        simLineId: _isEdit ? widget.id : null,
+      );
+
+      if (orderRes == null || orderRes['order_id'] == null) {
+        throw Exception('Failed to initialize SIM setup order.');
+      }
+
+      final orderId = orderRes['order_id'] as String;
+      final totalChargeUsd = (orderRes['total_charge_usd'] as num?)?.toDouble() ?? 2.50;
+      final annualFeeUsd = (orderRes['annual_fee_usd'] as num?)?.toDouble() ?? 2.50;
+
+      // Security check (Biometrics / 4-digit token)
+      final phoneDigits = _phoneController.text.replaceAll(RegExp(r'[^0-9]'), '');
+      final confirmationToken = phoneDigits.length <= 4
+          ? phoneDigits
+          : phoneDigits.substring(phoneDigits.length - 4);
+      if (!mounted) return;
+      final authGuard = ref.read(paymentAuthGuardProvider);
+      final authOk = await authGuard.confirmPaymentInteractive(
+        context,
+        reason: 'Authorize payment of \$${totalChargeUsd.toStringAsFixed(2)} for ${selectedPlanType.toUpperCase()} plan setup',
+        confirmationToken: confirmationToken,
+      );
+      if (!authOk) {
+        setState(() => _isSaving = false);
+        return;
+      }
+
+      // Reserve holds
+      var reserveRes = await PlanPayment.reserveSimSetupHolds(orderId);
+      if (reserveRes['success'] == false && reserveRes['error'] == 'insufficient_balance') {
+        final shortfall = (reserveRes['shortfall'] as num).toDouble();
+        final depositAmount = shortfall < 5.00 ? 5.00 : shortfall;
+        final currentBal = (reserveRes['current_balance'] as num?)?.toDouble() ?? 0.0;
+
+        setState(() => _isSaving = false);
+        if (!mounted) return;
+        final shouldDeposit = await _showShortfallDepositDialog(
+          context: context,
+          currentBalance: currentBal,
+          basePlanFee: totalChargeUsd,
+          depositAmount: depositAmount,
+          planName: selectedPlanType == 'premium' ? 'Premium' : 'Standard',
         );
 
-        // Security Verification (Biometrics or 4-digit SIM fallback on emulators)
-        final phoneDigits = _phoneController.text.replaceAll(RegExp(r'[^0-9]'), '');
-        final confirmationToken = phoneDigits.length <= 4
-            ? phoneDigits
-            : phoneDigits.substring(phoneDigits.length - 4);
+        if (shouldDeposit != true) return;
 
-        final authGuard = ref.read(paymentAuthGuardProvider);
-        final authOk = await authGuard.confirmPaymentInteractive(
-          context,
-          reason: 'Authorize activation and payment for the $selectedPlanType plan (\$${basePlanFee.toStringAsFixed(2)})',
-          confirmationToken: confirmationToken,
+        setState(() => _isSaving = true);
+        final paypalOk = await _launchPayPalDeposit(
+          depositAmount: depositAmount,
+          plan: selectedPlanType,
+          orderId: orderId,
         );
-        if (!authOk) {
+
+        if (!paypalOk) {
           setState(() => _isSaving = false);
           return;
         }
 
-        // BOTH paid tiers bill wallet-first (C3c for Standard; J8 extends it to
-        // Premium). Premium used to skip this entirely and push a PayPal
-        // *deposit* — which credited the wallet, created the line and never
-        // charged for the plan, so `queue_premium_refill_executions` refused
-        // the line with KS403 and the save reported failure over a row that
-        // had already been inserted. A wallet debit also lands the entitlement
-        // synchronously, before the line exists.
-        try {
-          if (await PlanPayment.tryPlanFromWallet(
-            ref,
-            plan: selectedPlanType,
-            rule: premiumRule,
-            simLineId: _isEdit ? widget.id : null,
-          )) {
-            if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    AppLocalizations.of(context)!.planFeePaidFromWallet,
-                  ),
-                  backgroundColor: AppColors.success,
-                ),
-              );
-            }
-            await commitSave();
-            return;
-          }
-        } catch (e) {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Payment failed: $e'),
-                backgroundColor: AppColors.error,
-              ),
-            );
-            setState(() => _isSaving = false);
-          }
-          return;
+        reserveRes = await PlanPayment.reserveSimSetupHolds(orderId);
+        if (reserveRes['success'] != true) {
+          throw Exception('Could not reserve funds after deposit: ${reserveRes['error']}');
+        }
+      } else if (reserveRes['success'] != true) {
+        throw Exception(reserveRes['error'] ?? 'Reservation failed');
+      }
+
+      // ── If Standard Plan: finalize order and activate immediately ──
+      if (selectedPlanType == 'standard') {
+        final saved = await commitSave(
+          planType: 'standard',
+          protectionTier: 'standard',
+          planExpiresAt: DateTime.now().add(const Duration(days: 365)),
+          isCarrierVerified: false,
+          carrierStatus: 'pending',
+          verificationStatus: 'unverified',
+          isDraft: false,
+        );
+
+        final finalizeRes = await PlanPayment.finalizeSimSetupOrder(
+          orderId,
+          simLineId: saved.id,
+        );
+        if (finalizeRes['success'] != true) {
+          throw Exception(finalizeRes['error'] ?? 'Failed to finalize standard plan activation');
         }
 
-        // Read from the repository, not `walletControllerProvider.value` — the
-        // provider hands back the pre-refresh balance after an invalidate.
-        double walletBalance = 0.0;
-        final walletRead = await ref.read(walletRepositoryProvider).getWallet();
-        if (walletRead case Success(data: final w)) {
-          walletBalance = w.balance;
-        }
-
-        final shortfall = PlanPayment.calculateShortfall(
-          fee: basePlanFee,
-          availableBalance: walletBalance,
-        );
-
-        // Show dialog with detailed breakdown!
-        setState(() => _isSaving = false);
-        final shouldPay = await _showShortfallDepositDialog(
-          context: context,
-          currentBalance: walletBalance,
-          basePlanFee: basePlanFee,
-          depositAmount: shortfall,
-          planName: selectedPlanType == 'premium' ? 'Premium' : 'Standard',
-        );
-
-        if (shouldPay != true) return;
-
-        // Biometric / Mock Security Verification (Interactive with 4-digit token fallback)
-        final paypalAuthOk = await authGuard.confirmPaymentInteractive(
-          context,
-          reason: 'Authenticate to deposit \$${shortfall.toStringAsFixed(2)} for the $selectedPlanType plan',
-          confirmationToken: confirmationToken,
-        );
-        if (!paypalAuthOk) return;
+        ref.invalidate(simLinesControllerProvider);
+        ref.invalidate(scheduledTopupControllerProvider);
 
         if (mounted) {
-          final navigator = Navigator.of(context);
-          final messenger = ScaffoldMessenger.of(context);
-
-          navigator.push(
-            MaterialPageRoute(
-              builder: (_) => PayPalCheckoutScreen(
-                initialAmount: shortfall,
-                paymentReason:
-                    'Wallet deposit for ${selectedPlanType == 'premium' ? 'Premium' : 'Standard'} plan',
-                paymentKind: 'deposit',
-                plan: selectedPlanType,
-                simLineId: _isEdit ? widget.id : null,
-                carrierRuleId: carrierRuleId,
-                onSuccess: () async {
-                  navigator.pop(); // pop PayPal screen
-                  setState(() => _isSaving = true);
-
-                  try {
-                    // Wait for wallet deposit to land
-                    await PlanPayment.waitForWalletCredit(
-                      ref,
-                      atLeast: basePlanFee,
-                    );
-
-                    // Pay the plan fee directly from the funded wallet
-                    final paid = await PlanPayment.tryPlanFromWallet(
-                      ref,
-                      plan: selectedPlanType,
-                      rule: premiumRule,
-                      simLineId: _isEdit ? widget.id : null,
-                    );
-
-                    if (!paid) {
-                      messenger.showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            'Deposit received! Please tap Save again to activate your plan from your wallet balance.',
-                          ),
-                          backgroundColor: AppColors.warning,
-                        ),
-                      );
-                      setState(() => _isSaving = false);
-                      return;
-                    }
-
-                    messenger.showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          AppLocalizations.of(context)!.planFeePaidFromWallet,
-                        ),
-                        backgroundColor: AppColors.success,
-                      ),
-                    );
-
-                    // Paid by this point, proceed with line creation/update
-                    await commitSave().timeout(const Duration(seconds: 45));
-                  } catch (e, stack) {
-                    await Sentry.captureException(
-                      e,
-                      stackTrace: stack,
-                      withScope: (scope) {
-                        scope.setTag('flow', 'plan_fee_line_create');
-                        scope.setContexts('plan_fee', {
-                          'plan': selectedPlanType,
-                          'is_edit': _isEdit,
-                          'sim_line_id': widget.id,
-                        });
-                      },
-                    );
-                    messenger.showSnackBar(
-                      SnackBar(
-                        content: Text('Could not finish saving the line: $e'),
-                        backgroundColor: AppColors.error,
-                        duration: const Duration(seconds: 10),
-                      ),
-                    );
-                    setState(() => _isSaving = false);
-                  }
-                },
-              ),
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Standard Plan activated! Annual protection secured.'),
+              backgroundColor: AppColors.success,
             ),
+          );
+          Navigator.pop(context);
+        }
+        return;
+      }
+
+      // ── If Premium Plan: Live verification recharge via Queue ──
+      // 1. Commit draft row
+      final saved = await commitSave(
+        planType: 'premium',
+        protectionTier: 'premium',
+        planExpiresAt: DateTime.now().add(const Duration(days: 365)),
+        isCarrierVerified: false,
+        carrierStatus: 'pending',
+        isDraft: true,
+      );
+
+      // 2. Dispatch the live verification recharge via topup_executions queue
+      final dispatchRes = await PlanPayment.dispatchSimSetupVerification(
+        orderId: orderId,
+        simLineId: saved.id,
+      );
+
+      if (dispatchRes['success'] != true) {
+        throw Exception(dispatchRes['error'] ?? 'Could not dispatch verification recharge.');
+      }
+
+      // 3. Poll finalizeSimSetupOrder for execution result (up to 15 attempts * 2s = 30s)
+      Map<String, dynamic>? finalOutcome;
+      for (int i = 0; i < 15; i++) {
+        await Future.delayed(const Duration(milliseconds: 2000));
+        if (!mounted) return;
+        final res = await PlanPayment.finalizeSimSetupOrder(orderId);
+        if (res['status'] == 'active' || res['success'] == true) {
+          finalOutcome = res;
+          break;
+        } else if (res['status'] == 'failed') {
+          finalOutcome = res;
+          break;
+        }
+      }
+
+      if (finalOutcome != null && (finalOutcome['status'] == 'active' || finalOutcome['success'] == true)) {
+        // Success!
+        ref.invalidate(simLinesControllerProvider);
+        ref.invalidate(scheduledTopupControllerProvider);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Premium Plan activated! Line verified with live recharge.'),
+              backgroundColor: AppColors.success,
+            ),
+          );
+          Navigator.pop(context);
+        }
+      } else if (finalOutcome != null && finalOutcome['status'] == 'failed') {
+        // Recharge Failed: Holds were released on server. Show fallback sheet
+        final errorMsg = finalOutcome['reason']?.toString() ??
+            finalOutcome['failure_reason']?.toString() ??
+            'Carrier could not deliver initial recharge.';
+
+        setState(() => _isSaving = false);
+
+        if (mounted) {
+          await _showSetupFailureSheet(
+            totalAmount: totalChargeUsd,
+            annualFee: annualFeeUsd,
+            failureReason: errorMsg,
+            isFreeEligible: _serverQuote?.freeEligible ?? true,
+            onUseAnotherNumber: () async {
+              await PlanPayment.cancelSimSetupOrder(orderId, reason: 'User chose another number');
+              if (!_isEdit) {
+                try {
+                  await ref.read(simLinesRepositoryProvider).deleteSimLine(saved.id);
+                  ref.invalidate(simLinesControllerProvider);
+                  ref.invalidate(scheduledTopupControllerProvider);
+                } catch (_) {}
+              }
+            },
+            onFallbackToReminders: () async {
+              setState(() => _isSaving = true);
+              final targetPlan = (_serverQuote?.freeEligible ?? true) ? 'free' : 'standard';
+              final fallbackRes = await PlanPayment.fallbackSimSetupToReminders(
+                orderId: orderId,
+                simLineId: saved.id,
+                fallbackPlan: targetPlan,
+              );
+              if (fallbackRes['success'] == true) {
+                ref.invalidate(simLinesControllerProvider);
+                ref.invalidate(scheduledTopupControllerProvider);
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        targetPlan == 'free'
+                            ? 'Saved with 6 Months Free Plan. Manual reminders active.'
+                            : 'Saved with Standard Plan (\$2.50/yr). Manual reminders active.',
+                      ),
+                      backgroundColor: AppColors.primary,
+                    ),
+                  );
+                  Navigator.pop(context);
+                }
+              } else {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Failed to switch plan: ${fallbackRes['message'] ?? fallbackRes['error']}'),
+                      backgroundColor: AppColors.error,
+                    ),
+                  );
+                }
+              }
+            },
           );
         }
       } else {
-        await commitSave();
+        // Polling timeout: Still processing in background
+        ref.invalidate(simLinesControllerProvider);
+        ref.invalidate(scheduledTopupControllerProvider);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Verification recharge is processing in the background. Your line will activate automatically once confirmed.',
+              ),
+              backgroundColor: AppColors.primary,
+            ),
+          );
+          Navigator.pop(context);
+        }
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to process line: $e'),
+            content: Text('Failed to process SIM line: $e'),
             backgroundColor: AppColors.error,
           ),
         );
       }
     } finally {
-      if (mounted && _selectedTier == 'free') {
+      if (mounted) {
         setState(() {
           _isSaving = false;
         });
       }
     }
+  }
+
+  Future<bool> _launchPayPalDeposit({
+    required double depositAmount,
+    required String plan,
+    required String orderId,
+  }) async {
+    final completer = Completer<bool>();
+    if (!mounted) return false;
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (ctx) => PayPalCheckoutScreen(
+          initialAmount: depositAmount,
+          paymentReason: 'Wallet deposit for ${plan == 'premium' ? 'Premium' : 'Standard'} plan setup',
+          paymentKind: 'deposit',
+          plan: plan,
+          simLineId: _isEdit ? widget.id : null,
+          onSuccess: () async {
+            Navigator.of(ctx).pop();
+            try {
+              await PlanPayment.waitForWalletCredit(
+                ref,
+                atLeast: depositAmount,
+              );
+              completer.complete(true);
+            } catch (_) {
+              completer.complete(true);
+            }
+          },
+        ),
+      ),
+    );
+
+    return completer.future;
+  }
+
+  Future<void> _showSetupFailureSheet({
+    required double totalAmount,
+    required double annualFee,
+    required String failureReason,
+    required bool isFreeEligible,
+    required VoidCallback onUseAnotherNumber,
+    required Future<void> Function() onFallbackToReminders,
+  }) {
+    final isDark = context.isDarkMode;
+
+    return showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      isDismissible: false,
+      enableDrag: false,
+      backgroundColor: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(24, 20, 24, 28),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 52,
+                  height: 52,
+                  decoration: BoxDecoration(
+                    color: AppColors.error.withValues(alpha: 0.12),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.error_outline_rounded,
+                    color: AppColors.error,
+                    size: 30,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Center(
+                child: Text(
+                  'Verification Recharge Failed',
+                  style: AppTextStyles.titleMedium.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: context.onSurfaceColor,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: isDark ? AppColors.darkCard : const Color(0xFFF5F7FA),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: AppColors.error.withValues(alpha: 0.3),
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Your number may be inactive or unable to receive this recharge. Premium has not started.',
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: context.onSurfaceColor,
+                        height: 1.4,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppColors.success.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(
+                            Icons.check_circle_rounded,
+                            color: AppColors.success,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'The full amount of \$${totalAmount.toStringAsFixed(2)}, including the \$${annualFee.toStringAsFixed(2)} subscription fee, has been returned to your KeepSIMs wallet.',
+                              style: AppTextStyles.bodySmall.copyWith(
+                                color: isDark ? Colors.green.shade200 : Colors.green.shade900,
+                                fontWeight: FontWeight.w600,
+                                height: 1.35,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Only successful recharges are charged.',
+                      style: AppTextStyles.caption.copyWith(
+                        color: isDark
+                            ? AppColors.textSecondaryDark
+                            : AppColors.textSecondaryLight,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: context.primaryColor,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                    onUseAnotherNumber();
+                  },
+                  icon: const Icon(Icons.edit_rounded, size: 18),
+                  label: const Text(
+                    'Use another number',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: OutlinedButton(
+                  style: OutlinedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  onPressed: () async {
+                    Navigator.pop(context);
+                    await onFallbackToReminders();
+                  },
+                  child: Text(
+                    isFreeEligible
+                        ? 'Use Free Reminders for 6 months (\$0.00)'
+                        : 'Use Standard Reminders (\$${annualFee.toStringAsFixed(2)}/year)',
+                    style: TextStyle(
+                      color: context.onSurfaceColor,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 6),
+              Center(
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    context.push('/wallet');
+                  },
+                  child: Text(
+                    'View KeepSIMs Wallet',
+                    style: TextStyle(
+                      color: isDark ? AppColors.primaryLight : AppColors.lightPrimary,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   // ── Pay for the plan with PayPal (the wallet could not cover it) ─────────

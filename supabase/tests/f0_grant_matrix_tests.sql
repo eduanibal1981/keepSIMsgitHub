@@ -265,6 +265,15 @@ DECLARE
     'admin_send_email(text[],text,text,text[],text,text,text)',
     'admin_list_emails(integer)',
 
+    -- Post-N1 guarded client/admin RPCs. Each carries an explicit admin/self
+    -- check. Unguarded catalogue lookups and maintenance functions remain out
+    -- of this allowlist so the matrix continues to flag them for review.
+    'admin_get_scheduled_jobs_overview()',
+    'admin_prune_database_logs(integer,integer)',
+    'admin_purge_user_account(uuid,text,text)',
+    'confirm_line_verification(uuid,text,text)',
+    'record_manual_external_recharge(uuid,timestamp with time zone,numeric,text)',
+
     -- L2. The offline recharge voucher rail — the customer side.
     --
     -- `provision_offline_voucher` is the ONE function in this database that
@@ -304,10 +313,16 @@ DECLARE
     'admin_list_voucher_purchase_jobs(integer)',
     'admin_cancel_voucher_purchase_job(uuid,text)'
   ];
+  -- SECURITY DEFINER routines invoked directly by pg_cron as postgres and by
+  -- no API/worker role. This is an exact allowlist: additions and removals both
+  -- fail below, so a new privileged function cannot silently copy P0 issue 3.
+  postgres_only_allowlist text[] := ARRAY[
+    'check_scheduled_jobs_health()'
+  ];
   v_bad text;
   v_n int;
   v_passed int := 0;
-  v_expected int := 6;
+  v_expected int := 8;
 BEGIN
   -- T1: nothing SECURITY DEFINER may be callable by anon. This is F-3/F-4.
   SELECT string_agg(p.oid::regprocedure::text, ', ' ORDER BY p.oid::regprocedure::text), count(*)
@@ -381,17 +396,57 @@ BEGIN
   INSERT INTO f0_results VALUES ('T5 every allow-listed fn is still authenticated-callable', 'PASS');
   v_passed := v_passed + 1;
 
-  -- T6: service_role must be able to execute everything, or the workers and cron
-  -- jobs silently stop.
+  -- T6: service_role must execute every definer function except the complete,
+  -- explicit postgres-only allowlist.
   SELECT string_agg(p.oid::regprocedure::text, ', ' ORDER BY p.oid::regprocedure::text), count(*)
     INTO v_bad, v_n
   FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
   WHERE n.nspname = 'public' AND p.prokind = 'f' AND p.prosecdef
+    AND replace(p.oid::regprocedure::text, 'public.', '') <> ALL (postgres_only_allowlist)
     AND NOT has_function_privilege('service_role', p.oid, 'EXECUTE');
   IF v_n > 0 THEN
     RAISE EXCEPTION 'T6 FAIL: service_role cannot execute % function(s) — workers/cron are broken: %', v_n, v_bad;
   END IF;
-  INSERT INTO f0_results VALUES ('T6 service_role can execute every SECURITY DEFINER fn', 'PASS');
+  INSERT INTO f0_results VALUES ('T6 service_role can execute every expected SECURITY DEFINER fn', 'PASS');
+  v_passed := v_passed + 1;
+
+  -- T7: every postgres-only declaration must resolve to one SECURITY DEFINER
+  -- function. This is the reverse side of T6's closed bucket.
+  SELECT string_agg(a, ', ' ORDER BY a), count(*) INTO v_bad, v_n
+  FROM unnest(postgres_only_allowlist) a
+  WHERE NOT EXISTS (
+    SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
+    WHERE n.nspname = 'public' AND p.prokind = 'f' AND p.prosecdef
+      AND replace(p.oid::regprocedure::text, 'public.', '') = a
+  );
+  IF v_n > 0 THEN
+    RAISE EXCEPTION 'T7 FAIL: % postgres-only allowlist entry/entries are missing: %', v_n, v_bad;
+  END IF;
+  INSERT INTO f0_results VALUES ('T7 every postgres-only allowlist entry exists', 'PASS');
+  v_passed := v_passed + 1;
+
+  -- T8: every declared postgres-only function must have that exact effective
+  -- role boundary. T1/T2/T4 also defend these globally; this pins the intent at
+  -- the allowlist entry itself.
+  SELECT string_agg(a, ', ' ORDER BY a), count(*) INTO v_bad, v_n
+  FROM unnest(postgres_only_allowlist) a
+  WHERE NOT EXISTS (
+    SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
+    WHERE n.nspname = 'public' AND p.prokind = 'f' AND p.prosecdef
+      AND replace(p.oid::regprocedure::text, 'public.', '') = a
+      AND has_function_privilege('postgres', p.oid, 'EXECUTE')
+      AND NOT has_function_privilege('service_role', p.oid, 'EXECUTE')
+      AND NOT has_function_privilege('authenticated', p.oid, 'EXECUTE')
+      AND NOT has_function_privilege('anon', p.oid, 'EXECUTE')
+      AND NOT EXISTS (
+        SELECT 1 FROM aclexplode(p.proacl) acl
+        WHERE acl.grantee = 0 AND acl.privilege_type = 'EXECUTE'
+      )
+  );
+  IF v_n > 0 THEN
+    RAISE EXCEPTION 'T8 FAIL: % postgres-only allowlist entry/entries are missing or have wrong grants: %', v_n, v_bad;
+  END IF;
+  INSERT INTO f0_results VALUES ('T8 postgres-only allowlist is present with exact role boundary', 'PASS');
   v_passed := v_passed + 1;
 
   IF v_passed <> v_expected THEN
