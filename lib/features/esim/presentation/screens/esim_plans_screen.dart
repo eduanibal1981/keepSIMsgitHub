@@ -46,22 +46,8 @@ class _EsimPlansScreenState extends ConsumerState<EsimPlansScreen> {
   /// Quick-access destinations. The live catalogue reaches 220 countries, so
   /// this list is a shortcut, not the limit — search matches any ISO code the
   /// user types.
-  static const Map<String, String> _destinations = {
-    'FR': 'France', 'US': 'United States', 'GB': 'United Kingdom',
-    'DE': 'Germany', 'ES': 'Spain', 'IT': 'Italy', 'PT': 'Portugal',
-    'GR': 'Greece', 'NL': 'Netherlands', 'CH': 'Switzerland',
-    'AT': 'Austria', 'BE': 'Belgium', 'IE': 'Ireland', 'PL': 'Poland',
-    'AE': 'United Arab Emirates', 'SA': 'Saudi Arabia', 'QA': 'Qatar',
-    'KW': 'Kuwait', 'BH': 'Bahrain', 'OM': 'Oman', 'JO': 'Jordan',
-    'EG': 'Egypt', 'MA': 'Morocco', 'TR': 'Turkey', 'PS': 'Palestine',
-    'IN': 'India', 'PK': 'Pakistan', 'BD': 'Bangladesh', 'LK': 'Sri Lanka',
-    'NP': 'Nepal', 'PH': 'Philippines', 'ID': 'Indonesia', 'MY': 'Malaysia',
-    'SG': 'Singapore', 'TH': 'Thailand', 'VN': 'Vietnam', 'JP': 'Japan',
-    'KR': 'South Korea', 'CN': 'China', 'HK': 'Hong Kong',
-    'AU': 'Australia', 'NZ': 'New Zealand', 'CA': 'Canada', 'MX': 'Mexico',
-    'BR': 'Brazil', 'AR': 'Argentina', 'ZA': 'South Africa',
-    'KE': 'Kenya', 'NG': 'Nigeria', 'RU': 'Russia',
-  };
+  static const Map<String, String> _destinations =
+      CompareOffer.defaultCountryNames;
 
   @override
   void initState() {
@@ -228,6 +214,7 @@ class _EsimPlansScreenState extends ConsumerState<EsimPlansScreen> {
         description: offer.description,
         imageUrl: offer.imageUrl,
       ),
+      speedDetail: offer.exactSpeedDetail,
     );
   }
 
@@ -341,7 +328,11 @@ class _EsimPlansScreenState extends ConsumerState<EsimPlansScreen> {
     final active = filters.activeCount;
     return InkWell(
       borderRadius: BorderRadius.circular(14),
-      onTap: () => CompareFilterSheet.show(context, _countryCode),
+      onTap: () => CompareFilterSheet.show(
+        context,
+        _countryCode,
+        countryName: _countryName,
+      ),
       child: _pill(
         context,
         icon: Icons.tune_rounded,

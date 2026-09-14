@@ -985,15 +985,10 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
       if (isPremiumLoading || _isLoadingQuote) {
         billingDesc = 'Loading premium pricing rules for this carrier...';
         billingRate = '$_feePerYearLabel + ...';
-      } else if (CarrierActivityNotice.blocksPremium(premiumRule)) {
-        // The server refuses to queue refills for these carriers, so selling
-        // the plan here would take the money and fail afterwards.
+      } else if (premiumRule != null && premiumRule.requiresHumanUsage) {
+        billingRate = '\$5.00 / yr';
         billingDesc =
-            'This carrier only counts calls, texts and data as activity, so '
-            'automatic top-ups cannot keep the line active. Please choose the '
-            'Standard Plan.';
-        planColor = isDark ? AppColors.error : Colors.redAccent;
-        billingRate = 'Not Supported';
+            'Includes Premium account benefits (discounted calling & eSIM) and \$1.00 alert allowance pool. Automated refills are locked because this carrier requires manual call/SMS activity.';
       } else if (_serverQuote != null || premiumRule != null) {
         billingRate = '\$${totalDue.toStringAsFixed(2)} Today';
         billingDesc =
@@ -1323,37 +1318,24 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
   Widget _buildTierGrid(CarrierRule? premiumRule, bool isPremiumLoading) {
     final isDark = context.isDarkMode;
 
-    // Free plan is disabled if the server quote indicates this phone number
-    // has already used its global 6-month Free Plan grant.
-    final bool freeLimitReached = _serverQuote != null && !_serverQuote!.freeEligible;
-    _isFreePlanDisabled = freeLimitReached;
-
-    // if free is disabled and currently selected, auto-select standard
-    if (_isFreePlanDisabled && _selectedTier == 'free') {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          setState(() {
-            _selectedTier = 'standard';
-          });
-        }
-      });
-    }
+    // Free plan is permanently available ($0 forever) with no 6-month restrictions
+    _isFreePlanDisabled = false;
 
     final tiers = [
       {
         'key': 'free',
         'name': 'Free Plan',
-        'desc': '6 Months Free Protection (1 per phone number). Basic alerts.',
+        'desc': 'Permanent Free Protection. Manual refills (7% fee), basic reminders.',
       },
       {
         'key': 'standard',
-        'name': 'Standard Plan',
-        'desc': 'Automated tracking & notifications.',
+        'name': 'Standard Plan (\$2.50/yr)',
+        'desc': 'Annual Membership. 5% refill fee, annual SMS/WhatsApp alert allowance (\$0.50 pool).',
       },
       {
         'key': 'premium',
-        'name': 'Premium Plan',
-        'desc': 'Fully automated top-ups & extensions.',
+        'name': 'Premium Plan (\$5.00/yr)',
+        'desc': 'Automated Protection. 100% automated refills (lowest 3% fee), \$1.00 alert allowance pool, priority support.',
       },
     ];
 
@@ -1748,13 +1730,6 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
             .read(simLinesRepositoryProvider)
             .getCarrierRule(_selectedCarrier!.id);
         if (rule != null) {
-          if (CarrierActivityNotice.blocksPremium(rule)) {
-            throw Exception(
-              'This carrier only resets its inactivity clock on a call, SMS or '
-              'data session, so automatic refills cannot keep the line active. '
-              'Please select the Standard plan.',
-            );
-          }
           carrierRuleId = rule.id;
         } else {
           throw Exception(
@@ -2601,13 +2576,14 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
       title = 'Premium Plan';
       icon = Icons.workspace_premium_rounded;
       accentColor = const Color(0xFF2E7D32); // Green
-      priceStr = '\$${_baseServiceFeeUsd.toStringAsFixed(2)}';
+      priceStr = '\$5.00';
       billingPeriod = '/yr per line';
       features = [
-        'Everything in Standard',
-        'Automated Keep-Alive auto-refill',
+        '100% automated keep-alive refills',
+        'Lowest refill fee: 3% (\$0.10 min)',
+        '\$1.00 annual alert allowance pool (SMS/WhatsApp)',
+        'Account Halo: discounted calling & eSIM rates',
         'Custom auto-refill scheduling',
-        'Real-time balance monitoring',
         'Unlimited SIM lines',
         'Priority support',
       ];
@@ -2615,25 +2591,28 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
       title = 'Standard Plan';
       icon = Icons.verified_user_rounded;
       accentColor = const Color(0xFF1565C0); // Blue
-      priceStr = '\$${_baseServiceFeeUsd.toStringAsFixed(2)}';
+      priceStr = '\$2.50';
       billingPeriod = '/yr per line';
       features = [
-        'Push notification alerts',
-        'Telegram recharge requests',
-        'Manual status & expiry checks',
-        'Up to 5 SIM lines',
+        'Annual membership (\$2.50/yr)',
+        'Reduced refill fee: 5% (\$0.30 min)',
+        '\$0.50 annual alert allowance pool (SMS/WhatsApp)',
+        'Push & offline SMS/WhatsApp alerts',
+        'Manual refill requests',
+        'Standard support',
       ];
     } else {
       title = 'Free Plan';
       icon = Icons.info_outline_rounded;
       accentColor = const Color(0xFF757575); // Grey
       priceStr = 'FREE';
-      billingPeriod = 'no charge';
+      billingPeriod = 'permanent (\$0/yr)';
       features = [
-        'Basic expiry alerts',
-        'Limited to 1 line per account',
+        'Permanent line protection (\$0 forever)',
+        'Manual refills with 7% app fee (\$0.50 min)',
+        'Push notification expiry alerts',
         'Manual verification checks',
-        'Standard email support',
+        'Unlimited SIM lines',
       ];
     }
 

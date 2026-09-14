@@ -1,0 +1,6 @@
+credentials.json
+.state/
+token_*.json
+__pycache__/
+.venv/
+.tmp/

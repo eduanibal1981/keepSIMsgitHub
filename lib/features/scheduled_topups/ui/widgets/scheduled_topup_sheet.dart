@@ -13,7 +13,6 @@ import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:go_router/go_router.dart';
 import 'package:keep_sims/core/result.dart';
 import 'package:keep_sims/core/providers/app_config_provider.dart';
-import 'package:keep_sims/features/sim_lines/domain/refill_pricing.dart';
 import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import 'package:keep_sims/features/notifications/presentation/controllers/notification_settings_controller.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
@@ -26,10 +25,13 @@ import 'package:keep_sims/features/sim_lines/presentation/providers/api_offers_p
 import 'package:keep_sims/features/sim_lines/data/models/usage_forecast_model.dart';
 import 'package:keep_sims/features/sim_lines/presentation/providers/usage_forecast_provider.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/provider_badge.dart';
+import 'package:keep_sims/features/sim_lines/domain/line_refill_quote.dart';
+import 'package:keep_sims/features/scheduled_topups/domain/refill_schedule_math.dart';
 
 class ScheduledTopupSheet extends ConsumerStatefulWidget {
   final String simLineId;
   final String simNickname;
+  final SimLine? simLine;
   final ScheduledTopup? existingSchedule;
   final String configMode; // 'notify' or 'refill'
 
@@ -37,6 +39,7 @@ class ScheduledTopupSheet extends ConsumerStatefulWidget {
     super.key,
     required this.simLineId,
     required this.simNickname,
+    this.simLine,
     this.existingSchedule,
     required this.configMode,
   });
@@ -64,7 +67,6 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
   bool _appliedSuggestedOffer = false;
   double _rangeFinalPriceUsd = 0.0;
   double _rangeBaseCostUsd = 0.0;
-  double _rangeAppFee = 0.0;
   
   final TextEditingController _amountController = TextEditingController();
 
@@ -75,6 +77,7 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
   /// onboarding and is `'premium'` for no account in production, while four
   /// lines have been paid up to premium.
   bool _lineIsPremium() {
+    if (widget.simLine != null) return widget.simLine!.isPremiumPlan;
     final lines = ref.read(simLinesControllerProvider).value ?? const <SimLine>[];
     final line = lines.cast<SimLine?>().firstWhere(
           (l) => l?.id == widget.simLineId,
@@ -100,7 +103,9 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
 
     if (widget.existingSchedule != null) {
       _amount = widget.existingSchedule!.amount;
-      _frequencyDays = widget.existingSchedule!.frequencyDays;
+      _frequencyDays = widget.existingSchedule!.frequencyDays > 0
+          ? widget.existingSchedule!.frequencyDays
+          : 30;
       _isActive = widget.existingSchedule!.isActive;
       if (widget.existingSchedule!.offerId != null) {
         _selectedOffer = {'offerId': widget.existingSchedule!.offerId};
@@ -122,7 +127,7 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
     final bool isEditMode = widget.existingSchedule != null;
     final walletState = ref.watch(walletControllerProvider).value;
     final simLines = ref.watch(simLinesControllerProvider).value ?? [];
-    final currentLine = simLines.cast<SimLine?>().firstWhere(
+    final currentLine = widget.simLine ?? simLines.cast<SimLine?>().firstWhere(
       (l) => l?.id == widget.simLineId,
       orElse: () => null,
     );
@@ -148,18 +153,9 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
       calculatedNextExecution = widget.existingSchedule!.nextExecutionAt
           .toUtc();
     } else {
-      int delayDays = _frequencyDays;
-      if (_frequencyDays == 90 || _frequencyDays == 85) {
-        delayDays = 85;
-      } else if (_frequencyDays == 30) {
-        delayDays = 28;
-      } else if (_frequencyDays == 14) {
-        delayDays = 13;
-      }
-      calculatedNextExecution = DateTime.now().toUtc().add(
-        _frequencyDays == 0
-            ? const Duration(hours: 1)
-            : Duration(days: delayDays),
+      calculatedNextExecution = RefillScheduleMath.nextExecutionAt(
+        DateTime.now().toUtc(),
+        _frequencyDays,
       );
     }
 
@@ -578,6 +574,7 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                       fixedOffers.isNotEmpty ? fixedOffers : offers,
                       forecast?.suggestedOfferId,
                       isEditMode: isEditMode,
+                      line: currentLine,
                     );
 
                     return Column(
@@ -603,8 +600,7 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
 
                                 final baseCost =
                                     (offer['baseCostUsd'] as num).toDouble();
-                                final q = _quote(baseCost);
-                                final appFee = q.appFee;
+                                final q = _quote(baseCost, line: currentLine);
                                 final finalPrice = q.total;
 
                                 final name =
@@ -619,7 +615,6 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                                       _rangeValue = null;
                                       _rangeFinalPriceUsd = 0.0;
                                       _rangeBaseCostUsd = 0.0;
-                                      _rangeAppFee = 0.0;
                                     });
                                   },
                                   borderRadius: BorderRadius.circular(12),
@@ -687,7 +682,7 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                                         ),
                                         const SizedBox(height: 8),
                                         Text(
-                                          'Base: \$${baseCost.toStringAsFixed(2)} | App: \$${appFee.toStringAsFixed(2)}',
+                                          q.breakdownText,
                                           style: AppTextStyles.labelSmall
                                               .copyWith(
                                             color: AppColors.textTertiaryDark,
@@ -703,6 +698,7 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                         if (rangeOffer != null)
                           _buildRangeUI(
                             rangeOffer,
+                            currentLine: currentLine,
                             hasOtherOffers: fixedOffers.isNotEmpty,
                           ),
                       ],
@@ -737,18 +733,44 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
             ),
             const SizedBox(height: 12),
 
-            Wrap(
-              spacing: 10,
-              runSpacing: 10,
-              children: (isPremium ? [0, 7, 14, 30, 85] : [0, 7, 14, 30, 90])
-                  .map((freq) {
+            Builder(
+              builder: (context) {
+                final List<int> intervalOptions = [];
+                if (suggestedFrequency != null && suggestedFrequency > 0) {
+                  intervalOptions.add(suggestedFrequency);
+                }
+                for (final preset in [7, 14, 30]) {
+                  if (!intervalOptions.contains(preset)) {
+                    intervalOptions.add(preset);
+                  }
+                }
+                if (widget.existingSchedule != null &&
+                    widget.existingSchedule!.frequencyDays > 0) {
+                  if (!intervalOptions
+                      .contains(widget.existingSchedule!.frequencyDays)) {
+                    intervalOptions.add(widget.existingSchedule!.frequencyDays);
+                  }
+                }
+                intervalOptions.sort();
+
+                return Wrap(
+                  spacing: 10,
+                  runSpacing: 10,
+                  children: intervalOptions.map((freq) {
                     final isSelected = _frequencyDays == freq;
                     final isSuggested = suggestedFrequency == freq;
                     String freqLabel = '$freq Days';
-                    if (freq == 0) freqLabel = '1 Hour';
-                    if (freq == 30) freqLabel = 'Monthly';
-                    if (freq == 90 || freq == 85) {
-                      freqLabel = freq == 85 ? 'Every 85 Days' : 'Quarterly';
+                    if (isSuggested && freq == suggestedFrequency) {
+                      freqLabel = 'Carrier rule · $freq days';
+                    } else if (freq == 7) {
+                      freqLabel = '7 Days';
+                    } else if (freq == 14) {
+                      freqLabel = '14 Days';
+                    } else if (freq == 30) {
+                      freqLabel = 'Monthly';
+                    } else if (widget.existingSchedule != null &&
+                        freq == widget.existingSchedule!.frequencyDays) {
+                      freqLabel = 'Current · $freq days';
                     }
 
                     return InkWell(
@@ -805,8 +827,9 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                         ),
                       ),
                     );
-                  })
-                  .toList(),
+                  }).toList(),
+                );
+              },
             ),
             if (suggestedFrequency != null) ...[
               const SizedBox(height: 10),
@@ -1028,32 +1051,38 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
         }
       }
 
+      final simLines = ref.read(simLinesControllerProvider).value ?? [];
+      final currentLine = widget.simLine ?? simLines.cast<SimLine?>().firstWhere(
+        (l) => l?.id == widget.simLineId,
+        orElse: () => null,
+      );
+
       DateTime calculatedNextExecution;
       if (widget.existingSchedule != null &&
           widget.existingSchedule!.frequencyDays == _frequencyDays) {
         calculatedNextExecution = widget.existingSchedule!.nextExecutionAt
             .toUtc();
       } else {
-        int delayDays = _frequencyDays;
-        if (_frequencyDays == 90 || _frequencyDays == 85) {
-          delayDays = 85;
-        } else if (_frequencyDays == 30) {
-          delayDays = 28;
-        } else if (_frequencyDays == 14) {
-          delayDays = 13;
-        }
-        calculatedNextExecution = DateTime.now().toUtc().add(
-          _frequencyDays == 0
-              ? const Duration(hours: 1)
-              : Duration(days: delayDays),
+        calculatedNextExecution = RefillScheduleMath.nextExecutionAt(
+          DateTime.now().toUtc(),
+          _frequencyDays,
         );
       }
+
+      final isRange = _selectedOffer?['priceType'] == 'RANGE';
+      final double baseCost = isRange
+          ? _rangeBaseCostUsd
+          : (_selectedOffer?['baseCostUsd'] as num?)?.toDouble() ?? 0.0;
+      final q = _quote(baseCost, line: currentLine);
+      final double totalAmount = isNotifyMode ? 0.0 : q.total;
+      final double baseCostUsd = isNotifyMode ? 0.0 : baseCost;
+      final double appFeeUsd = isNotifyMode ? 0.0 : q.appFee;
 
       final schedule = ScheduledTopup(
         id: widget.existingSchedule?.id ?? '',
         simLineId: widget.simLineId,
         userId: widget.existingSchedule?.userId ?? user?.id ?? '',
-        amount: isNotifyMode ? 0.0 : _amount,
+        amount: totalAmount,
         currency: 'USD',
         frequencyDays: _frequencyDays,
         nextExecutionAt: calculatedNextExecution,
@@ -1063,7 +1092,11 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
             ? 'refill_custom'
             : widget.configMode,
         offerId: _selectedOffer?['offerId']?.toString(),
-        offerValue: _selectedOffer?['priceType'] == 'RANGE' ? _rangeValue : null,
+        offerValue: isRange ? _rangeValue : null,
+        baseCostUsd: baseCostUsd,
+        appFeeUsd: appFeeUsd,
+        pricingTier: currentLine?.effectiveTier ?? 'free',
+        feeRuleVersion: q.feeRuleVersion,
       );
 
       final result = await ref
@@ -1183,10 +1216,14 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
   /// G1: preselect the package the line was last successfully refilled with.
   /// Only fills an empty selection — it never overrides a user's pick, and it
   /// no-ops when the suggested offer is no longer in the catalog.
+  /// G1: preselect the package the line was last successfully refilled with.
+  /// Only fills an empty selection — it never overrides a user's pick, and it
+  /// no-ops when the suggested offer is no longer in the catalog.
   void _maybeApplySuggestedOffer(
     List<Map<String, dynamic>> offers,
     String? suggestedOfferId, {
     required bool isEditMode,
+    SimLine? line,
   }) {
     if (suggestedOfferId == null ||
         isEditMode ||
@@ -1202,7 +1239,7 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
 
     _appliedSuggestedOffer = true;
     final double baseCost = (match['baseCostUsd'] as num).toDouble();
-    final double total = _quote(baseCost).total;
+    final double total = _quote(baseCost, line: line).total;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         setState(() {
@@ -1213,35 +1250,35 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
     });
   }
 
-  /// The configured app fee. Was hardcoded at 5% here while the manual sheet and
-  /// calculate_topup_fees moved to system_configs.APP_FEE_PERCENT (3%), so this
-  /// screen quoted a price the rest of the system had stopped charging.
-  double get _appFeePercent =>
-      ref.watch(appFeePercentProvider).value ?? kDefaultAppFeePercent;
+  /// Auto-refill is funded from the wallet, using the target line's tier fee rule.
+  LineRefillQuote _quote(double baseCostUsd, {SimLine? line}) {
+    final rules = ref.watch(refillFeeRulesProvider).value;
+    final tier = line?.effectiveTier ?? widget.simLine?.effectiveTier ?? 'free';
+    return calculateLineRefillQuote(
+      simLineId: widget.simLineId,
+      offerId: _selectedOffer?['offerId']?.toString(),
+      offerValue: _rangeValue,
+      effectiveTier: tier,
+      baseCostUsd: baseCostUsd,
+      rules: rules,
+    );
+  }
 
-  double get _minAppFeeUsd =>
-      ref.watch(minAppFeeUsdProvider).value ?? kDefaultMinAppFeeUsd;
-
-  /// Auto-refill is funded from the wallet, which is a 0% / $0.00 gateway in
-  /// payment_gateways — so there is no gateway fee to add here, only the app fee.
-  RefillQuote _quote(double baseCostUsd) => RefillPricing.quote(
-        baseCostUsd: baseCostUsd,
-        appFeePercent: _appFeePercent,
-        minAppFeeUsd: _minAppFeeUsd,
-      );
-
-  void _calculateRangeFees() {
+  void _calculateRangeFees({SimLine? line}) {
     if (_rangeValue != null) {
-      final q = _quote(_rangeBaseCostUsd);
+      final q = _quote(_rangeBaseCostUsd, line: line);
       setState(() {
-        _rangeAppFee = q.appFee;
         _rangeFinalPriceUsd = q.total;
         _amount = _rangeFinalPriceUsd;
       });
     }
   }
 
-  Widget _buildRangeUI(Map<String, dynamic> offer, {bool hasOtherOffers = false}) {
+  Widget _buildRangeUI(
+    Map<String, dynamic> offer, {
+    SimLine? currentLine,
+    bool hasOtherOffers = false,
+  }) {
     if (!hasOtherOffers && _selectedOffer?['offerId'] != offer['offerId']) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) setState(() => _selectedOffer = offer);
@@ -1334,7 +1371,7 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                   _rangeValue = intValue;
                   _rangeBaseCostUsd = baseCostUsd;
                 });
-                _calculateRangeFees();
+                _calculateRangeFees(line: currentLine);
               } else {
                 setState(() {
                   if (_selectedOffer?['offerId'] == offer['offerId']) {
@@ -1343,7 +1380,6 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                   _rangeValue = null;
                   _rangeFinalPriceUsd = 0.0;
                   _rangeBaseCostUsd = 0.0;
-                  _rangeAppFee = 0.0;
                 });
               }
             },
@@ -1352,8 +1388,8 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
              Padding(
                padding: const EdgeInsets.only(top: 8),
                child: Text(
-                 'Base: \$${_rangeBaseCostUsd.toStringAsFixed(2)} | App Fee: \$${_rangeAppFee.toStringAsFixed(2)}',
-                 style: AppTextStyles.labelSmall.copyWith(color: AppColors.textTertiaryDark)
+                 _quote(_rangeBaseCostUsd, line: currentLine).breakdownText,
+                 style: AppTextStyles.labelSmall.copyWith(color: AppColors.textTertiaryDark),
                ),
              ),
         ],

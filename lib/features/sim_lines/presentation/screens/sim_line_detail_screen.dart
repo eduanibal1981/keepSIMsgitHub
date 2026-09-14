@@ -11,32 +11,31 @@ import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/core/result.dart';
 import 'package:keep_sims/core/utils/build_context_extension.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
-import 'package:keep_sims/features/sim_lines/data/models/carrier_model.dart';
 import 'package:keep_sims/features/sim_lines/domain/sim_line_health.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_line_detail_controller.dart';
-import 'package:keep_sims/core/widgets/glass_card.dart';
-import 'package:keep_sims/core/widgets/glass_toggle_switch.dart';
 import 'package:keep_sims/features/scheduled_topups/model/scheduled_topup_model.dart';
-import 'package:keep_sims/features/scheduled_topups/model/topup_execution_model.dart';
 import 'package:keep_sims/features/scheduled_topups/ui/widgets/scheduled_topup_sheet.dart';
 import 'package:keep_sims/features/scheduled_topups/controller/scheduled_topup_controller.dart';
 import 'package:keep_sims/features/wallet/controller/wallet_controller.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/number_verification_dialog.dart';
-import 'package:keep_sims/features/sim_lines/presentation/widgets/last_recharge_panel.dart';
-import 'package:keep_sims/features/sim_lines/presentation/widgets/live_verification_panel.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/manual_refill_bottom_sheet.dart';
+import 'package:keep_sims/features/sim_lines/presentation/widgets/manual_recharge_dialog.dart';
 import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import 'package:keep_sims/core/router/app_router.dart';
 import 'package:keep_sims/features/household/presentation/controllers/household_controller.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/line_upgrade_sheet.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/premium_refill_config_sheet.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/depletion_forecast_card.dart';
-import 'package:keep_sims/features/sim_lines/presentation/widgets/sim_insurance_card.dart';
+import 'package:keep_sims/features/sim_lines/presentation/widgets/sim_insurance_bottom_sheet.dart';
+import 'package:keep_sims/features/sim_lines/presentation/providers/rescue_policy_provider.dart';
 import 'package:keep_sims/features/sim_lines/presentation/providers/usage_forecast_provider.dart';
 import 'package:keep_sims/features/home_widget/presentation/live_activity_pin_button.dart';
-import 'package:keep_sims/core/services/esim_capability_service.dart';
+import 'package:keep_sims/features/return_trip/domain/entities/active_return_trip_info.dart';
+import 'package:keep_sims/features/return_trip/presentation/controllers/active_return_trip_provider.dart';
+import 'package:keep_sims/features/return_trip/presentation/widgets/active_return_package_bottom_sheet.dart';
+import 'package:keep_sims/features/return_trip/presentation/widgets/manage_return_trip_bottom_sheet.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SimLineDetailScreen extends ConsumerStatefulWidget {
@@ -50,11 +49,6 @@ class SimLineDetailScreen extends ConsumerStatefulWidget {
 }
 
 class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
-  bool _isToggling = false;
-
-  /// The user tapped "if you travel tomorrow" to see pre-trip packages. Screen
-  /// state only — it says nothing about where they are.
-  bool _travelPrepArmed = false;
   late bool _isShared;
   late bool _isViewer;
   dynamic _membership;
@@ -83,6 +77,40 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
         ref.invalidate(simLinesControllerProvider);
         ref.invalidate(scheduledTopupControllerProvider);
         ref.invalidate(simLineDetailControllerProvider(widget.id));
+
+        if (previous?.value != null && mounted) {
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          if (exec.status == 'success') {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                  'Refill completed successfully! Line validity refreshed.',
+                ),
+                backgroundColor: AppColors.success,
+                duration: Duration(seconds: 4),
+              ),
+            );
+          } else if (exec.status == 'failed') {
+            final reason = exec.failureReason ?? 'Declined by operator';
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Refill failed: $reason'),
+                backgroundColor: AppColors.error,
+                duration: const Duration(seconds: 5),
+              ),
+            );
+          } else if (exec.status == 'refunded') {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                  'Refill failed and payment was refunded to wallet.',
+                ),
+                backgroundColor: AppColors.warning,
+                duration: Duration(seconds: 4),
+              ),
+            );
+          }
+        }
       }
     });
   }
@@ -105,13 +133,12 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
     _isViewer =
         _isShared && (_membership == null || _membership.role == 'viewer');
 
-    final isDark = context.isDarkMode;
-
     return Scaffold(
       backgroundColor: context.scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
+        centerTitle: true,
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back_ios_new,
@@ -120,91 +147,22 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
           ),
           onPressed: () => context.pop(),
         ),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              AppLocalizations.of(context)!.protectionConsole,
-              style: AppTextStyles.headlineMedium.copyWith(
-                color: context.onSurfaceColor,
-              ),
-            ),
-            if (simLine != null)
-              Text(
-                simLine.isHomeMode
-                    ? AppLocalizations.of(context)!.homeMode
-                    : 'Travel Mode',
-                style: AppTextStyles.caption.copyWith(
-                  color: simLine.isHomeMode
-                      ? Colors.lightBlue
-                      : AppColors.healthAmber,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
-                ),
-              ),
-          ],
+        title: Text(
+          AppLocalizations.of(context)!.protectionConsole,
+          style: AppTextStyles.headlineMedium.copyWith(
+            color: context.onSurfaceColor,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         actions: [
-          if (simLine != null && simLine.userId == user?.id)
-            IconButton(
-              icon: const Icon(
-                Icons.delete_outline_rounded,
-                color: AppColors.error,
-              ),
-              tooltip: AppLocalizations.of(context)!.deleteProtectionTooltip,
-              onPressed: () async {
-                await HapticHelper.mediumImpact();
-                if (context.mounted) {
-                  _showDeleteConfirmation(context, simLine);
-                }
-              },
+          IconButton(
+            icon: Icon(
+              Icons.more_horiz_rounded,
+              color: context.onSurfaceColor,
             ),
-          if (simLine != null && !_isViewer)
-            IconButton(
-              icon: Icon(
-                Icons.wifi_off_rounded,
-                color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
-              ),
-              tooltip: AppLocalizations.of(context)!.offlineRefillLabel,
-              onPressed: () async {
-                await HapticHelper.lightTick();
-                if (context.mounted) {
-                  context.push('/settings/offline-recharge?simLineId=${simLine.id}');
-                }
-              },
-            ),
-          if (simLine != null && !_isViewer)
-            IconButton(
-              icon: Icon(
-                simLine.requiresProtectionAtHome
-                    ? Icons.shield_rounded
-                    : Icons.shield_outlined,
-                color: simLine.requiresProtectionAtHome
-                    ? AppColors.success
-                    : (isDark
-                          ? AppColors.textSecondaryDark
-                          : AppColors.textSecondaryLight),
-              ),
-              tooltip: simLine.requiresProtectionAtHome
-                  ? AppLocalizations.of(context)!.keepProtectedAtHome
-                  : AppLocalizations.of(context)!.protectionPausesAtHome,
-              onPressed: () async {
-                await HapticHelper.lightTick();
-                ref
-                    .read(simLinesControllerProvider.notifier)
-                    .setRequiresProtectionAtHome(
-                      simLine.id,
-                      !simLine.requiresProtectionAtHome,
-                    );
-              },
-            ),
-          // No manual home/travel switch. The mode is a location fact derived
-          // from geolocation (`resolveLineMode`), so a button that sets it can
-          // only make the app disagree with reality — which is how a Saudi line
-          // came to read "Home Mode" in Oman. What the user *does* control is
-          // whether protection keeps running when they are home: the shield
-          // above (`requires_protection_at_home`).
+            tooltip: 'More options',
+            onPressed: () => _showMoreOptionsMenu(context, simLine, user),
+          ),
         ],
       ),
       body: () {
@@ -224,65 +182,85 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
           final fallbackRefillSchedule =
               detailState.customRefillSchedule ??
               detailState.miniRefillSchedule;
-          final hasProtectionActive = isPremium
-              ? (fallbackRefillSchedule != null &&
-                    fallbackRefillSchedule.status == 'active')
-              : (detailState.notifySchedule != null &&
-                    detailState.notifySchedule!.status == 'active');
-          final isVerified = line.status == 'active';
+          final bool isRefillActive = fallbackRefillSchedule != null &&
+              fallbackRefillSchedule.status == 'active';
+          final bool isNotifyActive = detailState.notifySchedule != null &&
+              detailState.notifySchedule!.status == 'active';
+          final isVerified = line.status == 'active' ||
+              line.isCarrierVerified ||
+              line.carrierVerifiedAt != null ||
+              line.verificationStatus == 'verified';
+          final carrierRule = line.carrierId != null
+              ? ref.watch(carrierRuleProvider(line.carrierId!)).value
+              : null;
           final score = line.displayHealthScore(
-            isPremium: isPremium,
-            hasProtectionActive: hasProtectionActive,
+            hasRefillSchedule: isRefillActive,
+            hasNotificationSchedule: isNotifyActive,
+            isVerified: isVerified,
+            carrierExpirationDays: carrierRule?.inactivityLimitDays,
           );
 
-          final String tier = (user != null && user.isPowerUser)
-              ? 'premium'
-              : line.protectionTier.toLowerCase();
+          final String tier = line.protectionTier.toLowerCase();
+
+          final activeTripAsync = ref.watch(activeReturnTripInfoProvider(line.id));
+          final activeTrip = activeTripAsync.value;
 
           return Column(
             children: [
+              // Fixed Compact Identity Card (pins under AppBar)
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    _buildHeaderCard(context, detailState, country, score),
-                    const SizedBox(height: 10),
-                    _buildTravelTomorrowRow(context, line),
-                  ],
-                ),
+                padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+                child: _buildCompactIdentityCard(context, line, country),
               ),
+              // Single Scrolling Page
               Expanded(
                 child: SingleChildScrollView(
                   physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
+                  padding: const EdgeInsets.fromLTRB(16, 6, 16, 32),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // 1. Critical Risk Alert Banner (conditional)
-                      _buildCriticalRiskAlert(
+                      if (score < 30) ...[
+                        _buildCriticalRiskAlert(
+                          context,
+                          detailState,
+                          isPremium,
+                          tier,
+                          isVerified,
+                          score,
+                        ),
+                        const SizedBox(height: 12),
+                      ],
+
+                      // Card 1: Combined Health & Status Overview Card
+                      _buildHealthOverviewCard(
                         context,
                         detailState,
-                        isPremium,
-                        tier,
-                        isVerified,
+                        country,
                         score,
+                        line,
+                        tier,
                       ),
-                      if (score < 30 && !line.protectionPaused)
-                        const SizedBox(height: 20),
+                      const SizedBox(height: 14),
 
-                      // 1b. Depletion forecast (G1) — when this line is
-                      // predicted to run out, and the schedule that fits it.
-                      // Renders nothing when no forecast row exists yet.
-                      DepletionForecastCard(
-                        line: line,
-                        isPremium: isPremium,
-                        existingRefillSchedule: fallbackRefillSchedule,
+                      // Card 2: Unified Return Trip Wizard & Next Prepared Travel Data
+                      _buildReturnTripWizardCard(
+                        context,
+                        line,
+                        country,
+                        activeTrip: activeTrip,
+                        hasHistory: (ref.watch(returnTripHistoryProvider(line.id)).value?.isNotEmpty ?? false),
                       ),
+                      const SizedBox(height: 18),
 
-                      // 1c. Pin this line's countdown to the iOS Lock Screen
-                      // (G4). Invisible on every platform that cannot show a
-                      // Live Activity, Android included.
+                      // Auxiliary Cards (if active/applicable)
+                      if (fallbackRefillSchedule == null)
+                        DepletionForecastCard(
+                          line: line,
+                          isPremium: isPremium,
+                          existingRefillSchedule: fallbackRefillSchedule,
+                        ),
                       LiveActivityPinButton(
                         line: line,
                         forecast: ref
@@ -290,17 +268,12 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                             .value,
                       ),
 
-                      // 1d. SIM insurance (G7) — opt in and we top this line
-                      // up automatically rather than let it lapse. Off unless
-                      // the owner sets a dollar ceiling; hidden while paused.
-                      SimInsuranceCard(line: line),
+                      // Section 3: Protection List Card
+                      _buildProtectionSection(context, detailState),
+                      const SizedBox(height: 18),
 
-                      // 2. Protection Layers configuration (renamed from AutoRefillSection)
-                      _buildProtectionLayersSection(context, detailState),
-                      const SizedBox(height: 20),
-
-                      // 3. Quick Actions 2x2 grid (Manual Refill, Recharge Friend, Test SIM, Home mode)
-                      _buildQuickActionsGrid(
+                      // Section 4: Quick Actions List Card
+                      _buildQuickActionsSection(
                         context,
                         line,
                         country,
@@ -308,51 +281,14 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                         tier,
                         isVerified,
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 18),
 
-                      // Cosmetic Downward Scroll Arrow
-                      Center(
-                        child: Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: isDark
-                                ? AppColors.darkSurface
-                                : Colors.white,
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: isDark
-                                  ? AppColors.darkBorder
-                                  : AppColors.lightBorder,
-                            ),
-                            boxShadow: isDark
-                                ? null
-                                : [
-                                    BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.04),
-                                      blurRadius: 8,
-                                      offset: const Offset(0, 3),
-                                    ),
-                                  ],
-                          ),
-                          child: Icon(
-                            Icons.arrow_downward_rounded,
-                            color: isDark
-                                ? AppColors.textSecondaryDark
-                                : AppColors.textSecondaryLight,
-                            size: 20,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 20),
+                      // Section 5: Security Activity Card
+                      _buildSecurityActivitySection(context, detailState),
+                      const SizedBox(height: 18),
 
-                      // 4. Historical Refill Executions
-                      _buildExecutionsSection(context, detailState),
-                      const SizedBox(height: 20),
-
-                      // 5. Activity Event Timeline Logs
-                      _buildTimelineSection(context, detailState),
-                      const SizedBox(height: 40),
+                      // Footer: Manage SIM link
+                      _buildManageSimButton(context, line),
                     ],
                   ),
                 ),
@@ -425,17 +361,92 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
     );
   }
 
-  // ── 1. Header Card UI ──────────────────────────────────────────────────────
-  Widget _buildHeaderCard(
-    BuildContext context,
-    SimLineDetailState detail,
-    dynamic country,
-    int score,
-  ) {
-    final line = detail.simLine;
-    final bool isPremium = line.protectionTier.toLowerCase() == 'premium';
-    final isDark = context.isDarkMode;
+  // ── Stitch Google UI Components ──────────────────────────────────────────
 
+  void _showMoreOptionsMenu(
+    BuildContext context,
+    SimLine? simLine,
+    dynamic user,
+  ) {
+    if (simLine == null) return;
+    final isDark = context.isDarkMode;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF182234) : Colors.white,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 36,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: isDark ? Colors.white24 : Colors.black12,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              if (!_isViewer)
+                ListTile(
+                  leading: Icon(
+                    Icons.wifi_off_rounded,
+                    color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                  ),
+                  title: Text(
+                    AppLocalizations.of(context)!.offlineRefillLabel,
+                    style: TextStyle(color: context.onSurfaceColor),
+                  ),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    context.push('/settings/offline-recharge?simLineId=${simLine.id}');
+                  },
+                ),
+              if (!_isShared)
+                ListTile(
+                  leading: Icon(
+                    Icons.edit_outlined,
+                    color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                  ),
+                  title: const Text('Edit nickname'),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    _showEditNicknameDialog(context, simLine);
+                  },
+                ),
+              if (simLine.userId == user?.id)
+                ListTile(
+                  leading: const Icon(
+                    Icons.delete_outline_rounded,
+                    color: AppColors.error,
+                  ),
+                  title: Text(
+                    AppLocalizations.of(context)!.deleteProtectionTooltip,
+                    style: const TextStyle(color: AppColors.error),
+                  ),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    _showDeleteConfirmation(context, simLine);
+                  },
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCompactIdentityCard(
+    BuildContext context,
+    SimLine line,
+    dynamic country,
+  ) {
+    final isDark = context.isDarkMode;
     String flag = '🌐';
     if (country != null) {
       flag = country.flagEmoji as String;
@@ -450,14 +461,172 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
         case 'home':
           return Icons.home_outlined;
         default:
-          return Icons.sim_card;
+          return Icons.sim_card_outlined;
       }
     }
 
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF182234) : Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: isDark ? const Color(0xFF263348) : const Color(0xFFE2E8F0),
+        ),
+        boxShadow: isDark
+            ? null
+            : [
+                const BoxShadow(
+                  color: Color(0x0A0F172A),
+                  blurRadius: 8,
+                  offset: Offset(0, 2),
+                ),
+              ],
+      ),
+      child: Row(
+        children: [
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+                  ),
+                ),
+                child: Icon(
+                  getIcon(line.avatarIcon),
+                  color: isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7),
+                  size: 22,
+                ),
+              ),
+              Positioned(
+                bottom: -2,
+                right: -2,
+                child: Container(
+                  padding: const EdgeInsets.all(1.5),
+                  decoration: BoxDecoration(
+                    color: isDark ? const Color(0xFF182234) : Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 2,
+                      ),
+                    ],
+                  ),
+                  child: Text(flag, style: const TextStyle(fontSize: 11)),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  (line.nickname != null && line.nickname!.trim().isNotEmpty)
+                      ? line.nickname!.trim()
+                      : (AppLocalizations.of(context)?.mySimCardDefault ?? 'My SIM Card'),
+                  style: AppTextStyles.titleMedium.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: context.onSurfaceColor,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  line.phoneNumber,
+                  textDirection: TextDirection.ltr,
+                  style: AppTextStyles.caption.copyWith(
+                    color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: 'monospace',
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          _buildTierBadge(line.protectionTier, isDark),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTierBadge(String tier, bool isDark) {
+    final String normalized = tier.toLowerCase();
+    Color bg;
+    Color border;
+    Color text;
+    String label;
+    IconData icon;
+
+    if (normalized == 'premium') {
+      bg = isDark ? const Color(0xFFD97706).withValues(alpha: 0.2) : const Color(0xFFFEF3C7);
+      border = isDark ? const Color(0xFFD97706).withValues(alpha: 0.5) : const Color(0xFFFDE68A);
+      text = const Color(0xFFD97706);
+      label = 'PREMIUM';
+      icon = Icons.workspace_premium_rounded;
+    } else if (normalized == 'standard') {
+      bg = isDark ? const Color(0xFF0284C7).withValues(alpha: 0.2) : const Color(0xFFF0F9FF);
+      border = isDark ? const Color(0xFF0284C7).withValues(alpha: 0.5) : const Color(0xFFBAE6FD);
+      text = const Color(0xFF0284C7);
+      label = 'STANDARD';
+      icon = Icons.verified_rounded;
+    } else {
+      bg = isDark ? const Color(0xFF334155).withValues(alpha: 0.3) : const Color(0xFFF1F5F9);
+      border = isDark ? const Color(0xFF475569) : const Color(0xFFCBD5E1);
+      text = isDark ? Colors.white70 : const Color(0xFF475569);
+      label = 'BASIC';
+      icon = Icons.shield_outlined;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: border),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 13, color: text),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: TextStyle(
+              color: text,
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 0.5,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHealthOverviewCard(
+    BuildContext context,
+    SimLineDetailState detail,
+    dynamic country,
+    int score,
+    SimLine line,
+    String tier,
+  ) {
+    final isDark = context.isDarkMode;
+
     Color scoreColor;
-    if (line.protectionPaused) {
-      scoreColor = Colors.lightBlue;
-    } else if (score >= 60) {
+    if (score >= 60) {
       scoreColor = AppColors.healthGreen;
     } else if (score >= 30) {
       scoreColor = AppColors.healthAmber;
@@ -466,17 +635,17 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
     }
 
     final healthRing = SizedBox(
-      width: 64,
-      height: 64,
+      width: 50,
+      height: 50,
       child: Stack(
         alignment: Alignment.center,
         children: [
           CircularProgressIndicator(
             value: score / 100.0,
-            strokeWidth: 5,
+            strokeWidth: 4.5,
             backgroundColor: isDark
-                ? AppColors.darkBorder
-                : const Color(0xFFEAEEF1),
+                ? const Color(0xFF1E293B)
+                : const Color(0xFFE2E8F0),
             valueColor: AlwaysStoppedAnimation<Color>(scoreColor),
           ),
           Column(
@@ -484,20 +653,22 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
             children: [
               Text(
                 '$score',
-                style: AppTextStyles.titleLarge.copyWith(
+                style: AppTextStyles.titleMedium.copyWith(
                   color: context.onSurfaceColor,
                   fontWeight: FontWeight.w900,
-                  height: 1.1,
+                  height: 1.0,
+                  fontSize: 13,
                 ),
               ),
               Text(
-                AppLocalizations.of(context)!.healthLabel,
+                'HEALTH',
                 style: AppTextStyles.caption.copyWith(
                   color: isDark
                       ? AppColors.textSecondaryDark
                       : AppColors.textSecondaryLight,
-                  fontSize: 8,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 7.5,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.4,
                 ),
               ),
             ],
@@ -505,384 +676,1134 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
         ],
       ),
     );
+
+    final String lastCheckText = line.carrierVerifiedAt != null
+        ? 'Last checked ${DateFormat('MMM dd, yyyy · HH:mm').format(line.carrierVerifiedAt!.toLocal())}'
+        : 'Not yet verified';
+
+    final String lastRechargeText = line.lastTopupAt != null
+        ? DateFormat('MMM dd, yyyy').format(line.lastTopupAt!.toLocal())
+        : 'No recharge recorded';
 
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        gradient: isDark
-            ? AppColors.darkCardGradient
-            : LinearGradient(
-                colors: [Colors.white, context.scaffoldBackgroundColor],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-        borderRadius: BorderRadius.circular(24),
+        color: isDark ? const Color(0xFF182234) : Colors.white,
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: (isDark ? AppColors.primary : AppColors.lightPrimary)
-                .withValues(alpha: 0.05),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              // Avatar Icon & Country Flag overlay (optimized smaller size to prevent overflow)
-              Stack(
-                children: [
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: isDark
-                          ? AppColors.darkSurface
-                          : const Color(0xFFEAEEF1),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(
-                        color: isDark
-                            ? AppColors.darkBorder
-                            : AppColors.lightBorder,
-                      ),
-                    ),
-                    child: Icon(
-                      getIcon(line.avatarIcon),
-                      color: isDark
-                          ? AppColors.primaryLight
-                          : AppColors.lightPrimary,
-                      size: 22,
-                    ),
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: Container(
-                      padding: const EdgeInsets.all(1.5),
-                      decoration: BoxDecoration(
-                        color: isDark ? AppColors.darkSurface : Colors.white,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Text(flag, style: const TextStyle(fontSize: 13)),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(width: 12),
-              // Info Details
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Wrap(
-                      spacing: 6,
-                      runSpacing: 4,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      children: [
-                        Text(
-                          (line.nickname != null &&
-                                  line.nickname!.trim().isNotEmpty)
-                              ? line.nickname!.trim()
-                              : AppLocalizations.of(context)!.mySimCardDefault,
-                          style: AppTextStyles.headlineSmall.copyWith(
-                            color: context.onSurfaceColor,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        if (!_isShared)
-                          GestureDetector(
-                            onTap: () async {
-                              await HapticHelper.lightTick();
-                              if (context.mounted) {
-                                _showEditNicknameDialog(context, line);
-                              }
-                            },
-                            child: Icon(
-                              Icons.edit_outlined,
-                              size: 16,
-                              color: isDark
-                                  ? AppColors.textSecondaryDark
-                                  : AppColors.textSecondaryLight,
-                            ),
-                          ),
-                        _buildTierBadge(
-                          isPremium ? 'premium' : line.protectionTier,
-                        ),
-                        if (!isPremium)
-                          GestureDetector(
-                            onTap: () async {
-                              await HapticHelper.mediumImpact();
-                              if (context.mounted) {
-                                LineUpgradeSheet.show(
-                                  context: context,
-                                  simLine: line,
-                                );
-                              }
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 3,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.amberAccent.withValues(alpha: 0.15),
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(
-                                  color: Colors.amberAccent.withValues(alpha: 0.3),
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    Icons.rocket_launch_rounded,
-                                    color: isDark
-                                        ? Colors.amberAccent
-                                        : Colors.orange.shade700,
-                                    size: 10,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    AppLocalizations.of(context)!.upLabel,
-                                    style: TextStyle(
-                                      color: isDark
-                                          ? Colors.amberAccent
-                                          : Colors.orange.shade700,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 9,
-                                      letterSpacing: 0.5,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      line.phoneNumber,
-                      textDirection: TextDirection.ltr,
-                      style: AppTextStyles.bodyLarge.copyWith(
-                        color: isDark
-                            ? AppColors.textSecondaryDark
-                            : AppColors.textSecondaryLight,
-                        fontFamily: 'monospace',
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    if (country != null) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        country.name as String,
-                        style: AppTextStyles.caption.copyWith(
-                          color: isDark
-                              ? AppColors.primaryLight
-                              : AppColors.lightPrimary,
-                        ),
-                      ),
-                    ],
-                    if (_isShared) ...[
-                      const SizedBox(height: 6),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.people_outline,
-                            color: isDark
-                                ? AppColors.primaryLight
-                                : AppColors.lightPrimary,
-                            size: 14,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            AppLocalizations.of(context)!.sharedByFamily(
-                              _membership?.ownerName ?? 'Family Member',
-                              _isViewer ? 'Viewer' : 'Manager',
-                            ),
-                            style: AppTextStyles.caption.copyWith(
-                              color: isDark
-                                  ? AppColors.primaryLight
-                                  : AppColors.lightPrimary,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              const SizedBox(width: 8),
-              healthRing,
-            ],
-          ),
-
-          // ── Separated Last Recharge and Live Verification Panels ─────────
-          const SizedBox(height: 12),
-          LastRechargePanel(
-            simLine: line,
-            isViewer: _isViewer,
-          ),
-          const SizedBox(height: 10),
-          LiveVerificationPanel(
-            simLine: line,
-            isViewer: _isViewer,
-            onVerifyTap: () => _handleVerifyLineActivity(context, line),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// "If you travel tomorrow…" — a *shopping* prompt, not a mode switch.
-  ///
-  /// This row exists to put the right package in front of someone before they
-  /// fly. It used to call `toggleHomeMode`, so arming it told the app the user
-  /// had already left the country: it flipped `is_home_mode`, resumed or paused
-  /// every schedule on the line through `protection_paused`, and stamped
-  /// `last_topup_at = now()` — a refill that never happened. Now it only
-  /// reveals the offer, and geolocation keeps owning the mode.
-  Widget _buildTravelTomorrowRow(BuildContext context, SimLine line) {
-    final isDark = context.isDarkMode;
-    final isArmed = _travelPrepArmed;
-    final hasEsimSupport =
-        ref.watch(esimCapabilityServiceProvider).value ?? false;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.darkCard : Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isArmed
-              ? AppColors.primary.withValues(alpha: 0.4)
-              : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
-          width: 1,
+          color: isDark ? const Color(0xFF263348) : const Color(0xFFE2E8F0),
         ),
         boxShadow: isDark
             ? null
             : [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.03),
+                const BoxShadow(
+                  color: Color(0x080F172A),
                   blurRadius: 8,
-                  offset: const Offset(0, 2),
+                  offset: Offset(0, 2),
                 ),
               ],
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: (isArmed ? AppColors.primary : AppColors.info)
-                  .withValues(alpha: 0.12),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.flight_takeoff_rounded,
-              size: 16,
-              color: isArmed
-                  ? AppColors.primary
-                  : (isDark
-                      ? AppColors.textSecondaryDark
-                      : AppColors.textSecondaryLight),
+          // Row 1: SIM Health Indicator
+          Row(
+            children: [
+              Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF0C4A6E).withValues(alpha: 0.3) : const Color(0xFFF0F9FF),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  Icons.shield_outlined,
+                  color: isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7),
+                  size: 22,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'SIM health',
+                      style: AppTextStyles.caption.copyWith(
+                        color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: [
+                        Text(
+                          '$score ',
+                          style: AppTextStyles.headlineSmall.copyWith(
+                            fontWeight: FontWeight.w900,
+                            color: context.onSurfaceColor,
+                          ),
+                        ),
+                        Text(
+                          '/ 100',
+                          style: AppTextStyles.caption.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 1),
+                    Text(
+                      '${tier.isEmpty ? 'Standard' : tier.substring(0, 1).toUpperCase() + tier.substring(1)} · ${country?.name ?? 'Standard'}',
+                      style: AppTextStyles.caption.copyWith(
+                        color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              healthRing,
+            ],
+          ),
+
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 14),
+            child: Divider(
+              color: isDark ? const Color(0xFF263348) : const Color(0xFFF1F5F9),
+              height: 1,
+              thickness: 1,
             ),
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: isArmed
-                ? Padding(
-                    padding: const EdgeInsets.only(right: 6),
-                    child: SizedBox(
-                      height: 36,
-                      child: ElevatedButton.icon(
-                        onPressed: () async {
-                          await HapticHelper.mediumImpact();
-                          if (context.mounted) {
-                            if (hasEsimSupport) {
-                              context.push(AppRoutes.esim);
-                            } else {
-                              showModalBottomSheet(
-                                context: context,
-                                isScrollControlled: true,
-                                backgroundColor: Colors.transparent,
-                                builder: (context) =>
-                                    ManualRefillBottomSheet(simLine: line),
-                              );
-                            }
-                          }
-                        },
-                        icon: Icon(
-                          hasEsimSupport
-                              ? Icons.sim_card_outlined
-                              : Icons.bolt_rounded,
-                          size: 16,
-                          color: Colors.white,
+
+          // Row 2: Network attached Row
+          Builder(
+            builder: (context) {
+              final bool isAttached = line.isCarrierVerified && line.carrierStatus == 'active';
+              final bool isDetached = line.carrierStatus == 'expired' || line.carrierStatus == 'barred';
+              final Color dotColor = isAttached
+                  ? const Color(0xFF10B981)
+                  : (isDetached ? const Color(0xFFEF4444) : const Color(0xFFF59E0B));
+              final String statusTitle = isAttached
+                  ? 'Network attached'
+                  : (isDetached ? 'Network detached' : 'Attachment unverified');
+
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: dotColor,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: dotColor.withValues(alpha: 0.4),
+                          blurRadius: 4,
+                          spreadRadius: 1,
                         ),
-                        label: Text(
-                          hasEsimSupport
-                              ? AppLocalizations.of(context)!.buyEsimLabel
-                              : AppLocalizations.of(context)!
-                                  .buyCheapestPackageLabel,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          statusTitle,
+                          style: AppTextStyles.titleMedium.copyWith(
                             fontWeight: FontWeight.bold,
+                            color: context.onSurfaceColor,
+                            fontSize: 13,
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
                         ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          elevation: 0,
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
+                        const SizedBox(height: 2),
+                        Text(
+                          lastCheckText,
+                          style: AppTextStyles.caption.copyWith(
+                            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                            fontSize: 10,
                           ),
+                        ),
+                        Text(
+                          '1 free verification / year',
+                          style: AppTextStyles.caption.copyWith(
+                            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                            fontSize: 10,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () => _handleVerifyLineActivity(context, line),
+                    borderRadius: BorderRadius.circular(12),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: isDark ? const Color(0xFF0C4A6E).withValues(alpha: 0.3) : const Color(0xFFF0F9FF),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: isDark ? const Color(0xFF0369A1).withValues(alpha: 0.4) : const Color(0xFFBAE6FD),
+                        ),
+                      ),
+                      child: Text(
+                        'Verify',
+                        style: TextStyle(
+                          color: isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
                         ),
                       ),
                     ),
-                  )
-                : Text(
-                    AppLocalizations.of(context)!.travelTomorrowLabel,
-                    style: AppTextStyles.caption.copyWith(
-                      color: context.onSurfaceColor,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
+                  ),
+                ],
+              );
+            },
+          ),
+
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 14),
+            child: Divider(
+              color: isDark ? const Color(0xFF263348) : const Color(0xFFF1F5F9),
+              height: 1,
+              thickness: 1,
+            ),
+          ),
+
+          // Row 3: Last recharge Row
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                width: 34,
+                height: 34,
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+                  ),
+                ),
+                child: Icon(
+                  Icons.calendar_today_outlined,
+                  size: 16,
+                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Last recharge',
+                      style: AppTextStyles.caption.copyWith(
+                        color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                        fontSize: 11,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      lastRechargeText,
+                      style: AppTextStyles.titleMedium.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: context.onSurfaceColor,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              InkWell(
+                onTap: () {
+                  HapticHelper.lightTick();
+                  ManualRechargeDialog.show(
+                    context: context,
+                    simLine: line,
+                  );
+                },
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
                     ),
                   ),
-          ),
-          const SizedBox(width: 8),
-          GlassToggleSwitch(
-            value: isArmed,
-            activeColor: AppColors.primary,
-            onChanged: _isViewer
-                ? null
-                : (value) async {
-                    await HapticHelper.lightTick();
-                    setState(() => _travelPrepArmed = value);
-                  },
+                  child: Text(
+                    'Update',
+                    style: TextStyle(
+                      color: context.onSurfaceColor,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildSectionLabel(String label) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 4, bottom: 2),
-      child: Text(
-        label.toUpperCase(),
-        style: AppTextStyles.caption.copyWith(
-          color: context.onSurfaceColor.withValues(alpha: 0.5),
-          letterSpacing: 1.5,
-          fontWeight: FontWeight.w700,
-          fontSize: 11,
+  Widget _buildReturnTripWizardCard(
+    BuildContext context,
+    SimLine line,
+    dynamic country, {
+    ActiveReturnTripInfo? activeTrip,
+    bool hasHistory = false,
+  }) {
+    final isDark = context.isDarkMode;
+    final String countryName = (country != null && country.name != null)
+        ? (country.name as String)
+        : 'Egypt';
+    final String? flagEmoji = (country != null && country.flagEmoji != null)
+        ? (country.flagEmoji as String)
+        : null;
+
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final bool isFutureOrToday = activeTrip != null &&
+        !DateTime(
+          activeTrip.arrivalDate.year,
+          activeTrip.arrivalDate.month,
+          activeTrip.arrivalDate.day,
+        ).isBefore(today);
+
+    final bool hasTripOrHistory = activeTrip != null || hasHistory;
+
+    void openManage() {
+      HapticHelper.lightTick();
+      ManageReturnTripBottomSheet.show(
+        context,
+        simLineId: line.id,
+        countryName: countryName,
+        flagEmoji: flagEmoji,
+      );
+    }
+
+    void openWizard() {
+      HapticHelper.lightTick();
+      context.push('/sim-lines/${line.id}/return-trip');
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF182234) : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: isDark ? const Color(0xFF263348) : const Color(0xFFE2E8F0),
+        ),
+        boxShadow: isDark
+            ? null
+            : [
+                const BoxShadow(
+                  color: Color(0x080F172A),
+                  blurRadius: 8,
+                  offset: Offset(0, 2),
+                ),
+              ],
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Top Row: Wizard Header & Action Button
+          InkWell(
+            onTap: hasTripOrHistory ? openManage : openWizard,
+            borderRadius: BorderRadius.circular(12),
+            child: Row(
+              children: [
+                Container(
+                  width: 42,
+                  height: 42,
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? const Color(0xFF0C4A6E).withValues(alpha: 0.35)
+                        : const Color(0xFFF0F9FF),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Transform.rotate(
+                    angle: -0.5,
+                    child: Icon(
+                      Icons.flight_takeoff_rounded,
+                      color: isDark
+                          ? const Color(0xFF38BDF8)
+                          : const Color(0xFF0284C7),
+                      size: 22,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Back to $countryName Wizard',
+                        style: AppTextStyles.titleMedium.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: context.onSurfaceColor,
+                          fontSize: 13.5,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        isFutureOrToday
+                            ? 'Trip prepared · Tap to update arrival date or package'
+                            : (hasHistory
+                                ? 'Tap to prepare data or view past trips'
+                                : 'Set your arrival date & prepare your data'),
+                        style: AppTextStyles.caption.copyWith(
+                          color: isDark
+                              ? AppColors.textSecondaryDark
+                              : AppColors.textSecondaryLight,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                InkWell(
+                  onTap: hasTripOrHistory ? openManage : openWizard,
+                  borderRadius: BorderRadius.circular(10),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? const Color(0xFF0284C7).withValues(alpha: 0.18)
+                          : const Color(0xFFE0F2FE),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          hasTripOrHistory ? 'Manage' : 'Start',
+                          style: const TextStyle(
+                            color: Color(0xFF0284C7),
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(width: 2),
+                        const Icon(
+                          Icons.chevron_right_rounded,
+                          size: 15,
+                          color: Color(0xFF0284C7),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Next Prepared Travel Data (Shown ONLY if prepared is a future or same day of travel)
+          if (isFutureOrToday) ...[
+            const SizedBox(height: 12),
+            Container(
+              height: 1,
+              color: isDark ? const Color(0xFF263348) : const Color(0xFFF1F5F9),
+            ),
+            const SizedBox(height: 10),
+            InkWell(
+              onTap: () {
+                HapticHelper.lightTick();
+                ActiveReturnPackageBottomSheet.show(
+                  context,
+                  tripInfo: activeTrip,
+                  countryName: countryName,
+                  flagEmoji: flagEmoji,
+                );
+              },
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? const Color(0xFF0C241D)
+                      : const Color(0xFFF0FDF4),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: isDark
+                        ? const Color(0xFF059669).withValues(alpha: 0.45)
+                        : const Color(0xFF86EFAC),
+                    width: 1.1,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: isDark ? const Color(0xFF064E3B) : const Color(0xFF047857),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: const Text(
+                        'next Prepared Travel Data',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 11,
+                          letterSpacing: 0.2,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        activeTrip.packageTitle,
+                        style: TextStyle(
+                          color: isDark ? const Color(0xFFD1FAE5) : const Color(0xFF065F46),
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'click here',
+                          style: TextStyle(
+                            color: isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                            decoration: TextDecoration.underline,
+                            decorationColor: isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7),
+                          ),
+                        ),
+                        const SizedBox(width: 3),
+                        Icon(
+                          Icons.arrow_forward_rounded,
+                          size: 13,
+                          color: isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProtectionSection(
+    BuildContext context,
+    SimLineDetailState detail,
+  ) {
+    final isDark = context.isDarkMode;
+    final line = detail.simLine;
+    final isPremium = line.protectionTier.toLowerCase() == 'premium';
+    final notifySchedule = detail.notifySchedule;
+    final miniRefillSchedule = detail.miniRefillSchedule;
+    final customSchedule = detail.customRefillSchedule;
+
+    final isNotifyActive = notifySchedule != null && notifySchedule.status == 'active';
+    final carrierRule = line.carrierId != null
+        ? ref.watch(carrierRuleProvider(line.carrierId!)).value
+        : null;
+    final String notifySubtitle = notifySchedule != null
+        ? 'Every ${notifySchedule.frequencyDays} days'
+        : (carrierRule?.inactivityLimitDays != null
+            ? 'Carrier rule · ${carrierRule!.inactivityLimitDays} days'
+            : 'Not scheduled');
+    final isKeepAliveActive = miniRefillSchedule != null && miniRefillSchedule.status == 'active';
+    final isCustomConfigured = customSchedule != null;
+    final isCustomActive = isCustomConfigured && customSchedule.isActive && customSchedule.status == 'active';
+    final insurancePolicy = ref.watch(rescuePolicyForLineProvider(line.id)).value;
+    final bool isInsured = insurancePolicy?.isInsured ?? false;
+
+    Widget buildRow({
+      required IconData icon,
+      required String title,
+      required String subtitle,
+      String? badgeText,
+      Color? badgeColor,
+      Color? badgeBg,
+      required VoidCallback onTap,
+      bool showDivider = true,
+    }) {
+      return InkWell(
+        onTap: onTap,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+              child: Row(
+                children: [
+                  Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF0C4A6E).withValues(alpha: 0.3) : const Color(0xFFF0F9FF),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(
+                      icon,
+                      size: 18,
+                      color: isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: AppTextStyles.titleMedium.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: context.onSurfaceColor,
+                            fontSize: 13,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          subtitle,
+                          style: AppTextStyles.caption.copyWith(
+                            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                            fontSize: 11,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (badgeText != null) ...[
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: badgeBg ?? (isDark ? const Color(0xFF334155) : const Color(0xFFF1F5F9)),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        badgeText,
+                        style: TextStyle(
+                          color: badgeColor ?? (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                  ],
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    size: 18,
+                    color: isDark ? AppColors.textSecondaryDark : const Color(0xFF94A3B8),
+                  ),
+                ],
+              ),
+            ),
+            if (showDivider)
+              Padding(
+                padding: const EdgeInsets.only(left: 64, right: 16),
+                child: Divider(
+                  color: isDark ? const Color(0xFF263348) : const Color(0xFFF8FAFC),
+                  height: 1,
+                  thickness: 1,
+                ),
+              ),
+          ],
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 8),
+          child: Text(
+            'PROTECTION',
+            style: AppTextStyles.caption.copyWith(
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.8,
+              fontSize: 11,
+              color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+            ),
+          ),
+        ),
+        Container(
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF182234) : Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: isDark ? const Color(0xFF263348) : const Color(0xFFE2E8F0),
+            ),
+            boxShadow: isDark
+                ? null
+                : [
+                    const BoxShadow(
+                      color: Color(0x080F172A),
+                      blurRadius: 8,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Column(
+            children: [
+              buildRow(
+                icon: Icons.notifications_outlined,
+                title: 'Auto-notify',
+                subtitle: notifySubtitle,
+                badgeText: isNotifyActive ? 'Active' : 'Paused',
+                badgeColor: isNotifyActive ? const Color(0xFF10B981) : const Color(0xFFD97706),
+                badgeBg: isNotifyActive
+                    ? const Color(0xFF10B981).withValues(alpha: 0.12)
+                    : const Color(0xFFFEF3C7),
+                onTap: () => _openScheduleSheet(context, line, notifySchedule, 'notify'),
+              ),
+              buildRow(
+                icon: Icons.sync_rounded,
+                title: 'Keep-alive refill',
+                subtitle: line.protectionTier.toUpperCase(),
+                badgeText: isKeepAliveActive ? 'Active' : 'Off',
+                badgeColor: isKeepAliveActive ? const Color(0xFF10B981) : (isDark ? Colors.white54 : const Color(0xFF64748B)),
+                badgeBg: isKeepAliveActive
+                    ? const Color(0xFF10B981).withValues(alpha: 0.12)
+                    : (isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9)),
+                onTap: () {
+                  if (miniRefillSchedule != null) {
+                    if (isPremium) {
+                      HapticHelper.mediumImpact();
+                      PremiumRefillConfigSheet.show(
+                        context: context,
+                        simLineId: line.id,
+                        simNickname: line.nickname ?? line.phoneNumber,
+                      );
+                    } else {
+                      _openScheduleSheet(context, line, miniRefillSchedule, 'refill_mini');
+                    }
+                  } else {
+                    LineUpgradeSheet.show(context: context, simLine: line);
+                  }
+                },
+              ),
+              buildRow(
+                icon: Icons.add_circle_outline_rounded,
+                title: 'Custom auto-refill',
+                subtitle: customSchedule != null ? 'Configured (${customSchedule.frequencyDays}d)' : 'Set up a schedule',
+                badgeText: isCustomActive
+                    ? 'Active'
+                    : (isCustomConfigured ? 'Paused' : 'Off'),
+                badgeColor: isCustomActive
+                    ? const Color(0xFF10B981)
+                    : (isCustomConfigured
+                        ? const Color(0xFFD97706)
+                        : (isDark ? Colors.white54 : const Color(0xFF64748B))),
+                badgeBg: isCustomActive
+                    ? const Color(0xFF10B981).withValues(alpha: 0.12)
+                    : (isCustomConfigured
+                        ? (isDark
+                            ? const Color(0xFFD97706).withValues(alpha: 0.15)
+                            : const Color(0xFFFEF3C7))
+                        : (isDark
+                            ? const Color(0xFF1E293B)
+                            : const Color(0xFFF1F5F9))),
+                showDivider: true,
+                onTap: () => _openScheduleSheet(context, line, customSchedule, 'refill_custom'),
+              ),
+              buildRow(
+                icon: Icons.health_and_safety_outlined,
+                title: 'SIM insurance',
+                subtitle: isInsured
+                    ? 'Up to \$${insurancePolicy!.maxUsd.toStringAsFixed(2)} per rescue'
+                    : 'Off — can lapse if missed',
+                badgeText: isInsured ? 'Active' : 'Off',
+                badgeColor: isInsured ? const Color(0xFF10B981) : (isDark ? Colors.white54 : const Color(0xFF64748B)),
+                badgeBg: isInsured
+                    ? const Color(0xFF10B981).withValues(alpha: 0.12)
+                    : (isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9)),
+                showDivider: false,
+                onTap: () {
+                  HapticHelper.lightTick();
+                  SimInsuranceBottomSheet.show(context: context, line: line);
+                },
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildQuickActionsSection(
+    BuildContext context,
+    SimLine line,
+    dynamic country,
+    bool isPremium,
+    String tier,
+    bool isVerified,
+  ) {
+    final isDark = context.isDarkMode;
+    final isBasic = tier.toLowerCase() == 'basic';
+
+    Widget buildRow({
+      required IconData icon,
+      required Color iconColor,
+      required Color iconBg,
+      required String title,
+      required String subtitle,
+      required VoidCallback onTap,
+      bool showDivider = true,
+    }) {
+      return InkWell(
+        onTap: onTap,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+              child: Row(
+                children: [
+                  Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: iconBg,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(icon, size: 18, color: iconColor),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: AppTextStyles.titleMedium.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: context.onSurfaceColor,
+                            fontSize: 13,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          subtitle,
+                          style: AppTextStyles.caption.copyWith(
+                            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                            fontSize: 11,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    size: 18,
+                    color: isDark ? AppColors.textSecondaryDark : const Color(0xFF94A3B8),
+                  ),
+                ],
+              ),
+            ),
+            if (showDivider)
+              Padding(
+                padding: const EdgeInsets.only(left: 64, right: 16),
+                child: Divider(
+                  color: isDark ? const Color(0xFF263348) : const Color(0xFFF8FAFC),
+                  height: 1,
+                  thickness: 1,
+                ),
+              ),
+          ],
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 8),
+          child: Text(
+            'QUICK ACTIONS',
+            style: AppTextStyles.caption.copyWith(
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.8,
+              fontSize: 11,
+              color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+            ),
+          ),
+        ),
+        Container(
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF182234) : Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: isDark ? const Color(0xFF263348) : const Color(0xFFE2E8F0),
+            ),
+            boxShadow: isDark
+                ? null
+                : [
+                    const BoxShadow(
+                      color: Color(0x080F172A),
+                      blurRadius: 8,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Column(
+            children: [
+              buildRow(
+                icon: Icons.bolt_rounded,
+                iconColor: const Color(0xFFF59E0B),
+                iconBg: const Color(0xFFFEF3C7),
+                title: 'Manual refill',
+                subtitle: 'Recharge from wallet',
+                onTap: () {
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    builder: (context) => ManualRefillBottomSheet(simLine: line),
+                  );
+                },
+              ),
+              buildRow(
+                icon: Icons.people_rounded,
+                iconColor: const Color(0xFF0284C7),
+                iconBg: const Color(0xFFE0F2FE),
+                title: 'Recharge from friend',
+                subtitle: 'Share a recharge request',
+                onTap: () => _showP2PRequestDialog(context, line, isBasic),
+              ),
+              buildRow(
+                icon: Icons.sensors_rounded,
+                iconColor: const Color(0xFF10B981),
+                iconBg: const Color(0xFFD1FAE5),
+                title: 'Test SIM activity',
+                subtitle: 'Check reachability',
+                onTap: () => _handleVerifyLineActivity(context, line),
+              ),
+              buildRow(
+                icon: Icons.description_outlined,
+                iconColor: const Color(0xFFEA580C),
+                iconBg: const Color(0xFFFFEDD5),
+                title: 'Offline refill',
+                subtitle: 'Request offline recharge',
+                showDivider: false,
+                onTap: () {
+                  context.pushNamed(
+                    'settingsOfflineRecharge',
+                    queryParameters: {'simLineId': line.id},
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSecurityActivitySection(
+    BuildContext context,
+    SimLineDetailState detail,
+  ) {
+    final isDark = context.isDarkMode;
+    final line = detail.simLine;
+    final validLogs = detail.activityLogs.where((log) {
+      if (log.metadata['is_mock'] == true ||
+          log.metadata['is_mock'] == 'true' ||
+          (log.description != null &&
+              log.description!.toUpperCase().contains('MOCK'))) {
+        return false;
+      }
+      return true;
+    }).toList();
+
+    final latestLog = validLogs.isNotEmpty ? validLogs.first : null;
+    final logTitle = latestLog != null
+        ? latestLog.getLocalizedDescription(context)
+        : 'SIM registered in SIM Shield';
+    final logDate = latestLog != null
+        ? DateFormat('MMM dd, yyyy · HH:mm').format(latestLog.createdAt.toLocal())
+        : (line.createdAt != null
+            ? DateFormat('MMM dd, yyyy · HH:mm').format(line.createdAt!.toLocal())
+            : '');
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 4, right: 4, bottom: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'SECURITY ACTIVITY',
+                style: AppTextStyles.caption.copyWith(
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.8,
+                  fontSize: 11,
+                  color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                ),
+              ),
+              GestureDetector(
+                onTap: () => _showAllActivityLogsModal(context, detail),
+                child: const Text(
+                  'View all',
+                  style: TextStyle(
+                    color: Color(0xFF0EA5E9),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        InkWell(
+          onTap: () => _showAllActivityLogsModal(context, detail),
+          borderRadius: BorderRadius.circular(18),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF182234) : Colors.white,
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(
+                color: isDark ? const Color(0xFF263348) : const Color(0xFFE2E8F0),
+              ),
+              boxShadow: isDark
+                  ? null
+                  : [
+                      const BoxShadow(
+                        color: Color(0x080F172A),
+                        blurRadius: 8,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: isDark ? const Color(0xFF0C4A6E).withValues(alpha: 0.3) : const Color(0xFFF0F9FF),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    Icons.shield_outlined,
+                    size: 18,
+                    color: isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        logTitle,
+                        style: AppTextStyles.titleMedium.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: context.onSurfaceColor,
+                          fontSize: 13,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        logDate,
+                        style: AppTextStyles.caption.copyWith(
+                          color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(
+                  Icons.chevron_right_rounded,
+                  size: 18,
+                  color: isDark ? AppColors.textSecondaryDark : const Color(0xFF94A3B8),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildManageSimButton(BuildContext context, SimLine line) {
+    return Center(
+      child: TextButton.icon(
+        onPressed: () => _showMoreOptionsMenu(context, line, ref.read(authControllerProvider).value),
+        icon: const Icon(Icons.settings_outlined, size: 16, color: Color(0xFF0EA5E9)),
+        label: const Text(
+          'Manage SIM',
+          style: TextStyle(
+            color: Color(0xFF0EA5E9),
+            fontWeight: FontWeight.bold,
+            fontSize: 13,
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showAllActivityLogsModal(BuildContext context, SimLineDetailState detail) {
+    final isDark = context.isDarkMode;
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => DraggableScrollableSheet(
+        initialChildSize: 0.75,
+        minChildSize: 0.5,
+        maxChildSize: 0.95,
+        builder: (_, scrollController) => Container(
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF182234) : Colors.white,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+          child: Column(
+            children: [
+              Container(
+                width: 36,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: isDark ? Colors.white24 : Colors.black12,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              Expanded(
+                child: ListView(
+                  controller: scrollController,
+                  children: [
+                    _buildTimelineSection(context, detail),
+                    const SizedBox(height: 24),
+                    _buildExecutionsSection(context, detail),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -896,7 +1817,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
     bool isVerified,
     int score,
   ) {
-    if (score >= 30 || detail.simLine.protectionPaused) {
+    if (score >= 30) {
       return const SizedBox.shrink();
     }
 
@@ -1014,190 +1935,6 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildQuickActionsGrid(
-    BuildContext context,
-    SimLine line,
-    dynamic country,
-    bool isPremium,
-    String tier,
-    bool isVerified,
-  ) {
-    final isDark = context.isDarkMode;
-    final bool isBasic = tier == 'basic';
-
-    final List<Widget> activeTiles = [];
-
-    if (!_isViewer) {
-      activeTiles.add(
-        _buildQuickActionTile(
-          context: context,
-          title: AppLocalizations.of(context)!.manualRefillLabel,
-          subtitle: AppLocalizations.of(context)!.chargeFromWalletNow,
-          icon: Icons.bolt_rounded,
-          iconColor: Colors.amber,
-          onTap: () {
-            showModalBottomSheet(
-              context: context,
-              isScrollControlled: true,
-              backgroundColor: Colors.transparent,
-              builder: (context) => ManualRefillBottomSheet(simLine: line),
-            );
-          },
-        ),
-      );
-    }
-
-    activeTiles.add(
-      _buildQuickActionTile(
-        context: context,
-        title: AppLocalizations.of(context)!.rechargeFromFriend,
-        subtitle: isBasic
-            ? AppLocalizations.of(context)!.requestViaTelegram
-            : AppLocalizations.of(context)!.shareViaWaTg,
-        icon: Icons.people_rounded,
-        iconColor: isDark ? AppColors.primaryLight : AppColors.lightPrimary,
-        onTap: () => _showP2PRequestDialog(context, line, isBasic),
-      ),
-    );
-
-    if (!_isViewer) {
-      String testSubtitle = AppLocalizations.of(context)!.verifyLineReachable;
-      if (line.verificationStatus == 'verified') {
-        testSubtitle = 'Reachability confirmed via ring';
-      }
-      activeTiles.add(
-        _buildQuickActionTile(
-          context: context,
-          title: AppLocalizations.of(context)!.testSimActivity,
-          subtitle: testSubtitle,
-          icon: Icons.radar,
-          iconColor: AppColors.success,
-          onTap: () {
-            _handleVerifyLineActivity(context, line);
-          },
-        ),
-      );
-    }
-
-    if (!_isViewer) {
-      activeTiles.add(
-        _buildQuickActionTile(
-          context: context,
-          title: AppLocalizations.of(context)!.offlineRefillLabel,
-          subtitle: 'Request offline recharge',
-          icon: Icons.signal_cellular_connected_no_internet_0_bar_rounded,
-          iconColor: AppColors.healthAmber,
-          onTap: () {
-            context.pushNamed(
-              'settingsOfflineRecharge',
-              queryParameters: {'simLineId': line.id},
-            );
-          },
-        ),
-      );
-    }
-
-    // Layout logic: chunks of 2
-    final List<Widget> rows = [];
-    for (int i = 0; i < activeTiles.length; i += 2) {
-      if (i + 1 < activeTiles.length) {
-        rows.add(
-          Row(
-            children: [
-              Expanded(child: activeTiles[i]),
-              const SizedBox(width: 12),
-              Expanded(child: activeTiles[i + 1]),
-            ],
-          ),
-        );
-      } else {
-        rows.add(activeTiles[i]);
-      }
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildSectionLabel(AppLocalizations.of(context)!.quickActionsLabel),
-        const SizedBox(height: 8),
-        ...rows.map(
-          (r) => Padding(padding: const EdgeInsets.only(bottom: 12), child: r),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildQuickActionTile({
-    required BuildContext context,
-    required String title,
-    required String subtitle,
-    required IconData icon,
-    required Color iconColor,
-    required VoidCallback onTap,
-  }) {
-    final isDark = context.isDarkMode;
-    return Container(
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurface : Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-        ),
-        boxShadow: isDark
-            ? null
-            : [
-                BoxShadow(
-                  color: AppColors.lightPrimary.withValues(alpha: 0.04),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(16),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: iconColor.withValues(alpha: 0.12),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(icon, color: iconColor, size: 20),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  title,
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: context.onSurfaceColor,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  style: AppTextStyles.caption.copyWith(
-                    color: isDark
-                        ? AppColors.textSecondaryDark
-                        : AppColors.textSecondaryLight,
-                    fontSize: 11,
-                    height: 1.2,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
       ),
     );
   }
@@ -1439,943 +2176,6 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
         }
       }
     }
-  }
-
-  Widget _buildProtectionLayersSection(
-    BuildContext context,
-    SimLineDetailState detail,
-  ) {
-    final line = detail.simLine;
-    final isPremium = line.protectionTier.toLowerCase() == 'premium';
-
-    final countries = ref.watch(supportedCountriesProvider).value ?? [];
-    final country = countries.firstWhereOrNull((c) => c.id == line.countryId);
-    final carriers = country != null
-        ? ref.watch(carriersForCountryProvider(country.id)).value ?? []
-        : <Carrier>[];
-    final carrier = carriers.firstWhereOrNull((c) => c.id == line.carrierId);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildSectionLabel(AppLocalizations.of(context)!.protectionLayersLabel),
-        const SizedBox(height: 8),
-        _buildAutoNotifyDetailPanel(context, line, detail.notifySchedule),
-        const SizedBox(height: 12),
-        _buildAutoRefillDetailPanel(
-          context,
-          line,
-          detail.miniRefillSchedule,
-          detail.customRefillSchedule,
-          isPremium,
-          detail.executions,
-          carrier,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTierBadge(String tier) {
-    Color getTierColor() {
-      switch (tier.toLowerCase()) {
-        case 'premium':
-          return const Color(0xFFF59E0B);
-        case 'standard':
-          return AppColors.primary;
-        default:
-          return Colors.grey;
-      }
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: getTierColor().withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: getTierColor().withValues(alpha: 0.3), width: 1),
-      ),
-      child: Text(
-        tier.toUpperCase(),
-        style: TextStyle(
-          color: getTierColor(),
-          fontSize: 9,
-          fontWeight: FontWeight.bold,
-          letterSpacing: 0.5,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAutoNotifyDetailPanel(
-    BuildContext context,
-    SimLine line,
-    ScheduledTopup? schedule,
-  ) {
-    final isConfigured = schedule != null;
-    final isDark = context.isDarkMode;
-
-    final isPremium = line.protectionTier.toLowerCase() == 'premium';
-
-    if (!isConfigured) {
-      final cardColor = isPremium ? AppColors.primary : AppColors.healthRed;
-      final icon = isPremium ? Icons.notifications_active_outlined : Icons.warning_amber_rounded;
-      final title = isPremium
-          ? 'Auto-Notify: Active with Premium'
-          : AppLocalizations.of(context)!.autoNotifyDisabled;
-      final description = isPremium
-          ? 'Expiry alerts and low-balance refill reminders are included with your Premium plan.'
-          : AppLocalizations.of(context)!.noActiveAlertSchedule;
-
-      return GlassCard(
-        padding: const EdgeInsets.all(20),
-        isActive: isPremium,
-        activeColor: cardColor,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  icon,
-                  color: cardColor,
-                  size: 28,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    title,
-                    style: AppTextStyles.titleLarge.copyWith(
-                      color: context.onSurfaceColor,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              description,
-              style: AppTextStyles.bodySmall.copyWith(
-                color: isDark
-                    ? AppColors.textSecondaryDark
-                    : AppColors.textSecondaryLight,
-              ),
-            ),
-            const SizedBox(height: 16),
-            if (_isViewer)
-              Text(
-                AppLocalizations.of(context)!.askOwnerConfigureAlerts,
-                style: AppTextStyles.caption.copyWith(
-                  color: isDark
-                      ? AppColors.textSecondaryDark
-                      : AppColors.textSecondaryLight,
-                  fontStyle: FontStyle.italic,
-                ),
-              )
-            else
-              ElevatedButton.icon(
-                onPressed: () =>
-                    _openScheduleSheet(context, line, null, 'notify'),
-                icon: const Icon(
-                  Icons.add_circle_outline_rounded,
-                  size: 18,
-                  color: Colors.white,
-                ),
-                label: Text(
-                  AppLocalizations.of(context)!.configureAutoNotify,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 12,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-          ],
-        ),
-      );
-    }
-
-    final dateFormat = DateFormat('MMM dd, yyyy');
-    final isPausedByHome = line.protectionPaused;
-    final displayActive = schedule.isActive && !isPausedByHome;
-
-    return GlassCard(
-      padding: const EdgeInsets.all(20),
-      isActive: displayActive,
-      activeColor: AppColors.secondary,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  AppLocalizations.of(context)!.autoNotifySchedule,
-                  style: AppTextStyles.titleLarge.copyWith(
-                    color: context.onSurfaceColor,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 3,
-                    ),
-                    decoration: BoxDecoration(
-                      color:
-                          (displayActive
-                                  ? AppColors.secondary
-                                  : AppColors.warning)
-                              .withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color:
-                            (displayActive
-                                    ? AppColors.secondary
-                                    : AppColors.warning)
-                                .withValues(alpha: 0.3),
-                      ),
-                    ),
-                    child: Text(
-                      displayActive
-                          ? AppLocalizations.of(context)!.activeLabel
-                          : (isPausedByHome
-                                ? AppLocalizations.of(context)!.pausedHomeMode
-                                : AppLocalizations.of(context)!.pausedLabel),
-                      style: TextStyle(
-                        color: displayActive
-                            ? AppColors.secondary
-                            : AppColors.warning,
-                        fontSize: 9,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  GlassToggleSwitch(
-                    value: displayActive,
-                    activeColor: AppColors.secondary,
-                    onChanged: _isViewer || _isToggling || isPausedByHome
-                        ? null
-                        : (val) =>
-                              _handleToggleSchedule(context, schedule.id, val),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          _buildScheduleRowItem(
-            context,
-            AppLocalizations.of(context)!.renewalCheckInterval,
-            schedule.frequencyDays == 0
-                ? AppLocalizations.of(context)!.everyHour
-                : AppLocalizations.of(
-                    context,
-                  )!.everyNDays(schedule.frequencyDays),
-            Icons.repeat,
-          ),
-          const SizedBox(height: 12),
-          _buildScheduleRowItem(
-            context,
-            AppLocalizations.of(context)!.nextAlertCheck,
-            isPausedByHome
-                ? AppLocalizations.of(context)!.pausedHomeMode
-                : dateFormat.format(schedule.nextExecutionAt),
-            Icons.date_range,
-            valueColor: isPausedByHome ? AppColors.warning : null,
-          ),
-          if (!_isViewer) ...[
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 14.0),
-              child: Divider(
-                color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-                height: 1,
-              ),
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () =>
-                        _openScheduleSheet(context, line, schedule, 'notify'),
-                    icon: Icon(
-                      Icons.edit_outlined,
-                      size: 16,
-                      color: context.onSurfaceColor,
-                    ),
-                    label: Text(
-                      AppLocalizations.of(context)!.editNotificationConfig,
-                      style: TextStyle(
-                        color: context.onSurfaceColor,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      side: BorderSide(
-                        color: isDark
-                            ? AppColors.darkBorder
-                            : AppColors.lightBorder,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                IconButton(
-                  icon: const Icon(
-                    Icons.delete_outline,
-                    color: AppColors.error,
-                  ),
-                  onPressed: () => _showDeleteScheduleConfirmation(
-                    context,
-                    schedule.id,
-                    false,
-                  ),
-                  style: IconButton.styleFrom(
-                    backgroundColor: AppColors.error.withValues(alpha: 0.08),
-                    padding: const EdgeInsets.all(12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      side: BorderSide(color: AppColors.error.withValues(alpha: 0.2)),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAutoRefillDetailPanel(
-    BuildContext context,
-    SimLine line,
-    ScheduledTopup? miniSchedule,
-    ScheduledTopup? customSchedule,
-    bool isPremium, [
-    List<TopupExecution>? executions,
-    Carrier? carrier,
-  ]) {
-    final dateFormat = DateFormat('MMM dd, yyyy');
-    final isDark = context.isDarkMode;
-
-    final nextMiniRefill = executions?.firstWhereOrNull(
-      (e) => (e.executionType == 'refill_mini' || e.executionType == 'refill_custom') &&
-             (e.status == 'pending' || e.status == 'awaiting_funds'),
-    );
-    final walletState = ref.watch(walletControllerProvider).value;
-    final availableBalance = walletState?.wallet.balance ?? 0.0;
-    final isLowBalance = nextMiniRefill != null && availableBalance < nextMiniRefill.amount;
-    final isAwaitingFunds = nextMiniRefill?.status == 'awaiting_funds';
-
-    // Premium Mini Refill Toggle Card
-    final isMiniActive = miniSchedule?.isActive ?? false;
-    final includedNextRefillDate = miniSchedule != null
-        ? dateFormat.format(miniSchedule.nextExecutionAt)
-        : 'Unknown';
-
-    final hasActivePinExecution = executions != null &&
-        executions.any((e) =>
-            e.status == 'success' &&
-            e.pinCode != null &&
-            e.pinCode!.isNotEmpty);
-
-    final isPinCarrier = carrier != null &&
-        carrier.name.toLowerCase().contains('mobily');
-
-    final includedCardGradient = isDark
-        ? const LinearGradient(
-            colors: [Color(0x22FFD700), Color(0x05FF8C00)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          )
-        : const LinearGradient(
-            colors: [Color(0xCCF1F8E9), Color(0x99DCEDC8)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          );
-
-    final includedCardBorder = Border.all(
-      color: isDark ? const Color(0x55FFD700) : const Color(0xFF9CCC65),
-      width: 1.5,
-    );
-
-    final includedCard = GestureDetector(
-      onTap: _isViewer || !isPremium || miniSchedule == null
-          ? null
-          : () {
-              HapticHelper.mediumImpact();
-              PremiumRefillConfigSheet.show(
-                context: context,
-                simLineId: line.id,
-                simNickname: line.nickname ?? line.phoneNumber,
-              );
-            },
-      child: GlassCard(
-        customGradient: includedCardGradient,
-        customBorder: includedCardBorder,
-        padding: const EdgeInsets.all(20),
-        isActive: false,
-        activeColor: isMiniActive
-            ? AppColors.success
-            : AppColors.textTertiaryDark,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    AppLocalizations.of(context)!.premiumKeepAliveRefill,
-                    style: AppTextStyles.titleLarge.copyWith(
-                      color: context.onSurfaceColor,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                if (isPremium) ...[
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: AppColors.success.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.success.withValues(alpha: 0.3), width: 1),
-                    ),
-                    child: Text(
-                      AppLocalizations.of(context)!.active,
-                      style: AppTextStyles.bodySmall.copyWith(
-                        color: AppColors.success,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  if (miniSchedule != null) ...[
-                    const SizedBox(width: 8),
-                    Icon(
-                      Icons.chevron_right_rounded,
-                      color: context.onSurfaceColor.withValues(alpha: 0.5),
-                    ),
-                  ],
-                ],
-              ],
-            ),
-            const SizedBox(height: 12),
-            Text(
-              isMiniActive
-                  ? AppLocalizations.of(
-                      context,
-                    )!.autoRefillIncludedText(includedNextRefillDate).replaceAll(r'\n', '\n')
-                  : AppLocalizations.of(context)!.premiumKeepAliveDisabled,
-              style: AppTextStyles.bodySmall.copyWith(
-                color: isDark
-                    ? AppColors.textSecondaryDark
-                    : AppColors.textSecondaryLight,
-              ),
-            ),
-            if (isLowBalance || isAwaitingFunds) ...[
-              const SizedBox(height: 12),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                decoration: BoxDecoration(
-                  color: (isDark ? Colors.amber : Colors.orange).withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: (isDark ? Colors.amber : Colors.orange).withValues(alpha: 0.35),
-                    width: 1,
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      isAwaitingFunds ? Icons.warning_amber_rounded : Icons.account_balance_wallet_outlined,
-                      size: 20,
-                      color: isDark ? Colors.amberAccent : Colors.orange.shade800,
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            isAwaitingFunds
-                                ? 'Auto-Refill Awaiting Wallet Credit'
-                                : 'Low Wallet Balance (\$${availableBalance.toStringAsFixed(2)})',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: isDark ? Colors.amberAccent : Colors.orange.shade900,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            isAwaitingFunds
-                                ? 'Refill of \$${(nextMiniRefill!.amount).toStringAsFixed(2)} is waiting for wallet credit. Top up now to process.'
-                                : 'Next recharge requires \$${(nextMiniRefill!.amount).toStringAsFixed(2)} on $includedNextRefillDate. Please top up your wallet.',
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    InkWell(
-                      onTap: () {
-                        HapticHelper.lightTick();
-                        context.push('/wallet');
-                      },
-                      borderRadius: BorderRadius.circular(8),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: isDark ? Colors.amber.withValues(alpha: 0.25) : Colors.orange.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          'Add Funds',
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            color: isDark ? Colors.amberAccent : Colors.orange.shade900,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-            if (hasActivePinExecution) ...[
-              const SizedBox(height: 12),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(
-                  color: (isDark ? Colors.amber : Colors.orange).withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: (isDark ? Colors.amber : Colors.orange).withValues(alpha: 0.3),
-                    width: 1,
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.pin_outlined,
-                      size: 16,
-                      color: isDark ? Colors.amberAccent : Colors.orange.shade800,
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        'Active digital recharge PIN voucher is ready in Refill History below.',
-                        style: TextStyle(
-                          fontSize: 11.5,
-                          color: isDark ? Colors.amberAccent : Colors.orange.shade900,
-                          fontWeight: FontWeight.w500,
-                          height: 1.3,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ] else if (isPinCarrier) ...[
-              const SizedBox(height: 12),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(
-                  color: (isDark ? Colors.amber : Colors.orange).withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: (isDark ? Colors.amber : Colors.orange).withValues(alpha: 0.3),
-                    width: 1,
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.pin_outlined,
-                      size: 16,
-                      color: isDark ? Colors.amberAccent : Colors.orange.shade800,
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        'For carriers using digital recharge PINs, newly issued voucher codes and 1-tap USSD activation (*1400*PIN#) are available in the Refill History below.',
-                        style: TextStyle(
-                          fontSize: 11.5,
-                          color: isDark ? Colors.amberAccent : Colors.orange.shade900,
-                          fontWeight: FontWeight.w500,
-                          height: 1.3,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-
-    // Custom Auto-Refill Card
-    final isConfigured = customSchedule != null;
-    final isPausedByHome = line.protectionPaused;
-    final displayActive =
-        customSchedule != null && customSchedule.isActive && !isPausedByHome;
-
-    if (!isConfigured) {
-      final unconfiguredCard = GlassCard(
-        padding: const EdgeInsets.all(20),
-        isActive: false,
-        activeColor: AppColors.primaryLight,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const Icon(
-                  Icons.add_circle_outline_rounded,
-                  color: AppColors.primaryLight,
-                  size: 28,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    AppLocalizations.of(context)!.customAutoRefill,
-                    style: AppTextStyles.titleLarge.copyWith(
-                      color: context.onSurfaceColor,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              AppLocalizations.of(context)!.addAdditionalScheduledRecharge,
-              style: AppTextStyles.bodySmall.copyWith(
-                color: isDark
-                    ? AppColors.textSecondaryDark
-                    : AppColors.textSecondaryLight,
-              ),
-            ),
-            const SizedBox(height: 16),
-            if (_isViewer)
-              Text(
-                AppLocalizations.of(context)!.askOwnerConfigureRefill,
-                style: AppTextStyles.caption.copyWith(
-                  color: isDark
-                      ? AppColors.textSecondaryDark
-                      : AppColors.textSecondaryLight,
-                  fontStyle: FontStyle.italic,
-                ),
-              )
-            else
-              ElevatedButton.icon(
-                onPressed: () {
-                  if (!isPremium) {
-                    HapticHelper.mediumImpact();
-                    LineUpgradeSheet.show(context: context, simLine: line);
-                    return;
-                  }
-                  _openScheduleSheet(context, line, null, 'refill');
-                },
-                icon: const Icon(Icons.add, size: 18, color: Colors.white),
-                label: Text(
-                  AppLocalizations.of(context)!.configureCustomAutoRefill,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 12,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-          ],
-        ),
-      );
-      return Column(
-        children: [includedCard, const SizedBox(height: 20), unconfiguredCard],
-      );
-    }
-
-    final customConfiguredCard = GlassCard(
-      padding: const EdgeInsets.all(20),
-      isActive: displayActive,
-      activeColor: AppColors.secondary,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  AppLocalizations.of(context)!.customAutoRefill,
-                  style: AppTextStyles.titleLarge.copyWith(
-                    color: context.onSurfaceColor,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 3,
-                    ),
-                    decoration: BoxDecoration(
-                      color:
-                          (displayActive
-                                  ? AppColors.secondary
-                                  : AppColors.warning)
-                              .withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color:
-                            (displayActive
-                                    ? AppColors.secondary
-                                    : AppColors.warning)
-                                .withValues(alpha: 0.3),
-                      ),
-                    ),
-                    child: Text(
-                      displayActive
-                          ? AppLocalizations.of(context)!.activeLabel
-                          : (isPausedByHome
-                                ? AppLocalizations.of(context)!.pausedHomeMode
-                                : AppLocalizations.of(context)!.pausedLabel),
-                      style: TextStyle(
-                        color: displayActive
-                            ? AppColors.secondary
-                            : AppColors.warning,
-                        fontSize: 9,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  GlassToggleSwitch(
-                    value: displayActive && isPremium,
-                    activeColor: AppColors.secondary,
-                    onChanged: _isViewer || _isToggling || isPausedByHome
-                        ? null
-                        : (val) {
-                            if (!isPremium) {
-                              HapticHelper.mediumImpact();
-                              LineUpgradeSheet.show(
-                                context: context,
-                                simLine: line,
-                              );
-                              return;
-                            }
-                            _handleToggleSchedule(
-                              context,
-                              customSchedule.id,
-                              val,
-                            );
-                          },
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          _buildScheduleRowItem(
-            context,
-            AppLocalizations.of(context)!.rechargeAmount,
-            '\$${customSchedule.amount.toStringAsFixed(2)} ${customSchedule.currency}',
-            Icons.monetization_on_outlined,
-          ),
-          const SizedBox(height: 12),
-          _buildScheduleRowItem(
-            context,
-            AppLocalizations.of(context)!.refillInterval,
-            customSchedule.frequencyDays == 0
-                ? AppLocalizations.of(context)!.everyHour
-                : AppLocalizations.of(
-                    context,
-                  )!.everyNDays(customSchedule.frequencyDays),
-            Icons.repeat,
-          ),
-          const SizedBox(height: 12),
-          _buildScheduleRowItem(
-            context,
-            AppLocalizations.of(context)!.nextRefillDue,
-            isPausedByHome
-                ? AppLocalizations.of(context)!.pausedHomeMode
-                : dateFormat.format(customSchedule.nextExecutionAt),
-            Icons.date_range,
-            valueColor: isPausedByHome ? AppColors.warning : null,
-          ),
-          if (customSchedule.retryCount > 0) ...[
-            const SizedBox(height: 12),
-            _buildScheduleRowItem(
-              context,
-              AppLocalizations.of(context)!.failedRefillAttempts,
-              AppLocalizations.of(
-                context,
-              )!.retriesCount(customSchedule.retryCount),
-              Icons.warning_amber_rounded,
-              valueColor: AppColors.healthRed,
-            ),
-          ],
-          if (!_isViewer) ...[
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 14.0),
-              child: Divider(
-                color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-                height: 1,
-              ),
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () {
-                      if (!isPremium) {
-                        HapticHelper.mediumImpact();
-                        LineUpgradeSheet.show(context: context, simLine: line);
-                        return;
-                      }
-                      _openScheduleSheet(
-                        context,
-                        line,
-                        customSchedule,
-                        'refill',
-                      );
-                    },
-                    icon: Icon(
-                      Icons.edit_outlined,
-                      size: 16,
-                      color: context.onSurfaceColor,
-                    ),
-                    label: Text(
-                      AppLocalizations.of(context)!.editRefillAmount,
-                      style: TextStyle(
-                        color: context.onSurfaceColor,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      side: BorderSide(
-                        color: isDark
-                            ? AppColors.darkBorder
-                            : AppColors.lightBorder,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                IconButton(
-                  icon: const Icon(
-                    Icons.delete_outline,
-                    color: AppColors.error,
-                  ),
-                  onPressed: () => _showDeleteScheduleConfirmation(
-                    context,
-                    customSchedule.id,
-                    true,
-                  ),
-                  style: IconButton.styleFrom(
-                    backgroundColor: AppColors.error.withValues(alpha: 0.08),
-                    padding: const EdgeInsets.all(12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      side: BorderSide(color: AppColors.error.withValues(alpha: 0.2)),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ],
-      ),
-    );
-
-    return Column(
-      children: [
-        includedCard,
-        const SizedBox(height: 20),
-        customConfiguredCard,
-      ],
-    );
-  }
-
-  Widget _buildScheduleRowItem(
-    BuildContext context,
-    String label,
-    String value,
-    IconData icon, {
-    Color? valueColor,
-  }) {
-    final isDark = context.isDarkMode;
-    return Row(
-      children: [
-        Icon(
-          icon,
-          size: 16,
-          color: isDark
-              ? AppColors.textTertiaryDark
-              : AppColors.textTertiaryLight,
-        ),
-        const SizedBox(width: 8),
-        Text(
-          label,
-          style: AppTextStyles.bodyMedium.copyWith(
-            color: isDark
-                ? AppColors.textSecondaryDark
-                : AppColors.textSecondaryLight,
-          ),
-        ),
-        const Spacer(),
-        Text(
-          value,
-          style: AppTextStyles.bodyMedium.copyWith(
-            color: valueColor ?? context.onSurfaceColor,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ],
-    );
   }
 
   // ── 4. Refill Executions History ───────────────────────────────────────────
@@ -3006,170 +2806,9 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
       builder: (context) => ScheduledTopupSheet(
         simLineId: line.id,
         simNickname: line.nickname ?? line.phoneNumber,
+        simLine: line,
         existingSchedule: existingSchedule,
         configMode: configMode,
-      ),
-    );
-  }
-
-  Future<void> _handleToggleSchedule(
-    BuildContext context,
-    String scheduleId,
-    bool isActive,
-  ) async {
-    setState(() {
-      _isToggling = true;
-    });
-
-    try {
-      final result = await ref
-          .read(scheduledTopupControllerProvider.notifier)
-          .toggleActive(scheduleId, isActive);
-      if (result is Success<ScheduledTopup>) {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                AppLocalizations.of(
-                  context,
-                )!.autoRenewalStatusUpdated(isActive ? 'enabled' : 'paused'),
-              ),
-              backgroundColor: AppColors.success,
-            ),
-          );
-        }
-      } else if (result is Failure<ScheduledTopup>) {
-        throw Exception(result.error.message);
-      }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              AppLocalizations.of(
-                context,
-              )!.failedToUpdateSchedule(e.toString()),
-            ),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isToggling = false;
-        });
-      }
-    }
-  }
-
-
-
-  void _showDeleteScheduleConfirmation(
-    BuildContext context,
-    String scheduleId,
-    bool isPremium,
-  ) {
-    final isDark = context.isDarkMode;
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: isDark ? AppColors.darkSurface : Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24),
-          side: BorderSide(
-            color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-          ),
-        ),
-        title: Row(
-          children: [
-            const Icon(
-              Icons.warning_amber_rounded,
-              color: AppColors.error,
-              size: 28,
-            ),
-            const SizedBox(width: 12),
-            Text(
-              AppLocalizations.of(context)!.removeScheduleTitle,
-              style: AppTextStyles.headlineSmall.copyWith(
-                color: context.onSurfaceColor,
-              ),
-            ),
-          ],
-        ),
-        content: Text(
-          isPremium
-              ? AppLocalizations.of(context)!.confirmDeleteAutoRefill
-              : AppLocalizations.of(context)!.confirmDeleteAutoRenewal,
-          style: AppTextStyles.bodyMedium.copyWith(
-            color: isDark
-                ? AppColors.textSecondaryDark
-                : AppColors.textSecondaryLight,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              AppLocalizations.of(context)!.cancel,
-              style: TextStyle(
-                color: isDark
-                    ? AppColors.textSecondaryDark
-                    : AppColors.textSecondaryLight,
-              ),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              try {
-                // Since they are now two completely separate database records,
-                // deleting either Auto-Notify or Auto-Refill simply removes its specific record completely!
-                final result = await ref
-                    .read(scheduledTopupControllerProvider.notifier)
-                    .removeSchedule(scheduleId);
-                if (result is Success<void>) {
-                  ref.invalidate(simLineDetailControllerProvider(widget.id));
-                  ref.invalidate(simLinesControllerProvider);
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          isPremium
-                              ? AppLocalizations.of(context)!.autoRefillRemoved
-                              : AppLocalizations.of(
-                                  context,
-                                )!.autoRenewalRemoved,
-                        ),
-                        backgroundColor: AppColors.success,
-                      ),
-                    );
-                  }
-                } else if (result is Failure<void>) {
-                  throw Exception(result.error.message);
-                }
-              } catch (e) {
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        AppLocalizations.of(
-                          context,
-                        )!.failedToDeleteSchedule(e.toString()),
-                      ),
-                      backgroundColor: AppColors.error,
-                    ),
-                  );
-                }
-              }
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
-            child: Text(
-              AppLocalizations.of(context)!.deleteButton,
-              style: const TextStyle(color: Colors.white),
-            ),
-          ),
-        ],
       ),
     );
   }

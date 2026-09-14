@@ -36,7 +36,7 @@ class EsimGoRepositoryImpl implements EsimRepository {
         'p_min_price_usd': filters.wireMinPriceUsd,
         'p_max_price_usd': filters.wireMaxPriceUsd,
         'p_unlimited_only': filters.wireUnlimitedOnly,
-        'p_speed_tiers': filters.speedTiers,
+        'p_speed_tiers': filters.wireSpeedTiers,
         'p_sort': filters.sort.wire,
         'p_limit': limit,
         'p_offset': offset,
@@ -161,7 +161,16 @@ class EsimGoRepositoryImpl implements EsimRepository {
           supabase: _supabase,
         ).deviceId(),
       });
-      return res as String;
+      if (res is Map) {
+        final map = Map<String, dynamic>.from(res);
+        if (map['success'] == false) {
+          throw Exception(
+              map['error'] ?? map['reason'] ?? map['code'] ?? 'Purchase failed');
+        }
+        final orderId = map['order_id'] ?? map['id'];
+        if (orderId != null) return orderId.toString();
+      }
+      return res.toString();
     } on PostgrestException catch (e) {
       throw Exception(e.message);
     } catch (e) {

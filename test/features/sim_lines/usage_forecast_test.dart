@@ -56,18 +56,9 @@ void main() {
     });
   });
 
-  group('suggestedChipFor — tier translation', () {
-    // The server stores 90 for the quarterly slot. Premium accounts are shown
-    // an 85-day chip for that same slot, so a stored 90 must land on 85 or the
-    // sheet highlights a chip that isn't in its own list.
-    test('quarterly maps to 85 for premium, 90 otherwise', () {
-      final f = UsageForecast.fromJson(row(suggestedFrequencyDays: 90));
-      expect(f.suggestedChipFor(isPremium: true), equals(85));
-      expect(f.suggestedChipFor(isPremium: false), equals(90));
-    });
-
-    test('every other frequency is identical for both tiers', () {
-      for (final freq in [7, 14, 30]) {
+  group('suggestedChipFor — carrier interval pass-through', () {
+    test('passes through the exact suggested cadence for both tiers', () {
+      for (final freq in [7, 14, 30, 76, 90]) {
         final f = UsageForecast.fromJson(row(suggestedFrequencyDays: freq));
         expect(f.suggestedChipFor(isPremium: true), equals(freq));
         expect(f.suggestedChipFor(isPremium: false), equals(freq));

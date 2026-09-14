@@ -39,8 +39,17 @@ class CallingRepository {
 
   CallingRepository(this._supabase);
 
-  /// Fetch all active destination call rates
+  /// Fetch all active destination call rates with account tier pricing (Halo Effect)
   Future<List<CallRate>> getActiveCallRates() async {
+    try {
+      final res = await _supabase.rpc('get_user_calling_rates');
+      if (res is List && res.isNotEmpty) {
+        return res.map((e) => CallRate.fromJson(Map<String, dynamic>.from(e as Map))).toList();
+      }
+    } catch (_) {
+      // Fallback to call_rates table if RPC fails
+    }
+
     final res = await _supabase
         .from('call_rates')
         .select('*')

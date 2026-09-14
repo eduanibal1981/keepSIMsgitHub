@@ -76,7 +76,11 @@ void main() {
   late _FakeEsimRepository repo;
   late ProviderContainer container;
 
-  Future<void> pumpSheet(WidgetTester tester) async {
+  Future<void> pumpSheet(
+    WidgetTester tester, {
+    String countryIsoCode = 'FR',
+    String? countryName,
+  }) async {
     // The sheet is five sections tall. On the 800x600 default surface the
     // lower ones sit off-screen and a tap silently misses.
     tester.view.physicalSize = const Size(1000, 2400);
@@ -93,8 +97,11 @@ void main() {
           home: Consumer(
             builder: (context, ref, _) {
               container = ProviderScope.containerOf(context);
-              return const Scaffold(
-                body: CompareFilterSheet(countryIsoCode: 'FR'),
+              return Scaffold(
+                body: CompareFilterSheet(
+                  countryIsoCode: countryIsoCode,
+                  countryName: countryName,
+                ),
               );
             },
           ),
@@ -180,7 +187,7 @@ void main() {
     await tap(tester, find.widgetWithText(ChoiceChip, '3 GB'));
 
     expect(filters().dataExactMb, [3000]);
-    expect(filters().wireDataExactMb, [3000]);
+    expect(filters().wireDataExactMb, [3000, 3072]);
   });
 
   testWidgets('an empty price box stays null and is not read as zero',
@@ -206,5 +213,63 @@ void main() {
     // The minimum was left blank: still null, never 0.
     expect(filters().wireMinPriceUsd, isNull);
     expect(filters().activeCount, 1);
+  });
+
+  testWidgets(
+      'speed choices are hidden until Unlimited is selected, explain exact speed, and clear on mode switch',
+      (tester) async {
+    await pumpSheet(tester);
+
+    // 1. By default (dataMode == All), the SPEED section is not rendered.
+    expect(find.text('SPEED'), findsNothing);
+    expect(find.textContaining('512 kb/s'), findsNothing);
+    expect(find.text('Fixed data'), findsNothing);
+
+    // 2. Tapping "Unlimited" renders the SPEED section with direct explanations.
+    await tap(tester, find.text('Unlimited'));
+    expect(find.text('SPEED'), findsOneWidget);
+    expect(
+        find.widgetWithText(ChoiceChip, 'Lite – 1 GB at Max speed then throttle to 512 kb/s'),
+        findsOneWidget);
+    expect(
+        find.widgetWithText(ChoiceChip, 'Essential – 2 GB at Max speed then throttle to 1 Mb/s'),
+        findsOneWidget);
+    expect(
+        find.widgetWithText(ChoiceChip, 'Plus – 3 GB at Max speed then throttle to 1 Mb/s'),
+        findsOneWidget);
+    expect(find.text('Fixed data'), findsNothing);
+
+    // 3. Selecting a speed tier applies the filter.
+    await tap(tester,
+        find.widgetWithText(ChoiceChip, 'Lite – 1 GB at Max speed then throttle to 512 kb/s'));
+    expect(filters().speedTiers, ['lite']);
+    expect(filters().wireSpeedTiers, ['lite']);
+
+    // 4. Switching away from Unlimited hides the SPEED section and clears the filter.
+    await tap(tester, find.text('Pick sizes'));
+    expect(find.text('SPEED'), findsNothing);
+    expect(filters().speedTiers, isNull);
+    expect(filters().wireSpeedTiers, isNull);
+  });
+
+  testWidgets(
+      'replaces Local coverage label with selected country only (e.g. Egypt only)',
+      (tester) async {
+    await pumpSheet(tester, countryIsoCode: 'EG', countryName: 'Egypt');
+
+    expect(find.text('Egypt only'), findsOneWidget);
+    expect(find.text('Local'), findsNothing);
+
+    await tap(tester, find.text('Egypt only'));
+    expect(filters().coverage, 'local');
+  });
+
+  testWidgets(
+      'resolves country name from ISO code when countryName is omitted',
+      (tester) async {
+    await pumpSheet(tester, countryIsoCode: 'EG');
+
+    expect(find.text('Egypt only'), findsOneWidget);
+    expect(find.text('Local'), findsNothing);
   });
 }

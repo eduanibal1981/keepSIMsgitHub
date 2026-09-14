@@ -162,7 +162,7 @@ serve(async (req: Request) => {
           try {
             const telnyxApiKey = await fetchConfig(supabase, "TELNYX_API_KEY", "KEY01A049E00656B79B4314CFFBC7969C10_k9JM7HV9u4sB2MadneUT1M");
             if (telnyxApiKey && callControlId) {
-              await fetch(`https://api.telnyx.com/v2/calls/${callControlId}/actions/hangup`, {
+              await fetch(`https://api.telnyx.com/v2/calls/${encodeURIComponent(callControlId)}/actions/hangup`, {
                 method: "POST",
                 headers: {
                   "Authorization": `Bearer ${telnyxApiKey}`,
@@ -185,15 +185,34 @@ serve(async (req: Request) => {
           return new Response("OK (call ringing confirmed & hung up)", { status: 200 });
         }
 
-        // Call hung up before ringing
+        // Call hung up
         if (eventType === "call.hangup") {
           if (attempt.outcome !== "succeeded") {
-            const hangupCause = payload?.hangup_cause || "call_ended";
+            const rawCause = payload?.hangup_cause || "call_ended";
+            const hangupCause = rawCause.toLowerCase();
+
+            // If the user rejected/declined (user_busy) or the handset rang until timeout (no_answer/timeout)
+            // or normal disconnect, the phone was confirmed reached and alerted by the cellular network!
+            if (
+              hangupCause === "user_busy" ||
+              hangupCause === "no_answer" ||
+              hangupCause === "timeout" ||
+              hangupCause === "normal_clearing"
+            ) {
+              await supabase.rpc("settle_line_verification_attempt", {
+                p_attempt_id: attempt.id,
+                p_outcome: "succeeded",
+                p_carrier_name: null,
+                p_error_message: null,
+              });
+              return new Response("OK (hangup confirmed ringing signal)", { status: 200 });
+            }
+
             await supabase.rpc("settle_line_verification_attempt", {
               p_attempt_id: attempt.id,
               p_outcome: "failed",
               p_carrier_name: null,
-              p_error_message: `Call ended without ringing: ${hangupCause}`,
+              p_error_message: `Call ended without ringing: ${rawCause}`,
             });
           }
           return new Response("OK (hangup processed)", { status: 200 });

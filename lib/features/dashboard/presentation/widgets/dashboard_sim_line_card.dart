@@ -7,7 +7,6 @@ import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/core/widgets/glass_card.dart';
 import 'package:keep_sims/core/widgets/glass_toggle_switch.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
-import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import 'package:keep_sims/features/scheduled_topups/controller/scheduled_topup_controller.dart';
 import 'package:keep_sims/features/scheduled_topups/ui/widgets/scheduled_topup_sheet.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
@@ -31,22 +30,24 @@ class DashboardSimLineCard extends ConsumerWidget {
       scheduledCustomRefillForLineProvider(line.id),
     );
     final refillSchedule = customSchedule ?? miniSchedule;
-    final user = ref.watch(authControllerProvider).value;
     final isLight = Theme.of(context).brightness == Brightness.light;
-
-    bool isPremium = line.protectionTier.toLowerCase() == 'premium';
 
     bool isNotifyActive =
         notifySchedule != null && notifySchedule.status == 'active';
     bool isRefillActive =
         (miniSchedule != null && miniSchedule.status == 'active') ||
         (customSchedule != null && customSchedule.status == 'active');
-
-    bool hasProtectionActive = isPremium ? isRefillActive : isNotifyActive;
+    final bool isPremium = line.protectionTier.toLowerCase() == 'premium';
+    final bool hasProtectionActive = isPremium ? isRefillActive : isNotifyActive;
+    final bool isVerified = line.status == 'active' ||
+        line.isCarrierVerified ||
+        line.carrierVerifiedAt != null ||
+        line.verificationStatus == 'verified';
 
     final int computedHealthScore = line.displayHealthScore(
-      isPremium: isPremium,
-      hasProtectionActive: hasProtectionActive,
+      hasRefillSchedule: isRefillActive,
+      hasNotificationSchedule: isNotifyActive,
+      isVerified: isVerified,
     );
 
     Color glowColor = AppColors.healthGreen;
@@ -466,6 +467,7 @@ class DashboardSimLineCard extends ConsumerWidget {
                               builder: (context) => ScheduledTopupSheet(
                                 simLineId: line.id,
                                 simNickname: line.nickname ?? line.phoneNumber,
+                                simLine: line,
                                 existingSchedule: notifySchedule,
                                 configMode: 'notify',
                               ),
@@ -548,6 +550,7 @@ class DashboardSimLineCard extends ConsumerWidget {
                           activeColor: AppColors.success,
                           onChanged: (val) async {
                             await HapticHelper.lightTick();
+                            if (!context.mounted) return;
                             if (!isPremium) {
                               LineUpgradeSheet.show(
                                 context: context,
@@ -563,6 +566,7 @@ class DashboardSimLineCard extends ConsumerWidget {
                       : GestureDetector(
                           onTap: () async {
                             await HapticHelper.lightTick();
+                            if (!context.mounted) return;
                             if (!isPremium) {
                               LineUpgradeSheet.show(
                                 context: context,
@@ -579,6 +583,7 @@ class DashboardSimLineCard extends ConsumerWidget {
                                   simLineId: line.id,
                                   simNickname:
                                       line.nickname ?? line.phoneNumber,
+                                  simLine: line,
                                   existingSchedule: refillSchedule,
                                   configMode: 'refill',
                                 ),

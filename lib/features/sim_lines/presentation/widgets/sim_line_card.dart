@@ -77,29 +77,28 @@ class SimLineCard extends ConsumerWidget {
         customSchedule != null && customSchedule.isActive;
 
     // ── Health / glow ────────────────────────────────────────────
-    // Custom refill schedules count as protection, matching the dashboard
-    // card and the DB's calculate_health_score.
-    final bool hasProtection = isPremium
-        ? (isMiniActive || isCustomActive)
-        : isNotifyActive;
+    final bool isRefillActive = isMiniActive || isCustomActive;
+    final bool isVerified = line.status == 'active' ||
+        line.isCarrierVerified ||
+        line.carrierVerifiedAt != null ||
+        line.verificationStatus == 'verified';
 
     final int computedHealthScore = line.displayHealthScore(
-      isPremium: isPremium,
-      hasProtectionActive: hasProtection,
+      hasRefillSchedule: isRefillActive,
+      hasNotificationSchedule: isNotifyActive,
+      isVerified: isVerified,
     );
 
     Color glowColor = AppColors.healthGreen;
     if (isSelected) {
       glowColor = AppColors.primary;
-    } else if (line.protectionPaused) {
-      glowColor = Colors.lightBlue;
     } else if (computedHealthScore < 30) {
       glowColor = AppColors.healthRed;
     } else if (computedHealthScore < 60) {
       glowColor = AppColors.healthAmber;
     }
 
-    final bool hasError = computedHealthScore < 30 && !line.protectionPaused;
+    final bool hasError = computedHealthScore < 30;
     final isDark = context.isDarkMode;
 
     // ── Card background ──────────────────────────────────────────
@@ -827,28 +826,20 @@ class SimLineCard extends ConsumerWidget {
             scrollDirection: Axis.horizontal,
             child: Row(
               children: [
-                if (line.protectionPaused)
-                  chip(
-                    AppLocalizations.of(context)!.homeMode,
-                    true,
-                    Colors.lightBlue,
-                  )
-                else ...[
-                  chip(
-                    AppLocalizations.of(context)!.autoNotify,
-                    isNotifyActive,
-                    AppColors.success,
-                  ),
+                chip(
+                  AppLocalizations.of(context)!.autoNotify,
+                  isNotifyActive,
+                  AppColors.success,
+                ),
+                const SizedBox(width: 6),
+                chip(
+                  AppLocalizations.of(context)!.autoRefill,
+                  isPremium && (isMiniActive || isCustomActive),
+                  AppColors.primary,
+                ),
+                if (isCustomActive) ...[
                   const SizedBox(width: 6),
-                  chip(
-                    AppLocalizations.of(context)!.autoRefill,
-                    isPremium && (isMiniActive || isCustomActive),
-                    AppColors.primary,
-                  ),
-                  if (isCustomActive) ...[
-                    const SizedBox(width: 6),
-                    chip('Custom Refill', true, AppColors.secondary),
-                  ],
+                  chip('Custom Refill', true, AppColors.secondary),
                 ],
               ],
             ),

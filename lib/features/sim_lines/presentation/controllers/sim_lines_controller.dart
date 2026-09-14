@@ -16,7 +16,6 @@ import 'package:keep_sims/core/providers.dart';
 import 'package:keep_sims/features/scheduled_topups/model/scheduled_topup_model.dart';
 import 'package:keep_sims/core/result.dart';
 import 'package:keep_sims/features/notifications/data/repositories/notifications_repository_impl.dart';
-import 'package:keep_sims/features/geo/controller/geo_controller.dart';
 
 part 'sim_lines_controller.g.dart';
 
@@ -135,27 +134,9 @@ class SimLinesController extends _$SimLinesController {
     final nextState = await AsyncValue.guard(() async {
       final repo = ref.read(simLinesRepositoryProvider);
 
-      final countries = ref.read(supportedCountriesProvider).value ?? [];
-      final lineCountry = countries.where((c) => c.id == countryId).firstOrNull;
-      final authProfile = ref.read(authControllerProvider).value;
-      final geoState = ref.read(geoControllerProvider);
-
-      // Home mode is a location fact: the user is currently physically inside
-      // the SIM line's origin country. We compare against the current geolocation
-      // (from IP/edge detection or last detected country), falling back to
-      // profile homeCountryCode only if no geolocation is available.
-      final currentGeoIso =
-          geoState.currentIsoCode.isNotEmpty && geoState.currentIsoCode != 'XX'
-          ? geoState.currentIsoCode
-          : (authProfile?.lastCountry ?? authProfile?.homeCountryCode);
-
-      final isHome =
-          lineCountry != null &&
-          currentGeoIso != null &&
-          currentGeoIso.isNotEmpty &&
-          currentGeoIso != 'XX' &&
-          lineCountry.isoCode.toUpperCase() == currentGeoIso.toUpperCase();
-
+      // Protection is active regardless of current country location.
+      // Lines start active (isHomeMode: false, protectionPaused: false)
+      // and do not auto-pause on location changes.
       final newLine = SimLine(
         id: '',
         userId: userId,
@@ -168,8 +149,8 @@ class SimLinesController extends _$SimLinesController {
         planType: planType,
         planExpiresAt: planExpiresAt,
         carrierRuleId: carrierRuleId,
-        isHomeMode: isHome,
-        protectionPaused: isHome,
+        isHomeMode: false,
+        protectionPaused: false,
         isCarrierVerified: isCarrierVerified,
         carrierStatus: carrierStatus,
         detectedOperatorName: detectedOperatorName,
@@ -491,89 +472,6 @@ class SimLinesController extends _$SimLinesController {
     });
   }
 
-  /// Writes a line's home/travel mode.
-  ///
-  /// Called by the geo sync, which owns this fact — see
-  /// `resolveLineMode`. Nothing in the UI writes it: a switch that claims the
-  /// user is in Saudi Arabia while they are in Oman is a lie the whole
-  /// protection model is then derived from.
-  Future<void> applyGeoLineMode(
-    String simLineId, {
-    required bool isHome,
-    required bool pauseProtection,
-  }) async {
-    try {
-      final repo = ref.read(simLinesRepositoryProvider);
-      final previousList = state.value ?? [];
-      final line = previousList.firstWhere((l) => l.id == simLineId);
-
-      // Home mode is a location fact; pausing protection is a separate intent
-      // (B5). `pauseProtection` already honours requiresProtectionAtHome —
-      // lines flagged that way keep their schedules running while home, e.g. a
-      // resident's dormant second SIM.
-      //
-      // `last_topup_at` is deliberately untouched. Entering travel mode used to
-      // stamp it with `DateTime.now()` — "treat as recent refill" — which
-      // fabricated a top-up that never happened, reset next_topup_due, and fed
-      // a fake 100 into calculate_health_score() through trg_update_line_health.
-      SimLine updatedLine = line.copyWith(
-        isHomeMode: isHome,
-        protectionPaused: pauseProtection,
-      );
-
-      updatedLine = await repo.updateSimLine(updatedLine);
-
-      await applyProtectionPause(
-        simLineId,
-        wasPaused: line.protectionPaused,
-        pauseNow: pauseProtection,
-      );
-
-      state = AsyncData(
-        previousList
-            .map((item) => item.id == simLineId ? updatedLine : item)
-            .toList(),
-      );
-    } catch (e, st) {
-      state = AsyncError(e, st);
-    }
-  }
-
-  /// Marks a line as needing protection even while the user is home.
-  /// If the line is currently in home mode, its protection pause is
-  /// recomputed immediately (schedules resume or pause accordingly).
-  Future<void> setRequiresProtectionAtHome(
-    String simLineId,
-    bool required,
-  ) async {
-    try {
-      final repo = ref.read(simLinesRepositoryProvider);
-      final previousList = state.value ?? [];
-      final line = previousList.firstWhere((l) => l.id == simLineId);
-
-      final bool pauseProtection = line.isHomeMode && !required;
-
-      SimLine updatedLine = line.copyWith(
-        requiresProtectionAtHome: required,
-        protectionPaused: pauseProtection,
-      );
-      updatedLine = await repo.updateSimLine(updatedLine);
-
-      await applyProtectionPause(
-        simLineId,
-        wasPaused: line.protectionPaused,
-        pauseNow: pauseProtection,
-      );
-
-      state = AsyncData(
-        previousList
-            .map((item) => item.id == simLineId ? updatedLine : item)
-            .toList(),
-      );
-    } catch (e, st) {
-      state = AsyncError(e, st);
-    }
-  }
 
   /// Freezes or unfreezes a SIM line, updating sim_lines.status, protection_paused,
   /// AND toggling scheduled_topups.is_active to ensure refill workers do not debit

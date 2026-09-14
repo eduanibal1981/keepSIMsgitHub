@@ -163,7 +163,7 @@ serve(async (req: Request) => {
       if (eventType === "call.ringing" || eventType === "call.answered") {
         if (callControlId) {
           try {
-            await fetch(`https://api.telnyx.com/v2/calls/${callControlId}/actions/hangup`, {
+            await fetch(`https://api.telnyx.com/v2/calls/${encodeURIComponent(callControlId)}/actions/hangup`, {
               method: "POST",
               headers: { "Authorization": `Bearer ${telnyxApiKey}`, "Content-Type": "application/json" },
               body: JSON.stringify({}),
@@ -181,7 +181,9 @@ serve(async (req: Request) => {
           status: 200,
         });
       } else if (eventType === "call.hangup") {
-        const hangupCause = payload?.hangup_cause || "call_ended";
+        const rawCause = payload?.hangup_cause || "call_ended";
+        const hangupCause = rawCause.toLowerCase();
+
         // Check if already succeeded
         const checkRes = await fetch(`${SUPABASE_URL}/rest/v1/line_verification_attempts?id=eq.${encodeURIComponent(attemptId)}&select=outcome`, {
           headers: serviceHeaders,
@@ -189,12 +191,26 @@ serve(async (req: Request) => {
         if (checkRes.ok) {
           const attempts = await checkRes.json();
           if (attempts[0] && attempts[0].outcome !== "succeeded") {
-            await rpc("settle_line_verification_attempt", {
-              p_attempt_id: attemptId,
-              p_outcome: "failed",
-              p_carrier_name: null,
-              p_error_message: `Call ended without ringing: ${hangupCause}`,
-            });
+            if (
+              hangupCause === "user_busy" ||
+              hangupCause === "no_answer" ||
+              hangupCause === "timeout" ||
+              hangupCause === "normal_clearing"
+            ) {
+              await rpc("settle_line_verification_attempt", {
+                p_attempt_id: attemptId,
+                p_outcome: "succeeded",
+                p_carrier_name: null,
+                p_error_message: null,
+              });
+            } else {
+              await rpc("settle_line_verification_attempt", {
+                p_attempt_id: attemptId,
+                p_outcome: "failed",
+                p_carrier_name: null,
+                p_error_message: `Call ended without ringing: ${rawCause}`,
+              });
+            }
           }
         }
         return new Response(JSON.stringify({ status: "verification_hangup" }), {

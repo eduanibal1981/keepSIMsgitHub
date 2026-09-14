@@ -24,6 +24,8 @@ import 'package:keep_sims/core/widgets/error_state.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
 import 'package:keep_sims/core/services/analytics_service.dart';
 
+import 'package:keep_sims/features/sim_lines/presentation/models/sim_lines_list_filter.dart';
+import 'package:keep_sims/features/sim_lines/presentation/widgets/sim_lines_list_header.dart';
 import 'package:keep_sims/l10n/app_localizations.dart';
 
 class SimLinesListScreen extends ConsumerStatefulWidget {
@@ -39,6 +41,11 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
   bool _isSelectMode = false;
   final Set<String> _selectedIds = {};
   bool _isBulkActionLoading = false;
+
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+  SimLinesListFilter _selectedFilter = SimLinesListFilter.all;
+  bool _filtersExpanded = true;
 
   /// Live "a refill just completed" signal — see [_subscribeToRefillActivity].
   RealtimeChannel? _refillChannel;
@@ -64,6 +71,7 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
 
   @override
   void dispose() {
+    _searchController.dispose();
     _refillRefreshDebounce?.cancel();
     _refillChannel?.unsubscribe();
     _tabController.dispose();
@@ -364,6 +372,7 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
     final simLinesState = ref.watch(simLinesControllerProvider);
     final countriesState = ref.watch(supportedCountriesProvider);
     final householdState = ref.watch(householdControllerProvider).value;
+    final scheduledTopupsAsync = ref.watch(scheduledTopupControllerProvider);
 
     final simLines = simLinesState.value ?? [];
     final currentUserId = ref.watch(authControllerProvider).value?.id;
@@ -373,13 +382,36 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
     final sharedLines = simLines
         .where((line) => line.userId != currentUserId)
         .toList();
-    final visibleLines = _tabController.index == 0 ? myLines : sharedLines;
+
+    final schedules = scheduledTopupsAsync.value ?? <ScheduledTopup>[];
+    final scheduleFiltersEnabled =
+        scheduledTopupsAsync.hasValue && !scheduledTopupsAsync.hasError;
+
+    final filteredMyLines = filterSimLines(
+      lines: myLines,
+      schedules: schedules,
+      query: _searchQuery,
+      filter: _selectedFilter,
+    );
+
+    final filteredSharedLines = filterSimLines(
+      lines: sharedLines,
+      schedules: schedules,
+      query: _searchQuery,
+      filter: _selectedFilter,
+    );
+
+    final currentTabLines = _tabController.index == 0 ? myLines : sharedLines;
+    final visibleLines = _tabController.index == 0
+        ? filteredMyLines
+        : filteredSharedLines;
 
     return Scaffold(
       backgroundColor: context.isDarkMode
           ? AppColors.darkBg
           : AppColors.lightBg,
       appBar: AppBar(
+        toolbarHeight: 68,
         leading: _isSelectMode
             ? IconButton(
                 icon: Icon(
@@ -405,6 +437,8 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
                 ? AppColors.textPrimaryDark
                 : AppColors.textPrimaryLight,
           ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -430,84 +464,117 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
                 });
               },
             )
-          else
-            IconButton(
-              icon: Icon(
-                Icons.refresh,
-                color: context.isDarkMode
-                    ? AppColors.textSecondaryDark
-                    : AppColors.textSecondaryLight,
-              ),
-              onPressed: () async {
-                await HapticHelper.mediumImpact();
-                ref.invalidate(simLinesControllerProvider);
-                ref.invalidate(householdControllerProvider);
-                await HapticHelper.successFeedback();
-              },
-            ),
-        ],
-        bottom: TabBar(
-          controller: _tabController,
-          indicatorColor: context.isDarkMode
-              ? AppColors.primary
-              : AppColors.lightPrimary,
-          indicatorWeight: 3,
-          labelColor: context.isDarkMode
-              ? Colors.white
-              : AppColors.lightPrimary,
-          unselectedLabelColor: context.isDarkMode
-              ? AppColors.textSecondaryDark
-              : AppColors.textSecondaryLight,
-          tabs: [
-            Tab(
-              icon: const Icon(Icons.person, size: 20),
-              text: AppLocalizations.of(context)!.mySimCards,
-            ),
-            Tab(
-              icon: const Icon(Icons.people, size: 20),
-              text: AppLocalizations.of(context)!.familySharedSims,
-            ),
+          else ...[
+            _buildAddSimAction(context),
+            _buildRefreshAction(context),
+            const SizedBox(width: 8),
           ],
+        ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(48),
+          child: TabBar(
+            controller: _tabController,
+            indicatorColor: context.isDarkMode
+                ? AppColors.primary
+                : AppColors.lightPrimary,
+            indicatorWeight: 3,
+            labelColor: context.isDarkMode
+                ? Colors.white
+                : AppColors.lightPrimary,
+            unselectedLabelColor: context.isDarkMode
+                ? AppColors.textSecondaryDark
+                : AppColors.textSecondaryLight,
+            tabs: [
+              _buildTabItem(
+                context: context,
+                index: 0,
+                icon: Icons.person_rounded,
+                label: AppLocalizations.of(context)!.mySims,
+                count: myLines.length,
+              ),
+              _buildTabItem(
+                context: context,
+                index: 1,
+                icon: Icons.people_rounded,
+                label: AppLocalizations.of(context)!.sharedWithMe,
+                count: sharedLines.length,
+              ),
+            ],
+          ),
         ),
       ),
       body: simLinesState.when(
         data: (lines) {
-          final currentUserId = ref.watch(authControllerProvider).value?.id;
-          final myLines = lines
-              .where((line) => line.userId == currentUserId)
-              .toList();
+          final showHeader = !_isSelectMode && currentTabLines.isNotEmpty;
 
-          return Stack(
+          return Column(
             children: [
-              TabBarView(
-                controller: _tabController,
-                children: [
-                  // Tab 1: My SIM Cards
-                  myLines.isEmpty
-                      ? _buildEmptyState(context, myLines.length)
-                      : _buildLinesList(
-                          context,
-                          myLines,
-                          countriesState.value ?? [],
-                          currentUserId,
-                          householdState,
-                          isShared: false,
-                        ),
+              if (showHeader)
+                SimLinesListHeader(
+                  searchController: _searchController,
+                  selectedFilter: _selectedFilter,
+                  filtersExpanded: _filtersExpanded,
+                  scheduleFiltersEnabled: scheduleFiltersEnabled,
+                  onSearchChanged: (val) {
+                    setState(() {
+                      _searchQuery = val;
+                    });
+                  },
+                  onClearSearch: () {
+                    setState(() {
+                      _searchQuery = '';
+                    });
+                  },
+                  onToggleFilters: () {
+                    setState(() {
+                      _filtersExpanded = !_filtersExpanded;
+                    });
+                  },
+                  onFilterChanged: (filter) {
+                    setState(() {
+                      _selectedFilter = filter;
+                    });
+                  },
+                ),
+              Expanded(
+                child: Stack(
+                  children: [
+                    TabBarView(
+                      controller: _tabController,
+                      children: [
+                        // Tab 1: My SIM Cards
+                        myLines.isEmpty
+                            ? _buildEmptyState(context)
+                            : (filteredMyLines.isEmpty
+                                  ? _buildNoResultsState(context)
+                                  : _buildLinesList(
+                                      context,
+                                      filteredMyLines,
+                                      countriesState.value ?? [],
+                                      currentUserId,
+                                      householdState,
+                                      isShared: false,
+                                    )),
 
-                  // Tab 2: Family Shared SIMs
-                  sharedLines.isEmpty
-                      ? _buildSharedEmptyState(context)
-                      : _buildLinesList(
-                          context,
-                          sharedLines,
-                          countriesState.value ?? [],
-                          currentUserId,
-                          householdState,
-                          isShared: true,
-                        ),
-                ],
+                        // Tab 2: Family Shared SIMs
+                        sharedLines.isEmpty
+                            ? _buildSharedEmptyState(context)
+                            : (filteredSharedLines.isEmpty
+                                  ? _buildNoResultsState(context)
+                                  : _buildLinesList(
+                                      context,
+                                      filteredSharedLines,
+                                      countriesState.value ?? [],
+                                      currentUserId,
+                                      householdState,
+                                      isShared: true,
+                                    )),
+                      ],
+                    ),
+                    _buildBulkActionsConsole(visibleLines),
+                  ],
+                ),
               ),
-              _buildBulkActionsConsole(myLines),
             ],
           );
         },
@@ -524,7 +591,217 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
     );
   }
 
-  Widget _buildEmptyState(BuildContext context, int myLinesCount) {
+  Widget _buildAddSimAction(BuildContext context) {
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final textScale = MediaQuery.textScalerOf(context).scale(1.0);
+    final isCompact = screenWidth < 380 || textScale > 1.25;
+    final isDark = context.isDarkMode;
+
+    if (isCompact) {
+      return IconButton(
+        icon: const Icon(Icons.add_rounded, size: 22),
+        tooltip: AppLocalizations.of(context)!.addSim,
+        style: IconButton.styleFrom(
+          backgroundColor: isDark ? AppColors.primary : const Color(0xFF00B4D8),
+          foregroundColor: isDark ? AppColors.darkBg : Colors.white,
+          minimumSize: const Size(42, 42),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        onPressed: () async {
+          await HapticHelper.lightTick();
+          if (!context.mounted) return;
+          _openAddSim(context);
+        },
+      );
+    }
+
+    return FilledButton.icon(
+      onPressed: () async {
+        await HapticHelper.lightTick();
+        if (!context.mounted) return;
+        _openAddSim(context);
+      },
+      icon: const Icon(Icons.add_rounded, size: 18),
+      label: Text(
+        AppLocalizations.of(context)!.addSim,
+        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+      ),
+      style: FilledButton.styleFrom(
+        backgroundColor: isDark ? AppColors.primary : const Color(0xFF00B4D8),
+        foregroundColor: isDark ? AppColors.darkBg : Colors.white,
+        elevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        minimumSize: const Size(0, 42),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 0),
+      ),
+    );
+  }
+
+  Widget _buildRefreshAction(BuildContext context) {
+    final isDark = context.isDarkMode;
+    return IconButton(
+      icon: const Icon(Icons.refresh_rounded),
+      tooltip: AppLocalizations.of(context)!.refreshSims,
+      constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+      color: isDark
+          ? AppColors.textSecondaryDark
+          : AppColors.textSecondaryLight,
+      onPressed: () async {
+        await HapticHelper.mediumImpact();
+        ref.invalidate(simLinesControllerProvider);
+        ref.invalidate(householdControllerProvider);
+        await HapticHelper.successFeedback();
+      },
+    );
+  }
+
+  Widget _buildTabItem({
+    required BuildContext context,
+    required int index,
+    required IconData icon,
+    required String label,
+    required int count,
+  }) {
+    final isDark = context.isDarkMode;
+    final isSelected = _tabController.index == index;
+
+    final selectedBadgeBg = isDark
+        ? AppColors.primary.withValues(alpha: 0.2)
+        : const Color(0xFFE0F7FA);
+    final selectedBadgeText = isDark
+        ? AppColors.primary
+        : AppColors.lightPrimary;
+
+    final unselectedBadgeBg = isDark
+        ? Colors.white.withValues(alpha: 0.1)
+        : const Color(0xFFE2E8F0);
+    final unselectedBadgeText = isDark
+        ? AppColors.textSecondaryDark
+        : AppColors.textSecondaryLight;
+
+    return Tab(
+      height: 48,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 18),
+          const SizedBox(width: 8),
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+            ),
+          ),
+          const SizedBox(width: 6),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+            decoration: BoxDecoration(
+              color: isSelected ? selectedBadgeBg : unselectedBadgeBg,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              '$count',
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+                color: isSelected ? selectedBadgeText : unselectedBadgeText,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _clearSearchAndFilters() {
+    setState(() {
+      _searchController.clear();
+      _searchQuery = '';
+      _selectedFilter = SimLinesListFilter.all;
+    });
+  }
+
+  Widget _buildNoResultsState(BuildContext context) {
+    final isDark = context.isDarkMode;
+    final l10n = AppLocalizations.of(context)!;
+
+    return RefreshIndicator(
+      color: AppColors.primary,
+      onRefresh: () async {
+        await HapticHelper.mediumImpact();
+        ref.invalidate(simLinesControllerProvider);
+        ref.invalidate(scheduledTopupControllerProvider);
+        ref.invalidate(householdControllerProvider);
+        await HapticHelper.successFeedback();
+      },
+      child: LayoutBuilder(
+        builder: (context, constraints) => SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.search_off_rounded,
+                      size: 64,
+                      color: isDark
+                          ? AppColors.textTertiaryDark
+                          : AppColors.textTertiaryLight,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      l10n.noMatchingSims,
+                      style: AppTextStyles.headlineSmall.copyWith(
+                        color: isDark
+                            ? AppColors.textPrimaryDark
+                            : AppColors.textPrimaryLight,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      l10n.tryDifferentSimSearch,
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: isDark
+                            ? AppColors.textSecondaryDark
+                            : AppColors.textSecondaryLight,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 20),
+                    TextButton(
+                      onPressed: _clearSearchAndFilters,
+                      child: Text(
+                        l10n.clearSearchAndFilters,
+                        style: TextStyle(
+                          color: isDark
+                              ? AppColors.primary
+                              : AppColors.lightPrimary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(BuildContext context) {
     return EmptyStateView(
       icon: Icons.sim_card_outlined,
       title: AppLocalizations.of(context)!.noProtectedLines,
@@ -533,7 +810,7 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
       onButtonPressed: () async {
         await HapticHelper.lightTick();
         if (!context.mounted) return;
-        _checkLineLimitAndAdd(context, myLinesCount);
+        _openAddSim(context);
       },
     );
   }
@@ -572,16 +849,9 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
       child: ListView.builder(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.all(16.0),
-        itemCount: isShared ? lines.length : lines.length + 1,
+        itemCount: lines.length,
         itemBuilder: (context, index) {
-          if (!isShared && index == 0) {
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 16.0),
-              child: _buildAddHeaderCard(context, lines.length),
-            );
-          }
-
-          final line = lines[isShared ? index : index - 1];
+          final line = lines[index];
           final country = countries.isEmpty
               ? null
               : countries.firstWhereOrNull((c) => c.id == line.countryId);
@@ -599,7 +869,7 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
 
           return SimLineCard(
             line: line,
-            index: isShared ? index : index - 1,
+            index: index,
             country: country,
             carrier: carrier,
             isShared: isShared,
@@ -636,58 +906,6 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
     );
   }
 
-  Widget _buildAddHeaderCard(BuildContext context, int myLinesCount) {
-    return InkWell(
-      onTap: () async {
-        await HapticHelper.lightTick();
-        if (!context.mounted) return;
-        _checkLineLimitAndAdd(context, myLinesCount);
-      },
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          gradient: AppColors.primaryGradient,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.primary.withValues(alpha: 0.4),
-              blurRadius: 15,
-              offset: const Offset(0, 5),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            const Icon(Icons.add_circle_outline, color: Colors.white, size: 32),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    AppLocalizations.of(context)!.protectAnotherSimLine,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    AppLocalizations.of(context)!.keepInfiniteNumbersAlive,
-                    style: const TextStyle(color: Colors.white70, fontSize: 13),
-                  ),
-                ],
-              ),
-            ),
-            const Icon(Icons.chevron_right, color: Colors.white70),
-          ],
-        ),
-      ),
-    );
-  }
-
   /// I2: the only line cap in this product is **one free line per account**.
   ///
   /// This method used to cap the *total* number of lines by the account-level
@@ -703,10 +921,7 @@ class _SimLinesListScreenState extends ConsumerState<SimLinesListScreen>
   /// Free tier when one already exists, and the database refuses a second one
   /// regardless. Duplicating the rule in a third place is how the three copies
   /// drifted apart in the first place.
-  Future<void> _checkLineLimitAndAdd(
-    BuildContext context,
-    int myLinesCount,
-  ) async {
+  Future<void> _openAddSim(BuildContext context) async {
     await context.push('/sim-lines/add');
     if (mounted) {
       ref.invalidate(simLinesControllerProvider);

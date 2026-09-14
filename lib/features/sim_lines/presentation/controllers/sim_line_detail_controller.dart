@@ -120,6 +120,7 @@ class SimLineDetailController extends _$SimLineDetailController {
       amount: amount,
       note: note,
     );
+    ref.invalidateSelf();
     ref.invalidate(simLinesControllerProvider);
     ref.invalidate(topupExecutionsForLineProvider(id));
     ref.invalidate(simLineActivityLogsProvider(id));

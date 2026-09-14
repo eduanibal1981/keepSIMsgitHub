@@ -1243,7 +1243,7 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
                       description: AppLocalizations.of(
                         context,
                       )!.lockedAlertSubtitle(name),
-                      requiredPlan: 'Starter Plan',
+                      requiredPlan: 'Standard Plan',
                       highlights: [
                         AppLocalizations.of(context)!.upsellProtect5Lines,
                         AppLocalizations.of(context)!.upsellUnlockChannels,

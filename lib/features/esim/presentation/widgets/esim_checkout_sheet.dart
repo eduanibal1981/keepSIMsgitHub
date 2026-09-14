@@ -11,15 +11,16 @@ import 'package:keep_sims/features/payments/presentation/screens/paypal_checkout
 
 class EsimCheckoutSheet extends ConsumerStatefulWidget {
   final EsimPlan plan;
+  final String? speedDetail;
 
-  const EsimCheckoutSheet({super.key, required this.plan});
+  const EsimCheckoutSheet({super.key, required this.plan, this.speedDetail});
 
-  static Future<void> show(BuildContext context, EsimPlan plan) {
+  static Future<void> show(BuildContext context, EsimPlan plan, {String? speedDetail}) {
     return showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => EsimCheckoutSheet(plan: plan),
+      builder: (context) => EsimCheckoutSheet(plan: plan, speedDetail: speedDetail),
     );
   }
 
@@ -204,9 +205,11 @@ class _EsimCheckoutSheetState extends ConsumerState<EsimCheckoutSheet> {
                   children: [
                     Chip(
                       label: Text(
-                        widget.plan.dataAmountMB >= 1024
-                            ? '${(widget.plan.dataAmountMB / 1024).toStringAsFixed(1)} GB'
-                            : '${widget.plan.dataAmountMB} MB',
+                        widget.plan.dataAmountMB <= 0
+                            ? 'Unlimited'
+                            : (widget.plan.dataAmountMB >= 1024
+                                ? '${(widget.plan.dataAmountMB / 1024).toStringAsFixed(1)} GB'
+                                : '${widget.plan.dataAmountMB} MB'),
                       ),
                       visualDensity: VisualDensity.compact,
                     ),
@@ -217,6 +220,33 @@ class _EsimCheckoutSheetState extends ConsumerState<EsimCheckoutSheet> {
                     ),
                   ],
                 ),
+                if (widget.speedDetail != null) ...[
+                  const SizedBox(height: 10),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.teal.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.teal.withValues(alpha: 0.3)),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.speed_rounded, size: 14, color: Colors.teal),
+                        const SizedBox(width: 6),
+                        Flexible(
+                          child: Text(
+                            widget.speedDetail!,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: Colors.teal.shade700,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ],
             ),
           ),

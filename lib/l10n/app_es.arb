@@ -975,5 +975,16 @@
     "carrierRulesSourceLink": "Las condiciones publicadas del operador",
     "carrierRulesDisclaimer": "Los operadores cambian estas reglas sin avisar. Si el tuyo lo ha hecho, dínoslo y volveremos a comprobarlo.",
     "carrierActionTitle": "Acción tuya necesaria",
-    "carrierActionDesc": "Avísame cuando una línea necesite algo que solo puedo hacer yo: usar la SIM o recargarla en la app de mi operador."
+    "carrierActionDesc": "Avísame cuando una línea necesite algo que solo puedo hacer yo: usar la SIM o recargarla en la app de mi operador.",
+    "mySims": "Mis SIMs",
+    "sharedWithMe": "Compartidas conmigo",
+    "searchNameOrNumber": "Buscar nombre o número",
+    "allFilter": "Todos",
+    "alertSoon": "Alerta pronto",
+    "showFilters": "Mostrar filtros",
+    "hideFilters": "Ocultar filtros",
+    "refreshSims": "Actualizar SIMs",
+    "noMatchingSims": "No hay SIMs coincidentes",
+    "tryDifferentSimSearch": "Prueba con otro nombre, número o filtro.",
+    "clearSearchAndFilters": "Borrar búsqueda y filtros"
 }

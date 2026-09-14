@@ -4730,6 +4730,12 @@ abstract class AppLocalizations {
   /// **'Coverage'**
   String get compareCoverageLabel;
 
+  /// Coverage filter chip for local plans covering only the selected destination country, e.g. Egypt only.
+  ///
+  /// In en, this message translates to:
+  /// **'{country} only'**
+  String compareCoverageLocalCountry(String country);
+
   /// No description provided for @compareSpeedLabel.
   ///
   /// In en, this message translates to:
@@ -4753,6 +4759,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Filters'**
   String get compareFiltersTitle;
+
+  /// No description provided for @compareMoreDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'More details'**
+  String get compareMoreDetails;
+
+  /// No description provided for @compareDetailsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get compareDetailsTab;
+
+  /// No description provided for @compareCountriesTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Countries'**
+  String get compareCountriesTab;
+
+  /// No description provided for @compareNetworkLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Network'**
+  String get compareNetworkLabel;
+
+  /// No description provided for @compareNetworkDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Covers {count} destinations. High-speed 4G / 5G / LTE networks where available.'**
+  String compareNetworkDesc(int count);
+
+  /// No description provided for @comparePlanTypeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan type'**
+  String get comparePlanTypeLabel;
+
+  /// No description provided for @comparePlanTypeDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Data only. Voice calls and SMS are not included.'**
+  String get comparePlanTypeDesc;
+
+  /// No description provided for @compareEkycLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'eKYC (Identity verification)'**
+  String get compareEkycLabel;
+
+  /// No description provided for @compareEkycNotRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Not required'**
+  String get compareEkycNotRequired;
+
+  /// No description provided for @compareDeliveryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery & Setup'**
+  String get compareDeliveryLabel;
+
+  /// No description provided for @compareDeliveryResaleDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Instant in-app digital delivery. QR code and manual activation code available immediately after purchase.'**
+  String get compareDeliveryResaleDesc;
+
+  /// No description provided for @compareDeliveryPartnerDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Partner direct delivery on partner platform.'**
+  String get compareDeliveryPartnerDesc;
+
+  /// No description provided for @compareOtherInfoLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Other info'**
+  String get compareOtherInfoLabel;
+
+  /// No description provided for @compareRoamingNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Data roaming must be enabled in device settings upon arrival.'**
+  String get compareRoamingNotice;
+
+  /// No description provided for @compareApnNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'APN is configured automatically by the network.'**
+  String get compareApnNotice;
+
+  /// No description provided for @compareSearchCountryHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by country name or code...'**
+  String get compareSearchCountryHint;
+
+  /// No description provided for @compareNoCountriesMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'No countries match your search.'**
+  String get compareNoCountriesMatch;
 
   /// No description provided for @compareReset.
   ///
@@ -5131,6 +5239,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Connect to the internet and we will store a fresh one.'**
   String get voucherExpiredBody;
+
+  /// No description provided for @mySims.
+  ///
+  /// In en, this message translates to:
+  /// **'My SIMs'**
+  String get mySims;
+
+  /// No description provided for @sharedWithMe.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared with me'**
+  String get sharedWithMe;
+
+  /// No description provided for @searchNameOrNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Search name or number'**
+  String get searchNameOrNumber;
+
+  /// No description provided for @allFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get allFilter;
+
+  /// No description provided for @alertSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Alert soon'**
+  String get alertSoon;
+
+  /// No description provided for @showFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Show filters'**
+  String get showFilters;
+
+  /// No description provided for @hideFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide filters'**
+  String get hideFilters;
+
+  /// No description provided for @refreshSims.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh SIMs'**
+  String get refreshSims;
+
+  /// No description provided for @noMatchingSims.
+  ///
+  /// In en, this message translates to:
+  /// **'No matching SIMs'**
+  String get noMatchingSims;
+
+  /// No description provided for @tryDifferentSimSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Try a different name, number, or filter.'**
+  String get tryDifferentSimSearch;
+
+  /// No description provided for @clearSearchAndFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear search and filters'**
+  String get clearSearchAndFilters;
 }
 
 class _AppLocalizationsDelegate

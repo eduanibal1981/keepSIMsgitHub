@@ -12,6 +12,7 @@ class CallRate {
   final double connectionFee;
   final int billingIncrementSeconds;
   final bool isActive;
+  final String? accountTier;
 
   const CallRate({
     required this.id,
@@ -24,6 +25,7 @@ class CallRate {
     this.connectionFee = 0.0,
     this.billingIncrementSeconds = 1,
     this.isActive = true,
+    this.accountTier,
   });
 
   double get ratePerSecond => ratePerMinute / 60.0;
@@ -44,10 +46,13 @@ class CallRate {
       phonePrefix: json['phone_prefix'] as String? ?? '+',
       destinationType: json['destination_type'] as String? ?? 'all',
       costPerMinute: (json['cost_per_minute_usd'] as num?)?.toDouble() ?? 0.0,
-      ratePerMinute: (json['rate_per_minute_usd'] as num?)?.toDouble() ?? 0.15,
+      ratePerMinute: (json['effective_rate_per_minute_usd'] as num?)?.toDouble() ??
+          (json['rate_per_minute_usd'] as num?)?.toDouble() ??
+          0.15,
       connectionFee: (json['connection_fee_usd'] as num?)?.toDouble() ?? 0.0,
       billingIncrementSeconds: json['billing_increment_seconds'] as int? ?? 1,
       isActive: json['is_active'] as bool? ?? true,
+      accountTier: json['account_tier'] as String?,
     );
   }
 

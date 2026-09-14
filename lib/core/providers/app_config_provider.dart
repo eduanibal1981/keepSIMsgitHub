@@ -13,58 +13,76 @@ const double kDefaultAppFeePercent = 3.0;
 /// Fallback minimum app fee floor, matching `calculate_topup_fees`.
 const double kDefaultMinAppFeeUsd = 0.03;
 
+class RefillTierFeeRule {
+  final double percentage;
+  final double minimum;
+
+  const RefillTierFeeRule({
+    required this.percentage,
+    required this.minimum,
+  });
+}
+
+/// The authoritative refill fee rules from app_fee_rules, keyed by line tier.
+/// Enforces C11: Free 7% ($0.50 min), Standard 5% ($0.30 min), Premium 3% ($0.10 min).
+@Riverpod(keepAlive: true)
+Future<Map<String, RefillTierFeeRule>> refillFeeRules(Ref ref) async {
+  try {
+    final row = await Supabase.instance.client
+        .from('app_fee_rules')
+        .select('free_percentage, free_minimum, stand_percentage, stand_minimum, prem_percentage, prem_minimum')
+        .eq('appfees_item', 'refills')
+        .eq('status', 'published')
+        .order('version', ascending: false)
+        .limit(1)
+        .maybeSingle();
+
+    if (row != null) {
+      return {
+        'free': RefillTierFeeRule(
+          percentage: (row['free_percentage'] as num?)?.toDouble() ?? 7.0,
+          minimum: (row['free_minimum'] as num?)?.toDouble() ?? 0.50,
+        ),
+        'standard': RefillTierFeeRule(
+          percentage: (row['stand_percentage'] as num?)?.toDouble() ?? 5.0,
+          minimum: (row['stand_minimum'] as num?)?.toDouble() ?? 0.30,
+        ),
+        'premium': RefillTierFeeRule(
+          percentage: (row['prem_percentage'] as num?)?.toDouble() ?? 3.0,
+          minimum: (row['prem_minimum'] as num?)?.toDouble() ?? 0.10,
+        ),
+      };
+    }
+  } catch (_) {}
+
+  return const {
+    'free': RefillTierFeeRule(percentage: 7.0, minimum: 0.50),
+    'standard': RefillTierFeeRule(percentage: 5.0, minimum: 0.30),
+    'premium': RefillTierFeeRule(percentage: 3.0, minimum: 0.10),
+  };
+}
+
 /// The KeepSIMs service fee, as a percentage of a refill's base cost.
-///
-/// Read from `system_configs.APP_FEE_PERCENT` instead of a constant so the
-/// price quoted in the UI is the price `calculate_topup_fees` debits. These
-/// were two hardcoded numbers that silently disagreed — the client quoted 3%
-/// while the trigger charged 5%, so every refill cost more than it displayed.
-/// A power user can change the row from the Supabase dashboard and both the
-/// quote and the debit follow it with no redeploy.
-///
-/// The trigger is always the authority on what is actually charged; this only
-/// decides what the user is shown before they confirm.
+/// Default for Premium automation or fallback callers.
 @Riverpod(keepAlive: true)
 Future<double> appFeePercent(Ref ref) async {
   try {
-    final row = await Supabase.instance.client
-        .from('system_configs')
-        .select('config_value')
-        .eq('config_key', 'APP_FEE_PERCENT')
-        .maybeSingle();
-
-    final parsed = double.tryParse(row?['config_value']?.toString() ?? '');
-    // Same sanity window as the trigger, so a nonsense row can't quote a
-    // nonsense price.
-    if (parsed == null || parsed < 0 || parsed > 100) {
-      return kDefaultAppFeePercent;
-    }
-    return parsed;
+    final rules = await ref.watch(refillFeeRulesProvider.future);
+    return rules['premium']?.percentage ?? kDefaultAppFeePercent;
   } catch (_) {
     return kDefaultAppFeePercent;
   }
 }
 
-/// The minimum dollar floor for the app fee, read from `system_configs.MIN_APP_FEE_USD`.
-///
-/// Ensures micro-topups (under $1.00) retain a safe minimum profit margin floor
-/// ($0.03 by default) rather than fractions of a cent.
+/// The minimum dollar floor for the app fee.
+/// Default for Premium automation or fallback callers.
 @Riverpod(keepAlive: true)
 Future<double> minAppFeeUsd(Ref ref) async {
   try {
-    final row = await Supabase.instance.client
-        .from('system_configs')
-        .select('config_value')
-        .eq('config_key', 'MIN_APP_FEE_USD')
-        .maybeSingle();
-
-    final parsed = double.tryParse(row?['config_value']?.toString() ?? '');
-    if (parsed == null || parsed < 0 || parsed > 100) {
-      return kDefaultMinAppFeeUsd;
-    }
-    return parsed;
+    final rules = await ref.watch(refillFeeRulesProvider.future);
+    return rules['premium']?.minimum ?? 0.10;
   } catch (_) {
-    return kDefaultMinAppFeeUsd;
+    return 0.10;
   }
 }
 

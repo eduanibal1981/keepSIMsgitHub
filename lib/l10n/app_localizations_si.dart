@@ -2684,6 +2684,11 @@ class AppLocalizationsSi extends AppLocalizations {
   String get compareCoverageLabel => 'Coverage';
 
   @override
+  String compareCoverageLocalCountry(String country) {
+    return '$country only';
+  }
+
+  @override
   String get compareSpeedLabel => 'Speed';
 
   @override
@@ -2694,6 +2699,64 @@ class AppLocalizationsSi extends AppLocalizations {
 
   @override
   String get compareFiltersTitle => 'Filters';
+
+  @override
+  String get compareMoreDetails => 'More details';
+
+  @override
+  String get compareDetailsTab => 'Details';
+
+  @override
+  String get compareCountriesTab => 'Countries';
+
+  @override
+  String get compareNetworkLabel => 'Network';
+
+  @override
+  String compareNetworkDesc(int count) {
+    return 'Covers $count destinations. High-speed 4G / 5G / LTE networks where available.';
+  }
+
+  @override
+  String get comparePlanTypeLabel => 'Plan type';
+
+  @override
+  String get comparePlanTypeDesc =>
+      'Data only. Voice calls and SMS are not included.';
+
+  @override
+  String get compareEkycLabel => 'eKYC (Identity verification)';
+
+  @override
+  String get compareEkycNotRequired => 'Not required';
+
+  @override
+  String get compareDeliveryLabel => 'Delivery & Setup';
+
+  @override
+  String get compareDeliveryResaleDesc =>
+      'Instant in-app digital delivery. QR code and manual activation code available immediately after purchase.';
+
+  @override
+  String get compareDeliveryPartnerDesc =>
+      'Partner direct delivery on partner platform.';
+
+  @override
+  String get compareOtherInfoLabel => 'Other info';
+
+  @override
+  String get compareRoamingNotice =>
+      'Data roaming must be enabled in device settings upon arrival.';
+
+  @override
+  String get compareApnNotice =>
+      'APN is configured automatically by the network.';
+
+  @override
+  String get compareSearchCountryHint => 'Search by country name or code...';
+
+  @override
+  String get compareNoCountriesMatch => 'No countries match your search.';
 
   @override
   String get compareReset => 'Reset';
@@ -2925,4 +2988,38 @@ class AppLocalizationsSi extends AppLocalizations {
   @override
   String get voucherExpiredBody =>
       'Connect to the internet and we will store a fresh one.';
+
+  @override
+  String get mySims => 'මගේ SIMපත්';
+
+  @override
+  String get sharedWithMe => 'මා සමඟ බෙදාගත්';
+
+  @override
+  String get searchNameOrNumber => 'නම හෝ අංකය සොයන්න';
+
+  @override
+  String get allFilter => 'සියල්ල';
+
+  @override
+  String get alertSoon => 'ඉක්මනින් අනතුරු ඇඟවීම';
+
+  @override
+  String get showFilters => 'පෙරහන් පෙන්වන්න';
+
+  @override
+  String get hideFilters => 'පෙරහන් සඟවන්න';
+
+  @override
+  String get refreshSims => 'SIMපත් නැවුම් කරන්න';
+
+  @override
+  String get noMatchingSims => 'ගැලපෙන SIMපත් නැත';
+
+  @override
+  String get tryDifferentSimSearch =>
+      'වෙනත් නමක්, අංකයක් හෝ පෙරහනක් උත්සාහ කරන්න.';
+
+  @override
+  String get clearSearchAndFilters => 'සෙවුම සහ පෙරහන් ඉවත් කරන්න';
 }

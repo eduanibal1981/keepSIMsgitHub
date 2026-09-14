@@ -7,6 +7,7 @@ void main() {
     String status = 'active',
     DateTime? lastTopupAt,
     bool protectionPaused = false,
+    bool isCarrierVerified = false,
   }) {
     return SimLine(
       id: 'test-id',
@@ -15,105 +16,115 @@ void main() {
       status: status,
       lastTopupAt: lastTopupAt,
       protectionPaused: protectionPaused,
+      isCarrierVerified: isCarrierVerified,
     );
   }
 
-  group('SimLineHealth.displayHealthScore', () {
-    test('returns 100 if protectionPaused is true, ignoring other conditions', () {
+  group('SimLineHealth.displayHealthScore — 4-pillar formula', () {
+    test('protectionPaused does not override score — calculates true 4 pillars', () {
       final simLine = createSimLine(protectionPaused: true, status: 'inactive');
-      final score = simLine.displayHealthScore(isPremium: false, hasProtectionActive: false);
+      final score = simLine.displayHealthScore(
+        hasRefillSchedule: false,
+        hasNotificationSchedule: false,
+        isVerified: false,
+      );
+      expect(score, 0);
+    });
+
+    test('all 4 pillars active scores 100 (25 each)', () {
+      final simLine = createSimLine(
+        status: 'active',
+        lastTopupAt: DateTime.now().subtract(const Duration(days: 10)),
+        isCarrierVerified: true,
+      );
+      final score = simLine.displayHealthScore(
+        hasRefillSchedule: true,
+        hasNotificationSchedule: true,
+        isVerified: true,
+      );
       expect(score, 100);
-
-      final score2 = simLine.displayHealthScore(isPremium: true, hasProtectionActive: true);
-      expect(score2, 100);
     });
 
-    group('when isPremium is false', () {
-      test('returns 100 if hasProtectionActive is true', () {
-        final simLine = createSimLine(protectionPaused: false);
-        final score = simLine.displayHealthScore(isPremium: false, hasProtectionActive: true);
-        expect(score, 100);
-      });
-
-      test('returns 0 if hasProtectionActive is false', () {
-        final simLine = createSimLine(protectionPaused: false);
-        final score = simLine.displayHealthScore(isPremium: false, hasProtectionActive: false);
-        expect(score, 0);
-      });
+    test('3 pillars active (no refill schedule) scores 75', () {
+      final simLine = createSimLine(
+        status: 'active',
+        lastTopupAt: DateTime.now().subtract(const Duration(days: 1)),
+      );
+      final score = simLine.displayHealthScore(
+        hasRefillSchedule: false,
+        hasNotificationSchedule: true,
+        isVerified: true,
+      );
+      expect(score, 75);
     });
 
-    group('when isPremium is true', () {
-      test('returns 100 if hasProtectionActive, status is active, and recent topup', () {
-        final simLine = createSimLine(
-          status: 'active',
-          lastTopupAt: DateTime.now().subtract(const Duration(days: 10)),
-        );
-        final score = simLine.displayHealthScore(isPremium: true, hasProtectionActive: true);
-        expect(score, 100); // 50 (protection) + 25 (status active) + 25 (recent topup)
-      });
+    test('2 pillars active (verified + notification, but no refill schedule and old topup) scores 50', () {
+      final simLine = createSimLine(
+        status: 'active',
+        lastTopupAt: DateTime.now().subtract(const Duration(days: 120)),
+      );
+      final score = simLine.displayHealthScore(
+        hasRefillSchedule: false,
+        hasNotificationSchedule: true,
+        isVerified: true,
+      );
+      expect(score, 50);
+    });
 
-      test('returns 75 if hasProtectionActive, status is active, but no recent topup', () {
-        final simLine = createSimLine(
-          status: 'active',
-          lastTopupAt: DateTime.now().subtract(const Duration(days: 81)), // > 80 days
-        );
-        final score = simLine.displayHealthScore(isPremium: true, hasProtectionActive: true);
-        expect(score, 75); // 50 + 25 + 0
-      });
+    test('1 pillar active (verified only) scores 25', () {
+      final simLine = createSimLine(
+        status: 'active',
+        lastTopupAt: null,
+      );
+      final score = simLine.displayHealthScore(
+        hasRefillSchedule: false,
+        hasNotificationSchedule: false,
+        isVerified: true,
+      );
+      expect(score, 25);
+    });
 
-      test('returns 75 if hasProtectionActive, status is inactive, but recent topup', () {
-        final simLine = createSimLine(
-          status: 'inactive',
-          lastTopupAt: DateTime.now().subtract(const Duration(days: 79)), // <= 80 days
-        );
-        final score = simLine.displayHealthScore(isPremium: true, hasProtectionActive: true);
-        expect(score, 75); // 50 + 0 + 25
-      });
+    test('0 pillars active scores 0', () {
+      final simLine = createSimLine(
+        status: 'inactive',
+        lastTopupAt: null,
+      );
+      final score = simLine.displayHealthScore(
+        hasRefillSchedule: false,
+        hasNotificationSchedule: false,
+        isVerified: false,
+      );
+      expect(score, 0);
+    });
 
-      test('returns 50 if hasProtectionActive, status is inactive, and no recent topup', () {
-        final simLine = createSimLine(
-          status: 'inactive',
-          lastTopupAt: null,
-        );
-        final score = simLine.displayHealthScore(isPremium: true, hasProtectionActive: true);
-        expect(score, 50); // 50 + 0 + 0
-      });
+    test('carrier expiration window of 90 days: 89 days is active (25), 91 days is expired (0)', () {
+      final validLine = createSimLine(
+        status: 'inactive',
+        lastTopupAt: DateTime.now().subtract(const Duration(days: 89)),
+      );
+      expect(
+        validLine.displayHealthScore(
+          hasRefillSchedule: false,
+          hasNotificationSchedule: false,
+          isVerified: false,
+          carrierExpirationDays: 90,
+        ),
+        25,
+      );
 
-      test('returns 50 if no protection active, status is active, and recent topup', () {
-        final simLine = createSimLine(
-          status: 'active',
-          lastTopupAt: DateTime.now().subtract(const Duration(days: 50)),
-        );
-        final score = simLine.displayHealthScore(isPremium: true, hasProtectionActive: false);
-        expect(score, 50); // 0 + 25 + 25
-      });
-
-      test('returns 25 if no protection active, status is active, and no recent topup', () {
-        final simLine = createSimLine(
-          status: 'active',
-          lastTopupAt: DateTime.now().subtract(const Duration(days: 90)),
-        );
-        final score = simLine.displayHealthScore(isPremium: true, hasProtectionActive: false);
-        expect(score, 25); // 0 + 25 + 0
-      });
-      
-      test('returns 25 if no protection active, status is inactive, and recent topup', () {
-        final simLine = createSimLine(
-          status: 'expired',
-          lastTopupAt: DateTime.now().subtract(const Duration(days: 80)),
-        );
-        final score = simLine.displayHealthScore(isPremium: true, hasProtectionActive: false);
-        expect(score, 25); // 0 + 0 + 25
-      });
-
-      test('returns 0 if no protection active, status is inactive, and no recent topup', () {
-        final simLine = createSimLine(
-          status: 'expired',
-          lastTopupAt: null,
-        );
-        final score = simLine.displayHealthScore(isPremium: true, hasProtectionActive: false);
-        expect(score, 0); // 0 + 0 + 0
-      });
+      final expiredLine = createSimLine(
+        status: 'inactive',
+        lastTopupAt: DateTime.now().subtract(const Duration(days: 91)),
+      );
+      expect(
+        expiredLine.displayHealthScore(
+          hasRefillSchedule: false,
+          hasNotificationSchedule: false,
+          isVerified: false,
+          carrierExpirationDays: 90,
+        ),
+        0,
+      );
     });
   });
 }

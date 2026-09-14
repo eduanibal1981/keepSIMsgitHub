@@ -35,7 +35,7 @@ abstract class LineActivityLog with _$LineActivityLog {
 
     final rawAmount = metadata['amount'] ?? metadata['base_cost_usd'];
     final amountStr = rawAmount != null
-        ? '\$${double.tryParse(rawAmount.toString())?.toStringAsFixed(2) ?? rawAmount}'
+        ? (double.tryParse(rawAmount.toString())?.toStringAsFixed(2) ?? rawAmount.toString())
         : '';
     final providerStr =
         (metadata['provider'] ?? 'zendit').toString().toUpperCase();

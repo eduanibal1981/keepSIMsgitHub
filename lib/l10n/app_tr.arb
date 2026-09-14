@@ -975,5 +975,16 @@
     "carrierRulesSourceLink": "Operatörün yayımladığı koşullar",
     "carrierRulesDisclaimer": "Operatörler bu kuralları duyurmadan değiştirir. Sizinki değiştirdiyse desteğe bildirin, yeniden kontrol edelim.",
     "carrierActionTitle": "Sizden bir işlem gerekiyor",
-    "carrierActionDesc": "Bir hat yalnızca benim yapabileceğim bir şeye ihtiyaç duyduğunda haber ver — SIM'i kullanmak ya da operatörün kendi uygulamasından yüklemek gibi."
+    "carrierActionDesc": "Bir hat yalnızca benim yapabileceğim bir şeye ihtiyaç duyduğunda haber ver — SIM'i kullanmak ya da operatörün kendi uygulamasından yüklemek gibi.",
+    "mySims": "SIM'lerim",
+    "sharedWithMe": "Benimle paylaşılan",
+    "searchNameOrNumber": "İsim veya numara ara",
+    "allFilter": "Tümü",
+    "alertSoon": "Yakında uyarı",
+    "showFilters": "Filtreleri göster",
+    "hideFilters": "Filtreleri gizle",
+    "refreshSims": "SIM'leri yenile",
+    "noMatchingSims": "Eşleşen SIM bulunamadı",
+    "tryDifferentSimSearch": "Farklı bir isim, numara veya filtre deneyin.",
+    "clearSearchAndFilters": "Aramayı ve filtreleri temizle"
 }

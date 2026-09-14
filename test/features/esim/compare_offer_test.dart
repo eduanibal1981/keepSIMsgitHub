@@ -38,11 +38,24 @@ void main() {
       expect(offer.formattedData, '10 GB');
     });
 
-    test('sizes are formatted the way the catalogue stores them', () {
-      expect(CompareOffer.formatDataMb(1000), '1 GB');
-      expect(CompareOffer.formatDataMb(3000), '3 GB');
-      expect(CompareOffer.formatDataMb(100000), '100 GB');
+    test('sizes are formatted the way the catalogue stores them without duplicates', () {
+      expect(CompareOffer.formatDataMb(100), '100 MB');
       expect(CompareOffer.formatDataMb(500), '500 MB');
+      expect(CompareOffer.formatDataMb(512), '500 MB');
+      expect(CompareOffer.formatDataMb(1000), '1 GB');
+      expect(CompareOffer.formatDataMb(1024), '1 GB');
+      expect(CompareOffer.formatDataMb(2000), '2 GB');
+      expect(CompareOffer.formatDataMb(2048), '2 GB');
+      expect(CompareOffer.formatDataMb(3000), '3 GB');
+      expect(CompareOffer.formatDataMb(3072), '3 GB');
+      expect(CompareOffer.formatDataMb(5000), '5 GB');
+      expect(CompareOffer.formatDataMb(5120), '5 GB');
+      expect(CompareOffer.formatDataMb(10000), '10 GB');
+      expect(CompareOffer.formatDataMb(10240), '10 GB');
+      expect(CompareOffer.formatDataMb(15360), '15 GB');
+      expect(CompareOffer.formatDataMb(76800), '75 GB');
+      expect(CompareOffer.formatDataMb(100000), '100 GB');
+      expect(CompareOffer.formatDataMb(102400), '100 GB');
       expect(CompareOffer.formatDataMb(1500), '1.5 GB');
     });
   });
@@ -281,6 +294,84 @@ void main() {
       expect(r.success, isFalse);
       expect(r.code, 'NO_TRACKING_URL');
       expect(r.url, isNull);
+    });
+  });
+
+  group('CompareOffer — exactSpeedDetail & wireSpeedTiers', () {
+    test('lite tier returns 1 GB at Max speed then throttle to 512 kb/s', () {
+      final offer = CompareOffer.fromRpc({
+        'offer_id': 'esim_UL_1D_EG_V2',
+        'is_unlimited': true,
+        'speed_tier': 'lite',
+      });
+      expect(offer.exactSpeedDetail, 'Lite – 1 GB at Max speed then throttle to 512 kb/s');
+    });
+
+    test('essential tier returns 2 GB at Max speed then throttle to 1 Mb/s', () {
+      final offer = CompareOffer.fromRpc({
+        'offer_id': 'esim_ULE_1D_EG_V2',
+        'is_unlimited': true,
+        'speed_tier': 'essential',
+      });
+      expect(offer.exactSpeedDetail, 'Essential – 2 GB at Max speed then throttle to 1 Mb/s');
+    });
+
+    test('plus tier returns 3 GB at Max speed then throttle to 1 Mb/s', () {
+      final offer = CompareOffer.fromRpc({
+        'offer_id': 'esim_ULP_1D_EG_V2',
+        'is_unlimited': true,
+        'speed_tier': 'plus',
+      });
+      expect(offer.exactSpeedDetail, 'Plus – 3 GB at Max speed then throttle to 1 Mb/s');
+    });
+
+    test('DayPass with high-1 Mbps returns daily quota and throttle rate', () {
+      final offer = CompareOffer.fromRpc({
+        'offer_id': 'PZ76P1LFD',
+        'is_unlimited': true,
+        'bundle_group': 'DayPass',
+        'speed_tier': 'high-1 Mbps',
+        'data_amount_mb': 2000,
+      });
+      expect(offer.exactSpeedDetail, '2 GB/day at Max speed then throttle to 1 Mbps');
+    });
+
+    test('fixed data plan has no speed detail', () {
+      final offer = CompareOffer.fromRpc({
+        'offer_id': 'fixed_10gb',
+        'is_unlimited': false,
+        'speed_tier': 'fixed',
+        'data_amount_mb': 10000,
+      });
+      expect(offer.exactSpeedDetail, isNull);
+    });
+
+    test('wireSpeedTiers only sends in unlimited data mode', () {
+      const filters = CompareFilters(
+        dataMode: DataFilterMode.unlimited,
+        speedTiers: ['lite'],
+      );
+      expect(filters.wireSpeedTiers, ['lite']);
+      expect(filters.speedIsActive, isTrue);
+
+      final nonUnlimited = filters.copyWith(dataMode: DataFilterMode.all);
+      expect(nonUnlimited.wireSpeedTiers, isNull);
+      expect(nonUnlimited.speedIsActive, isFalse);
+    });
+
+    test('CompareBounds.canonicalDataMb unifies binary and decimal variants', () {
+      const bounds = CompareBounds(
+        dataMb: [100, 500, 512, 1000, 1024, 2000, 2048, 3000, 3072, 10000, 10240],
+      );
+      expect(bounds.canonicalDataMb, [100, 500, 1000, 2000, 3000, 10000]);
+    });
+
+    test('wireDataExactMb expands canonical choices to match both decimal and binary suppliers', () {
+      const filters = CompareFilters(
+        dataMode: DataFilterMode.exact,
+        dataExactMb: [1000, 2000],
+      );
+      expect(filters.wireDataExactMb, [1000, 1024, 2000, 2048]);
     });
   });
 }

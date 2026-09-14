@@ -164,18 +164,137 @@ class CompareOffer {
     return isUnlimited || dataAmountMb <= 0 ? 'Unlimited' : formatDataMb(dataAmountMb);
   }
 
+  /// Returns a direct, human-readable explanation of the plan's exact speed & throttle policy.
+  String? get exactSpeedDetail {
+    if (!isUnlimited && typeTag != 'DayPass') {
+      return null;
+    }
+
+    // 1. Check description for explicit daily throttle policy (e.g. Zendit / DayPass notes)
+    if (description != null && description!.isNotEmpty) {
+      final desc = description!;
+      if (desc.contains('unthrottled') && desc.contains('throttled')) {
+        return desc;
+      }
+    }
+
+    // 2. DayPass or high-* speed tier (e.g. "high-1 Mbps", "high-512 kbps", "high-384 kbps")
+    if (speedTierRaw != null && speedTierRaw!.startsWith('high-')) {
+      final rate = speedTierRaw!.substring(5).trim();
+      if (dataAmountMb > 0) {
+        return '${formatDataMb(dataAmountMb)}/day at Max speed then throttle to $rate';
+      }
+      return 'Max speed then throttle to $rate';
+    }
+
+    // 3. Known standard tiers (eSIM Go / Zendit)
+    switch (speedTier) {
+      case OfferSpeedTier.lite:
+        return 'Lite – 1 GB at Max speed then throttle to 512 kb/s';
+      case OfferSpeedTier.essential:
+        return 'Essential – 2 GB at Max speed then throttle to 1 Mb/s';
+      case OfferSpeedTier.plus:
+        return 'Plus – 3 GB at Max speed then throttle to 1 Mb/s';
+      default:
+        final raw = (speedTierRaw ?? bundleGroup ?? '').toLowerCase();
+        if (raw.contains('lite') ||
+            (raw.contains('fast') &&
+                !raw.contains('faster') &&
+                !raw.contains('fastest'))) {
+          return 'Lite – 1 GB at Max speed then throttle to 512 kb/s';
+        } else if (raw.contains('essential') || raw.contains('faster')) {
+          return 'Essential – 2 GB at Max speed then throttle to 1 Mb/s';
+        } else if (raw.contains('plus') ||
+            raw.contains('fastest') ||
+            raw.contains('premium')) {
+          return 'Plus – 3 GB at Max speed then throttle to 1 Mb/s';
+        }
+        if (typeTag == 'DayPass' && dataAmountMb > 0) {
+          return '${formatDataMb(dataAmountMb)}/day at Max speed then throttle to 384 kb/s';
+        }
+        return 'Unlimited data with fair-use speed policy';
+    }
+  }
+
+  /// Maps a raw MB figure (which could be decimal like 1000 or binary like 1024)
+  /// into a single canonical MB representation.
+  static int canonicalizeDataMb(int mb) {
+    if (mb <= 0) return 0;
+    if (mb < 1000) {
+      if (mb >= 450 && mb <= 550) return 500;
+      return mb;
+    }
+    if (mb % 1024 == 0) {
+      return (mb ~/ 1024) * 1000;
+    }
+    if (mb % 1000 == 0) {
+      return mb;
+    }
+    final gbBin = mb / 1024.0;
+    if ((gbBin * 10).roundToDouble() == gbBin * 10) {
+      return (gbBin * 1000).round();
+    }
+    final gbDec = mb / 1000.0;
+    if ((gbDec * 10).roundToDouble() == gbDec * 10) {
+      return (gbDec * 1000).round();
+    }
+    return mb;
+  }
+
+  /// Returns all real database variants (decimal and binary) for a canonical MB size
+  /// so filtering by "1 GB" matches both 1000 MB (eSIM Go) and 1024 MB (Zendit / eSIMAccess).
+  static List<int> dataMbVariants(int mb) {
+    final c = canonicalizeDataMb(mb);
+    if (c <= 0) return [mb];
+    if (c < 1000) {
+      if (c == 500) return const [500, 512];
+      return [c];
+    }
+    final gb = c ~/ 1000;
+    if (c % 1000 == 0) {
+      final bin = gb * 1024;
+      return [c, bin];
+    }
+    return [c];
+  }
+
   /// Renders a size the way the supplier sells it.
   ///
-  /// 1 GB is 1000 MB here, not 1024. That is not a rounding preference: eSIM Go
-  /// stores `esim_10GB_30D_FR_V2` as 10000 MB, so dividing by 1024 printed
-  /// "9.8 GB" on a bundle whose own name says 10 GB, and a filter chip built on
-  /// 1024 asked for 10240 MB — a size nothing in the catalogue has. The whole
-  /// data ladder (1/2/3/5/10/20/50/100 GB) is stored in thousands.
+  /// Unifies decimal (1000 MB) and binary (1024 MB) formats so both render as
+  /// "1 GB" instead of "1.0 GB", and 2048 MB renders as "2 GB" instead of "2.0 GB".
+  /// Sub-GB amounts format as MB (e.g. "100 MB", "500 MB").
   static String formatDataMb(int mb) {
     if (mb <= 0) return '0 MB';
-    if (mb < 1000) return '$mb MB';
-    final gb = mb / 1000.0;
+    final canonical = canonicalizeDataMb(mb);
+    if (canonical < 1000) {
+      return '$canonical MB';
+    }
+    final gb = canonical / 1000.0;
     return '${gb == gb.roundToDouble() ? gb.toInt() : gb.toStringAsFixed(1)} GB';
+  }
+
+  /// Predefined map of ISO-3166 alpha-2 country codes to English names.
+  static const Map<String, String> defaultCountryNames = {
+    'FR': 'France', 'US': 'United States', 'GB': 'United Kingdom',
+    'DE': 'Germany', 'ES': 'Spain', 'IT': 'Italy', 'PT': 'Portugal',
+    'GR': 'Greece', 'NL': 'Netherlands', 'CH': 'Switzerland',
+    'AT': 'Austria', 'BE': 'Belgium', 'IE': 'Ireland', 'PL': 'Poland',
+    'AE': 'United Arab Emirates', 'SA': 'Saudi Arabia', 'QA': 'Qatar',
+    'KW': 'Kuwait', 'BH': 'Bahrain', 'OM': 'Oman', 'JO': 'Jordan',
+    'EG': 'Egypt', 'MA': 'Morocco', 'TR': 'Turkey', 'PS': 'Palestine',
+    'IN': 'India', 'PK': 'Pakistan', 'BD': 'Bangladesh', 'LK': 'Sri Lanka',
+    'NP': 'Nepal', 'PH': 'Philippines', 'ID': 'Indonesia', 'MY': 'Malaysia',
+    'SG': 'Singapore', 'TH': 'Thailand', 'VN': 'Vietnam', 'JP': 'Japan',
+    'KR': 'South Korea', 'CN': 'China', 'HK': 'Hong Kong',
+    'AU': 'Australia', 'NZ': 'New Zealand', 'CA': 'Canada', 'MX': 'Mexico',
+    'BR': 'Brazil', 'AR': 'Argentina', 'ZA': 'South Africa',
+    'KE': 'Kenya', 'NG': 'Nigeria', 'RU': 'Russia',
+  };
+
+  /// Resolves an ISO country code to its friendly English country name.
+  static String? countryNameForCode(String code) {
+    final cleaned = code.trim().toUpperCase();
+    return defaultCountryNames[cleaned];
   }
 }
 
@@ -203,6 +322,19 @@ class CompareBounds {
   final bool hasUnlimited;
 
   bool get isEmpty => durations.isEmpty && dataMb.isEmpty;
+
+  /// Returns the catalogue's data sizes unified into canonical sizes without duplicates.
+  /// E.g. [100, 500, 1000, 1024, 2000, 2048] -> [100, 500, 1000, 2000].
+  List<int> get canonicalDataMb {
+    final set = <int>{};
+    for (final mb in dataMb) {
+      if (mb > 0) {
+        set.add(CompareOffer.canonicalizeDataMb(mb));
+      }
+    }
+    final list = set.toList()..sort();
+    return list;
+  }
 
   factory CompareBounds.fromRpc(dynamic raw) {
     if (raw is! Map) return const CompareBounds();
@@ -303,11 +435,20 @@ class CompareFilters {
 
   int? get wireMinDataMb => dataMode == DataFilterMode.range ? minDataMb : null;
   int? get wireMaxDataMb => dataMode == DataFilterMode.range ? maxDataMb : null;
-  List<int>? get wireDataExactMb =>
-      dataMode == DataFilterMode.exact && dataExactMb.isNotEmpty
-          ? dataExactMb
-          : null;
+  List<int>? get wireDataExactMb {
+    if (dataMode != DataFilterMode.exact || dataExactMb.isEmpty) {
+      return null;
+    }
+    final set = <int>{};
+    for (final mb in dataExactMb) {
+      set.addAll(CompareOffer.dataMbVariants(mb));
+    }
+    final list = set.toList()..sort();
+    return list.isEmpty ? null : list;
+  }
   bool get wireUnlimitedOnly => dataMode == DataFilterMode.unlimited;
+  List<String>? get wireSpeedTiers =>
+      dataMode == DataFilterMode.unlimited ? speedTiers : null;
 
   double? get wireMinPriceUsd => priceRangeOn ? minPriceUsd : null;
   double? get wireMaxPriceUsd => priceRangeOn ? maxPriceUsd : null;
@@ -332,12 +473,17 @@ class CompareFilters {
   bool get priceIsActive =>
       priceRangeOn && (minPriceUsd != null || maxPriceUsd != null);
 
+  bool get speedIsActive =>
+      dataMode == DataFilterMode.unlimited &&
+      speedTiers != null &&
+      speedTiers!.isNotEmpty;
+
   int get activeCount => [
         coverage != null,
         validityIsActive,
         dataIsActive,
         priceIsActive,
-        speedTiers != null && speedTiers!.isNotEmpty,
+        speedIsActive,
       ].where((e) => e).length;
 
   CompareFilters copyWith({

@@ -8,47 +8,69 @@ part of 'app_config_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
+/// The authoritative refill fee rules from app_fee_rules, keyed by line tier.
+/// Enforces C11: Free 7% ($0.50 min), Standard 5% ($0.30 min), Premium 3% ($0.10 min).
+
+@ProviderFor(refillFeeRules)
+final refillFeeRulesProvider = RefillFeeRulesProvider._();
+
+/// The authoritative refill fee rules from app_fee_rules, keyed by line tier.
+/// Enforces C11: Free 7% ($0.50 min), Standard 5% ($0.30 min), Premium 3% ($0.10 min).
+
+final class RefillFeeRulesProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<Map<String, RefillTierFeeRule>>,
+          Map<String, RefillTierFeeRule>,
+          FutureOr<Map<String, RefillTierFeeRule>>
+        >
+    with
+        $FutureModifier<Map<String, RefillTierFeeRule>>,
+        $FutureProvider<Map<String, RefillTierFeeRule>> {
+  /// The authoritative refill fee rules from app_fee_rules, keyed by line tier.
+  /// Enforces C11: Free 7% ($0.50 min), Standard 5% ($0.30 min), Premium 3% ($0.10 min).
+  RefillFeeRulesProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'refillFeeRulesProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$refillFeeRulesHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<Map<String, RefillTierFeeRule>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<Map<String, RefillTierFeeRule>> create(Ref ref) {
+    return refillFeeRules(ref);
+  }
+}
+
+String _$refillFeeRulesHash() => r'ca0f95b142326f0f003f0ec4fe943222a578ceed';
+
 /// The KeepSIMs service fee, as a percentage of a refill's base cost.
-///
-/// Read from `system_configs.APP_FEE_PERCENT` instead of a constant so the
-/// price quoted in the UI is the price `calculate_topup_fees` debits. These
-/// were two hardcoded numbers that silently disagreed — the client quoted 3%
-/// while the trigger charged 5%, so every refill cost more than it displayed.
-/// A power user can change the row from the Supabase dashboard and both the
-/// quote and the debit follow it with no redeploy.
-///
-/// The trigger is always the authority on what is actually charged; this only
-/// decides what the user is shown before they confirm.
+/// Default for Premium automation or fallback callers.
 
 @ProviderFor(appFeePercent)
 final appFeePercentProvider = AppFeePercentProvider._();
 
 /// The KeepSIMs service fee, as a percentage of a refill's base cost.
-///
-/// Read from `system_configs.APP_FEE_PERCENT` instead of a constant so the
-/// price quoted in the UI is the price `calculate_topup_fees` debits. These
-/// were two hardcoded numbers that silently disagreed — the client quoted 3%
-/// while the trigger charged 5%, so every refill cost more than it displayed.
-/// A power user can change the row from the Supabase dashboard and both the
-/// quote and the debit follow it with no redeploy.
-///
-/// The trigger is always the authority on what is actually charged; this only
-/// decides what the user is shown before they confirm.
+/// Default for Premium automation or fallback callers.
 
 final class AppFeePercentProvider
     extends $FunctionalProvider<AsyncValue<double>, double, FutureOr<double>>
     with $FutureModifier<double>, $FutureProvider<double> {
   /// The KeepSIMs service fee, as a percentage of a refill's base cost.
-  ///
-  /// Read from `system_configs.APP_FEE_PERCENT` instead of a constant so the
-  /// price quoted in the UI is the price `calculate_topup_fees` debits. These
-  /// were two hardcoded numbers that silently disagreed — the client quoted 3%
-  /// while the trigger charged 5%, so every refill cost more than it displayed.
-  /// A power user can change the row from the Supabase dashboard and both the
-  /// quote and the debit follow it with no redeploy.
-  ///
-  /// The trigger is always the authority on what is actually charged; this only
-  /// decides what the user is shown before they confirm.
+  /// Default for Premium automation or fallback callers.
   AppFeePercentProvider._()
     : super(
         from: null,
@@ -74,28 +96,22 @@ final class AppFeePercentProvider
   }
 }
 
-String _$appFeePercentHash() => r'3ef7ad79cecd31c5a4db6b43b8c00e62d4672321';
+String _$appFeePercentHash() => r'961e7f989fcc1406bfc7397e522abc37b6a55bbf';
 
-/// The minimum dollar floor for the app fee, read from `system_configs.MIN_APP_FEE_USD`.
-///
-/// Ensures micro-topups (under $1.00) retain a safe minimum profit margin floor
-/// ($0.03 by default) rather than fractions of a cent.
+/// The minimum dollar floor for the app fee.
+/// Default for Premium automation or fallback callers.
 
 @ProviderFor(minAppFeeUsd)
 final minAppFeeUsdProvider = MinAppFeeUsdProvider._();
 
-/// The minimum dollar floor for the app fee, read from `system_configs.MIN_APP_FEE_USD`.
-///
-/// Ensures micro-topups (under $1.00) retain a safe minimum profit margin floor
-/// ($0.03 by default) rather than fractions of a cent.
+/// The minimum dollar floor for the app fee.
+/// Default for Premium automation or fallback callers.
 
 final class MinAppFeeUsdProvider
     extends $FunctionalProvider<AsyncValue<double>, double, FutureOr<double>>
     with $FutureModifier<double>, $FutureProvider<double> {
-  /// The minimum dollar floor for the app fee, read from `system_configs.MIN_APP_FEE_USD`.
-  ///
-  /// Ensures micro-topups (under $1.00) retain a safe minimum profit margin floor
-  /// ($0.03 by default) rather than fractions of a cent.
+  /// The minimum dollar floor for the app fee.
+  /// Default for Premium automation or fallback callers.
   MinAppFeeUsdProvider._()
     : super(
         from: null,
@@ -121,7 +137,7 @@ final class MinAppFeeUsdProvider
   }
 }
 
-String _$minAppFeeUsdHash() => r'7658ce853e8e05279dc62ac735d136a0e5e98aab';
+String _$minAppFeeUsdHash() => r'a642eea26e409329cc925166f08e29a9418059fd';
 
 /// The yearly per-line service fee both paid tiers carry.
 ///

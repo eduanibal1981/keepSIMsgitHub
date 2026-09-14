@@ -8,6 +8,9 @@ SimLine _line({
   bool isHomeMode = false,
   bool protectionPaused = false,
   bool requiresProtectionAtHome = false,
+  bool isCarrierVerified = false,
+  DateTime? carrierVerifiedAt,
+  String verificationStatus = 'unverified',
 }) {
   return SimLine(
     id: 'line-1',
@@ -18,111 +21,109 @@ SimLine _line({
     isHomeMode: isHomeMode,
     protectionPaused: protectionPaused,
     requiresProtectionAtHome: requiresProtectionAtHome,
+    isCarrierVerified: isCarrierVerified,
+    carrierVerifiedAt: carrierVerifiedAt,
+    verificationStatus: verificationStatus,
   );
 }
 
 void main() {
-  group('displayHealthScore — premium tier', () {
-    test('protection + active + recent refill scores 100', () {
+  group('displayHealthScore — 4-pillar 25-point scoring (max 100)', () {
+    test('all 4 pillars active scores 100', () {
       final line = _line(
         lastTopupAt: DateTime.now().subtract(const Duration(days: 10)),
+        isCarrierVerified: true,
       );
       expect(
-        line.displayHealthScore(isPremium: true, hasProtectionActive: true),
-        100,
+        line.displayHealthScore(
+          hasRefillSchedule: true,
+          hasNotificationSchedule: true,
+          isVerified: true,
+        ),
+        100, // 25 + 25 + 25 + 25
       );
     });
 
-    test('protection alone scores 50 + 25 for active status', () {
-      final line = _line(lastTopupAt: null);
-      expect(
-        line.displayHealthScore(isPremium: true, hasProtectionActive: true),
-        75,
-      );
-    });
-
-    test('refill older than 80 days does not count as recent', () {
+    test('user scenario: notification + verified + recent refill without refill schedule scores 75', () {
       final line = _line(
-        lastTopupAt: DateTime.now().subtract(const Duration(days: 81)),
+        lastTopupAt: DateTime.now().subtract(const Duration(days: 1)),
+        isCarrierVerified: true,
       );
       expect(
-        line.displayHealthScore(isPremium: true, hasProtectionActive: true),
-        75,
+        line.displayHealthScore(
+          hasRefillSchedule: false,
+          hasNotificationSchedule: true,
+          isVerified: true,
+        ),
+        75, // 0 + 25 + 25 + 25
       );
     });
 
-    test('no protection, inactive, no refill scores 0', () {
-      final line = _line(status: 'expired', lastTopupAt: null);
+    test('refill older than carrier expiration days (default 90) does not get refill points', () {
+      final line = _line(
+        lastTopupAt: DateTime.now().subtract(const Duration(days: 91)),
+      );
       expect(
-        line.displayHealthScore(isPremium: true, hasProtectionActive: false),
+        line.displayHealthScore(
+          hasRefillSchedule: true,
+          hasNotificationSchedule: true,
+          isVerified: true,
+          carrierExpirationDays: 90,
+        ),
+        75, // 25 + 25 + 25 + 0
+      );
+    });
+
+    test('custom carrier expiration days is respected', () {
+      final line = _line(
+        lastTopupAt: DateTime.now().subtract(const Duration(days: 45)),
+      );
+      // If carrier rule is 30 days, 45 days is expired (0 pts)
+      expect(
+        line.displayHealthScore(
+          hasRefillSchedule: false,
+          hasNotificationSchedule: false,
+          isVerified: false,
+          carrierExpirationDays: 30,
+        ),
+        0,
+      );
+      // If carrier rule is 60 days, 45 days is valid (25 pts)
+      expect(
+        line.displayHealthScore(
+          hasRefillSchedule: false,
+          hasNotificationSchedule: false,
+          isVerified: false,
+          carrierExpirationDays: 60,
+        ),
+        25,
+      );
+    });
+
+    test('no pillars met scores 0', () {
+      final line = _line(status: 'inactive', lastTopupAt: null);
+      expect(
+        line.displayHealthScore(
+          hasRefillSchedule: false,
+          hasNotificationSchedule: false,
+          isVerified: false,
+        ),
         0,
       );
     });
-  });
 
-  group('displayHealthScore — free tier', () {
-    test('is binary on protection', () {
-      final line = _line(lastTopupAt: null);
-      expect(
-        line.displayHealthScore(isPremium: false, hasProtectionActive: true),
-        100,
-      );
-      expect(
-        line.displayHealthScore(isPremium: false, hasProtectionActive: false),
-        0,
-      );
-    });
-  });
-
-  group('displayHealthScore — home mode vs protection (B5)', () {
-    test('a deliberately paused line shows 100 (nothing to worry about)', () {
+    test('paused line evaluates strictly according to 4 pillars without override', () {
       final line = _line(
         status: 'expired',
-        isHomeMode: true,
+        isHomeMode: false,
         protectionPaused: true,
       );
       expect(
-        line.displayHealthScore(isPremium: true, hasProtectionActive: false),
-        100,
-      );
-    });
-
-    test(
-      "resident's dormant line at home reports true risk, not a masked 100",
-      () {
-        // Home mode is only a location fact: with protection NOT paused
-        // (requiresProtectionAtHome), the score reflects the real state.
-        final line = _line(
-          status: 'expired',
-          lastTopupAt: null,
-          isHomeMode: true,
-          requiresProtectionAtHome: true,
-        );
-        expect(
-          line.displayHealthScore(isPremium: true, hasProtectionActive: false),
-          0,
-        );
-      },
-    );
-
-    test('protected line at home scores on its real protection state', () {
-      final line = _line(
-        lastTopupAt: DateTime.now().subtract(const Duration(days: 5)),
-        isHomeMode: true,
-        requiresProtectionAtHome: true,
-      );
-      expect(
-        line.displayHealthScore(isPremium: true, hasProtectionActive: true),
-        100,
-      );
-    });
-
-    test('home mode alone no longer masks health', () {
-      // isHomeMode true but protectionPaused false (e.g. flag flipped while
-      // requiresProtectionAtHome was set): the real score wins.
-      final line = _line(status: 'expired', isHomeMode: true);
-      expect(
-        line.displayHealthScore(isPremium: true, hasProtectionActive: false),
+        line.displayHealthScore(
+          hasRefillSchedule: false,
+          hasNotificationSchedule: false,
+          isVerified: false,
+        ),
         0,
       );
     });

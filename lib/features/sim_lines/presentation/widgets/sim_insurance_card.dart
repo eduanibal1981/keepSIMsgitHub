@@ -39,8 +39,6 @@ class SimInsuranceCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (line.protectionPaused) return const SizedBox.shrink();
-
     final policyAsync = ref.watch(rescuePolicyForLineProvider(line.id));
     final LineRescuePolicy? policy = policyAsync.value;
     final bool insured = policy?.isInsured ?? false;

@@ -10,6 +10,7 @@ import 'package:keep_sims/features/offline_recharge/controller/offline_refill_co
 import 'package:keep_sims/features/offline_recharge/controller/offline_voucher_controller.dart';
 import 'package:keep_sims/features/offline_recharge/model/offline_refill_model.dart';
 import 'package:keep_sims/features/offline_recharge/ui/emergency_pin_card.dart';
+import 'package:keep_sims/features/offline_recharge/ui/emergency_esim_card.dart';
 import 'package:keep_sims/features/sim_lines/data/models/carrier_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
@@ -153,7 +154,7 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen>
   Future<bool> _open(Uri uri, {bool external = false}) async {
     try {
       if (await canLaunchUrl(uri)) {
-        return launchUrl(
+        return await launchUrl(
           uri,
           mode: external
               ? LaunchMode.externalApplication
@@ -462,6 +463,7 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen>
                       simLineId: activeSim.id,
                       phoneNumber: activeSim.phoneNumber,
                     ),
+                  const EmergencyEsimCard(),
                   for (final channel in channels) ...[
                     _buildChannelCard(
                       channel: channel,
@@ -565,14 +567,14 @@ class _OfflineRefillScreenState extends ConsumerState<OfflineRefillScreen>
         dotColor = _C.signal;
         title = l.offlineRefillLinked(phoneDisplay);
         subtitle = l.offlineRefillWalletInfo(
-            carrierLabel, '\$${walletBalance.toStringAsFixed(2)}');
+            carrierLabel, walletBalance.toStringAsFixed(2));
       case _RefillStatus.noFunds:
         bg = _C.amberDim;
         borderColor = _C.amber.withValues(alpha: 0.35);
         dotColor = _C.amber;
         title = l.offlineRefillNoFunds;
         subtitle = l.offlineRefillNoFundsSub(
-            phoneDisplay, '\$${walletBalance.toStringAsFixed(2)}');
+            phoneDisplay, walletBalance.toStringAsFixed(2));
       case _RefillStatus.unregistered:
         bg = _C.dangerDim;
         borderColor = _C.danger.withValues(alpha: 0.35);

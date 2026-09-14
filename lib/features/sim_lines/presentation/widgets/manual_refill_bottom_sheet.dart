@@ -47,14 +47,38 @@ class _ManualRefillBottomSheetState
     super.dispose();
   }
 
-  /// The app fee rate currently configured server-side. Falls back to the same
-  /// default `calculate_topup_fees` uses, so a failed read cannot make the
-  /// quote disagree with the debit.
-  double get _appFeePercent =>
-      ref.watch(appFeePercentProvider).value ?? kDefaultAppFeePercent;
+  /// The tier-aware refill fee rule for this SIM line (Free: 7% / $0.50 min,
+  /// Standard: 5% / $0.30 min, Premium: 3% / $0.10 min per C11).
+  RefillTierFeeRule get _feeRule {
+    final rules = ref.watch(refillFeeRulesProvider).value;
+    final tier = widget.simLine.effectiveTier;
+    if (rules != null && rules.containsKey(tier)) {
+      return rules[tier]!;
+    }
+    switch (tier) {
+      case 'standard':
+        return const RefillTierFeeRule(percentage: 5.0, minimum: 0.30);
+      case 'premium':
+        return const RefillTierFeeRule(percentage: 3.0, minimum: 0.10);
+      default:
+        return const RefillTierFeeRule(percentage: 7.0, minimum: 0.50);
+    }
+  }
 
-  double get _minAppFeeUsd =>
-      ref.watch(minAppFeeUsdProvider).value ?? kDefaultMinAppFeeUsd;
+  double get _appFeePercent => _feeRule.percentage;
+
+  double get _minAppFeeUsd => _feeRule.minimum;
+
+  String get _tierLabel {
+    switch (widget.simLine.effectiveTier) {
+      case 'standard':
+        return 'Standard 5%';
+      case 'premium':
+        return 'Premium 3%';
+      default:
+        return 'Free 7%';
+    }
+  }
 
   RefillQuote _quote(double baseCostUsd) =>
       RefillPricing.quote(
@@ -115,10 +139,26 @@ class _ManualRefillBottomSheetState
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            'Successfully requested Refill for ${widget.simLine.phoneNumber}',
+          content: Row(
+            children: [
+              const SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Refill requested for ${widget.simLine.phoneNumber}. Processing with operator...',
+                ),
+              ),
+            ],
           ),
-          backgroundColor: AppColors.success,
+          backgroundColor: AppColors.primaryDark,
+          duration: const Duration(seconds: 4),
         ),
       );
     } catch (e) {
@@ -691,7 +731,7 @@ class _ManualRefillBottomSheetState
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: Text(
-                'Base: \$${_rangeBaseCostUsd.toStringAsFixed(2)} | App Fee: \$${_rangeAppFee.toStringAsFixed(2)}',
+                'Base: \$${_rangeBaseCostUsd.toStringAsFixed(2)} | App Fee ($_tierLabel): \$${_rangeAppFee.toStringAsFixed(2)}',
                 style: AppTextStyles.labelSmall.copyWith(
                   color: AppColors.textTertiaryDark,
                 ),
@@ -1089,7 +1129,7 @@ class _ManualRefillBottomSheetState
             ApproxLocalText(finalPrice),
             const SizedBox(height: 2),
             Text(
-              'Base: \$${baseCost.toStringAsFixed(2)} | App Fee: \$${appFee.toStringAsFixed(2)}',
+              'Base: \$${baseCost.toStringAsFixed(2)} | App Fee ($_tierLabel): \$${appFee.toStringAsFixed(2)}',
               style: AppTextStyles.labelSmall.copyWith(
                 color: AppColors.textTertiaryDark,
               ),

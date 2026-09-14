@@ -33,16 +33,28 @@ import 'package:keep_sims/features/esim/presentation/controllers/esim_compare_co
 import 'package:keep_sims/l10n/app_localizations.dart';
 
 class CompareFilterSheet extends ConsumerStatefulWidget {
-  const CompareFilterSheet({super.key, required this.countryIsoCode});
+  const CompareFilterSheet({
+    super.key,
+    required this.countryIsoCode,
+    this.countryName,
+  });
 
   final String countryIsoCode;
+  final String? countryName;
 
-  static Future<void> show(BuildContext context, String countryIsoCode) {
+  static Future<void> show(
+    BuildContext context,
+    String countryIsoCode, {
+    String? countryName,
+  }) {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => CompareFilterSheet(countryIsoCode: countryIsoCode),
+      builder: (_) => CompareFilterSheet(
+        countryIsoCode: countryIsoCode,
+        countryName: countryName,
+      ),
     );
   }
 
@@ -52,10 +64,9 @@ class CompareFilterSheet extends ConsumerStatefulWidget {
 
 class _CompareFilterSheetState extends ConsumerState<CompareFilterSheet> {
   static const _speedTiers = <(String, String)>[
-    ('fixed', 'Fixed data'),
-    ('lite', 'Unlimited Lite'),
-    ('essential', 'Unlimited Essential'),
-    ('plus', 'Unlimited Plus'),
+    ('lite', 'Lite – 1 GB at Max speed then throttle to 512 kb/s'),
+    ('essential', 'Essential – 2 GB at Max speed then throttle to 1 Mb/s'),
+    ('plus', 'Plus – 3 GB at Max speed then throttle to 1 Mb/s'),
   ];
 
   late final TextEditingController _minPrice;
@@ -98,6 +109,17 @@ class _CompareFilterSheetState extends ConsumerState<CompareFilterSheet> {
             max: double.tryParse(_maxPrice.text.trim()),
           );
     });
+  }
+
+  String _localCoverageLabel(AppLocalizations l10n) {
+    final name = (widget.countryName != null && widget.countryName!.trim().isNotEmpty)
+        ? widget.countryName!.trim()
+        : (CompareOffer.countryNameForCode(widget.countryIsoCode) ??
+            widget.countryIsoCode.trim());
+    if (name.isNotEmpty) {
+      return l10n.compareCoverageLocalCountry(name);
+    }
+    return l10n.localTab;
   }
 
   @override
@@ -173,7 +195,7 @@ class _CompareFilterSheetState extends ConsumerState<CompareFilterSheet> {
                     values: const [null, 'local', 'regional', 'global'],
                     labels: [
                       l10n.compareModeAll,
-                      l10n.localTab,
+                      _localCoverageLabel(l10n),
                       l10n.regionalTab,
                       l10n.globalTab,
                     ],
@@ -188,9 +210,11 @@ class _CompareFilterSheetState extends ConsumerState<CompareFilterSheet> {
                   ..._dataSection(context, l10n, filters, notifier, bounds),
                   const SizedBox(height: 20),
 
-                  _section(context, l10n.compareSpeedLabel),
-                  _speedChips(context, filters, notifier),
-                  const SizedBox(height: 20),
+                  if (filters.dataMode == DataFilterMode.unlimited) ...[
+                    _section(context, l10n.compareSpeedLabel),
+                    _speedChips(context, filters, notifier),
+                    const SizedBox(height: 20),
+                  ],
 
                   ..._priceSection(context, l10n, filters, notifier, bounds),
                   const SizedBox(height: 12),
@@ -287,7 +311,7 @@ class _CompareFilterSheetState extends ConsumerState<CompareFilterSheet> {
     EsimCompareFilters notifier,
     CompareBounds bounds,
   ) {
-    final ladder = bounds.dataMb;
+    final ladder = bounds.canonicalDataMb;
 
     // Unlimited is offered only where unlimited plans exist, for the same
     // reason the sizes come from the catalogue: a mode that can only return

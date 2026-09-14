@@ -245,8 +245,8 @@ serve(async (req: Request) => {
             from: defaultCallerId,
             client_state: clientState,
             webhook_url: webhookUrl,
-            timeout_secs: 25,
-            answering_machine_detection: "detect",
+            timeout_secs: 30,
+            send_ringing_webhook: true,
           }),
         });
 

@@ -54,13 +54,8 @@ abstract class UsageForecast with _$UsageForecast {
 
   /// The frequency chip to preselect in [ScheduledTopupSheet].
   ///
-  /// The server stores the non-premium value (90). Premium accounts are offered
-  /// 85 instead of 90 for the same quarterly slot, so translate at the edge
-  /// rather than storing two columns.
-  int? suggestedChipFor({required bool isPremium}) {
-    final int? f = suggestedFrequencyDays;
-    if (f == null) return null;
-    if (isPremium && f == 90) return 85;
-    return f;
+  /// Returns the exact carrier-derived or calculated cadence (e.g. 76 days).
+  int? suggestedChipFor({bool isPremium = false}) {
+    return suggestedFrequencyDays;
   }
 }

@@ -14,6 +14,7 @@ import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/core/utils/build_context_extension.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
 import 'package:keep_sims/features/esim/domain/entities/compare_offer.dart';
+import 'package:keep_sims/features/esim/presentation/widgets/compare_offer_details_sheet.dart';
 import 'package:keep_sims/l10n/app_localizations.dart';
 
 class CompareOfferCard extends StatelessWidget {
@@ -33,24 +34,6 @@ class CompareOfferCard extends StatelessWidget {
     final a = code.toUpperCase().codeUnitAt(0) - 0x41 + 0x1F1E6;
     final b = code.toUpperCase().codeUnitAt(1) - 0x41 + 0x1F1E6;
     return String.fromCharCode(a) + String.fromCharCode(b);
-  }
-
-  /// Displays the tier / FUP speed for unlimited or DayPass plans.
-  String? get _speedLabel {
-    if (!offer.isUnlimited) return null;
-    if (offer.speedTierRaw != null && offer.speedTierRaw!.startsWith('high-')) {
-      return offer.speedTierRaw;
-    }
-    switch (offer.speedTier) {
-      case OfferSpeedTier.lite:
-        return 'Lite';
-      case OfferSpeedTier.essential:
-        return 'Essential';
-      case OfferSpeedTier.plus:
-        return 'Plus';
-      default:
-        return null;
-    }
   }
 
   @override
@@ -86,7 +69,9 @@ class CompareOfferCard extends StatelessWidget {
                 const SizedBox(height: 12),
                 _couponRow(context, l10n),
               ],
-              const SizedBox(height: 14),
+              const SizedBox(height: 10),
+              _moreDetailsRow(context, l10n),
+              const SizedBox(height: 12),
               _cta(context, l10n, isPartner),
             ],
           ),
@@ -127,24 +112,41 @@ class CompareOfferCard extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 2),
-              Row(
-                children: [
-                  if (primaryCountry != null)
-                    Text(countryFlag(primaryCountry),
-                        style: const TextStyle(fontSize: 13)),
-                  const SizedBox(width: 4),
-                  Flexible(
-                    child: Text(
-                      offer.countryCount > 1
-                          ? '${offer.countryCount} ${l10n.compareCountriesSuffix}'
-                          : (primaryCountry ?? ''),
-                      overflow: TextOverflow.ellipsis,
-                      style: AppTextStyles.caption.copyWith(
-                        color: context.onSurfaceColor.withValues(alpha: 0.6),
+              InkWell(
+                onTap: () => CompareOfferDetailsSheet.show(
+                  context,
+                  offer: offer,
+                  onBuyPressed: onPressed,
+                ),
+                borderRadius: BorderRadius.circular(6),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (primaryCountry != null)
+                      Text(countryFlag(primaryCountry),
+                          style: const TextStyle(fontSize: 13)),
+                    const SizedBox(width: 4),
+                    Flexible(
+                      child: Text(
+                        offer.countryCount > 1
+                            ? '${offer.countryCount} ${l10n.compareCountriesSuffix}'
+                            : (primaryCountry != null
+                                ? (CompareOffer.countryNameForCode(primaryCountry) ?? primaryCountry)
+                                : ''),
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.caption.copyWith(
+                          color: context.onSurfaceColor.withValues(alpha: 0.6),
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 2),
+                    Icon(
+                      Icons.chevron_right_rounded,
+                      size: 14,
+                      color: context.onSurfaceColor.withValues(alpha: 0.4),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -255,13 +257,10 @@ class CompareOfferCard extends StatelessWidget {
 
   // ── Data / validity / price ─────────────────────────────────────────────
   Widget _specsAndPrice(BuildContext context, AppLocalizations l10n) {
-    final speed = _speedLabel;
-
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        _spec(context, l10n.compareDataLabel, offer.formattedData,
-            trailing: speed),
+        _spec(context, l10n.compareDataLabel, offer.formattedData),
         const SizedBox(width: 20),
         _spec(context, l10n.compareValidityLabel,
             '${offer.durationDays} ${l10n.compareDaysSuffix}'),
@@ -271,8 +270,7 @@ class CompareOfferCard extends StatelessWidget {
     );
   }
 
-  Widget _spec(BuildContext context, String label, String value,
-      {String? trailing}) {
+  Widget _spec(BuildContext context, String label, String value) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -285,35 +283,12 @@ class CompareOfferCard extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 2),
-        Row(
-          children: [
-            Text(
-              value,
-              style: AppTextStyles.bodyLarge.copyWith(
-                color: context.onSurfaceColor,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            if (trailing != null) ...[
-              const SizedBox(width: 5),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  trailing,
-                  style: AppTextStyles.labelSmall.copyWith(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 9,
-                  ),
-                ),
-              ),
-            ],
-          ],
+        Text(
+          value,
+          style: AppTextStyles.bodyLarge.copyWith(
+            color: context.onSurfaceColor,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ],
     );
@@ -437,6 +412,46 @@ class CompareOfferCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  // ── More details ────────────────────────────────────────────────────────
+  Widget _moreDetailsRow(BuildContext context, AppLocalizations l10n) {
+    return InkWell(
+      onTap: () => CompareOfferDetailsSheet.show(
+        context,
+        offer: offer,
+        onBuyPressed: onPressed,
+      ),
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 3),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.info_outline_rounded,
+              size: 14,
+              color: AppColors.primary,
+            ),
+            const SizedBox(width: 5),
+            Text(
+              l10n.compareMoreDetails,
+              style: AppTextStyles.caption.copyWith(
+                color: AppColors.primary,
+                fontWeight: FontWeight.w600,
+                fontSize: 12,
+              ),
+            ),
+            const SizedBox(width: 2),
+            const Icon(
+              Icons.chevron_right_rounded,
+              size: 16,
+              color: AppColors.primary,
+            ),
+          ],
+        ),
       ),
     );
   }

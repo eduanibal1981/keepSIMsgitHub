@@ -17,6 +17,7 @@ import 'package:keep_sims/core/widgets/haptic_helper.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/usage_forecast_model.dart';
 import 'package:keep_sims/features/sim_lines/presentation/providers/usage_forecast_provider.dart';
+import 'package:keep_sims/features/sim_lines/presentation/providers/line_refill_quote_provider.dart';
 import 'package:keep_sims/features/scheduled_topups/model/scheduled_topup_model.dart';
 import 'package:keep_sims/features/scheduled_topups/ui/widgets/scheduled_topup_sheet.dart';
 
@@ -34,7 +35,7 @@ class DepletionForecastCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (line.protectionPaused) return const SizedBox.shrink();
+    if (existingRefillSchedule != null) return const SizedBox.shrink();
 
     final forecastAsync = ref.watch(usageForecastForLineProvider(line.id));
 
@@ -162,9 +163,13 @@ class DepletionForecastCard extends ConsumerWidget {
       30 => 'monthly',
       _ => 'every $chip days',
     };
-    final String amount = f.suggestedAmountUsd != null
-        ? ' of \$${f.suggestedAmountUsd!.toStringAsFixed(2)}'
-        : '';
+
+    final suggestedQuote = ref.watch(suggestedLineRefillQuoteProvider(line)).value;
+    final String amount = suggestedQuote != null
+        ? ' of \$${suggestedQuote.totalUsd.toStringAsFixed(2)}'
+        : (f.suggestedAmountUsd != null
+            ? ' of \$${f.suggestedAmountUsd!.toStringAsFixed(2)}'
+            : '');
 
     return Row(
       children: [
@@ -201,6 +206,7 @@ class DepletionForecastCard extends ConsumerWidget {
               builder: (_) => ScheduledTopupSheet(
                 simLineId: line.id,
                 simNickname: line.nickname ?? line.phoneNumber,
+                simLine: line,
                 existingSchedule: existingRefillSchedule,
                 configMode: 'refill',
               ),

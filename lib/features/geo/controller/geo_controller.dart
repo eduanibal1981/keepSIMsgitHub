@@ -1,12 +1,10 @@
 import 'dart:convert';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:keep_sims/core/providers/app_config_provider.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import 'package:keep_sims/features/notifications/presentation/controllers/notification_settings_controller.dart';
 import 'package:keep_sims/features/sim_lines/data/models/country_model.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
-import '../domain/line_mode_resolver.dart';
 import '../model/geo_state.dart';
 
 part 'geo_controller.g.dart';
@@ -127,41 +125,9 @@ class GeoController extends _$GeoController {
   /// switches, so a line kept whatever the user last tapped — a Saudi line sat
   /// in Home Mode, protection paused, while its owner was in Oman.
   Future<void> _syncLineModes(String detectedIso) async {
-    if (!(await ref.read(geoLineModeSyncEnabledProvider.future))) {
-      _logs.add('⏸️ Mode sync is off (GEO_LINE_MODE_SYNC_ENABLED).');
-      return;
-    }
-
-    final lines = ref.read(simLinesControllerProvider).value ?? [];
-    final countries = ref.read(supportedCountriesProvider).value ?? [];
-    if (lines.isEmpty || countries.isEmpty) return;
-
-    final isoByCountryId = {for (final c in countries) c.id: c.isoCode};
-    final notifier = ref.read(simLinesControllerProvider.notifier);
-
-    for (final line in lines) {
-      final decision = resolveLineMode(
-        detectedIso: detectedIso,
-        // A line with no country on file resolves to null and is skipped
-        // rather than guessed at.
-        lineCountryIso: isoByCountryId[line.countryId],
-        isHomeMode: line.isHomeMode,
-        protectionPaused: line.protectionPaused,
-        requiresProtectionAtHome: line.requiresProtectionAtHome,
-      );
-      if (decision == null) continue;
-
-      await notifier.applyGeoLineMode(
-        line.id,
-        isHome: decision.isHomeMode,
-        pauseProtection: decision.protectionPaused,
-      );
-      _logs.add(
-        decision.isHomeMode
-            ? '🏠 ${line.phoneNumber} → Home Mode (you are in its country).'
-            : '✈️ ${line.phoneNumber} → Travel Mode (protection running).',
-      );
-    }
+    // Location-based line protection pause is retired.
+    // Lines remain protected regardless of country location.
+    return;
   }
 
   /// Toggles global travel mode switch.

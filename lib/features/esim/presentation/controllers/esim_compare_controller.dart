@@ -48,14 +48,20 @@ class EsimCompareFilters extends _$EsimCompareFilters {
         minDataMb: null,
         maxDataMb: null,
         dataExactMb: const [],
+        speedTiers: mode == DataFilterMode.unlimited ? state.speedTiers : null,
       );
 
-  void setDataRange(int? minMb, int? maxMb) =>
-      state = state.copyWith(minDataMb: minMb, maxDataMb: maxMb);
+  void setDataRange(int? minMb, int? maxMb) => state = state.copyWith(
+        minDataMb:
+            minMb != null ? CompareOffer.canonicalizeDataMb(minMb) : null,
+        maxDataMb:
+            maxMb != null ? CompareOffer.canonicalizeDataMb(maxMb) : null,
+      );
 
   void toggleDataExact(int mb) {
+    final canonical = CompareOffer.canonicalizeDataMb(mb);
     final next = [...state.dataExactMb];
-    if (!next.remove(mb)) next.add(mb);
+    if (!next.remove(canonical)) next.add(canonical);
     next.sort();
     state = state.copyWith(dataExactMb: next);
   }

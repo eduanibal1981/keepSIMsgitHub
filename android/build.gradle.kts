@@ -24,11 +24,20 @@ subprojects {
     }
 }
 
+// file_picker 11 skips the legacy Kotlin plugin on AGP 9. Enable built-in
+// Kotlin for this module while older Flutter plugins still require the global
+// android.builtInKotlin=false compatibility setting.
+project(":file_picker") {
+    pluginManager.withPlugin("com.android.library") {
+        pluginManager.apply("com.android.built-in-kotlin")
+    }
+}
+
 // Raise the Kotlin language floor for plugin modules we do not own.
 //
 // `sentry_flutter` (8.14.2) hardcodes `languageVersion = "1.6"` in its own
-// `android/build.gradle`. Kotlin 2.2 — the version pinned in settings.gradle.kts
-// — refuses outright: "Language version 1.6 is no longer supported". That fails
+// `android/build.gradle`. Kotlin 2.2 and later refuse this setting outright:
+// "Language version 1.6 is no longer supported". That fails
 // `:sentry_flutter:compileDebugKotlin` and with it *every* Android build, debug
 // and release alike, in a module this repo cannot edit.
 //
@@ -54,6 +63,13 @@ subprojects {
 // "Cannot run Project.afterEvaluate(Action) when the project is already evaluated."
 subprojects {
     afterEvaluate {
+        // AGP 9 checks library-to-library compile SDK compatibility. Sentry 8
+        // pins API 34, but its package_info_plus dependency requires API 36.
+        if (name == "sentry_flutter") {
+            extensions.configure<com.android.build.api.dsl.LibraryExtension> {
+                compileSdk = maxOf(compileSdk ?: 0, 36)
+            }
+        }
         tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
             val floor = org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_1_9
             compilerOptions {

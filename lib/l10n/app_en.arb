@@ -1412,10 +1412,39 @@
     "compareDataLabel": "Data",
     "compareValidityLabel": "Validity",
     "compareCoverageLabel": "Coverage",
+    "compareCoverageLocalCountry": "{country} only",
+    "@compareCoverageLocalCountry": {
+        "description": "Coverage filter chip for local plans covering only the selected destination country, e.g. Egypt only.",
+        "placeholders": {
+            "country": {
+                "type": "String"
+            }
+        }
+    },
     "compareSpeedLabel": "Speed",
     "compareMaxPriceLabel": "Max price",
     "comparePriceLabel": "Price",
     "compareFiltersTitle": "Filters",
+    "compareMoreDetails": "More details",
+    "compareDetailsTab": "Details",
+    "compareCountriesTab": "Countries",
+    "compareNetworkLabel": "Network",
+    "compareNetworkDesc": "Covers {count} destinations. High-speed 4G / 5G / LTE networks where available.",
+    "@compareNetworkDesc": {
+        "placeholders": { "count": { "type": "int" } }
+    },
+    "comparePlanTypeLabel": "Plan type",
+    "comparePlanTypeDesc": "Data only. Voice calls and SMS are not included.",
+    "compareEkycLabel": "eKYC (Identity verification)",
+    "compareEkycNotRequired": "Not required",
+    "compareDeliveryLabel": "Delivery & Setup",
+    "compareDeliveryResaleDesc": "Instant in-app digital delivery. QR code and manual activation code available immediately after purchase.",
+    "compareDeliveryPartnerDesc": "Partner direct delivery on partner platform.",
+    "compareOtherInfoLabel": "Other info",
+    "compareRoamingNotice": "Data roaming must be enabled in device settings upon arrival.",
+    "compareApnNotice": "APN is configured automatically by the network.",
+    "compareSearchCountryHint": "Search by country name or code...",
+    "compareNoCountriesMatch": "No countries match your search.",
     "compareReset": "Reset",
     "compareShowResults": "Show results",
     "compareSortDuration": "Validity: Longest first",
@@ -1555,5 +1584,16 @@
     "voucherNeedsConnection": "Connect to the internet once to store a PIN for offline use.",
     "voucherUnavailableOffline": "Connect once to set up your emergency PIN.",
     "voucherExpiredTitle": "This PIN has expired",
-    "voucherExpiredBody": "Connect to the internet and we will store a fresh one."
+    "voucherExpiredBody": "Connect to the internet and we will store a fresh one.",
+    "mySims": "My SIMs",
+    "sharedWithMe": "Shared with me",
+    "searchNameOrNumber": "Search name or number",
+    "allFilter": "All",
+    "alertSoon": "Alert soon",
+    "showFilters": "Show filters",
+    "hideFilters": "Hide filters",
+    "refreshSims": "Refresh SIMs",
+    "noMatchingSims": "No matching SIMs",
+    "tryDifferentSimSearch": "Try a different name, number, or filter.",
+    "clearSearchAndFilters": "Clear search and filters"
 }

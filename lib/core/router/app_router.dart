@@ -30,6 +30,7 @@ import 'package:keep_sims/features/referrals/ui/referrals_screen.dart';
 import 'package:keep_sims/features/payments/ui/payments_screen.dart';
 import 'package:keep_sims/features/geo/ui/geo_screen.dart';
 import 'package:keep_sims/features/offline_recharge/ui/offline_refill_screen.dart';
+import 'package:keep_sims/features/offline_recharge/ui/recovery_guidance_screen.dart';
 import 'package:keep_sims/features/settings/presentation/screens/alert_simulator_screen.dart';
 import 'package:keep_sims/features/support/presentation/screens/support_tickets_list_screen.dart';
 import 'package:keep_sims/features/support/presentation/screens/create_ticket_screen.dart';
@@ -42,6 +43,7 @@ import 'package:keep_sims/features/price_watch/presentation/screens/price_watch_
 import 'package:keep_sims/features/roam_calculator/presentation/screens/roam_calculator_screen.dart';
 import 'package:keep_sims/features/calling/presentation/screens/calling_screen.dart';
 import 'package:keep_sims/features/calling/presentation/screens/active_call_screen.dart';
+import 'package:keep_sims/features/return_trip/presentation/screens/return_trip_wizard_screen.dart';
 
 part 'app_router.g.dart';
 
@@ -57,6 +59,7 @@ abstract final class AppRoutes {
   static const String simLines = '/sim-lines';
   static const String simLineDetail = '/sim-lines/detail/:id';
   static const String simLineExecutions = '/sim-lines/detail/:id/executions';
+  static const String returnTrip = '/sim-lines/:id/return-trip';
   static const String wallet = '/wallet';
   static const String notifications = '/notifications';
   static const String settings = '/settings';
@@ -77,6 +80,7 @@ abstract final class AppRoutes {
   static const String esimPlans = '/esim/plans';
   static const String esimPriceWatch = '/esim/price-watch';
   static const String esimRoamCalculator = '/esim/roam-calculator';
+  static const String emergencyRecovery = '/emergency-recovery';
 }
 
 
@@ -189,6 +193,22 @@ RouterConfig<Object> appRouter(Ref ref) {
         path: AppRoutes.callingActive,
         name: 'callingActive',
         builder: (context, state) => const ActiveCallScreen(),
+      ),
+
+      // ── Return Trip Wizard (Full-Screen Flow) ────────────────
+      GoRoute(
+        path: '/sim-lines/:id/return-trip',
+        name: 'returnTripDirect',
+        builder: (context, state) => ReturnTripWizardScreen(
+          simLineId: state.pathParameters['id']!,
+        ),
+      ),
+      GoRoute(
+        path: '/sim-lines/detail/:id/return-trip',
+        name: 'returnTripDetail',
+        builder: (context, state) => ReturnTripWizardScreen(
+          simLineId: state.pathParameters['id']!,
+        ),
       ),
 
       // ── Main App Shell ─────────────────────────────────────
@@ -304,6 +324,11 @@ RouterConfig<Object> appRouter(Ref ref) {
                   );
                 },
               ),
+              GoRoute(
+                path: 'emergency-recovery',
+                name: 'settingsEmergencyRecovery',
+                builder: (context, state) => const RecoveryGuidanceScreen(),
+              ),
               // Dev-only tools: compiled out of release builds (kDebugMode
               // is a compile-time constant, so tree shaking removes the
               // simulator screens from the release bundle).
@@ -319,6 +344,11 @@ RouterConfig<Object> appRouter(Ref ref) {
             path: AppRoutes.household,
             name: 'household',
             builder: (context, state) => const HouseholdScreen(),
+          ),
+          GoRoute(
+            path: AppRoutes.emergencyRecovery,
+            name: 'emergencyRecovery',
+            builder: (context, state) => const RecoveryGuidanceScreen(),
           ),
           GoRoute(
             path: AppRoutes.esim,

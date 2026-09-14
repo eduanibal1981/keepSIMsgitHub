@@ -2655,6 +2655,11 @@ class AppLocalizationsAr extends AppLocalizations {
   String get compareCoverageLabel => 'Coverage';
 
   @override
+  String compareCoverageLocalCountry(String country) {
+    return '$country فقط';
+  }
+
+  @override
   String get compareSpeedLabel => 'Speed';
 
   @override
@@ -2665,6 +2670,63 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get compareFiltersTitle => 'Filters';
+
+  @override
+  String get compareMoreDetails => 'مزيد من التفاصيل';
+
+  @override
+  String get compareDetailsTab => 'التفاصيل';
+
+  @override
+  String get compareCountriesTab => 'الدول';
+
+  @override
+  String get compareNetworkLabel => 'الشبكة';
+
+  @override
+  String compareNetworkDesc(int count) {
+    return 'تغطي $count وجهة. شبكات 4G / 5G / LTE عالية السرعة حيثما توفرت.';
+  }
+
+  @override
+  String get comparePlanTypeLabel => 'نوع الباقة';
+
+  @override
+  String get comparePlanTypeDesc =>
+      'بيانات فقط. لا تشمل المكالمات الصوتية أو الرسائل النصية.';
+
+  @override
+  String get compareEkycLabel => 'التحقق من الهوية (eKYC)';
+
+  @override
+  String get compareEkycNotRequired => 'غير مطلوب';
+
+  @override
+  String get compareDeliveryLabel => 'التسليم والإعداد';
+
+  @override
+  String get compareDeliveryResaleDesc =>
+      'تسليم رقمي فوري في التطبيق. رمز الاستجابة السريعة (QR) ورمز التفعيل اليدوي متاحان فورًا بعد الشراء.';
+
+  @override
+  String get compareDeliveryPartnerDesc => 'تسليم مباشر عبر منصة الشريك.';
+
+  @override
+  String get compareOtherInfoLabel => 'معلومات إضافية';
+
+  @override
+  String get compareRoamingNotice =>
+      'يجب تفعيل تجوال البيانات في إعدادات جهازك عند الوصول.';
+
+  @override
+  String get compareApnNotice =>
+      'يتم تكوين اسم نقطة الوصول (APN) تلقائيًا بواسطة الشبكة.';
+
+  @override
+  String get compareSearchCountryHint => 'البحث باسم الدولة أو الرمز...';
+
+  @override
+  String get compareNoCountriesMatch => 'لا توجد دول تطابق بحثك.';
 
   @override
   String get compareReset => 'Reset';
@@ -2896,4 +2958,37 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get voucherExpiredBody =>
       'Connect to the internet and we will store a fresh one.';
+
+  @override
+  String get mySims => 'شرائحي';
+
+  @override
+  String get sharedWithMe => 'مشارَكة معي';
+
+  @override
+  String get searchNameOrNumber => 'ابحث بالاسم أو الرقم';
+
+  @override
+  String get allFilter => 'الكل';
+
+  @override
+  String get alertSoon => 'تنبيه قريباً';
+
+  @override
+  String get showFilters => 'إظهار الفلاتر';
+
+  @override
+  String get hideFilters => 'إخفاء الفلاتر';
+
+  @override
+  String get refreshSims => 'تحديث الشرائح';
+
+  @override
+  String get noMatchingSims => 'لا توجد شرائح مطابقة';
+
+  @override
+  String get tryDifferentSimSearch => 'جرب اسماً أو رقماً أو فلتراً آخر.';
+
+  @override
+  String get clearSearchAndFilters => 'مسح البحث والفلاتر';
 }

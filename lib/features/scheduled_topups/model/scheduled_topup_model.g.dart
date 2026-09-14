@@ -31,6 +31,10 @@ _ScheduledTopup _$ScheduledTopupFromJson(Map<String, dynamic> json) =>
           : DateTime.parse(json['updated_at'] as String),
       offerId: json['offer_id'] as String?,
       offerValue: (json['offer_value'] as num?)?.toInt(),
+      baseCostUsd: (json['base_cost_usd'] as num?)?.toDouble(),
+      appFeeUsd: (json['app_fee_usd'] as num?)?.toDouble(),
+      pricingTier: json['pricing_tier'] as String?,
+      feeRuleVersion: (json['fee_rule_version'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$ScheduledTopupToJson(_ScheduledTopup instance) =>
@@ -52,4 +56,8 @@ Map<String, dynamic> _$ScheduledTopupToJson(_ScheduledTopup instance) =>
       'updated_at': instance.updatedAt?.toIso8601String(),
       'offer_id': instance.offerId,
       'offer_value': instance.offerValue,
+      'base_cost_usd': instance.baseCostUsd,
+      'app_fee_usd': instance.appFeeUsd,
+      'pricing_tier': instance.pricingTier,
+      'fee_rule_version': instance.feeRuleVersion,
     };
