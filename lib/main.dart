@@ -18,6 +18,7 @@ import 'package:keep_sims/core/supabase_client.dart';
 import 'package:keep_sims/core/theme/app_theme.dart';
 import 'package:keep_sims/core/router/app_router.dart';
 import 'package:keep_sims/features/notifications/presentation/controllers/notification_settings_controller.dart';
+import 'package:keep_sims/features/notifications/presentation/services/notification_navigation_service.dart';
 import 'package:keep_sims/core/services/sync_queue_service.dart';
 import 'package:keep_sims/features/home_widget/presentation/home_widget_sync.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
@@ -26,6 +27,8 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:keep_sims/core/services/local_cache_service.dart';
 import 'package:keep_sims/core/widgets/biometric_lock_overlay.dart';
+import 'package:keep_sims/features/voip_calling/presentation/services/incoming_call_manager.dart';
+import 'package:keep_sims/features/voip_calling/presentation/widgets/floating_minimized_call_bar.dart';
 
 void main() async {
   runZonedGuarded(() async {
@@ -158,7 +161,17 @@ class KeepSIMsApp extends ConsumerWidget {
     // Keep the home-screen widgets fed, and route taps on them (G4).
     ref.watch(homeWidgetSyncProvider);
 
+    // Initialize notification click & foreground listener service (N3)
+    ref.watch(notificationNavigationServiceProvider);
+
+    // Initialize WhatsApp-style incoming VoIP call manager & CallKit listener
+    final callManager = ref.watch(incomingCallManagerProvider);
     final router = ref.watch(appRouterProvider);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      callManager.setRouter(router);
+      callManager.initialize();
+    });
+
     final prefsState = ref.watch(userPreferencesControllerProvider);
     final currentLocale = ref.watch(localeControllerProvider);
 
@@ -191,7 +204,17 @@ class KeepSIMsApp extends ConsumerWidget {
       routerConfig: router,
       builder: (context, child) {
         return BiometricLockOverlay(
-          child: child ?? const SizedBox.shrink(),
+          child: Stack(
+            children: [
+              child ?? const SizedBox.shrink(),
+              const Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: FloatingMinimizedCallBar(),
+              ),
+            ],
+          ),
         );
       },
     );

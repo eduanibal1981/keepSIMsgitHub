@@ -4,8 +4,10 @@ library;
 import 'dart:async';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:keep_sims/core/router/app_router.dart';
 import 'package:keep_sims/core/services/device_identity_service.dart';
 import 'package:keep_sims/core/supabase_client.dart';
 import 'package:keep_sims/features/voip_calling/data/repositories/voip_calling_repository.dart';
@@ -26,8 +28,21 @@ class IncomingCallManager {
 
   IncomingCallManager(this._ref);
 
-  void setRouter(GoRouter router) {
-    _router = router;
+  void setRouter(RouterConfig<Object> router) {
+    if (router is GoRouter) {
+      _router = router;
+    }
+  }
+
+  void _navigateToCall() {
+    if (_router != null) {
+      _router!.push('/voip-call');
+      return;
+    }
+    final router = _ref.read(appRouterProvider);
+    if (router is GoRouter) {
+      router.push('/voip-call');
+    }
   }
 
   /// Initialize callkit listeners, FCM handlers, and token registration
@@ -43,7 +58,7 @@ class IncomingCallManager {
               peerName: 'Sarah Connor',
               peerPhone: '+1 555-0199',
             );
-        _router?.push('/voip-call');
+        _navigateToCall();
         return;
       }
 
@@ -60,7 +75,7 @@ class IncomingCallManager {
               callerPhone: session.peerPhone,
             );
 
-        _router?.push('/voip-call');
+        _navigateToCall();
       }
     };
 
