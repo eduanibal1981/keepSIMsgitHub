@@ -69,7 +69,8 @@ class _DestinationCountrySearchSheetState
         final nameMatch = r.countryName.toLowerCase().contains(query);
         final codeMatch = r.countryCode.toLowerCase().contains(query);
         final prefixClean = r.phonePrefix.replaceAll('+', '').toLowerCase();
-        final prefixMatch = prefixClean.contains(cleanQuery) ||
+        final prefixMatch =
+            prefixClean.contains(cleanQuery) ||
             r.phonePrefix.toLowerCase().contains(query);
         return nameMatch || codeMatch || prefixMatch;
       }).toList();
@@ -158,7 +159,10 @@ class _DestinationCountrySearchSheetState
                 style: const TextStyle(color: Colors.white, fontSize: 15),
                 decoration: InputDecoration(
                   hintText: 'Search country or code (e.g. Egypt, +20)...',
-                  hintStyle: const TextStyle(color: Colors.white38, fontSize: 14),
+                  hintStyle: const TextStyle(
+                    color: Colors.white38,
+                    fontSize: 14,
+                  ),
                   prefixIcon: const Icon(
                     Icons.search,
                     color: AppColors.primary,
@@ -227,7 +231,8 @@ class _DestinationCountrySearchSheetState
                     separatorBuilder: (_, _) => const SizedBox(height: 6),
                     itemBuilder: (context, index) {
                       final rate = _filteredRates[index];
-                      final isSelected = widget.selectedRate?.id == rate.id ||
+                      final isSelected =
+                          widget.selectedRate?.id == rate.id ||
                           (widget.selectedRate != null &&
                               widget.selectedRate!.phonePrefix ==
                                   rate.phonePrefix &&
@@ -267,8 +272,7 @@ class _DestinationCountrySearchSheetState
                               // Country Name & Details
                               Expanded(
                                 child: Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Row(
                                       children: [
@@ -292,19 +296,19 @@ class _DestinationCountrySearchSheetState
                                         const SizedBox(width: 8),
                                         // Prefix Badge
                                         Container(
-                                          padding:
-                                              const EdgeInsets.symmetric(
+                                          padding: const EdgeInsets.symmetric(
                                             horizontal: 7,
                                             vertical: 2,
                                           ),
                                           decoration: BoxDecoration(
                                             color: AppColors.darkBg,
-                                            borderRadius:
-                                                BorderRadius.circular(6),
+                                            borderRadius: BorderRadius.circular(
+                                              6,
+                                            ),
                                             border: Border.all(
                                               color: isSelected
                                                   ? AppColors.primary
-                                                      .withValues(alpha: 0.4)
+                                                        .withValues(alpha: 0.4)
                                                   : AppColors.darkBorder,
                                             ),
                                           ),

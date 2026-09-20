@@ -40,9 +40,7 @@ class DialpadWidget extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              for (int c = 0; c < 3; c++) ...[
-                _buildDialKey(keys[r * 3 + c]),
-              ],
+              for (int c = 0; c < 3; c++) ...[_buildDialKey(keys[r * 3 + c])],
             ],
           ),
           const SizedBox(height: 12),

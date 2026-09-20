@@ -3,10 +3,13 @@ library;
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/features/calling/data/models/call_rate_model.dart';
+import 'package:keep_sims/features/calling/data/repositories/calling_repository.dart';
 import 'package:keep_sims/features/calling/presentation/controllers/calling_controller.dart';
 import 'package:keep_sims/features/calling/presentation/widgets/destination_country_search_sheet.dart';
 import 'package:keep_sims/features/calling/presentation/widgets/dialpad_widget.dart';
@@ -14,6 +17,7 @@ import 'package:keep_sims/features/calling/presentation/widgets/call_history_til
 import 'package:keep_sims/features/calling/presentation/widgets/caller_id_picker_sheet.dart';
 import 'package:keep_sims/core/router/app_router.dart';
 import 'package:keep_sims/features/wallet/controller/wallet_controller.dart';
+import 'package:keep_sims/features/calling/presentation/widgets/calling_mode_switcher.dart';
 
 class CallingScreen extends ConsumerStatefulWidget {
   const CallingScreen({super.key});
@@ -118,7 +122,7 @@ class _CallingScreenState extends ConsumerState<CallingScreen>
     );
   }
 
-  void _startCall() {
+  Future<void> _startCall({bool forceGateway = false}) async {
     final national = _phoneController.text.trim();
     if (_selectedCountryRate == null && !national.startsWith('+')) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -144,29 +148,203 @@ class _CallingScreenState extends ConsumerState<CallingScreen>
     if (national.startsWith('+')) {
       formattedNumber = national;
     } else {
-      final cleanNational =
-          national.startsWith('0') ? national.substring(1) : national;
+      final cleanNational = national.startsWith('0')
+          ? national.substring(1)
+          : national;
       final prefix = _selectedCountryRate!.phonePrefix.startsWith('+')
           ? _selectedCountryRate!.phonePrefix
           : '+${_selectedCountryRate!.phonePrefix}';
       formattedNumber = '$prefix$cleanNational';
     }
 
-    // Get active caller ID if verified
-    final callerIdsAsync = ref.read(userCallerIdsProvider);
-    final callerIds = callerIdsAsync.asData?.value ?? [];
-    final activeCallerId = callerIds
-        .where((c) => c.isVerified && c.isDefault)
-        .firstOrNull
-        ?.phoneNumber;
+    final callerIdData = ref.read(callerIdListProvider).asData?.value;
+    final isGatewayActive =
+        forceGateway || (callerIdData?.isGatewayActive ?? true);
+    final activeCallerId = isGatewayActive
+        ? null
+        : callerIdData?.callerIds
+              .where((c) => c.isVerified && c.isDefault)
+              .firstOrNull;
+    final effectiveId = isGatewayActive
+        ? (callerIdData?.defaultGatewayNumber ?? '+17543180369')
+        : (activeCallerId?.phoneNumber ??
+              callerIdData?.defaultGatewayNumber ??
+              '+17543180369');
 
-    ref.read(callingControllerProvider.notifier).startCall(
+    // Policy check: Self-dialing conflict
+    if (!isGatewayActive && effectiveId == formattedNumber) {
+      _showRouteConflictDialog(
+        title: 'Self-Dialing Not Supported',
+        message:
+            'You cannot place an outbound call to your own verified Caller ID number. Would you like to call using KeepSIMs Voice Gateway instead?',
+        formattedDestination: formattedNumber,
+      );
+      return;
+    }
+
+    // Policy check: External Oman identity calling Oman destination
+    if (!isGatewayActive &&
+        effectiveId.startsWith('+968') &&
+        formattedNumber.startsWith('+968')) {
+      _showRouteConflictDialog(
+        title: 'Unsupported Carrier Route',
+        message:
+            'External Oman numbers cannot call Oman numbers directly due to local telecom carrier restrictions. Would you like to connect this call using KeepSIMs Voice Gateway instead?',
+        formattedDestination: formattedNumber,
+      );
+      return;
+    }
+
+    // ── Microphone Permission Pre-flight ──
+    if (!kIsWeb) {
+      var micStatus = await Permission.microphone.status;
+      if (!micStatus.isGranted) {
+        micStatus = await Permission.microphone.request();
+      }
+      if (!mounted) return;
+      if (micStatus.isPermanentlyDenied) {
+        _showMicrophonePermissionDialog();
+        return;
+      }
+      if (!micStatus.isGranted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Microphone permission is required to make calls.'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        return;
+      }
+    }
+
+    ref
+        .read(callingControllerProvider.notifier)
+        .startCall(
           destinationNumber: formattedNumber,
-          userCallbackNumber: activeCallerId ?? '+17543180369',
+          callerIdId: activeCallerId?.id,
+          explicitGateway: isGatewayActive,
+          userCallbackNumber: effectiveId,
           rate: _selectedCountryRate,
         );
 
     context.push(AppRoutes.callingActive);
+  }
+
+  void _showMicrophonePermissionDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.darkCard,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Row(
+          children: [
+            Icon(Icons.mic_off, color: AppColors.error, size: 24),
+            SizedBox(width: 10),
+            Text(
+              'Microphone Required',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        content: const Text(
+          'KeepSIMs needs access to your microphone so the person you call can hear you. Please enable microphone permission in your device settings.',
+          style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.4),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Colors.white60),
+            ),
+          ),
+          ElevatedButton.icon(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              openAppSettings();
+            },
+            icon: const Icon(Icons.settings, size: 16),
+            label: const Text('Open Settings'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showRouteConflictDialog({
+    required String title,
+    required String message,
+    required String formattedDestination,
+  }) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.darkCard,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            const Icon(Icons.info_outline, color: AppColors.primary, size: 24),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                title,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          message,
+          style: const TextStyle(
+            color: Colors.white70,
+            fontSize: 13,
+            height: 1.4,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Colors.white54),
+            ),
+          ),
+          ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            icon: const Icon(Icons.shield_outlined, size: 16),
+            label: const Text(
+              'Use KeepSIMs Gateway',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            onPressed: () {
+              Navigator.pop(ctx);
+              _startCall(forceGateway: true);
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -176,11 +354,16 @@ class _CallingScreenState extends ConsumerState<CallingScreen>
     final ratesAsync = ref.watch(callRatesProvider);
     final callerIdListAsync = ref.watch(callerIdListProvider);
 
-    final callerIds = callerIdListAsync.asData?.value.callerIds ?? [];
-    final activeCallerId =
-        callerIds.where((c) => c.isVerified && c.isDefault).firstOrNull;
-    final gatewayNumber =
-        callerIdListAsync.asData?.value.defaultGatewayNumber ?? '+17543180369';
+    final callerIdData = callerIdListAsync.asData?.value;
+    final callerIds = callerIdData?.callerIds ?? [];
+    final gatewayNumber = callerIdData?.defaultGatewayNumber ?? '+17543180369';
+    final isGatewayActive = callerIdData?.isGatewayActive ?? true;
+    final activeCallerId = isGatewayActive
+        ? null
+        : callerIds.where((c) => c.isVerified && c.isDefault).firstOrNull;
+    final effectiveCallerId = isGatewayActive
+        ? gatewayNumber
+        : (activeCallerId?.phoneNumber ?? gatewayNumber);
 
     final rates = ratesAsync.asData?.value ?? [];
 
@@ -197,8 +380,8 @@ class _CallingScreenState extends ConsumerState<CallingScreen>
       }
       _selectedCountryRate ??=
           rates.firstWhereOrNull((r) => r.countryCode == 'OM') ??
-              rates.firstWhereOrNull((r) => r.countryCode == 'EG') ??
-              rates.first;
+          rates.firstWhereOrNull((r) => r.countryCode == 'EG') ??
+          rates.first;
     }
 
     return Scaffold(
@@ -232,6 +415,16 @@ class _CallingScreenState extends ConsumerState<CallingScreen>
           ),
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.voicemail_rounded, color: Colors.purpleAccent, size: 20),
+            tooltip: 'AI Voicemail',
+            onPressed: () => context.push(AppRoutes.voicemail),
+          ),
+          IconButton(
+            icon: const Icon(Icons.science_outlined, color: Colors.tealAccent, size: 20),
+            tooltip: 'Audio & SIP Test',
+            onPressed: () => context.push(AppRoutes.sipDiagnostics),
+          ),
           // Unified Wallet Balance Badge
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -289,451 +482,579 @@ class _CallingScreenState extends ConsumerState<CallingScreen>
           ],
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
+      body: Column(
         children: [
-          // ── Tab 1: Dialer & Rates ──
-          SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              child: Column(
-                children: [
-                  // ── Switchable Caller ID Status Banner ──
-                  GestureDetector(
-                    onTap: _openCallerIdPicker,
-                    child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 10,
-                      ),
-                      margin: const EdgeInsets.only(bottom: 12),
-                      decoration: BoxDecoration(
-                        color: (activeCallerId != null
-                                ? AppColors.secondary
-                                : AppColors.primary)
-                            .withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: (activeCallerId != null
-                                  ? AppColors.secondary
-                                  : AppColors.primary)
-                              .withValues(alpha: 0.35),
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            activeCallerId != null
-                                ? Icons.verified_user_rounded
-                                : Icons.shield_outlined,
-                            color: activeCallerId != null
-                                ? AppColors.secondary
-                                : AppColors.primary,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+          const CallingModeSwitcher(activeMode: CallingMode.international),
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                // ── Tab 1: Dialer & Rates ──
+                SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 12,
+                    ),
+                    child: Column(
+                      children: [
+                        // ── Switchable Caller ID Status Banner ──
+                        GestureDetector(
+                          onTap: _openCallerIdPicker,
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 10,
+                            ),
+                            margin: const EdgeInsets.only(bottom: 12),
+                            decoration: BoxDecoration(
+                              color:
+                                  (!isGatewayActive
+                                          ? AppColors.secondary
+                                          : AppColors.primary)
+                                      .withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color:
+                                    (!isGatewayActive
+                                            ? AppColors.secondary
+                                            : AppColors.primary)
+                                        .withValues(alpha: 0.35),
+                              ),
+                            ),
+                            child: Row(
                               children: [
-                                Row(
-                                  children: [
-                                    Text(
-                                      activeCallerId != null
-                                          ? 'Outgoing Caller ID'
-                                          : 'Outgoing Caller ID: KeepSIMs Gateway',
-                                      style: TextStyle(
-                                        color: activeCallerId != null
-                                            ? Colors.white
-                                            : Colors.white70,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
+                                Icon(
+                                  !isGatewayActive
+                                      ? Icons.verified_user_rounded
+                                      : Icons.shield_outlined,
+                                  color: !isGatewayActive
+                                      ? AppColors.secondary
+                                      : AppColors.primary,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text(
+                                            !isGatewayActive
+                                                ? 'Outgoing Caller ID'
+                                                : 'Outgoing Caller ID: KeepSIMs Gateway',
+                                            style: TextStyle(
+                                              color: !isGatewayActive
+                                                  ? Colors.white
+                                                  : Colors.white70,
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 6),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 6,
+                                              vertical: 2,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color:
+                                                  (!isGatewayActive
+                                                          ? AppColors.secondary
+                                                          : AppColors.primary)
+                                                      .withValues(alpha: 0.2),
+                                              borderRadius:
+                                                  BorderRadius.circular(6),
+                                            ),
+                                            child: Text(
+                                              !isGatewayActive
+                                                  ? 'VERIFIED'
+                                                  : 'DEFAULT',
+                                              style: TextStyle(
+                                                color: !isGatewayActive
+                                                    ? AppColors.secondary
+                                                    : AppColors.primary,
+                                                fontSize: 9,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Text(
+                                        effectiveCallerId,
+                                        style: TextStyle(
+                                          color: !isGatewayActive
+                                              ? AppColors.secondary
+                                              : AppColors.primary,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.darkCard,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: AppColors.darkBorder,
+                                    ),
+                                  ),
+                                  child: const Icon(
+                                    Icons.swap_horiz_rounded,
+                                    color: Colors.white70,
+                                    size: 16,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        // ── Phone Input Box (Country Code Beside Text Entry + Price Below) ──
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.darkCard,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: _selectedCountryRate != null
+                                  ? AppColors.primary.withValues(alpha: 0.5)
+                                  : AppColors.darkBorder,
+                              width: _selectedCountryRate != null ? 1.5 : 1,
+                            ),
+                          ),
+                          child: Column(
+                            children: [
+                              // Row: Country Code Selector Beside Phone Number Text Entry
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  // Country Code Picker Button
+                                  InkWell(
+                                    onTap: () => _openCountrySearch(rates),
+                                    borderRadius: BorderRadius.circular(12),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                        vertical: 8,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.darkBg,
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border.all(
+                                          color: AppColors.primary.withValues(
+                                            alpha: 0.3,
+                                          ),
+                                        ),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            _selectedCountryRate?.flagEmoji ??
+                                                '🌐',
+                                            style: const TextStyle(
+                                              fontSize: 20,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 6),
+                                          Text(
+                                            _selectedCountryRate?.phonePrefix ??
+                                                '+',
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 4),
+                                          const Icon(
+                                            Icons.arrow_drop_down,
+                                            color: Colors.white54,
+                                            size: 18,
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                    const SizedBox(width: 6),
+                                  ),
+
+                                  // Vertical divider
+                                  Container(
+                                    height: 28,
+                                    width: 1,
+                                    margin: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                    ),
+                                    color: Colors.white12,
+                                  ),
+
+                                  // National Phone Number Text Entry
+                                  Expanded(
+                                    child: Text(
+                                      _phoneController.text.isEmpty
+                                          ? 'Phone number'
+                                          : _phoneController.text,
+                                      style: TextStyle(
+                                        color: _phoneController.text.isEmpty
+                                            ? Colors.white24
+                                            : Colors.white,
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.w700,
+                                        letterSpacing: 1.2,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+
+                                  // Backspace Button
+                                  if (_phoneController.text.isNotEmpty)
+                                    GestureDetector(
+                                      onLongPress: _onClearPressed,
+                                      child: IconButton(
+                                        icon: const Icon(
+                                          Icons.backspace_outlined,
+                                          color: Colors.white70,
+                                          size: 22,
+                                        ),
+                                        onPressed: _onDeletePressed,
+                                        splashRadius: 20,
+                                        tooltip: 'Backspace (Hold to clear)',
+                                      ),
+                                    ),
+                                ],
+                              ),
+
+                              const SizedBox(height: 10),
+                              const Divider(color: Colors.white10, height: 1),
+                              const SizedBox(height: 8),
+
+                              // Price / Rate row shown below the entry
+                              Row(
+                                children: [
+                                  if (_selectedCountryRate != null) ...[
+                                    const Icon(
+                                      Icons.savings_outlined,
+                                      color: AppColors.secondary,
+                                      size: 15,
+                                    ),
+                                    const SizedBox(width: 5),
+                                    Expanded(
+                                      child: Text.rich(
+                                        TextSpan(
+                                          text:
+                                              '${_selectedCountryRate!.countryName}: ',
+                                          style: const TextStyle(
+                                            color: Colors.white70,
+                                            fontSize: 12,
+                                          ),
+                                          children: [
+                                            TextSpan(
+                                              text:
+                                                  '\$${_selectedCountryRate!.ratePerMinute.toStringAsFixed(3)}/min',
+                                              style: const TextStyle(
+                                                color: AppColors.primary,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                            TextSpan(
+                                              text:
+                                                  ' (\$${_selectedCountryRate!.ratePerSecond.toStringAsFixed(4)}/s)',
+                                              style: const TextStyle(
+                                                color: Colors.white54,
+                                                fontSize: 11,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
                                     Container(
                                       padding: const EdgeInsets.symmetric(
                                         horizontal: 6,
                                         vertical: 2,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: (activeCallerId != null
-                                                ? AppColors.secondary
-                                                : AppColors.primary)
-                                            .withValues(alpha: 0.2),
+                                        color: AppColors.secondary.withValues(
+                                          alpha: 0.15,
+                                        ),
                                         borderRadius: BorderRadius.circular(6),
                                       ),
-                                      child: Text(
-                                        activeCallerId != null
-                                            ? 'VERIFIED'
-                                            : 'DEFAULT',
+                                      child: const Text(
+                                        'Per-sec billing',
                                         style: TextStyle(
-                                          color: activeCallerId != null
-                                              ? AppColors.secondary
-                                              : AppColors.primary,
-                                          fontSize: 9,
-                                          fontWeight: FontWeight.bold,
+                                          color: AppColors.secondary,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                  ] else ...[
+                                    const Icon(
+                                      Icons.info_outline,
+                                      color: Colors.white38,
+                                      size: 14,
+                                    ),
+                                    const SizedBox(width: 5),
+                                    const Text(
+                                      'Select a destination country to view rates',
+                                      style: TextStyle(
+                                        color: Colors.white38,
+                                        fontSize: 11,
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        // ── Route Policy Warning Banner (Oman external to Oman destination) ──
+                        Builder(
+                          builder: (context) {
+                            final input = _phoneController.text.trim();
+                            String dest = '';
+                            if (input.startsWith('+')) {
+                              dest = input;
+                            } else if (_selectedCountryRate != null) {
+                              final p =
+                                  _selectedCountryRate!.phonePrefix.startsWith(
+                                    '+',
+                                  )
+                                  ? _selectedCountryRate!.phonePrefix
+                                  : '+${_selectedCountryRate!.phonePrefix}';
+                              final n = input.startsWith('0')
+                                  ? input.substring(1)
+                                  : input;
+                              dest = '$p$n';
+                            }
+
+                            final isOmanConflict =
+                                !isGatewayActive &&
+                                effectiveCallerId.startsWith('+968') &&
+                                dest.startsWith('+968');
+
+                            if (isOmanConflict) {
+                              return Container(
+                                width: double.infinity,
+                                margin: const EdgeInsets.only(top: 10),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 14,
+                                  vertical: 10,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primary.withValues(
+                                    alpha: 0.12,
+                                  ),
+                                  borderRadius: BorderRadius.circular(14),
+                                  border: Border.all(
+                                    color: AppColors.primary.withValues(
+                                      alpha: 0.4,
+                                    ),
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.warning_amber_rounded,
+                                      color: AppColors.primary,
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 10),
+                                    const Expanded(
+                                      child: Text(
+                                        'External Oman numbers cannot call Oman numbers directly due to local carrier restrictions.',
+                                        style: TextStyle(
+                                          color: Colors.white70,
+                                          fontSize: 11,
+                                          height: 1.3,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    GestureDetector(
+                                      onTap: () {
+                                        ref
+                                            .read(callingRepositoryProvider)
+                                            .setDefaultCallerId(
+                                              phoneNumber: 'gateway',
+                                            );
+                                        ref.invalidate(callerIdListProvider);
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 4,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.primary,
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                        ),
+                                        child: const Text(
+                                          'Use Gateway',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
                                       ),
                                     ),
                                   ],
                                 ),
-                                Text(
-                                  activeCallerId != null
-                                      ? activeCallerId.phoneNumber
-                                      : gatewayNumber,
+                              );
+                            }
+                            return const SizedBox.shrink();
+                          },
+                        ),
+
+                        const SizedBox(height: 14),
+
+                        // ── Dialpad Keys ──
+                        DialpadWidget(
+                          onKeyPressed: _onDigitPressed,
+                          onDeletePressed: _onDeletePressed,
+                          onLongDeletePressed: _onClearPressed,
+                        ),
+
+                        const SizedBox(height: 14),
+
+                        // ── Call Initiation Button (PSTN Outbound) ──
+                        GestureDetector(
+                          onTap: _startCall,
+                          child: Container(
+                            width: 70,
+                            height: 70,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: AppColors.accentGradient,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppColors.secondary.withValues(
+                                    alpha: 0.4,
+                                  ),
+                                  blurRadius: 20,
+                                  spreadRadius: 2,
+                                ),
+                              ],
+                            ),
+                            child: const Icon(
+                              Icons.phone,
+                              color: Colors.white,
+                              size: 30,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // ── Tab 2: Recent Call History ──
+                Consumer(
+                  builder: (context, ref, _) {
+                    final historyAsync = ref.watch(callHistoryStreamProvider);
+                    return historyAsync.when(
+                      data: (records) {
+                        if (records.isEmpty) {
+                          return Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.phone_missed,
+                                  color: Colors.white.withValues(alpha: 0.3),
+                                  size: 54,
+                                ),
+                                const SizedBox(height: 12),
+                                const Text(
+                                  'No call history yet',
                                   style: TextStyle(
-                                    color: activeCallerId != null
-                                        ? AppColors.secondary
-                                        : AppColors.primary,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white70,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                const Text(
+                                  'Make your first pay-per-second international call!',
+                                  style: TextStyle(
+                                    color: Colors.white38,
+                                    fontSize: 13,
                                   ),
                                 ),
                               ],
                             ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.all(6),
-                            decoration: BoxDecoration(
-                              color: AppColors.darkCard,
-                              shape: BoxShape.circle,
-                              border: Border.all(color: AppColors.darkBorder),
-                            ),
-                            child: const Icon(
-                              Icons.swap_horiz_rounded,
-                              color: Colors.white70,
-                              size: 16,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  // ── Phone Input Box (Country Code Beside Text Entry + Price Below) ──
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 12,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.darkCard,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: _selectedCountryRate != null
-                            ? AppColors.primary.withValues(alpha: 0.5)
-                            : AppColors.darkBorder,
-                        width: _selectedCountryRate != null ? 1.5 : 1,
-                      ),
-                    ),
-                    child: Column(
-                      children: [
-                        // Row: Country Code Selector Beside Phone Number Text Entry
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            // Country Code Picker Button
-                            InkWell(
-                              onTap: () => _openCountrySearch(rates),
-                              borderRadius: BorderRadius.circular(12),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 8,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: AppColors.darkBg,
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                    color: AppColors.primary
-                                        .withValues(alpha: 0.3),
-                                  ),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      _selectedCountryRate?.flagEmoji ?? '🌐',
-                                      style: const TextStyle(fontSize: 20),
-                                    ),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      _selectedCountryRate?.phonePrefix ?? '+',
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 4),
-                                    const Icon(
-                                      Icons.arrow_drop_down,
-                                      color: Colors.white54,
-                                      size: 18,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-
-                            // Vertical divider
-                            Container(
-                              height: 28,
-                              width: 1,
-                              margin: const EdgeInsets.symmetric(horizontal: 10),
-                              color: Colors.white12,
-                            ),
-
-                            // National Phone Number Text Entry
-                            Expanded(
-                              child: Text(
-                                _phoneController.text.isEmpty
-                                    ? 'Phone number'
-                                    : _phoneController.text,
-                                style: TextStyle(
-                                  color: _phoneController.text.isEmpty
-                                      ? Colors.white24
-                                      : Colors.white,
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: 1.2,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-
-                            // Backspace Button
-                            if (_phoneController.text.isNotEmpty)
-                              GestureDetector(
-                                onLongPress: _onClearPressed,
-                                child: IconButton(
-                                  icon: const Icon(
-                                    Icons.backspace_outlined,
-                                    color: Colors.white70,
-                                    size: 22,
-                                  ),
-                                  onPressed: _onDeletePressed,
-                                  splashRadius: 20,
-                                  tooltip: 'Backspace (Hold to clear)',
-                                ),
-                              ),
-                          ],
+                          );
+                        }
+                        return ListView.builder(
+                          padding: const EdgeInsets.all(20),
+                          itemCount: records.length,
+                          itemBuilder: (context, idx) {
+                            final rec = records[idx];
+                            return CallHistoryTile(
+                              record: rec,
+                              onRedial: () {
+                                final number = rec.destinationNumber;
+                                final currentRates =
+                                    ref.read(callRatesProvider).asData?.value ??
+                                    [];
+                                CallRate? matched;
+                                int maxLen = 0;
+                                for (final r in currentRates) {
+                                  if (number.startsWith(r.phonePrefix) &&
+                                      r.phonePrefix.length > maxLen) {
+                                    matched = r;
+                                    maxLen = r.phonePrefix.length;
+                                  }
+                                }
+                                final found = matched;
+                                setState(() {
+                                  if (found != null) {
+                                    _selectedCountryRate = found;
+                                    _phoneController.text = number.substring(
+                                      found.phonePrefix.length,
+                                    );
+                                  } else {
+                                    _phoneController.text = number;
+                                  }
+                                  _tabController.animateTo(0);
+                                });
+                              },
+                            );
+                          },
+                        );
+                      },
+                      loading: () =>
+                          const Center(child: CircularProgressIndicator()),
+                      error: (err, _) => Center(
+                        child: Text(
+                          'Error: $err',
+                          style: const TextStyle(color: Colors.red),
                         ),
-
-                        const SizedBox(height: 10),
-                        const Divider(color: Colors.white10, height: 1),
-                        const SizedBox(height: 8),
-
-                        // Price / Rate row shown below the entry
-                        Row(
-                          children: [
-                            if (_selectedCountryRate != null) ...[
-                              const Icon(
-                                Icons.savings_outlined,
-                                color: AppColors.secondary,
-                                size: 15,
-                              ),
-                              const SizedBox(width: 5),
-                              Expanded(
-                                child: Text.rich(
-                                  TextSpan(
-                                    text:
-                                        '${_selectedCountryRate!.countryName}: ',
-                                    style: const TextStyle(
-                                      color: Colors.white70,
-                                      fontSize: 12,
-                                    ),
-                                    children: [
-                                      TextSpan(
-                                        text:
-                                            '\$${_selectedCountryRate!.ratePerMinute.toStringAsFixed(3)}/min',
-                                        style: const TextStyle(
-                                          color: AppColors.primary,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                      TextSpan(
-                                        text:
-                                            ' (\$${_selectedCountryRate!.ratePerSecond.toStringAsFixed(4)}/s)',
-                                        style: const TextStyle(
-                                          color: Colors.white54,
-                                          fontSize: 11,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 6,
-                                  vertical: 2,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: AppColors.secondary
-                                      .withValues(alpha: 0.15),
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                child: const Text(
-                                  'Per-sec billing',
-                                  style: TextStyle(
-                                    color: AppColors.secondary,
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                            ] else ...[
-                              const Icon(
-                                Icons.info_outline,
-                                color: Colors.white38,
-                                size: 14,
-                              ),
-                              const SizedBox(width: 5),
-                              const Text(
-                                'Select a destination country to view rates',
-                                style: TextStyle(
-                                  color: Colors.white38,
-                                  fontSize: 11,
-                                ),
-                              ),
-                            ],
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 14),
-
-                  // ── Dialpad Keys ──
-                  DialpadWidget(
-                    onKeyPressed: _onDigitPressed,
-                    onDeletePressed: _onDeletePressed,
-                    onLongDeletePressed: _onClearPressed,
-                  ),
-
-                  const SizedBox(height: 14),
-
-                  // ── Call Initiation Button ──
-                  GestureDetector(
-                    onTap: _startCall,
-                    child: Container(
-                      width: 70,
-                      height: 70,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: AppColors.accentGradient,
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.secondary.withValues(alpha: 0.4),
-                            blurRadius: 20,
-                            spreadRadius: 2,
-                          ),
-                        ],
-                      ),
-                      child: const Icon(
-                        Icons.phone,
-                        color: Colors.white,
-                        size: 30,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 14),
-                ],
-              ),
-            ),
-          ),
-
-          // ── Tab 2: Recent Call History ──
-          Consumer(
-            builder: (context, ref, _) {
-              final historyAsync = ref.watch(callHistoryStreamProvider);
-              return historyAsync.when(
-                data: (records) {
-                  if (records.isEmpty) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.phone_missed,
-                            color: Colors.white.withValues(alpha: 0.3),
-                            size: 54,
-                          ),
-                          const SizedBox(height: 12),
-                          const Text(
-                            'No call history yet',
-                            style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          const Text(
-                            'Make your first pay-per-second international call!',
-                            style: TextStyle(
-                              color: Colors.white38,
-                              fontSize: 13,
-                            ),
-                          ),
-                        ],
                       ),
                     );
-                  }
-                  return ListView.builder(
-                    padding: const EdgeInsets.all(20),
-                    itemCount: records.length,
-                    itemBuilder: (context, idx) {
-                      final rec = records[idx];
-                      return CallHistoryTile(
-                        record: rec,
-                        onRedial: () {
-                          final number = rec.destinationNumber;
-                          final currentRates =
-                              ref.read(callRatesProvider).asData?.value ?? [];
-                          CallRate? matched;
-                          int maxLen = 0;
-                          for (final r in currentRates) {
-                            if (number.startsWith(r.phonePrefix) &&
-                                r.phonePrefix.length > maxLen) {
-                              matched = r;
-                              maxLen = r.phonePrefix.length;
-                            }
-                          }
-                          final found = matched;
-                          setState(() {
-                            if (found != null) {
-                              _selectedCountryRate = found;
-                              _phoneController.text =
-                                  number.substring(found.phonePrefix.length);
-                            } else {
-                              _phoneController.text = number;
-                            }
-                            _tabController.animateTo(0);
-                          });
-                        },
-                      );
-                    },
-                  );
-                },
-                loading: () =>
-                    const Center(child: CircularProgressIndicator()),
-                error: (err, _) => Center(
-                  child: Text(
-                    'Error: $err',
-                    style: const TextStyle(color: Colors.red),
-                  ),
+                  },
                 ),
-              );
-            },
+              ],
+            ),
           ),
         ],
       ),

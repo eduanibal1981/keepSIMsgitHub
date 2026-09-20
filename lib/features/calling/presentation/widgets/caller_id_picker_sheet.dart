@@ -4,28 +4,65 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
+import 'package:keep_sims/features/calling/data/models/caller_id_model.dart';
 import 'package:keep_sims/features/calling/data/repositories/calling_repository.dart';
 import 'package:keep_sims/features/calling/presentation/controllers/calling_controller.dart';
 import 'package:keep_sims/features/calling/presentation/widgets/verify_caller_id_sheet.dart';
-
-final callerIdListProvider = FutureProvider<CallerIdListResult>((ref) async {
-  return ref.watch(callingRepositoryProvider).getCallerIdList();
-});
 
 class CallerIdPickerSheet extends ConsumerStatefulWidget {
   const CallerIdPickerSheet({super.key});
 
   @override
-  ConsumerState<CallerIdPickerSheet> createState() => _CallerIdPickerSheetState();
+  ConsumerState<CallerIdPickerSheet> createState() =>
+      _CallerIdPickerSheetState();
 }
 
 class _CallerIdPickerSheetState extends ConsumerState<CallerIdPickerSheet> {
-  String? _switchingNumber;
+  String? _switchingTarget;
 
-  Future<void> _selectCallerId(String phoneNumber) async {
-    setState(() => _switchingNumber = phoneNumber);
+  Future<void> _selectGateway() async {
+    setState(() => _switchingTarget = 'gateway');
     try {
-      await ref.read(callingRepositoryProvider).setDefaultCallerId(phoneNumber);
+      await ref
+          .read(callingRepositoryProvider)
+          .setDefaultCallerId(phoneNumber: 'gateway');
+      ref.invalidate(callerIdListProvider);
+      ref.invalidate(userCallerIdsProvider);
+      if (mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            backgroundColor: AppColors.secondary,
+            content: Text(
+              'KeepSIMs Voice Gateway set as active Outbound Caller ID',
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: AppColors.error,
+            content: Text(e.toString()),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _switchingTarget = null);
+    }
+  }
+
+  Future<void> _selectCallerId(CallerIdModel item) async {
+    setState(() => _switchingTarget = item.id);
+    try {
+      await ref
+          .read(callingRepositoryProvider)
+          .setDefaultCallerId(callerIdId: item.id);
       ref.invalidate(callerIdListProvider);
       ref.invalidate(userCallerIdsProvider);
       if (mounted) {
@@ -34,10 +71,11 @@ class _CallerIdPickerSheetState extends ConsumerState<CallerIdPickerSheet> {
           SnackBar(
             backgroundColor: AppColors.secondary,
             content: Text(
-              phoneNumber == 'gateway' || phoneNumber == '+17543180369'
-                  ? 'KeepSIMs Gateway set as active Outbound Caller ID'
-                  : '$phoneNumber set as active Outbound Caller ID',
-              style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+              '${item.phoneNumber} set as active Outbound Caller ID',
+              style: const TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         );
@@ -45,23 +83,31 @@ class _CallerIdPickerSheetState extends ConsumerState<CallerIdPickerSheet> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(backgroundColor: AppColors.error, content: Text(e.toString())),
+          SnackBar(
+            backgroundColor: AppColors.error,
+            content: Text(e.toString()),
+          ),
         );
       }
     } finally {
-      if (mounted) setState(() => _switchingNumber = null);
+      if (mounted) setState(() => _switchingTarget = null);
     }
   }
 
-  Future<void> _deleteNumber(String phoneNumber) async {
+  Future<void> _deleteNumber(CallerIdModel item) async {
     try {
-      await ref.read(callingRepositoryProvider).deleteCallerId(phoneNumber);
+      await ref
+          .read(callingRepositoryProvider)
+          .deleteCallerId(callerIdId: item.id);
       ref.invalidate(callerIdListProvider);
       ref.invalidate(userCallerIdsProvider);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(backgroundColor: AppColors.error, content: Text(e.toString())),
+          SnackBar(
+            backgroundColor: AppColors.error,
+            content: Text(e.toString()),
+          ),
         );
       }
     }
@@ -111,7 +157,11 @@ class _CallerIdPickerSheetState extends ConsumerState<CallerIdPickerSheet> {
                     color: AppColors.primary.withValues(alpha: 0.15),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.phone_forwarded_rounded, color: AppColors.primary, size: 24),
+                  child: const Icon(
+                    Icons.phone_forwarded_rounded,
+                    color: AppColors.primary,
+                    size: 24,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 const Expanded(
@@ -120,7 +170,11 @@ class _CallerIdPickerSheetState extends ConsumerState<CallerIdPickerSheet> {
                     children: [
                       Text(
                         'Outbound Caller ID',
-                        style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       Text(
                         'Choose what number recipients see when you call',
@@ -135,9 +189,10 @@ class _CallerIdPickerSheetState extends ConsumerState<CallerIdPickerSheet> {
 
             listAsync.when(
               data: (result) {
-                final verifiedList = result.callerIds.where((c) => c.isVerified).toList();
-                final hasActiveVerified = verifiedList.any((c) => c.isDefault);
-                final isGatewayActive = !hasActiveVerified;
+                final verifiedList = result.callerIds
+                    .where((c) => c.isVerified)
+                    .toList();
+                final isGatewayActive = result.isGatewayActive;
                 final gatewayNumber = result.defaultGatewayNumber;
 
                 return Column(
@@ -146,13 +201,14 @@ class _CallerIdPickerSheetState extends ConsumerState<CallerIdPickerSheet> {
                     _CallerIdTile(
                       title: 'KeepSIMs Voice Gateway',
                       phoneNumber: gatewayNumber,
-                      subtitle: 'Shared international gateway (Bypasses local carrier blocks)',
+                      subtitle:
+                          'Shared international gateway (Bypasses local carrier blocks)',
                       icon: Icons.shield_outlined,
                       isSelected: isGatewayActive,
-                      isLoading: _switchingNumber == 'gateway' || _switchingNumber == gatewayNumber,
+                      isLoading: _switchingTarget == 'gateway',
                       badgeText: 'DEFAULT',
                       badgeColor: AppColors.primary,
-                      onTap: () => _selectCallerId('gateway'),
+                      onTap: _selectGateway,
                     ),
 
                     const SizedBox(height: 12),
@@ -165,24 +221,34 @@ class _CallerIdPickerSheetState extends ConsumerState<CallerIdPickerSheet> {
                           alignment: Alignment.centerLeft,
                           child: Text(
                             'MY VERIFIED NUMBERS',
-                            style: TextStyle(color: Colors.white54, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1),
+                            style: TextStyle(
+                              color: Colors.white54,
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1,
+                            ),
                           ),
                         ),
                       ),
                       ...verifiedList.map((item) {
+                        final isThisSelected =
+                            !isGatewayActive && item.isDefault;
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 10),
                           child: _CallerIdTile(
-                            title: item.label.isNotEmpty ? item.label : 'Personal Mobile',
+                            title: item.label.isNotEmpty
+                                ? item.label
+                                : 'Personal Mobile',
                             phoneNumber: item.phoneNumber,
-                            subtitle: 'Recipients will see your real phone number',
+                            subtitle:
+                                'Recipients will see your real phone number',
                             icon: Icons.phone_android,
-                            isSelected: item.isDefault,
-                            isLoading: _switchingNumber == item.phoneNumber,
+                            isSelected: isThisSelected,
+                            isLoading: _switchingTarget == item.id,
                             badgeText: 'VERIFIED',
                             badgeColor: AppColors.secondary,
-                            onTap: () => _selectCallerId(item.phoneNumber),
-                            onDelete: () => _deleteNumber(item.phoneNumber),
+                            onTap: () => _selectCallerId(item),
+                            onDelete: () => _deleteNumber(item),
                           ),
                         );
                       }),
@@ -196,22 +262,40 @@ class _CallerIdPickerSheetState extends ConsumerState<CallerIdPickerSheet> {
                       height: 50,
                       child: OutlinedButton.icon(
                         onPressed: _openAddNewNumberSheet,
-                        icon: const Icon(Icons.add_circle_outline, color: AppColors.primary, size: 20),
+                        icon: const Icon(
+                          Icons.add_circle_outline,
+                          color: AppColors.primary,
+                          size: 20,
+                        ),
                         label: const Text(
                           'Verify & Add Another Number',
-                          style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 14),
+                          style: TextStyle(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
                         ),
                         style: OutlinedButton.styleFrom(
                           side: const BorderSide(color: AppColors.primary),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
                         ),
                       ),
                     ),
                   ],
                 );
               },
-              loading: () => const Center(child: Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator())),
-              error: (err, _) => Text('Error loading numbers: $err', style: const TextStyle(color: AppColors.error)),
+              loading: () => const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(24),
+                  child: CircularProgressIndicator(),
+                ),
+              ),
+              error: (err, _) => Text(
+                'Error loading numbers: $err',
+                style: const TextStyle(color: AppColors.error),
+              ),
             ),
             const SizedBox(height: 10),
           ],
@@ -248,80 +332,114 @@ class _CallerIdTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: isLoading ? null : onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        decoration: BoxDecoration(
-          color: isSelected ? badgeColor.withValues(alpha: 0.12) : AppColors.darkBg,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isSelected ? badgeColor : AppColors.darkBorder,
-            width: isSelected ? 1.5 : 1,
+    return Container(
+      decoration: BoxDecoration(
+        color: isSelected
+            ? badgeColor.withValues(alpha: 0.12)
+            : AppColors.darkBg,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isSelected ? badgeColor : AppColors.darkBorder,
+          width: isSelected ? 1.5 : 1,
+        ),
+      ),
+      child: ListTile(
+        onTap: isLoading ? null : onTap,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+        leading: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? badgeColor.withValues(alpha: 0.2)
+                : Colors.white10,
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            icon,
+            color: isSelected ? badgeColor : Colors.white70,
+            size: 20,
           ),
         ),
-        child: Row(
+        title: Row(
           children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: isSelected ? badgeColor.withValues(alpha: 0.2) : Colors.white.withValues(alpha: 0.05),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, color: isSelected ? badgeColor : Colors.white70, size: 20),
-            ),
-            const SizedBox(width: 12),
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        title,
-                        style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(width: 6),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: badgeColor.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          badgeText,
-                          style: TextStyle(color: badgeColor, fontSize: 9, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    phoneNumber,
-                    style: TextStyle(
-                      color: isSelected ? Colors.white : Colors.white70,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  Text(
-                    subtitle,
-                    style: const TextStyle(color: Colors.white38, fontSize: 11),
-                  ),
-                ],
+              child: Text(
+                title,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+                overflow: TextOverflow.ellipsis,
               ),
             ),
-            if (isLoading)
-              const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-            else if (isSelected)
-              Icon(Icons.check_circle, color: badgeColor, size: 22)
-            else if (onDelete != null)
-              IconButton(
-                icon: const Icon(Icons.delete_outline, color: Colors.white38, size: 18),
-                onPressed: onDelete,
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: badgeColor.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(6),
               ),
+              child: Text(
+                badgeText,
+                style: TextStyle(
+                  color: badgeColor,
+                  fontSize: 9,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
           ],
         ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 2),
+            Text(
+              phoneNumber,
+              style: TextStyle(
+                color: isSelected ? badgeColor : Colors.white70,
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              subtitle,
+              style: const TextStyle(color: Colors.white38, fontSize: 11),
+            ),
+          ],
+        ),
+        trailing: isLoading
+            ? const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (isSelected)
+                    Icon(Icons.check_circle, color: badgeColor, size: 22)
+                  else
+                    const Icon(
+                      Icons.radio_button_unchecked,
+                      color: Colors.white38,
+                      size: 22,
+                    ),
+                  if (onDelete != null) ...[
+                    const SizedBox(width: 4),
+                    IconButton(
+                      icon: const Icon(
+                        Icons.delete_outline,
+                        color: Colors.white38,
+                        size: 20,
+                      ),
+                      onPressed: onDelete,
+                      tooltip: 'Remove',
+                    ),
+                  ],
+                ],
+              ),
       ),
     );
   }

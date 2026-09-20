@@ -2,8 +2,8 @@
 //
 // Invoked by the public.notifications AFTER INSERT trigger
 // (trg_fn_dispatch_notification) via pg_net. Delivery model:
-//   push  -> OneSignal REST first; on non-2xx / timeout / no-recipients,
-//            fall back to FCM HTTP v1 using device_push_tokens.fcm_token.
+//   push  -> OneSignal per device; only definitive rejection falls back to FCM.
+//            Ambiguous sends are retried with the same idempotency key.
 //   email -> Resend (quota-guarded for non-critical categories)
 //   telegram / whatsapp / webhook -> unchanged legacy channels.
 // Every attempt is logged to public.notification_deliveries.
@@ -19,8 +19,10 @@
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.39.8";
 
+import { postOneSignal, pushIdempotencyKey, routePushDevices, type PushDevice } from "./push_delivery.ts";
+
 const ONESIGNAL_APP_ID = "434b9552-8005-4d08-b3b1-a7a35f0b15dc";
-const ONESIGNAL_TIMEOUT_MS = 5000;
+
 
 interface CacheEntry { url: string; timestamp: number; }
 const countryCache: Record<string, CacheEntry> = {};
@@ -100,6 +102,10 @@ async function sendFcm(
   title: string,
   body: string,
   actionUrl: string | null,
+  channelId = "ks_updates_v1",
+  isUrgent = false,
+  extraData: Record<string, string>,
+  devices: PushDevice[],
 ): Promise<{ status: "delivered" | "failed" | "skipped"; detail: string }> {
   const saRaw = Deno.env.get("FCM_SERVICE_ACCOUNT_JSON");
   if (!saRaw) return { status: "skipped", detail: "FCM_SERVICE_ACCOUNT_JSON not configured." };
@@ -111,13 +117,7 @@ async function sendFcm(
     return { status: "failed", detail: "FCM service account JSON is invalid." };
   }
 
-  const { data: rows } = await supabase
-    .from("device_push_tokens")
-    .select("fcm_token")
-    .eq("user_id", userId)
-    .not("fcm_token", "is", null);
-
-  const tokens = (rows ?? []).map((r: { fcm_token: string }) => r.fcm_token).filter(Boolean);
+  const tokens = [...new Set(devices.flatMap((d) => d.fcm_token ? [d.fcm_token] : []))];
   if (tokens.length === 0) {
     return { status: "skipped", detail: "No FCM tokens registered for this user." };
   }
@@ -145,7 +145,19 @@ async function sendFcm(
             message: {
               token,
               notification: { title, body },
-              data: actionUrl ? { action_url: actionUrl } : {},
+              android: {
+                priority: "HIGH", // Visible user notifications should not wait for Doze.
+                notification: {
+                  channel_id: channelId,
+                  icon: "ic_stat_keepsims",
+                  tag: extraData.notification_id || undefined,
+                  color: "#4CD7F6",
+                },
+              },
+              data: {
+                ...extraData,
+                action_url: actionUrl || "",
+              },
             },
           }),
         },
@@ -153,7 +165,23 @@ async function sendFcm(
       if (r.ok) {
         ok++;
       } else {
-        errs.push(`HTTP ${r.status}`);
+        const errJson = await r.json().catch(() => ({} as Record<string, any>));
+        const errorCode =
+          errJson?.error?.details?.find((d: any) => d["@type"]?.includes("FcmError"))?.errorCode ||
+          errJson?.error?.status ||
+          `HTTP ${r.status}`;
+        errs.push(errorCode);
+
+        // Terminal invalid token handling: UNREGISTERED means app uninstalled or token expired
+        if (errorCode === "UNREGISTERED" || errJson?.error?.status === "NOT_FOUND") {
+          console.warn(`[sendFcm] Token UNREGISTERED for user ${userId}; pruning stale device token.`);
+          // Safe compare-and-clear so concurrent refreshed tokens are preserved
+          await supabase
+            .from("device_push_tokens")
+            .update({ fcm_token: null, updated_at: new Date().toISOString() })
+            .eq("user_id", userId)
+            .eq("fcm_token", token);
+        }
       }
     } catch (e) {
       errs.push((e as Error).message ?? String(e));
@@ -161,7 +189,8 @@ async function sendFcm(
   }
 
   if (ok > 0) {
-    return { status: "delivered", detail: `FCM delivered to ${ok}/${tokens.length} device(s).` };
+    const failureSummary = errs.length > 0 ? `; failed: ${errs.join(", ")}` : "";
+    return { status: errs.length ? "failed" : "delivered", detail: `FCM accepted ${ok}/${tokens.length} device message(s); display not confirmed${failureSummary}.` };
   }
   return { status: "failed", detail: `FCM failed on all ${tokens.length} device(s): ${errs.join("; ")}` };
 }
@@ -172,23 +201,57 @@ serve(async (req: Request) => {
   const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
   const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-  // 1. Validate the shared secret against the Vault-stored value.
+  // 1. Validate authorization: accept shared secret OR service role key
   const reqSecret = req.headers.get("x-keep-sims-secret");
-  if (!cachedSecret) {
-    const { data } = await supabase.rpc("get_internal_secret", {
-      p_name: "dispatch_shared_secret",
-    });
-    cachedSecret = (data as string | null) ?? null;
-  }
-  if (!cachedSecret || reqSecret !== cachedSecret) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), {
-      status: 401,
-      headers: { "Content-Type": "application/json" },
-    });
+  const authHeader = req.headers.get("Authorization");
+  const isServiceRole = authHeader === `Bearer ${supabaseServiceKey}`;
+
+  if (!isServiceRole) {
+    if (!cachedSecret) {
+      const { data } = await supabase.rpc("get_internal_secret", {
+        p_name: "dispatch_shared_secret",
+      });
+      cachedSecret = (data as string | null) ?? null;
+    }
+    if (!cachedSecret || reqSecret !== cachedSecret) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
   }
 
   try {
     const payload = await req.json();
+
+    // Fast-path: Direct VoIP Incoming Call Wakeup Push
+    if (payload.category === "voip_call") {
+      const { user_id, voip_payload, fcm_tokens } = payload;
+      let delivered = false;
+      const targetTokens = Array.isArray(fcm_tokens) ? fcm_tokens : [];
+      if (targetTokens.length > 0) {
+        const fcmRes = await sendFcm(
+          supabase,
+          user_id,
+          voip_payload?.caller_name ? `Incoming call from ${voip_payload.caller_name}` : "Incoming KeepSIMs Call",
+          "Tap to answer",
+          "/voip/incoming",
+          "ks_urgent_v1",
+          true,
+          {
+            type: "INCOMING_VOIP_CALL",
+            ...voip_payload,
+          },
+          targetTokens.map((t: string) => ({ fcm_token: t, device_id: "voip_device" })),
+        );
+        delivered = fcmRes.status === "delivered";
+      }
+      return new Response(JSON.stringify({ success: true, delivered }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
     const {
       notification_id,
       user_id,
@@ -198,6 +261,10 @@ serve(async (req: Request) => {
       action_url,
       sim_line_id,
       channels,
+      event_type,
+      template_data,
+      target,
+      language,
     } = payload;
 
     const results: Record<string, string> = {};
@@ -220,77 +287,118 @@ serve(async (req: Request) => {
       });
     };
 
+    // Priority, Android Channel, and Large Icon resolution
+    const isUrgent =
+      event_type === "recharge_due_today" ||
+      event_type === "recharge_failed" ||
+      event_type === "recharge_blocked_funds" ||
+      event_type === "line_critical" ||
+      category === "top_up_failed" ||
+      category === "line_critical" ||
+      category === "wallet_depleted";
+
+    const isQuiet =
+      event_type === "line_added" ||
+      event_type === "auto_recharge_scheduled";
+
+    let channelId = "ks_updates_v1";
+    if (isUrgent) {
+      channelId = "ks_urgent_v1";
+    } else if (isQuiet) {
+      channelId = "ks_confirmations_v1";
+    }
+
+    let largeIcon = "ic_notif_reminder";
+    if (
+      event_type === "line_added" ||
+      event_type === "auto_recharge_scheduled" ||
+      event_type === "recharge_succeeded" ||
+      category === "top_up_success"
+    ) {
+      largeIcon = "ic_notif_success";
+    } else if (event_type === "recharge_failed" || category === "top_up_failed") {
+      largeIcon = "ic_notif_error";
+    } else if (
+      event_type === "recharge_due_today" ||
+      event_type === "line_setup_incomplete" ||
+      event_type === "wallet_low" ||
+      event_type === "recharge_blocked_funds" ||
+      event_type === "line_critical" ||
+      category === "wallet_low" ||
+      category === "line_critical"
+    ) {
+      largeIcon = "ic_notif_warning";
+    }
+
+    // Localized headings and contents
+    const userLang = language || "en";
+    const headings: Record<string, string> = { en: title };
+    const contents: Record<string, string> = { en: body };
+    if (userLang !== "en") {
+      headings[userLang] = title;
+      contents[userLang] = body;
+    }
+
+    const canonicalActionUrl = action_url || (sim_line_id ? `/sim-lines/detail/${sim_line_id}` : "");
+    const pushData: Record<string, string> = {
+      notification_id: notification_id ? String(notification_id) : "",
+      sim_line_id: sim_line_id ? String(sim_line_id) : "",
+      action_url: canonicalActionUrl,
+      event_type: event_type ? String(event_type) : "",
+      target: target ? (typeof target === "string" ? target : JSON.stringify(target)) : "",
+    };
+
     // 2. Dispatch to each active channel. for...of so whatsapp fallback can
     //    push extra channels onto the array mid-loop.
     for (const channel of channels) {
       try {
         if (channel === "push") {
-          // --- PUSH: OneSignal first, FCM fallback ---
           const oneSignalApiKey = Deno.env.get("ONESIGNAL_REST_API_KEY");
-          let oneSignalOk = false;
-
-          if (oneSignalApiKey) {
-            try {
-              const controller = new AbortController();
-              const timer = setTimeout(() => controller.abort(), ONESIGNAL_TIMEOUT_MS);
-              const response = await fetch("https://onesignal.com/api/v1/notifications", {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `Basic ${oneSignalApiKey}`,
-                },
-                body: JSON.stringify({
-                  app_id: ONESIGNAL_APP_ID,
-                  contents: { en: body },
-                  headings: { en: title },
-                  large_icon: "launcher_icon",
-                  small_icon: "ic_launcher_foreground",
-                  android_accent_color: "FF4CD7F6",
-                  include_aliases: { external_id: [user_id] },
-                  target_channel: "push",
-                }),
-                signal: controller.signal,
-              });
-              clearTimeout(timer);
-
-              const osBody = await response.json().catch(() => ({} as Record<string, unknown>));
-              const recipients = Number(osBody?.recipients ?? 0);
-              const hasErrors = osBody?.errors != null;
-              const osId = osBody?.id ?? null;
-
-              // An alias-targeted send is accepted when OneSignal returns 200 with a
-              // notification id and no errors; the recipients count in that immediate
-              // response is resolved asynchronously and is NOT authoritative. Only a
-              // real error (e.g. "All included players are not subscribed") means
-              // nobody was reached. Treating recipients===0 as failure would fall back
-              // to FCM on every send and deliver the notification twice.
-              if (response.ok && !hasErrors && osId != null) {
-                oneSignalOk = true;
-                results["push"] = `Delivered via OneSignal (id ${osId}, recipients ${recipients}).`;
-                logDelivery("push_onesignal", "delivered", results["push"], response.status);
-              } else {
-                results["push"] =
-                  `OneSignal did not deliver (status ${response.status}, errors ${JSON.stringify(osBody?.errors ?? null)}). Falling back to FCM.`;
-                logDelivery(
-                  "push_onesignal",
-                  "failed",
-                  `status ${response.status}, recipients ${recipients}, id ${osId}, errors ${JSON.stringify(osBody?.errors ?? null)}`,
-                  response.status,
-                );
-              }
-            } catch (e) {
-              results["push"] = `OneSignal error: ${(e as Error).message}. Falling back to FCM.`;
-              logDelivery("push_onesignal", "failed", `Exception: ${(e as Error).message ?? e}`);
-            }
-          } else {
-            logDelivery("push_onesignal", "skipped", "ONESIGNAL_REST_API_KEY not configured.");
+          const { data: rows, error } = await supabase
+            .from("device_push_tokens")
+            .select("device_id, onesignal_player_id, fcm_token, updated_at")
+            .eq("user_id", user_id)
+            .order("updated_at", { ascending: false });
+          if (error) throw new Error("Cannot load push devices: " + error.message);
+          const devices = (rows ?? []) as PushDevice[];
+          if (!devices.some((d) => d.onesignal_player_id || d.fcm_token)) {
+            logDelivery("push", "skipped", "No push devices registered.");
           }
-
-          if (!oneSignalOk) {
-            const fcm = await sendFcm(supabase, user_id, title, body, action_url ?? null);
+          const dispatchId = notification_id || crypto.randomUUID();
+          await routePushDevices(devices, async (device) => {
+            if (!oneSignalApiKey) {
+              logDelivery("push_onesignal", "skipped", "ONESIGNAL_REST_API_KEY not configured.");
+              return "rejected";
+            }
+            const response = await postOneSignal({
+              app_id: ONESIGNAL_APP_ID,
+              include_subscription_ids: [device.onesignal_player_id],
+              idempotency_key: await pushIdempotencyKey(dispatchId, device.onesignal_player_id!),
+              contents,
+              headings,
+              large_icon: "launcher_icon",
+              small_icon: "ic_stat_keepsims",
+              android_accent_color: "FF4CD7F6",
+              existing_android_channel_id: channelId,
+              priority: 10,
+              collapse_id: dispatchId,
+              data: pushData,
+            }, oneSignalApiKey);
+            const label = device.device_id || device.onesignal_player_id;
+            const detail = response.outcome === "accepted"
+              ? `OneSignal accepted for device ${label} (id ${response.id}); display not confirmed.`
+              : `OneSignal ${response.outcome} for device ${label}: ${response.detail}.`;
+            results["push"] = detail;
+            logDelivery("push_onesignal", response.outcome === "accepted" ? "delivered" : "failed",
+              detail + (response.outcome === "unknown" ? " FCM withheld to avoid a duplicate; retry with the same notification ID." : ""),
+              response.status);
+            return response.outcome;
+          }, async (fallbackDevices) => {
+            const fcm = await sendFcm(supabase, user_id, title, body,
+              canonicalActionUrl, channelId, isUrgent, pushData, fallbackDevices);
             results["push_fcm"] = fcm.detail;
             logDelivery("push_fcm", fcm.status, fcm.detail);
-          }
+          });
         }
 
         else if (channel === "telegram") {

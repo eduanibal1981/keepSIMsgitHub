@@ -20,12 +20,19 @@ class CallRecord {
   final double totalCost;
   final String? walletTxnId;
   final String? errorMessage;
+  final int? sipHangupCause;
+  final String? telnyxHangupCause;
+  final String? hangupSource;
+  final String? requestedCallerId;
+  final String? effectiveCallerId;
+  final String? callerIdType;
+  final String? policyReason;
 
   const CallRecord({
     required this.id,
     required this.userId,
     this.simLineId,
-    this.callType = 'two_way_callback',
+    this.callType = 'outbound_direct',
     required this.callerNumber,
     required this.destinationNumber,
     this.destinationCountryCode,
@@ -40,6 +47,13 @@ class CallRecord {
     this.totalCost = 0.0,
     this.walletTxnId,
     this.errorMessage,
+    this.sipHangupCause,
+    this.telnyxHangupCause,
+    this.hangupSource,
+    this.requestedCallerId,
+    this.effectiveCallerId,
+    this.callerIdType,
+    this.policyReason,
   });
 
   String get flagEmoji {
@@ -56,26 +70,50 @@ class CallRecord {
     return '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
   }
 
+  bool get isTerminal {
+    final s = status.toLowerCase();
+    return s == 'completed' ||
+        s == 'declined' ||
+        s == 'busy' ||
+        s == 'no_answer' ||
+        s == 'cancelled' ||
+        s == 'failed' ||
+        s == 'ended';
+  }
+
   factory CallRecord.fromJson(Map<String, dynamic> json) {
     return CallRecord(
       id: json['id'] as String,
       userId: json['user_id'] as String,
       simLineId: json['sim_line_id'] as String?,
-      callType: json['call_type'] as String? ?? 'two_way_callback',
+      callType: json['call_type'] as String? ?? 'outbound_direct',
       callerNumber: json['caller_number'] as String? ?? '',
       destinationNumber: json['destination_number'] as String? ?? '',
       destinationCountryCode: json['destination_country_code'] as String?,
       destinationCountryName: json['destination_country_name'] as String?,
       status: json['status'] as String? ?? 'initiated',
-      startedAt: DateTime.tryParse(json['started_at'] as String? ?? '') ?? DateTime.now(),
-      answeredAt: json['answered_at'] != null ? DateTime.tryParse(json['answered_at'] as String) : null,
-      endedAt: json['ended_at'] != null ? DateTime.tryParse(json['ended_at'] as String) : null,
+      startedAt:
+          DateTime.tryParse(json['started_at'] as String? ?? '') ??
+          DateTime.now(),
+      answeredAt: json['answered_at'] != null
+          ? DateTime.tryParse(json['answered_at'] as String)
+          : null,
+      endedAt: json['ended_at'] != null
+          ? DateTime.tryParse(json['ended_at'] as String)
+          : null,
       durationSeconds: json['duration_seconds'] as int? ?? 0,
       billedDurationSeconds: json['billed_duration_seconds'] as int? ?? 0,
       ratePerMinute: (json['rate_per_minute_usd'] as num?)?.toDouble() ?? 0.0,
       totalCost: (json['total_cost_usd'] as num?)?.toDouble() ?? 0.0,
       walletTxnId: json['wallet_txn_id'] as String?,
       errorMessage: json['error_message'] as String?,
+      sipHangupCause: json['sip_hangup_cause'] as int?,
+      telnyxHangupCause: json['telnyx_hangup_cause'] as String?,
+      hangupSource: json['hangup_source'] as String?,
+      requestedCallerId: json['requested_caller_id'] as String?,
+      effectiveCallerId: json['effective_caller_id'] as String?,
+      callerIdType: json['caller_id_type'] as String?,
+      policyReason: json['policy_reason'] as String?,
     );
   }
 }

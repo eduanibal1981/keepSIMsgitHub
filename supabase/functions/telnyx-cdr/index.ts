@@ -1,5 +1,8 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import * as nacl from "https://esm.sh/tweetnacl@1.0.3";
+import naclModule from "https://esm.sh/tweetnacl@1.0.3";
+const nacl: any = (naclModule as any)?.sign ? naclModule : (naclModule as any)?.default ?? naclModule;
+import { CallMedia } from "./call-media.ts";
+import { handleMediaEvent } from "./media-events.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -26,6 +29,18 @@ async function rpc(name: string, args: Record<string, unknown>): Promise<{ ok: b
   let body: any = text;
   try { body = JSON.parse(text); } catch (_) { /* raw text */ }
   return { ok: res.ok, body };
+}
+
+async function fetchSystemConfig(key: string, defaultVal: string = ""): Promise<string> {
+  const envVal = Deno.env.get(key);
+  if (envVal) return envVal;
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/system_configs?config_key=eq.${encodeURIComponent(key)}&select=config_value`,
+    { headers: serviceHeaders },
+  );
+  if (!res.ok) return defaultVal;
+  const rows = await res.json();
+  return rows[0]?.config_value ?? defaultVal;
 }
 
 function decodeClientState(clientStateStr?: string): any | null {
@@ -65,12 +80,12 @@ function decodeBase64OrHex(str: string): Uint8Array {
   throw new Error("Unable to decode key or signature");
 }
 
-function verifyTelnyxSignature(
+async function verifyTelnyxSignature(
   rawBody: string,
   signatureHeader: string | null,
   timestampHeader: string | null,
   publicKeyStr: string,
-): { valid: boolean; reason?: string } {
+): Promise<{ valid: boolean; reason?: string }> {
   if (!signatureHeader || !timestampHeader) {
     return { valid: false, reason: "Missing telnyx-signature-ed25519 or telnyx-timestamp header" };
   }
@@ -88,8 +103,34 @@ function verifyTelnyxSignature(
     const signatureBytes = decodeBase64OrHex(signatureHeader);
     const payloadToVerify = new TextEncoder().encode(`${timestampHeader}|${rawBody}`);
 
-    const isValid = nacl.sign.detached.verify(payloadToVerify, signatureBytes, publicKeyBytes);
-    return { valid: isValid, reason: isValid ? undefined : "Ed25519 signature verification failed" };
+    // Primary: WebCrypto Ed25519 (standard in Deno runtime)
+    try {
+      const key = await crypto.subtle.importKey(
+        "raw",
+        publicKeyBytes,
+        { name: "Ed25519" },
+        false,
+        ["verify"],
+      );
+      const valid = await crypto.subtle.verify(
+        { name: "Ed25519" },
+        key,
+        signatureBytes,
+        payloadToVerify,
+      );
+      if (valid) return { valid: true };
+    } catch (_) {
+      // Fall through to tweetnacl fallback
+    }
+
+    // Secondary: tweetnacl fallback
+    const naclLib: any = (nacl as any)?.sign ? nacl : (nacl as any)?.default;
+    if (naclLib?.sign?.detached?.verify) {
+      const isValid = naclLib.sign.detached.verify(payloadToVerify, signatureBytes, publicKeyBytes);
+      return { valid: isValid, reason: isValid ? undefined : "Ed25519 signature verification failed" };
+    }
+
+    return { valid: false, reason: "Ed25519 verification algorithm unavailable" };
   } catch (err: any) {
     return { valid: false, reason: `Signature verification error: ${err.message}` };
   }
@@ -113,8 +154,9 @@ serve(async (req: Request) => {
     const timestampHeader = req.headers.get("telnyx-timestamp");
 
     // ── 1. Webhook Authentication & Signature Verification ──
-    if (TELNYX_PUBLIC_KEY) {
-      const verification = verifyTelnyxSignature(rawBody, signatureHeader, timestampHeader, TELNYX_PUBLIC_KEY);
+    const effectivePublicKey = TELNYX_PUBLIC_KEY || (await fetchSystemConfig("TELNYX_PUBLIC_KEY"));
+    if (effectivePublicKey) {
+      const verification = await verifyTelnyxSignature(rawBody, signatureHeader, timestampHeader, effectivePublicKey);
       if (!verification.valid) {
         console.warn(`[telnyx-cdr] Rejected unauthenticated webhook: ${verification.reason}`);
         return new Response(JSON.stringify({ error: "Unauthorized", reason: verification.reason }), {
@@ -122,8 +164,6 @@ serve(async (req: Request) => {
           status: 401,
         });
       }
-    } else {
-      console.warn("[telnyx-cdr] WARNING: TELNYX_PUBLIC_KEY is not configured in Supabase Secrets. Webhook signature check bypassed.");
     }
 
     let parsedBody: any;
@@ -144,24 +184,60 @@ serve(async (req: Request) => {
       });
     }
 
+    const eventId = event.id;
     const eventType = event.event_type;
     const payload = event.payload;
     const callControlId = payload?.call_control_id || payload?.call_session_id;
     const clientState = decodeClientState(payload?.client_state);
 
-    console.log(`Telnyx Voice Webhook: ${eventType}, call_control_id: ${callControlId}`);
+    console.log(`[telnyx-cdr] Event: ${eventType}, id: ${eventId}, call_control_id: ${callControlId}`);
 
-    // Resolve callRecordId from client_state or payload
+    // Durable Webhook Deduplication:
+    if (eventId) {
+      try {
+        const checkRes = await fetch(
+          `${SUPABASE_URL}/rest/v1/processed_webhook_events?event_id=eq.${encodeURIComponent(eventId)}&select=event_id`,
+          { headers: serviceHeaders },
+        );
+        if (checkRes.ok) {
+          const rows = await checkRes.json();
+          if (rows.length > 0) {
+            console.log(`[telnyx-cdr] Duplicate webhook event ${eventId} (${eventType}) ignored.`);
+            return new Response(JSON.stringify({ received: true, duplicate: true }), {
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+              status: 200,
+            });
+          }
+        }
+      } catch (_) {}
+    }
+
+    const recordProcessedEvent = async (callRecId?: string | null) => {
+      if (!eventId) return;
+      try {
+        await fetch(`${SUPABASE_URL}/rest/v1/processed_webhook_events`, {
+          method: "POST",
+          headers: serviceHeaders,
+          body: JSON.stringify({
+            event_id: eventId,
+            event_type: eventType,
+            call_record_id: callRecId || null,
+          }),
+        });
+      } catch (_) {}
+    };
+
+    // Resolve callRecordId from client_state
     const clientCallRecordId = clientState?.callRecordId;
 
-    // ── 1B. Real Live Verification Handler (Missed Call) Fallback ──
+    // ── 1B. Line Verification Attempt (Missed Call) Handling ──
     if (clientState?.attemptId) {
       const attemptId = clientState.attemptId;
       console.log(`[telnyx-cdr] Processing line verification attempt ${attemptId}, event: ${eventType}`);
-      const telnyxApiKey = Deno.env.get("TELNYX_API_KEY") || "KEY01A049E00656B79B4314CFFBC7969C10_k9JM7HV9u4sB2MadneUT1M";
+      const telnyxApiKey = await fetchSystemConfig("TELNYX_API_KEY");
 
       if (eventType === "call.ringing" || eventType === "call.answered") {
-        if (callControlId) {
+        if (callControlId && telnyxApiKey) {
           try {
             await fetch(`https://api.telnyx.com/v2/calls/${encodeURIComponent(callControlId)}/actions/hangup`, {
               method: "POST",
@@ -176,6 +252,7 @@ serve(async (req: Request) => {
           p_carrier_name: null,
           p_error_message: null,
         });
+        await recordProcessedEvent(null);
         return new Response(JSON.stringify({ status: "verification_succeeded" }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
           status: 200,
@@ -184,7 +261,6 @@ serve(async (req: Request) => {
         const rawCause = payload?.hangup_cause || "call_ended";
         const hangupCause = rawCause.toLowerCase();
 
-        // Check if already succeeded
         const checkRes = await fetch(`${SUPABASE_URL}/rest/v1/line_verification_attempts?id=eq.${encodeURIComponent(attemptId)}&select=outcome`, {
           headers: serviceHeaders,
         });
@@ -213,11 +289,13 @@ serve(async (req: Request) => {
             }
           }
         }
+        await recordProcessedEvent(null);
         return new Response(JSON.stringify({ status: "verification_hangup" }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
           status: 200,
         });
       }
+      await recordProcessedEvent(null);
       return new Response(JSON.stringify({ status: "verification_event_acknowledged" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
@@ -237,9 +315,8 @@ serve(async (req: Request) => {
     }
 
     if (!dbRecord && callControlId) {
-      // Fallback query by call session / control leg
       const recRes = await fetch(
-        `${SUPABASE_URL}/rest/v1/call_records?or=(telnyx_call_session_id.eq.${encodeURIComponent(callControlId)},telnyx_call_control_id_leg_a.eq.${encodeURIComponent(callControlId)},telnyx_call_control_id_leg_b.eq.${encodeURIComponent(callControlId)})`,
+        `${SUPABASE_URL}/rest/v1/call_records?or=(telnyx_call_session_id.eq.${encodeURIComponent(callControlId)},telnyx_call_control_id_leg_a.eq.${encodeURIComponent(callControlId)})`,
         { headers: serviceHeaders },
       );
       if (recRes.ok) {
@@ -249,10 +326,46 @@ serve(async (req: Request) => {
     }
 
     const callRecordId = dbRecord?.id || clientCallRecordId;
+    if (!callRecordId) {
+      console.warn(`[telnyx-cdr] No call record matched for callControlId ${callControlId}`);
+      return new Response(JSON.stringify({ received: true, matched: false }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
+    }
 
-    // ── 3. Destination is Ringing ──
-    if (eventType === "call.ringing" || eventType === "call.initiated") {
-      if (callRecordId) {
+    if (dbRecord?.call_type === "app_to_phone_webrtc") {
+      const appId = await fetchSystemConfig("TELNYX_CALL_CONTROL_APP_ID");
+      if (String(payload?.connection_id) !== appId) {
+        return new Response(JSON.stringify({ error: "Call application mismatch" }), { status: 403 });
+      }
+      await handleMediaEvent(new CallMedia(SUPABASE_URL, serviceHeaders,
+        await fetchSystemConfig("TELNYX_API_KEY"), appId), dbRecord, event, rpc);
+      await recordProcessedEvent(dbRecord.id);
+      return new Response(JSON.stringify({ received: true }), { status: 200 });
+    }
+
+    const terminalStatuses = ["completed", "declined", "busy", "no_answer", "cancelled", "failed"];
+    const isAlreadyTerminal = terminalStatuses.includes(dbRecord?.status);
+
+    // ── 3. Event: Call Initiated (Setup started - NOT ringing) ──
+    if (eventType === "call.initiated") {
+      if (!isAlreadyTerminal) {
+        await fetch(`${SUPABASE_URL}/rest/v1/call_records?id=eq.${encodeURIComponent(callRecordId)}`, {
+          method: "PATCH",
+          headers: serviceHeaders,
+          body: JSON.stringify({
+            status: "initiated", // Remain initiated; do NOT mark ringing prematurely
+            telnyx_call_control_id_leg_a: payload?.call_control_id || undefined,
+            telnyx_call_session_id: payload?.call_session_id || undefined,
+          }),
+        });
+      }
+    }
+
+    // ── 4. Event: Destination Alerting (Physical Ringing) ──
+    else if (eventType === "call.ringing") {
+      if (!isAlreadyTerminal && dbRecord?.status !== "in_progress") {
         await fetch(`${SUPABASE_URL}/rest/v1/call_records?id=eq.${encodeURIComponent(callRecordId)}`, {
           method: "PATCH",
           headers: serviceHeaders,
@@ -265,10 +378,10 @@ serve(async (req: Request) => {
       }
     }
 
-    // ── 4. Recipient Answered the Phone ──
+    // ── 5. Event: Call Answered (Connected) ──
     else if (eventType === "call.answered") {
-      console.log(`Call answered by destination! Updating callRecordId: ${callRecordId}`);
-      if (callRecordId) {
+      console.log(`[telnyx-cdr] Call answered: ${callRecordId}`);
+      if (!isAlreadyTerminal) {
         await fetch(`${SUPABASE_URL}/rest/v1/call_records?id=eq.${encodeURIComponent(callRecordId)}`, {
           method: "PATCH",
           headers: serviceHeaders,
@@ -280,81 +393,136 @@ serve(async (req: Request) => {
       }
     }
 
-    // ── 5. Call Hangup / Terminated ──
+    // ── 6. Event: Call Hangup (Terminal Outcome & Billing) ──
     else if (eventType === "call.hangup") {
-      const hangupCause = payload?.hangup_cause || "normal_clearing";
+      // Re-read latest record state
+      const recRes = await fetch(`${SUPABASE_URL}/rest/v1/call_records?id=eq.${encodeURIComponent(callRecordId)}`, {
+        headers: serviceHeaders,
+      });
+      const records = recRes.ok ? await recRes.json() : [];
+      dbRecord = records[0] ?? dbRecord;
+
+      const rawCause = String(payload?.hangup_cause || "normal_clearing");
+      const rawSipCause = payload?.sip_hangup_cause;
+      const rawSource = String(payload?.hangup_source || "callee");
       const durationSecs = Number(payload?.call_duration_secs ?? payload?.duration_secs ?? 0);
+      const sipCode = parseInt(String(rawSipCause), 10);
 
-      console.log(`Call ended: record=${callRecordId}, duration=${durationSecs}s, cause=${hangupCause}`);
+      console.log(`[telnyx-cdr] Call hangup: id=${callRecordId}, sip=${rawSipCause}, cause=${rawCause}, source=${rawSource}, duration=${durationSecs}s`);
 
-      if (callRecordId) {
-        // Re-read latest record state
-        if (!dbRecord) {
-          const recRes = await fetch(`${SUPABASE_URL}/rest/v1/call_records?id=eq.${encodeURIComponent(callRecordId)}`, {
-            headers: serviceHeaders,
-          });
-          const records = recRes.ok ? await recRes.json() : [];
-          dbRecord = records[0] ?? null;
-        }
-
-        const wasAnswered = dbRecord?.answered_at !== null && dbRecord?.answered_at !== undefined;
-        let finalStatus = "completed";
-
-        if (!wasAnswered && durationSecs <= 0) {
-          const lowerCause = hangupCause.toLowerCase();
-          if (lowerCause.includes("busy") || lowerCause.includes("user_busy")) {
-            finalStatus = "busy";
-          } else if (lowerCause.includes("timeout") || lowerCause.includes("no_answer") || lowerCause.includes("unallocated")) {
-            finalStatus = "no_answer";
-          } else if (lowerCause.includes("rejected") || lowerCause.includes("declined")) {
-            finalStatus = "declined";
-          } else {
-            finalStatus = "cancelled";
-          }
-        }
-
-        // CRITICAL SECURITY ENFORCEMENT:
-        // Use user_id and rate_per_minute strictly from the database record (NEVER trusting client_state!)
-        const verifiedUserId = dbRecord?.user_id;
-        const verifiedRatePerMinute = Number(dbRecord?.rate_per_minute_usd ?? 0.08);
-
-        let totalCost = 0.00;
-        // ONLY debit wallet if the call was ACTUALLY answered and had positive duration
-        if (wasAnswered && durationSecs > 0 && verifiedUserId && verifiedRatePerMinute > 0) {
-          totalCost = Number((durationSecs * (verifiedRatePerMinute / 60.0)).toFixed(4));
-
-          if (totalCost > 0) {
-            console.log(`Debiting wallet for user ${verifiedUserId}: $${totalCost} for ${durationSecs}s answered call`);
-            await rpc("debit_wallet_for_call", {
-              p_user_id: verifiedUserId,
-              p_call_id: callRecordId,
-              p_amount: totalCost,
-              p_description: `International Call to ${dbRecord?.destination_number ?? "destination"} (${durationSecs}s)`,
-            });
-          }
-        }
-
+      // If call record was already marked terminal (e.g. earlier hangup event or user cancellation),
+      // preserve the terminal status and avoid double-charging
+      if (terminalStatuses.includes(dbRecord?.status)) {
+        console.log(`[telnyx-cdr] Call ${callRecordId} already in terminal status ${dbRecord?.status}. Preserving state.`);
         await fetch(`${SUPABASE_URL}/rest/v1/call_records?id=eq.${encodeURIComponent(callRecordId)}`, {
           method: "PATCH",
           headers: serviceHeaders,
           body: JSON.stringify({
-            status: finalStatus,
-            ended_at: new Date().toISOString(),
-            duration_seconds: wasAnswered ? durationSecs : 0,
-            billed_duration_seconds: wasAnswered ? durationSecs : 0,
-            total_cost_usd: totalCost,
+            sip_hangup_cause: isNaN(sipCode) ? null : sipCode,
+            telnyx_hangup_cause: rawCause,
+            hangup_source: rawSource,
             raw_cdr: payload,
           }),
         });
+        return new Response(JSON.stringify({ received: true, event: eventType, alreadyTerminal: true }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200,
+        });
       }
+
+      const wasAnswered = dbRecord?.answered_at !== null && dbRecord?.answered_at !== undefined;
+      let finalStatus = "completed";
+      let errorMsg: string | null = null;
+      let totalCost = 0.0000;
+      let billedDuration = 0;
+
+      if (wasAnswered) {
+        finalStatus = "completed";
+        billedDuration = durationSecs > 0 ? durationSecs : 1;
+
+        // Calculate cost based strictly on authoritative database record rate
+        const verifiedUserId = dbRecord?.user_id;
+        const verifiedRatePerMinute = Number(dbRecord?.rate_per_minute_usd ?? 0.08);
+
+        if (billedDuration > 0 && verifiedUserId && verifiedRatePerMinute > 0) {
+          totalCost = Number((billedDuration * (verifiedRatePerMinute / 60.0)).toFixed(4));
+          if (totalCost > 0) {
+            console.log(`[telnyx-cdr] Debiting wallet for user ${verifiedUserId}: $${totalCost} for ${billedDuration}s answered call`);
+            await rpc("debit_wallet_for_call", {
+              p_user_id: verifiedUserId,
+              p_call_id: callRecordId,
+              p_amount: totalCost,
+              p_description: `International Call to ${dbRecord?.destination_number ?? "destination"} (${billedDuration}s)`,
+            });
+          }
+        }
+      } else {
+        // UNANSWERED CALLS: ALWAYS $0.00 COST
+        totalCost = 0.0000;
+        billedDuration = 0;
+
+        // Classification using both SIP Code and Hangup Cause
+        const lowerCause = rawCause.toLowerCase();
+
+        if (sipCode === 603) {
+          // SIP 603 Decline / Callee / Carrier rejection
+          finalStatus = "declined";
+          errorMsg = "Call declined or rejected by the destination network";
+        } else if (sipCode === 486 || (lowerCause.includes("user_busy") && sipCode !== 603)) {
+          finalStatus = "busy";
+          errorMsg = "Destination line is busy";
+        } else if (sipCode === 487) {
+          if (dbRecord?.cancellation_requested_at || rawSource === "caller") {
+            finalStatus = "cancelled";
+            errorMsg = "Call cancelled";
+          } else {
+            finalStatus = "no_answer";
+            errorMsg = "No answer from recipient";
+          }
+        } else if ([408, 480].includes(sipCode) || lowerCause.includes("timeout") || lowerCause.includes("no_answer")) {
+          finalStatus = "no_answer";
+          errorMsg = "No answer from recipient";
+        } else if ([404, 484, 410].includes(sipCode) || lowerCause.includes("unallocated") || lowerCause.includes("invalid")) {
+          finalStatus = "failed";
+          errorMsg = "Invalid destination phone number";
+        } else if ([503, 502, 500].includes(sipCode) || lowerCause.includes("service_unavailable") || lowerCause.includes("congestion")) {
+          finalStatus = "failed";
+          errorMsg = "Carrier route temporarily unavailable";
+        } else if (dbRecord?.cancellation_requested_at) {
+          finalStatus = "cancelled";
+          errorMsg = "Call cancelled";
+        } else {
+          finalStatus = "failed";
+          errorMsg = "Call could not be completed";
+        }
+      }
+
+      await fetch(`${SUPABASE_URL}/rest/v1/call_records?id=eq.${encodeURIComponent(callRecordId)}`, {
+        method: "PATCH",
+        headers: serviceHeaders,
+        body: JSON.stringify({
+          status: finalStatus,
+          ended_at: new Date().toISOString(),
+          duration_seconds: wasAnswered ? durationSecs : 0,
+          billed_duration_seconds: billedDuration,
+          total_cost_usd: totalCost,
+          sip_hangup_cause: isNaN(sipCode) ? null : sipCode,
+          telnyx_hangup_cause: rawCause,
+          hangup_source: rawSource,
+          error_message: errorMsg,
+          raw_cdr: payload,
+        }),
+      });
     }
+
+    await recordProcessedEvent(callRecordId);
 
     return new Response(JSON.stringify({ received: true, event: eventType }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });
   } catch (err: any) {
-    console.error("telnyx-cdr error:", err);
+    console.error("[telnyx-cdr] error:", err);
     return new Response(JSON.stringify({ error: err.message }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,

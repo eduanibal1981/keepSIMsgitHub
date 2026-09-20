@@ -43,7 +43,12 @@ import 'package:keep_sims/features/price_watch/presentation/screens/price_watch_
 import 'package:keep_sims/features/roam_calculator/presentation/screens/roam_calculator_screen.dart';
 import 'package:keep_sims/features/calling/presentation/screens/calling_screen.dart';
 import 'package:keep_sims/features/calling/presentation/screens/active_call_screen.dart';
+import 'package:keep_sims/features/calling/presentation/screens/sip_diagnostics_screen.dart';
+import 'package:keep_sims/features/calling/presentation/screens/my_numbers_screen.dart';
+import 'package:keep_sims/features/calling/presentation/screens/voicemail_inbox_screen.dart';
 import 'package:keep_sims/features/return_trip/presentation/screens/return_trip_wizard_screen.dart';
+import 'package:keep_sims/features/voip_calling/presentation/screens/whatsapp_call_screen.dart';
+import 'package:keep_sims/features/voip_calling/presentation/screens/internet_calling_screen.dart';
 
 part 'app_router.g.dart';
 
@@ -55,7 +60,12 @@ abstract final class AppRoutes {
   static const String onboarding = '/onboarding';
   static const String home = '/home';
   static const String calling = '/calling';
+  static const String myNumbers = '/calling/my-numbers';
+  static const String voicemail = '/calling/voicemail';
+  static const String sipDiagnostics = '/calling/sip-test';
+  static const String internetCalling = '/calling/internet';
   static const String callingActive = '/calling/active';
+  static const String voipCall = '/voip-call';
   static const String simLines = '/sim-lines';
   static const String simLineDetail = '/sim-lines/detail/:id';
   static const String simLineExecutions = '/sim-lines/detail/:id/executions';
@@ -82,7 +92,6 @@ abstract final class AppRoutes {
   static const String esimRoamCalculator = '/esim/roam-calculator';
   static const String emergencyRecovery = '/emergency-recovery';
 }
-
 
 @riverpod
 class SplashCompleted extends _$SplashCompleted {
@@ -195,20 +204,25 @@ RouterConfig<Object> appRouter(Ref ref) {
         builder: (context, state) => const ActiveCallScreen(),
       ),
 
+      // ── Active WhatsApp-Style VoIP Internet Call ────────────
+      GoRoute(
+        path: AppRoutes.voipCall,
+        name: 'voipCall',
+        builder: (context, state) => const WhatsAppCallScreen(),
+      ),
+
       // ── Return Trip Wizard (Full-Screen Flow) ────────────────
       GoRoute(
         path: '/sim-lines/:id/return-trip',
         name: 'returnTripDirect',
-        builder: (context, state) => ReturnTripWizardScreen(
-          simLineId: state.pathParameters['id']!,
-        ),
+        builder: (context, state) =>
+            ReturnTripWizardScreen(simLineId: state.pathParameters['id']!),
       ),
       GoRoute(
         path: '/sim-lines/detail/:id/return-trip',
         name: 'returnTripDetail',
-        builder: (context, state) => ReturnTripWizardScreen(
-          simLineId: state.pathParameters['id']!,
-        ),
+        builder: (context, state) =>
+            ReturnTripWizardScreen(simLineId: state.pathParameters['id']!),
       ),
 
       // ── Main App Shell ─────────────────────────────────────
@@ -224,6 +238,26 @@ RouterConfig<Object> appRouter(Ref ref) {
             path: AppRoutes.calling,
             name: 'calling',
             builder: (context, state) => const CallingScreen(),
+          ),
+          GoRoute(
+            path: AppRoutes.sipDiagnostics,
+            name: 'sipDiagnostics',
+            builder: (context, state) => const SipDiagnosticsScreen(),
+          ),
+          GoRoute(
+            path: AppRoutes.internetCalling,
+            name: 'internetCalling',
+            builder: (context, state) => const InternetCallingScreen(),
+          ),
+          GoRoute(
+            path: AppRoutes.myNumbers,
+            name: 'myNumbers',
+            builder: (context, state) => const MyNumbersScreen(),
+          ),
+          GoRoute(
+            path: AppRoutes.voicemail,
+            name: 'voicemail',
+            builder: (context, state) => const VoicemailInboxScreen(),
           ),
           GoRoute(
             path: AppRoutes.simLines,

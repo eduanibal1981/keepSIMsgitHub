@@ -7,6 +7,8 @@ import 'package:keep_sims/core/supabase_client.dart';
 import 'package:keep_sims/features/calling/data/models/call_rate_model.dart';
 import 'package:keep_sims/features/calling/data/models/call_record_model.dart';
 import 'package:keep_sims/features/calling/data/models/caller_id_model.dart';
+import 'package:keep_sims/features/calling/data/models/virtual_did_model.dart';
+import 'package:keep_sims/features/calling/data/models/voicemail_model.dart';
 
 final callingRepositoryProvider = Provider<CallingRepository>((ref) {
   return CallingRepository(supabase);
@@ -27,10 +29,40 @@ class CallerIdRequestResult {
 class CallerIdListResult {
   final List<CallerIdModel> callerIds;
   final String defaultGatewayNumber;
+  final bool isGatewayActive;
+  final String activeCallerId;
 
   const CallerIdListResult({
     required this.callerIds,
     required this.defaultGatewayNumber,
+    this.isGatewayActive = true,
+    this.activeCallerId = '+17543180369',
+  });
+}
+
+class CallPreviewResult {
+  final bool eligible;
+  final String policyCode;
+  final String policyReason;
+  final String? suggestedAction;
+  final String requestedCallerId;
+  final String effectiveCallerId;
+  final String callerIdType;
+  final CallRate? rate;
+  final double walletBalance;
+  final String gatewayNumber;
+
+  const CallPreviewResult({
+    required this.eligible,
+    required this.policyCode,
+    required this.policyReason,
+    this.suggestedAction,
+    required this.requestedCallerId,
+    required this.effectiveCallerId,
+    required this.callerIdType,
+    this.rate,
+    required this.walletBalance,
+    required this.gatewayNumber,
   });
 }
 
@@ -44,7 +76,9 @@ class CallingRepository {
     try {
       final res = await _supabase.rpc('get_user_calling_rates');
       if (res is List && res.isNotEmpty) {
-        return res.map((e) => CallRate.fromJson(Map<String, dynamic>.from(e as Map))).toList();
+        return res
+            .map((e) => CallRate.fromJson(Map<String, dynamic>.from(e as Map)))
+            .toList();
       }
     } catch (_) {
       // Fallback to call_rates table if RPC fails
@@ -59,24 +93,122 @@ class CallingRepository {
     return (res as List).map((e) => CallRate.fromJson(e)).toList();
   }
 
-  /// Initiate an international call via make-call edge function
-  Future<Map<String, dynamic>> initiateCall({
+  /// Single-record fetch for active call status polling
+  Future<CallRecord?> getCallRecord(String callId) async {
+    final res = await _supabase
+        .from('call_records')
+        .select('*')
+        .eq('id', callId)
+        .maybeSingle();
+
+    return res != null ? CallRecord.fromJson(res) : null;
+  }
+
+  /// Pre-call policy evaluation without placing a call
+  Future<CallPreviewResult> previewCall({
     required String destinationNumber,
-    required String userCallbackNumber,
+    String? callerIdId,
+    bool explicitGateway = false,
     String? simLineId,
   }) async {
     final response = await _supabase.functions.invoke(
       'make-call',
       body: {
+        'action': 'preview',
         'destinationNumber': destinationNumber,
-        'userCallbackNumber': userCallbackNumber,
+        'callerIdId': callerIdId,
+        'explicitGateway': explicitGateway,
         'simLineId': simLineId,
       },
     );
 
     final data = response.data;
     if (response.status != 200 || data == null || data['success'] != true) {
-      final msg = data?['errorMessage'] ?? 'Failed to initiate call (status ${response.status})';
+      final msg =
+          data?['errorMessage'] ??
+          'Failed to check call policy (status ${response.status})';
+      throw Exception(msg);
+    }
+
+    final destData = data['destination'] as Map<String, dynamic>?;
+    CallRate? rate;
+    if (destData != null) {
+      rate = CallRate(
+        id: 'preview',
+        countryCode: destData['countryCode'] ?? 'GLOBAL',
+        countryName: destData['countryName'] ?? 'International Destination',
+        phonePrefix: '+',
+        costPerMinute: 0.0,
+        ratePerMinute: (destData['ratePerMinute'] as num?)?.toDouble() ?? 0.15,
+      );
+    }
+
+    return CallPreviewResult(
+      eligible: data['eligible'] == true,
+      policyCode: data['policyCode'] as String? ?? 'approved',
+      policyReason: data['policyReason'] as String? ?? '',
+      suggestedAction: data['suggestedAction'] as String?,
+      requestedCallerId: data['requestedCallerId'] as String? ?? '',
+      effectiveCallerId: data['effectiveCallerId'] as String? ?? '',
+      callerIdType: data['callerIdType'] as String? ?? 'gateway',
+      rate: rate,
+      walletBalance: (data['walletBalance'] as num?)?.toDouble() ?? 0.0,
+      gatewayNumber: data['gatewayNumber'] as String? ?? '+17543180369',
+    );
+  }
+
+  /// Initiate an international call via make-call edge function
+  Future<Map<String, dynamic>> prepareCallAudio() async {
+    final response = await _supabase.functions.invoke(
+      'make-call',
+      body: {'action': 'prepare_media'},
+    );
+    if (response.data?['success'] != true) {
+      throw Exception(
+        response.data?['errorMessage'] ?? 'Call audio is unavailable.',
+      );
+    }
+    return Map<String, dynamic>.from(response.data);
+  }
+
+  Future<void> confirmCallAudio(String callId) async {
+    final response = await _supabase.functions.invoke(
+      'make-call',
+      body: {'action': 'media_ready', 'callId': callId},
+    );
+    if (response.data?['success'] != true) {
+      throw Exception('Unable to connect call audio.');
+    }
+  }
+
+  Future<Map<String, dynamic>> initiateCall({
+    required String destinationNumber,
+    String? callerIdId,
+    bool explicitGateway = false,
+    String? userCallbackNumber,
+    String? simLineId,
+    String? idempotencyKey,
+    String? mediaSessionId,
+  }) async {
+    final response = await _supabase.functions.invoke(
+      'make-call',
+      body: {
+        'action': 'dial',
+        'destinationNumber': destinationNumber,
+        'callerIdId': callerIdId,
+        'explicitGateway': explicitGateway,
+        'userCallbackNumber': ?userCallbackNumber,
+        'simLineId': simLineId,
+        'idempotencyKey': idempotencyKey,
+        'mediaSessionId': mediaSessionId,
+      },
+    );
+
+    final data = response.data;
+    if (response.status != 200 || data == null || data['success'] != true) {
+      final msg =
+          data?['errorMessage'] ??
+          'Failed to initiate call (status ${response.status})';
       throw Exception(msg);
     }
 
@@ -87,10 +219,7 @@ class CallingRepository {
   Future<void> endCall(String callId) async {
     await _supabase.functions.invoke(
       'make-call',
-      body: {
-        'action': 'hangup',
-        'callId': callId,
-      },
+      body: {'action': 'hangup', 'callId': callId},
     );
   }
 
@@ -100,7 +229,9 @@ class CallingRepository {
         .from('call_records')
         .stream(primaryKey: ['id'])
         .eq('id', callId)
-        .map((list) => list.isNotEmpty ? CallRecord.fromJson(list.first) : null);
+        .map(
+          (list) => list.isNotEmpty ? CallRecord.fromJson(list.first) : null,
+        );
   }
 
   /// Watch user's call history in real-time
@@ -123,20 +254,29 @@ class CallingRepository {
     return res.callerIds;
   }
 
-  /// List user's verified Caller IDs and system gateway
+  /// List user's verified Caller IDs and active preference
   Future<CallerIdListResult> getCallerIdList() async {
     final res = await _supabase.functions.invoke(
       'manage-caller-id',
       body: {'action': 'list'},
     );
     if (res.status != 200 || res.data == null) {
-      return const CallerIdListResult(callerIds: [], defaultGatewayNumber: '+17543180369');
+      return const CallerIdListResult(
+        callerIds: [],
+        defaultGatewayNumber: '+17543180369',
+      );
     }
     final list = res.data['callerIds'] as List? ?? [];
-    final gateway = res.data['defaultGatewayNumber'] as String? ?? '+17543180369';
+    final gateway =
+        res.data['defaultGatewayNumber'] as String? ?? '+17543180369';
+    final isGatewayActive = res.data['isGatewayActive'] as bool? ?? true;
+    final activeCallerId = res.data['activeCallerId'] as String? ?? gateway;
+
     return CallerIdListResult(
       callerIds: list.map((e) => CallerIdModel.fromJson(e)).toList(),
       defaultGatewayNumber: gateway,
+      isGatewayActive: isGatewayActive,
+      activeCallerId: activeCallerId,
     );
   }
 
@@ -155,7 +295,9 @@ class CallingRepository {
     );
     final data = res.data;
     if (res.status != 200 || data == null || data['success'] != true) {
-      throw Exception(data?['errorMessage'] ?? 'Failed to send verification code');
+      throw Exception(
+        data?['errorMessage'] ?? 'Failed to send verification code',
+      );
     }
     return CallerIdRequestResult(
       isAlreadyVerified: data['isAlreadyVerified'] as bool? ?? false,
@@ -168,11 +310,7 @@ class CallingRepository {
   Future<String> verifyCallerIdCode(String phoneNumber, String code) async {
     final res = await _supabase.functions.invoke(
       'manage-caller-id',
-      body: {
-        'action': 'verify_code',
-        'phoneNumber': phoneNumber,
-        'code': code,
-      },
+      body: {'action': 'verify_code', 'phoneNumber': phoneNumber, 'code': code},
     );
     final data = res.data;
     if (res.status != 200 || data == null || data['success'] != true) {
@@ -182,24 +320,133 @@ class CallingRepository {
   }
 
   /// Switch default caller ID (to a verified number or 'gateway')
-  Future<void> setDefaultCallerId(String phoneNumber) async {
+  Future<void> setDefaultCallerId({
+    String? callerIdId,
+    String? phoneNumber,
+  }) async {
     await _supabase.functions.invoke(
       'manage-caller-id',
       body: {
         'action': 'set_default',
-        'phoneNumber': phoneNumber,
+        'callerIdId': ?callerIdId,
+        'phoneNumber': ?phoneNumber,
       },
     );
   }
 
   /// Delete a verified caller ID
-  Future<void> deleteCallerId(String phoneNumber) async {
+  Future<void> deleteCallerId({String? callerIdId, String? phoneNumber}) async {
     await _supabase.functions.invoke(
       'manage-caller-id',
       body: {
         'action': 'delete',
-        'phoneNumber': phoneNumber,
+        'callerIdId': ?callerIdId,
+        'phoneNumber': ?phoneNumber,
       },
     );
+  }
+
+  /// Fetch user's active virtual DID numbers
+  Future<List<VirtualDidNumber>> getVirtualDids() async {
+    try {
+      final res = await _supabase.rpc('get_user_dids');
+      if (res is List) {
+        return res
+            .map((e) => VirtualDidNumber.fromJson(Map<String, dynamic>.from(e as Map)))
+            .toList();
+      }
+    } catch (_) {}
+
+    // Fallback via Edge Function or direct table
+    try {
+      final uid = _supabase.auth.currentUser?.id;
+      if (uid == null) return [];
+      final rows = await _supabase
+          .from('virtual_did_numbers')
+          .select()
+          .eq('user_id', uid)
+          .eq('status', 'active')
+          .order('created_at', ascending: true);
+      return (rows as List)
+          .map((e) => VirtualDidNumber.fromJson(Map<String, dynamic>.from(e as Map)))
+          .toList();
+    } catch (_) {
+      return [];
+    }
+  }
+
+  /// Update call forwarding mode on a virtual DID number
+  Future<void> updateDidForwarding({
+    required String didId,
+    required String forwardMode,
+    String? forwardDestination,
+  }) async {
+    try {
+      await _supabase.rpc('update_did_forwarding', params: {
+        'p_did_id': didId,
+        'p_forward_mode': forwardMode,
+        'p_forward_destination': forwardDestination,
+      });
+    } catch (_) {
+      await _supabase.functions.invoke('manage-dids', body: {
+        'action': 'update_forwarding',
+        'did_id': didId,
+        'forward_mode': forwardMode,
+        'forward_destination': forwardDestination,
+      });
+    }
+  }
+
+  /// Retrieve GSM call forwarding MMI codes for setting up home SIM forwarding
+  Future<Map<String, dynamic>> getForwardingCodes(String didId) async {
+    final res = await _supabase.functions.invoke('manage-dids', body: {
+      'action': 'get_forwarding_codes',
+      'did_id': didId,
+    });
+    if (res.data != null && res.data['instructions'] != null) {
+      return Map<String, dynamic>.from(res.data['instructions'] as Map);
+    }
+    return {};
+  }
+
+  /// Fetch user's visual voicemail messages
+  Future<List<VoicemailMessage>> getVoicemails({int limit = 50}) async {
+    try {
+      final res = await _supabase.rpc('get_user_voicemails', params: {'p_limit': limit});
+      if (res is List) {
+        return res
+            .map((e) => VoicemailMessage.fromJson(Map<String, dynamic>.from(e as Map)))
+            .toList();
+      }
+    } catch (_) {}
+
+    // Fallback direct query
+    try {
+      final uid = _supabase.auth.currentUser?.id;
+      if (uid == null) return [];
+      final rows = await _supabase
+          .from('voicemail_messages')
+          .select()
+          .eq('user_id', uid)
+          .order('created_at', ascending: false)
+          .limit(limit);
+      return (rows as List)
+          .map((e) => VoicemailMessage.fromJson(Map<String, dynamic>.from(e as Map)))
+          .toList();
+    } catch (_) {
+      return [];
+    }
+  }
+
+  /// Mark a voicemail message as read
+  Future<void> markVoicemailRead(String voicemailId) async {
+    try {
+      await _supabase.rpc('mark_voicemail_read', params: {'p_voicemail_id': voicemailId});
+    } catch (_) {
+      await _supabase
+          .from('voicemail_messages')
+          .update({'is_read': true, 'updated_at': DateTime.now().toIso8601String()})
+          .eq('id', voicemailId);
+    }
   }
 }

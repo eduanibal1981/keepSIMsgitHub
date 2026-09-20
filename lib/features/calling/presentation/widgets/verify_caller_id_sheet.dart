@@ -13,7 +13,8 @@ class VerifyCallerIdSheet extends ConsumerStatefulWidget {
   const VerifyCallerIdSheet({super.key, this.initialNumber});
 
   @override
-  ConsumerState<VerifyCallerIdSheet> createState() => _VerifyCallerIdSheetState();
+  ConsumerState<VerifyCallerIdSheet> createState() =>
+      _VerifyCallerIdSheetState();
 }
 
 class _VerifyCallerIdSheetState extends ConsumerState<VerifyCallerIdSheet> {
@@ -43,7 +44,10 @@ class _VerifyCallerIdSheetState extends ConsumerState<VerifyCallerIdSheet> {
   Future<void> _sendCode({String method = 'sms'}) async {
     final phone = _phoneController.text.trim();
     if (phone.isEmpty || phone.length < 8) {
-      setState(() => _errorMessage = 'Please enter a valid phone number with country code (e.g. +968...)');
+      setState(
+        () => _errorMessage =
+            'Please enter a valid phone number with country code (e.g. +968...)',
+      );
       return;
     }
 
@@ -54,7 +58,10 @@ class _VerifyCallerIdSheetState extends ConsumerState<VerifyCallerIdSheet> {
     });
 
     try {
-      final res = await ref.read(callingRepositoryProvider).requestCallerIdVerification(phone, method: method);
+      final res = await ref
+          .read(callingRepositoryProvider)
+          .requestCallerIdVerification(phone, method: method);
+      ref.invalidate(callerIdListProvider);
       ref.invalidate(userCallerIdsProvider);
 
       if (res.isAlreadyVerified) {
@@ -62,7 +69,13 @@ class _VerifyCallerIdSheetState extends ConsumerState<VerifyCallerIdSheet> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               backgroundColor: AppColors.secondary,
-              content: Text(res.message, style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+              content: Text(
+                res.message,
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           );
           Navigator.pop(context);
@@ -75,7 +88,9 @@ class _VerifyCallerIdSheetState extends ConsumerState<VerifyCallerIdSheet> {
         _successMessage = res.message;
       });
     } catch (e) {
-      setState(() => _errorMessage = e.toString().replaceAll('Exception: ', ''));
+      setState(
+        () => _errorMessage = e.toString().replaceAll('Exception: ', ''),
+      );
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -96,20 +111,31 @@ class _VerifyCallerIdSheetState extends ConsumerState<VerifyCallerIdSheet> {
     });
 
     try {
-      final msg = await ref.read(callingRepositoryProvider).verifyCallerIdCode(phone, code);
+      final msg = await ref
+          .read(callingRepositoryProvider)
+          .verifyCallerIdCode(phone, code);
+      ref.invalidate(callerIdListProvider);
       ref.invalidate(userCallerIdsProvider);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             backgroundColor: AppColors.secondary,
-            content: Text(msg, style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+            content: Text(
+              msg,
+              style: const TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
         );
         Navigator.pop(context);
       }
     } catch (e) {
-      setState(() => _errorMessage = e.toString().replaceAll('Exception: ', ''));
+      setState(
+        () => _errorMessage = e.toString().replaceAll('Exception: ', ''),
+      );
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -152,7 +178,11 @@ class _VerifyCallerIdSheetState extends ConsumerState<VerifyCallerIdSheet> {
                     color: AppColors.primary.withValues(alpha: 0.15),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.verified_user_rounded, color: AppColors.primary, size: 24),
+                  child: const Icon(
+                    Icons.verified_user_rounded,
+                    color: AppColors.primary,
+                    size: 24,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 const Expanded(
@@ -161,7 +191,11 @@ class _VerifyCallerIdSheetState extends ConsumerState<VerifyCallerIdSheet> {
                     children: [
                       Text(
                         'Set Outbound Caller ID',
-                        style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       Text(
                         'Recipients will see your real phone number when you call',
@@ -183,7 +217,10 @@ class _VerifyCallerIdSheetState extends ConsumerState<VerifyCallerIdSheet> {
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: AppColors.error),
                 ),
-                child: Text(_errorMessage!, style: const TextStyle(color: AppColors.error, fontSize: 12)),
+                child: Text(
+                  _errorMessage!,
+                  style: const TextStyle(color: AppColors.error, fontSize: 12),
+                ),
               ),
             ],
 
@@ -196,28 +233,54 @@ class _VerifyCallerIdSheetState extends ConsumerState<VerifyCallerIdSheet> {
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: AppColors.secondary),
                 ),
-                child: Text(_successMessage!, style: const TextStyle(color: AppColors.secondary, fontSize: 12)),
+                child: Text(
+                  _successMessage!,
+                  style: const TextStyle(
+                    color: AppColors.secondary,
+                    fontSize: 12,
+                  ),
+                ),
               ),
             ],
 
             if (!_isCodeSent) ...[
               const Text(
                 'Your Mobile Phone Number',
-                style: TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w600),
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               const SizedBox(height: 8),
               TextField(
                 controller: _phoneController,
                 keyboardType: TextInputType.phone,
-                style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
                 decoration: InputDecoration(
                   hintText: '+968 9399 0492',
-                  hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.3)),
-                  prefixIcon: const Icon(Icons.phone, color: AppColors.primary, size: 20),
+                  hintStyle: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.3),
+                  ),
+                  prefixIcon: const Icon(
+                    Icons.phone,
+                    color: AppColors.primary,
+                    size: 20,
+                  ),
                   filled: true,
                   fillColor: AppColors.darkBg,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: AppColors.darkBorder)),
-                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: AppColors.darkBorder)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: const BorderSide(color: AppColors.darkBorder),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: const BorderSide(color: AppColors.darkBorder),
+                  ),
                 ),
               ),
               const SizedBox(height: 20),
@@ -227,14 +290,36 @@ class _VerifyCallerIdSheetState extends ConsumerState<VerifyCallerIdSheet> {
                     child: SizedBox(
                       height: 50,
                       child: ElevatedButton.icon(
-                        onPressed: _isLoading ? null : () => _sendCode(method: 'sms'),
-                        icon: const Icon(Icons.sms_outlined, size: 18, color: Colors.black),
+                        onPressed: _isLoading
+                            ? null
+                            : () => _sendCode(method: 'sms'),
+                        icon: const Icon(
+                          Icons.sms_outlined,
+                          size: 18,
+                          color: Colors.black,
+                        ),
                         label: _isLoading
-                            ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(color: Colors.black, strokeWidth: 2))
-                            : const Text('Send SMS', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 14)),
+                            ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  color: Colors.black,
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Text(
+                                'Send SMS',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                              ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primary,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
                         ),
                       ),
                     ),
@@ -244,12 +329,27 @@ class _VerifyCallerIdSheetState extends ConsumerState<VerifyCallerIdSheet> {
                     child: SizedBox(
                       height: 50,
                       child: OutlinedButton.icon(
-                        onPressed: _isLoading ? null : () => _sendCode(method: 'call'),
-                        icon: const Icon(Icons.phone_callback_rounded, size: 18, color: AppColors.secondary),
-                        label: const Text('Call Me', style: TextStyle(color: AppColors.secondary, fontWeight: FontWeight.bold, fontSize: 14)),
+                        onPressed: _isLoading
+                            ? null
+                            : () => _sendCode(method: 'call'),
+                        icon: const Icon(
+                          Icons.phone_callback_rounded,
+                          size: 18,
+                          color: AppColors.secondary,
+                        ),
+                        label: const Text(
+                          'Call Me',
+                          style: TextStyle(
+                            color: AppColors.secondary,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                        ),
                         style: OutlinedButton.styleFrom(
                           side: const BorderSide(color: AppColors.secondary),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
                         ),
                       ),
                     ),
@@ -259,7 +359,11 @@ class _VerifyCallerIdSheetState extends ConsumerState<VerifyCallerIdSheet> {
             ] else ...[
               Text(
                 'Enter 6-Digit Code sent to ${_phoneController.text}',
-                style: const TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w600),
+                style: const TextStyle(
+                  color: Colors.white70,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               const SizedBox(height: 8),
               TextField(
@@ -267,15 +371,29 @@ class _VerifyCallerIdSheetState extends ConsumerState<VerifyCallerIdSheet> {
                 keyboardType: TextInputType.number,
                 textAlign: TextAlign.center,
                 maxLength: 6,
-                style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: 8),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 8,
+                ),
                 decoration: InputDecoration(
                   counterText: '',
                   hintText: '123456',
-                  hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.3), letterSpacing: 8),
+                  hintStyle: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.3),
+                    letterSpacing: 8,
+                  ),
                   filled: true,
                   fillColor: AppColors.darkBg,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: AppColors.darkBorder)),
-                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: AppColors.darkBorder)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: const BorderSide(color: AppColors.darkBorder),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: const BorderSide(color: AppColors.darkBorder),
+                  ),
                 ),
               ),
               const SizedBox(height: 20),
@@ -286,11 +404,27 @@ class _VerifyCallerIdSheetState extends ConsumerState<VerifyCallerIdSheet> {
                   onPressed: _isLoading ? null : _verifyCode,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.secondary,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
                   ),
                   child: _isLoading
-                      ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.black, strokeWidth: 2))
-                      : const Text('Verify & Set Caller ID', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 15)),
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            color: Colors.black,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : const Text(
+                          'Verify & Set Caller ID',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                          ),
+                        ),
                 ),
               ),
               const SizedBox(height: 12),
@@ -298,14 +432,26 @@ class _VerifyCallerIdSheetState extends ConsumerState<VerifyCallerIdSheet> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   TextButton.icon(
-                    onPressed: _isLoading ? null : () => _sendCode(method: 'call'),
-                    icon: const Icon(Icons.phone_callback_rounded, size: 16, color: AppColors.primary),
-                    label: const Text('Call me with code instead', style: TextStyle(color: AppColors.primary, fontSize: 13)),
+                    onPressed: _isLoading
+                        ? null
+                        : () => _sendCode(method: 'call'),
+                    icon: const Icon(
+                      Icons.phone_callback_rounded,
+                      size: 16,
+                      color: AppColors.primary,
+                    ),
+                    label: const Text(
+                      'Call me with code instead',
+                      style: TextStyle(color: AppColors.primary, fontSize: 13),
+                    ),
                   ),
                   const Text(' • ', style: TextStyle(color: Colors.white30)),
                   TextButton(
                     onPressed: () => setState(() => _isCodeSent = false),
-                    child: const Text('Change Number', style: TextStyle(color: Colors.white54, fontSize: 13)),
+                    child: const Text(
+                      'Change Number',
+                      style: TextStyle(color: Colors.white54, fontSize: 13),
+                    ),
                   ),
                 ],
               ),

@@ -42,11 +42,13 @@ class CallRate {
     return CallRate(
       id: json['id'] as String? ?? json['rate_id'] as String? ?? '',
       countryCode: json['country_code'] as String? ?? 'GLOBAL',
-      countryName: json['country_name'] as String? ?? 'International Destination',
+      countryName:
+          json['country_name'] as String? ?? 'International Destination',
       phonePrefix: json['phone_prefix'] as String? ?? '+',
       destinationType: json['destination_type'] as String? ?? 'all',
       costPerMinute: (json['cost_per_minute_usd'] as num?)?.toDouble() ?? 0.0,
-      ratePerMinute: (json['effective_rate_per_minute_usd'] as num?)?.toDouble() ??
+      ratePerMinute:
+          (json['effective_rate_per_minute_usd'] as num?)?.toDouble() ??
           (json['rate_per_minute_usd'] as num?)?.toDouble() ??
           0.15,
       connectionFee: (json['connection_fee_usd'] as num?)?.toDouble() ?? 0.0,

@@ -74,15 +74,37 @@ class CallHistoryTile extends StatelessWidget {
                   children: [
                     Text(
                       record.destinationNumber,
-                      style: const TextStyle(color: Colors.white70, fontSize: 12),
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 12,
+                      ),
                     ),
                     const SizedBox(width: 8),
-                    Text('•', style: TextStyle(color: Colors.white.withValues(alpha: 0.3))),
+                    Text(
+                      '•',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.3),
+                      ),
+                    ),
                     const SizedBox(width: 8),
                     Text(
-                      isCompleted ? record.formattedDuration : record.status,
+                      isCompleted
+                          ? record.formattedDuration
+                          : record.status == 'declined'
+                          ? 'Declined'
+                          : record.status == 'busy'
+                          ? 'Busy'
+                          : record.status == 'no_answer'
+                          ? 'No Answer'
+                          : record.status == 'cancelled'
+                          ? 'Cancelled'
+                          : record.status == 'failed'
+                          ? 'Failed'
+                          : record.status,
                       style: TextStyle(
-                        color: isCompleted ? AppColors.secondary : AppColors.error,
+                        color: isCompleted
+                            ? AppColors.secondary
+                            : AppColors.error,
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
                       ),
@@ -102,7 +124,11 @@ class CallHistoryTile extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           IconButton(
-            icon: const Icon(Icons.phone_forwarded, color: AppColors.primary, size: 20),
+            icon: const Icon(
+              Icons.phone_forwarded,
+              color: AppColors.primary,
+              size: 20,
+            ),
             onPressed: onRedial,
           ),
         ],
