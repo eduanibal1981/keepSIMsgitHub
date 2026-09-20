@@ -376,127 +376,251 @@ class _InternetCallingScreenState extends ConsumerState<InternetCallingScreen> {
                   // Search Result Card
                   if (_matchedUser != null) ...[
                     const SizedBox(height: 12),
-                    Container(
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF102820),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: const Color(0xFF22C55E).withValues(alpha: 0.6),
+                    if (_matchedUser!.isSelf)
+                      Container(
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: Colors.amber.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: Colors.amber.withValues(alpha: 0.4),
+                          ),
                         ),
-                      ),
-                      child: Row(
-                        children: [
-                          CircleAvatar(
-                            radius: 22,
-                            backgroundColor: const Color(
-                              0xFF22C55E,
-                            ).withValues(alpha: 0.2),
-                            child: Text(
-                              _matchedUser!.fullName.isNotEmpty
-                                  ? _matchedUser!.fullName[0].toUpperCase()
-                                  : 'U',
-                              style: const TextStyle(
-                                color: Color(0xFF22C55E),
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18,
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.amber.withValues(alpha: 0.2),
+                              ),
+                              child: const Icon(
+                                Icons.person_pin_rounded,
+                                color: Colors.amber,
+                                size: 22,
                               ),
                             ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        _matchedUser!.fullName,
-                                        style: const TextStyle(
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      const Text(
+                                        'Your Account SIM Line',
+                                        style: TextStyle(
                                           color: Colors.white,
                                           fontWeight: FontWeight.bold,
-                                          fontSize: 14,
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 6,
-                                        vertical: 2,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: _matchedUser!.isOnline
-                                            ? const Color(0xFF22C55E).withValues(alpha: 0.2)
-                                            : Colors.white12,
-                                        borderRadius: BorderRadius.circular(6),
-                                      ),
-                                      child: Text(
-                                        _matchedUser!.isOnline ? 'ONLINE' : 'REGISTERED',
-                                        style: TextStyle(
-                                          color: _matchedUser!.isOnline
-                                              ? const Color(0xFF22C55E)
-                                              : Colors.white70,
-                                          fontSize: 9,
-                                          fontWeight: FontWeight.bold,
+                                          fontSize: 13,
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  _matchedUser!.phone,
-                                  style: const TextStyle(
-                                    color: Colors.white70,
-                                    fontSize: 12,
+                                      const SizedBox(width: 6),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 6,
+                                          vertical: 1.5,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.amber.withValues(alpha: 0.2),
+                                          borderRadius: BorderRadius.circular(4),
+                                        ),
+                                        child: const Text(
+                                          'SELF',
+                                          style: TextStyle(
+                                            color: Colors.amber,
+                                            fontSize: 9,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
+                                  const SizedBox(height: 3),
+                                  Text(
+                                    '${_matchedUser!.phone} belongs to your own account. Internet calling connects between separate users. Use Phone Calls to dial this phone.',
+                                    style: const TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 11,
+                                      height: 1.3,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            ElevatedButton.icon(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
-                              ],
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 8,
+                                ),
+                              ),
+                              icon: const Icon(Icons.phone_forwarded, size: 14),
+                              label: const Text(
+                                'Dial PSTN',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 11,
+                                ),
+                              ),
+                              onPressed: () {
+                                context.push(AppRoutes.calling);
+                              },
                             ),
+                          ],
+                        ),
+                      )
+                    else
+                      Container(
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF102820),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: const Color(0xFF22C55E).withValues(alpha: 0.6),
                           ),
-                          const SizedBox(width: 10),
-                          ElevatedButton.icon(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF22C55E),
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 14,
-                                vertical: 10,
+                        ),
+                        child: Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 22,
+                              backgroundColor: const Color(
+                                0xFF22C55E,
+                              ).withValues(alpha: 0.2),
+                              backgroundImage: _matchedUser!.avatarUrl != null
+                                  ? NetworkImage(_matchedUser!.avatarUrl!)
+                                  : null,
+                              child: _matchedUser!.avatarUrl == null
+                                  ? Text(
+                                      _matchedUser!.fullName.isNotEmpty
+                                          ? _matchedUser!.fullName[0].toUpperCase()
+                                          : 'U',
+                                      style: const TextStyle(
+                                        color: Color(0xFF22C55E),
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18,
+                                      ),
+                                    )
+                                  : null,
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          _matchedUser!.fullName,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 6,
+                                          vertical: 2,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: _matchedUser!.isOnline
+                                              ? const Color(0xFF22C55E).withValues(alpha: 0.2)
+                                              : Colors.white12,
+                                          borderRadius: BorderRadius.circular(6),
+                                        ),
+                                        child: Text(
+                                          _matchedUser!.isOnline ? 'ONLINE' : 'REGISTERED',
+                                          style: TextStyle(
+                                            color: _matchedUser!.isOnline
+                                                ? const Color(0xFF22C55E)
+                                                : Colors.white70,
+                                            fontSize: 9,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    _matchedUser!.phone,
+                                    style: const TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                            icon: const Icon(Icons.phone, size: 16),
-                            label: const Text(
-                              'Free Call',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12,
+                            const SizedBox(width: 10),
+                            ElevatedButton.icon(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF22C55E),
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 14,
+                                  vertical: 10,
+                                ),
+                              ),
+                              icon: const Icon(Icons.phone, size: 16),
+                              label: const Text(
+                                'Free Call',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                ),
+                              ),
+                              onPressed: () => _startCallWithUser(
+                                userId: _matchedUser!.userId,
+                                name: _matchedUser!.fullName,
+                                avatar: _matchedUser!.avatarUrl,
+                                phone: _matchedUser!.phone,
                               ),
                             ),
-                            onPressed: () => _startCallWithUser(
-                              userId: _matchedUser!.userId,
-                              name: _matchedUser!.fullName,
-                              avatar: _matchedUser!.avatarUrl,
-                              phone: _matchedUser!.phone,
-                            ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
                   ] else if (_searchError != null) ...[
                     const SizedBox(height: 8),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8),
-                      child: Text(
-                        _searchError!,
-                        style: const TextStyle(
-                          color: Colors.white54,
-                          fontSize: 12,
-                        ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              _searchError!,
+                              style: const TextStyle(
+                                color: Colors.white54,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                          TextButton.icon(
+                            style: TextButton.styleFrom(
+                              foregroundColor: AppColors.primary,
+                              padding: const EdgeInsets.symmetric(horizontal: 8),
+                            ),
+                            icon: const Icon(Icons.phone, size: 14),
+                            label: const Text(
+                              'Call via PSTN',
+                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                            ),
+                            onPressed: () => context.push(AppRoutes.calling),
+                          ),
+                        ],
                       ),
                     ),
                   ],
@@ -601,6 +725,7 @@ class _InternetCallingScreenState extends ConsumerState<InternetCallingScreen> {
                               icon: const Icon(Icons.phone, size: 18),
                               tooltip: 'Call via Internet',
                               onPressed: () {
+                                _searchController.text = line.phoneNumber;
                                 _executeSearch(line.phoneNumber);
                               },
                             ),

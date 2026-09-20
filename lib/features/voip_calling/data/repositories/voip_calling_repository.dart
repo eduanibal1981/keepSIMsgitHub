@@ -18,21 +18,25 @@ class ContactLookupResult {
   final String phone;
   final bool isOnline;
 
+  final bool isSelf;
+
   const ContactLookupResult({
     required this.userId,
     required this.fullName,
     this.avatarUrl,
     required this.phone,
     required this.isOnline,
+    this.isSelf = false,
   });
 
   factory ContactLookupResult.fromJson(Map<String, dynamic> json) {
     return ContactLookupResult(
-      userId: json['user_id'] as String,
+      userId: json['user_id'] as String? ?? '',
       fullName: json['full_name'] as String? ?? 'KeepSIMs User',
       avatarUrl: json['avatar_url'] as String?,
       phone: json['phone'] as String? ?? '',
       isOnline: json['is_online'] as bool? ?? false,
+      isSelf: json['is_self'] as bool? ?? false,
     );
   }
 }
