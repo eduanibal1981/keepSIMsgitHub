@@ -7,6 +7,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:keep_sims/core/router/app_router.dart';
 import 'package:keep_sims/core/services/device_identity_service.dart';
 import 'package:keep_sims/core/supabase_client.dart';
@@ -24,6 +26,8 @@ class IncomingCallManager {
   final Ref _ref;
   final VoipCallkitService _callkit = VoipCallkitService();
   StreamSubscription<RemoteMessage>? _fcmSub;
+  StreamSubscription<AuthState>? _authSub;
+  RealtimeChannel? _realtimeChannel;
   GoRouter? _router;
 
   IncomingCallManager(this._ref);
@@ -45,7 +49,7 @@ class IncomingCallManager {
     }
   }
 
-  /// Initialize callkit listeners, FCM handlers, and token registration
+  /// Initialize callkit listeners, FCM handlers, Realtime listeners, and token registration
   Future<void> initialize() async {
     _callkit.startListening();
 
@@ -99,7 +103,7 @@ class IncomingCallManager {
           .endCall(callId: callId, status: 'missed', endReason: 'timeout');
     };
 
-    // Listen to foreground FCM data messages for incoming calls
+    // 1. Foreground FCM push listener
     _fcmSub = FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       final data = message.data;
       if (data['type'] == 'INCOMING_VOIP_CALL') {
@@ -107,8 +111,100 @@ class IncomingCallManager {
       }
     });
 
-    // Register VoIP tokens
+    // 2. OneSignal foreground push listener
+    OneSignal.Notifications.addForegroundWillDisplayListener((event) {
+      final data = event.notification.additionalData;
+      if (data != null && data['type'] == 'INCOMING_VOIP_CALL') {
+        event.preventDefault();
+        _handleIncomingPush(Map<String, dynamic>.from(data));
+      }
+    });
+
+    // 3. OneSignal notification tap listener
+    OneSignal.Notifications.addClickListener((event) {
+      final data = event.notification.additionalData;
+      if (data != null && data['type'] == 'INCOMING_VOIP_CALL') {
+        _handleIncomingPush(Map<String, dynamic>.from(data));
+      }
+    });
+
+    // 4. Realtime Postgres listener on voip_call_sessions
+    _setupRealtimeIncomingCallListener();
+
+    _authSub?.cancel();
+    _authSub = supabase.auth.onAuthStateChange.listen((data) {
+      if (data.event == AuthChangeEvent.signedIn ||
+          data.event == AuthChangeEvent.tokenRefreshed) {
+        _setupRealtimeIncomingCallListener();
+        registerDeviceTokens();
+      }
+    });
+
+    // Register VoIP tokens with backend
     await registerDeviceTokens();
+  }
+
+  void _setupRealtimeIncomingCallListener() {
+    final uid = supabase.auth.currentUser?.id;
+    if (uid == null) return;
+
+    _realtimeChannel?.unsubscribe();
+    _realtimeChannel = supabase
+        .channel('user_incoming_calls_$uid')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.all,
+          schema: 'public',
+          table: 'voip_call_sessions',
+          filter: PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: 'callee_id',
+            value: uid,
+          ),
+          callback: (payload) async {
+            final record = payload.newRecord;
+            if (record.isEmpty) return;
+
+            final status = record['status'] as String?;
+            final callId = record['id'] as String?;
+            if (callId == null) return;
+
+            if (status == 'initiating') {
+              final callerId = record['caller_id'] as String?;
+              String callerName = 'KeepSIMs Caller';
+              String? callerAvatar;
+              String? callerPhone;
+
+              if (callerId != null) {
+                try {
+                  final profileRes = await supabase
+                      .from('profiles')
+                      .select('full_name, avatar_url, phone')
+                      .eq('id', callerId)
+                      .maybeSingle();
+                  if (profileRes != null) {
+                    callerName =
+                        profileRes['full_name'] as String? ?? 'KeepSIMs Caller';
+                    callerAvatar = profileRes['avatar_url'] as String?;
+                    callerPhone = profileRes['phone'] as String?;
+                  }
+                } catch (_) {}
+              }
+
+              _callkit.showIncomingCall(
+                callId: callId,
+                callerName: callerName,
+                callerAvatar: callerAvatar,
+                callerPhone: callerPhone,
+              );
+            } else if (status == 'ended' ||
+                status == 'completed' ||
+                status == 'declined' ||
+                status == 'timeout') {
+              await _callkit.endCall(callId);
+            }
+          },
+        )
+        .subscribe();
   }
 
   /// Register push tokens with backend
@@ -165,6 +261,8 @@ class IncomingCallManager {
 
   void dispose() {
     _fcmSub?.cancel();
+    _authSub?.cancel();
+    _realtimeChannel?.unsubscribe();
     _callkit.dispose();
   }
 }

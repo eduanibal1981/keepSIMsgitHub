@@ -53,7 +53,7 @@ class VoipCallkitService {
       duration: 45000, // 45-second ring timeout
       extra: <String, dynamic>{'callId': callId},
       android: const AndroidParams(
-        isCustomNotification: true,
+        isCustomNotification: false,
         isShowLogo: false,
         ringtonePath: 'system_ringtone_default',
         backgroundColor: '#0F172A',
@@ -62,6 +62,7 @@ class VoipCallkitService {
         incomingCallNotificationChannelName: 'KeepSIMs Internet Calls',
         missedCallNotificationChannelName: 'KeepSIMs Missed Calls',
         isShowCallID: true,
+        isShowFullLockedScreen: true,
       ),
       ios: const IOSParams(
         iconName: 'AppIcon',

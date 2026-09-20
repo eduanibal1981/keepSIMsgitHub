@@ -24,11 +24,34 @@ import 'package:keep_sims/features/home_widget/presentation/home_widget_sync.dar
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:keep_sims/core/services/local_cache_service.dart';
 import 'package:keep_sims/core/widgets/biometric_lock_overlay.dart';
+import 'package:keep_sims/features/voip_calling/data/services/voip_callkit_service.dart';
 import 'package:keep_sims/features/voip_calling/presentation/services/incoming_call_manager.dart';
 import 'package:keep_sims/features/voip_calling/presentation/widgets/floating_minimized_call_bar.dart';
+
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  final data = message.data;
+  if (data['type'] == 'INCOMING_VOIP_CALL') {
+    final callId = data['call_id'] as String?;
+    final callerName = data['caller_name'] as String? ?? 'KeepSIMs Caller';
+    final callerAvatar = data['caller_avatar'] as String?;
+    final callerPhone = data['caller_phone'] as String?;
+
+    if (callId != null) {
+      final callkit = VoipCallkitService();
+      await callkit.showIncomingCall(
+        callId: callId,
+        callerName: callerName,
+        callerAvatar: callerAvatar,
+        callerPhone: callerPhone,
+      );
+    }
+  }
+}
 
 void main() async {
   runZonedGuarded(() async {
@@ -71,6 +94,7 @@ void main() async {
       // Firebase initialization for FCM fallback
       try {
         await Firebase.initializeApp();
+        FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
         // G10: Firebase App Check. Android/Play Integrity only — iOS has no
         // GoogleService-Info.plist in this repo (§ 7 owner item 2), so

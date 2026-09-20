@@ -228,25 +228,82 @@ serve(async (req: Request) => {
     if (payload.category === "voip_call") {
       const { user_id, voip_payload, fcm_tokens } = payload;
       let delivered = false;
-      const targetTokens = Array.isArray(fcm_tokens) ? fcm_tokens : [];
-      if (targetTokens.length > 0) {
-        const fcmRes = await sendFcm(
-          supabase,
-          user_id,
-          voip_payload?.caller_name ? `Incoming call from ${voip_payload.caller_name}` : "Incoming KeepSIMs Call",
-          "Tap to answer",
-          "/voip/incoming",
-          "ks_urgent_v1",
-          true,
-          {
-            type: "INCOMING_VOIP_CALL",
-            ...voip_payload,
-          },
-          targetTokens.map((t: string) => ({ fcm_token: t, device_id: "voip_device" })),
-        );
-        delivered = fcmRes.status === "delivered";
+      let onesignalResult = null;
+      let fcmResult = null;
+
+      // 1. Fetch registered push devices for this user
+      const { data: devices } = await supabase
+        .from("device_push_tokens")
+        .select("device_id, onesignal_player_id, fcm_token")
+        .eq("user_id", user_id);
+
+      const oneSignalApiKey = Deno.env.get("ONESIGNAL_REST_API_KEY");
+      const callerName = voip_payload?.caller_name || "KeepSIMs User";
+      const dispatchId = voip_payload?.call_id || crypto.randomUUID();
+
+      // Dispatch via OneSignal
+      if (oneSignalApiKey && devices && devices.length > 0) {
+        for (const device of devices) {
+          if (device.onesignal_player_id) {
+            try {
+              const res = await postOneSignal({
+                app_id: ONESIGNAL_APP_ID,
+                include_subscription_ids: [device.onesignal_player_id],
+                idempotency_key: await pushIdempotencyKey(dispatchId, device.onesignal_player_id),
+                contents: { en: `${callerName} is calling you...` },
+                headings: { en: "Incoming KeepSIMs Call" },
+                large_icon: "launcher_icon",
+                small_icon: "ic_stat_keepsims",
+                android_accent_color: "FF4CD7F6",
+                existing_android_channel_id: "ks_urgent_v1",
+                priority: 10,
+                collapse_id: dispatchId,
+                data: {
+                  type: "INCOMING_VOIP_CALL",
+                  action_url: `/calling/active/${voip_payload?.call_id || ""}`,
+                  ...(voip_payload || {}),
+                },
+              }, oneSignalApiKey);
+              if (res.outcome === "accepted") delivered = true;
+              onesignalResult = res;
+            } catch (e) {
+              console.error("[dispatch-alert] OneSignal voip error:", e);
+            }
+          }
+        }
       }
-      return new Response(JSON.stringify({ success: true, delivered }), {
+
+      // Also dispatch via direct FCM
+      const allFcmTokens = [
+        ...(Array.isArray(fcm_tokens) ? fcm_tokens : []),
+        ...(devices || []).map((d: any) => d.fcm_token).filter(Boolean),
+      ];
+      const uniqueFcm = [...new Set(allFcmTokens)];
+
+      if (uniqueFcm.length > 0) {
+        try {
+          const fcmRes = await sendFcm(
+            supabase,
+            user_id,
+            `Incoming call from ${callerName}`,
+            "Tap to answer",
+            `/calling/active/${voip_payload?.call_id || ""}`,
+            "ks_urgent_v1",
+            true,
+            {
+              type: "INCOMING_VOIP_CALL",
+              ...(voip_payload || {}),
+            },
+            uniqueFcm.map((t: string) => ({ fcm_token: t, device_id: "voip_device", onesignal_player_id: null })),
+          );
+          if (fcmRes.status === "delivered") delivered = true;
+          fcmResult = fcmRes;
+        } catch (e) {
+          console.error("[dispatch-alert] FCM voip error:", e);
+        }
+      }
+
+      return new Response(JSON.stringify({ success: true, delivered, onesignal: onesignalResult, fcm: fcmResult }), {
         status: 200,
         headers: { "Content-Type": "application/json" },
       });
