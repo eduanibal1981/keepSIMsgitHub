@@ -33,11 +33,21 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   void initState() {
     super.initState();
 
-    // Fast check: if an accepted VoIP call is pending, bypass splash immediately
+    // Fast check: if an accepted VoIP call is pending, bypass splash and navigate directly
     FlutterCallkitIncoming.activeCalls().then((calls) {
-      if (mounted && calls.any((c) => c.isAccepted)) {
-        debugPrint('[SplashScreen] Detected accepted call at launch, bypassing splash');
-        _navigateToNext();
+      if (!mounted) return;
+      for (final c in calls) {
+        if (c.isAccepted) {
+          final id = c.id;
+          debugPrint('[SplashScreen] Detected accepted call at launch: $id');
+          ref.read(splashCompletedProvider.notifier).complete();
+          if (id.isNotEmpty) {
+            context.go('${AppRoutes.voipCall}/$id');
+          } else {
+            _navigateToNext();
+          }
+          return;
+        }
       }
     }).catchError((_) {});
 

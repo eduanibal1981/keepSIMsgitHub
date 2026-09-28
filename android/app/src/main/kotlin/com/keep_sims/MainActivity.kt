@@ -54,6 +54,15 @@ class MainActivity : FlutterFragmentActivity() {
             }
         }
 
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.keep_sims/timezone")
+            .setMethodCallHandler { call, result ->
+                if (call.method == "getTimeZoneId") {
+                    result.success(java.util.TimeZone.getDefault().id)
+                } else {
+                    result.notImplemented()
+                }
+            }
+
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)
             .setMethodCallHandler { call, result ->
                 if (call.method == "isEsimSupported") {

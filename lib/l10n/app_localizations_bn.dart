@@ -881,7 +881,8 @@ class AppLocalizationsBn extends AppLocalizations {
   String get fullyShielded => 'সম্পূর্ণ সুরক্ষিত';
 
   @override
-  String get dndDesc => 'নির্দিষ্ট ঘুমের সময়ে পুশ বিজ্ঞপ্তি মিউট করুন';
+  String get dndDesc =>
+      'নিয়মিত সতর্কতা নীরব সময় শেষ হওয়া পর্যন্ত অপেক্ষা করে। জরুরি লাইন সতর্কতা আগে আসতে পারে; ফোনের ডু নট ডিস্টার্ব কার্যকর থাকে।';
 
   @override
   String get paymentsAutoFundTitle => 'পেমেন্ট & স্বয়ং-ফান্ড';
@@ -894,7 +895,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get weeklyDigestDesc =>
-      'প্রতি রবিবার সকাল ৯:০০ টায় সমস্ত SIM কার্ডের সংকলিত স্ট্যাটাস রিপোর্ট';
+      'প্রতি রবিবার স্থানীয় সময় সকাল ৯টায় সাপ্তাহিক SIM অবস্থার সারাংশ';
 
   @override
   String get borderSimulatorDesc =>

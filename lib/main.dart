@@ -28,9 +28,39 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:keep_sims/core/services/local_cache_service.dart';
 import 'package:keep_sims/core/widgets/biometric_lock_overlay.dart';
+import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:keep_sims/features/voip_calling/data/services/voip_callkit_service.dart';
 import 'package:keep_sims/features/voip_calling/presentation/services/incoming_call_manager.dart';
 import 'package:keep_sims/features/voip_calling/presentation/widgets/floating_minimized_call_bar.dart';
+
+Future<Map<String, String>?> _checkPendingAcceptedCall() async {
+  try {
+    final activeCalls = await FlutterCallkitIncoming.activeCalls();
+    for (final call in activeCalls) {
+      final isOutgoing = call.extra?['isOutgoing'] == true;
+      if (isOutgoing) {
+        await FlutterCallkitIncoming.endCall(call.id);
+        continue;
+      }
+      if (call.isAccepted) {
+        final id = call.id;
+        if (id.isNotEmpty) {
+          return {
+            'callId': id,
+            'callerName': call.nameCaller?.isNotEmpty == true
+                ? call.nameCaller!
+                : 'KeepSIMs Caller',
+            'callerAvatar': call.avatar ?? '',
+            'callerPhone': call.handle ?? '',
+          };
+        }
+      }
+    }
+  } catch (e) {
+    debugPrint('[Startup] activeCalls error: $e');
+  }
+  return null;
+}
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -86,37 +116,47 @@ void main() async {
       // Lock to portrait on mobile
       await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
+      // Fast check: did the user launch the app by accepting an incoming VoIP call?
+      final initialAcceptedCall = await _checkPendingAcceptedCall();
+      final isCallFastLaunch = initialAcceptedCall != null;
+
+      if (isCallFastLaunch) {
+        debugPrint(
+          '[Startup] Fast-launching directly into calling screen for call: ${initialAcceptedCall['callId']}',
+        );
+      }
+
       // Initialize OneSignal (for push notifications)
       OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
       OneSignal.initialize('434b9552-8005-4d08-b3b1-a7a35f0b15dc');
-      OneSignal.Notifications.requestPermission(false);
+      if (isCallFastLaunch) {
+        unawaited(OneSignal.Notifications.requestPermission(false));
+      } else {
+        await OneSignal.Notifications.requestPermission(false);
+      }
 
       // Firebase initialization for FCM fallback
       try {
         await Firebase.initializeApp();
         FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-        // G10: Firebase App Check. Android/Play Integrity only — iOS has no
-        // GoogleService-Info.plist in this repo (§ 7 owner item 2), so
-        // DeviceCheck cannot be configured and activating it there would only
-        // produce errors. Debug provider in debug builds so an emulator can
-        // still exercise the path; a debug token is NOT attestation and the
-        // server knows it, because it verifies every token against Google's
-        // JWKS rather than trusting the header's presence.
-        //
-        // Until the owner registers this app in the Firebase App Check console
-        // (§ 7), activation throws or yields no token, the header is simply
-        // absent, and the Edge Functions record `missing` and carry on —
-        // APP_CHECK_ENFORCE ships false precisely so that is harmless.
         if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
-          try {
-            await FirebaseAppCheck.instance.activate(
-              providerAndroid: kDebugMode
-                  ? const AndroidDebugProvider()
-                  : const AndroidPlayIntegrityProvider(),
-            );
-          } catch (e) {
-            debugPrint('App Check not active (not registered yet?): $e');
+          Future<void> activateAppCheck() async {
+            try {
+              await FirebaseAppCheck.instance.activate(
+                providerAndroid: kDebugMode
+                    ? const AndroidDebugProvider()
+                    : const AndroidPlayIntegrityProvider(),
+              );
+            } catch (e) {
+              debugPrint('App Check not active (not registered yet?): $e');
+            }
+          }
+
+          if (isCallFastLaunch) {
+            unawaited(activateAppCheck());
+          } else {
+            await activateAppCheck();
           }
         }
       } catch (e) {
@@ -130,7 +170,11 @@ void main() async {
 
       runApp(
         ProviderScope(
-          overrides: [sharedPreferencesProvider.overrideWith((ref) => sharedPrefs)],
+          overrides: [
+            sharedPreferencesProvider.overrideWith((ref) => sharedPrefs),
+            if (isCallFastLaunch)
+              initialAcceptedCallProvider.overrideWithValue(initialAcceptedCall),
+          ],
           child: const KeepSIMsApp(),
         ),
       );
@@ -179,22 +223,31 @@ class KeepSIMsApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Warm up offline sync queue & connectivity monitoring at app launch
-    ref.watch(syncQueueProvider);
-
-    // Keep the home-screen widgets fed, and route taps on them (G4).
-    ref.watch(homeWidgetSyncProvider);
-
-    // Initialize notification click & foreground listener service (N3)
-    ref.watch(notificationNavigationServiceProvider);
-
-    // Initialize WhatsApp-style incoming VoIP call manager & CallKit listener
+    final initialCall = ref.watch(initialAcceptedCallProvider);
     final callManager = ref.watch(incomingCallManagerProvider);
     final router = ref.watch(appRouterProvider);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+
+    if (initialCall == null) {
+      // Warm up offline sync queue & connectivity monitoring at normal app launch
+      ref.watch(syncQueueProvider);
+
+      // Keep the home-screen widgets fed, and route taps on them (G4).
+      ref.watch(homeWidgetSyncProvider);
+
+      // Initialize notification click & foreground listener service (N3)
+      ref.watch(notificationNavigationServiceProvider);
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        callManager.setRouter(router);
+        callManager.initialize();
+      });
+    } else {
+      // Fast VoIP launch: immediately wire router and initialize/answer call
       callManager.setRouter(router);
-      callManager.initialize();
-    });
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        callManager.initializeWithAcceptedCall(initialCall);
+      });
+    }
 
     final prefsState = ref.watch(userPreferencesControllerProvider);
     final currentLocale = ref.watch(localeControllerProvider);

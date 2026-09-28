@@ -54,6 +54,18 @@ class VoipCallSession {
         s == 'timeout';
   }
 
+  String get peerId => isOutgoing ? calleeId : callerId;
+
+  String get formattedDuration {
+    if (durationSeconds <= 0) return '';
+    final m = durationSeconds ~/ 60;
+    final s = durationSeconds % 60;
+    if (m > 0) {
+      return '${m}m ${s}s';
+    }
+    return '${s}s';
+  }
+
   factory VoipCallSession.fromJson(
     Map<String, dynamic> json, {
     String? currentUserId,

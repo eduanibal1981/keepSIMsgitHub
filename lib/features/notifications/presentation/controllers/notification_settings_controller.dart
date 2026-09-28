@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import 'package:keep_sims/features/notifications/data/models/alert_setting_model.dart';
@@ -7,6 +8,9 @@ import 'package:keep_sims/features/notifications/data/models/user_preferences_mo
 import 'package:keep_sims/features/notifications/data/repositories/notifications_repository_impl.dart';
 
 part 'notification_settings_controller.g.dart';
+
+final weeklyDigestConsentProvider = FutureProvider<bool>((ref) =>
+    ref.watch(notificationsRepositoryProvider).hasWeeklyDigestConsent());
 
 @riverpod
 class AlertSettingsController extends _$AlertSettingsController {
@@ -84,7 +88,7 @@ class UserPreferencesController extends _$UserPreferencesController {
         userId: '',
         theme: 'system',
         language: 'en',
-        weeklyDigestEnabled: true,
+        weeklyDigestEnabled: false,
         travelModeEnabled: false,
         biometricEnabled: false,
       );
@@ -94,11 +98,17 @@ class UserPreferencesController extends _$UserPreferencesController {
   }
 
   /// Updates the user preferences (e.g. quiet hours, weekly digest).
-  Future<void> updatePreferences(UserPreferences preferences) async {
+  Future<void> updatePreferences(
+    UserPreferences preferences, {
+    bool? digestConsentChange,
+  }) async {
     final repo = ref.read(notificationsRepositoryProvider);
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      await repo.updateUserPreferences(preferences);
+      await repo.updateUserPreferences(
+        preferences,
+        digestConsentChange: digestConsentChange,
+      );
       return preferences;
     });
   }
@@ -107,7 +117,11 @@ class UserPreferencesController extends _$UserPreferencesController {
   Future<void> toggleWeeklyDigest(bool isEnabled) async {
     final current = state.value;
     if (current == null) return;
-    await updatePreferences(current.copyWith(weeklyDigestEnabled: isEnabled));
+    await updatePreferences(
+      current.copyWith(weeklyDigestEnabled: isEnabled),
+      digestConsentChange: isEnabled,
+    );
+    ref.invalidate(weeklyDigestConsentProvider);
   }
 
   /// Updates quiet hours range.
@@ -156,7 +170,7 @@ class UserPreferencesController extends _$UserPreferencesController {
   }
 
   String _hashPin(String pin) {
-    final bytes = utf8.encode("${pin}SIM_SHIELD_SALT_2026");
+    final bytes = utf8.encode('${pin}SIM_SHIELD_SALT_2026');
     var hash = 0;
     for (var byte in bytes) {
       hash = (hash * 31 + byte) & 0xFFFFFFFF;
@@ -193,11 +207,24 @@ class NotificationChannelsController extends _$NotificationChannelsController {
     newList[matchIndex] = updatedChannel;
     state = AsyncData(newList);
 
+    final updatedConfig = Map<String, dynamic>.from(updatedChannel['config'] ?? {});
+    if (channelType == 'email' && isEnabled) {
+      final currentEmail = (updatedConfig['email'] as String?)?.trim();
+      if (currentEmail == null || currentEmail.isEmpty) {
+        final authState = ref.read(authControllerProvider);
+        final loginEmail = authState.value?.email;
+        if (loginEmail != null && loginEmail.isNotEmpty) {
+          updatedConfig['email'] = loginEmail;
+          updatedChannel['config'] = updatedConfig;
+        }
+      }
+    }
+
     try {
       await repo.updateNotificationChannel(
         channelType: channelType,
         isEnabled: isEnabled,
-        config: Map<String, dynamic>.from(updatedChannel['config'] ?? {}),
+        config: updatedConfig,
       );
     } catch (_) {
       ref.invalidateSelf();
@@ -240,4 +267,3 @@ Future<Map<String, Map<String, dynamic>>> notificationChannelCatalog(Ref ref) as
   final repo = ref.watch(notificationsRepositoryProvider);
   return repo.getChannelCatalog();
 }
-

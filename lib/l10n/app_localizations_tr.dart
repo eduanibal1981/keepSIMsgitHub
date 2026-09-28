@@ -886,7 +886,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get dndDesc =>
-      'Belirlenen uyku saatlerinde push bildirimlerini sessize al';
+      'Rutin uyarılar sessiz saatlerin bitmesini bekler. Kritik hat uyarıları daha erken gelebilir; cihazın Rahatsız Etmeyin ayarı geçerlidir.';
 
   @override
   String get paymentsAutoFundTitle => 'Ödemeler ve Otomatik Fonlama';
@@ -899,7 +899,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get weeklyDigestDesc =>
-      'Her Pazar sabah 9:00\'da tüm SIM kartların derlenmiş durum raporu';
+      'Her pazar yerel saatle 09.00\'da haftalık SIM durum özeti';
 
   @override
   String get borderSimulatorDesc =>

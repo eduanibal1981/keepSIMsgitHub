@@ -1,4 +1,4 @@
-﻿import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -47,9 +47,9 @@ serve(async (req: Request) => {
       return jsonResponse({ error: "Missing call_id" }, 400);
     }
 
-    // 1. Fetch current session
+    // 1. Fetch current session to verify authorization
     const sessionRes = await fetch(
-      `${SUPABASE_URL}/rest/v1/voip_call_sessions?id=eq.${call_id}&select=*`,
+      `${SUPABASE_URL}/rest/v1/voip_call_sessions?id=eq.${call_id}&select=id,caller_id,callee_id,status,connected_at`,
       { headers: serviceHeaders }
     );
     const sessionRows = await sessionRes.json();
@@ -63,45 +63,42 @@ serve(async (req: Request) => {
       return jsonResponse({ error: "Forbidden" }, 403);
     }
 
-    // 2. Calculate duration
-    const now = new Date();
-    let durationSeconds = 0;
-    if (session.connected_at) {
-      const connected = new Date(session.connected_at);
-      durationSeconds = Math.max(0, Math.floor((now.getTime() - connected.getTime()) / 1000));
+    // Terminal state guard: if already in a terminal state, return existing state
+    const terminalStates = ["completed", "declined", "busy", "missed", "failed", "timeout"];
+    if (terminalStates.includes(session.status)) {
+      return jsonResponse({
+        ok: true,
+        call_id,
+        status: session.status,
+        already_terminated: true,
+        duration_seconds: 0,
+      }, 200);
     }
 
-    // 3. Update session
-    const updatePayload: Record<string, unknown> = {
-      status,
-      end_reason,
-      ended_at: now.toISOString(),
-      duration_seconds: durationSeconds,
-      updated_at: now.toISOString(),
-    };
+    // 2. Invoke atomic terminate_voip_session RPC
+    const rpcRes = await fetch(`${SUPABASE_URL}/rest/v1/rpc/terminate_voip_session`, {
+      method: "POST",
+      headers: serviceHeaders,
+      body: JSON.stringify({
+        p_call_id: call_id,
+        p_status: status,
+        p_end_reason: end_reason,
+      }),
+    });
 
-    const updateRes = await fetch(
-      `${SUPABASE_URL}/rest/v1/voip_call_sessions?id=eq.${call_id}`,
-      {
-        method: "PATCH",
-        headers: { ...serviceHeaders, "Prefer": "return=representation" },
-        body: JSON.stringify(updatePayload),
-      }
-    );
-
-    if (!updateRes.ok) {
-      const err = await updateRes.text();
-      return jsonResponse({ error: `Update failed: ${err}` }, 500);
+    if (!rpcRes.ok) {
+      const err = await rpcRes.text();
+      return jsonResponse({ error: `Termination RPC failed: ${err}` }, 500);
     }
 
-    const updated = await updateRes.json();
+    const rpcResult = await rpcRes.json();
 
     return jsonResponse({
       ok: true,
       call_id,
-      status,
-      duration_seconds: durationSeconds,
-      session: updated?.[0] || null,
+      status: rpcResult?.status || status,
+      duration_seconds: rpcResult?.duration_seconds ?? 0,
+      result: rpcResult,
     }, 200);
   } catch (err: any) {
     return jsonResponse({ error: err?.message || String(err) }, 500);

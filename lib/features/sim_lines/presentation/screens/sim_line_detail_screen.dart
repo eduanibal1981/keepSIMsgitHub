@@ -31,6 +31,7 @@ import 'package:keep_sims/features/household/presentation/controllers/household_
 import 'package:keep_sims/features/sim_lines/presentation/widgets/line_upgrade_sheet.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/premium_refill_config_sheet.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/depletion_forecast_card.dart';
+import 'package:keep_sims/features/sim_lines/presentation/widgets/alert_clock_card.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/sim_insurance_bottom_sheet.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/sim_health_score_sheet.dart';
 import 'package:keep_sims/features/sim_lines/presentation/providers/rescue_policy_provider.dart';
@@ -294,6 +295,16 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
                             .watch(usageForecastForLineProvider(line.id))
                             .value,
                       ),
+                      const SizedBox(height: 18),
+
+                      // Alert Clock: Authoritative Deactivation Countdown & Status
+                      AlertClockCard(
+                        simLineId: line.id,
+                        onRecordRecharge: () {
+                          ManualRechargeDialog.show(context: context, simLine: line);
+                        },
+                      ),
+                      const SizedBox(height: 18),
 
                       // Section 3: Protection List Card
                       _buildProtectionSection(context, detailState),

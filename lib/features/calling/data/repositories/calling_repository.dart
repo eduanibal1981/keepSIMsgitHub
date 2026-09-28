@@ -6,7 +6,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:keep_sims/core/supabase_client.dart';
 import 'package:keep_sims/features/calling/data/models/call_rate_model.dart';
 import 'package:keep_sims/features/calling/data/models/call_record_model.dart';
+import 'package:keep_sims/features/calling/data/models/available_virtual_number_model.dart';
 import 'package:keep_sims/features/calling/data/models/caller_id_model.dart';
+import 'package:keep_sims/features/calling/data/models/carrier_divert_model.dart';
 import 'package:keep_sims/features/calling/data/models/virtual_did_model.dart';
 import 'package:keep_sims/features/calling/data/models/voicemail_model.dart';
 
@@ -464,5 +466,97 @@ class CallingRepository {
           .update({'is_read': true, 'updated_at': DateTime.now().toIso8601String()})
           .eq('id', voicemailId);
     }
+  }
+
+  /// Search available virtual numbers from Telnyx with intelcallfee breakdown
+  Future<List<AvailableVirtualNumber>> searchAvailableNumbers({
+    required String countryCode,
+    int limit = 15,
+    String? areaCode,
+  }) async {
+    final response = await _supabase.functions.invoke(
+      'manage-dids',
+      body: {
+        'action': 'search_available_numbers',
+        'country_code': countryCode,
+        'limit': limit,
+        if (areaCode != null && areaCode.isNotEmpty) 'area_code': areaCode,
+      },
+    );
+
+    final data = response.data;
+    if (data == null || data['success'] != true) {
+      final msg = data?['error'] ?? 'Failed to search available numbers';
+      throw Exception(msg);
+    }
+
+    final list = data['numbers'] as List? ?? [];
+    return list
+        .map((e) => AvailableVirtualNumber.fromJson(Map<String, dynamic>.from(e as Map)))
+        .toList();
+  }
+
+  /// Purchase and instantly provision a virtual DID number
+  Future<VirtualDidNumber> purchaseVirtualNumber({
+    required String phoneNumber,
+    required String countryCode,
+    required String countryName,
+  }) async {
+    final response = await _supabase.functions.invoke(
+      'manage-dids',
+      body: {
+        'action': 'purchase_number',
+        'phone_number': phoneNumber,
+        'country_code': countryCode,
+        'country_name': countryName,
+      },
+    );
+
+    final data = response.data;
+    if (data == null || data['success'] != true) {
+      if (data?['code'] == 'insufficient_funds') {
+        throw Exception(
+          data['message'] ?? 'Insufficient wallet balance to purchase this number.',
+        );
+      }
+      final msg = data?['error'] ?? 'Failed to complete number purchase';
+      throw Exception(msg);
+    }
+
+    final didJson = data['did'] as Map<String, dynamic>? ?? {};
+    return VirtualDidNumber.fromJson(didJson);
+  }
+
+  /// Fetch real carrier supplementary service MMI divert rules for supported countries
+  Future<List<CarrierDivertRule>> getCarrierDivertRules() async {
+    try {
+      final res = await _supabase.rpc('get_supported_carriers_divert');
+      if (res is List) {
+        return res
+            .map((e) => CarrierDivertRule.fromJson(Map<String, dynamic>.from(e as Map)))
+            .toList();
+      }
+    } catch (_) {}
+
+    // Fallback direct query
+    try {
+      final rows = await _supabase
+          .from('carrier_call_forwarding_rules')
+          .select('*, carriers!inner(name), countries!inner(name, iso_code, flag_emoji, dialing_code)');
+      return (rows as List).map((r) {
+        final carrierName = r['carriers']?['name'] as String? ?? 'Carrier';
+        final countryName = r['countries']?['name'] as String? ?? '';
+        final flag = r['countries']?['flag_emoji'] as String?;
+        final dial = r['countries']?['dialing_code'] as String?;
+        final map = Map<String, dynamic>.from(r);
+        map['carrier_name'] = carrierName;
+        map['country_name'] = countryName;
+        map['flag_emoji'] = flag;
+        map['dialing_code'] = dial;
+        return CarrierDivertRule.fromJson(map);
+      }).toList();
+    } catch (_) {}
+
+    return [];
   }
 }

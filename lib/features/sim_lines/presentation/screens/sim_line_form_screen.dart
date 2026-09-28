@@ -24,6 +24,7 @@ import 'package:keep_sims/features/sim_lines/presentation/widgets/carrier_rules_
 import 'package:keep_sims/features/sim_lines/data/models/sim_liveness_result.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/carrier_liveness_badge.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/sim_otp_verification_sheet.dart';
+import 'package:keep_sims/core/utils/phone_number_validator.dart';
 
 import '../../data/models/carrier_rule_model.dart';
 
@@ -88,7 +89,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
   void _onPhoneInputChanged() {
     _livenessDebounce?.cancel();
     _quoteDebounce?.cancel();
-    // Clear previous verification result so user can explicitly verify the updated digits
+    // Clear previous validation result so user can re-validate updated digits
     if (_livenessResult != null) {
       setState(() {
         _livenessResult = null;
@@ -97,6 +98,19 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
     _quoteDebounce = Timer(const Duration(milliseconds: 600), () {
       _updateServerQuote();
     });
+
+    // Auto-validate line format & carrier when full expected digits are typed
+    final localNumber = _phoneController.text.trim();
+    final cleanDigits = localNumber.startsWith('0') ? localNumber.substring(1) : localNumber;
+    final expectedLen = PhoneNumberValidator.getExpectedLength(
+      countryIsoCode: _selectedCountry?.isoCode,
+      dialingCode: _selectedCountry?.dialingCode,
+    );
+    if (expectedLen != null && cleanDigits.length == expectedLen) {
+      _livenessDebounce = Timer(const Duration(milliseconds: 500), () {
+        _triggerLivenessCheck(showMissingError: false);
+      });
+    }
   }
 
   Future<void> _updateServerQuote() async {
@@ -185,16 +199,24 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
           _isCheckingLiveness = false;
         });
 
-        // Auto-match carrier if not yet selected and active
-        if (_selectedCarrier == null &&
-            result.detectedOperatorName != null &&
-            _selectedCountry != null) {
+        // Auto-match carrier if detected and matches country carrier catalogue
+        if (result.detectedOperatorName != null && _selectedCountry != null) {
           final carriers = ref.read(carriersForCountryProvider(_selectedCountry!.id)).value ?? [];
           final opLower = result.detectedOperatorName!.toLowerCase();
           final matched = carriers.firstWhereOrNull(
-            (c) => opLower.contains(c.name.toLowerCase()) || c.name.toLowerCase().contains(opLower),
+            (c) {
+              final cNameLower = c.name.toLowerCase();
+              return opLower.contains(cNameLower) ||
+                  cNameLower.contains(opLower) ||
+                  (opLower.contains('friendi') && cNameLower.contains('friendi')) ||
+                  (opLower.contains('omantel') && cNameLower.contains('omantel')) ||
+                  (opLower.contains('ooredoo') && cNameLower.contains('ooredoo')) ||
+                  (opLower.contains('vodafone') && cNameLower.contains('vodafone')) ||
+                  (opLower.contains('red bull') && cNameLower.contains('red bull')) ||
+                  (opLower.contains('renna') && cNameLower.contains('renna'));
+            },
           );
-          if (matched != null) {
+          if (matched != null && _selectedCarrier?.id != matched.id) {
             setState(() {
               _selectedCarrier = matched;
             });
@@ -252,17 +274,17 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
       }
 
       final isConfirmedActive = _livenessResult!.isActive || _livenessResult!.carrierStatus == 'active';
-      if (!isConfirmedActive) {
+      if (!isConfirmedActive && _selectedCarrier == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Carrier verification is unconfirmed for this line. Please verify via Voice Call or SMS Code first before selecting $planLabel.',
+              'Carrier validation is pending for this line. Please validate the line before selecting $planLabel.',
             ),
             backgroundColor: AppColors.warning,
             action: SnackBarAction(
-              label: 'Verify Now',
+              label: 'Validate Now',
               textColor: Colors.white,
-              onPressed: _openOtpVerification,
+              onPressed: () => _triggerLivenessCheck(showMissingError: true),
             ),
             duration: const Duration(seconds: 5),
           ),
@@ -277,7 +299,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
       return;
     }
 
-    // 2. Otherwise, perform the live lookup automatically (same as Check Line button)
+    // 2. Otherwise, perform the live lookup automatically (same as Validate Line button)
     final result = await _triggerLivenessCheck(showMissingError: true);
     if (!mounted) return;
 
@@ -301,17 +323,17 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
     }
 
     final isConfirmedActive = result.isActive || result.carrierStatus == 'active';
-    if (!isConfirmedActive) {
+    if (!isConfirmedActive && _selectedCarrier == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Carrier verification is unconfirmed for this line. Please verify via Voice Call or SMS Code first before selecting $planLabel.',
+            'Carrier validation is pending for this line. Please validate the line before selecting $planLabel.',
           ),
           backgroundColor: AppColors.warning,
           action: SnackBarAction(
-            label: 'Verify Now',
+            label: 'Validate Now',
             textColor: Colors.white,
-            onPressed: _openOtpVerification,
+            onPressed: () => _triggerLivenessCheck(showMissingError: true),
           ),
           duration: const Duration(seconds: 5),
         ),

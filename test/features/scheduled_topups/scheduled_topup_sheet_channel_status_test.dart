@@ -123,6 +123,10 @@ void main() {
     expect(find.text('Telegram Bot'), findsOneWidget);
     expect(find.text('UNBOUND'), findsOneWidget);
     expect(find.text('Telegram bot unbound · Tap to link'), findsOneWidget);
+
+    // 5. Alarm Clock displays readiness without test button
+    expect(find.text('Alarm Clock'), findsOneWidget);
+    expect(find.text('Test'), findsNothing);
   });
 
   testWidgets('ScheduledTopupSheet allows Telegram on Free plan line without Upgrade badge',

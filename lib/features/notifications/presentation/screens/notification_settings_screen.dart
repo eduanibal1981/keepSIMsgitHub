@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
@@ -15,6 +14,8 @@ import 'package:keep_sims/core/utils/build_context_extension.dart';
 import 'package:keep_sims/l10n/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
+import 'package:keep_sims/features/notifications/data/repositories/notifications_repository_impl.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class NotificationSettingsScreen extends ConsumerWidget {
   const NotificationSettingsScreen({super.key});
@@ -146,7 +147,9 @@ class NotificationSettingsScreen extends ConsumerWidget {
           icon: Icon(Icons.arrow_back_rounded, color: context.onSurfaceColor),
           onPressed: () async {
             await HapticHelper.lightTick();
-            Navigator.pop(context);
+            if (context.mounted) {
+              Navigator.pop(context);
+            }
           },
         ),
         title: Text(
@@ -525,6 +528,18 @@ class NotificationSettingsScreen extends ConsumerWidget {
                   .toggleWeeklyDigest(active);
             },
           ),
+          if (prefs.weeklyDigestEnabled &&
+              ref.watch(weeklyDigestConsentProvider).value == false)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+              child: TextButton.icon(
+                onPressed: () => ref
+                    .read(userPreferencesControllerProvider.notifier)
+                    .toggleWeeklyDigest(true),
+                icon: const Icon(Icons.check_circle_outline),
+                label: const Text('Confirm weekly digest to start summaries'),
+              ),
+            ),
         ],
       ),
     );
@@ -540,6 +555,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
     return InkWell(
       onTap: () async {
         await HapticHelper.lightTick();
+        if (!context.mounted) return;
         final currentTod = _parseTimeOfDay(timeStr);
         final selectedTime = await showTimePicker(
           context: context,
@@ -1014,6 +1030,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
       },
     );
   }
+
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1039,6 +1056,7 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
   late TextEditingController _textController;
   late bool _isEnabled;
   bool _isSaving = false;
+  bool _isSendingTestPush = false;
 
   @override
   void initState() {
@@ -1048,7 +1066,11 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
     final type = widget.channel['channel_type'] as String;
     String initialText = '';
     if (type == 'email') {
-      initialText = config['email'] ?? '';
+      final configEmail = (config['email'] as String?)?.trim();
+      final userEmail = ref.read(authControllerProvider).value?.email;
+      initialText = (configEmail != null && configEmail.isNotEmpty)
+          ? configEmail
+          : (userEmail ?? '');
     } else if (type == 'whatsapp') {
       initialText = config['phone'] ?? '';
     } /* else if (type == 'webhook') {
@@ -1066,7 +1088,11 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
       final type = widget.channel['channel_type'] as String;
       String currentText = '';
       if (type == 'email') {
-        currentText = config['email'] ?? '';
+        final configEmail = (config['email'] as String?)?.trim();
+        final userEmail = ref.read(authControllerProvider).value?.email;
+        currentText = (configEmail != null && configEmail.isNotEmpty)
+            ? configEmail
+            : (userEmail ?? '');
       } else if (type == 'whatsapp') {
         currentText = config['phone'] ?? '';
       } /* else if (type == 'webhook') {
@@ -1209,21 +1235,25 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
     final bool isGloballyEnabled = catalogEntry != null ? (catalogEntry['is_globally_enabled'] == true) : true;
 
     final user = ref.watch(authControllerProvider).value;
-    final globalTier = user?.subscriptionTier ?? 'standard';
+    final globalTier = user?.subscriptionTier ?? 'basic';
     final simLines = ref.watch(simLinesControllerProvider).value ?? [];
-    final hasStandardOrPremiumLine = simLines.any((line) {
+    final requiredTier = '${catalogEntry?['min_tier'] ?? ((type == 'push' || type == 'telegram') ? 'basic' : 'standard')}'.toLowerCase();
+    int tierRank(String tier) => switch (tier.toLowerCase()) {
+      'premium' => 2,
+      'standard' => 1,
+      _ => 0,
+    };
+    final hasEligibleLine = simLines.any((line) {
       final tier = line.protectionTier.trim().toLowerCase();
       final plan = line.planType.trim().toLowerCase();
-      return tier == 'standard' ||
-          tier == 'premium' ||
-          plan == 'standard' ||
-          plan == 'premium';
+      final isExpired = line.validityExpiresAt != null &&
+          line.validityExpiresAt!.isBefore(DateTime.now());
+      return (tierRank(tier) >= tierRank(requiredTier) ||
+              tierRank(plan) >= tierRank(requiredTier)) &&
+          !isExpired;
     });
-    final bool isLocked =
-        type != 'push' &&
-        type != 'telegram' &&
-        globalTier == 'basic' &&
-        !hasStandardOrPremiumLine;
+    final bool isLocked = tierRank(globalTier) < tierRank(requiredTier) &&
+        !hasEligibleLine;
     final isDark = context.isDarkMode;
 
     return Container(
@@ -1248,7 +1278,7 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(
-                          '$name is temporarily paused across the platform. Alerts are rerouted to active channels.',
+                          '$name is temporarily paused across the platform. Other enabled routes may still receive alerts.',
                         ),
                         backgroundColor: Colors.amber.shade900,
                       ),
@@ -1264,7 +1294,7 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
                           description: AppLocalizations.of(
                             context,
                           )!.lockedAlertSubtitle(name),
-                          requiredPlan: 'Standard Plan',
+                          requiredPlan: '${requiredTier == 'premium' ? 'Premium' : 'Standard'} Plan',
                           highlights: [
                             AppLocalizations.of(context)!.upsellProtect5Lines,
                             AppLocalizations.of(context)!.upsellUnlockChannels,
@@ -1339,7 +1369,7 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
                 padding: const EdgeInsets.only(top: 4.0),
                 child: Text(
                   !isGloballyEnabled
-                      ? 'This channel is temporarily paused by platform administrators. Notifications will automatically route via Push / Email fallback.'
+                      ? 'This channel is paused by platform administrators. Other enabled channels may still receive alerts according to your preferences.'
                       : _getChannelDescription(context, type),
                   style: AppTextStyles.bodySmall.copyWith(
                     color: isDark
@@ -1353,6 +1383,15 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
                   : (val) async {
                       await HapticHelper.mediumImpact();
                       setState(() => _isEnabled = val);
+                      if (type == 'email' && val) {
+                        final currentText = _textController.text.trim();
+                        if (currentText.isEmpty) {
+                          final userEmail = ref.read(authControllerProvider).value?.email;
+                          if (userEmail != null && userEmail.isNotEmpty) {
+                            _textController.text = userEmail;
+                          }
+                        }
+                      }
                       await ref
                           .read(notificationChannelsControllerProvider.notifier)
                           .toggleChannel(type, val);
@@ -1445,66 +1484,84 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
             ],
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 14),
 
-        // Player ID / Subscription ID Row
-        Text(
-          'OneSignal Player ID',
-          style: AppTextStyles.labelSmall.copyWith(
-            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
-            fontWeight: FontWeight.w600,
+        // Send Test Notification Button
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            onPressed: (_isSendingTestPush || playerId == null)
+                ? null
+                : () async {
+                    await HapticHelper.lightTick();
+                    setState(() => _isSendingTestPush = true);
+                    try {
+                      await ref.read(notificationsRepositoryProvider).sendNotification(
+                        category: 'system',
+                        title: 'KeepSIMs Test Alert',
+                        body: 'KeepSIMs requested a test notification for this device.',
+                      );
+                      if (!context.mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: const Row(
+                            children: [
+                              Icon(Icons.check_circle_outline, color: Colors.white, size: 20),
+                              SizedBox(width: 8),
+                              Expanded(
+                                child: Text('Test alert queued. Check your enabled routes and device permissions for arrival.'),
+                              ),
+                            ],
+                          ),
+                          backgroundColor: Colors.green.shade700,
+                          behavior: SnackBarBehavior.floating,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          duration: const Duration(seconds: 4),
+                        ),
+                      );
+                    } catch (e) {
+                      if (!context.mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Failed to send test notification: $e'),
+                          backgroundColor: context.colorScheme.error,
+                          behavior: SnackBarBehavior.floating,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        ),
+                      );
+                    } finally {
+                      if (mounted) {
+                        setState(() => _isSendingTestPush = false);
+                      }
+                    }
+                  },
+            icon: _isSendingTestPush
+                ? const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.notifications_active_outlined, size: 18),
+            label: Text(
+              _isSendingTestPush ? 'Sending Test Alert...' : 'Send Test Notification',
+              style: AppTextStyles.labelMedium.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              side: BorderSide(
+                color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
           ),
         ),
         const SizedBox(height: 6),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(
-            color: isDark ? AppColors.darkBg : AppColors.lightBg,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-            ),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: SelectableText(
-                  playerId ?? 'Waiting for registration...',
-                  style: AppTextStyles.caption.copyWith(
-                    fontFamily: 'monospace',
-                    color: context.onSurfaceColor,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-              if (playerId != null) ...[
-                const SizedBox(width: 8),
-                IconButton(
-                  icon: const Icon(Icons.copy_rounded, size: 18),
-                  tooltip: 'Copy Player ID',
-                  visualDensity: VisualDensity.compact,
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                  onPressed: () async {
-                    await Clipboard.setData(ClipboardData(text: playerId));
-                    await HapticHelper.lightTick();
-                    if (!context.mounted) return;
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: const Text('OneSignal Player ID copied to clipboard'),
-                        backgroundColor: context.colorScheme.secondary,
-                        duration: const Duration(seconds: 2),
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ],
-          ),
-        ),
-        const SizedBox(height: 8),
         Text(
-          'This identifier connects this device to KeepSIMs instant alert dispatchers.',
+          'Requests an immediate test alert. Provider acceptance does not confirm display on this device.',
           style: AppTextStyles.caption.copyWith(
             color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
           ),
@@ -1538,8 +1595,10 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
 
     bool needsSetup = false;
     if (type == 'email') {
-      final email = config['email'] as String?;
-      needsSetup = email == null || email.trim().isEmpty;
+      final email = (config['email'] as String?)?.trim();
+      final userEmail = ref.read(authControllerProvider).value?.email;
+      final effectiveEmail = (email != null && email.isNotEmpty) ? email : userEmail;
+      needsSetup = effectiveEmail == null || effectiveEmail.trim().isEmpty;
     } else if (type == 'whatsapp') {
       final phone = (config['phone'] ?? config['phone_number']) as String?;
       needsSetup = phone == null || phone.trim().isEmpty;
@@ -1676,6 +1735,21 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
             ),
           ),
         ),
+        if (type == 'email') ...[
+          const SizedBox(height: 6),
+          Padding(
+            padding: const EdgeInsets.only(left: 4.0),
+            child: Text(
+              'Connected to your account email by default. You can change it above to receive alerts at a different address.',
+              style: AppTextStyles.bodySmall.copyWith(
+                color: isDark
+                    ? AppColors.textSecondaryDark
+                    : AppColors.textSecondaryLight,
+                fontSize: 11,
+              ),
+            ),
+          ),
+        ],
         if (type == 'whatsapp') ...[
           const SizedBox(height: 6),
           Padding(
@@ -1788,10 +1862,24 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
                 await HapticHelper.lightTick();
                 final userId = widget.userId;
                 if (userId == null) return;
-                final botUrl = 'https://t.me/KeepSIMsBot?start=bind_$userId';
-                final uri = Uri.parse(botUrl);
-                if (await canLaunchUrl(uri)) {
-                  await launchUrl(uri, mode: LaunchMode.externalApplication);
+                try {
+                  final result = await Supabase.instance.client.rpc('create_telegram_bind_token');
+                  final token = result is Map ? result['token'] : null;
+                  if (result is! Map || result['success'] != true ||
+                      token is! String || !RegExp(r'^[0-9a-f]{32}$').hasMatch(token)) {
+                    throw StateError('Could not create a secure Telegram link');
+                  }
+                  final uri = Uri.parse('https://t.me/KeepSIMsBot?start=bind_$token');
+                  if (await canLaunchUrl(uri)) {
+                    await launchUrl(uri, mode: LaunchMode.externalApplication);
+                  } else {
+                    throw StateError('Could not open Telegram');
+                  }
+                } catch (error) {
+                  if (!context.mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Telegram link unavailable: $error')),
+                  );
                 }
               },
               icon: const Icon(Icons.telegram, color: Colors.white, size: 20),

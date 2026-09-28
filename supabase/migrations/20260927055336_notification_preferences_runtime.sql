@@ -1,0 +1,4 @@
+-- The first production application of notification_preferences_runtime was
+-- superseded by the idempotent full migration at 20260927062802. This local
+-- marker preserves the recorded migration version without repeating the same
+-- preference changes during a fresh schema rebuild.

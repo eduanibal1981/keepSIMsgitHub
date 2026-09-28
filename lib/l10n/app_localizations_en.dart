@@ -877,7 +877,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fullyShielded => 'Fully Shielded';
 
   @override
-  String get dndDesc => 'Mute push notifications during specified sleep hours';
+  String get dndDesc =>
+      'Routine alerts wait until quiet hours end. Critical line alerts may arrive sooner; device Do Not Disturb still applies.';
 
   @override
   String get paymentsAutoFundTitle => 'Payments & Auto-Fund';
@@ -890,7 +891,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get weeklyDigestDesc =>
-      'Compiled status report of all SIM cards every Sunday at 9:00 AM';
+      'Weekly SIM status summary every Sunday at 9:00 AM local time';
 
   @override
   String get borderSimulatorDesc =>

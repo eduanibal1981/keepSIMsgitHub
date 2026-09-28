@@ -107,6 +107,11 @@ class SplashCompleted extends _$SplashCompleted {
   void reset() => state = false;
 }
 
+/// Pending accepted VoIP call detected at app launch to allow direct routing
+/// to the call screen, bypassing splash and dashboard loading.
+final initialAcceptedCallProvider =
+    Provider<Map<String, String>?>((ref) => null);
+
 /// A notifier that triggers router re-evaluation when auth or splash states change.
 class RouterNotifier extends ChangeNotifier {
   RouterNotifier(this._ref) {
@@ -122,8 +127,23 @@ RouterConfig<Object> appRouter(Ref ref) {
   final notifier = RouterNotifier(ref);
   ref.onDispose(notifier.dispose);
 
+  final initialAcceptedCall = ref.watch(initialAcceptedCallProvider);
+  final hasInitialAcceptedCall = initialAcceptedCall != null &&
+      initialAcceptedCall['callId'] != null &&
+      initialAcceptedCall['callId']!.isNotEmpty;
+
+  final initialLocation = hasInitialAcceptedCall
+      ? '${AppRoutes.voipCall}/${initialAcceptedCall['callId']}'
+      : AppRoutes.splash;
+
+  if (hasInitialAcceptedCall) {
+    Future.microtask(() {
+      ref.read(splashCompletedProvider.notifier).complete();
+    });
+  }
+
   final router = GoRouter(
-    initialLocation: AppRoutes.splash,
+    initialLocation: initialLocation,
     debugLogDiagnostics: true,
     refreshListenable: notifier,
 

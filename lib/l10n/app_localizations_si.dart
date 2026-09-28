@@ -883,7 +883,8 @@ class AppLocalizationsSi extends AppLocalizations {
   String get fullyShielded => 'සම්පූර්ණයෙන් ආරක්ෂිතයි';
 
   @override
-  String get dndDesc => 'නිශ්චිත නිදන කාලවලදී push දැනුම්දීම් නිශ්ශබ්ද කරන්න';
+  String get dndDesc =>
+      'සාමාන්‍ය දැනුම්දීම් නිහඬ වේලාව අවසන් වන තුරු රඳවා තබයි. හදිසි රේඛා අනතුරු ඇඟවීම් කලින් පැමිණිය හැක; දුරකථනයේ බාධා නොකරන්න සැකසුම ක්‍රියාත්මක වේ.';
 
   @override
   String get paymentsAutoFundTitle => 'ගෙවීම් සහ ස්වයං-අරමුදල්';
@@ -896,7 +897,7 @@ class AppLocalizationsSi extends AppLocalizations {
 
   @override
   String get weeklyDigestDesc =>
-      'සෑම ඉරිදා ඉදිරිපස 9:00 ට සියලු SIM කාඩ්වල සම්පාදිත තත්ව වාර්තාව';
+      'සෑම ඉරිදාම දේශීය වේලාවෙන් උදේ 9:00 ට සතිපතා SIM තත්ත්ව සාරාංශය';
 
   @override
   String get borderSimulatorDesc =>

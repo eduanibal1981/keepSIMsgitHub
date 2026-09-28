@@ -87,6 +87,7 @@ test('dispatcher integration: one push per device, targeted fallback, correct An
     rpc: async () => ({ data: 'test-secret' }),
     from: (table) => {
       if (table === 'notification_deliveries') return { insert: async (rows) => { deliveries.push(...rows); return {}; } };
+      if (table === 'notifications') return { update: () => ({ eq: async () => ({ error: null }) }) };
       assert.equal(table, 'device_push_tokens');
       const builder = { select: () => builder, eq: () => builder,
         order: async () => ({ data: [phone, emulator] }) };

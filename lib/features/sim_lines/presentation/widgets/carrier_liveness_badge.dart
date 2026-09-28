@@ -4,9 +4,9 @@ import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/core/utils/build_context_extension.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_liveness_result.dart';
 
-/// An interactive Carrier BSS Liveness & Activity Verification Badge.
-/// Displays live verification status directly from wholesale B2B gateways (DTOne & Zendit).
-/// Provides an explicit "Check Line" button and a "Verify via Call or SMS" fallback for unmapped MVNOs.
+/// An interactive Carrier & Line Format Validation Badge.
+/// Displays network validation status from national numbering plans and carrier registries.
+/// Provides an explicit "Validate Line" button and a "Verify via Call or SMS" fallback for reachability testing.
 class CarrierLivenessBadge extends StatelessWidget {
   final SimLivenessResult? result;
   final bool isLoading;
@@ -57,7 +57,7 @@ class CarrierLivenessBadge extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'Verifying line with carrier...',
+                    'Validating line format & network...',
                     style: AppTextStyles.caption.copyWith(
                       color: isDark ? AppColors.primaryLight : AppColors.lightPrimary,
                       fontWeight: FontWeight.bold,
@@ -66,7 +66,7 @@ class CarrierLivenessBadge extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'Connecting to carrier BSS registry',
+                    'Checking carrier network & numbering plan',
                     style: AppTextStyles.caption.copyWith(
                       color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                       fontSize: 10.5,
@@ -80,7 +80,7 @@ class CarrierLivenessBadge extends StatelessWidget {
       );
     }
 
-    // 2. Unchecked State: Show prompt & "Check Line" Action Button
+    // 2. Unchecked State: Show prompt & "Validate Line" Action Button
     if (result == null) {
       return Container(
         margin: const EdgeInsets.only(top: 8),
@@ -109,7 +109,7 @@ class CarrierLivenessBadge extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'Carrier Liveness Check',
+                    'Line & Carrier Validation',
                     style: AppTextStyles.caption.copyWith(
                       color: isDark ? Colors.white : Colors.black87,
                       fontWeight: FontWeight.w600,
@@ -118,7 +118,7 @@ class CarrierLivenessBadge extends StatelessWidget {
                   ),
                   const SizedBox(height: 1),
                   Text(
-                    'Tap "Check Line" to verify carrier status',
+                    'Tap "Validate Line" to check format & carrier',
                     style: AppTextStyles.caption.copyWith(
                       color: isDark
                           ? AppColors.textSecondaryDark
@@ -133,7 +133,7 @@ class CarrierLivenessBadge extends StatelessWidget {
               ElevatedButton.icon(
                 onPressed: onCheck,
                 icon: const Icon(Icons.bolt_rounded, size: 14),
-                label: const Text('Check Line'),
+                label: const Text('Validate Line'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
@@ -156,7 +156,7 @@ class CarrierLivenessBadge extends StatelessWidget {
 
     // 3. Checked State: Result Badges (Active, Inactive, Unsupported)
     final status = result!.carrierStatus.toLowerCase();
-    final isActive = status == 'active' && result!.isActive;
+    final isActive = (status == 'active' || status == 'validated') && result!.isActive;
     final isInactive = status == 'inactive';
     final isUnsupported = !isActive && !isInactive;
 
@@ -175,23 +175,25 @@ class CarrierLivenessBadge extends StatelessWidget {
       iconData = Icons.cell_tower_rounded;
       titleText = op != null && op.isNotEmpty
           ? '$op detected'
-          : 'Carrier Identified';
-      subtitleText = 'Network recognized. Line validity is confirmed upon your first successful recharge.';
+          : 'Carrier & Network Identified';
+      subtitleText = 'Valid line format and carrier network recognized.';
     } else if (isInactive) {
       cardBg = AppColors.error.withValues(alpha: isDark ? 0.15 : 0.08);
       borderColor = AppColors.error.withValues(alpha: isDark ? 0.5 : 0.35);
       iconColor = AppColors.error;
       iconData = Icons.cancel_rounded;
-      titleText = 'Number reported inactive or disconnected';
-      subtitleText = 'Carrier network indicates line is inactive. Recharges cannot be delivered.';
+      titleText = 'Invalid format or inactive line';
+      subtitleText = result!.message.isNotEmpty
+          ? result!.message
+          : 'Carrier network indicates line is inactive or has invalid format.';
     } else if (isUnsupported) {
       cardBg = const Color(0xFFF59E0B).withValues(alpha: isDark ? 0.12 : 0.08);
       borderColor = const Color(0xFFF59E0B).withValues(alpha: isDark ? 0.4 : 0.3);
       iconColor = const Color(0xFFF59E0B);
       iconData = Icons.info_outline_rounded;
       titleText = result!.message.isNotEmpty
-          ? result!.message
-          : 'Carrier lookup inconclusive';
+          ? result!.message.replaceAll('Carrier verification', 'Carrier validation')
+          : 'Carrier validation inconclusive';
       subtitleText = 'Carrier network could not be automatically identified. You can proceed or test line reachability.';
     } else {
       return const SizedBox.shrink();
@@ -256,12 +258,12 @@ class CarrierLivenessBadge extends StatelessWidget {
                   onPressed: effectiveRetry,
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
-                  tooltip: 'Re-verify carrier status',
+                  tooltip: 'Re-validate line',
                 ),
             ],
           ),
 
-          // Fallback OTP Action Button for Inconclusive / Unsupported Corridors (e.g. FRiENDi Oman)
+          // Fallback OTP Action Button for Inconclusive / Unsupported Corridors (e.g. unmapped numbers)
           if (isUnsupported && onOtpVerify != null) ...[
             const SizedBox(height: 10),
             SizedBox(
@@ -269,7 +271,7 @@ class CarrierLivenessBadge extends StatelessWidget {
               child: ElevatedButton.icon(
                 onPressed: onOtpVerify,
                 icon: const Icon(Icons.phone_in_talk_rounded, size: 15),
-                label: const Text('Verify via Voice Call or SMS Code'),
+                label: const Text('Verify Live Line via Voice Call or SMS'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFF59E0B),
                   foregroundColor: Colors.white,

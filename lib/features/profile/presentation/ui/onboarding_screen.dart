@@ -37,6 +37,7 @@ import 'package:keep_sims/features/sim_lines/data/models/sim_liveness_result.dar
 import 'package:keep_sims/features/sim_lines/presentation/widgets/carrier_liveness_badge.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/sim_otp_verification_sheet.dart';
 import 'package:keep_sims/l10n/app_localizations.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
@@ -202,9 +203,17 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               [];
           final opLower = result.detectedOperatorName!.toLowerCase();
           final matched = carriers.firstWhereOrNull(
-            (c) =>
-                opLower.contains(c.name.toLowerCase()) ||
-                c.name.toLowerCase().contains(opLower),
+            (c) {
+              final cNameLower = c.name.toLowerCase();
+              return opLower.contains(cNameLower) ||
+                  cNameLower.contains(opLower) ||
+                  (opLower.contains('friendi') && cNameLower.contains('friendi')) ||
+                  (opLower.contains('omantel') && cNameLower.contains('omantel')) ||
+                  (opLower.contains('ooredoo') && cNameLower.contains('ooredoo')) ||
+                  (opLower.contains('vodafone') && cNameLower.contains('vodafone')) ||
+                  (opLower.contains('red bull') && cNameLower.contains('red bull')) ||
+                  (opLower.contains('renna') && cNameLower.contains('renna'));
+            },
           );
           if (matched != null) {
             setState(() {
@@ -253,17 +262,17 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       final isConfirmedActive =
           _simLivenessResult!.isActive ||
           _simLivenessResult!.carrierStatus == 'active';
-      if (!isConfirmedActive) {
+      if (!isConfirmedActive && _selectedSimCarrier == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Carrier verification is unconfirmed for this line. Please verify via Voice Call or SMS Code first before selecting $planLabel.',
+              'Carrier validation is pending for this line. Please validate the line before selecting $planLabel.',
             ),
             backgroundColor: AppColors.warning,
             action: SnackBarAction(
-              label: 'Verify Now',
+              label: 'Validate Now',
               textColor: Colors.white,
-              onPressed: _openSimOtpVerification,
+              onPressed: () => _triggerSimLivenessCheck(showMissingError: true),
             ),
             duration: const Duration(seconds: 5),
           ),
@@ -277,7 +286,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       return;
     }
 
-    // 2. Otherwise, perform the live lookup automatically (same as Check Line button)
+    // 2. Otherwise, perform the live lookup automatically (same as Validate Line button)
     final result = await _triggerSimLivenessCheck(showMissingError: true);
     if (!mounted) return;
 
@@ -302,17 +311,17 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
     final isConfirmedActive =
         result.isActive || result.carrierStatus == 'active';
-    if (!isConfirmedActive) {
+    if (!isConfirmedActive && _selectedSimCarrier == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Carrier verification is unconfirmed for this line. Please verify via Voice Call or SMS Code first before selecting $planLabel.',
+            'Carrier validation is pending for this line. Please validate the line before selecting $planLabel.',
           ),
           backgroundColor: AppColors.warning,
           action: SnackBarAction(
-            label: 'Verify Now',
+            label: 'Validate Now',
             textColor: Colors.white,
-            onPressed: _openSimOtpVerification,
+            onPressed: () => _triggerSimLivenessCheck(showMissingError: true),
           ),
           duration: const Duration(seconds: 5),
         ),
@@ -3013,7 +3022,16 @@ class _InlineOnboardingChannelConfigState
                   final user = widget.ref.read(authControllerProvider).value;
                   final userId = user?.id;
                   if (userId == null) return;
-                  final botUrl = 'https://t.me/KeepSIMsBot?start=bind_$userId';
+                  String bindParam = userId;
+                  try {
+                    final token = await Supabase.instance.client.rpc('create_telegram_bind_token');
+                    if (token != null && token.toString().isNotEmpty) {
+                      bindParam = token.toString();
+                    }
+                  } catch (_) {
+                    // Fallback to userId if token RPC fails
+                  }
+                  final botUrl = 'https://t.me/KeepSIMsBot?start=bind_$bindParam';
                   final uri = Uri.parse(botUrl);
                   if (await canLaunchUrl(uri)) {
                     await launchUrl(uri, mode: LaunchMode.externalApplication);

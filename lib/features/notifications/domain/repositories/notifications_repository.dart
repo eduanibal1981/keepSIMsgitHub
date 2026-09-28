@@ -15,7 +15,11 @@ abstract class NotificationsRepository {
   Future<void> updateAlertSetting(AlertSetting setting);
 
   Future<UserPreferences> getUserPreferences();
-  Future<void> updateUserPreferences(UserPreferences preferences);
+  Future<bool> hasWeeklyDigestConsent();
+  Future<void> updateUserPreferences(
+    UserPreferences preferences, {
+    bool? digestConsentChange,
+  });
 
   Future<List<Map<String, dynamic>>> getNotificationChannels();
   Future<Map<String, Map<String, dynamic>>> getChannelCatalog();
@@ -51,4 +55,3 @@ abstract class NotificationsRepository {
     String? language,
   });
 }
-

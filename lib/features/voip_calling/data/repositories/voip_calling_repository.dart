@@ -1,8 +1,10 @@
 /// KeepSIMs — VoIP Calling Repository
 library;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:keep_sims/core/services/auth_session_manager.dart';
 import 'package:keep_sims/core/supabase_client.dart';
 import 'package:keep_sims/features/voip_calling/data/models/ice_server_model.dart';
 import 'package:keep_sims/features/voip_calling/data/models/voip_call_session_model.dart';
@@ -64,7 +66,21 @@ class VoipCallingRepository {
 
   VoipCallingRepository(this._supabase);
 
-  String? get currentUserId => _supabase.auth.currentUser?.id;
+  String? get currentUserId {
+    try {
+      return _supabase.auth.currentUser?.id;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  String? get currentUserPhone {
+    try {
+      return _supabase.auth.currentUser?.phone;
+    } catch (_) {
+      return null;
+    }
+  }
 
   /// Register device VoIP PushKit & FCM tokens with user account
   Future<void> registerVoipTokens({
@@ -145,13 +161,20 @@ class VoipCallingRepository {
           )
           .toList();
 
+      final hasTurn = iceServers.any(
+        (s) => s.urls.any((u) => u.startsWith('turn:') || u.startsWith('turns:')),
+      );
+      final finalIceServers = hasTurn
+          ? iceServers
+          : (iceServers.isEmpty ? defaultIceServers : [...iceServers, defaultIceServers.last]);
+
       final calleeData = data['callee'] as Map<String, dynamic>? ?? {};
 
       return InitiateVoipCallResult(
         ok: true,
         callId: data['call_id'] as String,
         status: data['status'] as String? ?? 'initiating',
-        iceServers: iceServers,
+        iceServers: finalIceServers,
         callee: ContactLookupResult(
           userId: calleeData['id'] as String? ?? calleeId,
           fullName: calleeData['name'] as String? ?? 'KeepSIMs User',
@@ -166,51 +189,60 @@ class VoipCallingRepository {
   }
 
   /// Persist caller's SDP offer to session
-  Future<void> saveOffer({
+  Future<Map<String, dynamic>> saveOffer({
     required String callId,
     required String offerSdp,
   }) async {
     try {
-      await _supabase.rpc('save_voip_offer', params: {
+      final res = await _supabase.rpc('save_voip_offer', params: {
         'p_call_id': callId,
         'p_offer_sdp': offerSdp,
       });
-    } catch (_) {
-      try {
-        await _supabase
-            .from('voip_call_sessions')
-            .update({
-              'offer_sdp': offerSdp,
-              'updated_at': DateTime.now().toIso8601String(),
-            })
-            .eq('id', callId);
-      } catch (_) {}
+      if (res is Map) {
+        return Map<String, dynamic>.from(res);
+      }
+      return {'ok': true, 'status': 'saved'};
+    } catch (e) {
+      debugPrint('[VoipCallingRepo] saveOffer RPC warning: $e');
+      return {'ok': false, 'error': e.toString()};
     }
   }
 
-  /// Update call session when callee accepts
-  Future<void> answerCall({
+  /// Update call session when callee accepts (keeps connected_at null until media connects)
+  Future<Map<String, dynamic>> answerCall({
     required String callId,
     required String answerSdp,
     String? calleeDeviceId,
   }) async {
     try {
-      await _supabase.rpc('answer_voip_session', params: {
+      final res = await _supabase.rpc('answer_voip_session', params: {
         'p_call_id': callId,
         'p_answer_sdp': answerSdp,
         'p_device_id': calleeDeviceId,
       });
-    } catch (_) {
-      await _supabase
-          .from('voip_call_sessions')
-          .update({
-            'status': 'accepted',
-            'answer_sdp': answerSdp,
-            'connected_at': DateTime.now().toIso8601String(),
-            'callee_device_id': calleeDeviceId,
-            'updated_at': DateTime.now().toIso8601String(),
-          })
-          .eq('id', callId);
+      if (res is Map) {
+        return Map<String, dynamic>.from(res);
+      }
+      return {'ok': true, 'status': 'accepted'};
+    } catch (e) {
+      debugPrint('[VoipCallingRepo] answerCall RPC warning: $e');
+      return {'ok': false, 'error': e.toString()};
+    }
+  }
+
+  /// Atomically mark call as connected in DB once WebRTC media is established
+  Future<Map<String, dynamic>> markConnected(String callId) async {
+    try {
+      final res = await _supabase.rpc('mark_voip_session_connected', params: {
+        'p_call_id': callId,
+      });
+      if (res is Map) {
+        return Map<String, dynamic>.from(res);
+      }
+      return {'ok': true, 'status': 'connected'};
+    } catch (e) {
+      debugPrint('[VoipCallingRepo] markConnected warning: $e');
+      return {'ok': false, 'error': e.toString()};
     }
   }
 
@@ -225,37 +257,98 @@ class VoipCallingRepository {
         'end-voip-call',
         body: {'call_id': callId, 'status': status, 'end_reason': endReason},
       );
-    } catch (_) {
+    } catch (e) {
+      debugPrint('[VoipCallingRepo] end-voip-call error, falling back to RPC: $e');
       try {
         await _supabase.rpc('terminate_voip_session', params: {
           'p_call_id': callId,
           'p_status': status,
           'p_end_reason': endReason,
         });
-      } catch (_) {
-        await _supabase
-            .from('voip_call_sessions')
-            .update({
-              'status': status,
-              'end_reason': endReason,
-              'ended_at': DateTime.now().toIso8601String(),
-              'updated_at': DateTime.now().toIso8601String(),
-            })
-            .eq('id', callId);
+      } catch (rpcErr) {
+        debugPrint('[VoipCallingRepo] terminate_voip_session RPC error: $rpcErr');
       }
     }
   }
 
-  /// Single record fetch
-  Future<VoipCallSession?> getCallSession(String callId) async {
-    final res = await _supabase
-        .from('voip_call_sessions')
-        .select()
-        .eq('id', callId)
-        .maybeSingle();
+  static const List<IceServerModel> defaultIceServers = [
+    IceServerModel(
+      urls: [
+        'stun:34.40.33.208:3478',
+        'stun:stun.l.google.com:19302',
+        'stun:stun1.l.google.com:19302',
+      ],
+    ),
+    IceServerModel(
+      urls: [
+        'turn:34.40.33.208:3478?transport=udp',
+        'turn:34.40.33.208:3478?transport=tcp',
+      ],
+      username: 'keepsims',
+      credential: 'keepsims_turn_secret_2026_prod',
+    ),
+  ];
 
-    if (res == null) return null;
-    return VoipCallSession.fromJson(res, currentUserId: currentUserId);
+  /// Fetch authorized ICE servers (STUN + TURN) for an active call session
+  Future<List<IceServerModel>> getCallIceServers(String callId) async {
+    try {
+      final response = await _supabase.functions.invoke(
+        'get-turn-credentials',
+        body: {'call_id': callId},
+      );
+      final data = response.data as Map<String, dynamic>?;
+      final rawList = data?['ice_servers'] as List? ?? [];
+      if (rawList.isNotEmpty) {
+        final parsed = rawList
+            .map(
+              (e) => IceServerModel.fromJson(Map<String, dynamic>.from(e as Map)),
+            )
+            .toList();
+        final hasTurn = parsed.any(
+          (s) => s.urls.any((u) => u.startsWith('turn:') || u.startsWith('turns:')),
+        );
+        if (hasTurn) {
+          debugPrint('[VoipCallingRepo] Fetched ${parsed.length} authorized ICE servers from backend');
+          return parsed;
+        }
+      }
+    } catch (e) {
+      debugPrint('[VoipCallingRepo] get-turn-credentials invocation warning: $e');
+    }
+
+    debugPrint('[VoipCallingRepo] Using reliable default ICE servers with Open Relay TURN');
+    return defaultIceServers;
+  }
+
+  /// Single record fetch with automatic auth recovery and exponential retries
+  Future<VoipCallSession?> getCallSession(
+    String callId, {
+    int maxRetries = 3,
+  }) async {
+    for (int attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        final res = await AuthSessionManager.withAuthRecovery(
+          _supabase,
+          () => _supabase
+              .from('voip_call_sessions')
+              .select()
+              .eq('id', callId)
+              .maybeSingle(),
+        );
+
+        if (res != null) {
+          return VoipCallSession.fromJson(res, currentUserId: currentUserId);
+        }
+      } catch (e) {
+        debugPrint('[VoipCallingRepo] getCallSession error (attempt $attempt): $e');
+      }
+
+      if (attempt < maxRetries) {
+        // Backoff: 300ms, 600ms, 1200ms
+        await Future.delayed(Duration(milliseconds: 300 * (1 << attempt)));
+      }
+    }
+    return null;
   }
 
   /// Realtime stream of single call session

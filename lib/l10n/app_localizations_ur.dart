@@ -885,7 +885,8 @@ class AppLocalizationsUr extends AppLocalizations {
   String get fullyShielded => 'مکمل طور پر محفوظ';
 
   @override
-  String get dndDesc => 'مخصوص نیند کے اوقات میں پش نوٹیفکیشنز خاموش کریں';
+  String get dndDesc =>
+      'معمول کے انتباہات خاموش اوقات ختم ہونے تک رکتے ہیں۔ اہم لائن انتباہات پہلے آ سکتے ہیں؛ فون کی ڈو ناٹ ڈسٹرب ترتیب لاگو رہتی ہے۔';
 
   @override
   String get paymentsAutoFundTitle => 'ادائیگیاں اور آٹو-فنڈ';
@@ -898,7 +899,7 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get weeklyDigestDesc =>
-      'ہر اتوار صبح 9:00 بجے تمام SIM کارڈز کی مرتب شدہ سٹیٹس رپورٹ';
+      'ہر اتوار مقامی وقت صبح 9 بجے ہفتہ وار SIM صورتحال کا خلاصہ';
 
   @override
   String get borderSimulatorDesc =>

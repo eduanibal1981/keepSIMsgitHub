@@ -1,4 +1,5 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter/services.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:keep_sims/features/notifications/data/models/notification_model.dart';
 import 'package:keep_sims/features/notifications/data/models/alert_setting_model.dart';
@@ -136,9 +137,9 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
             .from('user_preferences')
             .insert({
               'user_id': userId,
-              'quiet_hours_start': '22:00:00',
-              'quiet_hours_end': '07:00:00',
-              'weekly_digest_enabled': true,
+              'quiet_hours_start': null,
+              'quiet_hours_end': null,
+              'weekly_digest_enabled': false,
               'theme': 'system',
               'language': 'en',
             })
@@ -148,6 +149,21 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
         return UserPreferences.fromJson(inserted);
       }
 
+      if (response['notification_timezone'] == null &&
+          response['quiet_hours_start'] != null &&
+          response['quiet_hours_end'] != null) {
+        try {
+          final zone = await const MethodChannel('com.keep_sims/timezone')
+              .invokeMethod<String>('getTimeZoneId');
+          if (zone != null && zone.isNotEmpty) {
+            await _supabase.from('user_preferences')
+                .update({'notification_timezone': zone})
+                .eq('id', response['id']);
+          }
+        } on MissingPluginException {
+          // Older/web clients keep their saved choice; no zone is invented.
+        }
+      }
       return UserPreferences.fromJson(response);
     } on PostgrestException catch (e) {
       throw Exception('Failed to load user preferences: ${e.message}');
@@ -155,15 +171,43 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
   }
 
   @override
-  Future<void> updateUserPreferences(UserPreferences preferences) async {
+  Future<void> updateUserPreferences(
+    UserPreferences preferences, {
+    bool? digestConsentChange,
+  }) async {
     try {
+      final payload = preferences.toJson();
+      final needsTimeZone = preferences.weeklyDigestEnabled ||
+          (preferences.quietHoursStart != null && preferences.quietHoursEnd != null);
+      if (needsTimeZone) {
+        final zone = await const MethodChannel('com.keep_sims/timezone')
+            .invokeMethod<String>('getTimeZoneId');
+        if (zone == null || zone.isEmpty) {
+          throw StateError('Device time zone is unavailable; notification schedule was not enabled.');
+        }
+        payload['notification_timezone'] = zone;
+      }
+      if (digestConsentChange != null) {
+        payload['weekly_digest_consent_at'] = digestConsentChange
+            ? DateTime.now().toUtc().toIso8601String()
+            : null;
+      }
       await _supabase
           .from('user_preferences')
-          .update(preferences.toJson())
+          .update(payload)
           .eq('id', preferences.id);
     } on PostgrestException catch (e) {
       throw Exception('Failed to update user preferences: ${e.message}');
     }
+  }
+
+  @override
+  Future<bool> hasWeeklyDigestConsent() async {
+    final row = await _supabase.from('user_preferences')
+        .select('weekly_digest_consent_at')
+        .eq('user_id', _currentUserId)
+        .maybeSingle();
+    return row?['weekly_digest_consent_at'] != null;
   }
 
   @override
@@ -189,6 +233,8 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
           .where((t) => !existingTypes.contains(t))
           .toList();
 
+      final defaultEmail = _supabase.auth.currentUser?.email;
+
       if (missingTypes.isNotEmpty) {
         final newChannels = missingTypes
             .map(
@@ -196,7 +242,9 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
                 'user_id': userId,
                 'channel_type': type,
                 'is_enabled': type == 'push',
-                'config': {},
+                'config': (type == 'email' && defaultEmail != null && defaultEmail.isNotEmpty)
+                    ? {'email': defaultEmail}
+                    : {},
               },
             )
             .toList();
@@ -209,6 +257,18 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
         existingChannels.addAll(
           List<Map<String, dynamic>>.from(inserted as List),
         );
+      }
+
+      // Ensure existing email channel has default login email if empty
+      for (final channel in existingChannels) {
+        if (channel['channel_type'] == 'email') {
+          final config = Map<String, dynamic>.from(channel['config'] ?? {});
+          final email = (config['email'] as String?)?.trim();
+          if ((email == null || email.isEmpty) && defaultEmail != null && defaultEmail.isNotEmpty) {
+            config['email'] = defaultEmail;
+            channel['config'] = config;
+          }
+        }
       }
 
       // Filter out webhook so it doesn't show in the UI for existing users who already have the row
@@ -289,7 +349,7 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
           'is_read': false,
           'action_url': simLineId != null ? '/sim-lines/detail/$simLineId' : null,
           'sim_line_id': simLineId,
-          'delivered_via': ['push'],
+          'delivered_via': <String>[],
         });
       }
     } on PostgrestException catch (e) {
@@ -305,29 +365,6 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
     String? simLineId,
   }) async {
     try {
-      final pushChannelRow = await _supabase
-          .from('notification_channels')
-          .select('is_enabled')
-          .eq('user_id', _currentUserId)
-          .eq('channel_type', 'push')
-          .maybeSingle();
-
-      final channelsResp = await _supabase
-          .from('notification_channels')
-          .select('channel_type')
-          .eq('user_id', _currentUserId)
-          .eq('is_enabled', true);
-
-      final activeChannels = (channelsResp as List)
-          .map((c) => c['channel_type'] as String)
-          .toList();
-
-      final isPushExplicitlyDisabled =
-          pushChannelRow != null && pushChannelRow['is_enabled'] == false;
-      if (activeChannels.isEmpty && !isPushExplicitlyDisabled) {
-        activeChannels.add('push'); // Default fallback only if not explicitly disabled
-      }
-
       await _supabase.from('notifications').insert({
         'user_id': _currentUserId,
         'category': category,
@@ -336,7 +373,7 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
         'is_read': false,
         'action_url': simLineId != null ? '/sim-lines/detail/$simLineId' : null,
         'sim_line_id': simLineId,
-        'delivered_via': activeChannels,
+        'delivered_via': <String>[],
       });
     } on PostgrestException catch (e) {
       throw Exception('Failed to send notification: ${e.message}');
@@ -366,29 +403,6 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
       final canonicalActionUrl =
           simLineId != null ? '/sim-lines/detail/$simLineId' : null;
 
-      final pushChannelRow = await _supabase
-          .from('notification_channels')
-          .select('is_enabled')
-          .eq('user_id', _currentUserId)
-          .eq('channel_type', 'push')
-          .maybeSingle();
-
-      final channelsResp = await _supabase
-          .from('notification_channels')
-          .select('channel_type')
-          .eq('user_id', _currentUserId)
-          .eq('is_enabled', true);
-
-      final activeChannels = (channelsResp as List)
-          .map((c) => c['channel_type'] as String)
-          .toList();
-
-      final isPushExplicitlyDisabled =
-          pushChannelRow != null && pushChannelRow['is_enabled'] == false;
-      if (activeChannels.isEmpty && !isPushExplicitlyDisabled) {
-        activeChannels.add('push');
-      }
-
       final resolvedTarget = target ??
           (simLineId != null
               ? {'route': '/sim-lines/detail/$simLineId', 'id': simLineId}
@@ -410,7 +424,7 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
         'is_read': false,
         'action_url': canonicalActionUrl,
         'sim_line_id': simLineId,
-        'delivered_via': activeChannels,
+        'delivered_via': <String>[],
         'schema_version': 2,
         'event_type': eventType.wireName,
         'source_event_key': sourceEventKey,

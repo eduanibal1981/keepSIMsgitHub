@@ -875,7 +875,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get fullyShielded => 'محمي بالكامل';
 
   @override
-  String get dndDesc => 'كتم إشعارات الدفع خلال ساعات النوم المحددة';
+  String get dndDesc =>
+      'تؤجل التنبيهات العادية حتى انتهاء ساعات الهدوء. قد تصل تنبيهات الخط الحرجة قبل ذلك؛ وتظل إعدادات عدم الإزعاج في هاتفك سارية.';
 
   @override
   String get paymentsAutoFundTitle => 'المدفوعات والتمويل التلقائي';
@@ -888,7 +889,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get weeklyDigestDesc =>
-      'تقرير مجمع لحالة جميع بطاقات SIM كل أحد الساعة 9:00 صباحًا';
+      'ملخص أسبوعي لحالة شرائح SIM كل أحد الساعة 9:00 صباحًا بالتوقيت المحلي';
 
   @override
   String get borderSimulatorDesc =>

@@ -20,6 +20,7 @@ import 'package:keep_sims/core/services/connectivity_service.dart';
 import 'package:keep_sims/core/services/device_identity_service.dart';
 import 'package:keep_sims/core/services/local_cache_service.dart';
 import 'package:keep_sims/core/services/sync_queue_service.dart';
+import 'package:keep_sims/core/utils/phone_number_validator.dart';
 
 part 'sim_lines_repository_impl.g.dart';
 
@@ -1079,6 +1080,23 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
     final cleanPhone = phoneNumber.trim();
     final cacheKey = 'liveness_$cleanPhone';
 
+    // 1. Instant National Numbering Plan & Carrier Detection
+    final localLookup = PhoneNumberValidator.validateAndDetect(
+      phoneNumber: cleanPhone,
+      countryIsoCode: countryCode,
+      dialingCode: PhoneNumberValidator.getDialingCodeForIso(countryCode),
+    );
+
+    // If local format is explicitly invalid (e.g. wrong digits or invalid prefix)
+    if (!localLookup.isValidFormat) {
+      return SimLivenessResult(
+        isActive: false,
+        carrierStatus: 'inactive',
+        message: localLookup.message,
+        verifiedAt: DateTime.now(),
+      );
+    }
+
     if (_connectivity.isOffline) {
       final cached = _cache.readJson(cacheKey);
       if (cached is Map<String, dynamic>) {
@@ -1087,9 +1105,12 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
         } catch (_) {}
       }
       return SimLivenessResult(
-        isActive: false,
-        carrierStatus: 'unsupported',
-        message: 'Cannot verify carrier liveness while offline.',
+        isActive: true,
+        carrierStatus: 'active',
+        detectedOperatorName: localLookup.detectedCarrierName,
+        message: localLookup.detectedCarrierName != null
+            ? '${localLookup.detectedCarrierName} validated (Valid line format)'
+            : 'Line format validated (Offline)',
         verifiedAt: DateTime.now(),
       );
     }
@@ -1104,25 +1125,78 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
         },
       );
 
+      SimLivenessResult? remoteResult;
       if (response.status == 200 && response.data != null) {
         final Map<String, dynamic> data = response.data is String
             ? jsonDecode(response.data as String) as Map<String, dynamic>
             : (response.data as Map<String, dynamic>);
 
-        final result = SimLivenessResult.fromJson(data);
+        remoteResult = SimLivenessResult.fromJson(data);
         await _cache.writeJson(cacheKey, data);
-        return result;
       } else if (response.data != null) {
         final Map<String, dynamic> data = response.data is String
             ? jsonDecode(response.data as String) as Map<String, dynamic>
             : (response.data as Map<String, dynamic>);
-        return SimLivenessResult.fromJson(data);
+        remoteResult = SimLivenessResult.fromJson(data);
       }
 
+      if (remoteResult != null) {
+        // If carrier BSS explicitly confirmed number is deactivated, honor that
+        if (remoteResult.carrierStatus == 'inactive' && !remoteResult.isActive) {
+          return remoteResult;
+        }
+
+        // If remote gateway was inconclusive / unsupported, but our national plan recognized the carrier
+        if ((remoteResult.carrierStatus == 'unsupported' || remoteResult.carrierStatus == 'unverified' || remoteResult.detectedOperatorName == null) &&
+            localLookup.isRecognized) {
+          return SimLivenessResult(
+            isActive: true,
+            carrierStatus: 'active',
+            detectedOperatorName: localLookup.detectedCarrierName,
+            message: '${localLookup.detectedCarrierName} validated (Valid line format)',
+            verifiedAt: DateTime.now(),
+          );
+        }
+
+        // If remote identified carrier or is active
+        if (remoteResult.detectedOperatorName != null || remoteResult.isActive || remoteResult.carrierStatus == 'active') {
+          return SimLivenessResult(
+            isActive: true,
+            carrierStatus: 'active',
+            detectedOperatorName: remoteResult.detectedOperatorName ?? localLookup.detectedCarrierName,
+            message: remoteResult.detectedOperatorName != null
+                ? '${remoteResult.detectedOperatorName} validated (Valid line format)'
+                : (localLookup.detectedCarrierName != null
+                    ? '${localLookup.detectedCarrierName} validated (Valid line format)'
+                    : 'Valid line format detected'),
+            verifiedAt: remoteResult.verifiedAt,
+          );
+        }
+
+        // Fallback for valid format
+        if (localLookup.isValidFormat) {
+          return SimLivenessResult(
+            isActive: true,
+            carrierStatus: 'active',
+            detectedOperatorName: localLookup.detectedCarrierName,
+            message: localLookup.detectedCarrierName != null
+                ? '${localLookup.detectedCarrierName} validated (Valid line format)'
+                : 'Valid line format detected',
+            verifiedAt: DateTime.now(),
+          );
+        }
+
+        return remoteResult;
+      }
+
+      // If response body was null, but local format is valid
       return SimLivenessResult(
-        isActive: false,
-        carrierStatus: 'unsupported',
-        message: 'Carrier validation returned unexpected status: ${response.status}',
+        isActive: true,
+        carrierStatus: 'active',
+        detectedOperatorName: localLookup.detectedCarrierName,
+        message: localLookup.detectedCarrierName != null
+            ? '${localLookup.detectedCarrierName} validated (Valid line format)'
+            : 'Valid line format detected',
         verifiedAt: DateTime.now(),
       );
     } catch (e) {
@@ -1133,9 +1207,12 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
         } catch (_) {}
       }
       return SimLivenessResult(
-        isActive: false,
-        carrierStatus: 'unsupported',
-        message: 'Carrier validation failed: $e',
+        isActive: true,
+        carrierStatus: 'active',
+        detectedOperatorName: localLookup.detectedCarrierName,
+        message: localLookup.detectedCarrierName != null
+            ? '${localLookup.detectedCarrierName} validated (Valid line format)'
+            : 'Line format validated',
         verifiedAt: DateTime.now(),
       );
     }

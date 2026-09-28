@@ -884,7 +884,8 @@ class AppLocalizationsHi extends AppLocalizations {
   String get fullyShielded => 'पूरी तरह सुरक्षित';
 
   @override
-  String get dndDesc => 'निर्धारित सोने के समय में पुश नोटिफिकेशन म्यूट करें';
+  String get dndDesc =>
+      'सामान्य अलर्ट शांत समय खत्म होने तक रुकते हैं। महत्वपूर्ण लाइन अलर्ट पहले आ सकते हैं; फ़ोन का डू नॉट डिस्टर्ब लागू रहता है।';
 
   @override
   String get paymentsAutoFundTitle => 'पेमेंट्स और ऑटो-फंड';
@@ -897,7 +898,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get weeklyDigestDesc =>
-      'हर रविवार सुबह 9:00 बजे सभी SIM कार्ड की संकलित स्टेटस रिपोर्ट';
+      'हर रविवार स्थानीय समय सुबह 9:00 बजे साप्ताहिक SIM स्थिति सारांश';
 
   @override
   String get borderSimulatorDesc =>

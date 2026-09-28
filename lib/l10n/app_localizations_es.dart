@@ -893,7 +893,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get dndDesc =>
-      'Silenciar notificaciones push durante las horas de sueño especificadas';
+      'Las alertas rutinarias esperan al fin del horario de silencio. Las alertas críticas pueden llegar antes; se respeta No molestar del dispositivo.';
 
   @override
   String get paymentsAutoFundTitle => 'Pagos y Financiamiento Automático';
@@ -906,7 +906,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get weeklyDigestDesc =>
-      'Informe de estado compilado de todas las tarjetas SIM cada domingo a las 9:00 AM';
+      'Resumen semanal del estado de las SIM cada domingo a las 9:00, hora local';
 
   @override
   String get borderSimulatorDesc =>

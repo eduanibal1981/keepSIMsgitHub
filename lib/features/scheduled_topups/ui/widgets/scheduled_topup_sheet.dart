@@ -29,6 +29,9 @@ import 'package:keep_sims/features/sim_lines/presentation/widgets/line_upgrade_s
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_line_detail_controller.dart';
 import 'package:keep_sims/features/sim_lines/domain/line_refill_quote.dart';
 import 'package:keep_sims/features/scheduled_topups/domain/refill_schedule_math.dart';
+import 'package:keep_sims/features/sim_lines/presentation/providers/sim_line_alert_clock_provider.dart';
+import 'package:keep_sims/features/sim_lines/data/models/sim_line_alert_clock_state.dart';
+import 'package:keep_sims/features/sim_lines/presentation/widgets/manual_recharge_dialog.dart';
 
 class ScheduledTopupSheet extends ConsumerStatefulWidget {
   final String simLineId;
@@ -366,10 +369,16 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                         child: ListView.separated(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
-                          itemCount: filtered.length,
+                          itemCount: filtered.length + 1,
                           separatorBuilder: (context, index) =>
                               Divider(color: context.dividerColor, height: 1),
                           itemBuilder: (context, index) {
+                            if (index == filtered.length) {
+                              return _buildAlarmClockChannelTile(
+                                context,
+                                currentLine,
+                              );
+                            }
                             final ch = filtered[index];
                             final type = ch['channel_type'] as String;
                             final isEnabled = ch['is_enabled'] ?? false;
@@ -1584,6 +1593,291 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
              ),
         ],
       ),
+    );
+  }
+
+  Widget _buildAlarmClockChannelTile(
+    BuildContext context,
+    SimLine? currentLine,
+  ) {
+    final clockAsync = ref.watch(
+      simLineAlertClockForLineProvider(widget.simLineId),
+    );
+    final clockState = clockAsync.value;
+
+    final bool isEligible = clockState?.isEligible == true;
+    final bool isNeedsDate =
+        clockState == null || clockState.isNeedsActivityDate;
+    final bool isNeedsAmount = clockState?.isNeedsAmount == true;
+    final bool isNeedsUsage = clockState?.isNeedsUsage == true;
+    final bool isMissingRule = clockState?.isMissingRule == true;
+    final bool isProtectionPaused = currentLine?.protectionPaused == true;
+
+    String badgeText = 'ACTIVE';
+    Color badgeColor = AppColors.success;
+    String subtitle = 'Active fail-safe · Rings loudly before deactivation';
+
+    if (isProtectionPaused) {
+      badgeText = 'PAUSED';
+      badgeColor = Colors.amber;
+      subtitle = 'Line protection paused · Resume to arm alarm';
+    } else if (isEligible) {
+      badgeText = 'ACTIVE';
+      badgeColor = AppColors.success;
+      final days = clockState?.daysRemaining;
+      subtitle = days != null
+          ? 'Active fail-safe · $days days until deactivation cutoff'
+          : 'Active fail-safe · Authoritative countdown armed';
+    } else if (isNeedsDate) {
+      badgeText = 'NEEDS DATE';
+      badgeColor = Colors.orange;
+      subtitle = 'Needs last recharge date to arm alarm countdown';
+    } else if (isNeedsAmount) {
+      badgeText = 'NEEDS TOPUP';
+      badgeColor = Colors.orange;
+      subtitle = 'Needs qualifying top-up amount to calculate cutoff';
+    } else if (isNeedsUsage) {
+      badgeText = 'NEEDS USAGE';
+      badgeColor = Colors.orange;
+      subtitle = 'Needs outgoing call or SMS activity to keep line alive';
+    } else if (isMissingRule) {
+      badgeText = 'VERIFYING';
+      badgeColor = Colors.orange;
+      subtitle = 'Carrier deactivation policy verification in progress';
+    } else {
+      badgeText = 'INACTIVE';
+      badgeColor = Colors.orange;
+      subtitle = 'Add qualifying activity to arm alarm countdown';
+    }
+
+    return ListTile(
+      dense: true,
+      onTap: () async {
+        await HapticHelper.lightTick();
+        if (!context.mounted) return;
+        if (isNeedsDate && currentLine != null) {
+          ManualRechargeDialog.show(context: context, simLine: currentLine);
+        } else {
+          _showAlarmClockInfoDialog(
+            context,
+            isEligible,
+            subtitle,
+            currentLine,
+            clockState,
+          );
+        }
+      },
+      leading: Icon(
+        Icons.alarm_on_rounded,
+        color: isEligible ? const Color(0xFFF43F5E) : AppColors.textTertiaryDark,
+        size: 20,
+      ),
+      title: Text(
+        'Alarm Clock',
+        style: AppTextStyles.bodyMedium.copyWith(
+          color: context.onSurfaceColor,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      subtitle: Padding(
+        padding: const EdgeInsets.only(top: 2.0),
+        child: Text(
+          subtitle,
+          style: AppTextStyles.bodySmall.copyWith(
+            color: isEligible
+                ? context.onSurfaceColor.withValues(alpha: 0.5)
+                : Colors.orange.shade400,
+            fontSize: 11,
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ),
+      trailing: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: badgeColor.withValues(alpha: isEligible ? 0.1 : 0.15),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: badgeColor.withValues(alpha: isEligible ? 0.3 : 0.4),
+          ),
+        ),
+        child: Text(
+          badgeText,
+          style: AppTextStyles.labelSmall.copyWith(
+            color: badgeColor,
+            fontWeight: FontWeight.bold,
+            fontSize: 10,
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showAlarmClockInfoDialog(
+    BuildContext context,
+    bool isEligible,
+    String subtitle,
+    SimLine? currentLine,
+    SimLineAlertClockState? clockState,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: context.cardColor,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 36,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: context.dividerColor,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF43F5E).withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(
+                      Icons.alarm_on_rounded,
+                      color: Color(0xFFF43F5E),
+                      size: 22,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Alarm Clock (Last Line of Defense)',
+                          style: AppTextStyles.titleMedium.copyWith(
+                            color: context.onSurfaceColor,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          isEligible
+                              ? 'Armed & Monitoring Line'
+                              : 'Action Required to Arm',
+                          style: AppTextStyles.bodySmall.copyWith(
+                            color: isEligible
+                                ? AppColors.success
+                                : Colors.orange,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: context.scaffoldBackgroundColor,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: context.dividerColor),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Protection Status for ${currentLine?.phoneNumber ?? widget.simNickname}:',
+                      style: AppTextStyles.labelSmall.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: context.onSurfaceColor,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: context.onSurfaceColor.withValues(alpha: 0.7),
+                        height: 1.4,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'The Alarm Clock acts as your device\'s hardware fail-safe. If all other alerts (push, email, WhatsApp, Telegram) fail to resolve deactivation risk, a loud emergency alarm sounds in the final 24 hours before your SIM is permanently recycled by the carrier.',
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: context.onSurfaceColor.withValues(alpha: 0.6),
+                  height: 1.4,
+                  fontSize: 11.5,
+                ),
+              ),
+              const SizedBox(height: 18),
+              if (clockState?.isNeedsActivityDate == true && currentLine != null)
+                SizedBox(
+                  width: double.infinity,
+                  height: 44,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      ManualRechargeDialog.show(
+                        context: context,
+                        simLine: currentLine,
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    icon: const Icon(Icons.edit_calendar_rounded, size: 18),
+                    label: const Text('Record Last Recharge Date to Arm'),
+                  ),
+                )
+              else
+                SizedBox(
+                  width: double.infinity,
+                  height: 44,
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      Navigator.of(context).pop();
+                      context.push('/notifications/settings');
+                    },
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: context.onSurfaceColor,
+                      side: BorderSide(color: context.dividerColor),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    icon: const Icon(
+                      Icons.notifications_active_outlined,
+                      size: 18,
+                    ),
+                    label: const Text('Configure & Test in Alert Settings ➜'),
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

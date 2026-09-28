@@ -10,10 +10,12 @@ import 'package:proximity_sensor/proximity_sensor.dart';
 class CallAudioSessionManager {
   AudioSession? _audioSession;
   StreamSubscription<dynamic>? _proximitySub;
+  StreamSubscription<AudioDevicesChangedEvent>? _devicesSub;
   bool _isNear = false;
   bool _isSpeaker = false;
 
   void Function(bool isNear)? onProximityChanged;
+  void Function(bool isSpeaker)? onRouteChanged;
 
   bool get isSpeaker => _isSpeaker;
   bool get isNear => _isNear;
@@ -27,7 +29,7 @@ class CallAudioSessionManager {
           avAudioSessionCategory: AVAudioSessionCategory.playAndRecord,
           avAudioSessionCategoryOptions:
               AVAudioSessionCategoryOptions.allowBluetooth |
-              AVAudioSessionCategoryOptions.defaultToSpeaker,
+              AVAudioSessionCategoryOptions.allowBluetoothA2dp,
           avAudioSessionMode: AVAudioSessionMode.voiceChat,
           androidAudioAttributes: const AndroidAudioAttributes(
             contentType: AndroidAudioContentType.speech,
@@ -39,6 +41,14 @@ class CallAudioSessionManager {
       );
 
       await _audioSession!.setActive(true);
+
+      // Default routing to earpiece initially (matching call UI state)
+      await Helper.setSpeakerphoneOn(false);
+
+      // Listen for audio device/route changes (Bluetooth / wired headset plug/unplug)
+      _devicesSub = _audioSession!.devicesChangedEventStream.listen((event) {
+        debugPrint('[AudioSession] Audio devices changed: added=${event.devicesAdded}, removed=${event.devicesRemoved}');
+      });
 
       // Listen to proximity sensor on mobile devices
       if (!kIsWeb &&
@@ -66,8 +76,18 @@ class CallAudioSessionManager {
     _isSpeaker = enableSpeaker;
     try {
       await Helper.setSpeakerphoneOn(enableSpeaker);
+      onRouteChanged?.call(enableSpeaker);
     } catch (e) {
       debugPrint('[AudioSession] Set speakerphone error: $e');
+    }
+  }
+
+  /// Activate or reactivate audio session (e.g. CallKit didActivateAudioSession)
+  Future<void> setActive(bool active) async {
+    try {
+      await _audioSession?.setActive(active);
+    } catch (e) {
+      debugPrint('[AudioSession] setActive error: $e');
     }
   }
 
@@ -76,6 +96,11 @@ class CallAudioSessionManager {
     try {
       await _proximitySub?.cancel();
       _proximitySub = null;
+      await _devicesSub?.cancel();
+      _devicesSub = null;
+      try {
+        await Helper.setSpeakerphoneOn(false);
+      } catch (_) {}
       await _audioSession?.setActive(false);
       _audioSession = null;
       _isNear = false;

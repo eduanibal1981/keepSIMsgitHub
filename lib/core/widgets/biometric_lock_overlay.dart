@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:keep_sims/core/services/biometric_auth_service.dart';
 import 'package:keep_sims/core/services/biometric_lock_controller.dart';
+import 'package:keep_sims/features/voip_calling/presentation/controllers/voip_calling_controller.dart';
 import 'package:keep_sims/l10n/app_localizations.dart';
 
 class BiometricLockOverlay extends ConsumerStatefulWidget {
@@ -111,6 +112,12 @@ class _BiometricLockOverlayState extends ConsumerState<BiometricLockOverlay>
   Widget build(BuildContext context) {
     final lockState = ref.watch(biometricLockControllerProvider);
     final isLockEnabled = lockState.value ?? false;
+
+    // Do NOT lock or obscure the screen if an incoming or active VoIP call is in progress
+    final voipState = ref.watch(voipCallingControllerProvider);
+    if (voipState.isActive) {
+      return widget.child;
+    }
 
     // React if lock state changes while app is active (e.g. initial load)
     if (isLockEnabled && !_isLocked && lockState.isLoading) {

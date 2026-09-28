@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import 'package:keep_sims/core/router/app_router.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/features/voip_calling/presentation/controllers/voip_calling_controller.dart';
+import 'package:keep_sims/features/voip_calling/presentation/widgets/call_quality_hud.dart';
 
 class WhatsAppCallScreen extends ConsumerStatefulWidget {
   const WhatsAppCallScreen({super.key});
@@ -68,8 +69,28 @@ class _WhatsAppCallScreenState extends ConsumerState<WhatsAppCallScreen>
             }
           }
         });
+      } else if (!next.isActive && !next.isTerminal && next.status.isEmpty) {
+        final router = GoRouter.of(context);
+        if (router.canPop()) {
+          router.pop();
+        } else {
+          router.go(AppRoutes.home);
+        }
       }
     });
+
+    if (!state.isActive && !state.isTerminal && state.status.isEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          final router = GoRouter.of(context);
+          if (router.canPop()) {
+            router.pop();
+          } else {
+            router.go(AppRoutes.home);
+          }
+        }
+      });
+    }
 
     // Proximity Sensor Blackout: Blank screen completely when phone is pressed against ear
     if (state.isNearEar && state.isActive) {
@@ -181,28 +202,51 @@ class _WhatsAppCallScreenState extends ConsumerState<WhatsAppCallScreen>
                             }
                           },
                         ),
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.lock_rounded,
-                            size: 14,
-                            color: AppColors.secondary,
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            'End-to-end encrypted',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.white.withValues(alpha: 0.7),
-                              letterSpacing: 0.3,
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.lock_rounded,
+                              size: 14,
+                              color: AppColors.secondary,
                             ),
+                            const SizedBox(width: 6),
+                            Text(
+                              'End-to-end encrypted',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.white.withValues(alpha: 0.7),
+                                letterSpacing: 0.3,
+                              ),
+                            ),
+                          ],
+                        ),
+                        IconButton(
+                          icon: Icon(
+                            Icons.network_check_rounded,
+                            color: state.showQualityHud
+                                ? AppColors.secondary
+                                : Colors.white60,
+                            size: 24,
                           ),
-                        ],
-                      ),
-                      const SizedBox(width: 48), // Balancing spacer
-                    ],
+                          tooltip: 'Quality Telemetry HUD',
+                          onPressed: () {
+                            ref
+                                .read(voipCallingControllerProvider.notifier)
+                                .toggleQualityHud();
+                          },
+                        ),
+                      ],
+                    ),
                   ),
-                ),
+
+                  // Optional Real-Time WebRTC Quality HUD
+                  if (state.showQualityHud && state.qualitySnapshot != null)
+                    CallQualityHud(
+                      snapshot: state.qualitySnapshot!,
+                      sessionReport: ref
+                          .read(voipCallingControllerProvider.notifier)
+                          .exportDiagnosticsReport(),
+                    ),
 
                 const Spacer(flex: 1),
 
@@ -389,6 +433,14 @@ class _WhatsAppCallScreenState extends ConsumerState<WhatsAppCallScreen>
                                       voipCallingControllerProvider.notifier,
                                     )
                                     .endCall();
+                                if (!state.isActive) {
+                                  final router = GoRouter.of(context);
+                                  if (router.canPop()) {
+                                    router.pop();
+                                  } else {
+                                    router.go(AppRoutes.home);
+                                  }
+                                }
                               },
                               child: Container(
                                 width: 62,

@@ -1687,7 +1687,7 @@ abstract class AppLocalizations {
   /// No description provided for @dndDesc.
   ///
   /// In en, this message translates to:
-  /// **'Mute push notifications during specified sleep hours'**
+  /// **'Routine alerts wait until quiet hours end. Critical line alerts may arrive sooner; device Do Not Disturb still applies.'**
   String get dndDesc;
 
   /// No description provided for @paymentsAutoFundTitle.
@@ -1711,7 +1711,7 @@ abstract class AppLocalizations {
   /// No description provided for @weeklyDigestDesc.
   ///
   /// In en, this message translates to:
-  /// **'Compiled status report of all SIM cards every Sunday at 9:00 AM'**
+  /// **'Weekly SIM status summary every Sunday at 9:00 AM local time'**
   String get weeklyDigestDesc;
 
   /// No description provided for @borderSimulatorDesc.

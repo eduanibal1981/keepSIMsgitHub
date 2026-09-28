@@ -11,6 +11,17 @@ import CoreTelephony
     // Register eSIM platform channel on the root FlutterViewController
     if let controller = window?.rootViewController as? FlutterViewController {
       setupEsimChannel(controller: controller)
+      let timeZoneChannel = FlutterMethodChannel(
+        name: "com.keep_sims/timezone",
+        binaryMessenger: controller.binaryMessenger
+      )
+      timeZoneChannel.setMethodCallHandler { call, result in
+        if call.method == "getTimeZoneId" {
+          result(TimeZone.current.identifier)
+        } else {
+          result(FlutterMethodNotImplemented)
+        }
+      }
       // G4: Lock Screen / Dynamic Island live activity for data remaining.
       LiveActivityBridge.register(controller: controller)
     }

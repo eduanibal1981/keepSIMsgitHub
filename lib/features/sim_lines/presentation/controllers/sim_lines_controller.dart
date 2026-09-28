@@ -512,15 +512,18 @@ class SimLinesController extends _$SimLinesController {
   Future<void> deleteSimLine(String id) async {
     final previousList = state.value ?? [];
     state = const AsyncLoading<List<SimLine>>().copyWithPrevious(state);
-    state = await AsyncValue.guard(() async {
+    try {
       final repo = ref.read(simLinesRepositoryProvider);
       await repo.deleteSimLine(id);
 
       // Invalidate auto-refill schedules to keep local state synced with Supabase cascade deletes
       ref.invalidate(scheduledTopupControllerProvider);
 
-      return previousList.where((item) => item.id != id).toList();
-    });
+      state = AsyncData(previousList.where((item) => item.id != id).toList());
+    } catch (e) {
+      state = AsyncData(previousList);
+      rethrow;
+    }
   }
 
 

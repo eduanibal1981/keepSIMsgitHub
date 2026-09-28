@@ -1,4 +1,4 @@
-﻿import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -31,22 +31,77 @@ async function resolveUserId(req: Request): Promise<string | null> {
   return user?.id ?? null;
 }
 
-function getIceServers() {
-  const defaultServers = [
-    { urls: ["stun:stun.l.google.com:19302", "stun:stun1.l.google.com:19302"] },
+async function generateIceServers(userId: string): Promise<{ iceServers: any[]; hasTurn: boolean }> {
+  const servers: any[] = [
+    { urls: ["stun:34.40.33.208:3478", "stun:stun.l.google.com:19302", "stun:stun1.l.google.com:19302"] },
   ];
+
+  const turnHost = Deno.env.get("TURN_HOST") || Deno.env.get("COTURN_HOST") || "34.40.33.208";
+  const turnSecret = Deno.env.get("TURN_SHARED_SECRET") || Deno.env.get("COTURN_SHARED_SECRET") || "keepsims_turn_secret_2026_prod";
+
+  // 1. Dynamic RFC 5766 HMAC-SHA1 Ephemeral Credentials (Coturn / RFC 5766)
+  if (turnHost && turnSecret) {
+    const ttlSeconds = 14400; // 4 hours standard ephemeral token lifetime
+    const expiry = Math.floor(Date.now() / 1000) + ttlSeconds;
+    const username = `${expiry}:${userId}`;
+
+    const encoder = new TextEncoder();
+    const key = await crypto.subtle.importKey(
+      "raw",
+      encoder.encode(turnSecret),
+      { name: "HMAC", hash: "SHA-1" },
+      false,
+      ["sign"],
+    );
+    const signature = await crypto.subtle.sign("HMAC", key, encoder.encode(username));
+    const credential = btoa(String.fromCharCode(...new Uint8Array(signature)));
+
+    const udpPort = Deno.env.get("TURN_PORT") || "3478";
+    const tlsPort = Deno.env.get("TURN_TLS_PORT") || "443";
+
+    servers.push({
+      urls: [
+        `turn:${turnHost}:${udpPort}?transport=udp`,
+        `turn:${turnHost}:${udpPort}?transport=tcp`,
+        `turns:${turnHost}:${tlsPort}?transport=tcp`,
+      ],
+      username,
+      credential,
+    });
+    return { iceServers: servers, hasTurn: true };
+  }
+
+  // 2. Static TURN configuration fallback
   const turnUrls = Deno.env.get("TURN_URLS");
   const turnUsername = Deno.env.get("TURN_USERNAME");
   const turnCredential = Deno.env.get("TURN_CREDENTIAL");
 
   if (turnUrls && turnUsername && turnCredential) {
-    defaultServers.push({
+    servers.push({
       urls: turnUrls.split(",").map((u) => u.trim()),
       username: turnUsername,
       credential: turnCredential,
-    } as any);
+    });
+    return { iceServers: servers, hasTurn: true };
   }
-  return defaultServers;
+
+  // 3. Open Relay fallback for testing and development
+  const disableOpenRelay = Deno.env.get("DISABLE_OPENRELAY") === "true";
+  if (!disableOpenRelay) {
+    servers.push({
+      urls: [
+        "turn:global.relay.metered.ca:80",
+        "turn:global.relay.metered.ca:443",
+        "turn:global.relay.metered.ca:443?transport=tcp",
+        "turns:global.relay.metered.ca:443?transport=tcp",
+      ],
+      username: "openrelayproject",
+      credential: "openrelayproject",
+    });
+    return { iceServers: servers, hasTurn: true };
+  }
+
+  return { iceServers: servers, hasTurn: false };
 }
 
 serve(async (req: Request) => {
@@ -88,17 +143,24 @@ serve(async (req: Request) => {
     }
     const calleeProfile = calleeRows[0];
 
-    // 3. Check if Callee is already in an active call
+    // 3. Check if Callee is already in an active call (ignore stale sessions > 60s)
     const activeCheckRes = await fetch(
-      `${SUPABASE_URL}/rest/v1/voip_call_sessions?or=(callee_id.eq.${callee_id},caller_id.eq.${callee_id})&status=in.(initiating,ringing,accepted)&select=id`,
+      `${SUPABASE_URL}/rest/v1/voip_call_sessions?or=(callee_id.eq.${callee_id},caller_id.eq.${callee_id})&status=in.(initiating,ringing,accepted)&select=id,status,created_at`,
       { headers: serviceHeaders }
     );
     const activeCalls = await activeCheckRes.json();
     if (activeCalls && activeCalls.length > 0) {
-      return jsonResponse({
-        status: "busy",
-        message: "User is currently on another call.",
-      }, 200);
+      const now = Date.now();
+      const genuineActiveCalls = activeCalls.filter((c: any) => {
+        const createdAt = new Date(c.created_at).getTime();
+        return (now - createdAt) < 60000;
+      });
+      if (genuineActiveCalls.length > 0) {
+        return jsonResponse({
+          status: "busy",
+          message: "User is currently on another call.",
+        }, 200);
+      }
     }
 
     // 4. Create Call Session
@@ -182,12 +244,13 @@ serve(async (req: Request) => {
       }
     }
 
-    const iceServers = getIceServers();
+    const { iceServers, hasTurn } = await generateIceServers(callerId);
 
     return jsonResponse({
       ok: true,
       call_id: callId,
       status: "initiating",
+      has_turn: hasTurn,
       ice_servers: iceServers,
       callee: {
         id: calleeProfile.id,

@@ -1,11 +1,12 @@
 /// KeepSIMs — My Virtual DID Numbers & Smart Call Setup Screen
 ///
 /// Features:
-/// 1. Provisioned Virtual Numbers list with real country, status, and routing preference
-/// 2. Inbound routing action selector (Ring In-App, Forward, Voicemail)
-/// 3. Integrated KeepSIMs Smart Call Setup card with Home Operator / SIM line context
-/// 4. MMI code copy and dialer launcher with cancellation instructions
-/// 5. Transparent roaming notice (explaining home-operator vs KeepSIMs charges)
+/// 1. Provisioned Virtual Numbers list matching Image 2 with Inbound Action dropdown
+/// 2. "+ Add Number" button triggering the live Telnyx purchase flow (with intelcallfee)
+/// 3. KeepSIMs Smart Call Setup card with real carrier MMI divert rules (all 22 countries)
+/// 4. Step 1: Home Operator selector with real carriers (e.g. STC Saudi, Jio, du, Etisalat)
+/// 5. Step 2: Live MMI code generated per carrier (e.g. **21* for STC, *401* for Jio)
+/// 6. "How it works" guidance and cancellation instructions
 library;
 
 import 'package:flutter/material.dart';
@@ -16,14 +17,20 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:keep_sims/core/router/app_router.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
+import 'package:keep_sims/features/calling/data/models/carrier_divert_model.dart';
 import 'package:keep_sims/features/calling/data/models/virtual_did_model.dart';
 import 'package:keep_sims/features/calling/data/repositories/calling_repository.dart';
-import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
+import 'package:keep_sims/features/calling/presentation/widgets/buy_virtual_number_sheet.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
 
 final virtualDidsProvider =
     FutureProvider.autoDispose<List<VirtualDidNumber>>((ref) async {
   return ref.watch(callingRepositoryProvider).getVirtualDids();
+});
+
+final carrierDivertRulesProvider =
+    FutureProvider.autoDispose<List<CarrierDivertRule>>((ref) async {
+  return ref.watch(callingRepositoryProvider).getCarrierDivertRules();
 });
 
 class MyNumbersScreen extends ConsumerStatefulWidget {
@@ -35,7 +42,7 @@ class MyNumbersScreen extends ConsumerStatefulWidget {
 
 class _MyNumbersScreenState extends ConsumerState<MyNumbersScreen> {
   String? _selectedDidId;
-  String? _selectedSimLineId;
+  String? _selectedCarrierId;
 
   void _copyToClipboard(String text, String label) {
     HapticHelper.lightTick();
@@ -62,101 +69,45 @@ class _MyNumbersScreenState extends ConsumerState<MyNumbersScreen> {
     }
   }
 
-  void _showForwardingOptions(BuildContext context, VirtualDidNumber did) {
-    HapticHelper.lightTick();
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: AppColors.darkCard,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (ctx) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 36,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.white24,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'Route Inbound Calls To:',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-              const SizedBox(height: 12),
-              ListTile(
-                leading: const Icon(Icons.phone_iphone, color: Color(0xFF22C55E)),
-                title: const Text('Ring In-App (VoIP)', style: TextStyle(color: Colors.white)),
-                subtitle: const Text(
-                  'Rings inside KeepSIMs over travel eSIM data or Wi-Fi (No roaming fee)',
-                  style: TextStyle(color: Colors.white54, fontSize: 12),
-                ),
-                trailing: did.forwardMode == 'app'
-                    ? const Icon(Icons.check_circle, color: Color(0xFF22C55E))
-                    : null,
-                onTap: () async {
-                  Navigator.pop(ctx);
-                  await ref.read(callingRepositoryProvider).updateDidForwarding(
-                        didId: did.id,
-                        forwardMode: 'app',
-                      );
-                  ref.invalidate(virtualDidsProvider);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.voicemail, color: Colors.purpleAccent),
-                title: const Text('Direct to Voicemail', style: TextStyle(color: Colors.white)),
-                subtitle: const Text(
-                  'Inbound caller leaves a voicemail in your KeepSIMs inbox',
-                  style: TextStyle(color: Colors.white54, fontSize: 12),
-                ),
-                trailing: did.forwardMode == 'voicemail'
-                    ? const Icon(Icons.check_circle, color: Colors.purpleAccent)
-                    : null,
-                onTap: () async {
-                  Navigator.pop(ctx);
-                  await ref.read(callingRepositoryProvider).updateDidForwarding(
-                        didId: did.id,
-                        forwardMode: 'voicemail',
-                      );
-                  ref.invalidate(virtualDidsProvider);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.phone_forwarded, color: AppColors.primary),
-                title: const Text('Forward to External Phone', style: TextStyle(color: Colors.white)),
-                subtitle: const Text(
-                  'Forward to another phone number via telephone network',
-                  style: TextStyle(color: Colors.white54, fontSize: 12),
-                ),
-                trailing: did.forwardMode == 'pstn'
-                    ? const Icon(Icons.check_circle, color: AppColors.primary)
-                    : null,
-                onTap: () {
-                  Navigator.pop(ctx);
-                  _showPstnForwardDialog(context, did);
-                },
-              ),
-              const SizedBox(height: 12),
-            ],
-          ),
-        ),
-      ),
-    );
+  String _formatDisplayNumber(String phone) {
+    // Format US numbers nicely e.g. +1 (754) 318-0369
+    final digits = phone.replaceAll(RegExp(r'\D'), '');
+    if (digits.length == 11 && digits.startsWith('1')) {
+      final area = digits.substring(1, 4);
+      final mid = digits.substring(4, 7);
+      final last = digits.substring(7);
+      return '+1 ($area) $mid-$last';
+    } else if (digits.length == 12 && digits.startsWith('44')) {
+      final area = digits.substring(2, 4);
+      final part1 = digits.substring(4, 8);
+      final part2 = digits.substring(8);
+      return '+44 $area $part1 $part2';
+    }
+    return phone;
+  }
+
+  String _getNumberTitle(VirtualDidNumber did) {
+    final code = did.countryCode.toUpperCase();
+    if (code == 'US') return 'US Cloud Gateway';
+    if (code == 'GB') return 'London Virtual DID';
+    if (code == 'CA') return 'Canada Gateway';
+    if (code == 'DE') return 'Germany Cloud DID';
+    return '${did.countryName} DID';
+  }
+
+  void _openBuyNumberSheet() async {
+    final newDid = await BuyVirtualNumberSheet.show(context);
+    if (newDid != null) {
+      setState(() {
+        _selectedDidId = newDid.id;
+      });
+      ref.invalidate(virtualDidsProvider);
+    }
   }
 
   void _showPstnForwardDialog(BuildContext context, VirtualDidNumber did) {
-    final controller = TextEditingController(text: did.forwardDestination ?? '');
+    final controller =
+        TextEditingController(text: did.forwardDestination ?? '');
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -187,7 +138,8 @@ class _MyNumbersScreenState extends ConsumerState<MyNumbersScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel', style: TextStyle(color: Colors.white54)),
+            child:
+                const Text('Cancel', style: TextStyle(color: Colors.white54)),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -216,6 +168,7 @@ class _MyNumbersScreenState extends ConsumerState<MyNumbersScreen> {
   @override
   Widget build(BuildContext context) {
     final didsAsync = ref.watch(virtualDidsProvider);
+    final carriersAsync = ref.watch(carrierDivertRulesProvider);
     final simLinesState = ref.watch(simLinesControllerProvider);
     final simLines = simLinesState.value ?? [];
 
@@ -240,32 +193,62 @@ class _MyNumbersScreenState extends ConsumerState<MyNumbersScreen> {
             }
           },
         ),
-        title: const Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              'KeepSIMs Smart Calling',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w700,
-                fontSize: 16,
+            const Flexible(
+              child: Text(
+                'KeepSIMs',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 17,
+                ),
+                overflow: TextOverflow.ellipsis,
               ),
             ),
-            Text(
-              'Numbers & Smart Call Setup',
-              style: TextStyle(
-                color: Colors.white54,
-                fontWeight: FontWeight.w500,
-                fontSize: 11,
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                color: const Color(0xFF6366F1).withValues(alpha: 0.25),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: const Color(0xFF818CF8).withValues(alpha: 0.4),
+                ),
+              ),
+              child: const Text(
+                'Smart Calling',
+                style: TextStyle(
+                  color: Color(0xFF818CF8),
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ],
+        ),
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(16),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Zero-Roaming Cloud Calling & DID Sandbox',
+                style: TextStyle(
+                  color: Colors.white54,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ),
+          ),
         ),
       ),
       body: SafeArea(
         child: didsAsync.when(
           data: (dids) {
-            // Select active DID for setup card if not yet chosen
             final VirtualDidNumber? selectedDid = dids.isNotEmpty
                 ? dids.firstWhere(
                     (d) => d.id == _selectedDidId,
@@ -273,62 +256,73 @@ class _MyNumbersScreenState extends ConsumerState<MyNumbersScreen> {
                   )
                 : null;
 
-            // Select active SIM line
-            final selectedLine = simLines.firstWhere(
-              (l) => l.id == _selectedSimLineId,
-              orElse: () => simLines.isNotEmpty
-                  ? simLines.first
-                  : const SimLine(
-                      id: '',
-                      userId: '',
-                      phoneNumber: '',
-                      avatarIcon: 'sim_card',
-                    ),
-            );
-
             return ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               children: [
-                // Section: Provisioned Numbers Header
+                // ── Section 1: Provisioned Virtual Numbers Header matching Image 2 ──
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'Provisioned Virtual Numbers',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
+                    const Expanded(
+                      child: Text(
+                        'Provisioned Virtual Numbers',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                    Text(
-                      '${dids.length} active',
-                      style: const TextStyle(
-                        color: Colors.white38,
-                        fontSize: 12,
+                    const SizedBox(width: 8),
+                    InkWell(
+                      onTap: _openBuyNumberSheet,
+                      borderRadius: BorderRadius.circular(8),
+                      child: const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.add, color: Color(0xFF818CF8), size: 16),
+                            SizedBox(width: 4),
+                            Text(
+                              'Add Number',
+                              style: TextStyle(
+                                color: Color(0xFF818CF8),
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 4),
+                const Text(
+                  'Use your KeepSIMs numbers for inbound calls anywhere in the world.',
+                  style: TextStyle(color: Colors.white38, fontSize: 11),
+                ),
+                const SizedBox(height: 12),
 
+                // ── Empty State or Numbers List ──
                 if (dids.isEmpty)
                   Container(
-                    padding: const EdgeInsets.all(20),
+                    padding: const EdgeInsets.all(22),
                     decoration: BoxDecoration(
                       color: AppColors.darkCard,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(color: AppColors.darkBorder),
                     ),
-                    child: const Column(
+                    child: Column(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.dialer_sip,
-                          size: 40,
+                          size: 44,
                           color: Colors.white38,
                         ),
-                        SizedBox(height: 12),
-                        Text(
+                        const SizedBox(height: 12),
+                        const Text(
                           'No Virtual Numbers Provisioned',
                           style: TextStyle(
                             color: Colors.white,
@@ -336,11 +330,24 @@ class _MyNumbersScreenState extends ConsumerState<MyNumbersScreen> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        SizedBox(height: 6),
-                        Text(
+                        const SizedBox(height: 6),
+                        const Text(
                           'A KeepSIMs virtual number receives calls from your home carrier while you are abroad, routing them over your travel eSIM data.',
                           textAlign: TextAlign.center,
                           style: TextStyle(color: Colors.white54, fontSize: 12),
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          icon: const Icon(Icons.add, size: 16),
+                          label: const Text('Add Virtual Number'),
+                          onPressed: _openBuyNumberSheet,
                         ),
                       ],
                     ),
@@ -357,140 +364,193 @@ class _MyNumbersScreenState extends ConsumerState<MyNumbersScreen> {
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
                           color: isSelectedForSetup
-                              ? AppColors.primary.withValues(alpha: 0.6)
+                              ? const Color(0xFF6366F1).withValues(alpha: 0.6)
                               : AppColors.darkBorder,
                         ),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          // Card Row: Flag, Title, ACTIVE badge, Three-dots
                           Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(did.flagEmoji, style: const TextStyle(fontSize: 22)),
-                              const SizedBox(width: 10),
+                              Container(
+                                width: 36,
+                                height: 36,
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.white.withValues(alpha: 0.05),
+                                ),
+                                child: Text(
+                                  did.flagEmoji,
+                                  style: const TextStyle(fontSize: 22),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
+                                    Wrap(
+                                      crossAxisAlignment:
+                                          WrapCrossAlignment.center,
+                                      spacing: 8,
+                                      runSpacing: 4,
+                                      children: [
+                                        Text(
+                                          _getNumberTitle(did),
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 6,
+                                            vertical: 2,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFF22C55E)
+                                                .withValues(alpha: 0.15),
+                                            borderRadius:
+                                                BorderRadius.circular(6),
+                                          ),
+                                          child: Text(
+                                            did.status.toUpperCase(),
+                                            style: const TextStyle(
+                                              color: Color(0xFF22C55E),
+                                              fontSize: 9,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 4),
                                     Text(
-                                      did.phoneNumber,
+                                      _formatDisplayNumber(did.phoneNumber),
                                       style: const TextStyle(
                                         color: Colors.white,
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
-                                        letterSpacing: 1.0,
-                                      ),
-                                    ),
-                                    Text(
-                                      did.countryName,
-                                      style: const TextStyle(
-                                        color: Colors.white54,
-                                        fontSize: 11,
+                                        letterSpacing: 0.8,
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 3,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF22C55E).withValues(alpha: 0.15),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Text(
-                                  did.status.toUpperCase(),
-                                  style: const TextStyle(
-                                    color: Color(0xFF22C55E),
-                                    fontSize: 9,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const Divider(color: Colors.white12, height: 20),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
+
+                              // Inbound Action Selector Matching Image 2
                               Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
                                   const Text(
-                                    'Routing Mode:',
+                                    'Inbound Action',
                                     style: TextStyle(
                                       color: Colors.white38,
                                       fontSize: 10,
                                     ),
                                   ),
                                   const SizedBox(height: 2),
-                                  Text(
-                                    did.forwardModeDisplay,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withValues(alpha: 0.05),
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(color: Colors.white12),
+                                    ),
+                                    child: DropdownButtonHideUnderline(
+                                      child: DropdownButton<String>(
+                                        value: did.forwardMode,
+                                        dropdownColor: const Color(0xFF1E293B),
+                                        icon: const Icon(
+                                          Icons.arrow_drop_down,
+                                          color: Colors.white70,
+                                          size: 18,
+                                        ),
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                        items: const [
+                                          DropdownMenuItem(
+                                            value: 'app',
+                                            child: Text('Ring In-App'),
+                                          ),
+                                          DropdownMenuItem(
+                                            value: 'voicemail',
+                                            child: Text('Voicemail'),
+                                          ),
+                                          DropdownMenuItem(
+                                            value: 'pstn',
+                                            child: Text('Forward Phone'),
+                                          ),
+                                        ],
+                                        onChanged: (val) async {
+                                          if (val == null) return;
+                                          if (val == 'pstn') {
+                                            _showPstnForwardDialog(
+                                                context, did);
+                                          } else {
+                                            await ref
+                                                .read(callingRepositoryProvider)
+                                                .updateDidForwarding(
+                                                  didId: did.id,
+                                                  forwardMode: val,
+                                                );
+                                            ref.invalidate(
+                                                virtualDidsProvider);
+                                          }
+                                        },
+                                      ),
                                     ),
                                   ),
                                 ],
                               ),
-                              TextButton.icon(
-                                style: TextButton.styleFrom(
-                                  foregroundColor: AppColors.primary,
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 4,
-                                  ),
+                              PopupMenuButton<String>(
+                                icon: const Icon(
+                                  Icons.more_vert,
+                                  color: Colors.white38,
+                                  size: 18,
                                 ),
-                                icon: const Icon(Icons.tune, size: 14),
-                                label: const Text(
-                                  'Change',
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
+                                color: const Color(0xFF1E293B),
+                                onSelected: (action) {
+                                  if (action == 'select') {
+                                    setState(() {
+                                      _selectedDidId = did.id;
+                                    });
+                                  } else if (action == 'copy') {
+                                    _copyToClipboard(
+                                      did.phoneNumber,
+                                      'Virtual number',
+                                    );
+                                  }
+                                },
+                                itemBuilder: (ctx) => [
+                                  const PopupMenuItem(
+                                    value: 'select',
+                                    child: Text(
+                                      'Use in Smart Setup',
+                                      style: TextStyle(color: Colors.white, fontSize: 12),
+                                    ),
                                   ),
-                                ),
-                                onPressed: () => _showForwardingOptions(context, did),
+                                  const PopupMenuItem(
+                                    value: 'copy',
+                                    child: Text(
+                                      'Copy Number',
+                                      style: TextStyle(color: Colors.white, fontSize: 12),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
-                          if (dids.length > 1) ...[
-                            const SizedBox(height: 8),
-                            InkWell(
-                              onTap: () {
-                                setState(() {
-                                  _selectedDidId = did.id;
-                                });
-                              },
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    isSelectedForSetup
-                                        ? Icons.radio_button_checked
-                                        : Icons.radio_button_off,
-                                    color: isSelectedForSetup
-                                        ? AppColors.primary
-                                        : Colors.white38,
-                                    size: 16,
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    isSelectedForSetup
-                                        ? 'Selected for Smart Call Setup'
-                                        : 'Use this number for Forwarding Setup',
-                                    style: TextStyle(
-                                      color: isSelectedForSetup
-                                          ? AppColors.primary
-                                          : Colors.white54,
-                                      fontSize: 11,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
                         ],
                       ),
                     );
@@ -498,11 +558,15 @@ class _MyNumbersScreenState extends ConsumerState<MyNumbersScreen> {
 
                 const SizedBox(height: 16),
 
-                // Section: KeepSIMs Smart Call Setup Card (Image 3)
+                // ── Section 2: KeepSIMs Smart Call Setup Card matching Image 2 ──
                 if (dids.isNotEmpty && selectedDid != null)
-                  _buildSmartCallSetupCard(selectedDid, simLines, selectedLine),
+                  _buildSmartCallSetupCard(
+                    selectedDid,
+                    carriersAsync,
+                    simLines,
+                  ),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: 24),
               ],
             );
           },
@@ -515,7 +579,8 @@ class _MyNumbersScreenState extends ConsumerState<MyNumbersScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.error_outline, color: AppColors.error, size: 36),
+                  const Icon(Icons.error_outline,
+                      color: AppColors.error, size: 36),
                   const SizedBox(height: 12),
                   Text(
                     'Error loading numbers: $err',
@@ -538,234 +603,498 @@ class _MyNumbersScreenState extends ConsumerState<MyNumbersScreen> {
 
   Widget _buildSmartCallSetupCard(
     VirtualDidNumber did,
-    List<SimLine> simLines,
-    SimLine selectedLine,
+    AsyncValue<List<CarrierDivertRule>> carriersAsync,
+    List<dynamic> simLines,
   ) {
-    final forwardCode = '**21*${did.phoneNumber}#';
-    const cancelCode = '##21#';
-    final operatorLabel = selectedLine.nickname ??
-        selectedLine.detectedOperatorName ??
-        (selectedLine.phoneNumber.isNotEmpty
-            ? selectedLine.phoneNumber
-            : 'Home SIM Operator');
+    return carriersAsync.when(
+      data: (carriers) {
+        // Find selected carrier or default to STC Saudi
+        CarrierDivertRule? selectedCarrier;
+        if (_selectedCarrierId != null) {
+          selectedCarrier = carriers.firstWhere(
+            (c) => c.carrierId == _selectedCarrierId,
+            orElse: () => carriers.first,
+          );
+        } else {
+          // Try to match from user's registered SIM line
+          if (simLines.isNotEmpty) {
+            final activeSim = simLines.first;
+            final detectedName = (activeSim.nickname ??
+                    activeSim.detectedOperatorName ??
+                    '')
+                .toLowerCase();
+            selectedCarrier = carriers.cast<CarrierDivertRule?>().firstWhere(
+                  (c) =>
+                      c != null &&
+                      (detectedName.contains(c.carrierName.toLowerCase()) ||
+                          c.carrierName.toLowerCase().contains(detectedName)),
+                  orElse: () => null,
+                );
+          }
+          // Default to STC (Saudi Arabia) as shown in Image 2
+          selectedCarrier ??= carriers.firstWhere(
+            (c) => c.carrierName.toLowerCase().contains('stc'),
+            orElse: () => carriers.isNotEmpty
+                ? carriers.first
+                : const CarrierDivertRule(
+                    carrierId: '',
+                    carrierName: 'STC Saudi',
+                    countryCode: 'SA',
+                    countryName: 'Saudi Arabia',
+                    cfuFormat: '**21*{number}#',
+                    cfuCancel: '##21#',
+                    cfuStatus: '*#21#',
+                    cancelAll: '##002#',
+                  ),
+          );
+        }
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.darkCard,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: const Color(0xFF818CF8).withValues(alpha: 0.3),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+        // Generate MMI code based on carrier's real rule
+        final forwardCode = selectedCarrier.formatActivationCode(did.phoneNumber);
+        final cancelCode = selectedCarrier.cfuCancel;
+
+        return Container(
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            color: const Color(0xFF111827),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: const Color(0xFF38BDF8).withValues(alpha: 0.3),
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Header: Phone-divert Icon, Title, and Zero-Roaming Badge
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF38BDF8).withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: const Icon(
+                      Icons.phone_forwarded_rounded,
+                      color: Color(0xFF38BDF8),
+                      size: 22,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Expanded(
+                              child: Text(
+                                'KeepSIMs Smart Call Setup',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 3,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF4338CA)
+                                    .withValues(alpha: 0.35),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: const Color(0xFF818CF8)
+                                      .withValues(alpha: 0.4),
+                                ),
+                              ),
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.flight_takeoff,
+                                    size: 11,
+                                    color: Color(0xFF818CF8),
+                                  ),
+                                  SizedBox(width: 4),
+                                  Text(
+                                    'Zero-Roaming',
+                                    style: TextStyle(
+                                      color: Color(0xFF818CF8),
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        const Text(
+                          'Divert calls from your physical SIM to your KeepSIMs virtual number before traveling. Incoming calls will ring inside this app with \$0 roaming fees.',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 11.5,
+                            height: 1.35,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 18),
+
+              // ── Step 1: Home Operator Selector Matching Image 2 ──
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: const Color(0xFF818CF8).withValues(alpha: 0.15),
+                  color: Colors.white.withValues(alpha: 0.03),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: Colors.white10),
                 ),
-                child: const Icon(
-                  Icons.settings_phone_rounded,
-                  color: Color(0xFF818CF8),
-                  size: 20,
+                child: Row(
+                  children: [
+                    Container(
+                      width: 26,
+                      height: 26,
+                      alignment: Alignment.center,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Color(0xFF38BDF8),
+                      ),
+                      child: const Text(
+                        '1',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Home Operator',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
+                          ),
+                          Text(
+                            'Select your current mobile operator.',
+                            style: TextStyle(
+                              color: Colors.white38,
+                              fontSize: 11,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.06),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.white12),
+                      ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value: selectedCarrier.carrierId.isNotEmpty
+                              ? selectedCarrier.carrierId
+                              : null,
+                          dropdownColor: const Color(0xFF1E293B),
+                          icon: const Icon(
+                            Icons.arrow_drop_down,
+                            color: Colors.white54,
+                          ),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          items: carriers.map((c) {
+                            return DropdownMenuItem<String>(
+                              value: c.carrierId,
+                              child: Text(
+                                '${c.flagEmoji ?? ''} ${c.carrierName}',
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: (val) {
+                            if (val != null) {
+                              setState(() {
+                                _selectedCarrierId = val;
+                              });
+                            }
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(width: 10),
-              const Expanded(
+              const SizedBox(height: 14),
+
+              // ── Step 2: Dial this MMI code matching Image 2 ──
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.03),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: Colors.white10),
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'KeepSIMs Smart Call Setup',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
+                    Row(
+                      children: [
+                        Container(
+                          width: 26,
+                          height: 26,
+                          alignment: Alignment.center,
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Color(0xFF38BDF8),
+                          ),
+                          child: const Text(
+                            '2',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        const Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Dial this MMI code on your domestic SIM',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
+                                ),
+                              ),
+                              Text(
+                                'Enter the code below on your phone\'s dialer.',
+                                style: TextStyle(
+                                  color: Colors.white38,
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        InkWell(
+                          onTap: () => _copyToClipboard(
+                            forwardCode,
+                            'MMI Code',
+                          ),
+                          borderRadius: BorderRadius.circular(6),
+                          child: const Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 4),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.copy,
+                                    size: 14, color: Color(0xFF38BDF8)),
+                                SizedBox(width: 4),
+                                Text(
+                                  'Copy Code',
+                                  style: TextStyle(
+                                    color: Color(0xFF38BDF8),
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Monospace Box with MMI Code
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.black45,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: const Color(0xFF38BDF8).withValues(alpha: 0.3),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              forwardCode,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                color: Color(0xFF38BDF8),
+                                fontFamily: 'monospace',
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1.2,
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(
+                              Icons.phone,
+                              size: 18,
+                              color: Color(0xFF22C55E),
+                            ),
+                            tooltip: 'Dial Code',
+                            onPressed: () => _dialCode(forwardCode),
+                          ),
+                        ],
                       ),
                     ),
-                    Text(
-                      'Forward calls from home before traveling',
-                      style: TextStyle(color: Colors.white54, fontSize: 11),
+
+                    if (selectedCarrier.specialNotes != null) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        selectedCarrier.specialNotes!,
+                        style: const TextStyle(
+                          color: Colors.amber,
+                          fontSize: 10.5,
+                        ),
+                      ),
+                    ],
+
+                    const SizedBox(height: 8),
+                    Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: 4,
+                      children: [
+                        const Text(
+                          'To deactivate when returning home: ',
+                          style: TextStyle(color: Colors.white38, fontSize: 10),
+                        ),
+                        InkWell(
+                          onTap: () => _copyToClipboard(
+                            cancelCode,
+                            'Deactivation code',
+                          ),
+                          child: Text(
+                            cancelCode,
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontFamily: 'monospace',
+                              fontWeight: FontWeight.bold,
+                              fontSize: 11,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 14),
+
+              // ── "How it works" Box Matching Image 2 ──
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.02),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: Colors.white10),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Row(
+                      children: [
+                        Icon(
+                          Icons.lightbulb_outline_rounded,
+                          color: Color(0xFF38BDF8),
+                          size: 18,
+                        ),
+                        SizedBox(width: 8),
+                        Text(
+                          'How it works:',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    _buildHowItWorksItem(
+                      'Calls to your home number route to KeepSIMs cloud.',
+                    ),
+                    const SizedBox(height: 6),
+                    _buildHowItWorksItem(
+                      'The app rings over Wi-Fi or travel eSIM data.',
+                    ),
+                    const SizedBox(height: 6),
+                    _buildHowItWorksItem(
+                      'You avoid roaming fees and keep your number reachable.',
                     ),
                   ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 14),
-
-          // Home Operator / SIM Line Selector
-          if (simLines.isNotEmpty) ...[
-            const Text(
-              'Select Home Line / Operator:',
-              style: TextStyle(color: Colors.white70, fontSize: 11),
-            ),
-            const SizedBox(height: 6),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.05),
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.white12),
-              ),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  value: selectedLine.id.isNotEmpty ? selectedLine.id : simLines.first.id,
-                  isExpanded: true,
-                  dropdownColor: AppColors.darkCard,
-                  icon: const Icon(Icons.arrow_drop_down, color: Colors.white54),
-                  items: simLines.map((line) {
-                    final name = line.nickname ?? line.detectedOperatorName ?? line.phoneNumber;
-                    return DropdownMenuItem<String>(
-                      value: line.id,
-                      child: Text(
-                        '$name (${line.phoneNumber})',
-                        style: const TextStyle(color: Colors.white, fontSize: 12),
-                      ),
-                    );
-                  }).toList(),
-                  onChanged: (val) {
-                    if (val != null) {
-                      setState(() {
-                        _selectedSimLineId = val;
-                      });
-                    }
-                  },
-                ),
-              ),
-            ),
-            const SizedBox(height: 14),
-          ],
-
-          // Step 1: Activation Code
-          const Text(
-            '1. Dial from Home SIM Before Flight:',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.black26,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Colors.white12),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    forwardCode,
-                    style: const TextStyle(
-                      color: Color(0xFF22C55E),
-                      fontFamily: 'monospace',
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
-                    ),
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.copy, size: 16, color: Colors.white70),
-                  tooltip: 'Copy Code',
-                  onPressed: () => _copyToClipboard(forwardCode, 'Activation code'),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.phone, size: 16, color: Color(0xFF22C55E)),
-                  tooltip: 'Open Phone Dialer',
-                  onPressed: () => _dialCode(forwardCode),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 4),
-          const Text(
-            'Dual-SIM devices: ensure your Home SIM is selected in your phone dialer.',
-            style: TextStyle(color: Colors.white38, fontSize: 10),
-          ),
-
-          const SizedBox(height: 14),
-
-          // Step 2: Cancellation Code
-          const Text(
-            '2. Cancel Forwarding When Returning Home:',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.black26,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Colors.white12),
-            ),
-            child: Row(
-              children: [
-                const Expanded(
-                  child: Text(
-                    cancelCode,
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontFamily: 'monospace',
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
-                    ),
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.copy, size: 16, color: Colors.white70),
-                  tooltip: 'Copy Code',
-                  onPressed: () => _copyToClipboard(cancelCode, 'Cancel code'),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.phone, size: 16, color: Colors.white70),
-                  tooltip: 'Open Phone Dialer',
-                  onPressed: () => _dialCode(cancelCode),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 14),
-
-          // Transparent Roaming & Operator Guidance
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: Colors.amber.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.amber.withValues(alpha: 0.25)),
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Icon(Icons.info_outline, color: Colors.amber, size: 16),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    'Standard GSM call forwarding instructions. Confirm forwarding support and domestic charges with $operatorLabel. Inbound calls answered in the KeepSIMs app route over your data connection without cellular voice roaming surcharges.',
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      fontSize: 10.5,
-                      height: 1.35,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+        );
+      },
+      loading: () => const Center(
+        child: Padding(
+          padding: EdgeInsets.all(20),
+          child: CircularProgressIndicator(color: AppColors.primary),
+        ),
       ),
+      error: (e, _) => Text(
+        'Failed to load carrier divert rules: $e',
+        style: const TextStyle(color: Colors.white54, fontSize: 11),
+      ),
+    );
+  }
+
+  Widget _buildHowItWorksItem(String text) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Icon(
+          Icons.check_circle,
+          color: Color(0xFF22C55E),
+          size: 14,
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            text,
+            style: const TextStyle(color: Colors.white70, fontSize: 11),
+          ),
+        ),
+      ],
     );
   }
 }
