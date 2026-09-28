@@ -6,6 +6,8 @@ import '../../domain/entities/return_trip.dart';
 import '../../domain/entities/return_trip_package.dart';
 import '../../data/repositories/return_trip_repository_impl.dart';
 import 'package:keep_sims/core/services/esim_capability_service.dart';
+import 'package:keep_sims/features/geo/controller/geo_controller.dart';
+import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
 import 'active_return_trip_provider.dart';
 
 part 'return_trip_wizard_controller.g.dart';
@@ -104,10 +106,25 @@ class ReturnTripWizardController extends _$ReturnTripWizardController {
         }
       }
 
+      // Check if user is currently in destination country
+      final geoState = ref.read(geoControllerProvider);
+      final userIso = geoState.currentIsoCode.trim().toUpperCase();
+      final simLines = ref.read(simLinesControllerProvider).value ?? [];
+      final currentLine = simLines.where((l) => l.id == simLineId).firstOrNull;
+      final countries = ref.read(supportedCountriesProvider).value ?? [];
+      final country = countries.where((c) => c.id == currentLine?.countryId).firstOrNull;
+      final lineIso = country?.isoCode.trim().toUpperCase();
+      final isUserInCountry = lineIso != null && userIso == lineIso;
+
+      final initialArrivalDate = existingTrip?.arrivalDate ??
+          (isUserInCountry ? DateTime.now() : state.arrivalDate ?? DateTime.now().add(const Duration(days: 7)));
+      final initialIsAlready = existingTrip != null ? false : isUserInCountry;
+
       state = state.copyWith(
         packages: AsyncData(pkgs),
         hasEsimSupport: isSupported,
-        arrivalDate: existingTrip?.arrivalDate ?? state.arrivalDate,
+        arrivalDate: initialArrivalDate,
+        isAlreadyArrived: initialIsAlready,
         selectedPackage: preselected,
         confirmedTrip: existingTrip,
         clearError: true,

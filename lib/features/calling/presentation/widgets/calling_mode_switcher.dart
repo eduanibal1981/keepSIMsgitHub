@@ -110,7 +110,7 @@ class _ModeTab extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeInOut,
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
         decoration: BoxDecoration(
           color: isSelected
               ? badgeColor.withValues(alpha: 0.18)
@@ -131,18 +131,20 @@ class _ModeTab extends StatelessWidget {
                 Icon(
                   icon,
                   color: isSelected ? badgeColor : Colors.white60,
-                  size: 16,
+                  size: 15,
                 ),
-                const SizedBox(width: 4),
-                Text(
-                  label,
-                  style: TextStyle(
-                    color: isSelected ? Colors.white : Colors.white60,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                    fontSize: 11,
+                const SizedBox(width: 3),
+                Flexible(
+                  child: Text(
+                    label,
+                    style: TextStyle(
+                      color: isSelected ? Colors.white : Colors.white60,
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                      fontSize: 10.5,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),

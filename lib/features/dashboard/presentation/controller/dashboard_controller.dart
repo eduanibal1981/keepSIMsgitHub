@@ -4,6 +4,8 @@
 library;
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:keep_sims/core/providers.dart';
+import 'package:keep_sims/core/services/auth_session_manager.dart';
 import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import 'package:keep_sims/features/auth/model/auth_model.dart';
 
@@ -72,18 +74,39 @@ class DashboardActivity {
 class DashboardController extends _$DashboardController {
   @override
   FutureOr<DashboardState> build() async {
+    final authRepo = ref.read(authRepositoryProvider);
+    await authRepo.ensureValidSession();
+
     // Reactively watch auth status and await resolution
     final profile = await ref.watch(authControllerProvider.future);
     if (profile == null) {
       throw Exception('User is not authenticated');
     }
 
-    // Await both sub-providers to resolve, ensuring we remain in a true AsyncLoading state in the UI
-    final walletState = await ref.watch(walletControllerProvider.future);
-    final simLines = await ref.watch(simLinesControllerProvider.future);
-    final schedules = await ref.watch(scheduledTopupControllerProvider.future);
+    try {
+      // Await sub-providers to resolve, ensuring we remain in a true AsyncLoading state in the UI
+      final walletState = await ref.watch(walletControllerProvider.future);
+      final simLines = await ref.watch(simLinesControllerProvider.future);
+      final schedules = await ref.watch(scheduledTopupControllerProvider.future);
 
-    return _fetchDashboardData(walletState, simLines, schedules, profile);
+      return _fetchDashboardData(walletState, simLines, schedules, profile);
+    } catch (e) {
+      if (AuthSessionManager.isJwtExpiredError(e)) {
+        final refreshed = await authRepo.ensureValidSession(force: true);
+        if (refreshed) {
+          ref.invalidate(walletControllerProvider);
+          ref.invalidate(simLinesControllerProvider);
+          ref.invalidate(scheduledTopupControllerProvider);
+
+          final walletState = await ref.watch(walletControllerProvider.future);
+          final simLines = await ref.watch(simLinesControllerProvider.future);
+          final schedules = await ref.watch(scheduledTopupControllerProvider.future);
+
+          return _fetchDashboardData(walletState, simLines, schedules, profile);
+        }
+      }
+      rethrow;
+    }
   }
 
   DashboardState _loadingState() {
@@ -254,10 +277,19 @@ class DashboardController extends _$DashboardController {
   Future<void> refreshDashboard() async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
+      final authRepo = ref.read(authRepositoryProvider);
+      await authRepo.ensureValidSession(force: true);
+
       ref.invalidate(walletControllerProvider);
       ref.invalidate(simLinesControllerProvider);
       ref.invalidate(scheduledTopupControllerProvider);
+      ref.invalidate(authControllerProvider);
+
       final profile = await ref.read(authControllerProvider.future);
+      if (profile == null) {
+        throw Exception('User is not authenticated');
+      }
+
       final walletState = await ref.read(walletControllerProvider.future);
       final simLines = await ref.read(simLinesControllerProvider.future);
       final schedules = await ref.read(scheduledTopupControllerProvider.future);

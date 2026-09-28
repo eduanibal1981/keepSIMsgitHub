@@ -25,6 +25,8 @@ import 'package:keep_sims/features/sim_lines/presentation/providers/api_offers_p
 import 'package:keep_sims/features/sim_lines/data/models/usage_forecast_model.dart';
 import 'package:keep_sims/features/sim_lines/presentation/providers/usage_forecast_provider.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/provider_badge.dart';
+import 'package:keep_sims/features/sim_lines/presentation/widgets/line_upgrade_sheet.dart';
+import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_line_detail_controller.dart';
 import 'package:keep_sims/features/sim_lines/domain/line_refill_quote.dart';
 import 'package:keep_sims/features/scheduled_topups/domain/refill_schedule_math.dart';
 
@@ -86,6 +88,34 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
     return line?.isPremiumPlan ?? false;
   }
 
+  Future<void> _openUpgradeSheet(SimLine? line) async {
+    await HapticHelper.lightTick();
+    if (!mounted) return;
+
+    SimLine? targetLine = line;
+    if (targetLine == null) {
+      final simLines = ref.read(simLinesControllerProvider).value ?? [];
+      targetLine = simLines.cast<SimLine?>().firstWhere(
+        (l) => l?.id == widget.simLineId,
+        orElse: () => null,
+      ) ?? ref.read(simLineDetailControllerProvider(widget.simLineId)).value?.simLine;
+    }
+
+    if (targetLine != null && mounted) {
+      await LineUpgradeSheet.show(
+        context: context,
+        simLine: targetLine,
+      );
+    } else if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('SIM line details not found for upgrade.'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+    }
+  }
+
   @override
   void dispose() {
     _amountController.dispose();
@@ -127,10 +157,12 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
     final bool isEditMode = widget.existingSchedule != null;
     final walletState = ref.watch(walletControllerProvider).value;
     final simLines = ref.watch(simLinesControllerProvider).value ?? [];
-    final currentLine = widget.simLine ?? simLines.cast<SimLine?>().firstWhere(
+    final SimLine? detailLine =
+        ref.watch(simLineDetailControllerProvider(widget.simLineId)).value?.simLine;
+    final SimLine? currentLine = simLines.cast<SimLine?>().firstWhere(
       (l) => l?.id == widget.simLineId,
-      orElse: () => null,
-    );
+      orElse: () => detailLine ?? widget.simLine,
+    ) ?? detailLine ?? widget.simLine;
     // I2: per-line entitlement — see _lineIsPremium().
     final bool isPremium = currentLine?.isPremiumPlan ?? _lineIsPremium();
     final bool isNotifyMode = widget.configMode == 'notify';
@@ -304,6 +336,9 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                   .watch(notificationChannelsControllerProvider)
                   .when(
                     data: (channels) {
+                      final catalogMap =
+                          ref.watch(notificationChannelCatalogProvider).value ??
+                          {};
                       final order = {
                         'push': 1,
                         'email': 2,
@@ -321,11 +356,12 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                                   .compareTo(order[b['channel_type']] ?? 99),
                             );
 
-                      return Container(
-                        decoration: BoxDecoration(
-                          color: context.cardColor,
+                      return Material(
+                        color: context.cardColor,
+                        clipBehavior: Clip.antiAlias,
+                        shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: context.dividerColor),
+                          side: BorderSide(color: context.dividerColor),
                         ),
                         child: ListView.separated(
                           shrinkWrap: true,
@@ -337,6 +373,13 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                             final ch = filtered[index];
                             final type = ch['channel_type'] as String;
                             final isEnabled = ch['is_enabled'] ?? false;
+                            final config =
+                                (ch['config'] as Map<String, dynamic>?) ?? {};
+
+                            final catalogEntry = catalogMap[type];
+                            final bool isGloballyEnabled = catalogEntry != null
+                                ? (catalogEntry['is_globally_enabled'] == true)
+                                : true;
 
                             String label = '';
                             IconData icon = Icons.notifications;
@@ -364,21 +407,67 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                                 break;
                             }
 
-                            // I2: one rule, read off the line. The old pair
-                            // asked `protection_tier == 'basic'` AND
-                            // `subscription_tier == 'basic'`; the second is
-                            // account-level and true for 6 of 8 users, so a
-                            // paid line still showed its channels locked.
+                            // Free tier allows push and telegram. Paid plan unlocks email and whatsapp.
                             final bool isUnavailable =
                                 type != 'push' &&
+                                type != 'telegram' &&
                                 !(currentLine?.isPaidPlan ?? false);
                             final bool isLocked = isUnavailable;
 
+                            // Inspect channel readiness / configuration completeness
+                            bool needsSetup = false;
+                            String? subtitle;
+                            if (isUnavailable) {
+                              subtitle = 'Requires Standard or Premium plan';
+                            } else if (!isGloballyEnabled) {
+                              subtitle = 'Temporarily paused across platform';
+                            } else if (!isEnabled) {
+                              subtitle = 'Disabled · Tap to configure';
+                            } else {
+                              if (type == 'email') {
+                                final email = config['email'] as String?;
+                                needsSetup =
+                                    email == null || email.trim().isEmpty;
+                                subtitle = needsSetup
+                                    ? 'No email configured · Tap to setup'
+                                    : 'Alerts sent to $email';
+                              } else if (type == 'whatsapp') {
+                                final phone =
+                                    (config['phone'] ??
+                                            config['phone_number'])
+                                        as String?;
+                                needsSetup =
+                                    phone == null || phone.trim().isEmpty;
+                                subtitle = needsSetup
+                                    ? 'No WhatsApp number · Tap to setup'
+                                    : 'Alerts sent to $phone';
+                              } else if (type == 'telegram') {
+                                final chatId = config['chat_id']?.toString();
+                                needsSetup =
+                                    chatId == null || chatId.trim().isEmpty;
+                                subtitle = needsSetup
+                                    ? 'Telegram bot unbound · Tap to link'
+                                    : 'Bot connected · Chat ID: $chatId';
+                              } else if (type == 'push') {
+                                subtitle =
+                                    'Aggressive native alerts on this device';
+                              }
+                            }
+
                             return ListTile(
                               dense: true,
+                              onTap: isUnavailable
+                                  ? () => _openUpgradeSheet(currentLine)
+                                  : () async {
+                                      await HapticHelper.lightTick();
+                                      if (context.mounted) {
+                                        Navigator.of(context).pop();
+                                        context.push('/notifications/settings');
+                                      }
+                                    },
                               leading: Icon(
                                 icon,
-                                color: (isUnavailable || isLocked)
+                                color: (isUnavailable || !isGloballyEnabled)
                                     ? AppColors.textTertiaryDark
                                     : color,
                                 size: 20,
@@ -388,7 +477,7 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                                   Text(
                                     label,
                                     style: AppTextStyles.bodyMedium.copyWith(
-                                      color: (isUnavailable || isLocked)
+                                      color: (isUnavailable || !isGloballyEnabled)
                                           ? AppColors.textSecondaryDark
                                           : context.onSurfaceColor,
                                       fontWeight: FontWeight.bold,
@@ -404,61 +493,166 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                                   ],
                                 ],
                               ),
-                              trailing: isUnavailable
-                                  ? Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 4,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: AppColors.healthRed.withValues(
-                                          alpha: 0.1,
-                                        ),
-                                        borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(
-                                          color: AppColors.healthRed
-                                              .withValues(alpha: 0.3),
-                                        ),
-                                      ),
+                              subtitle: subtitle != null
+                                  ? Padding(
+                                      padding: const EdgeInsets.only(top: 2.0),
                                       child: Text(
-                                        'Upgrade',
-                                        style: AppTextStyles.labelSmall
-                                            .copyWith(
-                                              color: AppColors.healthRed,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 10,
-                                            ),
+                                        subtitle,
+                                        style: AppTextStyles.bodySmall.copyWith(
+                                          color: needsSetup
+                                              ? Colors.orange.shade400
+                                              : (!isGloballyEnabled
+                                                  ? Colors.amber.shade400
+                                                  : (isUnavailable
+                                                      ? AppColors.textSecondaryDark
+                                                      : context.onSurfaceColor
+                                                          .withValues(
+                                                            alpha: 0.5,
+                                                          ))),
+                                          fontSize: 11,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
                                       ),
                                     )
-                                  : isLocked
-                                  ? Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 4,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: Colors.amberAccent.withValues(
-                                          alpha: 0.1,
-                                        ),
+                                  : null,
+                              trailing: isUnavailable
+                                  ? Material(
+                                      color: Colors.transparent,
+                                      child: InkWell(
+                                        onTap: () => _openUpgradeSheet(currentLine),
                                         borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(
-                                          color: Colors.amberAccent.withValues(
-                                            alpha: 0.3,
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 4,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: AppColors.healthRed
+                                                .withValues(alpha: 0.1),
+                                            borderRadius: BorderRadius.circular(8),
+                                            border: Border.all(
+                                              color: AppColors.healthRed
+                                                  .withValues(alpha: 0.3),
+                                            ),
+                                          ),
+                                          child: Text(
+                                            'Upgrade',
+                                            style: AppTextStyles.labelSmall
+                                                .copyWith(
+                                                  color: AppColors.healthRed,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 10,
+                                                ),
                                           ),
                                         ),
                                       ),
+                                    )
+                                  : isLocked
+                                  ? Material(
+                                      color: Colors.transparent,
+                                      child: InkWell(
+                                        onTap: () => _openUpgradeSheet(currentLine),
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 4,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: Colors.amberAccent
+                                                .withValues(alpha: 0.1),
+                                            borderRadius: BorderRadius.circular(8),
+                                            border: Border.all(
+                                              color: Colors.amberAccent
+                                                  .withValues(alpha: 0.3),
+                                            ),
+                                          ),
+                                          child: Text(
+                                            'LOCKED',
+                                            style: AppTextStyles.labelSmall
+                                                .copyWith(
+                                                  color: Colors.amberAccent,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 10,
+                                                ),
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                  : !isGloballyEnabled
+                                  ? Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 4,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.amber.withValues(alpha: 0.15),
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(
+                                          color: Colors.amber.withValues(alpha: 0.4),
+                                        ),
+                                      ),
+                                      child: const Text(
+                                        'PAUSED',
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.amber,
+                                        ),
+                                      ),
+                                    )
+                                  : !isEnabled
+                                  ? Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 4,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: context.onSurfaceColor
+                                            .withValues(alpha: 0.05),
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(
+                                          color: context.onSurfaceColor
+                                              .withValues(alpha: 0.1),
+                                        ),
+                                      ),
                                       child: Text(
-                                        'LOCKED',
+                                        'OFF',
                                         style: AppTextStyles.labelSmall
                                             .copyWith(
-                                              color: Colors.amberAccent,
+                                              color: context.onSurfaceColor
+                                                  .withValues(alpha: 0.4),
                                               fontWeight: FontWeight.bold,
                                               fontSize: 10,
                                             ),
                                       ),
                                     )
-                                  : isEnabled
+                                  : needsSetup
                                   ? Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 4,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.orange
+                                            .withValues(alpha: 0.15),
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(
+                                          color: Colors.orange
+                                              .withValues(alpha: 0.4),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        type == 'telegram' ? 'UNBOUND' : 'NOT SET',
+                                        style: const TextStyle(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.orange,
+                                        ),
+                                      ),
+                                    )
+                                  : Container(
                                       padding: const EdgeInsets.symmetric(
                                         horizontal: 8,
                                         vertical: 4,
@@ -479,31 +673,6 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                                         style: AppTextStyles.labelSmall
                                             .copyWith(
                                               color: AppColors.success,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 10,
-                                            ),
-                                      ),
-                                    )
-                                  : Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 4,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: context.onSurfaceColor
-                                            .withValues(alpha: 0.05),
-                                        borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(
-                                          color: context.onSurfaceColor
-                                              .withValues(alpha: 0.1),
-                                        ),
-                                      ),
-                                      child: Text(
-                                        'OFF',
-                                        style: AppTextStyles.labelSmall
-                                            .copyWith(
-                                              color: context.onSurfaceColor
-                                                  .withValues(alpha: 0.4),
                                               fontWeight: FontWeight.bold,
                                               fontSize: 10,
                                             ),
@@ -1077,6 +1246,21 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
       final double totalAmount = isNotifyMode ? 0.0 : q.total;
       final double baseCostUsd = isNotifyMode ? 0.0 : baseCost;
       final double appFeeUsd = isNotifyMode ? 0.0 : q.appFee;
+      final double? targetLocalValue = isNotifyMode
+          ? null
+          : (isRange
+              ? (_rangeValue != null
+                  ? _rangeValue! / (_selectedOffer?['sendCurrencyDivisor'] as num? ?? 100)
+                  : null)
+              : ((_selectedOffer?['min'] as num?) != null
+                  ? (_selectedOffer!['min'] as num).toDouble() / (_selectedOffer?['sendCurrencyDivisor'] as num? ?? 100)
+                  : null));
+      final String? targetLocalCurrency = isNotifyMode
+          ? null
+          : _selectedOffer?['send']?['currency']?.toString();
+      final String? preferredProvider = isNotifyMode
+          ? null
+          : _selectedOffer?['provider']?.toString();
 
       final schedule = ScheduledTopup(
         id: widget.existingSchedule?.id ?? '',
@@ -1097,6 +1281,12 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
         appFeeUsd: appFeeUsd,
         pricingTier: currentLine?.effectiveTier ?? 'free',
         feeRuleVersion: q.feeRuleVersion,
+        targetLocalValue: targetLocalValue,
+        targetLocalCurrency: targetLocalCurrency,
+        maxAuthorizedUsd: isNotifyMode ? null : totalAmount,
+        preferredProvider: preferredProvider,
+        engineVersion: 2,
+        intentKind: 'exact_airtime',
       );
 
       final result = await ref

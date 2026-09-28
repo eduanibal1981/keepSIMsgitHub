@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$TopupExecution {
 
- String get id; String? get scheduledTopupId; String get simLineId; String get userId; double get amount; String get currency; String? get reloadlyTransactionId; String get status; String? get failureReason; String? get retryOf; int? get validityDaysAdded; String? get fulfillmentGateway; String? get apiProvider; String? get executionType; DateTime? get executionTime; DateTime? get executedAt; DateTime? get completedAt; DateTime? get createdAt; String? get pinCode; String? get pinSerial; String? get redeemInstructions;
+ String get id; String? get scheduledTopupId; String get simLineId; String get userId; double get amount; String get currency; String? get reloadlyTransactionId; String get status; String? get failureReason; String? get retryOf; int? get validityDaysAdded; String? get fulfillmentGateway; String? get apiProvider; String? get executionType; DateTime? get executionTime; DateTime? get executedAt; DateTime? get completedAt; DateTime? get createdAt; String? get pinCode; String? get pinSerial; String? get redeemInstructions; double? get targetLocalValue; String? get targetLocalCurrency; double? get maxAuthorizedUsd; double? get quotedCostUsd; double? get quotedFeeUsd; String? get quoteId; String? get fundingKind;
 /// Create a copy of TopupExecution
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $TopupExecutionCopyWith<TopupExecution> get copyWith => _$TopupExecutionCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is TopupExecution&&(identical(other.id, id) || other.id == id)&&(identical(other.scheduledTopupId, scheduledTopupId) || other.scheduledTopupId == scheduledTopupId)&&(identical(other.simLineId, simLineId) || other.simLineId == simLineId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.currency, currency) || other.currency == currency)&&(identical(other.reloadlyTransactionId, reloadlyTransactionId) || other.reloadlyTransactionId == reloadlyTransactionId)&&(identical(other.status, status) || other.status == status)&&(identical(other.failureReason, failureReason) || other.failureReason == failureReason)&&(identical(other.retryOf, retryOf) || other.retryOf == retryOf)&&(identical(other.validityDaysAdded, validityDaysAdded) || other.validityDaysAdded == validityDaysAdded)&&(identical(other.fulfillmentGateway, fulfillmentGateway) || other.fulfillmentGateway == fulfillmentGateway)&&(identical(other.apiProvider, apiProvider) || other.apiProvider == apiProvider)&&(identical(other.executionType, executionType) || other.executionType == executionType)&&(identical(other.executionTime, executionTime) || other.executionTime == executionTime)&&(identical(other.executedAt, executedAt) || other.executedAt == executedAt)&&(identical(other.completedAt, completedAt) || other.completedAt == completedAt)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.pinCode, pinCode) || other.pinCode == pinCode)&&(identical(other.pinSerial, pinSerial) || other.pinSerial == pinSerial)&&(identical(other.redeemInstructions, redeemInstructions) || other.redeemInstructions == redeemInstructions));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is TopupExecution&&(identical(other.id, id) || other.id == id)&&(identical(other.scheduledTopupId, scheduledTopupId) || other.scheduledTopupId == scheduledTopupId)&&(identical(other.simLineId, simLineId) || other.simLineId == simLineId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.currency, currency) || other.currency == currency)&&(identical(other.reloadlyTransactionId, reloadlyTransactionId) || other.reloadlyTransactionId == reloadlyTransactionId)&&(identical(other.status, status) || other.status == status)&&(identical(other.failureReason, failureReason) || other.failureReason == failureReason)&&(identical(other.retryOf, retryOf) || other.retryOf == retryOf)&&(identical(other.validityDaysAdded, validityDaysAdded) || other.validityDaysAdded == validityDaysAdded)&&(identical(other.fulfillmentGateway, fulfillmentGateway) || other.fulfillmentGateway == fulfillmentGateway)&&(identical(other.apiProvider, apiProvider) || other.apiProvider == apiProvider)&&(identical(other.executionType, executionType) || other.executionType == executionType)&&(identical(other.executionTime, executionTime) || other.executionTime == executionTime)&&(identical(other.executedAt, executedAt) || other.executedAt == executedAt)&&(identical(other.completedAt, completedAt) || other.completedAt == completedAt)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.pinCode, pinCode) || other.pinCode == pinCode)&&(identical(other.pinSerial, pinSerial) || other.pinSerial == pinSerial)&&(identical(other.redeemInstructions, redeemInstructions) || other.redeemInstructions == redeemInstructions)&&(identical(other.targetLocalValue, targetLocalValue) || other.targetLocalValue == targetLocalValue)&&(identical(other.targetLocalCurrency, targetLocalCurrency) || other.targetLocalCurrency == targetLocalCurrency)&&(identical(other.maxAuthorizedUsd, maxAuthorizedUsd) || other.maxAuthorizedUsd == maxAuthorizedUsd)&&(identical(other.quotedCostUsd, quotedCostUsd) || other.quotedCostUsd == quotedCostUsd)&&(identical(other.quotedFeeUsd, quotedFeeUsd) || other.quotedFeeUsd == quotedFeeUsd)&&(identical(other.quoteId, quoteId) || other.quoteId == quoteId)&&(identical(other.fundingKind, fundingKind) || other.fundingKind == fundingKind));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,id,scheduledTopupId,simLineId,userId,amount,currency,reloadlyTransactionId,status,failureReason,retryOf,validityDaysAdded,fulfillmentGateway,apiProvider,executionType,executionTime,executedAt,completedAt,createdAt,pinCode,pinSerial,redeemInstructions]);
+int get hashCode => Object.hashAll([runtimeType,id,scheduledTopupId,simLineId,userId,amount,currency,reloadlyTransactionId,status,failureReason,retryOf,validityDaysAdded,fulfillmentGateway,apiProvider,executionType,executionTime,executedAt,completedAt,createdAt,pinCode,pinSerial,redeemInstructions,targetLocalValue,targetLocalCurrency,maxAuthorizedUsd,quotedCostUsd,quotedFeeUsd,quoteId,fundingKind]);
 
 @override
 String toString() {
-  return 'TopupExecution(id: $id, scheduledTopupId: $scheduledTopupId, simLineId: $simLineId, userId: $userId, amount: $amount, currency: $currency, reloadlyTransactionId: $reloadlyTransactionId, status: $status, failureReason: $failureReason, retryOf: $retryOf, validityDaysAdded: $validityDaysAdded, fulfillmentGateway: $fulfillmentGateway, apiProvider: $apiProvider, executionType: $executionType, executionTime: $executionTime, executedAt: $executedAt, completedAt: $completedAt, createdAt: $createdAt, pinCode: $pinCode, pinSerial: $pinSerial, redeemInstructions: $redeemInstructions)';
+  return 'TopupExecution(id: $id, scheduledTopupId: $scheduledTopupId, simLineId: $simLineId, userId: $userId, amount: $amount, currency: $currency, reloadlyTransactionId: $reloadlyTransactionId, status: $status, failureReason: $failureReason, retryOf: $retryOf, validityDaysAdded: $validityDaysAdded, fulfillmentGateway: $fulfillmentGateway, apiProvider: $apiProvider, executionType: $executionType, executionTime: $executionTime, executedAt: $executedAt, completedAt: $completedAt, createdAt: $createdAt, pinCode: $pinCode, pinSerial: $pinSerial, redeemInstructions: $redeemInstructions, targetLocalValue: $targetLocalValue, targetLocalCurrency: $targetLocalCurrency, maxAuthorizedUsd: $maxAuthorizedUsd, quotedCostUsd: $quotedCostUsd, quotedFeeUsd: $quotedFeeUsd, quoteId: $quoteId, fundingKind: $fundingKind)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $TopupExecutionCopyWith<$Res>  {
   factory $TopupExecutionCopyWith(TopupExecution value, $Res Function(TopupExecution) _then) = _$TopupExecutionCopyWithImpl;
 @useResult
 $Res call({
- String id, String? scheduledTopupId, String simLineId, String userId, double amount, String currency, String? reloadlyTransactionId, String status, String? failureReason, String? retryOf, int? validityDaysAdded, String? fulfillmentGateway, String? apiProvider, String? executionType, DateTime? executionTime, DateTime? executedAt, DateTime? completedAt, DateTime? createdAt, String? pinCode, String? pinSerial, String? redeemInstructions
+ String id, String? scheduledTopupId, String simLineId, String userId, double amount, String currency, String? reloadlyTransactionId, String status, String? failureReason, String? retryOf, int? validityDaysAdded, String? fulfillmentGateway, String? apiProvider, String? executionType, DateTime? executionTime, DateTime? executedAt, DateTime? completedAt, DateTime? createdAt, String? pinCode, String? pinSerial, String? redeemInstructions, double? targetLocalValue, String? targetLocalCurrency, double? maxAuthorizedUsd, double? quotedCostUsd, double? quotedFeeUsd, String? quoteId, String? fundingKind
 });
 
 
@@ -65,7 +65,7 @@ class _$TopupExecutionCopyWithImpl<$Res>
 
 /// Create a copy of TopupExecution
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? scheduledTopupId = freezed,Object? simLineId = null,Object? userId = null,Object? amount = null,Object? currency = null,Object? reloadlyTransactionId = freezed,Object? status = null,Object? failureReason = freezed,Object? retryOf = freezed,Object? validityDaysAdded = freezed,Object? fulfillmentGateway = freezed,Object? apiProvider = freezed,Object? executionType = freezed,Object? executionTime = freezed,Object? executedAt = freezed,Object? completedAt = freezed,Object? createdAt = freezed,Object? pinCode = freezed,Object? pinSerial = freezed,Object? redeemInstructions = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? scheduledTopupId = freezed,Object? simLineId = null,Object? userId = null,Object? amount = null,Object? currency = null,Object? reloadlyTransactionId = freezed,Object? status = null,Object? failureReason = freezed,Object? retryOf = freezed,Object? validityDaysAdded = freezed,Object? fulfillmentGateway = freezed,Object? apiProvider = freezed,Object? executionType = freezed,Object? executionTime = freezed,Object? executedAt = freezed,Object? completedAt = freezed,Object? createdAt = freezed,Object? pinCode = freezed,Object? pinSerial = freezed,Object? redeemInstructions = freezed,Object? targetLocalValue = freezed,Object? targetLocalCurrency = freezed,Object? maxAuthorizedUsd = freezed,Object? quotedCostUsd = freezed,Object? quotedFeeUsd = freezed,Object? quoteId = freezed,Object? fundingKind = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,scheduledTopupId: freezed == scheduledTopupId ? _self.scheduledTopupId : scheduledTopupId // ignore: cast_nullable_to_non_nullable
@@ -88,6 +88,13 @@ as DateTime?,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ig
 as DateTime?,pinCode: freezed == pinCode ? _self.pinCode : pinCode // ignore: cast_nullable_to_non_nullable
 as String?,pinSerial: freezed == pinSerial ? _self.pinSerial : pinSerial // ignore: cast_nullable_to_non_nullable
 as String?,redeemInstructions: freezed == redeemInstructions ? _self.redeemInstructions : redeemInstructions // ignore: cast_nullable_to_non_nullable
+as String?,targetLocalValue: freezed == targetLocalValue ? _self.targetLocalValue : targetLocalValue // ignore: cast_nullable_to_non_nullable
+as double?,targetLocalCurrency: freezed == targetLocalCurrency ? _self.targetLocalCurrency : targetLocalCurrency // ignore: cast_nullable_to_non_nullable
+as String?,maxAuthorizedUsd: freezed == maxAuthorizedUsd ? _self.maxAuthorizedUsd : maxAuthorizedUsd // ignore: cast_nullable_to_non_nullable
+as double?,quotedCostUsd: freezed == quotedCostUsd ? _self.quotedCostUsd : quotedCostUsd // ignore: cast_nullable_to_non_nullable
+as double?,quotedFeeUsd: freezed == quotedFeeUsd ? _self.quotedFeeUsd : quotedFeeUsd // ignore: cast_nullable_to_non_nullable
+as double?,quoteId: freezed == quoteId ? _self.quoteId : quoteId // ignore: cast_nullable_to_non_nullable
+as String?,fundingKind: freezed == fundingKind ? _self.fundingKind : fundingKind // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
@@ -173,10 +180,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String? scheduledTopupId,  String simLineId,  String userId,  double amount,  String currency,  String? reloadlyTransactionId,  String status,  String? failureReason,  String? retryOf,  int? validityDaysAdded,  String? fulfillmentGateway,  String? apiProvider,  String? executionType,  DateTime? executionTime,  DateTime? executedAt,  DateTime? completedAt,  DateTime? createdAt,  String? pinCode,  String? pinSerial,  String? redeemInstructions)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String? scheduledTopupId,  String simLineId,  String userId,  double amount,  String currency,  String? reloadlyTransactionId,  String status,  String? failureReason,  String? retryOf,  int? validityDaysAdded,  String? fulfillmentGateway,  String? apiProvider,  String? executionType,  DateTime? executionTime,  DateTime? executedAt,  DateTime? completedAt,  DateTime? createdAt,  String? pinCode,  String? pinSerial,  String? redeemInstructions,  double? targetLocalValue,  String? targetLocalCurrency,  double? maxAuthorizedUsd,  double? quotedCostUsd,  double? quotedFeeUsd,  String? quoteId,  String? fundingKind)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _TopupExecution() when $default != null:
-return $default(_that.id,_that.scheduledTopupId,_that.simLineId,_that.userId,_that.amount,_that.currency,_that.reloadlyTransactionId,_that.status,_that.failureReason,_that.retryOf,_that.validityDaysAdded,_that.fulfillmentGateway,_that.apiProvider,_that.executionType,_that.executionTime,_that.executedAt,_that.completedAt,_that.createdAt,_that.pinCode,_that.pinSerial,_that.redeemInstructions);case _:
+return $default(_that.id,_that.scheduledTopupId,_that.simLineId,_that.userId,_that.amount,_that.currency,_that.reloadlyTransactionId,_that.status,_that.failureReason,_that.retryOf,_that.validityDaysAdded,_that.fulfillmentGateway,_that.apiProvider,_that.executionType,_that.executionTime,_that.executedAt,_that.completedAt,_that.createdAt,_that.pinCode,_that.pinSerial,_that.redeemInstructions,_that.targetLocalValue,_that.targetLocalCurrency,_that.maxAuthorizedUsd,_that.quotedCostUsd,_that.quotedFeeUsd,_that.quoteId,_that.fundingKind);case _:
   return orElse();
 
 }
@@ -194,10 +201,10 @@ return $default(_that.id,_that.scheduledTopupId,_that.simLineId,_that.userId,_th
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String? scheduledTopupId,  String simLineId,  String userId,  double amount,  String currency,  String? reloadlyTransactionId,  String status,  String? failureReason,  String? retryOf,  int? validityDaysAdded,  String? fulfillmentGateway,  String? apiProvider,  String? executionType,  DateTime? executionTime,  DateTime? executedAt,  DateTime? completedAt,  DateTime? createdAt,  String? pinCode,  String? pinSerial,  String? redeemInstructions)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String? scheduledTopupId,  String simLineId,  String userId,  double amount,  String currency,  String? reloadlyTransactionId,  String status,  String? failureReason,  String? retryOf,  int? validityDaysAdded,  String? fulfillmentGateway,  String? apiProvider,  String? executionType,  DateTime? executionTime,  DateTime? executedAt,  DateTime? completedAt,  DateTime? createdAt,  String? pinCode,  String? pinSerial,  String? redeemInstructions,  double? targetLocalValue,  String? targetLocalCurrency,  double? maxAuthorizedUsd,  double? quotedCostUsd,  double? quotedFeeUsd,  String? quoteId,  String? fundingKind)  $default,) {final _that = this;
 switch (_that) {
 case _TopupExecution():
-return $default(_that.id,_that.scheduledTopupId,_that.simLineId,_that.userId,_that.amount,_that.currency,_that.reloadlyTransactionId,_that.status,_that.failureReason,_that.retryOf,_that.validityDaysAdded,_that.fulfillmentGateway,_that.apiProvider,_that.executionType,_that.executionTime,_that.executedAt,_that.completedAt,_that.createdAt,_that.pinCode,_that.pinSerial,_that.redeemInstructions);case _:
+return $default(_that.id,_that.scheduledTopupId,_that.simLineId,_that.userId,_that.amount,_that.currency,_that.reloadlyTransactionId,_that.status,_that.failureReason,_that.retryOf,_that.validityDaysAdded,_that.fulfillmentGateway,_that.apiProvider,_that.executionType,_that.executionTime,_that.executedAt,_that.completedAt,_that.createdAt,_that.pinCode,_that.pinSerial,_that.redeemInstructions,_that.targetLocalValue,_that.targetLocalCurrency,_that.maxAuthorizedUsd,_that.quotedCostUsd,_that.quotedFeeUsd,_that.quoteId,_that.fundingKind);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -214,10 +221,10 @@ return $default(_that.id,_that.scheduledTopupId,_that.simLineId,_that.userId,_th
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String? scheduledTopupId,  String simLineId,  String userId,  double amount,  String currency,  String? reloadlyTransactionId,  String status,  String? failureReason,  String? retryOf,  int? validityDaysAdded,  String? fulfillmentGateway,  String? apiProvider,  String? executionType,  DateTime? executionTime,  DateTime? executedAt,  DateTime? completedAt,  DateTime? createdAt,  String? pinCode,  String? pinSerial,  String? redeemInstructions)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String? scheduledTopupId,  String simLineId,  String userId,  double amount,  String currency,  String? reloadlyTransactionId,  String status,  String? failureReason,  String? retryOf,  int? validityDaysAdded,  String? fulfillmentGateway,  String? apiProvider,  String? executionType,  DateTime? executionTime,  DateTime? executedAt,  DateTime? completedAt,  DateTime? createdAt,  String? pinCode,  String? pinSerial,  String? redeemInstructions,  double? targetLocalValue,  String? targetLocalCurrency,  double? maxAuthorizedUsd,  double? quotedCostUsd,  double? quotedFeeUsd,  String? quoteId,  String? fundingKind)?  $default,) {final _that = this;
 switch (_that) {
 case _TopupExecution() when $default != null:
-return $default(_that.id,_that.scheduledTopupId,_that.simLineId,_that.userId,_that.amount,_that.currency,_that.reloadlyTransactionId,_that.status,_that.failureReason,_that.retryOf,_that.validityDaysAdded,_that.fulfillmentGateway,_that.apiProvider,_that.executionType,_that.executionTime,_that.executedAt,_that.completedAt,_that.createdAt,_that.pinCode,_that.pinSerial,_that.redeemInstructions);case _:
+return $default(_that.id,_that.scheduledTopupId,_that.simLineId,_that.userId,_that.amount,_that.currency,_that.reloadlyTransactionId,_that.status,_that.failureReason,_that.retryOf,_that.validityDaysAdded,_that.fulfillmentGateway,_that.apiProvider,_that.executionType,_that.executionTime,_that.executedAt,_that.completedAt,_that.createdAt,_that.pinCode,_that.pinSerial,_that.redeemInstructions,_that.targetLocalValue,_that.targetLocalCurrency,_that.maxAuthorizedUsd,_that.quotedCostUsd,_that.quotedFeeUsd,_that.quoteId,_that.fundingKind);case _:
   return null;
 
 }
@@ -229,7 +236,7 @@ return $default(_that.id,_that.scheduledTopupId,_that.simLineId,_that.userId,_th
 
 @JsonSerializable(fieldRename: FieldRename.snake)
 class _TopupExecution implements TopupExecution {
-  const _TopupExecution({required this.id, this.scheduledTopupId, required this.simLineId, required this.userId, required this.amount, this.currency = 'USD', this.reloadlyTransactionId, this.status = 'pending', this.failureReason, this.retryOf, this.validityDaysAdded, this.fulfillmentGateway, this.apiProvider, this.executionType, this.executionTime, this.executedAt, this.completedAt, this.createdAt, this.pinCode, this.pinSerial, this.redeemInstructions});
+  const _TopupExecution({required this.id, this.scheduledTopupId, required this.simLineId, required this.userId, required this.amount, this.currency = 'USD', this.reloadlyTransactionId, this.status = 'pending', this.failureReason, this.retryOf, this.validityDaysAdded, this.fulfillmentGateway, this.apiProvider, this.executionType, this.executionTime, this.executedAt, this.completedAt, this.createdAt, this.pinCode, this.pinSerial, this.redeemInstructions, this.targetLocalValue, this.targetLocalCurrency, this.maxAuthorizedUsd, this.quotedCostUsd, this.quotedFeeUsd, this.quoteId, this.fundingKind});
   factory _TopupExecution.fromJson(Map<String, dynamic> json) => _$TopupExecutionFromJson(json);
 
 @override final  String id;
@@ -253,6 +260,13 @@ class _TopupExecution implements TopupExecution {
 @override final  String? pinCode;
 @override final  String? pinSerial;
 @override final  String? redeemInstructions;
+@override final  double? targetLocalValue;
+@override final  String? targetLocalCurrency;
+@override final  double? maxAuthorizedUsd;
+@override final  double? quotedCostUsd;
+@override final  double? quotedFeeUsd;
+@override final  String? quoteId;
+@override final  String? fundingKind;
 
 /// Create a copy of TopupExecution
 /// with the given fields replaced by the non-null parameter values.
@@ -267,16 +281,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TopupExecution&&(identical(other.id, id) || other.id == id)&&(identical(other.scheduledTopupId, scheduledTopupId) || other.scheduledTopupId == scheduledTopupId)&&(identical(other.simLineId, simLineId) || other.simLineId == simLineId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.currency, currency) || other.currency == currency)&&(identical(other.reloadlyTransactionId, reloadlyTransactionId) || other.reloadlyTransactionId == reloadlyTransactionId)&&(identical(other.status, status) || other.status == status)&&(identical(other.failureReason, failureReason) || other.failureReason == failureReason)&&(identical(other.retryOf, retryOf) || other.retryOf == retryOf)&&(identical(other.validityDaysAdded, validityDaysAdded) || other.validityDaysAdded == validityDaysAdded)&&(identical(other.fulfillmentGateway, fulfillmentGateway) || other.fulfillmentGateway == fulfillmentGateway)&&(identical(other.apiProvider, apiProvider) || other.apiProvider == apiProvider)&&(identical(other.executionType, executionType) || other.executionType == executionType)&&(identical(other.executionTime, executionTime) || other.executionTime == executionTime)&&(identical(other.executedAt, executedAt) || other.executedAt == executedAt)&&(identical(other.completedAt, completedAt) || other.completedAt == completedAt)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.pinCode, pinCode) || other.pinCode == pinCode)&&(identical(other.pinSerial, pinSerial) || other.pinSerial == pinSerial)&&(identical(other.redeemInstructions, redeemInstructions) || other.redeemInstructions == redeemInstructions));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TopupExecution&&(identical(other.id, id) || other.id == id)&&(identical(other.scheduledTopupId, scheduledTopupId) || other.scheduledTopupId == scheduledTopupId)&&(identical(other.simLineId, simLineId) || other.simLineId == simLineId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.currency, currency) || other.currency == currency)&&(identical(other.reloadlyTransactionId, reloadlyTransactionId) || other.reloadlyTransactionId == reloadlyTransactionId)&&(identical(other.status, status) || other.status == status)&&(identical(other.failureReason, failureReason) || other.failureReason == failureReason)&&(identical(other.retryOf, retryOf) || other.retryOf == retryOf)&&(identical(other.validityDaysAdded, validityDaysAdded) || other.validityDaysAdded == validityDaysAdded)&&(identical(other.fulfillmentGateway, fulfillmentGateway) || other.fulfillmentGateway == fulfillmentGateway)&&(identical(other.apiProvider, apiProvider) || other.apiProvider == apiProvider)&&(identical(other.executionType, executionType) || other.executionType == executionType)&&(identical(other.executionTime, executionTime) || other.executionTime == executionTime)&&(identical(other.executedAt, executedAt) || other.executedAt == executedAt)&&(identical(other.completedAt, completedAt) || other.completedAt == completedAt)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.pinCode, pinCode) || other.pinCode == pinCode)&&(identical(other.pinSerial, pinSerial) || other.pinSerial == pinSerial)&&(identical(other.redeemInstructions, redeemInstructions) || other.redeemInstructions == redeemInstructions)&&(identical(other.targetLocalValue, targetLocalValue) || other.targetLocalValue == targetLocalValue)&&(identical(other.targetLocalCurrency, targetLocalCurrency) || other.targetLocalCurrency == targetLocalCurrency)&&(identical(other.maxAuthorizedUsd, maxAuthorizedUsd) || other.maxAuthorizedUsd == maxAuthorizedUsd)&&(identical(other.quotedCostUsd, quotedCostUsd) || other.quotedCostUsd == quotedCostUsd)&&(identical(other.quotedFeeUsd, quotedFeeUsd) || other.quotedFeeUsd == quotedFeeUsd)&&(identical(other.quoteId, quoteId) || other.quoteId == quoteId)&&(identical(other.fundingKind, fundingKind) || other.fundingKind == fundingKind));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,id,scheduledTopupId,simLineId,userId,amount,currency,reloadlyTransactionId,status,failureReason,retryOf,validityDaysAdded,fulfillmentGateway,apiProvider,executionType,executionTime,executedAt,completedAt,createdAt,pinCode,pinSerial,redeemInstructions]);
+int get hashCode => Object.hashAll([runtimeType,id,scheduledTopupId,simLineId,userId,amount,currency,reloadlyTransactionId,status,failureReason,retryOf,validityDaysAdded,fulfillmentGateway,apiProvider,executionType,executionTime,executedAt,completedAt,createdAt,pinCode,pinSerial,redeemInstructions,targetLocalValue,targetLocalCurrency,maxAuthorizedUsd,quotedCostUsd,quotedFeeUsd,quoteId,fundingKind]);
 
 @override
 String toString() {
-  return 'TopupExecution(id: $id, scheduledTopupId: $scheduledTopupId, simLineId: $simLineId, userId: $userId, amount: $amount, currency: $currency, reloadlyTransactionId: $reloadlyTransactionId, status: $status, failureReason: $failureReason, retryOf: $retryOf, validityDaysAdded: $validityDaysAdded, fulfillmentGateway: $fulfillmentGateway, apiProvider: $apiProvider, executionType: $executionType, executionTime: $executionTime, executedAt: $executedAt, completedAt: $completedAt, createdAt: $createdAt, pinCode: $pinCode, pinSerial: $pinSerial, redeemInstructions: $redeemInstructions)';
+  return 'TopupExecution(id: $id, scheduledTopupId: $scheduledTopupId, simLineId: $simLineId, userId: $userId, amount: $amount, currency: $currency, reloadlyTransactionId: $reloadlyTransactionId, status: $status, failureReason: $failureReason, retryOf: $retryOf, validityDaysAdded: $validityDaysAdded, fulfillmentGateway: $fulfillmentGateway, apiProvider: $apiProvider, executionType: $executionType, executionTime: $executionTime, executedAt: $executedAt, completedAt: $completedAt, createdAt: $createdAt, pinCode: $pinCode, pinSerial: $pinSerial, redeemInstructions: $redeemInstructions, targetLocalValue: $targetLocalValue, targetLocalCurrency: $targetLocalCurrency, maxAuthorizedUsd: $maxAuthorizedUsd, quotedCostUsd: $quotedCostUsd, quotedFeeUsd: $quotedFeeUsd, quoteId: $quoteId, fundingKind: $fundingKind)';
 }
 
 
@@ -287,7 +301,7 @@ abstract mixin class _$TopupExecutionCopyWith<$Res> implements $TopupExecutionCo
   factory _$TopupExecutionCopyWith(_TopupExecution value, $Res Function(_TopupExecution) _then) = __$TopupExecutionCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String? scheduledTopupId, String simLineId, String userId, double amount, String currency, String? reloadlyTransactionId, String status, String? failureReason, String? retryOf, int? validityDaysAdded, String? fulfillmentGateway, String? apiProvider, String? executionType, DateTime? executionTime, DateTime? executedAt, DateTime? completedAt, DateTime? createdAt, String? pinCode, String? pinSerial, String? redeemInstructions
+ String id, String? scheduledTopupId, String simLineId, String userId, double amount, String currency, String? reloadlyTransactionId, String status, String? failureReason, String? retryOf, int? validityDaysAdded, String? fulfillmentGateway, String? apiProvider, String? executionType, DateTime? executionTime, DateTime? executedAt, DateTime? completedAt, DateTime? createdAt, String? pinCode, String? pinSerial, String? redeemInstructions, double? targetLocalValue, String? targetLocalCurrency, double? maxAuthorizedUsd, double? quotedCostUsd, double? quotedFeeUsd, String? quoteId, String? fundingKind
 });
 
 
@@ -304,7 +318,7 @@ class __$TopupExecutionCopyWithImpl<$Res>
 
 /// Create a copy of TopupExecution
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? scheduledTopupId = freezed,Object? simLineId = null,Object? userId = null,Object? amount = null,Object? currency = null,Object? reloadlyTransactionId = freezed,Object? status = null,Object? failureReason = freezed,Object? retryOf = freezed,Object? validityDaysAdded = freezed,Object? fulfillmentGateway = freezed,Object? apiProvider = freezed,Object? executionType = freezed,Object? executionTime = freezed,Object? executedAt = freezed,Object? completedAt = freezed,Object? createdAt = freezed,Object? pinCode = freezed,Object? pinSerial = freezed,Object? redeemInstructions = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? scheduledTopupId = freezed,Object? simLineId = null,Object? userId = null,Object? amount = null,Object? currency = null,Object? reloadlyTransactionId = freezed,Object? status = null,Object? failureReason = freezed,Object? retryOf = freezed,Object? validityDaysAdded = freezed,Object? fulfillmentGateway = freezed,Object? apiProvider = freezed,Object? executionType = freezed,Object? executionTime = freezed,Object? executedAt = freezed,Object? completedAt = freezed,Object? createdAt = freezed,Object? pinCode = freezed,Object? pinSerial = freezed,Object? redeemInstructions = freezed,Object? targetLocalValue = freezed,Object? targetLocalCurrency = freezed,Object? maxAuthorizedUsd = freezed,Object? quotedCostUsd = freezed,Object? quotedFeeUsd = freezed,Object? quoteId = freezed,Object? fundingKind = freezed,}) {
   return _then(_TopupExecution(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,scheduledTopupId: freezed == scheduledTopupId ? _self.scheduledTopupId : scheduledTopupId // ignore: cast_nullable_to_non_nullable
@@ -327,6 +341,13 @@ as DateTime?,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ig
 as DateTime?,pinCode: freezed == pinCode ? _self.pinCode : pinCode // ignore: cast_nullable_to_non_nullable
 as String?,pinSerial: freezed == pinSerial ? _self.pinSerial : pinSerial // ignore: cast_nullable_to_non_nullable
 as String?,redeemInstructions: freezed == redeemInstructions ? _self.redeemInstructions : redeemInstructions // ignore: cast_nullable_to_non_nullable
+as String?,targetLocalValue: freezed == targetLocalValue ? _self.targetLocalValue : targetLocalValue // ignore: cast_nullable_to_non_nullable
+as double?,targetLocalCurrency: freezed == targetLocalCurrency ? _self.targetLocalCurrency : targetLocalCurrency // ignore: cast_nullable_to_non_nullable
+as String?,maxAuthorizedUsd: freezed == maxAuthorizedUsd ? _self.maxAuthorizedUsd : maxAuthorizedUsd // ignore: cast_nullable_to_non_nullable
+as double?,quotedCostUsd: freezed == quotedCostUsd ? _self.quotedCostUsd : quotedCostUsd // ignore: cast_nullable_to_non_nullable
+as double?,quotedFeeUsd: freezed == quotedFeeUsd ? _self.quotedFeeUsd : quotedFeeUsd // ignore: cast_nullable_to_non_nullable
+as double?,quoteId: freezed == quoteId ? _self.quoteId : quoteId // ignore: cast_nullable_to_non_nullable
+as String?,fundingKind: freezed == fundingKind ? _self.fundingKind : fundingKind // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }

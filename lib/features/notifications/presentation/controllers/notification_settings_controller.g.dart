@@ -161,3 +161,46 @@ abstract class _$NotificationChannelsController
     return element.handleCreate(ref, build);
   }
 }
+
+@ProviderFor(notificationChannelCatalog)
+final notificationChannelCatalogProvider =
+    NotificationChannelCatalogProvider._();
+
+final class NotificationChannelCatalogProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<Map<String, Map<String, dynamic>>>,
+          Map<String, Map<String, dynamic>>,
+          FutureOr<Map<String, Map<String, dynamic>>>
+        >
+    with
+        $FutureModifier<Map<String, Map<String, dynamic>>>,
+        $FutureProvider<Map<String, Map<String, dynamic>>> {
+  NotificationChannelCatalogProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'notificationChannelCatalogProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$notificationChannelCatalogHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<Map<String, Map<String, dynamic>>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<Map<String, Map<String, dynamic>>> create(Ref ref) {
+    return notificationChannelCatalog(ref);
+  }
+}
+
+String _$notificationChannelCatalogHash() =>
+    r'cf769958e20401d536b36e85057c53e608d9bf84';

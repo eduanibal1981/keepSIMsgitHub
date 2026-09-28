@@ -3,6 +3,7 @@ library;
 
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:keep_sims/features/voip_calling/data/models/ice_server_model.dart';
@@ -50,6 +51,7 @@ class VoipActiveCallState {
   bool get isActive =>
       status == 'calling' ||
       status == 'ringing' ||
+      status == 'connecting' ||
       status == 'connected' ||
       status == 'reconnecting';
   bool get isTerminal =>
@@ -58,7 +60,8 @@ class VoipActiveCallState {
       status == 'declined' ||
       status == 'busy' ||
       status == 'failed' ||
-      status == 'timeout';
+      status == 'timeout' ||
+      status == 'missed';
 
   VoipActiveCallState copyWith({
     String? callId,
@@ -109,6 +112,7 @@ class VoipCallingController extends Notifier<VoipActiveCallState> {
   Timer? _durationTimer;
   Timer? _ringTimeoutTimer;
   StreamSubscription<VoipCallSession?>? _dbSessionSub;
+  bool _isEnding = false;
 
   @override
   VoipActiveCallState build() {
@@ -374,6 +378,13 @@ class VoipCallingController extends Notifier<VoipActiveCallState> {
     _ringTimeoutTimer?.cancel();
     state = state.copyWith(status: 'connected');
 
+    final callId = state.callId;
+    if (callId != null &&
+        !callId.startsWith('debug-call-') &&
+        !callId.startsWith('mock-call-')) {
+      unawaited(FlutterCallkitIncoming.setCallConnected(callId));
+    }
+
     _durationTimer?.cancel();
     _durationTimer = Timer.periodic(const Duration(seconds: 1), (_) {
       state = state.copyWith(durationSeconds: state.durationSeconds + 1);
@@ -420,49 +431,68 @@ class VoipCallingController extends Notifier<VoipActiveCallState> {
     String status = 'completed',
     String reason = 'normal_hangup',
   }) async {
+    if (_isEnding) return;
+    _isEnding = true;
+
     final callId = state.callId;
 
     // Immediately set state to ended & un-minimized so floating bar & UI dismiss instantly
     state = state.copyWith(status: 'ended', isMinimized: false);
+
+    // Immediately release local microphone, audio session, and WebRTC resources
+    final cleanupFuture = _cleanup();
 
     if (callId != null &&
         !callId.startsWith('debug-call-') &&
         !callId.startsWith('mock-call-')) {
       unawaited(_signaling.sendEnded(reason: reason));
       unawaited(_callkit.endCall(callId));
-      try {
-        await ref
+      unawaited(
+        ref
             .read(voipCallingRepositoryProvider)
-            .endCall(callId: callId, status: status, endReason: reason);
-      } catch (_) {}
+            .endCall(callId: callId, status: status, endReason: reason)
+            .catchError((e) {
+              debugPrint('[VoIP Controller] Repository endCall error: $e');
+            }),
+      );
     } else if (callId != null) {
       unawaited(_callkit.endCall(callId));
     }
 
-    await _cleanup();
+    await cleanupFuture;
     state = const VoipActiveCallState();
+    _isEnding = false;
   }
 
   Future<void> declineCall({String reason = 'user_declined'}) async {
+    if (_isEnding) return;
+    _isEnding = true;
+
     final callId = state.callId;
     state = state.copyWith(status: 'declined', isMinimized: false);
+
+    final cleanupFuture = _cleanup();
 
     if (callId != null &&
         !callId.startsWith('debug-call-') &&
         !callId.startsWith('mock-call-')) {
       unawaited(_signaling.sendDeclined(reason: reason));
       unawaited(_callkit.endCall(callId));
-      try {
-        await ref
+      unawaited(
+        ref
             .read(voipCallingRepositoryProvider)
-            .endCall(callId: callId, status: 'declined', endReason: reason);
-      } catch (_) {}
+            .endCall(callId: callId, status: 'declined', endReason: reason)
+            .catchError((e) {
+              debugPrint('[VoIP Controller] Repository declineCall error: $e');
+            }),
+      );
     } else if (callId != null) {
       unawaited(_callkit.endCall(callId));
     }
 
-    await _cleanup();
+    await cleanupFuture;
     state = const VoipActiveCallState();
+    _isEnding = false;
   }
 
   Future<void> _cleanup() async {

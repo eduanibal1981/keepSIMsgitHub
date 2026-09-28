@@ -234,3 +234,10 @@ class NotificationChannelsController extends _$NotificationChannelsController {
     }
   }
 }
+
+@riverpod
+Future<Map<String, Map<String, dynamic>>> notificationChannelCatalog(Ref ref) async {
+  final repo = ref.watch(notificationsRepositoryProvider);
+  return repo.getChannelCatalog();
+}
+

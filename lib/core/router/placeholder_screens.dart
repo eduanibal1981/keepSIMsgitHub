@@ -9,11 +9,13 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:keep_sims/l10n/app_localizations.dart';
 import 'package:video_player/video_player.dart';
+import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:keep_sims/core/router/app_router.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/core/utils/build_context_extension.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
+import 'package:keep_sims/features/calling/presentation/widgets/smart_call_navigation.dart';
 
 // ── Splash Screen ─────────────────────────────────────────────
 class SplashScreen extends ConsumerStatefulWidget {
@@ -30,6 +32,15 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   void initState() {
     super.initState();
+
+    // Fast check: if an accepted VoIP call is pending, bypass splash immediately
+    FlutterCallkitIncoming.activeCalls().then((calls) {
+      if (mounted && calls.any((c) => c.isAccepted)) {
+        debugPrint('[SplashScreen] Detected accepted call at launch, bypassing splash');
+        _navigateToNext();
+      }
+    }).catchError((_) {});
+
     _videoController = VideoPlayerController.asset('assets/splashfastcp.mp4');
 
     // Mute video to bypass modern browser autoplay blocking rules (critical for Web)
@@ -291,38 +302,43 @@ class AppShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final location = GoRouterState.of(context).uri.path;
+    final isCallingRoute = location.startsWith('/calling');
+
     return Scaffold(
       body: child,
-      bottomNavigationBar: CurvedBottomNavigationBar(
-        selectedIndex: _currentIndex(context),
-        onTap: (index) {
-          switch (index) {
-            case 0:
-              context.go(AppRoutes.home);
-            case 1:
-              context.go(AppRoutes.simLines);
-            case 2:
-              context.go(AppRoutes.settings);
-          }
-        },
-        items: [
-          CurvedNavigationBarItem(
-            icon: Icons.dashboard_outlined,
-            selectedIcon: Icons.dashboard_rounded,
-            label: AppLocalizations.of(context)!.navHome,
-          ),
-          CurvedNavigationBarItem(
-            icon: Icons.sim_card_outlined,
-            selectedIcon: Icons.sim_card_rounded,
-            label: AppLocalizations.of(context)!.navSims,
-          ),
-          CurvedNavigationBarItem(
-            icon: Icons.menu_rounded,
-            selectedIcon: Icons.menu_rounded,
-            label: AppLocalizations.of(context)!.navMore,
-          ),
-        ],
-      ),
+      bottomNavigationBar: isCallingRoute
+          ? const SmartCallNavigation()
+          : CurvedBottomNavigationBar(
+              selectedIndex: _currentIndex(context),
+              onTap: (index) {
+                switch (index) {
+                  case 0:
+                    context.go(AppRoutes.home);
+                  case 1:
+                    context.go(AppRoutes.simLines);
+                  case 2:
+                    context.go(AppRoutes.settings);
+                }
+              },
+              items: [
+                CurvedNavigationBarItem(
+                  icon: Icons.dashboard_outlined,
+                  selectedIcon: Icons.dashboard_rounded,
+                  label: AppLocalizations.of(context)!.navHome,
+                ),
+                CurvedNavigationBarItem(
+                  icon: Icons.sim_card_outlined,
+                  selectedIcon: Icons.sim_card_rounded,
+                  label: AppLocalizations.of(context)!.navSims,
+                ),
+                CurvedNavigationBarItem(
+                  icon: Icons.menu_rounded,
+                  selectedIcon: Icons.menu_rounded,
+                  label: AppLocalizations.of(context)!.navMore,
+                ),
+              ],
+            ),
     );
   }
 }

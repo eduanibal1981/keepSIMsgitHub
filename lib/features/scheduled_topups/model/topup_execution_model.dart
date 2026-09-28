@@ -35,6 +35,13 @@ abstract class TopupExecution with _$TopupExecution {
     String? pinCode,
     String? pinSerial,
     String? redeemInstructions,
+    double? targetLocalValue,
+    String? targetLocalCurrency,
+    double? maxAuthorizedUsd,
+    double? quotedCostUsd,
+    double? quotedFeeUsd,
+    String? quoteId,
+    String? fundingKind,
   }) = _TopupExecution;
 
   factory TopupExecution.fromJson(Map<String, dynamic> json) =>

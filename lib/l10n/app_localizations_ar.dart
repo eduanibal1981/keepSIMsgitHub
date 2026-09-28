@@ -952,15 +952,14 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String lockedAlertSubtitle(String channelName) {
-    return 'تنبيهات $channelName هي ميزات باقتي البداية والمتميزة. قم بترقية باقتك لفتح تنبيهات واتساب، تليجرام والبريد الإلكتروني!';
+    return 'تنبيهات $channelName هي ميزات الباقتين القياسية والمتميزة. قم بترقية باقتك لفتح تنبيهات واتساب والبريد الإلكتروني!';
   }
 
   @override
   String get upsellProtect5Lines => 'حماية ما يصل إلى 5 خطوط SIM في نفس الوقت';
 
   @override
-  String get upsellUnlockChannels =>
-      'فتح إشعارات واتساب، تليجرام والبريد الإلكتروني';
+  String get upsellUnlockChannels => 'فتح إشعارات واتساب والبريد الإلكتروني';
 
   @override
   String get upsellEnableTravelModes =>
@@ -2991,4 +2990,76 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get clearSearchAndFilters => 'مسح البحث والفلاتر';
+
+  @override
+  String get setupRefill => 'شحن إعداد الشريحة';
+
+  @override
+  String get scheduledRefill => 'شحن مجدول';
+
+  @override
+  String get instantRefill => 'شحن فوري';
+
+  @override
+  String get customRefill => 'شحن مخصص';
+
+  @override
+  String get notifTitleNumberAdded => '✅ تمت إضافة الرقم';
+
+  @override
+  String get notifTitleAutoRechargeScheduled => '✅ تمت جدولة الشحن التلقائي';
+
+  @override
+  String get notifTitleSetupIncomplete => '⚠️ أكمل إعداد رقمك';
+
+  @override
+  String get notifTitleRechargeSuccessful => '✅ تم الشحن بنجاح';
+
+  @override
+  String get notifTitleRechargeDueToday => '⚠️ موعد الشحن اليوم';
+
+  @override
+  String get notifTitleRechargeFailed => '❌ تعذّر الشحن';
+
+  @override
+  String get notifTitleWalletLow => '⚠️ رصيد المحفظة منخفض';
+
+  @override
+  String get notifTitleRechargeNeedsFunds => '⚠️ الشحن يتطلب رصيداً';
+
+  @override
+  String get notifTitleLineCritical => '⚠️ رقمك بحاجة إلى إجراء';
+
+  @override
+  String get notifChannelConfirmations => 'تأكيدات الإعداد';
+
+  @override
+  String get notifChannelUpdates => 'تحديثات الشحن';
+
+  @override
+  String get notifChannelUrgent => 'تنبيهات الشحن العاجلة';
+
+  @override
+  String get smartCalling => 'اتصال ذكي';
+
+  @override
+  String get keepSimsSmartCalling => 'اتصال كيب سيمز الذكي';
+
+  @override
+  String get smartCall => 'اتصال ذكي';
+
+  @override
+  String get freeCall => 'مكالمة مجانية';
+
+  @override
+  String get smartCallSavings => 'توفير الاتصال الذكي';
+
+  @override
+  String get virtualNumbers => 'الأرقام الافتراضية';
+
+  @override
+  String get voicemail => 'البريد الصوتي';
+
+  @override
+  String get inspector => 'الفاحص';
 }

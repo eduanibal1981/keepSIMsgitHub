@@ -162,7 +162,7 @@ async function getCarrierDetails(simLineId, preferredProvider = null) {
 async function executeRefill(execution) {
     console.log(`[executeRefill] Processing Instant Refill Execution ID: ${execution.id}`);
     
-    let walletHoldId = null;
+    let walletHoldId = execution.wallet_hold_id || null;
     const userId = execution.user_id;
     const amount = parseFloat(execution.amount);
     const paymentGateway = execution.payment_gateway_code || 'wallet';
@@ -235,7 +235,7 @@ async function executeRefill(execution) {
         }
 
         // Wallet Hold Reservation
-        if (paymentGateway === 'wallet') {
+        if (!walletHoldId && paymentGateway === 'wallet') {
             console.log(`Reserving wallet funds for user ${userId}, amount: ${amount} USD...`);
             const { data: reservedHoldId, error: holdError } = await supabase
                 .rpc('reserve_wallet_funds', {
@@ -252,6 +252,13 @@ async function executeRefill(execution) {
 
             walletHoldId = reservedHoldId;
             console.log(`Wallet hold reserved successfully: ${walletHoldId}`);
+
+            await supabase
+                .from('topup_executions')
+                .update({ wallet_hold_id: walletHoldId })
+                .eq('id', execution.id);
+        } else if (walletHoldId) {
+            console.log(`Reusing existing wallet hold ${walletHoldId} for execution ${execution.id}`);
         } else {
             console.log(`Payment gateway is ${paymentGateway}; bypassing wallet reservation.`);
         }
@@ -428,16 +435,22 @@ async function executeRefill(execution) {
             // Capture wallet hold on success
             if (walletHoldId) {
                 console.log(`Capturing wallet hold ${walletHoldId} for execution ${execution.id}...`);
+                const isSetupRefill = execution.funding_kind === 'setup_hold';
+                const description = isSetupRefill
+                    ? `Setup Refill for SIM Line (${execution.sim_line_id})`
+                    : `Instant Mobile Refill for SIM Line (${execution.sim_line_id})`;
                 const { error: captureError } = await supabase
                     .rpc('capture_wallet_hold', {
                         p_hold_id: walletHoldId,
                         p_txn_type: 'topup_debit',
-                        p_description: `Instant Mobile Refill for SIM Line (${execution.sim_line_id})`,
+                        p_description: description,
                         p_metadata: {
                             execution_id: execution.id,
                             sim_line_id: execution.sim_line_id,
                             provider: activeProvider,
-                            transaction_id: purchaseResult.transactionId || externalId
+                            transaction_id: purchaseResult.transactionId || externalId,
+                            order_type: isSetupRefill ? 'setup_refill' : 'refill_instant',
+                            funding_kind: execution.funding_kind || null
                         }
                     });
                 if (captureError) {

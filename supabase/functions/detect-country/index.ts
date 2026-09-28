@@ -26,6 +26,14 @@ const COUNTRY_NAMES: Record<string, string> = {
   ES: "Spain",
   NP: "Nepal",
   BD: "Bangladesh",
+  OM: "Oman",
+  SA: "Saudi Arabia",
+  KW: "Kuwait",
+  QA: "Qatar",
+  BH: "Bahrain",
+  JO: "Jordan",
+  PH: "Philippines",
+  PK: "Pakistan",
 };
 
 function getCountryName(iso: string): string {

@@ -6,12 +6,12 @@ import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/core/utils/build_context_extension.dart';
 import 'package:keep_sims/features/notifications/data/models/notification_model.dart';
 import 'package:keep_sims/features/notifications/presentation/controllers/notifications_controller.dart';
-import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
 import 'package:keep_sims/core/widgets/shimmer_loading.dart';
 import 'package:keep_sims/core/widgets/empty_state.dart';
 import 'package:keep_sims/core/widgets/error_state.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
-import 'package:keep_sims/whatsapp_service.dart';
+import 'package:keep_sims/features/notifications/domain/notification_event_catalog.dart';
+import 'package:keep_sims/features/notifications/presentation/services/notification_navigation_service.dart';
 
 class NotificationsScreen extends ConsumerStatefulWidget {
   const NotificationsScreen({super.key});
@@ -251,36 +251,65 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
     Color indicatorColor = AppColors.primary;
     IconData icon = Icons.notifications_rounded;
 
-    switch (item.category) {
-      case 'top_up_success':
-        indicatorColor = AppColors.success;
-        icon = Icons.check_circle_rounded;
-        break;
-      case 'top_up_failed':
-      case 'wallet_depleted':
-      case 'line_critical':
-        indicatorColor = AppColors.healthRed;
-        icon = Icons.error_outline_rounded;
-        break;
-      case 'wallet_low':
-      case 'line_entering_grace':
-        indicatorColor = AppColors.warning;
-        icon = Icons.warning_amber_rounded;
-        break;
-      case 'geo_fence_triggered':
-      case 'welcome_home_ready':
-        indicatorColor = AppColors.info;
-        icon = Icons.explore_rounded;
-        break;
-      case 'referral_reward':
-        indicatorColor = const Color(0xFFEC4899);
-        icon = Icons.card_giftcard_rounded;
-        break;
-      case 'system':
-      default:
-        indicatorColor = AppColors.primary;
-        icon = Icons.settings_suggest_rounded;
-        break;
+    final typedEvent = NotificationEventType.fromWireName(item.eventType);
+    if (typedEvent != null) {
+      switch (typedEvent) {
+        case NotificationEventType.lineAdded:
+        case NotificationEventType.autoRechargeScheduled:
+        case NotificationEventType.rechargeSucceeded:
+          indicatorColor = AppColors.success;
+          icon = Icons.check_circle_rounded;
+          break;
+        case NotificationEventType.rechargeReminder:
+          indicatorColor = AppColors.info;
+          icon = Icons.notifications_active_rounded;
+          break;
+        case NotificationEventType.rechargeDueToday:
+        case NotificationEventType.lineSetupIncomplete:
+        case NotificationEventType.rechargeDateMissing:
+        case NotificationEventType.walletLow:
+          indicatorColor = AppColors.warning;
+          icon = Icons.warning_amber_rounded;
+          break;
+        case NotificationEventType.rechargeFailed:
+        case NotificationEventType.rechargeBlockedFunds:
+        case NotificationEventType.lineCritical:
+          indicatorColor = AppColors.healthRed;
+          icon = Icons.error_outline_rounded;
+          break;
+      }
+    } else {
+      switch (item.category) {
+        case 'top_up_success':
+          indicatorColor = AppColors.success;
+          icon = Icons.check_circle_rounded;
+          break;
+        case 'top_up_failed':
+        case 'wallet_depleted':
+        case 'line_critical':
+          indicatorColor = AppColors.healthRed;
+          icon = Icons.error_outline_rounded;
+          break;
+        case 'wallet_low':
+        case 'line_entering_grace':
+          indicatorColor = AppColors.warning;
+          icon = Icons.warning_amber_rounded;
+          break;
+        case 'geo_fence_triggered':
+        case 'welcome_home_ready':
+          indicatorColor = AppColors.info;
+          icon = Icons.explore_rounded;
+          break;
+        case 'referral_reward':
+          indicatorColor = const Color(0xFFEC4899);
+          icon = Icons.card_giftcard_rounded;
+          break;
+        case 'system':
+        default:
+          indicatorColor = AppColors.primary;
+          icon = Icons.settings_suggest_rounded;
+          break;
+      }
     }
 
     return Padding(
@@ -325,8 +354,17 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
               ref
                   .read(notificationsControllerProvider.notifier)
                   .markAsRead(item.id);
-              if (item.simLineId != null) {
-                context.push('/sim-lines/detail/${item.simLineId}');
+              final payload = NotificationTapPayload(
+                notificationId: item.id,
+                simLineId: item.simLineId,
+                actionUrl: item.actionUrl,
+                eventType: item.eventType,
+                target: item.target,
+              );
+              final destination =
+                  NotificationNavigationService.resolveDestination(payload);
+              if (destination != '/notifications' && context.mounted) {
+                context.push(destination);
               }
             },
             child: Stack(

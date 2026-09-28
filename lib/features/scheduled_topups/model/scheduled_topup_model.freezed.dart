@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$ScheduledTopup {
 
- String get id; String get simLineId; String get userId; double get amount; String get currency; int get frequencyDays; DateTime get nextExecutionAt; DateTime? get lastExecutionAt; bool get isActive; int get retryCount; int get maxRetries; String get status; String get scheduleType; DateTime? get createdAt; DateTime? get updatedAt; String? get offerId; int? get offerValue; double? get baseCostUsd; double? get appFeeUsd; String? get pricingTier; int? get feeRuleVersion;
+ String get id; String get simLineId; String get userId; double get amount; String get currency; int get frequencyDays; DateTime get nextExecutionAt; DateTime? get lastExecutionAt; bool get isActive; int get retryCount; int get maxRetries; String get status; String get scheduleType; DateTime? get createdAt; DateTime? get updatedAt; String? get offerId; int? get offerValue; double? get baseCostUsd; double? get appFeeUsd; String? get pricingTier; int? get feeRuleVersion; double? get targetLocalValue; String? get targetLocalCurrency; double? get maxAuthorizedUsd; String? get preferredProvider; int get engineVersion; String get intentKind;
 /// Create a copy of ScheduledTopup
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $ScheduledTopupCopyWith<ScheduledTopup> get copyWith => _$ScheduledTopupCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ScheduledTopup&&(identical(other.id, id) || other.id == id)&&(identical(other.simLineId, simLineId) || other.simLineId == simLineId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.currency, currency) || other.currency == currency)&&(identical(other.frequencyDays, frequencyDays) || other.frequencyDays == frequencyDays)&&(identical(other.nextExecutionAt, nextExecutionAt) || other.nextExecutionAt == nextExecutionAt)&&(identical(other.lastExecutionAt, lastExecutionAt) || other.lastExecutionAt == lastExecutionAt)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.retryCount, retryCount) || other.retryCount == retryCount)&&(identical(other.maxRetries, maxRetries) || other.maxRetries == maxRetries)&&(identical(other.status, status) || other.status == status)&&(identical(other.scheduleType, scheduleType) || other.scheduleType == scheduleType)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.offerId, offerId) || other.offerId == offerId)&&(identical(other.offerValue, offerValue) || other.offerValue == offerValue)&&(identical(other.baseCostUsd, baseCostUsd) || other.baseCostUsd == baseCostUsd)&&(identical(other.appFeeUsd, appFeeUsd) || other.appFeeUsd == appFeeUsd)&&(identical(other.pricingTier, pricingTier) || other.pricingTier == pricingTier)&&(identical(other.feeRuleVersion, feeRuleVersion) || other.feeRuleVersion == feeRuleVersion));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ScheduledTopup&&(identical(other.id, id) || other.id == id)&&(identical(other.simLineId, simLineId) || other.simLineId == simLineId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.currency, currency) || other.currency == currency)&&(identical(other.frequencyDays, frequencyDays) || other.frequencyDays == frequencyDays)&&(identical(other.nextExecutionAt, nextExecutionAt) || other.nextExecutionAt == nextExecutionAt)&&(identical(other.lastExecutionAt, lastExecutionAt) || other.lastExecutionAt == lastExecutionAt)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.retryCount, retryCount) || other.retryCount == retryCount)&&(identical(other.maxRetries, maxRetries) || other.maxRetries == maxRetries)&&(identical(other.status, status) || other.status == status)&&(identical(other.scheduleType, scheduleType) || other.scheduleType == scheduleType)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.offerId, offerId) || other.offerId == offerId)&&(identical(other.offerValue, offerValue) || other.offerValue == offerValue)&&(identical(other.baseCostUsd, baseCostUsd) || other.baseCostUsd == baseCostUsd)&&(identical(other.appFeeUsd, appFeeUsd) || other.appFeeUsd == appFeeUsd)&&(identical(other.pricingTier, pricingTier) || other.pricingTier == pricingTier)&&(identical(other.feeRuleVersion, feeRuleVersion) || other.feeRuleVersion == feeRuleVersion)&&(identical(other.targetLocalValue, targetLocalValue) || other.targetLocalValue == targetLocalValue)&&(identical(other.targetLocalCurrency, targetLocalCurrency) || other.targetLocalCurrency == targetLocalCurrency)&&(identical(other.maxAuthorizedUsd, maxAuthorizedUsd) || other.maxAuthorizedUsd == maxAuthorizedUsd)&&(identical(other.preferredProvider, preferredProvider) || other.preferredProvider == preferredProvider)&&(identical(other.engineVersion, engineVersion) || other.engineVersion == engineVersion)&&(identical(other.intentKind, intentKind) || other.intentKind == intentKind));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,id,simLineId,userId,amount,currency,frequencyDays,nextExecutionAt,lastExecutionAt,isActive,retryCount,maxRetries,status,scheduleType,createdAt,updatedAt,offerId,offerValue,baseCostUsd,appFeeUsd,pricingTier,feeRuleVersion]);
+int get hashCode => Object.hashAll([runtimeType,id,simLineId,userId,amount,currency,frequencyDays,nextExecutionAt,lastExecutionAt,isActive,retryCount,maxRetries,status,scheduleType,createdAt,updatedAt,offerId,offerValue,baseCostUsd,appFeeUsd,pricingTier,feeRuleVersion,targetLocalValue,targetLocalCurrency,maxAuthorizedUsd,preferredProvider,engineVersion,intentKind]);
 
 @override
 String toString() {
-  return 'ScheduledTopup(id: $id, simLineId: $simLineId, userId: $userId, amount: $amount, currency: $currency, frequencyDays: $frequencyDays, nextExecutionAt: $nextExecutionAt, lastExecutionAt: $lastExecutionAt, isActive: $isActive, retryCount: $retryCount, maxRetries: $maxRetries, status: $status, scheduleType: $scheduleType, createdAt: $createdAt, updatedAt: $updatedAt, offerId: $offerId, offerValue: $offerValue, baseCostUsd: $baseCostUsd, appFeeUsd: $appFeeUsd, pricingTier: $pricingTier, feeRuleVersion: $feeRuleVersion)';
+  return 'ScheduledTopup(id: $id, simLineId: $simLineId, userId: $userId, amount: $amount, currency: $currency, frequencyDays: $frequencyDays, nextExecutionAt: $nextExecutionAt, lastExecutionAt: $lastExecutionAt, isActive: $isActive, retryCount: $retryCount, maxRetries: $maxRetries, status: $status, scheduleType: $scheduleType, createdAt: $createdAt, updatedAt: $updatedAt, offerId: $offerId, offerValue: $offerValue, baseCostUsd: $baseCostUsd, appFeeUsd: $appFeeUsd, pricingTier: $pricingTier, feeRuleVersion: $feeRuleVersion, targetLocalValue: $targetLocalValue, targetLocalCurrency: $targetLocalCurrency, maxAuthorizedUsd: $maxAuthorizedUsd, preferredProvider: $preferredProvider, engineVersion: $engineVersion, intentKind: $intentKind)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $ScheduledTopupCopyWith<$Res>  {
   factory $ScheduledTopupCopyWith(ScheduledTopup value, $Res Function(ScheduledTopup) _then) = _$ScheduledTopupCopyWithImpl;
 @useResult
 $Res call({
- String id, String simLineId, String userId, double amount, String currency, int frequencyDays, DateTime nextExecutionAt, DateTime? lastExecutionAt, bool isActive, int retryCount, int maxRetries, String status, String scheduleType, DateTime? createdAt, DateTime? updatedAt, String? offerId, int? offerValue, double? baseCostUsd, double? appFeeUsd, String? pricingTier, int? feeRuleVersion
+ String id, String simLineId, String userId, double amount, String currency, int frequencyDays, DateTime nextExecutionAt, DateTime? lastExecutionAt, bool isActive, int retryCount, int maxRetries, String status, String scheduleType, DateTime? createdAt, DateTime? updatedAt, String? offerId, int? offerValue, double? baseCostUsd, double? appFeeUsd, String? pricingTier, int? feeRuleVersion, double? targetLocalValue, String? targetLocalCurrency, double? maxAuthorizedUsd, String? preferredProvider, int engineVersion, String intentKind
 });
 
 
@@ -65,7 +65,7 @@ class _$ScheduledTopupCopyWithImpl<$Res>
 
 /// Create a copy of ScheduledTopup
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? simLineId = null,Object? userId = null,Object? amount = null,Object? currency = null,Object? frequencyDays = null,Object? nextExecutionAt = null,Object? lastExecutionAt = freezed,Object? isActive = null,Object? retryCount = null,Object? maxRetries = null,Object? status = null,Object? scheduleType = null,Object? createdAt = freezed,Object? updatedAt = freezed,Object? offerId = freezed,Object? offerValue = freezed,Object? baseCostUsd = freezed,Object? appFeeUsd = freezed,Object? pricingTier = freezed,Object? feeRuleVersion = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? simLineId = null,Object? userId = null,Object? amount = null,Object? currency = null,Object? frequencyDays = null,Object? nextExecutionAt = null,Object? lastExecutionAt = freezed,Object? isActive = null,Object? retryCount = null,Object? maxRetries = null,Object? status = null,Object? scheduleType = null,Object? createdAt = freezed,Object? updatedAt = freezed,Object? offerId = freezed,Object? offerValue = freezed,Object? baseCostUsd = freezed,Object? appFeeUsd = freezed,Object? pricingTier = freezed,Object? feeRuleVersion = freezed,Object? targetLocalValue = freezed,Object? targetLocalCurrency = freezed,Object? maxAuthorizedUsd = freezed,Object? preferredProvider = freezed,Object? engineVersion = null,Object? intentKind = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,simLineId: null == simLineId ? _self.simLineId : simLineId // ignore: cast_nullable_to_non_nullable
@@ -88,7 +88,13 @@ as int?,baseCostUsd: freezed == baseCostUsd ? _self.baseCostUsd : baseCostUsd //
 as double?,appFeeUsd: freezed == appFeeUsd ? _self.appFeeUsd : appFeeUsd // ignore: cast_nullable_to_non_nullable
 as double?,pricingTier: freezed == pricingTier ? _self.pricingTier : pricingTier // ignore: cast_nullable_to_non_nullable
 as String?,feeRuleVersion: freezed == feeRuleVersion ? _self.feeRuleVersion : feeRuleVersion // ignore: cast_nullable_to_non_nullable
-as int?,
+as int?,targetLocalValue: freezed == targetLocalValue ? _self.targetLocalValue : targetLocalValue // ignore: cast_nullable_to_non_nullable
+as double?,targetLocalCurrency: freezed == targetLocalCurrency ? _self.targetLocalCurrency : targetLocalCurrency // ignore: cast_nullable_to_non_nullable
+as String?,maxAuthorizedUsd: freezed == maxAuthorizedUsd ? _self.maxAuthorizedUsd : maxAuthorizedUsd // ignore: cast_nullable_to_non_nullable
+as double?,preferredProvider: freezed == preferredProvider ? _self.preferredProvider : preferredProvider // ignore: cast_nullable_to_non_nullable
+as String?,engineVersion: null == engineVersion ? _self.engineVersion : engineVersion // ignore: cast_nullable_to_non_nullable
+as int,intentKind: null == intentKind ? _self.intentKind : intentKind // ignore: cast_nullable_to_non_nullable
+as String,
   ));
 }
 
@@ -173,10 +179,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String simLineId,  String userId,  double amount,  String currency,  int frequencyDays,  DateTime nextExecutionAt,  DateTime? lastExecutionAt,  bool isActive,  int retryCount,  int maxRetries,  String status,  String scheduleType,  DateTime? createdAt,  DateTime? updatedAt,  String? offerId,  int? offerValue,  double? baseCostUsd,  double? appFeeUsd,  String? pricingTier,  int? feeRuleVersion)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String simLineId,  String userId,  double amount,  String currency,  int frequencyDays,  DateTime nextExecutionAt,  DateTime? lastExecutionAt,  bool isActive,  int retryCount,  int maxRetries,  String status,  String scheduleType,  DateTime? createdAt,  DateTime? updatedAt,  String? offerId,  int? offerValue,  double? baseCostUsd,  double? appFeeUsd,  String? pricingTier,  int? feeRuleVersion,  double? targetLocalValue,  String? targetLocalCurrency,  double? maxAuthorizedUsd,  String? preferredProvider,  int engineVersion,  String intentKind)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ScheduledTopup() when $default != null:
-return $default(_that.id,_that.simLineId,_that.userId,_that.amount,_that.currency,_that.frequencyDays,_that.nextExecutionAt,_that.lastExecutionAt,_that.isActive,_that.retryCount,_that.maxRetries,_that.status,_that.scheduleType,_that.createdAt,_that.updatedAt,_that.offerId,_that.offerValue,_that.baseCostUsd,_that.appFeeUsd,_that.pricingTier,_that.feeRuleVersion);case _:
+return $default(_that.id,_that.simLineId,_that.userId,_that.amount,_that.currency,_that.frequencyDays,_that.nextExecutionAt,_that.lastExecutionAt,_that.isActive,_that.retryCount,_that.maxRetries,_that.status,_that.scheduleType,_that.createdAt,_that.updatedAt,_that.offerId,_that.offerValue,_that.baseCostUsd,_that.appFeeUsd,_that.pricingTier,_that.feeRuleVersion,_that.targetLocalValue,_that.targetLocalCurrency,_that.maxAuthorizedUsd,_that.preferredProvider,_that.engineVersion,_that.intentKind);case _:
   return orElse();
 
 }
@@ -194,10 +200,10 @@ return $default(_that.id,_that.simLineId,_that.userId,_that.amount,_that.currenc
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String simLineId,  String userId,  double amount,  String currency,  int frequencyDays,  DateTime nextExecutionAt,  DateTime? lastExecutionAt,  bool isActive,  int retryCount,  int maxRetries,  String status,  String scheduleType,  DateTime? createdAt,  DateTime? updatedAt,  String? offerId,  int? offerValue,  double? baseCostUsd,  double? appFeeUsd,  String? pricingTier,  int? feeRuleVersion)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String simLineId,  String userId,  double amount,  String currency,  int frequencyDays,  DateTime nextExecutionAt,  DateTime? lastExecutionAt,  bool isActive,  int retryCount,  int maxRetries,  String status,  String scheduleType,  DateTime? createdAt,  DateTime? updatedAt,  String? offerId,  int? offerValue,  double? baseCostUsd,  double? appFeeUsd,  String? pricingTier,  int? feeRuleVersion,  double? targetLocalValue,  String? targetLocalCurrency,  double? maxAuthorizedUsd,  String? preferredProvider,  int engineVersion,  String intentKind)  $default,) {final _that = this;
 switch (_that) {
 case _ScheduledTopup():
-return $default(_that.id,_that.simLineId,_that.userId,_that.amount,_that.currency,_that.frequencyDays,_that.nextExecutionAt,_that.lastExecutionAt,_that.isActive,_that.retryCount,_that.maxRetries,_that.status,_that.scheduleType,_that.createdAt,_that.updatedAt,_that.offerId,_that.offerValue,_that.baseCostUsd,_that.appFeeUsd,_that.pricingTier,_that.feeRuleVersion);case _:
+return $default(_that.id,_that.simLineId,_that.userId,_that.amount,_that.currency,_that.frequencyDays,_that.nextExecutionAt,_that.lastExecutionAt,_that.isActive,_that.retryCount,_that.maxRetries,_that.status,_that.scheduleType,_that.createdAt,_that.updatedAt,_that.offerId,_that.offerValue,_that.baseCostUsd,_that.appFeeUsd,_that.pricingTier,_that.feeRuleVersion,_that.targetLocalValue,_that.targetLocalCurrency,_that.maxAuthorizedUsd,_that.preferredProvider,_that.engineVersion,_that.intentKind);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -214,10 +220,10 @@ return $default(_that.id,_that.simLineId,_that.userId,_that.amount,_that.currenc
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String simLineId,  String userId,  double amount,  String currency,  int frequencyDays,  DateTime nextExecutionAt,  DateTime? lastExecutionAt,  bool isActive,  int retryCount,  int maxRetries,  String status,  String scheduleType,  DateTime? createdAt,  DateTime? updatedAt,  String? offerId,  int? offerValue,  double? baseCostUsd,  double? appFeeUsd,  String? pricingTier,  int? feeRuleVersion)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String simLineId,  String userId,  double amount,  String currency,  int frequencyDays,  DateTime nextExecutionAt,  DateTime? lastExecutionAt,  bool isActive,  int retryCount,  int maxRetries,  String status,  String scheduleType,  DateTime? createdAt,  DateTime? updatedAt,  String? offerId,  int? offerValue,  double? baseCostUsd,  double? appFeeUsd,  String? pricingTier,  int? feeRuleVersion,  double? targetLocalValue,  String? targetLocalCurrency,  double? maxAuthorizedUsd,  String? preferredProvider,  int engineVersion,  String intentKind)?  $default,) {final _that = this;
 switch (_that) {
 case _ScheduledTopup() when $default != null:
-return $default(_that.id,_that.simLineId,_that.userId,_that.amount,_that.currency,_that.frequencyDays,_that.nextExecutionAt,_that.lastExecutionAt,_that.isActive,_that.retryCount,_that.maxRetries,_that.status,_that.scheduleType,_that.createdAt,_that.updatedAt,_that.offerId,_that.offerValue,_that.baseCostUsd,_that.appFeeUsd,_that.pricingTier,_that.feeRuleVersion);case _:
+return $default(_that.id,_that.simLineId,_that.userId,_that.amount,_that.currency,_that.frequencyDays,_that.nextExecutionAt,_that.lastExecutionAt,_that.isActive,_that.retryCount,_that.maxRetries,_that.status,_that.scheduleType,_that.createdAt,_that.updatedAt,_that.offerId,_that.offerValue,_that.baseCostUsd,_that.appFeeUsd,_that.pricingTier,_that.feeRuleVersion,_that.targetLocalValue,_that.targetLocalCurrency,_that.maxAuthorizedUsd,_that.preferredProvider,_that.engineVersion,_that.intentKind);case _:
   return null;
 
 }
@@ -229,7 +235,7 @@ return $default(_that.id,_that.simLineId,_that.userId,_that.amount,_that.currenc
 
 @JsonSerializable(fieldRename: FieldRename.snake)
 class _ScheduledTopup implements ScheduledTopup {
-  const _ScheduledTopup({required this.id, required this.simLineId, required this.userId, required this.amount, this.currency = 'USD', required this.frequencyDays, required this.nextExecutionAt, this.lastExecutionAt, this.isActive = true, this.retryCount = 0, this.maxRetries = 4, this.status = 'active', this.scheduleType = 'notify', this.createdAt, this.updatedAt, this.offerId, this.offerValue, this.baseCostUsd, this.appFeeUsd, this.pricingTier, this.feeRuleVersion});
+  const _ScheduledTopup({required this.id, required this.simLineId, required this.userId, required this.amount, this.currency = 'USD', required this.frequencyDays, required this.nextExecutionAt, this.lastExecutionAt, this.isActive = true, this.retryCount = 0, this.maxRetries = 4, this.status = 'active', this.scheduleType = 'notify', this.createdAt, this.updatedAt, this.offerId, this.offerValue, this.baseCostUsd, this.appFeeUsd, this.pricingTier, this.feeRuleVersion, this.targetLocalValue, this.targetLocalCurrency, this.maxAuthorizedUsd, this.preferredProvider, this.engineVersion = 2, this.intentKind = 'exact_airtime'});
   factory _ScheduledTopup.fromJson(Map<String, dynamic> json) => _$ScheduledTopupFromJson(json);
 
 @override final  String id;
@@ -253,6 +259,12 @@ class _ScheduledTopup implements ScheduledTopup {
 @override final  double? appFeeUsd;
 @override final  String? pricingTier;
 @override final  int? feeRuleVersion;
+@override final  double? targetLocalValue;
+@override final  String? targetLocalCurrency;
+@override final  double? maxAuthorizedUsd;
+@override final  String? preferredProvider;
+@override@JsonKey() final  int engineVersion;
+@override@JsonKey() final  String intentKind;
 
 /// Create a copy of ScheduledTopup
 /// with the given fields replaced by the non-null parameter values.
@@ -267,16 +279,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ScheduledTopup&&(identical(other.id, id) || other.id == id)&&(identical(other.simLineId, simLineId) || other.simLineId == simLineId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.currency, currency) || other.currency == currency)&&(identical(other.frequencyDays, frequencyDays) || other.frequencyDays == frequencyDays)&&(identical(other.nextExecutionAt, nextExecutionAt) || other.nextExecutionAt == nextExecutionAt)&&(identical(other.lastExecutionAt, lastExecutionAt) || other.lastExecutionAt == lastExecutionAt)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.retryCount, retryCount) || other.retryCount == retryCount)&&(identical(other.maxRetries, maxRetries) || other.maxRetries == maxRetries)&&(identical(other.status, status) || other.status == status)&&(identical(other.scheduleType, scheduleType) || other.scheduleType == scheduleType)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.offerId, offerId) || other.offerId == offerId)&&(identical(other.offerValue, offerValue) || other.offerValue == offerValue)&&(identical(other.baseCostUsd, baseCostUsd) || other.baseCostUsd == baseCostUsd)&&(identical(other.appFeeUsd, appFeeUsd) || other.appFeeUsd == appFeeUsd)&&(identical(other.pricingTier, pricingTier) || other.pricingTier == pricingTier)&&(identical(other.feeRuleVersion, feeRuleVersion) || other.feeRuleVersion == feeRuleVersion));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ScheduledTopup&&(identical(other.id, id) || other.id == id)&&(identical(other.simLineId, simLineId) || other.simLineId == simLineId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.currency, currency) || other.currency == currency)&&(identical(other.frequencyDays, frequencyDays) || other.frequencyDays == frequencyDays)&&(identical(other.nextExecutionAt, nextExecutionAt) || other.nextExecutionAt == nextExecutionAt)&&(identical(other.lastExecutionAt, lastExecutionAt) || other.lastExecutionAt == lastExecutionAt)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.retryCount, retryCount) || other.retryCount == retryCount)&&(identical(other.maxRetries, maxRetries) || other.maxRetries == maxRetries)&&(identical(other.status, status) || other.status == status)&&(identical(other.scheduleType, scheduleType) || other.scheduleType == scheduleType)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.offerId, offerId) || other.offerId == offerId)&&(identical(other.offerValue, offerValue) || other.offerValue == offerValue)&&(identical(other.baseCostUsd, baseCostUsd) || other.baseCostUsd == baseCostUsd)&&(identical(other.appFeeUsd, appFeeUsd) || other.appFeeUsd == appFeeUsd)&&(identical(other.pricingTier, pricingTier) || other.pricingTier == pricingTier)&&(identical(other.feeRuleVersion, feeRuleVersion) || other.feeRuleVersion == feeRuleVersion)&&(identical(other.targetLocalValue, targetLocalValue) || other.targetLocalValue == targetLocalValue)&&(identical(other.targetLocalCurrency, targetLocalCurrency) || other.targetLocalCurrency == targetLocalCurrency)&&(identical(other.maxAuthorizedUsd, maxAuthorizedUsd) || other.maxAuthorizedUsd == maxAuthorizedUsd)&&(identical(other.preferredProvider, preferredProvider) || other.preferredProvider == preferredProvider)&&(identical(other.engineVersion, engineVersion) || other.engineVersion == engineVersion)&&(identical(other.intentKind, intentKind) || other.intentKind == intentKind));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,id,simLineId,userId,amount,currency,frequencyDays,nextExecutionAt,lastExecutionAt,isActive,retryCount,maxRetries,status,scheduleType,createdAt,updatedAt,offerId,offerValue,baseCostUsd,appFeeUsd,pricingTier,feeRuleVersion]);
+int get hashCode => Object.hashAll([runtimeType,id,simLineId,userId,amount,currency,frequencyDays,nextExecutionAt,lastExecutionAt,isActive,retryCount,maxRetries,status,scheduleType,createdAt,updatedAt,offerId,offerValue,baseCostUsd,appFeeUsd,pricingTier,feeRuleVersion,targetLocalValue,targetLocalCurrency,maxAuthorizedUsd,preferredProvider,engineVersion,intentKind]);
 
 @override
 String toString() {
-  return 'ScheduledTopup(id: $id, simLineId: $simLineId, userId: $userId, amount: $amount, currency: $currency, frequencyDays: $frequencyDays, nextExecutionAt: $nextExecutionAt, lastExecutionAt: $lastExecutionAt, isActive: $isActive, retryCount: $retryCount, maxRetries: $maxRetries, status: $status, scheduleType: $scheduleType, createdAt: $createdAt, updatedAt: $updatedAt, offerId: $offerId, offerValue: $offerValue, baseCostUsd: $baseCostUsd, appFeeUsd: $appFeeUsd, pricingTier: $pricingTier, feeRuleVersion: $feeRuleVersion)';
+  return 'ScheduledTopup(id: $id, simLineId: $simLineId, userId: $userId, amount: $amount, currency: $currency, frequencyDays: $frequencyDays, nextExecutionAt: $nextExecutionAt, lastExecutionAt: $lastExecutionAt, isActive: $isActive, retryCount: $retryCount, maxRetries: $maxRetries, status: $status, scheduleType: $scheduleType, createdAt: $createdAt, updatedAt: $updatedAt, offerId: $offerId, offerValue: $offerValue, baseCostUsd: $baseCostUsd, appFeeUsd: $appFeeUsd, pricingTier: $pricingTier, feeRuleVersion: $feeRuleVersion, targetLocalValue: $targetLocalValue, targetLocalCurrency: $targetLocalCurrency, maxAuthorizedUsd: $maxAuthorizedUsd, preferredProvider: $preferredProvider, engineVersion: $engineVersion, intentKind: $intentKind)';
 }
 
 
@@ -287,7 +299,7 @@ abstract mixin class _$ScheduledTopupCopyWith<$Res> implements $ScheduledTopupCo
   factory _$ScheduledTopupCopyWith(_ScheduledTopup value, $Res Function(_ScheduledTopup) _then) = __$ScheduledTopupCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String simLineId, String userId, double amount, String currency, int frequencyDays, DateTime nextExecutionAt, DateTime? lastExecutionAt, bool isActive, int retryCount, int maxRetries, String status, String scheduleType, DateTime? createdAt, DateTime? updatedAt, String? offerId, int? offerValue, double? baseCostUsd, double? appFeeUsd, String? pricingTier, int? feeRuleVersion
+ String id, String simLineId, String userId, double amount, String currency, int frequencyDays, DateTime nextExecutionAt, DateTime? lastExecutionAt, bool isActive, int retryCount, int maxRetries, String status, String scheduleType, DateTime? createdAt, DateTime? updatedAt, String? offerId, int? offerValue, double? baseCostUsd, double? appFeeUsd, String? pricingTier, int? feeRuleVersion, double? targetLocalValue, String? targetLocalCurrency, double? maxAuthorizedUsd, String? preferredProvider, int engineVersion, String intentKind
 });
 
 
@@ -304,7 +316,7 @@ class __$ScheduledTopupCopyWithImpl<$Res>
 
 /// Create a copy of ScheduledTopup
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? simLineId = null,Object? userId = null,Object? amount = null,Object? currency = null,Object? frequencyDays = null,Object? nextExecutionAt = null,Object? lastExecutionAt = freezed,Object? isActive = null,Object? retryCount = null,Object? maxRetries = null,Object? status = null,Object? scheduleType = null,Object? createdAt = freezed,Object? updatedAt = freezed,Object? offerId = freezed,Object? offerValue = freezed,Object? baseCostUsd = freezed,Object? appFeeUsd = freezed,Object? pricingTier = freezed,Object? feeRuleVersion = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? simLineId = null,Object? userId = null,Object? amount = null,Object? currency = null,Object? frequencyDays = null,Object? nextExecutionAt = null,Object? lastExecutionAt = freezed,Object? isActive = null,Object? retryCount = null,Object? maxRetries = null,Object? status = null,Object? scheduleType = null,Object? createdAt = freezed,Object? updatedAt = freezed,Object? offerId = freezed,Object? offerValue = freezed,Object? baseCostUsd = freezed,Object? appFeeUsd = freezed,Object? pricingTier = freezed,Object? feeRuleVersion = freezed,Object? targetLocalValue = freezed,Object? targetLocalCurrency = freezed,Object? maxAuthorizedUsd = freezed,Object? preferredProvider = freezed,Object? engineVersion = null,Object? intentKind = null,}) {
   return _then(_ScheduledTopup(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,simLineId: null == simLineId ? _self.simLineId : simLineId // ignore: cast_nullable_to_non_nullable
@@ -327,7 +339,13 @@ as int?,baseCostUsd: freezed == baseCostUsd ? _self.baseCostUsd : baseCostUsd //
 as double?,appFeeUsd: freezed == appFeeUsd ? _self.appFeeUsd : appFeeUsd // ignore: cast_nullable_to_non_nullable
 as double?,pricingTier: freezed == pricingTier ? _self.pricingTier : pricingTier // ignore: cast_nullable_to_non_nullable
 as String?,feeRuleVersion: freezed == feeRuleVersion ? _self.feeRuleVersion : feeRuleVersion // ignore: cast_nullable_to_non_nullable
-as int?,
+as int?,targetLocalValue: freezed == targetLocalValue ? _self.targetLocalValue : targetLocalValue // ignore: cast_nullable_to_non_nullable
+as double?,targetLocalCurrency: freezed == targetLocalCurrency ? _self.targetLocalCurrency : targetLocalCurrency // ignore: cast_nullable_to_non_nullable
+as String?,maxAuthorizedUsd: freezed == maxAuthorizedUsd ? _self.maxAuthorizedUsd : maxAuthorizedUsd // ignore: cast_nullable_to_non_nullable
+as double?,preferredProvider: freezed == preferredProvider ? _self.preferredProvider : preferredProvider // ignore: cast_nullable_to_non_nullable
+as String?,engineVersion: null == engineVersion ? _self.engineVersion : engineVersion // ignore: cast_nullable_to_non_nullable
+as int,intentKind: null == intentKind ? _self.intentKind : intentKind // ignore: cast_nullable_to_non_nullable
+as String,
   ));
 }
 

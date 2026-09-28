@@ -3043,4 +3043,76 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get clearSearchAndFilters => 'Borrar búsqueda y filtros';
+
+  @override
+  String get setupRefill => 'Setup Refill';
+
+  @override
+  String get scheduledRefill => 'Scheduled Refill';
+
+  @override
+  String get instantRefill => 'Instant Refill';
+
+  @override
+  String get customRefill => 'Custom Refill';
+
+  @override
+  String get notifTitleNumberAdded => '✅ Number added';
+
+  @override
+  String get notifTitleAutoRechargeScheduled => '✅ Auto-recharge scheduled';
+
+  @override
+  String get notifTitleSetupIncomplete => '⚠️ Finish setting up your number';
+
+  @override
+  String get notifTitleRechargeSuccessful => '✅ Recharge successful';
+
+  @override
+  String get notifTitleRechargeDueToday => '⚠️ Recharge due today';
+
+  @override
+  String get notifTitleRechargeFailed => '❌ Recharge failed';
+
+  @override
+  String get notifTitleWalletLow => '⚠️ Wallet balance is low';
+
+  @override
+  String get notifTitleRechargeNeedsFunds => '⚠️ Recharge needs funds';
+
+  @override
+  String get notifTitleLineCritical => '⚠️ Your number needs attention';
+
+  @override
+  String get notifChannelConfirmations => 'Setup confirmations';
+
+  @override
+  String get notifChannelUpdates => 'Recharge updates';
+
+  @override
+  String get notifChannelUrgent => 'Urgent recharge alerts';
+
+  @override
+  String get smartCalling => 'Smart Calling';
+
+  @override
+  String get keepSimsSmartCalling => 'KeepSIMs Smart Calling';
+
+  @override
+  String get smartCall => 'Smart Call';
+
+  @override
+  String get freeCall => 'Free Call';
+
+  @override
+  String get smartCallSavings => 'Smart Call Savings';
+
+  @override
+  String get virtualNumbers => 'Virtual Numbers';
+
+  @override
+  String get voicemail => 'Voicemail';
+
+  @override
+  String get inspector => 'Inspector';
 }

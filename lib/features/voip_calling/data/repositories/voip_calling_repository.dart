@@ -87,20 +87,19 @@ class VoipCallingRepository {
     }, onConflict: 'user_id,device_id');
   }
 
-  /// Check if a phone number belongs to a registered KeepSIMs user eligible for free VoIP calls
+  /// Check if a phone number belongs to a registered KeepSIMs user eligible for free VoIP calls.
+  /// Returns null if not found, or throws if a network/service error occurs.
   Future<ContactLookupResult?> lookupContactByPhone(String phone) async {
-    try {
-      final res = await _supabase.rpc(
-        'lookup_voip_contact_by_phone',
-        params: {'p_phone': phone},
-      );
+    final res = await _supabase.rpc(
+      'lookup_voip_contact_by_phone',
+      params: {'p_phone': phone},
+    );
 
-      if (res is List && res.isNotEmpty) {
-        return ContactLookupResult.fromJson(
-          Map<String, dynamic>.from(res.first as Map),
-        );
-      }
-    } catch (_) {}
+    if (res is List && res.isNotEmpty) {
+      return ContactLookupResult.fromJson(
+        Map<String, dynamic>.from(res.first as Map),
+      );
+    }
     return null;
   }
 

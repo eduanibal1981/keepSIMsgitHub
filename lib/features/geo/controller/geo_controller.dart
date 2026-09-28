@@ -42,10 +42,24 @@ class GeoController extends _$GeoController {
       'ES': 'Spain',
       'NP': 'Nepal',
       'BD': 'Bangladesh',
+      'OM': 'Oman',
+      'SA': 'Saudi Arabia',
+      'KW': 'Kuwait',
+      'QA': 'Qatar',
+      'BH': 'Bahrain',
+      'JO': 'Jordan',
+      'PH': 'Philippines',
+      'PK': 'Pakistan',
     };
 
     final currentIso = _detectedIso ?? lastCountryCode ?? homeCountryCode;
-    final currentCountry = _detectedCountry ?? (countryNames[currentIso] ?? currentIso);
+    final supportedCountries = ref.watch(supportedCountriesProvider).value ?? [];
+    final matchingCountry = supportedCountries
+        .where((c) => c.isoCode.trim().toUpperCase() == currentIso.toUpperCase())
+        .firstOrNull;
+    final currentCountry = _detectedCountry ??
+        matchingCountry?.name ??
+        (countryNames[currentIso] ?? currentIso);
 
     final isHome = currentIso == homeCountryCode;
 

@@ -12,6 +12,9 @@ class VoicemailMessage {
   final String status;
   final bool isRead;
   final DateTime createdAt;
+  final String? aiSummary;
+  final String? category;
+  final String? translation;
 
   const VoicemailMessage({
     required this.id,
@@ -24,6 +27,9 @@ class VoicemailMessage {
     required this.status,
     required this.isRead,
     required this.createdAt,
+    this.aiSummary,
+    this.category,
+    this.translation,
   });
 
   factory VoicemailMessage.fromJson(Map<String, dynamic> json) {
@@ -40,6 +46,9 @@ class VoicemailMessage {
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'] as String)
           : DateTime.now(),
+      aiSummary: json['ai_summary'] as String? ?? json['summary'] as String?,
+      category: json['category'] as String?,
+      translation: json['translation'] as String?,
     );
   }
 
@@ -47,5 +56,15 @@ class VoicemailMessage {
     final m = (durationSeconds ~/ 60).toString().padLeft(2, '0');
     final s = (durationSeconds % 60).toString().padLeft(2, '0');
     return '$m:$s';
+  }
+
+  String? get inferredCountryCode {
+    if (callerNumber.startsWith('+968')) return 'OM';
+    if (callerNumber.startsWith('+1')) return 'US';
+    if (callerNumber.startsWith('+44')) return 'GB';
+    if (callerNumber.startsWith('+20')) return 'EG';
+    if (callerNumber.startsWith('+971')) return 'AE';
+    if (callerNumber.startsWith('+966')) return 'SA';
+    return null;
   }
 }

@@ -185,13 +185,13 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen>
   }
 
   Future<void> _initiateCheckout() async {
-    // 1. Biometric / Passcode Auth Guard Gate (Defect #7 fix)
+    // 1. Biometric / Passcode Auth Guard Gate (mandatory-if-enrolled)
     final authResult = await ref.read(paymentAuthGuardProvider).confirmPayment(
       reason: 'Authorize PayPal payment',
     );
 
-    if (authResult != BiometricResult.success) {
-      if (mounted && authResult == BiometricResult.lockedOut) {
+    if (authResult == BiometricResult.lockedOut) {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -202,6 +202,9 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen>
           ),
         );
       }
+      return;
+    } else if (authResult == BiometricResult.cancelled ||
+        authResult == BiometricResult.failed) {
       return;
     }
 
@@ -314,10 +317,17 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen>
     final approveUrl = _approveUrl;
     if (approveUrl == null) return;
     final uri = Uri.parse(approveUrl);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.inAppBrowserView);
-    } else {
-      throw Exception('Could not launch PayPal approval URL.');
+    try {
+      final launched = await launchUrl(uri, mode: LaunchMode.inAppBrowserView);
+      if (!launched) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      }
+    } catch (_) {
+      try {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } catch (e) {
+        throw Exception('Could not launch PayPal approval URL: $e');
+      }
     }
   }
 
@@ -522,6 +532,32 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen>
                         ),
                       ),
                     ],
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF0070BA).withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: const Color(0xFF0070BA).withValues(alpha: 0.3),
+                        ),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.shield_outlined, size: 14, color: Color(0xFF0070BA)),
+                          SizedBox(width: 5),
+                          Text(
+                            'PayPal Sandbox Mode',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF0070BA),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                     const SizedBox(height: 12),
                     if (isDeposit) ...[
                       // Preset Amount Chips (Defect #1 fix)
@@ -629,21 +665,28 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen>
                     ),
                   ),
                 ),
-              // While the tab is open the primary action is getting back to
-              // PayPal, not forcing a capture — the capture resolves itself.
               if (_status == PayPalCheckoutStatus.awaitingApproval) ...[
                 SizedBox(
                   width: double.infinity,
                   height: 54,
                   child: ElevatedButton.icon(
-                    onPressed: _openApprovalUrl,
-                    icon: const Icon(Icons.open_in_new_rounded, size: 20),
+                    onPressed: _isCapturingManually ? null : _verifyAfterReturn,
+                    icon: _isCapturingManually
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Icon(Icons.check_circle_rounded, size: 20),
                     label: Text(
-                      l10n.payPalReopenButton,
+                      l10n.payPalForceCaptureButton,
                       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF0070BA),
+                      backgroundColor: const Color(0xFF10B981),
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
@@ -651,22 +694,26 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen>
                     ),
                   ),
                 ),
-                // Only offered once the automatic path has visibly had its
-                // chance, so it reads as a rescue rather than a required step.
-                if (_secondsAwaiting >= _slowApprovalSeconds)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 10.0),
-                    child: TextButton(
-                      onPressed: _isCapturingManually ? null : _verifyAfterReturn,
-                      style: TextButton.styleFrom(
-                        foregroundColor: const Color(0xFF0070BA),
-                      ),
-                      child: Text(
-                        l10n.payPalForceCaptureButton,
-                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                const SizedBox(height: 10),
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: OutlinedButton.icon(
+                    onPressed: _openApprovalUrl,
+                    icon: const Icon(Icons.open_in_new_rounded, size: 18),
+                    label: Text(
+                      l10n.payPalReopenButton,
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: const Color(0xFF0070BA),
+                      side: const BorderSide(color: Color(0xFF0070BA)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
                       ),
                     ),
                   ),
+                ),
               ],
               if (_status == PayPalCheckoutStatus.capturing)
                 const SizedBox(

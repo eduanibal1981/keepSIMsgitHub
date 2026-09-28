@@ -32,22 +32,23 @@ class DashboardSimLineCard extends ConsumerWidget {
     final refillSchedule = customSchedule ?? miniSchedule;
     final isLight = Theme.of(context).brightness == Brightness.light;
 
-    bool isNotifyActive =
-        notifySchedule != null && notifySchedule.status == 'active';
-    bool isRefillActive =
+    final bool isNotifyActive =
+        notifySchedule != null && notifySchedule.status == 'active' && notifySchedule.isActive;
+    final bool isRefillActive =
         (miniSchedule != null && miniSchedule.status == 'active') ||
         (customSchedule != null && customSchedule.status == 'active');
     final bool isPremium = line.protectionTier.toLowerCase() == 'premium';
     final bool hasProtectionActive = isPremium ? isRefillActive : isNotifyActive;
-    final bool isVerified = line.status == 'active' ||
-        line.isCarrierVerified ||
-        line.carrierVerifiedAt != null ||
-        line.verificationStatus == 'verified';
+    final bool isRealLiveVerified =
+        ref.watch(hasRealLiveVerificationProvider(line.id)).value ?? false;
+    final carrierRule = line.carrierId != null
+        ? ref.watch(carrierRuleProvider(line.carrierId!)).value
+        : null;
 
     final int computedHealthScore = line.displayHealthScore(
-      hasRefillSchedule: isRefillActive,
+      isRealLiveVerified: isRealLiveVerified,
       hasNotificationSchedule: isNotifyActive,
-      isVerified: isVerified,
+      carrierExpirationDays: carrierRule?.inactivityLimitDays,
     );
 
     Color glowColor = AppColors.healthGreen;

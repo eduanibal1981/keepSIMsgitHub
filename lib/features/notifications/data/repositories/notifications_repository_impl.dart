@@ -4,6 +4,7 @@ import 'package:keep_sims/features/notifications/data/models/notification_model.
 import 'package:keep_sims/features/notifications/data/models/alert_setting_model.dart';
 import 'package:keep_sims/features/notifications/data/models/user_preferences_model.dart';
 import 'package:keep_sims/features/notifications/domain/repositories/notifications_repository.dart';
+import 'package:keep_sims/features/notifications/domain/notification_event_catalog.dart';
 
 part 'notifications_repository_impl.g.dart';
 
@@ -222,6 +223,23 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
   }
 
   @override
+  Future<Map<String, Map<String, dynamic>>> getChannelCatalog() async {
+    try {
+      final response = await _supabase
+          .from('notification_channel_catalog')
+          .select('channel_key, label, is_globally_enabled, min_tier');
+      final map = <String, Map<String, dynamic>>{};
+      for (final row in (response as List)) {
+        final m = Map<String, dynamic>.from(row as Map);
+        map[m['channel_key'] as String] = m;
+      }
+      return map;
+    } catch (_) {
+      return {};
+    }
+  }
+
+  @override
   Future<void> updateNotificationChannel({
     required String channelType,
     required bool isEnabled,
@@ -269,7 +287,7 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
           'title': title,
           'body': body,
           'is_read': false,
-          'action_url': simLineId != null ? '/sim_lines/$simLineId' : null,
+          'action_url': simLineId != null ? '/sim-lines/detail/$simLineId' : null,
           'sim_line_id': simLineId,
           'delivered_via': ['push'],
         });
@@ -287,6 +305,13 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
     String? simLineId,
   }) async {
     try {
+      final pushChannelRow = await _supabase
+          .from('notification_channels')
+          .select('is_enabled')
+          .eq('user_id', _currentUserId)
+          .eq('channel_type', 'push')
+          .maybeSingle();
+
       final channelsResp = await _supabase
           .from('notification_channels')
           .select('channel_type')
@@ -296,9 +321,11 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
       final activeChannels = (channelsResp as List)
           .map((c) => c['channel_type'] as String)
           .toList();
-      
-      if (activeChannels.isEmpty) {
-        activeChannels.add('push'); // Fallback
+
+      final isPushExplicitlyDisabled =
+          pushChannelRow != null && pushChannelRow['is_enabled'] == false;
+      if (activeChannels.isEmpty && !isPushExplicitlyDisabled) {
+        activeChannels.add('push'); // Default fallback only if not explicitly disabled
       }
 
       await _supabase.from('notifications').insert({
@@ -307,12 +334,97 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
         'title': title,
         'body': body,
         'is_read': false,
-        'action_url': simLineId != null ? '/sim_lines/$simLineId' : null,
+        'action_url': simLineId != null ? '/sim-lines/detail/$simLineId' : null,
         'sim_line_id': simLineId,
         'delivered_via': activeChannels,
       });
     } on PostgrestException catch (e) {
       throw Exception('Failed to send notification: ${e.message}');
+    }
+  }
+
+  @override
+  Future<void> emitEvent({
+    required NotificationEventType eventType,
+    required Map<String, dynamic> templateData,
+    String? simLineId,
+    String? sourceEventKey,
+    DateTime? scheduledAt,
+    DateTime? expiresAt,
+    Map<String, dynamic>? target,
+    String? language,
+  }) async {
+    try {
+      final userLang = language ?? (await getUserPreferences()).language;
+      final rendered = NotificationEventCatalog.render(
+        eventType: eventType,
+        data: templateData,
+        language: userLang,
+      );
+
+      final category = NotificationEventCatalog.resolveCategory(eventType);
+      final canonicalActionUrl =
+          simLineId != null ? '/sim-lines/detail/$simLineId' : null;
+
+      final pushChannelRow = await _supabase
+          .from('notification_channels')
+          .select('is_enabled')
+          .eq('user_id', _currentUserId)
+          .eq('channel_type', 'push')
+          .maybeSingle();
+
+      final channelsResp = await _supabase
+          .from('notification_channels')
+          .select('channel_type')
+          .eq('user_id', _currentUserId)
+          .eq('is_enabled', true);
+
+      final activeChannels = (channelsResp as List)
+          .map((c) => c['channel_type'] as String)
+          .toList();
+
+      final isPushExplicitlyDisabled =
+          pushChannelRow != null && pushChannelRow['is_enabled'] == false;
+      if (activeChannels.isEmpty && !isPushExplicitlyDisabled) {
+        activeChannels.add('push');
+      }
+
+      final resolvedTarget = target ??
+          (simLineId != null
+              ? {'route': '/sim-lines/detail/$simLineId', 'id': simLineId}
+              : null);
+
+      // Sanitize templateData ensuring DateTime values are converted to ISO strings
+      final sanitizedTemplateData = templateData.map((key, value) {
+        if (value is DateTime) {
+          return MapEntry(key, value.toUtc().toIso8601String());
+        }
+        return MapEntry(key, value);
+      });
+
+      await _supabase.from('notifications').insert({
+        'user_id': _currentUserId,
+        'category': category,
+        'title': rendered.title,
+        'body': rendered.body,
+        'is_read': false,
+        'action_url': canonicalActionUrl,
+        'sim_line_id': simLineId,
+        'delivered_via': activeChannels,
+        'schema_version': 2,
+        'event_type': eventType.wireName,
+        'source_event_key': sourceEventKey,
+        'occurred_at': DateTime.now().toUtc().toIso8601String(),
+        'scheduled_at': scheduledAt?.toUtc().toIso8601String(),
+        'expires_at': expiresAt?.toUtc().toIso8601String(),
+        'template_version': 1,
+        'template_data': sanitizedTemplateData,
+        'target': resolvedTarget,
+      });
+    } on PostgrestException catch (e) {
+      throw Exception('Failed to emit notification event: ${e.message}');
+    } catch (e) {
+      throw Exception('Unexpected error emitting notification event: $e');
     }
   }
 }
@@ -321,3 +433,4 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
 NotificationsRepository notificationsRepository(Ref ref) {
   return NotificationsRepositoryImpl(supabase: Supabase.instance.client);
 }
+

@@ -76,4 +76,5 @@ abstract class SimLinesRepository {
     double? amount,
     String? note,
   });
+  Future<bool> hasRealLiveVerification(String simLineId);
 }

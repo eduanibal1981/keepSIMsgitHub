@@ -67,6 +67,10 @@ void main() {
       expect(callingState.isActive, isTrue);
       expect(callingState.isTerminal, isFalse);
 
+      const connectingState = VoipActiveCallState(status: 'connecting');
+      expect(connectingState.isActive, isTrue);
+      expect(connectingState.isTerminal, isFalse);
+
       const connectedState = VoipActiveCallState(status: 'connected', durationSeconds: 12);
       expect(connectedState.isActive, isTrue);
       expect(connectedState.isTerminal, isFalse);
@@ -74,6 +78,10 @@ void main() {
       const endedState = VoipActiveCallState(status: 'ended');
       expect(endedState.isActive, isFalse);
       expect(endedState.isTerminal, isTrue);
+
+      const missedState = VoipActiveCallState(status: 'missed');
+      expect(missedState.isActive, isFalse);
+      expect(missedState.isTerminal, isTrue);
     });
 
     test('copyWith updates fields correctly', () {

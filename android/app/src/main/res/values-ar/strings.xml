@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">KeepSIMs</string>
+    <string name="channel_confirmations_name">تأكيدات الإعداد</string>
+    <string name="channel_confirmations_description">تأكيدات إضافة الأرقام وجدولة الشحن</string>
+    <string name="channel_updates_name">تحديثات الشحن</string>
+    <string name="channel_updates_description">تذكيرات وحالات الشحن المجدول</string>
+    <string name="channel_urgent_name">تنبيهات الشحن العاجلة</string>
+    <string name="channel_urgent_description">تنبيهات هامة تتطلب شحناً أو إجراءً فورياً</string>
+</resources>

@@ -1,3 +1,5 @@
+import 'package:keep_sims/core/providers.dart';
+import 'package:keep_sims/features/scheduled_topups/ui/widgets/refill_price_approval_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,7 +15,9 @@ import 'package:keep_sims/core/utils/build_context_extension.dart';
 import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import 'package:keep_sims/features/household/presentation/controllers/household_controller.dart';
 import 'package:keep_sims/features/scheduled_topups/controller/scheduled_topup_controller.dart';
+import 'package:keep_sims/features/scheduled_topups/model/topup_execution_model.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_line_detail_controller.dart';
+import 'package:keep_sims/l10n/app_localizations.dart';
 
 class SimLineExecutionsHistoryScreen extends ConsumerStatefulWidget {
   final String simLineId;
@@ -92,6 +96,53 @@ class _SimLineExecutionsHistoryScreenState
         );
       }
     }
+  }
+
+  Future<void> _handleApproveRefill(
+    BuildContext context,
+    TopupExecution ex,
+  ) async {
+    final repository = ref.read(scheduledTopupRepositoryProvider);
+    final approved = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => RefillPriceApprovalDialog(
+        loadQuote: () => repository.prepareExecutionApproval(ex.id),
+        approveQuote: (quote) => ref
+            .read(simLineDetailControllerProvider(widget.simLineId).notifier)
+            .approveRefillExecution(
+              ex.id,
+              quoteId: quote.id,
+              newMaxAuthorizedUsd: quote.totalUsd,
+            ),
+      ),
+    );
+    if (!context.mounted) return;
+    ref.invalidate(topupExecutionsForLineProvider(widget.simLineId));
+    ref.invalidate(simLineExecutionsHistoryProvider(widget.simLineId));
+    if (approved == true) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Approval accepted. Processing may start immediately; any higher price needs your approval again.',
+          ),
+          backgroundColor: AppColors.success,
+        ),
+      );
+    }
+  }
+
+  String _getRefillTypeLabel(BuildContext context, TopupExecution ex) {
+    final l10n = AppLocalizations.of(context);
+    if (ex.fundingKind == 'setup_hold') {
+      return l10n?.setupRefill ?? 'Setup Refill';
+    }
+    return switch (ex.executionType) {
+      'refill_instant' => l10n?.instantRefill ?? 'Instant Refill',
+      'refill_mini' => l10n?.scheduledRefill ?? 'Scheduled Refill',
+      'refill_custom' => l10n?.customRefill ?? 'Custom Refill',
+      _ => 'SIM Refill',
+    };
   }
 
   @override
@@ -214,7 +265,9 @@ class _SimLineExecutionsHistoryScreenState
 
                 final ex = executions[index];
                 final isSuccess = ex.status == 'success';
-                final targetDate = ex.executedAt ?? ex.executionTime ?? ex.createdAt ?? DateTime.now();
+                final targetDate = isSuccess
+                    ? (ex.executedAt ?? ex.executionTime ?? ex.createdAt ?? DateTime.now())
+                    : (ex.executionTime ?? ex.executedAt ?? ex.createdAt ?? DateTime.now());
                 final dateStr = DateFormat(
                   'MMM dd, yyyy HH:mm',
                 ).format(targetDate);
@@ -260,6 +313,30 @@ class _SimLineExecutionsHistoryScreenState
                                   ),
                                 ),
                                 const SizedBox(width: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: (isDark
+                                            ? AppColors.primaryLight
+                                            : AppColors.primary)
+                                        .withValues(alpha: 0.12),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Text(
+                                    _getRefillTypeLabel(context, ex),
+                                    style: TextStyle(
+                                      color: isDark
+                                          ? AppColors.primaryLight
+                                          : AppColors.primary,
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
                                 Container(
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 6,
@@ -345,7 +422,10 @@ class _SimLineExecutionsHistoryScreenState
                                       children: [
                                         Expanded(
                                           child: Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 10,
+                                              vertical: 8,
+                                            ),
                                             decoration: BoxDecoration(
                                               color: isDark ? AppColors.darkSurface : Colors.white,
                                               borderRadius: BorderRadius.circular(8),
@@ -366,13 +446,22 @@ class _SimLineExecutionsHistoryScreenState
                                         ),
                                         const SizedBox(width: 8),
                                         IconButton.filledTonal(
-                                          icon: const Icon(Icons.copy_rounded, size: 18),
+                                          icon: const Icon(
+                                            Icons.copy_rounded,
+                                            size: 18,
+                                          ),
                                           tooltip: 'Copy PIN',
                                           onPressed: () {
-                                            Clipboard.setData(ClipboardData(text: ex.pinCode!));
-                                            ScaffoldMessenger.of(context).showSnackBar(
+                                            Clipboard.setData(
+                                              ClipboardData(text: ex.pinCode!),
+                                            );
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
                                               const SnackBar(
-                                                content: Text('PIN copied to clipboard!'),
+                                                content: Text(
+                                                  'PIN copied to clipboard!',
+                                                ),
                                                 duration: Duration(seconds: 2),
                                               ),
                                             );
@@ -394,20 +483,35 @@ class _SimLineExecutionsHistoryScreenState
                                     SizedBox(
                                       width: double.infinity,
                                       child: ElevatedButton.icon(
-                                        icon: const Icon(Icons.phone_forwarded_rounded, size: 16),
+                                        icon: const Icon(
+                                          Icons.phone_forwarded_rounded,
+                                          size: 16,
+                                        ),
                                         label: Text(
                                           '1-Tap Dial (*1400*${ex.pinCode}#)',
-                                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 13,
+                                          ),
                                         ),
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: isDark ? Colors.amber.shade700 : Colors.orange.shade700,
                                           foregroundColor: Colors.white,
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                          padding: const EdgeInsets.symmetric(vertical: 10),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                          ),
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 10,
+                                          ),
                                         ),
                                         onPressed: () async {
-                                          final dialString = '*1400*${ex.pinCode}#';
-                                          final uri = Uri.parse('tel:${Uri.encodeComponent(dialString)}');
+                                          final dialString =
+                                              '*1400*${ex.pinCode}#';
+                                          final uri = Uri.parse(
+                                            'tel:${Uri.encodeComponent(dialString)}',
+                                          );
                                           if (await canLaunchUrl(uri)) {
                                             await launchUrl(uri);
                                           }
@@ -418,16 +522,95 @@ class _SimLineExecutionsHistoryScreenState
                                 ),
                               ),
                             ],
-                            if (!isSuccess && ex.failureReason != null) ...[
+                            if (ex.status == 'awaiting_approval') ...[
+                              const SizedBox(height: 6),
+                              Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: Colors.amber.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: Colors.amber.withValues(alpha: 0.4),
+                                  ),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.warning_amber_rounded,
+                                          size: 16,
+                                          color: Colors.amber.shade900,
+                                        ),
+                                        const SizedBox(width: 6),
+                                        Text(
+                                          'Price Increase Approval Required',
+                                          style: AppTextStyles.labelSmall
+                                              .copyWith(
+                                                color: Colors.amber.shade900,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      'Quoted price \$${ex.amount.toStringAsFixed(2)} exceeds authorized limit of \$${(ex.maxAuthorizedUsd ?? ex.amount).toStringAsFixed(2)}.',
+                                      style: AppTextStyles.bodySmall.copyWith(
+                                        color: Colors.amber.shade900,
+                                      ),
+                                    ),
+                                    if (!_isViewer) ...[
+                                      const SizedBox(height: 8),
+                                      SizedBox(
+                                        height: 28,
+                                        child: ElevatedButton(
+                                          onPressed: () =>
+                                              _handleApproveRefill(context, ex),
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor:
+                                                Colors.amber.shade800,
+                                            foregroundColor: Colors.white,
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                            ),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(6),
+                                            ),
+                                          ),
+                                          child: const Text(
+                                            'Review Current Price',
+                                            style: TextStyle(
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              ),
+                            ],
+                            if (!isSuccess &&
+                                ex.status != 'awaiting_approval' &&
+                                ex.failureReason != null) ...[
                               const SizedBox(height: 6),
                               Container(
                                 width: double.infinity,
                                 padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
-                                  color: AppColors.error.withValues(alpha: 0.05),
+                                  color: AppColors.error.withValues(
+                                    alpha: 0.05,
+                                  ),
                                   borderRadius: BorderRadius.circular(8),
                                   border: Border.all(
-                                    color: AppColors.error.withValues(alpha: 0.15),
+                                    color: AppColors.error.withValues(
+                                      alpha: 0.15,
+                                    ),
                                   ),
                                 ),
                                 child: Column(

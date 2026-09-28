@@ -13,6 +13,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:keep_sims/core/failure.dart';
 import 'package:keep_sims/core/result.dart';
+import 'package:keep_sims/core/services/auth_session_manager.dart';
 import 'package:keep_sims/core/services/connectivity_service.dart';
 import 'package:keep_sims/core/services/local_cache_service.dart';
 import '../contract/auth_contract.dart';
@@ -93,7 +94,7 @@ class AuthRepository implements AuthContract {
       }
 
       // Fetch the profile created by the DB trigger
-      return getCurrentProfile();
+      return await getCurrentProfile();
     } on AuthException catch (e) {
       return Failure(AppFailure.auth(message: e.message));
     } on PostgrestException catch (e) {
@@ -127,7 +128,7 @@ class AuthRepository implements AuthContract {
       }
 
       // Fetch the profile created by the DB trigger
-      return getCurrentProfile();
+      return await getCurrentProfile();
     } on AuthException catch (e) {
       if (e.message.toLowerCase().contains('email not confirmed')) {
         return const Failure(
@@ -256,11 +257,14 @@ class AuthRepository implements AuthContract {
         );
       }
 
-      final response = await _client
-          .from('profiles')
-          .select()
-          .eq('id', userId)
-          .single();
+      final response = await AuthSessionManager.withAuthRecovery(
+        _client,
+        () => _client
+            .from('profiles')
+            .select()
+            .eq('id', userId)
+            .single(),
+      );
 
       await _cache.writeJson('cached_user_profile', response);
       return Success(UserProfile.fromJson(response));
@@ -289,6 +293,11 @@ class AuthRepository implements AuthContract {
 
   @override
   bool get isAuthenticated => _client.auth.currentUser != null;
+
+  @override
+  Future<bool> ensureValidSession({bool force = false}) async {
+    return AuthSessionManager.ensureFreshSession(_client, force: force);
+  }
 
   @override
   Stream<String?> get authStateChanges =>

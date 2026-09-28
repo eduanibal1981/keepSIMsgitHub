@@ -244,7 +244,7 @@
                                                                 }
                                             }
                        },
-    "lockedAlertSubtitle":  "تنبيهات {channelName} هي ميزات باقتي البداية والمتميزة. قم بترقية باقتك لفتح تنبيهات واتساب، تليجرام والبريد الإلكتروني!",
+    "lockedAlertSubtitle":  "تنبيهات {channelName} هي ميزات الباقتين القياسية والمتميزة. قم بترقية باقتك لفتح تنبيهات واتساب والبريد الإلكتروني!",
     "@lockedAlertSubtitle":  {
                                  "placeholders":  {
                                                       "channelName":  {
@@ -253,7 +253,7 @@
                                                   }
                              },
     "upsellProtect5Lines":  "حماية ما يصل إلى 5 خطوط SIM في نفس الوقت",
-    "upsellUnlockChannels":  "فتح إشعارات واتساب، تليجرام والبريد الإلكتروني",
+    "upsellUnlockChannels":  "فتح إشعارات واتساب والبريد الإلكتروني",
     "upsellEnableTravelModes":  "تفعيل أوضاع صلاحية السفر والمنزل التلقائية",
     "emailAddressLabel":  "عنوان البريد الإلكتروني للإشعارات",
     "emailAddressHint":  "مثال: user@domain.com",
@@ -972,5 +972,29 @@
     "refreshSims": "تحديث الشرائح",
     "noMatchingSims": "لا توجد شرائح مطابقة",
     "tryDifferentSimSearch": "جرب اسماً أو رقماً أو فلتراً آخر.",
-    "clearSearchAndFilters": "مسح البحث والفلاتر"
+    "clearSearchAndFilters": "مسح البحث والفلاتر",
+    "setupRefill": "شحن إعداد الشريحة",
+    "scheduledRefill": "شحن مجدول",
+    "instantRefill": "شحن فوري",
+    "customRefill": "شحن مخصص",
+    "notifTitleNumberAdded": "✅ تمت إضافة الرقم",
+    "notifTitleAutoRechargeScheduled": "✅ تمت جدولة الشحن التلقائي",
+    "notifTitleSetupIncomplete": "⚠️ أكمل إعداد رقمك",
+    "notifTitleRechargeSuccessful": "✅ تم الشحن بنجاح",
+    "notifTitleRechargeDueToday": "⚠️ موعد الشحن اليوم",
+    "notifTitleRechargeFailed": "❌ تعذّر الشحن",
+    "notifTitleWalletLow": "⚠️ رصيد المحفظة منخفض",
+    "notifTitleRechargeNeedsFunds": "⚠️ الشحن يتطلب رصيداً",
+    "notifTitleLineCritical": "⚠️ رقمك بحاجة إلى إجراء",
+    "notifChannelConfirmations": "تأكيدات الإعداد",
+    "notifChannelUpdates": "تحديثات الشحن",
+    "notifChannelUrgent": "تنبيهات الشحن العاجلة",
+    "smartCalling": "اتصال ذكي",
+    "keepSimsSmartCalling": "اتصال كيب سيمز الذكي",
+    "smartCall": "اتصال ذكي",
+    "freeCall": "مكالمة مجانية",
+    "smartCallSavings": "توفير الاتصال الذكي",
+    "virtualNumbers": "الأرقام الافتراضية",
+    "voicemail": "البريد الصوتي",
+    "inspector": "الفاحص"
 }

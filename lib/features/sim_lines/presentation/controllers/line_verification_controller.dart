@@ -149,6 +149,8 @@ class LineVerificationController extends _$LineVerificationController {
 
           // Invalidate SIM line controllers to reflect new verification timestamp and health score
           ref.invalidate(simLinesControllerProvider);
+          ref.invalidate(hasRealLiveVerificationProvider(simLineId));
+          ref.invalidate(simLineActivityLogsProvider(simLineId));
           return;
         }
 

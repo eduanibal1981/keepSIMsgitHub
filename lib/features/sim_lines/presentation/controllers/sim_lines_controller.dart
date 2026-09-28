@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
@@ -16,6 +17,7 @@ import 'package:keep_sims/core/providers.dart';
 import 'package:keep_sims/features/scheduled_topups/model/scheduled_topup_model.dart';
 import 'package:keep_sims/core/result.dart';
 import 'package:keep_sims/features/notifications/data/repositories/notifications_repository_impl.dart';
+import 'package:keep_sims/features/notifications/domain/notification_event_catalog.dart';
 
 part 'sim_lines_controller.g.dart';
 
@@ -221,8 +223,9 @@ class SimLinesController extends _$SimLinesController {
         status: 'active',
         scheduleType: 'notify',
       );
-      await topupNotifier.saveSchedule(notifySchedule);
+      final notifyResult = await topupNotifier.saveSchedule(notifySchedule);
 
+      Result<ScheduledTopup>? refillResult;
       // Premium gets Auto-Refill scheduled directly in topup_executions
       if (planType == 'premium') {
         final refillSchedule = ScheduledTopup(
@@ -240,31 +243,76 @@ class SimLinesController extends _$SimLinesController {
           scheduleType: 'refill_mini',
           offerId: offerId,
           offerValue: offerValue,
+          maxAuthorizedUsd: topupAmount,
+          engineVersion: 2,
+          intentKind: 'exact_airtime',
         );
-        final result = await topupNotifier.saveSchedule(refillSchedule);
+        refillResult = await topupNotifier.saveSchedule(refillSchedule);
 
-        if (result is Success<ScheduledTopup> && planExpiresAt != null) {
+        if (refillResult is Success<ScheduledTopup> && planExpiresAt != null) {
           await _queuePremiumRefills(
             repo,
             simLineId: added.id,
-            scheduledTopupId: result.data.id,
+            scheduledTopupId: refillResult.data.id,
             planExpiresAt: planExpiresAt,
           );
         }
       }
 
-      // Send welcome notification
+      // Send truthful setup confirmation based on actual persisted outcomes (N1)
       try {
         final notificationsRepo = ref.read(notificationsRepositoryProvider);
-        await notificationsRepo.sendNotification(
-          category: 'system',
-          title: 'Welcome to KeepSIMs',
-          body:
-              'Your line ${added.phoneNumber} has been successfully added! We will remind you every $frequencyDays days when it is time to recharge.',
-          simLineId: added.id,
-        );
+        if (planType == 'premium') {
+          if (refillResult is Success<ScheduledTopup>) {
+            await notificationsRepo.emitEvent(
+              eventType: NotificationEventType.autoRechargeScheduled,
+              templateData: {
+                'nickname': added.nickname,
+                'phone_number': added.phoneNumber,
+                'date': refillResult.data.nextExecutionAt,
+              },
+              simLineId: added.id,
+              sourceEventKey: 'setup_${added.id}',
+              scheduledAt: refillResult.data.nextExecutionAt,
+            );
+          } else {
+            await notificationsRepo.emitEvent(
+              eventType: NotificationEventType.lineSetupIncomplete,
+              templateData: {
+                'nickname': added.nickname,
+                'phone_number': added.phoneNumber,
+              },
+              simLineId: added.id,
+              sourceEventKey: 'setup_incomplete_${added.id}',
+            );
+          }
+        } else {
+          if (notifyResult is Success<ScheduledTopup>) {
+            await notificationsRepo.emitEvent(
+              eventType: NotificationEventType.lineAdded,
+              templateData: {
+                'nickname': added.nickname,
+                'phone_number': added.phoneNumber,
+                'date': notifyResult.data.nextExecutionAt,
+              },
+              simLineId: added.id,
+              sourceEventKey: 'setup_${added.id}',
+              scheduledAt: notifyResult.data.nextExecutionAt,
+            );
+          } else {
+            await notificationsRepo.emitEvent(
+              eventType: NotificationEventType.lineSetupIncomplete,
+              templateData: {
+                'nickname': added.nickname,
+                'phone_number': added.phoneNumber,
+              },
+              simLineId: added.id,
+              sourceEventKey: 'setup_incomplete_${added.id}',
+            );
+          }
+        }
       } catch (e) {
-        print('[addSimLine] Failed to send welcome notification: $e');
+        debugPrint('[addSimLine] Failed to emit setup notification: $e');
       }
 
       return [added, ...previousList];
@@ -423,6 +471,9 @@ class SimLinesController extends _$SimLinesController {
               scheduleType: 'refill_mini',
               offerId: offerId,
               offerValue: offerValue,
+              maxAuthorizedUsd: topupAmount,
+              engineVersion: 2,
+              intentKind: 'exact_airtime',
             );
             final result = await topupNotifier.saveSchedule(refillSchedule);
 
@@ -709,4 +760,9 @@ Future<SimLivenessResult> simLivenessValidation(
   return ref
       .watch(simLinesRepositoryProvider)
       .validateSimLiveness(phoneNumber, countryCode: countryCode);
+}
+
+@riverpod
+Future<bool> hasRealLiveVerification(Ref ref, String simLineId) {
+  return ref.watch(simLinesRepositoryProvider).hasRealLiveVerification(simLineId);
 }

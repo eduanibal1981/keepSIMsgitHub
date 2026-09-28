@@ -18,10 +18,8 @@ part 'device_token_repository.g.dart';
 /// direct targeting. The raw FCM token is what the dispatcher's FCM fallback
 /// sends to when OneSignal is unreachable.
 ///
-/// This deliberately registers no FirebaseMessaging message handlers: OneSignal
-/// owns notification display, and we only need Firebase for the token. FCM
-/// fallback messages carry a `notification` payload, so Android renders them
-/// from the system tray without routing through a Dart handler.
+/// Background FCM notifications are rendered by Android; foreground fallback
+/// messages are rendered by ForegroundPushService. OneSignal owns its messages.
 class DeviceTokenRepository {
   DeviceTokenRepository({
     required SupabaseClient supabase,
@@ -35,14 +33,30 @@ class DeviceTokenRepository {
   /// key, same 32-hex format — the id an install already has is unchanged.
   final DeviceIdentityService _identity;
 
-  bool _observerAttached = false;
+  String? _activeUserId;
+  OnPushSubscriptionChangeObserver? _osObserver;
   StreamSubscription<String>? _fcmRefreshSub;
 
   /// Upserts this device's identifiers for [userId]. Safe to call repeatedly.
-  /// Also attaches one-time listeners so identifiers that only become available
+  /// Also attaches listeners so identifiers that only become available
   /// later — a OneSignal subscription id after the user grants push permission,
   /// or a rotated FCM token — are captured.
   Future<void> registerCurrentDevice(String userId) async {
+    if (_activeUserId != null && _activeUserId != userId) {
+      if (_osObserver != null) {
+        OneSignal.User.pushSubscription.removeObserver(_osObserver!);
+        _osObserver = null;
+      }
+      _fcmRefreshSub?.cancel();
+      _fcmRefreshSub = null;
+    }
+    _activeUserId = userId;
+
+    // Ensure OneSignal user alias is synchronized with Supabase user id
+    try {
+      await OneSignal.login(userId);
+    } catch (_) {}
+
     await _upsert(userId);
 
     // G10: the same install, recorded in the money-facing registry. Separate
@@ -50,20 +64,19 @@ class DeviceTokenRepository {
     // anti-fraud registry must not forget a device the moment it signs out.
     await _identity.touch();
 
-    if (!_observerAttached) {
-      _observerAttached = true;
-
-      OneSignal.User.pushSubscription.addObserver((_) {
+    if (_osObserver == null) {
+      _osObserver = (_) {
         // The id can change after opt-in; re-upsert. Fire-and-forget.
-        _upsert(userId);
-      });
+        unawaited(_upsert(userId));
+      };
+      OneSignal.User.pushSubscription.addObserver(_osObserver!);
+    }
 
-      if (_firebaseReady) {
-        _fcmRefreshSub = FirebaseMessaging.instance.onTokenRefresh.listen(
-          (_) => _upsert(userId),
-          onError: (_) {},
-        );
-      }
+    if (_firebaseReady && _fcmRefreshSub == null) {
+      _fcmRefreshSub = FirebaseMessaging.instance.onTokenRefresh.listen(
+        (_) => unawaited(_upsert(userId)),
+        onError: (_) {},
+      );
     }
   }
 
@@ -85,6 +98,16 @@ class DeviceTokenRepository {
   /// Clears this device's push ids on sign-out so a signed-out user is no
   /// longer targeted. Best-effort; keeps the row for history.
   Future<void> unregisterCurrentDevice(String userId) async {
+    if (_activeUserId == userId) {
+      if (_osObserver != null) {
+        OneSignal.User.pushSubscription.removeObserver(_osObserver!);
+        _osObserver = null;
+      }
+      _fcmRefreshSub?.cancel();
+      _fcmRefreshSub = null;
+      _activeUserId = null;
+    }
+
     try {
       final deviceId = await _identity.deviceId();
       await _supabase
@@ -102,6 +125,11 @@ class DeviceTokenRepository {
   }
 
   Future<void> _upsert(String userId) async {
+    if (_supabase.auth.currentUser?.id != userId) {
+      // Stale callback: user signed out or changed account.
+      return;
+    }
+
     try {
       final deviceId = await _identity.deviceId();
       final payload = <String, dynamic>{
@@ -126,7 +154,13 @@ class DeviceTokenRepository {
   }
 
   void dispose() {
+    if (_osObserver != null) {
+      OneSignal.User.pushSubscription.removeObserver(_osObserver!);
+      _osObserver = null;
+    }
     _fcmRefreshSub?.cancel();
+    _fcmRefreshSub = null;
+    _activeUserId = null;
   }
 }
 

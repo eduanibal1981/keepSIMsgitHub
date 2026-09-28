@@ -15,6 +15,7 @@ import 'package:keep_sims/features/sim_lines/data/models/line_verification_quote
 import 'package:keep_sims/features/sim_lines/domain/repositories/sim_lines_repository.dart';
 import 'package:keep_sims/features/sim_lines/data/datasources/twilio_verification_service.dart';
 import 'package:keep_sims/features/sim_lines/data/datasources/telnyx_verification_service.dart';
+import 'package:keep_sims/core/services/auth_session_manager.dart';
 import 'package:keep_sims/core/services/connectivity_service.dart';
 import 'package:keep_sims/core/services/device_identity_service.dart';
 import 'package:keep_sims/core/services/local_cache_service.dart';
@@ -63,11 +64,14 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
         throw Exception('No authenticated user session found.');
       }
 
-      final response = await _supabase
-          .from('sim_lines')
-          .select()
-          .order('created_at', ascending: false)
-          .order('id', ascending: true);
+      final response = await AuthSessionManager.withAuthRecovery(
+        _supabase,
+        () => _supabase
+            .from('sim_lines')
+            .select()
+            .order('created_at', ascending: false)
+            .order('id', ascending: true),
+      );
 
       final list = (response as List)
           .map((json) => SimLine.fromJson(json as Map<String, dynamic>))
@@ -1215,6 +1219,31 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
         message: 'Verification failed: $e',
         verifiedAt: DateTime.now(),
       );
+    }
+  }
+
+  @override
+  Future<bool> hasRealLiveVerification(String simLineId) async {
+    try {
+      final attempt = await _supabase
+          .from('line_verification_attempts')
+          .select('id')
+          .eq('sim_line_id', simLineId)
+          .eq('outcome', 'succeeded')
+          .limit(1)
+          .maybeSingle();
+      if (attempt != null) return true;
+
+      final log = await _supabase
+          .from('line_activity_log')
+          .select('id')
+          .eq('sim_line_id', simLineId)
+          .ilike('description', '%live verified%')
+          .limit(1)
+          .maybeSingle();
+      return log != null;
+    } catch (_) {
+      return false;
     }
   }
 }

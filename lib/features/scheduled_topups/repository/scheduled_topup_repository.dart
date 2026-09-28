@@ -6,12 +6,14 @@ library;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:keep_sims/core/failure.dart';
 import 'package:keep_sims/core/result.dart';
+import 'package:keep_sims/core/services/auth_session_manager.dart';
 import 'package:keep_sims/core/services/connectivity_service.dart';
 import 'package:keep_sims/core/services/local_cache_service.dart';
 import 'package:keep_sims/core/services/sync_queue_service.dart';
 import '../contract/scheduled_topup_contract.dart';
 import '../model/scheduled_topup_model.dart';
 import '../model/topup_execution_model.dart';
+import '../model/refill_approval_quote.dart';
 
 class ScheduledTopupRepository implements ScheduledTopupContract {
   final SupabaseClient _client;
@@ -50,10 +52,13 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
         );
       }
 
-      final response = await _client
-          .from('scheduled_topups')
-          .select()
-          .eq('user_id', userId);
+      final response = await AuthSessionManager.withAuthRecovery(
+        _client,
+        () => _client
+            .from('scheduled_topups')
+            .select()
+            .eq('user_id', userId),
+      );
 
       await _cache.writeJson('cached_schedules', response);
 
@@ -189,7 +194,7 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
         final updatedSchedule = schedule.copyWith(
           id: existingRes['id'] as String,
         );
-        return updateSchedule(updatedSchedule);
+        return await updateSchedule(updatedSchedule);
       }
 
       final updatedSchedule = schedule.copyWith(
@@ -492,9 +497,10 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
       // actual purchase, real debit/refund. The old client-side flow debited
       // the wallet, fabricated a mock 'success' row and marked the original
       // 'refunded' without ever buying a top-up.
-      await _client.rpc('retry_topup_execution', params: {
-        'p_execution_id': executionId,
-      });
+      await _client.rpc(
+        'retry_topup_execution',
+        params: {'p_execution_id': executionId},
+      );
       return const Success(null);
     } on PostgrestException catch (e) {
       return Failure(AppFailure.server(message: e.message));
@@ -509,9 +515,10 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
       // C3b-2: the old client DELETE was a silent no-op (no DELETE policy) —
       // the row stayed pending and the worker still fired it. The RPC really
       // cancels queued work ('pending'/'pending_payment' → 'cancelled').
-      await _client.rpc('cancel_topup_execution', params: {
-        'p_execution_id': executionId,
-      });
+      await _client.rpc(
+        'cancel_topup_execution',
+        params: {'p_execution_id': executionId},
+      );
       return const Success(null);
     } on PostgrestException catch (e) {
       return Failure(AppFailure.server(message: e.message));
@@ -526,10 +533,13 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
     required DateTime newDate,
   }) async {
     try {
-      await _client.rpc('reschedule_mini_refill', params: {
-        'p_sim_line_id': simLineId,
-        'p_new_date': newDate.toUtc().toIso8601String(),
-      });
+      await _client.rpc(
+        'reschedule_mini_refill',
+        params: {
+          'p_sim_line_id': simLineId,
+          'p_new_date': newDate.toUtc().toIso8601String(),
+        },
+      );
       return const Success(null);
     } on PostgrestException catch (e) {
       return Failure(AppFailure.server(message: e.message));
@@ -541,9 +551,10 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
   @override
   Future<Result<DateTime>> resetMiniRefillToDefault(String simLineId) async {
     try {
-      final res = await _client.rpc('reset_mini_refill_to_default', params: {
-        'p_sim_line_id': simLineId,
-      });
+      final res = await _client.rpc(
+        'reset_mini_refill_to_default',
+        params: {'p_sim_line_id': simLineId},
+      );
       return Success(DateTime.parse(res as String));
     } on PostgrestException catch (e) {
       return Failure(AppFailure.server(message: e.message));
@@ -560,13 +571,97 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
     try {
       // C3b-2: one RPC moves the line's own pending refill_mini rows and
       // re-syncs the schedule's next_execution_at server-side.
-      await _client.rpc('update_mini_refill_dates', params: {
-        'p_sim_line_id': simLineId,
-        'p_updates': {
-          for (final entry in executionDates.entries)
-            entry.key: entry.value.toUtc().toIso8601String(),
+      await _client.rpc(
+        'update_mini_refill_dates',
+        params: {
+          'p_sim_line_id': simLineId,
+          'p_updates': {
+            for (final entry in executionDates.entries)
+              entry.key: entry.value.toUtc().toIso8601String(),
+          },
         },
-      });
+      );
+      return const Success(null);
+    } on PostgrestException catch (e) {
+      return Failure(AppFailure.server(message: e.message));
+    } catch (e) {
+      return Failure(AppFailure.unknown(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Result<RefillApprovalQuote>> prepareExecutionApproval(
+    String executionId,
+  ) async {
+    try {
+      final quoteId = await _client.rpc(
+        'request_refill_approval_quote',
+        params: {'p_execution_id': executionId},
+      );
+      final deadline = DateTime.now().add(const Duration(seconds: 45));
+      while (DateTime.now().isBefore(deadline)) {
+        final row = await _client
+            .from('refill_approval_quotes')
+            .select('id,status,route,error_message,expires_at')
+            .eq('id', quoteId as String)
+            .single();
+        if (row['status'] == 'failed') {
+          return Failure(
+            AppFailure.server(message: row['error_message'] as String),
+          );
+        }
+        if (row['status'] == 'ready') {
+          final quote = RefillApprovalQuote.fromJson(row);
+          if (quote.expiresAt.isAfter(
+            DateTime.now().add(const Duration(seconds: 10)),
+          )) {
+            return Success(quote);
+          }
+          break;
+        }
+        await Future<void>.delayed(const Duration(seconds: 1));
+      }
+      return const Failure(
+        AppFailure.server(
+          message:
+              'The price check took too long. No refill was submitted. Please try again.',
+        ),
+      );
+    } on PostgrestException catch (e) {
+      return Failure(AppFailure.server(message: e.message));
+    } catch (e) {
+      return const Failure(
+        AppFailure.network(
+          message:
+              'Could not check the current price. Please check your connection and try again.',
+        ),
+      );
+    }
+  }
+
+  @override
+  Future<Result<void>> approveExecution({
+    required String executionId,
+    required String quoteId,
+    required double newMaxAuthorizedUsd,
+  }) async {
+    try {
+      final response = await _client.rpc(
+        'approve_refill_execution_quote',
+        params: {
+          'p_quote_id': quoteId,
+          'p_expected_amount': newMaxAuthorizedUsd,
+        },
+      );
+      if (response is! Map ||
+          response['success'] != true ||
+          response['execution_id'] != executionId) {
+        return const Failure(
+          AppFailure.server(
+            message: 'Approval was not confirmed. Refresh the refill status.',
+          ),
+        );
+      }
       return const Success(null);
     } on PostgrestException catch (e) {
       return Failure(AppFailure.server(message: e.message));

@@ -5,6 +5,7 @@ import 'dart:async';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
@@ -28,33 +29,53 @@ class IncomingCallManager {
   StreamSubscription<RemoteMessage>? _fcmSub;
   StreamSubscription<AuthState>? _authSub;
   RealtimeChannel? _realtimeChannel;
-  GoRouter? _router;
+  RouterConfig<Object>? _router;
+  bool _isInitialized = false;
 
   IncomingCallManager(this._ref);
 
   void setRouter(RouterConfig<Object> router) {
-    if (router is GoRouter) {
-      _router = router;
-    }
+    _router = router;
   }
 
-  void _navigateToCall() {
+  void _navigateToCall([String? callId]) {
+    final route = callId != null && callId.isNotEmpty
+        ? '${AppRoutes.voipCall}/$callId'
+        : AppRoutes.voipCall;
+
+    void executeNavigation(dynamic router) {
+      if (router is FilteringRouterConfig) {
+        final currentPath =
+            router.rawRouter.routerDelegate.currentConfiguration.uri.path;
+        if (currentPath.startsWith(AppRoutes.voipCall)) return;
+        router.push(route);
+      } else if (router is GoRouter) {
+        final currentPath =
+            router.routerDelegate.currentConfiguration.uri.path;
+        if (currentPath.startsWith(AppRoutes.voipCall)) return;
+        router.push(route);
+      }
+    }
+
     if (_router != null) {
-      _router!.push('/voip-call');
+      executeNavigation(_router);
       return;
     }
-    final router = _ref.read(appRouterProvider);
-    if (router is GoRouter) {
-      router.push('/voip-call');
-    }
+    final globalRouter = _ref.read(appRouterProvider);
+    executeNavigation(globalRouter);
   }
 
   /// Initialize callkit listeners, FCM handlers, Realtime listeners, and token registration
   Future<void> initialize() async {
+    if (_isInitialized) return;
+    _isInitialized = true;
+
     _callkit.startListening();
 
     _callkit.onCallAccepted = (callId) async {
       debugPrint('[IncomingCallManager] User accepted CallKit call: $callId');
+      _ref.read(splashCompletedProvider.notifier).complete();
+
       if (callId.startsWith('mock-call-')) {
         await _ref
             .read(voipCallingControllerProvider.notifier)
@@ -62,7 +83,7 @@ class IncomingCallManager {
               peerName: 'Sarah Connor',
               peerPhone: '+1 555-0199',
             );
-        _navigateToCall();
+        _navigateToCall(callId);
         return;
       }
 
@@ -79,7 +100,7 @@ class IncomingCallManager {
               callerPhone: session.peerPhone,
             );
 
-        _navigateToCall();
+        _navigateToCall(callId);
       }
     };
 
@@ -102,6 +123,44 @@ class IncomingCallManager {
           .read(voipCallingRepositoryProvider)
           .endCall(callId: callId, status: 'missed', endReason: 'timeout');
     };
+
+    _callkit.onCallEnded = (callId) async {
+      debugPrint('[IncomingCallManager] User or system ended CallKit call: $callId');
+      if (callId.startsWith('mock-call-')) return;
+      await _ref
+          .read(voipCallingControllerProvider.notifier)
+          .endCall(status: 'completed', reason: 'native_hangup');
+    };
+
+    // Cold-start recovery: check for calls accepted before Flutter attached listeners
+    try {
+      final activeCalls = await FlutterCallkitIncoming.activeCalls();
+      debugPrint('[IncomingCallManager] Active CallKit calls at init: ${activeCalls.length}');
+      for (final call in activeCalls) {
+        if (call.isAccepted) {
+          debugPrint('[IncomingCallManager] Recovering accepted CallKit call: ${call.id}');
+          _ref.read(splashCompletedProvider.notifier).complete();
+
+          final repo = _ref.read(voipCallingRepositoryProvider);
+          final session = await repo.getCallSession(call.id);
+
+          await _ref
+              .read(voipCallingControllerProvider.notifier)
+              .answerCall(
+                callId: call.id,
+                callerName:
+                    session?.peerName ?? call.nameCaller ?? 'KeepSIMs Caller',
+                callerAvatar: session?.peerAvatarUrl ?? call.avatar,
+                callerPhone: session?.peerPhone ?? call.handle,
+              );
+
+          _navigateToCall(call.id);
+          break;
+        }
+      }
+    } catch (e) {
+      debugPrint('[IncomingCallManager] Error inspecting activeCalls at init: $e');
+    }
 
     // 1. Foreground FCM push listener
     _fcmSub = FirebaseMessaging.onMessage.listen((RemoteMessage message) {

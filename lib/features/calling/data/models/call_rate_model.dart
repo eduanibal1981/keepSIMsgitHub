@@ -50,7 +50,7 @@ class CallRate {
       ratePerMinute:
           (json['effective_rate_per_minute_usd'] as num?)?.toDouble() ??
           (json['rate_per_minute_usd'] as num?)?.toDouble() ??
-          0.15,
+          0.0,
       connectionFee: (json['connection_fee_usd'] as num?)?.toDouble() ?? 0.0,
       billingIncrementSeconds: json['billing_increment_seconds'] as int? ?? 1,
       isActive: json['is_active'] as bool? ?? true,

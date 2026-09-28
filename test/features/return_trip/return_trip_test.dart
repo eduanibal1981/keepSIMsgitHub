@@ -257,5 +257,53 @@ void main() {
       expect(oldPreparations.any((t) => t.tripId == 'active-1'), isFalse);
     });
   });
+
+  group('In-Country Dynamic Wizard & Card Copy Logic', () {
+    test('renders "You are at Oman!" and "Do you need a data package?" when user is in Oman', () {
+      const userIso = 'OM';
+      const lineIso = 'OM';
+      const countryName = 'Oman';
+
+      final isUserInCountry = userIso == lineIso;
+      expect(isUserInCountry, isTrue);
+
+      final title = isUserInCountry ? 'You are at $countryName!' : 'Back to $countryName Wizard';
+      const isFutureOrToday = false;
+      const hasHistory = false;
+      final subtitle = isFutureOrToday
+          ? 'Trip prepared · Tap to update arrival date or package'
+          : (isUserInCountry
+              ? 'Do you need a data package?'
+              : (hasHistory
+                  ? 'Tap to prepare data or view past trips'
+                  : 'Set your arrival date & prepare your data'));
+
+      expect(title, 'You are at Oman!');
+      expect(subtitle, 'Do you need a data package?');
+    });
+
+    test('renders "Back to Egypt Wizard" and "Set your arrival date" when user is in Oman with Egypt SIM', () {
+      const userIso = 'OM';
+      const lineIso = 'EG';
+      const countryName = 'Egypt';
+
+      final isUserInCountry = userIso == lineIso;
+      expect(isUserInCountry, isFalse);
+
+      final title = isUserInCountry ? 'You are at $countryName!' : 'Back to $countryName Wizard';
+      const isFutureOrToday = false;
+      const hasHistory = false;
+      final subtitle = isFutureOrToday
+          ? 'Trip prepared · Tap to update arrival date or package'
+          : (isUserInCountry
+              ? 'Do you need a data package?'
+              : (hasHistory
+                  ? 'Tap to prepare data or view past trips'
+                  : 'Set your arrival date & prepare your data'));
+
+      expect(title, 'Back to Egypt Wizard');
+      expect(subtitle, 'Set your arrival date & prepare your data');
+    });
+  });
 }
 

@@ -3,6 +3,7 @@ library;
 
 import '../model/scheduled_topup_model.dart';
 import '../model/topup_execution_model.dart';
+import '../model/refill_approval_quote.dart';
 import '../../../core/result.dart';
 
 abstract interface class ScheduledTopupContract {
@@ -57,5 +58,16 @@ abstract interface class ScheduledTopupContract {
   Future<Result<void>> updateMiniRefillDates({
     required String simLineId,
     required Map<String, DateTime> executionDates,
+  });
+
+  Future<Result<RefillApprovalQuote>> prepareExecutionApproval(
+    String executionId,
+  );
+
+  /// Approves the exact price reviewed by the customer, for this refill only.
+  Future<Result<void>> approveExecution({
+    required String executionId,
+    required String quoteId,
+    required double newMaxAuthorizedUsd,
   });
 }

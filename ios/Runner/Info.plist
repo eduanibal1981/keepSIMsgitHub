@@ -90,8 +90,16 @@
 	</dict>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Biometric authentication is used to secure your wallet transactions and protect app access.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>KeepSIMs uses your microphone so the person you call can hear you.</string>
 	<!-- G4: required before ActivityKit will start a Live Activity at all. -->
 	<key>NSSupportsLiveActivities</key>
 	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>audio</string>
+		<string>voip</string>
+		<string>remote-notification</string>
+	</array>
 </dict>
 </plist>

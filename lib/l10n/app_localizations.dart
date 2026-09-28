@@ -1819,7 +1819,7 @@ abstract class AppLocalizations {
   /// No description provided for @lockedAlertSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'{channelName} alerts are Starter and Premium plan features. Upgrade your plan to unlock WhatsApp, Telegram, and Email alerts!'**
+  /// **'{channelName} alerts are Standard and Premium plan features. Upgrade your plan to unlock WhatsApp and Email alerts!'**
   String lockedAlertSubtitle(String channelName);
 
   /// No description provided for @upsellProtect5Lines.
@@ -1831,7 +1831,7 @@ abstract class AppLocalizations {
   /// No description provided for @upsellUnlockChannels.
   ///
   /// In en, this message translates to:
-  /// **'Unlock WhatsApp, Telegram & Email notifications'**
+  /// **'Unlock WhatsApp & Email notifications'**
   String get upsellUnlockChannels;
 
   /// No description provided for @upsellEnableTravelModes.
@@ -5305,6 +5305,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Clear search and filters'**
   String get clearSearchAndFilters;
+
+  /// No description provided for @setupRefill.
+  ///
+  /// In en, this message translates to:
+  /// **'Setup Refill'**
+  String get setupRefill;
+
+  /// No description provided for @scheduledRefill.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled Refill'**
+  String get scheduledRefill;
+
+  /// No description provided for @instantRefill.
+  ///
+  /// In en, this message translates to:
+  /// **'Instant Refill'**
+  String get instantRefill;
+
+  /// No description provided for @customRefill.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom Refill'**
+  String get customRefill;
+
+  /// No description provided for @notifTitleNumberAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'✅ Number added'**
+  String get notifTitleNumberAdded;
+
+  /// No description provided for @notifTitleAutoRechargeScheduled.
+  ///
+  /// In en, this message translates to:
+  /// **'✅ Auto-recharge scheduled'**
+  String get notifTitleAutoRechargeScheduled;
+
+  /// No description provided for @notifTitleSetupIncomplete.
+  ///
+  /// In en, this message translates to:
+  /// **'⚠️ Finish setting up your number'**
+  String get notifTitleSetupIncomplete;
+
+  /// No description provided for @notifTitleRechargeSuccessful.
+  ///
+  /// In en, this message translates to:
+  /// **'✅ Recharge successful'**
+  String get notifTitleRechargeSuccessful;
+
+  /// No description provided for @notifTitleRechargeDueToday.
+  ///
+  /// In en, this message translates to:
+  /// **'⚠️ Recharge due today'**
+  String get notifTitleRechargeDueToday;
+
+  /// No description provided for @notifTitleRechargeFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'❌ Recharge failed'**
+  String get notifTitleRechargeFailed;
+
+  /// No description provided for @notifTitleWalletLow.
+  ///
+  /// In en, this message translates to:
+  /// **'⚠️ Wallet balance is low'**
+  String get notifTitleWalletLow;
+
+  /// No description provided for @notifTitleRechargeNeedsFunds.
+  ///
+  /// In en, this message translates to:
+  /// **'⚠️ Recharge needs funds'**
+  String get notifTitleRechargeNeedsFunds;
+
+  /// No description provided for @notifTitleLineCritical.
+  ///
+  /// In en, this message translates to:
+  /// **'⚠️ Your number needs attention'**
+  String get notifTitleLineCritical;
+
+  /// No description provided for @notifChannelConfirmations.
+  ///
+  /// In en, this message translates to:
+  /// **'Setup confirmations'**
+  String get notifChannelConfirmations;
+
+  /// No description provided for @notifChannelUpdates.
+  ///
+  /// In en, this message translates to:
+  /// **'Recharge updates'**
+  String get notifChannelUpdates;
+
+  /// No description provided for @notifChannelUrgent.
+  ///
+  /// In en, this message translates to:
+  /// **'Urgent recharge alerts'**
+  String get notifChannelUrgent;
+
+  /// No description provided for @smartCalling.
+  ///
+  /// In en, this message translates to:
+  /// **'Smart Calling'**
+  String get smartCalling;
+
+  /// No description provided for @keepSimsSmartCalling.
+  ///
+  /// In en, this message translates to:
+  /// **'KeepSIMs Smart Calling'**
+  String get keepSimsSmartCalling;
+
+  /// No description provided for @smartCall.
+  ///
+  /// In en, this message translates to:
+  /// **'Smart Call'**
+  String get smartCall;
+
+  /// No description provided for @freeCall.
+  ///
+  /// In en, this message translates to:
+  /// **'Free Call'**
+  String get freeCall;
+
+  /// No description provided for @smartCallSavings.
+  ///
+  /// In en, this message translates to:
+  /// **'Smart Call Savings'**
+  String get smartCallSavings;
+
+  /// No description provided for @virtualNumbers.
+  ///
+  /// In en, this message translates to:
+  /// **'Virtual Numbers'**
+  String get virtualNumbers;
+
+  /// No description provided for @voicemail.
+  ///
+  /// In en, this message translates to:
+  /// **'Voicemail'**
+  String get voicemail;
+
+  /// No description provided for @inspector.
+  ///
+  /// In en, this message translates to:
+  /// **'Inspector'**
+  String get inspector;
 }
 
 class _AppLocalizationsDelegate

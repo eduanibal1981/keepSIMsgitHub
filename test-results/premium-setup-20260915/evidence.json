@@ -1,0 +1,575 @@
+{
+  "testCreate": [
+    {
+      "create_sim_setup_order": {
+        "plan": "premium",
+        "status": "draft",
+        "success": true,
+        "order_id": "edd42ee5-27ab-49ca-ad45-bdcac4dd44a6",
+        "phone_number": "+966000000000",
+        "annual_fee_usd": 5,
+        "total_charge_usd": 12.18,
+        "first_refill_cost_usd": 7.18
+      }
+    }
+  ],
+  "testReserve": [
+    {
+      "reserve_sim_setup_holds": {
+        "status": "reserved",
+        "success": true,
+        "total_charge_usd": 12.18,
+        "annual_fee_hold_id": "a95b95a4-47a7-4f7d-b41d-8663454ef55c",
+        "first_refill_hold_id": "a0598fef-3ff7-487a-a943-9993304ff723"
+      }
+    }
+  ],
+  "testLine": [
+    {
+      "id": "da7eb107-1a84-4a87-a563-4aacba4ed86f",
+      "phone_number": "+966000000000",
+      "plan_type": "premium",
+      "status": "active"
+    }
+  ],
+  "testDispatch": [
+    {
+      "dispatch_sim_setup_verification": {
+        "status": "dispatching",
+        "success": true,
+        "execution_id": "eaa197f7-c3a9-4207-84d9-b25fcc401199"
+      }
+    }
+  ],
+  "testOutcome": [
+    {
+      "jsonb_build_object": {
+        "holds": [
+          {
+            "id": "a95b95a4-47a7-4f7d-b41d-8663454ef55c",
+            "amount": 5,
+            "reason": "Annual KeepSIMs Protection Fee Hold",
+            "status": "active",
+            "user_id": "8a07a25b-a49b-4ec3-a56c-cfe7f7ea0c0e",
+            "currency": "USD",
+            "wallet_id": "2a299470-7962-4fff-824f-693805f2355b",
+            "created_at": "2026-09-15T10:21:28.849077+00:00",
+            "expires_at": "2026-09-15T14:21:28.849077+00:00",
+            "order_type": "plan_fee",
+            "updated_at": "2026-09-15T10:21:28.849077+00:00",
+            "captured_at": null,
+            "released_at": null,
+            "carrier_in_flight": false,
+            "order_reference_id": "setup_fee_edd42ee5-27ab-49ca-ad45-bdcac4dd44a6"
+          },
+          {
+            "id": "a0598fef-3ff7-487a-a943-9993304ff723",
+            "amount": 7.18,
+            "reason": "Initial SIM Setup Refill Hold",
+            "status": "captured",
+            "user_id": "8a07a25b-a49b-4ec3-a56c-cfe7f7ea0c0e",
+            "currency": "USD",
+            "wallet_id": "2a299470-7962-4fff-824f-693805f2355b",
+            "created_at": "2026-09-15T10:21:28.849077+00:00",
+            "expires_at": "2026-09-15T14:21:28.849077+00:00",
+            "order_type": "setup_refill",
+            "updated_at": "2026-09-15T10:22:49.051815+00:00",
+            "captured_at": "2026-09-15T10:22:49.051815+00:00",
+            "released_at": null,
+            "carrier_in_flight": false,
+            "order_reference_id": "setup_refill_edd42ee5-27ab-49ca-ad45-bdcac4dd44a6"
+          }
+        ],
+        "wallet": 1876.26,
+        "execution": {
+          "id": "eaa197f7-c3a9-4207-84d9-b25fcc401199",
+          "amount": 7.18,
+          "status": "success",
+          "user_id": "8a07a25b-a49b-4ec3-a56c-cfe7f7ea0c0e",
+          "currency": "USD",
+          "offer_id": "XCSASA72721",
+          "pin_code": null,
+          "quote_id": null,
+          "retry_of": null,
+          "created_at": "2026-09-15T10:22:45.373705+00:00",
+          "pin_serial": null,
+          "updated_at": "2026-09-15T10:22:45.373705+00:00",
+          "app_fee_usd": null,
+          "executed_at": "2026-09-15T10:22:49.403588+00:00",
+          "intent_kind": "exact_airtime",
+          "offer_value": null,
+          "sim_line_id": "da7eb107-1a84-4a87-a563-4aacba4ed86f",
+          "api_provider": "ding",
+          "completed_at": "2026-09-15T10:22:49.403588+00:00",
+          "funding_kind": "setup_hold",
+          "base_cost_usd": 6.9701,
+          "acting_user_id": null,
+          "engine_version": 2,
+          "execution_time": "2026-09-15T10:22:45.373705+00:00",
+          "execution_type": "refill_instant",
+          "failure_reason": null,
+          "quoted_fee_usd": null,
+          "reaper_retries": 0,
+          "refill_channel": null,
+          "wallet_hold_id": "a0598fef-3ff7-487a-a943-9993304ff723",
+          "gateway_fee_usd": null,
+          "message_fee_usd": null,
+          "quoted_cost_usd": null,
+          "processing_since": "2026-09-15T10:22:45.558295+00:00",
+          "carrier_in_flight": false,
+          "max_authorized_usd": null,
+          "scheduled_topup_id": null,
+          "target_local_value": null,
+          "attempted_providers": [
+            "ding"
+          ],
+          "fulfillment_gateway": "API",
+          "redeem_instructions": null,
+          "validity_days_added": null,
+          "payment_gateway_code": null,
+          "pre_processing_status": "routing",
+          "target_local_currency": null,
+          "reloadly_transaction_id": "864971269"
+        },
+        "notifications": [
+          {
+            "id": "8be45b0c-aa6d-4861-8f2b-f1132f140d5e",
+            "body": "Your recharge of $7.18 for +966000000000 completed.",
+            "title": "Recharge successful",
+            "is_read": false,
+            "user_id": "8a07a25b-a49b-4ec3-a56c-cfe7f7ea0c0e",
+            "category": "top_up_success",
+            "action_url": "/sim_lines/da7eb107-1a84-4a87-a563-4aacba4ed86f",
+            "created_at": "2026-09-15T10:22:49.403588+00:00",
+            "sim_line_id": "da7eb107-1a84-4a87-a563-4aacba4ed86f",
+            "delivered_via": [
+              "push"
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "testFinalize": [
+    {
+      "finalize_sim_setup_order": {
+        "plan": "premium",
+        "status": "active",
+        "success": true,
+        "sim_line_id": "da7eb107-1a84-4a87-a563-4aacba4ed86f"
+      }
+    }
+  ],
+  "testState": [
+    {
+      "jsonb_build_object": {
+        "line": {
+          "id": "da7eb107-1a84-4a87-a563-4aacba4ed86f",
+          "status": "active",
+          "user_id": "8a07a25b-a49b-4ec3-a56c-cfe7f7ea0c0e",
+          "nickname": "QA Premium 20260915",
+          "plan_type": "premium",
+          "carrier_id": "da1c57b4-5276-4814-ade4-1d5a421bc29e",
+          "country_id": "443a2b1e-79bf-4066-a067-a19a30b1aee3",
+          "created_at": "2026-09-15T10:22:30.558901+00:00",
+          "updated_at": "2026-09-15T10:23:26.496436+00:00",
+          "avatar_icon": "sim_card",
+          "health_score": 50,
+          "household_id": null,
+          "is_home_mode": false,
+          "phone_number": "+966000000000",
+          "last_topup_at": "2026-09-15T10:23:26.496436+00:00",
+          "carrier_status": "active",
+          "next_topup_due": null,
+          "carrier_rule_id": "2da504eb-9f5d-42a8-854b-6655725fc3bb",
+          "plan_expires_at": "2027-09-15T10:23:26.496436+00:00",
+          "protection_tier": "premium",
+          "is_auto_detected": false,
+          "protection_paused": false,
+          "carrier_pricing_id": null,
+          "carrier_verified_at": "2026-09-15T10:23:26.496436+00:00",
+          "is_carrier_verified": true,
+          "validity_expires_at": null,
+          "verification_status": "verified",
+          "detected_operator_name": null,
+          "requires_protection_at_home": false
+        },
+        "holds": [
+          {
+            "type": "setup_refill",
+            "amount": 7.18,
+            "status": "captured"
+          },
+          {
+            "type": "plan_fee",
+            "amount": 5,
+            "status": "captured"
+          }
+        ],
+        "wallet": 1871.26,
+        "delivery": [
+          {
+            "id": "57a20734-d72b-4396-84a2-5f77c7d29048",
+            "detail": "status 200, recipients 0, id 90664028-ec48-48fa-baff-3a5016f68a3f, errors {\"invalid_aliases\":{\"external_id\":[\"8a07a25b-a49b-4ec3-a56c-cfe7f7ea0c0e\"]}}",
+            "status": "failed",
+            "channel": "push_onesignal",
+            "user_id": "8a07a25b-a49b-4ec3-a56c-cfe7f7ea0c0e",
+            "created_at": "2026-09-15T10:22:52.357543+00:00",
+            "notification_id": "8be45b0c-aa6d-4861-8f2b-f1132f140d5e",
+            "provider_status": 200
+          },
+          {
+            "id": "f861a510-07ab-4b05-8d5d-35d5c9316536",
+            "detail": "FCM delivered to 2/3 device(s).",
+            "status": "delivered",
+            "channel": "push_fcm",
+            "user_id": "8a07a25b-a49b-4ec3-a56c-cfe7f7ea0c0e",
+            "created_at": "2026-09-15T10:22:52.357543+00:00",
+            "notification_id": "8be45b0c-aa6d-4861-8f2b-f1132f140d5e",
+            "provider_status": null
+          }
+        ],
+        "functions": [
+          {
+            "args": "p_execution_id uuid, p_new_max_authorized_usd numeric DEFAULT NULL::numeric",
+            "name": "approve_refill_execution"
+          },
+          {
+            "args": "p_sim_line_id uuid, p_new_date timestamp with time zone",
+            "name": "reschedule_mini_refill"
+          },
+          {
+            "args": "p_execution_id uuid",
+            "name": "request_refill_approval_quote"
+          },
+          {
+            "args": "p_execution_type text",
+            "name": "claim_refill_approval_quotes"
+          },
+          {
+            "args": "p_quote_id uuid, p_expected_amount numeric",
+            "name": "approve_refill_execution_quote"
+          }
+        ],
+        "schedules": [
+          {
+            "id": "c84d061e-27f9-42a1-aa24-c694845cb9e1",
+            "amount": 7.18,
+            "status": "active",
+            "user_id": "8a07a25b-a49b-4ec3-a56c-cfe7f7ea0c0e",
+            "currency": "USD",
+            "offer_id": null,
+            "is_active": true,
+            "created_at": "2026-09-15T10:23:26.496436+00:00",
+            "updated_at": "2026-09-15T10:23:26.496436+00:00",
+            "app_fee_usd": null,
+            "intent_kind": "exact_airtime",
+            "max_retries": 4,
+            "offer_value": null,
+            "retry_count": 0,
+            "sim_line_id": "da7eb107-1a84-4a87-a563-4aacba4ed86f",
+            "pricing_tier": null,
+            "base_cost_usd": null,
+            "schedule_type": "notify",
+            "engine_version": 2,
+            "frequency_days": 153,
+            "fee_rule_version": null,
+            "last_execution_at": null,
+            "next_execution_at": "2027-02-15T10:23:26.496436+00:00",
+            "max_authorized_usd": null,
+            "preferred_provider": null,
+            "target_local_value": null,
+            "target_local_currency": null,
+            "whatsapp_sent_this_cycle": false
+          },
+          {
+            "id": "190b8d8d-a61e-4c1b-a307-68513f9a903f",
+            "amount": 7.18,
+            "status": "active",
+            "user_id": "8a07a25b-a49b-4ec3-a56c-cfe7f7ea0c0e",
+            "currency": "USD",
+            "offer_id": "STC_SA_001_USD",
+            "is_active": true,
+            "created_at": "2026-09-15T10:23:26.496436+00:00",
+            "updated_at": "2026-09-15T10:23:26.496436+00:00",
+            "app_fee_usd": null,
+            "intent_kind": "exact_airtime",
+            "max_retries": 4,
+            "offer_value": null,
+            "retry_count": 0,
+            "sim_line_id": "da7eb107-1a84-4a87-a563-4aacba4ed86f",
+            "pricing_tier": null,
+            "base_cost_usd": null,
+            "schedule_type": "refill_mini",
+            "engine_version": 2,
+            "frequency_days": 153,
+            "fee_rule_version": null,
+            "last_execution_at": null,
+            "next_execution_at": "2027-02-15T10:23:26.496436+00:00",
+            "max_authorized_usd": null,
+            "preferred_provider": null,
+            "target_local_value": null,
+            "target_local_currency": null,
+            "whatsapp_sent_this_cycle": false
+          }
+        ],
+        "executions": [
+          {
+            "id": "eaa197f7-c3a9-4207-84d9-b25fcc401199",
+            "amount": 7.18,
+            "status": "success",
+            "user_id": "8a07a25b-a49b-4ec3-a56c-cfe7f7ea0c0e",
+            "currency": "USD",
+            "offer_id": "XCSASA72721",
+            "pin_code": null,
+            "quote_id": null,
+            "retry_of": null,
+            "created_at": "2026-09-15T10:22:45.373705+00:00",
+            "pin_serial": null,
+            "updated_at": "2026-09-15T10:22:45.373705+00:00",
+            "app_fee_usd": null,
+            "executed_at": "2026-09-15T10:22:49.403588+00:00",
+            "intent_kind": "exact_airtime",
+            "offer_value": null,
+            "sim_line_id": "da7eb107-1a84-4a87-a563-4aacba4ed86f",
+            "api_provider": "ding",
+            "completed_at": "2026-09-15T10:22:49.403588+00:00",
+            "funding_kind": "setup_hold",
+            "base_cost_usd": 6.9701,
+            "acting_user_id": null,
+            "engine_version": 2,
+            "execution_time": "2026-09-15T10:22:45.373705+00:00",
+            "execution_type": "refill_instant",
+            "failure_reason": null,
+            "quoted_fee_usd": null,
+            "reaper_retries": 0,
+            "refill_channel": null,
+            "wallet_hold_id": "a0598fef-3ff7-487a-a943-9993304ff723",
+            "gateway_fee_usd": null,
+            "message_fee_usd": null,
+            "quoted_cost_usd": null,
+            "processing_since": "2026-09-15T10:22:45.558295+00:00",
+            "carrier_in_flight": false,
+            "max_authorized_usd": null,
+            "scheduled_topup_id": null,
+            "target_local_value": null,
+            "attempted_providers": [
+              "ding"
+            ],
+            "fulfillment_gateway": "API",
+            "redeem_instructions": null,
+            "validity_days_added": null,
+            "payment_gateway_code": null,
+            "pre_processing_status": "routing",
+            "target_local_currency": null,
+            "reloadly_transaction_id": "864971269"
+          },
+          {
+            "id": "c3dad031-c9dc-48d0-8d69-f5cae8fe6c97",
+            "amount": 7.4,
+            "status": "pending",
+            "user_id": "8a07a25b-a49b-4ec3-a56c-cfe7f7ea0c0e",
+            "currency": "USD",
+            "offer_id": "STC_SA_001_USD",
+            "pin_code": null,
+            "quote_id": null,
+            "retry_of": null,
+            "created_at": "2026-09-15T10:23:26.496436+00:00",
+            "pin_serial": null,
+            "updated_at": "2026-09-15T10:23:26.496436+00:00",
+            "app_fee_usd": 0.22,
+            "executed_at": "2026-09-15T10:23:26.496436+00:00",
+            "intent_kind": "exact_airtime",
+            "offer_value": null,
+            "sim_line_id": "da7eb107-1a84-4a87-a563-4aacba4ed86f",
+            "api_provider": "zendit",
+            "completed_at": null,
+            "funding_kind": "wallet_due",
+            "base_cost_usd": 7.18,
+            "acting_user_id": null,
+            "engine_version": 2,
+            "execution_time": "2027-02-15T10:23:26.496436+00:00",
+            "execution_type": "refill_mini",
+            "failure_reason": null,
+            "quoted_fee_usd": null,
+            "reaper_retries": 0,
+            "refill_channel": null,
+            "wallet_hold_id": null,
+            "gateway_fee_usd": null,
+            "message_fee_usd": null,
+            "quoted_cost_usd": null,
+            "processing_since": null,
+            "carrier_in_flight": false,
+            "max_authorized_usd": 7.18,
+            "scheduled_topup_id": "190b8d8d-a61e-4c1b-a307-68513f9a903f",
+            "target_local_value": null,
+            "attempted_providers": [],
+            "fulfillment_gateway": "API",
+            "redeem_instructions": null,
+            "validity_days_added": null,
+            "payment_gateway_code": "wallet",
+            "pre_processing_status": null,
+            "target_local_currency": null,
+            "reloadly_transaction_id": null
+          }
+        ]
+      }
+    }
+  ],
+  "testReconcile": [
+    {
+      "jsonb_build_object": {
+        "wallet": {
+          "balance": 1871.26,
+          "currency": "USD"
+        },
+        "activity": [
+          {
+            "id": "5f5adfa2-6ea8-4bfd-8757-752bd33f9583",
+            "user_id": "8a07a25b-a49b-4ec3-a56c-cfe7f7ea0c0e",
+            "metadata": {
+              "amount": 7.18,
+              "offer_id": "XCSASA72721",
+              "provider": "ding",
+              "execution_id": "eaa197f7-c3a9-4207-84d9-b25fcc401199",
+              "base_cost_usd": 6.9701,
+              "execution_type": "refill_instant",
+              "refill_channel": null
+            },
+            "created_at": "2026-09-15T10:22:45.406616+00:00",
+            "event_type": "topup_requested",
+            "description": null,
+            "sim_line_id": "da7eb107-1a84-4a87-a563-4aacba4ed86f"
+          },
+          {
+            "id": "ab942cc6-a5fb-4e1f-aba8-d2e0584e9b84",
+            "user_id": "8a07a25b-a49b-4ec3-a56c-cfe7f7ea0c0e",
+            "metadata": {
+              "amount": 7.18,
+              "provider": "ding",
+              "execution_id": "eaa197f7-c3a9-4207-84d9-b25fcc401199",
+              "execution_type": "refill_instant",
+              "refill_channel": null,
+              "transaction_id": "864971269"
+            },
+            "created_at": "2026-09-15T10:22:49.478566+00:00",
+            "event_type": "topup_success",
+            "description": null,
+            "sim_line_id": "da7eb107-1a84-4a87-a563-4aacba4ed86f"
+          },
+          {
+            "id": "216bc945-cbf8-48f0-a6cf-8819ac846955",
+            "user_id": "8a07a25b-a49b-4ec3-a56c-cfe7f7ea0c0e",
+            "metadata": {
+              "amount": 7.4,
+              "offer_id": "STC_SA_001_USD",
+              "provider": "zendit",
+              "execution_id": "c3dad031-c9dc-48d0-8d69-f5cae8fe6c97",
+              "base_cost_usd": 7.18,
+              "execution_type": "refill_mini",
+              "refill_channel": null
+            },
+            "created_at": "2026-09-15T10:23:26.571832+00:00",
+            "event_type": "topup_requested",
+            "description": null,
+            "sim_line_id": "da7eb107-1a84-4a87-a563-4aacba4ed86f"
+          }
+        ],
+        "payments": [
+          {
+            "id": "214abecf-05cd-4ad4-a03f-1001a75f6b4a",
+            "kind": "plan",
+            "net_usd": 5,
+            "user_id": "8a07a25b-a49b-4ec3-a56c-cfe7f7ea0c0e",
+            "metadata": {
+              "plan": "premium",
+              "billing_model": "pay_per_refill",
+              "setup_order_id": "edd42ee5-27ab-49ca-ad45-bdcac4dd44a6"
+            },
+            "order_id": "edd42ee5-27ab-49ca-ad45-bdcac4dd44a6",
+            "gross_usd": 5,
+            "capture_id": "a95b95a4-47a7-4f7d-b41d-8663454ef55c",
+            "created_at": "2026-09-15T10:23:26.496436+00:00",
+            "sim_line_id": "da7eb107-1a84-4a87-a563-4aacba4ed86f",
+            "paypal_fee_usd": 0
+          }
+        ],
+        "functions": [
+          {
+            "def": "CREATE OR REPLACE FUNCTION public.calculate_topup_fees()\n RETURNS trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\nDECLARE\n  v_line_tier       TEXT := 'free';\n  v_entitlement     JSONB;\n  v_app_fee         NUMERIC;\n  v_msg_fee         NUMERIC := 0.00;\n  v_msg_fee_key     TEXT;\n  pm                RECORD;\nBEGIN\n  IF NEW.payment_gateway_code IS NOT NULL AND NEW.base_cost_usd IS NOT NULL THEN\n    SELECT * INTO pm FROM public.payment_gateways WHERE code = NEW.payment_gateway_code;\n\n    IF FOUND THEN\n      -- Resolve line tier\n      IF NEW.sim_line_id IS NOT NULL THEN\n        v_entitlement := public.resolve_line_entitlement(NEW.sim_line_id);\n        v_line_tier := COALESCE(v_entitlement->>'effective_tier', 'free');\n      END IF;\n\n      -- Resolve app fee from app_fee_rules\n      v_app_fee := public.resolve_app_fee('refills', v_line_tier, NEW.base_cost_usd);\n\n      -- Fallback if no published rule existed\n      IF v_app_fee IS NULL OR v_app_fee = 0 THEN\n        v_app_fee := round(greatest(NEW.base_cost_usd * 0.03, 0.03), 2);\n      END IF;\n\n      -- Offline messaging fees if applicable\n      IF NEW.refill_channel IS NOT NULL THEN\n        v_msg_fee_key := CASE NEW.refill_channel\n          WHEN 'whatsapp'    THEN 'OFFLINE_WHATSAPP_MESSAGE_FEE_USD'\n          WHEN 'sms'         THEN 'OFFLINE_SMS_MESSAGE_FEE_USD'\n          WHEN 'missed_call' THEN 'OFFLINE_MISSED_CALL_FEE_USD'\n        END;\n        BEGIN\n          SELECT config_value::numeric INTO v_msg_fee\n          FROM public.system_configs\n          WHERE config_key = v_msg_fee_key;\n        EXCEPTION WHEN others THEN\n          v_msg_fee := 0;\n        END;\n        v_msg_fee := coalesce(v_msg_fee, 0);\n      END IF;\n\n      NEW.app_fee_usd := v_app_fee;\n      NEW.amount := round(NEW.base_cost_usd + v_app_fee + v_msg_fee, 2);\n\n      -- Fee calculation must preserve an explicit customer spending limit.\n      IF NEW.max_authorized_usd IS NULL THEN\n        NEW.max_authorized_usd := NEW.amount;\n      END IF;\n    END IF;\n  END IF;\n\n  RETURN NEW;\nEND;\n$function$\n",
+            "name": "calculate_topup_fees"
+          }
+        ],
+        "constraints": [
+          {
+            "def": "CHECK ((order_type = ANY (ARRAY['refill_instant'::text, 'refill_scheduled'::text, 'setup_refill'::text, 'plan_fee'::text, 'esim_purchase'::text, 'call_budget'::text, 'offline_voucher'::text, 'refund_request'::text, 'line_verification'::text])))",
+            "name": "wallet_holds_order_type_check"
+          }
+        ],
+        "transactions": [
+          {
+            "id": "96252433-3dfe-432b-acf4-fa525410e7c0",
+            "type": "plan_fee_debit",
+            "amount": 5,
+            "status": "completed",
+            "user_id": "8a07a25b-a49b-4ec3-a56c-cfe7f7ea0c0e",
+            "metadata": {
+              "plan": "premium",
+              "hold_id": "a95b95a4-47a7-4f7d-b41d-8663454ef55c",
+              "order_type": "plan_fee",
+              "setup_order_id": "edd42ee5-27ab-49ca-ad45-bdcac4dd44a6",
+              "order_reference_id": "setup_fee_edd42ee5-27ab-49ca-ad45-bdcac4dd44a6"
+            },
+            "wallet_id": "2a299470-7962-4fff-824f-693805f2355b",
+            "created_at": "2026-09-15T10:23:26.496436+00:00",
+            "description": "Annual Protection Fee (premium)",
+            "sim_line_id": null,
+            "reference_id": "hold_a95b95a4-47a7-4f7d-b41d-8663454ef55c",
+            "balance_after": 1871.26,
+            "balance_before": 1876.26
+          },
+          {
+            "id": "7c8bdfb6-48f1-4678-9859-5d7faef551d2",
+            "type": "topup_debit",
+            "amount": 7.18,
+            "status": "completed",
+            "user_id": "8a07a25b-a49b-4ec3-a56c-cfe7f7ea0c0e",
+            "metadata": {
+              "hold_id": "a0598fef-3ff7-487a-a943-9993304ff723",
+              "provider": "ding",
+              "order_type": "setup_refill",
+              "sim_line_id": "da7eb107-1a84-4a87-a563-4aacba4ed86f",
+              "execution_id": "eaa197f7-c3a9-4207-84d9-b25fcc401199",
+              "transaction_id": "864971269",
+              "order_reference_id": "setup_refill_edd42ee5-27ab-49ca-ad45-bdcac4dd44a6"
+            },
+            "wallet_id": "2a299470-7962-4fff-824f-693805f2355b",
+            "created_at": "2026-09-15T10:22:49.051815+00:00",
+            "description": "Instant Mobile Refill for SIM Line (da7eb107-1a84-4a87-a563-4aacba4ed86f)",
+            "sim_line_id": null,
+            "reference_id": "hold_a0598fef-3ff7-487a-a943-9993304ff723",
+            "balance_after": 1876.26,
+            "balance_before": 1883.44
+          }
+        ]
+      }
+    }
+  ],
+  "testReadAccess": [
+    {
+      "jsonb_build_object": {
+        "setup_status": "active",
+        "pending_refill": {
+          "time": "2027-02-15T10:23:26.496436+00:00",
+          "limit": 7.18,
+          "amount": 7.4,
+          "status": "pending"
+        },
+        "own_line_visible": 1,
+        "own_profile_visible": 1,
+        "other_profiles_visible": 0,
+        "other_users_lines_visible": 0
+      }
+    }
+  ]
+}

@@ -6,6 +6,7 @@ library;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:keep_sims/features/auth/controller/auth_controller.dart';
@@ -46,6 +47,7 @@ import 'package:keep_sims/features/calling/presentation/screens/active_call_scre
 import 'package:keep_sims/features/calling/presentation/screens/sip_diagnostics_screen.dart';
 import 'package:keep_sims/features/calling/presentation/screens/my_numbers_screen.dart';
 import 'package:keep_sims/features/calling/presentation/screens/voicemail_inbox_screen.dart';
+import 'package:keep_sims/features/calling/presentation/screens/smart_call_savings_screen.dart';
 import 'package:keep_sims/features/return_trip/presentation/screens/return_trip_wizard_screen.dart';
 import 'package:keep_sims/features/voip_calling/presentation/screens/whatsapp_call_screen.dart';
 import 'package:keep_sims/features/voip_calling/presentation/screens/internet_calling_screen.dart';
@@ -62,6 +64,8 @@ abstract final class AppRoutes {
   static const String calling = '/calling';
   static const String myNumbers = '/calling/my-numbers';
   static const String voicemail = '/calling/voicemail';
+  static const String voicemailDetail = '/calling/voicemail/:voicemailId';
+  static const String callingSavings = '/calling/savings';
   static const String sipDiagnostics = '/calling/sip-test';
   static const String internetCalling = '/calling/internet';
   static const String callingActive = '/calling/active';
@@ -129,6 +133,13 @@ RouterConfig<Object> appRouter(Ref ref) {
       final isSplashCompleted = ref.read(splashCompletedProvider);
 
       final currentPath = state.uri.path;
+
+      // 0. Unconditional bypass: active VoIP or cellular calls must never be
+      // redirected away to Splash, Login, or Onboarding.
+      if (currentPath.startsWith(AppRoutes.voipCall) ||
+          currentPath == AppRoutes.callingActive) {
+        return null;
+      }
 
       // 1. Force the splash screen to play fully first
       if (!isSplashCompleted) {
@@ -210,6 +221,11 @@ RouterConfig<Object> appRouter(Ref ref) {
         name: 'voipCall',
         builder: (context, state) => const WhatsAppCallScreen(),
       ),
+      GoRoute(
+        path: '${AppRoutes.voipCall}/:callId',
+        name: 'voipCallWithId',
+        builder: (context, state) => const WhatsAppCallScreen(),
+      ),
 
       // ── Return Trip Wizard (Full-Screen Flow) ────────────────
       GoRoute(
@@ -237,7 +253,9 @@ RouterConfig<Object> appRouter(Ref ref) {
           GoRoute(
             path: AppRoutes.calling,
             name: 'calling',
-            builder: (context, state) => const CallingScreen(),
+            builder: (context, state) => CallingScreen(
+              initialNumber: state.uri.queryParameters['number'],
+            ),
           ),
           GoRoute(
             path: AppRoutes.sipDiagnostics,
@@ -255,9 +273,23 @@ RouterConfig<Object> appRouter(Ref ref) {
             builder: (context, state) => const MyNumbersScreen(),
           ),
           GoRoute(
+            path: AppRoutes.callingSavings,
+            name: 'callingSavings',
+            builder: (context, state) => const SmartCallSavingsScreen(),
+          ),
+          GoRoute(
             path: AppRoutes.voicemail,
             name: 'voicemail',
             builder: (context, state) => const VoicemailInboxScreen(),
+            routes: [
+              GoRoute(
+                path: ':voicemailId',
+                name: 'voicemailDetail',
+                builder: (context, state) => VoicemailInboxScreen(
+                  initialVoicemailId: state.pathParameters['voicemailId'],
+                ),
+              ),
+            ],
           ),
           GoRoute(
             path: AppRoutes.simLines,
@@ -508,6 +540,20 @@ class FilteringRouterConfig implements RouterConfig<RouteMatchList> {
 
   FilteringRouterConfig(this._router, this.routeInformationProvider);
 
+  GoRouter get rawRouter => _router;
+
+  Future<T?> push<T extends Object?>(String location, {Object? extra}) {
+    return _router.push<T>(location, extra: extra);
+  }
+
+  void go(String location, {Object? extra}) {
+    _router.go(location, extra: extra);
+  }
+
+  void pop<T extends Object?>([T? result]) {
+    _router.pop<T>(result);
+  }
+
   @override
   RouteInformationParser<RouteMatchList> get routeInformationParser =>
       _router.routeInformationParser;
@@ -518,3 +564,15 @@ class FilteringRouterConfig implements RouterConfig<RouteMatchList> {
   @override
   BackButtonDispatcher get backButtonDispatcher => _router.backButtonDispatcher;
 }
+
+/// Helper provider to access the underlying GoRouter if needed
+final appGoRouterProvider = Provider<GoRouter>((ref) {
+  final config = ref.watch(appRouterProvider);
+  if (config is FilteringRouterConfig) {
+    return config.rawRouter;
+  }
+  if (config is GoRouter) {
+    return config;
+  }
+  throw StateError('appRouter is neither FilteringRouterConfig nor GoRouter');
+});

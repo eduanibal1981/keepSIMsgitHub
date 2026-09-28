@@ -5,6 +5,8 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:keep_sims/core/router/app_router.dart';
 import 'package:keep_sims/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
@@ -21,7 +23,6 @@ import 'package:keep_sims/core/widgets/shimmer_loading.dart';
 import 'package:keep_sims/core/widgets/error_state.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
 import 'package:keep_sims/features/payments/presentation/screens/paypal_checkout_screen.dart';
-import 'package:keep_sims/core/services/biometric_auth_service.dart';
 
 class WalletScreen extends ConsumerStatefulWidget {
   const WalletScreen({super.key});
@@ -44,6 +45,24 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: context.isDarkMode
+                ? AppColors.textPrimaryDark
+                : AppColors.textPrimaryLight,
+            size: 20,
+          ),
+          tooltip: 'Back',
+          onPressed: () {
+            HapticHelper.lightTick();
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go(AppRoutes.home);
+            }
+          },
+        ),
         title: Text(
           AppLocalizations.of(context)!.walletLedger,
           style: AppTextStyles.headlineLarge.copyWith(
@@ -803,6 +822,9 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
     final isDeposit = tx.type == 'deposit' || tx.type == 'auto_fund';
     final isReferral = tx.type == 'referral' || tx.type == 'referral_credit';
     final isRefund = tx.type == 'refund';
+    final isSetupRefill = tx.metadata?['order_type'] == 'setup_refill' ||
+        (tx.description != null &&
+            tx.description!.toLowerCase().contains('setup refill'));
 
     final isDark = context.isDarkMode;
     Color typeColor = isDark ? AppColors.warning : AppColors.lightWarning;
@@ -830,6 +852,10 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
       // sitting under a top-up icon reads as a charge the user did not make.
       typeColor = isDark ? AppColors.primaryLight : AppColors.lightPrimary;
       typeIcon = Icons.card_giftcard_rounded;
+      sign = '-';
+    } else if (isSetupRefill) {
+      typeColor = isDark ? AppColors.primaryLight : AppColors.lightPrimary;
+      typeIcon = Icons.settings_phone_rounded;
       sign = '-';
     }
 
@@ -871,7 +897,9 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                     tx.description ??
                         (isDeposit
                             ? AppLocalizations.of(context)!.depositFunds
-                            : 'Line Renewal'),
+                            : (isSetupRefill
+                                ? (AppLocalizations.of(context)?.setupRefill ?? 'Setup Refill')
+                                : 'Line Renewal')),
                     style: AppTextStyles.titleMedium.copyWith(
                       color: isDark
                           ? AppColors.textPrimaryDark
@@ -1007,7 +1035,9 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
               ],
             ),
             const SizedBox(height: 14),
-            row('Amount credited', money(tx.amount), bold: true),
+            row(tx.type == 'deposit' || tx.type == 'auto_fund' ? 'Amount credited' : 'Amount', money(tx.amount), bold: true),
+            if (meta['order_type'] == 'setup_refill') row('Order Type', AppLocalizations.of(context)?.setupRefill ?? 'Setup Refill'),
+            if (meta['order_type'] != null && meta['order_type'] != 'setup_refill') row('Order Type', '${meta['order_type']}'),
             if (meta['gross'] != null) row('Gross payment', money(meta['gross'])),
             if (meta['paypal_fee'] != null)
               row('Gateway fee', money(meta['paypal_fee'])),
@@ -1019,6 +1049,8 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
               row('Order ID', '${meta['paypal_order_id']}'),
             if (meta['paypal_capture_id'] != null)
               row('Transaction ID', '${meta['paypal_capture_id']}'),
+            if (meta['execution_id'] != null)
+              row('Execution ID', '${meta['execution_id']}'),
             if (tx.createdAt != null)
               row(
                 'Date',
@@ -1036,16 +1068,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
   // server-side by the paypal-webhook once PayPal confirms the capture.
   // (The old in-app card form credited a client-chosen amount with no real
   // payment behind it — removed in B3.)
-  void _showDepositModalSheet(BuildContext context) async {
-    final authGuard = ref.read(paymentAuthGuardProvider);
-    final authResult = await authGuard.confirmPayment(
-      reason: 'Authenticate to add funds to wallet',
-    );
-    if (authResult != BiometricResult.success) {
-      return;
-    }
-
-    if (!context.mounted) return;
+  void _showDepositModalSheet(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => const PayPalCheckoutScreen(

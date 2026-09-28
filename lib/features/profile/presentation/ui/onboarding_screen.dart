@@ -1782,7 +1782,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           const SizedBox(height: 8),
           Text(
             isBasic
-                ? 'Free Plan includes mobile push notifications only. Upgrade to unlock other alert delivery methods.'
+                ? 'Free Plan includes mobile push notifications and Telegram alerts. Upgrade to unlock WhatsApp and Email alerts.'
                 : 'Choose how you would like to receive critical deactivation warnings, wallet alerts, and renewal status updates.',
             style: AppTextStyles.bodyMedium.copyWith(
               color: isDark
@@ -1871,8 +1871,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                         break;
                     }
 
-                    // On basic tier, everything except push is locked
-                    final bool isLocked = type != 'push' && isBasic;
+                    // On basic tier, WhatsApp and Email are locked (Push and Telegram are free)
+                    final bool isLocked = type != 'push' && type != 'telegram' && isBasic;
 
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

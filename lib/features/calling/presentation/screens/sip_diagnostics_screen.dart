@@ -18,7 +18,6 @@ import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:keep_sims/core/router/app_router.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
-import 'package:keep_sims/features/calling/presentation/widgets/calling_mode_switcher.dart';
 
 class SipDiagnosticsScreen extends ConsumerStatefulWidget {
   const SipDiagnosticsScreen({super.key});
@@ -491,10 +490,6 @@ class _SipDiagnosticsScreenState extends ConsumerState<SipDiagnosticsScreen>
       body: SafeArea(
         child: Column(
           children: [
-            // Mode Switcher Bar
-            const CallingModeSwitcher(activeMode: CallingMode.diagnostics),
-
-            // Scrollable Content
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.symmetric(

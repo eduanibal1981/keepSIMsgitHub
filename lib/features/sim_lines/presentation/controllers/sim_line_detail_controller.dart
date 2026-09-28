@@ -6,6 +6,7 @@ import 'package:keep_sims/features/scheduled_topups/model/scheduled_topup_model.
 import 'package:keep_sims/features/scheduled_topups/model/topup_execution_model.dart';
 import 'package:keep_sims/features/scheduled_topups/controller/scheduled_topup_controller.dart';
 import 'package:keep_sims/features/sim_lines/data/models/line_activity_log_model.dart';
+import 'package:keep_sims/features/sim_lines/presentation/providers/usage_forecast_provider.dart';
 import 'package:keep_sims/core/result.dart';
 
 part 'sim_line_detail_controller.g.dart';
@@ -81,6 +82,22 @@ class SimLineDetailController extends _$SimLineDetailController {
         .retryFailedExecution(executionId, id);
   }
 
+  /// Approves a refill execution currently in 'awaiting_approval' status
+  Future<Result<void>> approveRefillExecution(
+    String executionId, {
+    required String quoteId,
+    required double newMaxAuthorizedUsd,
+  }) async {
+    return ref
+        .read(scheduledTopupControllerProvider.notifier)
+        .approveRefillExecution(
+          executionId: executionId,
+          simLineId: id,
+          quoteId: quoteId,
+          newMaxAuthorizedUsd: newMaxAuthorizedUsd,
+        );
+  }
+
   /// Deletes a specific activity log
   Future<void> deleteActivityLog(String logId) async {
     await ref
@@ -125,5 +142,6 @@ class SimLineDetailController extends _$SimLineDetailController {
     ref.invalidate(topupExecutionsForLineProvider(id));
     ref.invalidate(simLineActivityLogsProvider(id));
     ref.invalidate(simLineExecutionsHistoryProvider(id));
+    ref.invalidate(usageForecastForLineProvider(id));
   }
 }

@@ -11,6 +11,7 @@ class WizardStepArrivalDate extends StatelessWidget {
   final String? flagEmoji;
   final ReturnTripWizardState state;
   final ReturnTripWizardController controller;
+  final bool isUserInCountry;
 
   const WizardStepArrivalDate({
     super.key,
@@ -18,6 +19,7 @@ class WizardStepArrivalDate extends StatelessWidget {
     this.flagEmoji,
     required this.state,
     required this.controller,
+    this.isUserInCountry = false,
   });
 
   @override
@@ -69,7 +71,7 @@ class WizardStepArrivalDate extends StatelessWidget {
                   ),
                   child: Center(
                     child: Text(
-                      flagEmoji ?? '✈️',
+                      flagEmoji ?? (isUserInCountry ? '📍' : '✈️'),
                       style: const TextStyle(fontSize: 26),
                     ),
                   ),
@@ -80,7 +82,9 @@ class WizardStepArrivalDate extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'When are you landing in $countryName?',
+                        isUserInCountry
+                            ? 'You are in $countryName!'
+                            : 'When are you landing in $countryName?',
                         style: AppTextStyles.titleMedium.copyWith(
                           fontWeight: FontWeight.bold,
                           color: context.onSurfaceColor,
@@ -89,7 +93,9 @@ class WizardStepArrivalDate extends StatelessWidget {
                       ),
                       const SizedBox(height: 3),
                       Text(
-                        'We will prepare your connectivity so data is ready when you arrive.',
+                        isUserInCountry
+                            ? 'Select a data package for your line or set up a local travel eSIM.'
+                            : 'We will prepare your connectivity so data is ready when you arrive.',
                         style: AppTextStyles.caption.copyWith(
                           color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                           fontSize: 12,

@@ -11,6 +11,7 @@ import 'package:keep_sims/core/router/app_router.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/core/services/connectivity_service.dart';
+import 'package:keep_sims/core/providers.dart';
 import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import 'package:keep_sims/features/auth/model/auth_model.dart';
 import 'package:keep_sims/features/dashboard/presentation/controller/dashboard_controller.dart';
@@ -29,6 +30,8 @@ import 'package:keep_sims/features/notifications/presentation/controllers/notifi
 import 'package:keep_sims/core/services/esim_capability_service.dart';
 import 'package:keep_sims/features/dashboard/presentation/widgets/promo_banner.dart';
 import 'package:keep_sims/features/geo/controller/geo_controller.dart';
+
+enum _HeaderMenuAction { intlCall, esim, wallet, openTicket, help }
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -83,10 +86,27 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     dashboardState.value!,
                   )
                 : dashboardState.hasError
-                ? ErrorStateView(
-                    errorMessage: 'Failed to load dashboard data',
-                    errorDetails: dashboardState.error.toString(),
-                    onRetry: () => ref.invalidate(dashboardControllerProvider),
+                ? Builder(
+                    builder: (context) {
+                      final errStr = dashboardState.error.toString();
+                      final isAuthError = errStr.toLowerCase().contains('jwt') ||
+                          errStr.toLowerCase().contains('token') ||
+                          errStr.toLowerCase().contains('authenticated');
+                      return ErrorStateView(
+                        errorMessage: isAuthError
+                            ? 'Session credentials require refresh'
+                            : 'Failed to load dashboard data',
+                        errorDetails: isAuthError
+                            ? 'Authentication credentials refreshed. Tap below to reload your dashboard metrics.'
+                            : errStr,
+                        actionLabel: isAuthError
+                            ? 'Reconnect Dashboard'
+                            : 'Initialize Recovery Retry',
+                        onRetry: () => ref
+                            .read(dashboardControllerProvider.notifier)
+                            .refreshDashboard(),
+                      );
+                    },
                   )
                 : const DashboardShimmer(),
           );
@@ -100,7 +120,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           body: ErrorStateView(
             errorMessage: 'Authentication checkpoint failed',
             errorDetails: err.toString(),
-            onRetry: () => ref.invalidate(authControllerProvider),
+            actionLabel: 'Re-authenticate',
+            onRetry: () async {
+              await ref.read(authRepositoryProvider).ensureValidSession(force: true);
+              ref.invalidate(authControllerProvider);
+            },
           ),
         ),
       ),
@@ -443,19 +467,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           },
         ),
 
-        // Help Icon Button
-        IconButton(
-          icon: const Icon(Icons.help_outline_rounded, size: 22),
-          color: context.onSurfaceColor.withValues(alpha: 0.8),
-          tooltip: 'Help & Support',
-          onPressed: () async {
-            await HapticHelper.lightTick();
-            if (context.mounted) {
-              _showHelpModalSheet(context);
-            }
-          },
-        ),
-
         // Alerts Icon Button with dynamic unread badge
         IconButton(
           icon: Badge(
@@ -480,7 +491,134 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             }
           },
         ),
+
+        // Header menu: quick actions and Help & Support live together here.
+        PopupMenuButton<_HeaderMenuAction>(
+          tooltip: 'Quick actions and help',
+          padding: EdgeInsets.zero,
+          offset: const Offset(0, 48),
+          icon: Icon(
+            Icons.menu_rounded,
+            size: 25,
+            color: context.onSurfaceColor.withValues(alpha: 0.8),
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+            side: BorderSide(
+              color: isLight ? AppColors.lightBorder : AppColors.darkBorder,
+            ),
+          ),
+          color: isLight ? AppColors.lightCard : AppColors.darkSurface,
+          onSelected: (action) async {
+            await HapticHelper.lightTick();
+            if (!context.mounted) return;
+
+            switch (action) {
+              case _HeaderMenuAction.intlCall:
+                context.push(AppRoutes.calling);
+              case _HeaderMenuAction.esim:
+                context.push(AppRoutes.esim);
+              case _HeaderMenuAction.wallet:
+                context.go('/wallet');
+              case _HeaderMenuAction.openTicket:
+                context.push('/support/create');
+              case _HeaderMenuAction.help:
+                _showHelpModalSheet(context);
+            }
+          },
+          itemBuilder: (context) => [
+            PopupMenuItem<_HeaderMenuAction>(
+              enabled: false,
+              height: 40,
+              child: Text(
+                'Quick Actions',
+                style: AppTextStyles.labelLarge.copyWith(
+                  color: context.onSurfaceColor.withValues(alpha: 0.55),
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.4,
+                ),
+              ),
+            ),
+            _buildHeaderMenuItem(
+              context,
+              action: _HeaderMenuAction.intlCall,
+              icon: Icons.phone_in_talk_rounded,
+              label: 'Smart Calling',
+              color: AppColors.primary,
+            ),
+            _buildHeaderMenuItem(
+              context,
+              action: _HeaderMenuAction.esim,
+              icon: Icons.sim_card_rounded,
+              label: 'Manage eSIM',
+              color: const Color(0xFF8B7CFF),
+            ),
+            _buildHeaderMenuItem(
+              context,
+              action: _HeaderMenuAction.wallet,
+              icon: Icons.account_balance_wallet_rounded,
+              label: 'Wallet',
+              color: const Color(0xFF14B8A6),
+            ),
+            _buildHeaderMenuItem(
+              context,
+              action: _HeaderMenuAction.openTicket,
+              icon: Icons.support_agent_rounded,
+              label: 'Open a Ticket',
+              color: Colors.blueAccent,
+            ),
+            const PopupMenuDivider(),
+            _buildHeaderMenuItem(
+              context,
+              action: _HeaderMenuAction.help,
+              icon: Icons.help_outline_rounded,
+              label: 'Help & Support',
+              color: AppColors.secondary,
+            ),
+          ],
+        ),
       ],
+    );
+  }
+
+  PopupMenuItem<_HeaderMenuAction> _buildHeaderMenuItem(
+    BuildContext context, {
+    required _HeaderMenuAction action,
+    required IconData icon,
+    required String label,
+    required Color color,
+  }) {
+    return PopupMenuItem<_HeaderMenuAction>(
+      value: action,
+      height: 50,
+      child: Row(
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, size: 18, color: color),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              label,
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: context.onSurfaceColor,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          Icon(
+            Icons.chevron_right_rounded,
+            size: 18,
+            color: context.onSurfaceColor.withValues(alpha: 0.35),
+          ),
+        ],
+      ),
     );
   }
 
@@ -1474,7 +1612,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             _buildQuickActionCard(
               context,
               icon: Icons.phone_in_talk_rounded,
-              label: 'Intl Call',
+              label: 'Smart Call',
               color: const Color(0xFF4CD7F6),
               subtitle: 'Pay/sec',
               onTap: () async {

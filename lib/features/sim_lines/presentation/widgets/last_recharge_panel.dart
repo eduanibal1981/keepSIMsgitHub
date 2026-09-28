@@ -37,7 +37,7 @@ class LastRechargePanel extends StatelessWidget {
 
     final Color panelColor = hasRecharge
         ? (isCarrierConfirmed ? AppColors.success : Colors.amber.shade700)
-        : (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight);
+        : AppColors.healthRed;
 
     final String titleText = hasRecharge
         ? '${DateFormat('MMM dd, yyyy').format(simLine.lastTopupAt!.toLocal())} · ${_formatDaysAgo(simLine.lastTopupAt!.toLocal())}'

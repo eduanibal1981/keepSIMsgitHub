@@ -355,7 +355,7 @@ serve(async (req: Request) => {
     }
 
     // 3. Lookup call rate for destination (Fail-Closed: no unquoted fallback)
-    const rateRes = await rpc("get_call_rate_for_number", { p_phone_number: cleanDest });
+    const rateRes = await rpc("get_call_rate_for_number", { p_phone_number: cleanDest, p_user_id: userId });
     if (!rateRes.ok || !Array.isArray(rateRes.body) || rateRes.body.length === 0) {
       return jsonResponse({
         success: false,
@@ -397,11 +397,15 @@ serve(async (req: Request) => {
         effectiveCallerId,
         callerIdType,
         destination: {
+          rateId: rateData.id,
           number: cleanDest,
           countryName: rateData.country_name,
           countryCode: rateData.country_code,
           ratePerMinute: rateData.rate_per_minute_usd,
           ratePerSecond: (rateData.rate_per_minute_usd / 60).toFixed(5),
+          connectionFee: Number(rateData.connection_fee_usd ?? 0),
+          billingIncrementSeconds: Number(rateData.billing_increment_seconds ?? 1),
+          accountTier: rateData.account_tier ?? null,
         },
         walletBalance: postedBalance,
         availableBalance,

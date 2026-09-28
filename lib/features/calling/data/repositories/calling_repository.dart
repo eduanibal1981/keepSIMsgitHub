@@ -50,7 +50,10 @@ class CallPreviewResult {
   final String callerIdType;
   final CallRate? rate;
   final double walletBalance;
+  final double availableBalance;
   final String gatewayNumber;
+  final double connectionFee;
+  final int billingIncrementSeconds;
 
   const CallPreviewResult({
     required this.eligible,
@@ -62,8 +65,11 @@ class CallPreviewResult {
     required this.callerIdType,
     this.rate,
     required this.walletBalance,
+    double? availableBalance,
     required this.gatewayNumber,
-  });
+    this.connectionFee = 0.0,
+    this.billingIncrementSeconds = 1,
+  }) : availableBalance = availableBalance ?? walletBalance;
 }
 
 class CallingRepository {
@@ -132,16 +138,23 @@ class CallingRepository {
 
     final destData = data['destination'] as Map<String, dynamic>?;
     CallRate? rate;
-    if (destData != null) {
+    if (destData != null && destData['ratePerMinute'] != null) {
       rate = CallRate(
-        id: 'preview',
-        countryCode: destData['countryCode'] ?? 'GLOBAL',
-        countryName: destData['countryName'] ?? 'International Destination',
+        id: destData['rateId'] as String? ?? 'preview',
+        countryCode: destData['countryCode'] as String? ?? 'GLOBAL',
+        countryName: destData['countryName'] as String? ?? 'International Destination',
         phonePrefix: '+',
         costPerMinute: 0.0,
-        ratePerMinute: (destData['ratePerMinute'] as num?)?.toDouble() ?? 0.15,
+        ratePerMinute: (destData['ratePerMinute'] as num).toDouble(),
+        connectionFee: (destData['connectionFee'] as num?)?.toDouble() ?? 0.0,
+        billingIncrementSeconds: destData['billingIncrementSeconds'] as int? ?? 1,
+        accountTier: destData['accountTier'] as String?,
       );
     }
+
+    final double postedBal = (data['walletBalance'] as num?)?.toDouble() ?? 0.0;
+    final double availBal =
+        (data['availableBalance'] as num?)?.toDouble() ?? postedBal;
 
     return CallPreviewResult(
       eligible: data['eligible'] == true,
@@ -152,8 +165,11 @@ class CallingRepository {
       effectiveCallerId: data['effectiveCallerId'] as String? ?? '',
       callerIdType: data['callerIdType'] as String? ?? 'gateway',
       rate: rate,
-      walletBalance: (data['walletBalance'] as num?)?.toDouble() ?? 0.0,
+      walletBalance: postedBal,
+      availableBalance: availBal,
       gatewayNumber: data['gatewayNumber'] as String? ?? '+17543180369',
+      connectionFee: (destData?['connectionFee'] as num?)?.toDouble() ?? 0.0,
+      billingIncrementSeconds: destData?['billingIncrementSeconds'] as int? ?? 1,
     );
   }
 

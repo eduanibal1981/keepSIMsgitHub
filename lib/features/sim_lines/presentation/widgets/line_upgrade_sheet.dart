@@ -25,19 +25,28 @@ import 'package:keep_sims/l10n/app_localizations.dart';
 /// and navigates to payment on confirmation.
 class LineUpgradeSheet extends ConsumerStatefulWidget {
   final SimLine simLine;
+  final String? initialPlan;
 
-  const LineUpgradeSheet({super.key, required this.simLine});
+  const LineUpgradeSheet({
+    super.key,
+    required this.simLine,
+    this.initialPlan,
+  });
 
   /// Convenience method to show this sheet.
   static Future<void> show({
     required BuildContext context,
     required SimLine simLine,
+    String? initialPlan,
   }) {
     return showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (context) => LineUpgradeSheet(simLine: simLine),
+      builder: (context) => LineUpgradeSheet(
+        simLine: simLine,
+        initialPlan: initialPlan,
+      ),
     );
   }
 
@@ -47,6 +56,12 @@ class LineUpgradeSheet extends ConsumerStatefulWidget {
 
 class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
   String? _selectedPlan;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedPlan = widget.initialPlan;
+  }
 
   // Plan definitions. Prices are NOT stored here: this sheet used to carry a
   // third rival price list (Standard $1.99/mo, Premium $3.99/mo, charged as a
@@ -60,7 +75,7 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
       color: Color(0xFF1565C0),
       darkColor: Color(0xFF64B5F6),
       features: [
-        'Push notification alerts',
+        'Push, Email, WhatsApp & Telegram alerts',
         'Telegram recharge requests',
         'Manual status & expiry checks',
         'Up to 5 SIM lines',
@@ -475,7 +490,7 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
                               availableBalance: walletBalance,
                             );
 
-                            if (!mounted) return;
+                            if (!context.mounted) return;
                             final authGuard = ref.read(paymentAuthGuardProvider);
                             final authOk = await authGuard.confirmPaymentInteractive(
                               context,

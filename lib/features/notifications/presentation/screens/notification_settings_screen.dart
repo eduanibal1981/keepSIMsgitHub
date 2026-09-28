@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:keep_sims/core/router/app_router.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
@@ -1202,6 +1204,10 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
     final icon = _getChannelIcon(type);
     final color = _getChannelColor(type);
 
+    final catalogMap = ref.watch(notificationChannelCatalogProvider).value ?? {};
+    final catalogEntry = catalogMap[type];
+    final bool isGloballyEnabled = catalogEntry != null ? (catalogEntry['is_globally_enabled'] == true) : true;
+
     final user = ref.watch(authControllerProvider).value;
     final globalTier = user?.subscriptionTier ?? 'standard';
     final simLines = ref.watch(simLinesControllerProvider).value ?? [];
@@ -1214,7 +1220,10 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
           plan == 'premium';
     });
     final bool isLocked =
-        type != 'push' && globalTier == 'basic' && !hasStandardOrPremiumLine;
+        type != 'push' &&
+        type != 'telegram' &&
+        globalTier == 'basic' &&
+        !hasStandardOrPremiumLine;
     final isDark = context.isDarkMode;
 
     return Container(
@@ -1234,26 +1243,38 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
         children: [
           // Header Row with Switch
           GestureDetector(
-            onTap: isLocked
-                ? () async {
-                    await HapticHelper.mediumImpact();
-                    SubscriptionUpsellSheet.show(
-                      context: context,
-                      title: AppLocalizations.of(context)!.channelLocked(name),
-                      description: AppLocalizations.of(
-                        context,
-                      )!.lockedAlertSubtitle(name),
-                      requiredPlan: 'Standard Plan',
-                      highlights: [
-                        AppLocalizations.of(context)!.upsellProtect5Lines,
-                        AppLocalizations.of(context)!.upsellUnlockChannels,
-                        AppLocalizations.of(context)!.upsellEnableTravelModes,
-                      ],
+            onTap: !isGloballyEnabled
+                ? () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          '$name is temporarily paused across the platform. Alerts are rerouted to active channels.',
+                        ),
+                        backgroundColor: Colors.amber.shade900,
+                      ),
                     );
                   }
-                : null,
+                : (isLocked
+                    ? () async {
+                        await HapticHelper.mediumImpact();
+                        if (!context.mounted) return;
+                        SubscriptionUpsellSheet.show(
+                          context: context,
+                          title: AppLocalizations.of(context)!.channelLocked(name),
+                          description: AppLocalizations.of(
+                            context,
+                          )!.lockedAlertSubtitle(name),
+                          requiredPlan: 'Standard Plan',
+                          highlights: [
+                            AppLocalizations.of(context)!.upsellProtect5Lines,
+                            AppLocalizations.of(context)!.upsellUnlockChannels,
+                            AppLocalizations.of(context)!.upsellEnableTravelModes,
+                          ],
+                        );
+                      }
+                    : null),
             child: SwitchListTile(
-              value: isLocked ? false : _isEnabled,
+              value: (!isGloballyEnabled || isLocked) ? false : _isEnabled,
               activeThumbColor: color,
               activeTrackColor: color.withValues(alpha: 0.2),
               inactiveThumbColor: isDark
@@ -1266,35 +1287,60 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
                 children: [
                   Icon(
                     icon,
-                    color: isLocked ? AppColors.textTertiaryDark : color,
+                    color: (!isGloballyEnabled || isLocked) ? AppColors.textTertiaryDark : color,
                     size: 22,
                   ),
                   const SizedBox(width: 12),
-                  Text(
-                    name,
-                    style: AppTextStyles.titleMedium.copyWith(
-                      color: isLocked
-                          ? (isDark
-                                ? AppColors.textSecondaryDark
-                                : AppColors.textSecondaryLight)
-                          : context.onSurfaceColor,
-                      fontWeight: FontWeight.bold,
+                  Expanded(
+                    child: Text(
+                      name,
+                      style: AppTextStyles.titleMedium.copyWith(
+                        color: (!isGloballyEnabled || isLocked)
+                            ? (isDark
+                                  ? AppColors.textSecondaryDark
+                                  : AppColors.textSecondaryLight)
+                            : context.onSurfaceColor,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
-                  if (isLocked) ...[
+                  if (!isGloballyEnabled) ...[
+                    const SizedBox(width: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: Colors.amber.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: Colors.amber.withValues(alpha: 0.4)),
+                      ),
+                      child: const Text(
+                        'Temporarily unavailable',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.amber,
+                        ),
+                      ),
+                    ),
+                  ] else if (isLocked) ...[
                     const SizedBox(width: 8),
                     const Icon(
                       Icons.lock_rounded,
                       color: Colors.amberAccent,
                       size: 14,
                     ),
+                  ] else ...[
+                    const SizedBox(width: 6),
+                    _buildAvailabilityBadge(type, _isEnabled, config),
                   ],
                 ],
               ),
               subtitle: Padding(
                 padding: const EdgeInsets.only(top: 4.0),
                 child: Text(
-                  _getChannelDescription(context, type),
+                  !isGloballyEnabled
+                      ? 'This channel is temporarily paused by platform administrators. Notifications will automatically route via Push / Email fallback.'
+                      : _getChannelDescription(context, type),
                   style: AppTextStyles.bodySmall.copyWith(
                     color: isDark
                         ? AppColors.textSecondaryDark
@@ -1302,7 +1348,7 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
                   ),
                 ),
               ),
-              onChanged: isLocked
+              onChanged: (!isGloballyEnabled || isLocked)
                   ? null
                   : (val) async {
                       await HapticHelper.mediumImpact();
@@ -1314,7 +1360,7 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
             ),
           ),
 
-          if (_isEnabled && type != 'push' && !isLocked) ...[
+          if (_isEnabled && !isLocked && isGloballyEnabled) ...[
             Divider(
               color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
               height: 1,
@@ -1324,7 +1370,9 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (type == 'telegram') ...[
+                  if (type == 'push') ...[
+                    _buildPushContent(context),
+                  ] else if (type == 'telegram') ...[
                     _buildTelegramContent(context, config),
                   ] else ...[
                     _buildTextField(context, type),
@@ -1349,6 +1397,189 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
             ),
           ],
         ],
+      ),
+    );
+  }
+
+  Widget _buildPushContent(BuildContext context) {
+    final isDark = context.isDarkMode;
+    final playerId = OneSignal.User.pushSubscription.id;
+    final isOptedIn = OneSignal.User.pushSubscription.optedIn;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Status Row
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: (playerId != null)
+                ? Colors.green.withValues(alpha: isDark ? 0.15 : 0.08)
+                : Colors.amber.withValues(alpha: isDark ? 0.15 : 0.08),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: (playerId != null)
+                  ? Colors.green.withValues(alpha: 0.3)
+                  : Colors.amber.withValues(alpha: 0.3),
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                playerId != null ? Icons.check_circle_rounded : Icons.info_outline_rounded,
+                size: 16,
+                color: playerId != null ? Colors.green : Colors.amber,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  playerId != null
+                      ? ((isOptedIn ?? false) ? 'Device Subscribed & Active' : 'Push Permission Pending')
+                      : 'Connecting to push service...',
+                  style: AppTextStyles.bodySmall.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: playerId != null ? Colors.green : Colors.amber,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+
+        // Player ID / Subscription ID Row
+        Text(
+          'OneSignal Player ID',
+          style: AppTextStyles.labelSmall.copyWith(
+            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: isDark ? AppColors.darkBg : AppColors.lightBg,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+            ),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: SelectableText(
+                  playerId ?? 'Waiting for registration...',
+                  style: AppTextStyles.caption.copyWith(
+                    fontFamily: 'monospace',
+                    color: context.onSurfaceColor,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              if (playerId != null) ...[
+                const SizedBox(width: 8),
+                IconButton(
+                  icon: const Icon(Icons.copy_rounded, size: 18),
+                  tooltip: 'Copy Player ID',
+                  visualDensity: VisualDensity.compact,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  onPressed: () async {
+                    await Clipboard.setData(ClipboardData(text: playerId));
+                    await HapticHelper.lightTick();
+                    if (!context.mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Text('OneSignal Player ID copied to clipboard'),
+                        backgroundColor: context.colorScheme.secondary,
+                        duration: const Duration(seconds: 2),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'This identifier connects this device to KeepSIMs instant alert dispatchers.',
+          style: AppTextStyles.caption.copyWith(
+            color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAvailabilityBadge(
+    String type,
+    bool isEnabled,
+    Map<String, dynamic> config,
+  ) {
+    if (!isEnabled) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+        decoration: BoxDecoration(
+          color: Colors.grey.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: const Text(
+          'Off',
+          style: TextStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.w600,
+            color: Colors.grey,
+          ),
+        ),
+      );
+    }
+
+    bool needsSetup = false;
+    if (type == 'email') {
+      final email = config['email'] as String?;
+      needsSetup = email == null || email.trim().isEmpty;
+    } else if (type == 'whatsapp') {
+      final phone = (config['phone'] ?? config['phone_number']) as String?;
+      needsSetup = phone == null || phone.trim().isEmpty;
+    } else if (type == 'telegram') {
+      final chatId = config['chat_id'] as String?;
+      needsSetup = chatId == null || chatId.trim().isEmpty;
+    }
+
+    if (needsSetup) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+        decoration: BoxDecoration(
+          color: Colors.orange.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(color: Colors.orange.withValues(alpha: 0.4)),
+        ),
+        child: const Text(
+          'Setup required',
+          style: TextStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.bold,
+            color: Colors.orange,
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: AppColors.success.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: const Text(
+        'Enabled',
+        style: TextStyle(
+          fontSize: 10,
+          fontWeight: FontWeight.bold,
+          color: AppColors.success,
+        ),
       ),
     );
   }

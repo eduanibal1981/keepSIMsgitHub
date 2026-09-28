@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">KeepSIMs</string>
+    <string name="channel_confirmations_name">Setup confirmations</string>
+    <string name="channel_confirmations_description">Confirmations for added numbers and schedule setup</string>
+    <string name="channel_updates_name">Recharge updates</string>
+    <string name="channel_updates_description">Reminders and scheduled recharge status updates</string>
+    <string name="channel_urgent_name">Urgent recharge alerts</string>
+    <string name="channel_urgent_description">Critical alerts requiring immediate recharge or attention</string>
+</resources>

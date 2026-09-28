@@ -422,7 +422,7 @@
                                                                 }
                                             }
                        },
-    "lockedAlertSubtitle":  "{channelName} alerts are Starter and Premium plan features. Upgrade your plan to unlock WhatsApp, Telegram, and Email alerts!",
+    "lockedAlertSubtitle":  "{channelName} alerts are Standard and Premium plan features. Upgrade your plan to unlock WhatsApp and Email alerts!",
     "@lockedAlertSubtitle":  {
                                  "placeholders":  {
                                                       "channelName":  {
@@ -431,7 +431,7 @@
                                                   }
                              },
     "upsellProtect5Lines":  "Protect up to 5 SIM lines simultaneously",
-    "upsellUnlockChannels":  "Unlock WhatsApp, Telegram \u0026 Email notifications",
+    "upsellUnlockChannels":  "Unlock WhatsApp \u0026 Email notifications",
     "upsellEnableTravelModes":  "Enable Travel \u0026 Home automated validity modes",
     "emailAddressLabel":  "Notification Email Address",
     "emailAddressHint":  "e.g. user@domain.com",
@@ -1595,5 +1595,29 @@
     "refreshSims": "Refresh SIMs",
     "noMatchingSims": "No matching SIMs",
     "tryDifferentSimSearch": "Try a different name, number, or filter.",
-    "clearSearchAndFilters": "Clear search and filters"
+    "clearSearchAndFilters": "Clear search and filters",
+    "setupRefill": "Setup Refill",
+    "scheduledRefill": "Scheduled Refill",
+    "instantRefill": "Instant Refill",
+    "customRefill": "Custom Refill",
+    "notifTitleNumberAdded": "✅ Number added",
+    "notifTitleAutoRechargeScheduled": "✅ Auto-recharge scheduled",
+    "notifTitleSetupIncomplete": "⚠️ Finish setting up your number",
+    "notifTitleRechargeSuccessful": "✅ Recharge successful",
+    "notifTitleRechargeDueToday": "⚠️ Recharge due today",
+    "notifTitleRechargeFailed": "❌ Recharge failed",
+    "notifTitleWalletLow": "⚠️ Wallet balance is low",
+    "notifTitleRechargeNeedsFunds": "⚠️ Recharge needs funds",
+    "notifTitleLineCritical": "⚠️ Your number needs attention",
+    "notifChannelConfirmations": "Setup confirmations",
+    "notifChannelUpdates": "Recharge updates",
+    "notifChannelUrgent": "Urgent recharge alerts",
+    "smartCalling": "Smart Calling",
+    "keepSimsSmartCalling": "KeepSIMs Smart Calling",
+    "smartCall": "Smart Call",
+    "freeCall": "Free Call",
+    "smartCallSavings": "Smart Call Savings",
+    "virtualNumbers": "Virtual Numbers",
+    "voicemail": "Voicemail",
+    "inspector": "Inspector"
 }

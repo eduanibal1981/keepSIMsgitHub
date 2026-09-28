@@ -36,6 +36,12 @@ abstract class ScheduledTopup with _$ScheduledTopup {
     double? appFeeUsd,
     String? pricingTier,
     int? feeRuleVersion,
+    double? targetLocalValue,
+    String? targetLocalCurrency,
+    double? maxAuthorizedUsd,
+    String? preferredProvider,
+    @Default(2) int engineVersion,
+    @Default('exact_airtime') String intentKind,
   }) = _ScheduledTopup;
 
   factory ScheduledTopup.fromJson(Map<String, dynamic> json) =>

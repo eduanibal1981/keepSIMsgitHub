@@ -106,3 +106,5 @@ key.properties
 /build/symbols/
 
 testsprite_tests\tmp\config.json
+# Widget Preview related
+.widget_preview/

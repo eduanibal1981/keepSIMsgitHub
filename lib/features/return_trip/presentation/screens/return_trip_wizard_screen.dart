@@ -7,6 +7,7 @@ import 'package:keep_sims/core/utils/build_context_extension.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_line_detail_controller.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
+import 'package:keep_sims/features/geo/controller/geo_controller.dart';
 import '../controllers/return_trip_wizard_controller.dart';
 import '../widgets/wizard_step_arrival_date.dart';
 import '../widgets/wizard_step_connectivity_check.dart';
@@ -39,6 +40,12 @@ class ReturnTripWizardScreen extends ConsumerWidget {
     final flagEmoji = country?.flagEmoji;
     final userTier = line?.protectionTier ?? 'standard';
 
+    final geoState = ref.watch(geoControllerProvider);
+    final userIso = geoState.currentIsoCode.trim().toUpperCase();
+
+    final lineIso = country?.isoCode.trim().toUpperCase();
+    final bool isUserInCountry = lineIso != null && userIso == lineIso;
+
     return Scaffold(
       backgroundColor: context.scaffoldBackgroundColor,
       appBar: AppBar(
@@ -62,7 +69,7 @@ class ReturnTripWizardScreen extends ConsumerWidget {
           },
         ),
         title: Text(
-          'Back to $countryName Wizard',
+          isUserInCountry ? 'You are at $countryName!' : 'Back to $countryName Wizard',
           style: AppTextStyles.titleMedium.copyWith(
             fontWeight: FontWeight.bold,
             color: context.onSurfaceColor,
@@ -150,6 +157,7 @@ class ReturnTripWizardScreen extends ConsumerWidget {
                       flagEmoji: flagEmoji,
                       state: wizardState,
                       controller: controller,
+                      isUserInCountry: isUserInCountry,
                     ),
                     // Step 1: Connectivity Check
                     WizardStepConnectivityCheck(

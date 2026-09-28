@@ -25,39 +25,63 @@ class DepletionForecastCard extends ConsumerWidget {
   final SimLine line;
   final bool isPremium;
   final ScheduledTopup? existingRefillSchedule;
+  final int? carrierDays;
 
   const DepletionForecastCard({
     super.key,
     required this.line,
     required this.isPremium,
     this.existingRefillSchedule,
+    this.carrierDays,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (existingRefillSchedule != null) return const SizedBox.shrink();
+    if (line.lastTopupAt == null) return const SizedBox.shrink();
 
     final forecastAsync = ref.watch(usageForecastForLineProvider(line.id));
 
     return forecastAsync.maybeWhen(
       data: (forecast) {
-        if (forecast == null || forecast.predictedDepletionAt == null) {
-          return const SizedBox.shrink();
-        }
         return Padding(
           padding: const EdgeInsets.only(bottom: 20),
           child: _card(context, ref, forecast),
         );
       },
-      // Loading and error are both silent: the forecast is an enhancement to
-      // this screen, never a reason to show a spinner or an error on it.
-      orElse: () => const SizedBox.shrink(),
+      // Loading and error are silent: when lastTopupAt exists, fallback to client calculation
+      orElse: () {
+        if (line.lastTopupAt != null) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 20),
+            child: _card(context, ref, null),
+          );
+        }
+        return const SizedBox.shrink();
+      },
     );
   }
 
-  Widget _card(BuildContext context, WidgetRef ref, UsageForecast f) {
-    final int days = f.daysRemaining ?? 0;
-    final Color accent = f.isUrgent
+  Widget _card(BuildContext context, WidgetRef ref, UsageForecast? f) {
+    final int limitDays = carrierDays ?? f?.effectiveValidityDays ?? 90;
+    final int daysSinceRecharge = line.lastTopupAt != null
+        ? DateTime.now().difference(line.lastTopupAt!).inDays
+        : 0;
+    final int calculatedDays = limitDays - daysSinceRecharge;
+    final DateTime calculatedDepletionAt =
+        (line.lastTopupAt ?? DateTime.now()).add(Duration(days: limitDays));
+
+    final int days = (f == null || f.method == 'carrier_rule' || f.daysRemaining == null)
+        ? calculatedDays
+        : (f.daysRemaining ?? calculatedDays);
+
+    final DateTime depletionAt =
+        (f == null || f.method == 'carrier_rule' || f.predictedDepletionAt == null)
+            ? calculatedDepletionAt
+            : (f.predictedDepletionAt ?? calculatedDepletionAt);
+
+    final bool isUrgent = f?.isUrgent ?? (days <= 7);
+    final Color accent = isUrgent
         ? AppColors.healthRed
         : (days <= 30 ? Colors.amberAccent : AppColors.primaryLight);
 
@@ -67,20 +91,20 @@ class DepletionForecastCard extends ConsumerWidget {
         ? 'Runs out tomorrow'
         : 'Runs out in $days days';
 
-    final String basis = switch (f.method) {
+    final String basis = switch (f?.method) {
       'topup_history' =>
         'Based on your own refills — about every '
-            '${(f.observedIntervalDays ?? 0).round()} days across '
+            '${(f!.observedIntervalDays ?? 0).round()} days across '
             '${f.samplesCount} top-ups.',
       'esim_usage' =>
         'Based on your data use — about '
-            '${(f.mbPerDay ?? 0).round()} MB a day.',
+            '${(f!.mbPerDay ?? 0).round()} MB a day.',
       'carrier_rule' =>
         'Estimated from this carrier\'s validity window. Refill a few times '
             'and this becomes a measurement.',
       _ =>
-        'Rough estimate — we have neither refill history nor a carrier rule '
-            'for this line yet.',
+        'Estimated from this carrier\'s validity window. Refill a few times '
+            'and this becomes a measurement.',
     };
 
     return Container(
@@ -112,7 +136,7 @@ class DepletionForecastCard extends ConsumerWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            'Predicted ${DateFormat('EEE, MMM dd').format(f.predictedDepletionAt!.toLocal())}',
+            'Predicted ${DateFormat('EEE, MMM dd').format(depletionAt.toLocal())}',
             style: AppTextStyles.bodyMedium.copyWith(color: accent),
           ),
           const SizedBox(height: 10),
@@ -123,19 +147,19 @@ class DepletionForecastCard extends ConsumerWidget {
               height: 1.4,
             ),
           ),
-          if (f.suggestedFrequencyDays != null) ...[
+          if (f?.suggestedFrequencyDays != null || carrierDays != null) ...[
             const SizedBox(height: 14),
             Divider(color: context.dividerColor, height: 1),
             const SizedBox(height: 14),
-            _suggestion(context, ref, f),
+            _suggestion(context, ref, f, limitDays),
           ],
         ],
       ),
     );
   }
 
-  Widget _confidenceChip(BuildContext context, UsageForecast f) {
-    final bool measured = f.isMeasured;
+  Widget _confidenceChip(BuildContext context, UsageForecast? f) {
+    final bool measured = f?.isMeasured ?? false;
     final Color c = measured ? AppColors.success : AppColors.textSecondaryDark;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -155,8 +179,13 @@ class DepletionForecastCard extends ConsumerWidget {
     );
   }
 
-  Widget _suggestion(BuildContext context, WidgetRef ref, UsageForecast f) {
-    final int chip = f.suggestedChipFor(isPremium: isPremium)!;
+  Widget _suggestion(
+    BuildContext context,
+    WidgetRef ref,
+    UsageForecast? f,
+    int limitDays,
+  ) {
+    final int chip = f?.suggestedChipFor(isPremium: isPremium) ?? limitDays;
     final String freqLabel = switch (chip) {
       7 => 'weekly',
       14 => 'every 14 days',
@@ -167,8 +196,8 @@ class DepletionForecastCard extends ConsumerWidget {
     final suggestedQuote = ref.watch(suggestedLineRefillQuoteProvider(line)).value;
     final String amount = suggestedQuote != null
         ? ' of \$${suggestedQuote.totalUsd.toStringAsFixed(2)}'
-        : (f.suggestedAmountUsd != null
-            ? ' of \$${f.suggestedAmountUsd!.toStringAsFixed(2)}'
+        : (f?.suggestedAmountUsd != null
+            ? ' of \$${f!.suggestedAmountUsd!.toStringAsFixed(2)}'
             : '');
 
     return Row(

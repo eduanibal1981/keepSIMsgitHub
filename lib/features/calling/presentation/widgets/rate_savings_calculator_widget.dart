@@ -4,38 +4,67 @@ library;
 import 'package:flutter/material.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/features/calling/data/models/call_rate_model.dart';
+import 'package:keep_sims/features/calling/domain/smart_call_cost_calculator.dart';
 
 class RateSavingsCalculatorWidget extends StatefulWidget {
   final CallRate rate;
+  final double? initialComparisonRate;
 
-  const RateSavingsCalculatorWidget({super.key, required this.rate});
+  const RateSavingsCalculatorWidget({
+    super.key,
+    required this.rate,
+    this.initialComparisonRate = 2.50,
+  });
 
-  static Future<void> show(BuildContext context, CallRate rate) {
+  static Future<void> show(
+    BuildContext context,
+    CallRate rate, {
+    double? initialComparisonRate = 2.50,
+  }) {
     return showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (ctx) => RateSavingsCalculatorWidget(rate: rate),
+      builder: (ctx) => RateSavingsCalculatorWidget(
+        rate: rate,
+        initialComparisonRate: initialComparisonRate,
+      ),
     );
   }
 
   @override
-  State<RateSavingsCalculatorWidget> createState() => _RateSavingsCalculatorWidgetState();
+  State<RateSavingsCalculatorWidget> createState() =>
+      _RateSavingsCalculatorWidgetState();
 }
 
-class _RateSavingsCalculatorWidgetState extends State<RateSavingsCalculatorWidget> {
+class _RateSavingsCalculatorWidgetState
+    extends State<RateSavingsCalculatorWidget> {
   int _estimatedMinutes = 15;
+  late double _comparisonRate;
 
-  // Typical carrier international roaming voice call rate: $2.50/min
-  static const double standardCarrierRoamingRate = 2.50;
+  @override
+  void initState() {
+    super.initState();
+    _comparisonRate = widget.initialComparisonRate ?? 2.50;
+  }
 
   @override
   Widget build(BuildContext context) {
     final keepSimsRate = widget.rate.ratePerMinute;
-    final carrierTotalCost = _estimatedMinutes * standardCarrierRoamingRate;
-    final keepSimsTotalCost = _estimatedMinutes * keepSimsRate;
-    final totalSavings = carrierTotalCost - keepSimsTotalCost;
-    final savingsPercentage = ((standardCarrierRoamingRate - keepSimsRate) / standardCarrierRoamingRate * 100).clamp(0, 100);
+    final durationSeconds = _estimatedMinutes * 60;
+
+    final savingsResult = SmartCallCostCalculator.calculateSavings(
+      durationSeconds: durationSeconds,
+      keepSimsRatePerMinute: keepSimsRate,
+      comparisonRatePerMinute: _comparisonRate,
+      billingIncrementSeconds: widget.rate.billingIncrementSeconds,
+      connectionFee: widget.rate.connectionFee,
+    );
+
+    final carrierTotalCost = savingsResult.comparisonCost ?? 0.0;
+    final keepSimsTotalCost = savingsResult.keepSimsCost;
+    final totalSavings = savingsResult.savingsAmount ?? 0.0;
+    final savingsPercentage = savingsResult.savingsPercentage ?? 0.0;
 
     return Container(
       decoration: const BoxDecoration(
@@ -77,7 +106,7 @@ class _RateSavingsCalculatorWidgetState extends State<RateSavingsCalculatorWidge
                         ),
                       ),
                       Text(
-                        'KeepSIMs: \$${keepSimsRate.toStringAsFixed(2)}/min vs Carrier Roaming: \$${standardCarrierRoamingRate.toStringAsFixed(2)}/min',
+                        'KeepSIMs: \$${keepSimsRate.toStringAsFixed(2)}/min vs Carrier Roaming: \$${_comparisonRate.toStringAsFixed(2)}/min',
                         style: const TextStyle(color: Colors.white60, fontSize: 11),
                       ),
                     ],
@@ -101,7 +130,10 @@ class _RateSavingsCalculatorWidgetState extends State<RateSavingsCalculatorWidge
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Carrier Roaming', style: TextStyle(color: Colors.white54, fontSize: 11)),
+                        const Text(
+                          'Carrier Roaming',
+                          style: TextStyle(color: Colors.white54, fontSize: 11),
+                        ),
                         const SizedBox(height: 6),
                         Text(
                           '\$${carrierTotalCost.toStringAsFixed(2)}',
@@ -113,7 +145,13 @@ class _RateSavingsCalculatorWidgetState extends State<RateSavingsCalculatorWidge
                           ),
                         ),
                         const SizedBox(height: 4),
-                        Text('for $_estimatedMinutes mins', style: const TextStyle(color: Colors.white38, fontSize: 10)),
+                        Text(
+                          'for $_estimatedMinutes mins',
+                          style: const TextStyle(
+                            color: Colors.white38,
+                            fontSize: 10,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -125,12 +163,21 @@ class _RateSavingsCalculatorWidgetState extends State<RateSavingsCalculatorWidge
                     decoration: BoxDecoration(
                       color: AppColors.secondary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: AppColors.secondary.withValues(alpha: 0.4)),
+                      border: Border.all(
+                        color: AppColors.secondary.withValues(alpha: 0.4),
+                      ),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('KeepSIMs Voice', style: TextStyle(color: AppColors.secondary, fontSize: 11, fontWeight: FontWeight.bold)),
+                        const Text(
+                          'KeepSIMs Voice',
+                          style: TextStyle(
+                            color: AppColors.secondary,
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                         const SizedBox(height: 6),
                         Text(
                           '\$${keepSimsTotalCost.toStringAsFixed(2)}',
@@ -141,8 +188,19 @@ class _RateSavingsCalculatorWidgetState extends State<RateSavingsCalculatorWidge
                           ),
                         ),
                         const SizedBox(height: 4),
-                        Text('Save \$${totalSavings.toStringAsFixed(2)} (${savingsPercentage.toStringAsFixed(0)}%)',
-                          style: const TextStyle(color: AppColors.secondary, fontSize: 10, fontWeight: FontWeight.bold),
+                        Text(
+                          savingsResult.isPositiveSavings
+                              ? 'Save \$${totalSavings.toStringAsFixed(2)} (${savingsPercentage.toStringAsFixed(0)}%)'
+                              : savingsResult.isEqualCost
+                                  ? 'Equal Cost'
+                                  : 'Cost: +\$${(-totalSavings).toStringAsFixed(2)}',
+                          style: TextStyle(
+                            color: savingsResult.isPositiveSavings
+                                ? AppColors.secondary
+                                : Colors.amber,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ],
                     ),
@@ -156,8 +214,18 @@ class _RateSavingsCalculatorWidgetState extends State<RateSavingsCalculatorWidge
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Estimated Call Duration:', style: TextStyle(color: Colors.white70, fontSize: 13)),
-                Text('$_estimatedMinutes Minutes', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+                const Text(
+                  'Estimated Call Duration:',
+                  style: TextStyle(color: Colors.white70, fontSize: 13),
+                ),
+                Text(
+                  '$_estimatedMinutes Minutes',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                  ),
+                ),
               ],
             ),
             SliderTheme(
@@ -186,7 +254,13 @@ class _RateSavingsCalculatorWidgetState extends State<RateSavingsCalculatorWidge
               children: [5, 15, 30, 60].map((mins) {
                 final isSelected = _estimatedMinutes == mins;
                 return ChoiceChip(
-                  label: Text('$mins min', style: TextStyle(color: isSelected ? Colors.black : Colors.white, fontSize: 12)),
+                  label: Text(
+                    '$mins min',
+                    style: TextStyle(
+                      color: isSelected ? Colors.black : Colors.white,
+                      fontSize: 12,
+                    ),
+                  ),
                   selected: isSelected,
                   selectedColor: AppColors.primary,
                   backgroundColor: const Color(0xFF1E293B),
@@ -206,12 +280,18 @@ class _RateSavingsCalculatorWidgetState extends State<RateSavingsCalculatorWidge
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
                 onPressed: () => Navigator.of(context).pop(),
                 child: const Text(
                   'Close Calculator',
-                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 14),
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
                 ),
               ),
             ),

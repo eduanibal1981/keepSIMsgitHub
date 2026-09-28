@@ -35,6 +35,12 @@ _ScheduledTopup _$ScheduledTopupFromJson(Map<String, dynamic> json) =>
       appFeeUsd: (json['app_fee_usd'] as num?)?.toDouble(),
       pricingTier: json['pricing_tier'] as String?,
       feeRuleVersion: (json['fee_rule_version'] as num?)?.toInt(),
+      targetLocalValue: (json['target_local_value'] as num?)?.toDouble(),
+      targetLocalCurrency: json['target_local_currency'] as String?,
+      maxAuthorizedUsd: (json['max_authorized_usd'] as num?)?.toDouble(),
+      preferredProvider: json['preferred_provider'] as String?,
+      engineVersion: (json['engine_version'] as num?)?.toInt() ?? 2,
+      intentKind: json['intent_kind'] as String? ?? 'exact_airtime',
     );
 
 Map<String, dynamic> _$ScheduledTopupToJson(_ScheduledTopup instance) =>
@@ -60,4 +66,10 @@ Map<String, dynamic> _$ScheduledTopupToJson(_ScheduledTopup instance) =>
       'app_fee_usd': instance.appFeeUsd,
       'pricing_tier': instance.pricingTier,
       'fee_rule_version': instance.feeRuleVersion,
+      'target_local_value': instance.targetLocalValue,
+      'target_local_currency': instance.targetLocalCurrency,
+      'max_authorized_usd': instance.maxAuthorizedUsd,
+      'preferred_provider': instance.preferredProvider,
+      'engine_version': instance.engineVersion,
+      'intent_kind': instance.intentKind,
     };

@@ -6,6 +6,7 @@ library;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:keep_sims/core/failure.dart';
 import 'package:keep_sims/core/result.dart';
+import 'package:keep_sims/core/services/auth_session_manager.dart';
 import 'package:keep_sims/core/services/connectivity_service.dart';
 import 'package:keep_sims/core/services/device_identity_service.dart';
 import 'package:keep_sims/core/services/local_cache_service.dart';
@@ -35,9 +36,12 @@ class WalletRepository implements WalletContract {
   Future<Map<String, dynamic>> _walletTransact(
     Map<String, dynamic> body,
   ) async {
-    final response = await _client.functions.invoke(
-      'wallet_transact',
-      body: body,
+    final response = await AuthSessionManager.withAuthRecovery(
+      _client,
+      () => _client.functions.invoke(
+        'wallet_transact',
+        body: body,
+      ),
     );
     final data = response.data;
     if (data is Map<String, dynamic>) {
@@ -70,11 +74,14 @@ class WalletRepository implements WalletContract {
 
       // Try fetching active wallet
       try {
-        final response = await _client
-            .from('wallets')
-            .select()
-            .eq('user_id', userId)
-            .single();
+        final response = await AuthSessionManager.withAuthRecovery(
+          _client,
+          () => _client
+              .from('wallets')
+              .select()
+              .eq('user_id', userId)
+              .single(),
+        );
 
         await _cache.writeJson('cached_wallet', response);
         return Success(Wallet.fromJson(response));
@@ -95,9 +102,17 @@ class WalletRepository implements WalletContract {
             ),
           );
         }
+        final cached = _cache.readJson('cached_wallet');
+        if (cached != null) {
+          return Success(Wallet.fromJson(cached as Map<String, dynamic>));
+        }
         return Failure(AppFailure.server(message: e.message));
       }
     } catch (e) {
+      final cached = _cache.readJson('cached_wallet');
+      if (cached != null) {
+        return Success(Wallet.fromJson(cached as Map<String, dynamic>));
+      }
       return Failure(AppFailure.unknown(message: e.toString()));
     }
   }
@@ -128,11 +143,14 @@ class WalletRepository implements WalletContract {
       }
 
       // 1. Fetch from Supabase
-      final response = await _client
-          .from('wallet_transactions')
-          .select()
-          .eq('user_id', userId)
-          .order('created_at', ascending: false);
+      final response = await AuthSessionManager.withAuthRecovery(
+        _client,
+        () => _client
+            .from('wallet_transactions')
+            .select()
+            .eq('user_id', userId)
+            .order('created_at', ascending: false),
+      );
 
       await _cache.writeJson('cached_wallet_transactions', response);
 
@@ -150,11 +168,14 @@ class WalletRepository implements WalletContract {
       // transactions, then re-fetch.
       final ensured = await _walletTransact({'action': 'ensure'});
       if (ensured['success'] == true) {
-        final seeded = await _client
-            .from('wallet_transactions')
-            .select()
-            .eq('user_id', userId)
-            .order('created_at', ascending: false);
+        final seeded = await AuthSessionManager.withAuthRecovery(
+          _client,
+          () => _client
+              .from('wallet_transactions')
+              .select()
+              .eq('user_id', userId)
+              .order('created_at', ascending: false),
+        );
 
         await _cache.writeJson('cached_wallet_transactions', seeded);
 
@@ -170,8 +191,30 @@ class WalletRepository implements WalletContract {
 
       return const Success([]);
     } on PostgrestException catch (e) {
+      final cached = _cache.readJson('cached_wallet_transactions');
+      if (cached is List) {
+        return Success(
+          cached
+              .map(
+                (json) =>
+                    WalletTransaction.fromJson(json as Map<String, dynamic>),
+              )
+              .toList(),
+        );
+      }
       return Failure(AppFailure.server(message: e.message));
     } catch (e) {
+      final cached = _cache.readJson('cached_wallet_transactions');
+      if (cached is List) {
+        return Success(
+          cached
+              .map(
+                (json) =>
+                    WalletTransaction.fromJson(json as Map<String, dynamic>),
+              )
+              .toList(),
+        );
+      }
       return Failure(AppFailure.unknown(message: e.toString()));
     }
   }
@@ -458,6 +501,10 @@ class WalletRepository implements WalletContract {
         ),
       );
     } catch (e) {
+      final cached = _cache.readJson('cached_wallet_summary');
+      if (cached is Map<String, dynamic>) {
+        return Success(cached);
+      }
       return Failure(AppFailure.unknown(message: e.toString()));
     }
   }

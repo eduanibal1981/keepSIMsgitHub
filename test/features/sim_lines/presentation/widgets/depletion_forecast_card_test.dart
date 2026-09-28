@@ -10,14 +10,16 @@ import 'package:keep_sims/features/sim_lines/presentation/providers/line_refill_
 import 'package:keep_sims/features/sim_lines/presentation/widgets/depletion_forecast_card.dart';
 
 void main() {
-  testWidgets('DepletionForecastCard displays tier-aware total (\$0.70 for Free tier) instead of raw base (\$0.25)',
+  testWidgets(
+      'DepletionForecastCard displays tier-aware total (\$0.70 for Free tier) instead of raw base (\$0.25)',
       (tester) async {
-    const testLine = SimLine(
+    final testLine = SimLine(
       id: 'line-egypt-1',
       userId: 'user-1',
       phoneNumber: '+201095352101',
       planType: 'free',
       protectionTier: 'basic',
+      lastTopupAt: DateTime.now().toUtc().subtract(const Duration(days: 1)),
     );
 
     final testForecast = UsageForecast(
@@ -53,11 +55,12 @@ void main() {
           suggestedLineRefillQuoteProvider(testLine)
               .overrideWith((ref) => Future.value(testQuote)),
         ],
-        child: const MaterialApp(
+        child: MaterialApp(
           home: Scaffold(
             body: DepletionForecastCard(
               line: testLine,
               isPremium: false,
+              carrierDays: 76,
             ),
           ),
         ),
@@ -72,7 +75,7 @@ void main() {
     expect(find.text('Use it'), findsOneWidget);
   });
 
-  testWidgets('DepletionForecastCard is hidden when existingRefillSchedule is present',
+  testWidgets('DepletionForecastCard is hidden when line.lastTopupAt is null',
       (tester) async {
     const testLine = SimLine(
       id: 'line-egypt-1',
@@ -80,6 +83,58 @@ void main() {
       phoneNumber: '+201095352101',
       planType: 'free',
       protectionTier: 'basic',
+      lastTopupAt: null,
+    );
+
+    final testForecast = UsageForecast(
+      id: 'fc-1',
+      userId: 'user-1',
+      simLineId: 'line-egypt-1',
+      subjectKind: 'sim_line',
+      method: 'carrier_rule',
+      confidence: 'medium',
+      predictedDepletionAt: DateTime.now().toUtc().add(const Duration(days: 75)),
+      daysRemaining: 75,
+      suggestedFrequencyDays: 76,
+      suggestedAmountUsd: 0.25,
+      suggestedOfferId: 'vodafone_8_egp',
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          usageForecastForLineProvider('line-egypt-1')
+              .overrideWith((ref) => Future.value(testForecast)),
+        ],
+        child: const MaterialApp(
+          home: Scaffold(
+            body: DepletionForecastCard(
+              line: testLine,
+              isPremium: false,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    // Verify card is hidden because no recharge recorded
+    expect(find.text('Suggested schedule'), findsNothing);
+    expect(find.text('Runs out in 75 days'), findsNothing);
+    expect(find.byType(Container), findsNothing);
+  });
+
+  testWidgets(
+      'DepletionForecastCard is hidden when existingRefillSchedule is present',
+      (tester) async {
+    final testLine = SimLine(
+      id: 'line-egypt-1',
+      userId: 'user-1',
+      phoneNumber: '+201095352101',
+      planType: 'free',
+      protectionTier: 'basic',
+      lastTopupAt: DateTime.now().toUtc().subtract(const Duration(days: 5)),
     );
 
     final testForecast = UsageForecast(

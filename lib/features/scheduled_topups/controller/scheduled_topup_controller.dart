@@ -131,6 +131,28 @@ class ScheduledTopupController extends _$ScheduledTopupController {
     return result;
   }
 
+  /// Approves a refill execution currently in 'awaiting_approval' status.
+  Future<Result<void>> approveRefillExecution({
+    required String executionId,
+    required String simLineId,
+    required String quoteId,
+    required double newMaxAuthorizedUsd,
+  }) async {
+    final repo = ref.read(scheduledTopupRepositoryProvider);
+    final result = await repo.approveExecution(
+      executionId: executionId,
+      quoteId: quoteId,
+      newMaxAuthorizedUsd: newMaxAuthorizedUsd,
+    );
+
+    if (result is Success<void>) {
+      await refresh();
+      ref.invalidate(topupExecutionsForLineProvider(simLineId));
+      ref.invalidate(simLinesControllerProvider);
+    }
+    return result;
+  }
+
   /// Reschedules the mini refill date
   Future<Result<void>> rescheduleMiniRefill(
     String simLineId,

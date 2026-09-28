@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:keep_sims/core/router/app_router.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/features/voip_calling/presentation/controllers/voip_calling_controller.dart';
 
@@ -59,8 +60,12 @@ class _WhatsAppCallScreenState extends ConsumerState<WhatsAppCallScreen>
         HapticFeedback.mediumImpact();
         final router = GoRouter.of(context);
         Future.delayed(const Duration(milliseconds: 1800), () {
-          if (mounted && router.canPop()) {
-            router.pop();
+          if (mounted) {
+            if (router.canPop()) {
+              router.pop();
+            } else {
+              router.go(AppRoutes.home);
+            }
           }
         });
       }

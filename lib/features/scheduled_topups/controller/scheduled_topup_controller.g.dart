@@ -35,7 +35,7 @@ final class ScheduledTopupControllerProvider
 }
 
 String _$scheduledTopupControllerHash() =>
-    r'0d037559ce2accec25b4e9dfc1d56f715b5a244a';
+    r'b1638cc4e3705b358c2e3805c925bb8faa095615';
 
 abstract class _$ScheduledTopupController
     extends $AsyncNotifier<List<ScheduledTopup>> {

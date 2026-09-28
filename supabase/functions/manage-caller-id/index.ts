@@ -31,6 +31,18 @@ async function resolveUserId(req: Request): Promise<string | null> {
   return user?.id ?? null;
 }
 
+async function rpc(name: string, args: Record<string, unknown>): Promise<{ ok: boolean; body: any }> {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${name}`, {
+    method: "POST",
+    headers: serviceHeaders,
+    body: JSON.stringify(args),
+  });
+  const text = await res.text();
+  let body: any = text;
+  try { body = JSON.parse(text); } catch (_) { /* raw text */ }
+  return { ok: res.ok, body };
+}
+
 async function fetchSystemConfig(key: string, defaultVal: string = ""): Promise<string> {
   const envVal = Deno.env.get(key);
   if (envVal) return envVal;
@@ -43,18 +55,15 @@ async function fetchSystemConfig(key: string, defaultVal: string = ""): Promise<
   return rows[0]?.config_value ?? defaultVal;
 }
 
-async function checkIsNumberVerifiedOnTelnyx(telnyxApiKey: string, cleanNumber: string): Promise<boolean> {
-  try {
-    const res = await fetch("https://api.telnyx.com/v2/verified_numbers", {
-      headers: { "Authorization": `Bearer ${telnyxApiKey}` },
-    });
-    if (!res.ok) return false;
-    const json = await res.json();
-    const list = json.data as Array<{ phone_number: string }>;
-    return list.some(item => item.phone_number.replace(/\s+/g, "") === cleanNumber.replace(/\s+/g, ""));
-  } catch (_) {
-    return false;
+function normalizeE164(phone: string): string | null {
+  if (!phone || typeof phone !== "string") return null;
+  let clean = phone.trim().replace(/[^0-9+]/g, "");
+  if (!clean.startsWith("+")) {
+    clean = "+" + clean;
   }
+  const digitsOnly = clean.substring(1);
+  if (digitsOnly.length < 7 || digitsOnly.length > 15) return null;
+  return clean;
 }
 
 serve(async (req: Request) => {
@@ -68,7 +77,8 @@ serve(async (req: Request) => {
       return jsonResponse({ success: false, errorMessage: "Unauthorized" }, 401);
     }
 
-    const { action, phoneNumber, code, method, label } = await req.json();
+    const body = await req.json();
+    const { action, phoneNumber, callerIdId, code, method, label } = body;
     const telnyxApiKey = await fetchSystemConfig("TELNYX_API_KEY");
     const defaultGateway = await fetchSystemConfig("TELNYX_DEFAULT_CALLER_ID", "+17543180369");
 
@@ -76,47 +86,42 @@ serve(async (req: Request) => {
       return jsonResponse({ success: false, errorMessage: "Telnyx API key not configured" }, 500);
     }
 
-    // ── 1. Request Verification (SMS or Call) ──
+    // ── 1. Request Verification (SMS or Voice Call) ──
     if (action === "request_verification") {
       if (!phoneNumber || typeof phoneNumber !== "string") {
         return jsonResponse({ success: false, errorMessage: "phoneNumber is required" }, 400);
       }
 
-      const cleanNumber = phoneNumber.trim().startsWith("+") ? phoneNumber.trim().replace(/\s+/g, "") : `+${phoneNumber.trim().replace(/\s+/g, "")}`;
+      const cleanNumber = normalizeE164(phoneNumber);
+      if (!cleanNumber) {
+        return jsonResponse({ success: false, errorMessage: "Invalid phone number format. Must be E.164 (e.g. +968...)" }, 400);
+      }
 
-      // Check if already verified on Telnyx
-      const alreadyVerified = await checkIsNumberVerifiedOnTelnyx(telnyxApiKey, cleanNumber);
-      if (alreadyVerified) {
-        // Set other caller IDs for user to false
-        await fetch(`${SUPABASE_URL}/rest/v1/user_caller_ids?user_id=eq.${userId}`, {
-          method: "PATCH",
-          headers: serviceHeaders,
-          body: JSON.stringify({ is_default: false }),
-        });
+      // Check if THIS SPECIFIC USER already verified this number
+      const existingUserRecRes = await fetch(
+        `${SUPABASE_URL}/rest/v1/user_caller_ids?user_id=eq.${userId}&phone_number=eq.${encodeURIComponent(cleanNumber)}&select=*`,
+        { headers: serviceHeaders },
+      );
+      const existingRows = existingUserRecRes.ok ? await existingUserRecRes.json() : [];
+      const userRecord = existingRows[0];
 
-        // Upsert as verified and default
-        await fetch(`${SUPABASE_URL}/rest/v1/user_caller_ids`, {
-          method: "POST",
-          headers: { ...serviceHeaders, "Prefer": "resolution=merge-duplicates" },
-          body: JSON.stringify({
-            user_id: userId,
-            phone_number: cleanNumber,
-            label: label || "Mobile Number",
-            is_verified: true,
-            is_default: true,
-            verified_at: new Date().toISOString(),
-          }),
+      if (userRecord && userRecord.is_verified) {
+        // Set this verified number as active default atomically
+        await rpc("set_user_caller_id_preference", {
+          p_user_id: userId,
+          p_caller_id_id: userRecord.id,
+          p_use_gateway: false,
         });
 
         return jsonResponse({
           success: true,
           isAlreadyVerified: true,
-          message: `${cleanNumber} is verified and activated as your Outbound Caller ID!`,
+          message: `${cleanNumber} is already verified and activated as your Outbound Caller ID!`,
           phoneNumber: cleanNumber,
         }, 200);
       }
 
-      // Not verified yet -> Call Telnyx Verified Numbers API with specified method (sms or call)
+      // Fresh user-bound OTP challenge via Telnyx Verified Numbers API
       const verifyMethod = method === "call" ? "call" : "sms";
       const telnyxRes = await fetch("https://api.telnyx.com/v2/verified_numbers", {
         method: "POST",
@@ -137,23 +142,35 @@ serve(async (req: Request) => {
         return jsonResponse({ success: false, errorMessage: errDetail }, telnyxRes.status);
       }
 
-      // Upsert record in database as pending
-      await fetch(`${SUPABASE_URL}/rest/v1/user_caller_ids`, {
-        method: "POST",
-        headers: { ...serviceHeaders, "Prefer": "resolution=merge-duplicates" },
-        body: JSON.stringify({
-          user_id: userId,
-          phone_number: cleanNumber,
-          label: label || "Mobile Number",
-          is_verified: false,
-        }),
-      });
+      // Record in database as pending for THIS user
+      if (userRecord) {
+        await fetch(`${SUPABASE_URL}/rest/v1/user_caller_ids?id=eq.${userRecord.id}`, {
+          method: "PATCH",
+          headers: serviceHeaders,
+          body: JSON.stringify({
+            label: label || userRecord.label || "Mobile Number",
+            is_verified: false,
+          }),
+        });
+      } else {
+        await fetch(`${SUPABASE_URL}/rest/v1/user_caller_ids`, {
+          method: "POST",
+          headers: { ...serviceHeaders, "Prefer": "resolution=merge-duplicates" },
+          body: JSON.stringify({
+            user_id: userId,
+            phone_number: cleanNumber,
+            label: label || "Mobile Number",
+            is_verified: false,
+            is_default: false,
+          }),
+        });
+      }
 
       return jsonResponse({
         success: true,
         isAlreadyVerified: false,
-        message: verifyMethod === "call" 
-          ? `Calling ${cleanNumber} with your 6-digit verification code...`
+        message: verifyMethod === "call"
+          ? `Calling ${cleanNumber} with your verification code...`
           : `Verification code sent via SMS to ${cleanNumber}`,
         phoneNumber: cleanNumber,
       }, 200);
@@ -165,9 +182,12 @@ serve(async (req: Request) => {
         return jsonResponse({ success: false, errorMessage: "phoneNumber and code are required" }, 400);
       }
 
-      const cleanNumber = phoneNumber.trim().startsWith("+") ? phoneNumber.trim().replace(/\s+/g, "") : `+${phoneNumber.trim().replace(/\s+/g, "")}`;
-      const encodedNumber = encodeURIComponent(cleanNumber);
+      const cleanNumber = normalizeE164(phoneNumber);
+      if (!cleanNumber) {
+        return jsonResponse({ success: false, errorMessage: "Invalid phone number format" }, 400);
+      }
 
+      const encodedNumber = encodeURIComponent(cleanNumber);
       const telnyxRes = await fetch(`https://api.telnyx.com/v2/verified_numbers/${encodedNumber}/actions/verify`, {
         method: "POST",
         headers: {
@@ -182,30 +202,53 @@ serve(async (req: Request) => {
       const telnyxJson = await telnyxRes.json();
 
       if (!telnyxRes.ok) {
-        const alreadyVerified = await checkIsNumberVerifiedOnTelnyx(telnyxApiKey, cleanNumber);
-        if (!alreadyVerified) {
-          const errDetail = telnyxJson.errors?.[0]?.detail || "Invalid or expired verification code";
-          return jsonResponse({ success: false, errorMessage: errDetail }, 400);
-        }
+        const errDetail = telnyxJson.errors?.[0]?.detail || "Invalid or expired verification code";
+        return jsonResponse({ success: false, errorMessage: errDetail }, 400);
       }
 
-      // Set other caller IDs for this user to is_default = false
-      await fetch(`${SUPABASE_URL}/rest/v1/user_caller_ids?user_id=eq.${userId}`, {
-        method: "PATCH",
-        headers: serviceHeaders,
-        body: JSON.stringify({ is_default: false }),
-      });
+      // Lookup or insert record for user
+      const userRecRes = await fetch(
+        `${SUPABASE_URL}/rest/v1/user_caller_ids?user_id=eq.${userId}&phone_number=eq.${encodeURIComponent(cleanNumber)}&select=*`,
+        { headers: serviceHeaders },
+      );
+      const rows = userRecRes.ok ? await userRecRes.json() : [];
+      let targetId: string;
 
-      // Update this caller ID to verified and default
-      await fetch(`${SUPABASE_URL}/rest/v1/user_caller_ids?user_id=eq.${userId}&phone_number=eq.${encodedNumber}`, {
-        method: "PATCH",
-        headers: serviceHeaders,
-        body: JSON.stringify({
-          is_verified: true,
-          is_default: true,
-          verified_at: new Date().toISOString(),
-        }),
-      });
+      if (rows.length > 0) {
+        targetId = rows[0].id;
+        await fetch(`${SUPABASE_URL}/rest/v1/user_caller_ids?id=eq.${targetId}`, {
+          method: "PATCH",
+          headers: serviceHeaders,
+          body: JSON.stringify({
+            is_verified: true,
+            verified_at: new Date().toISOString(),
+          }),
+        });
+      } else {
+        const insRes = await fetch(`${SUPABASE_URL}/rest/v1/user_caller_ids`, {
+          method: "POST",
+          headers: { ...serviceHeaders, "Prefer": "return=representation" },
+          body: JSON.stringify({
+            user_id: userId,
+            phone_number: cleanNumber,
+            label: label || "Mobile Number",
+            is_verified: true,
+            is_default: false,
+            verified_at: new Date().toISOString(),
+          }),
+        });
+        const insRows = insRes.ok ? await insRes.json() : [];
+        targetId = insRows[0]?.id;
+      }
+
+      // Atomically activate this newly verified number as default
+      if (targetId) {
+        await rpc("set_user_caller_id_preference", {
+          p_user_id: userId,
+          p_caller_id_id: targetId,
+          p_use_gateway: false,
+        });
+      }
 
       return jsonResponse({
         success: true,
@@ -223,63 +266,145 @@ serve(async (req: Request) => {
       );
       const rows = res.ok ? await res.json() : [];
 
+      // Check user preference
+      const prefRes = await fetch(
+        `${SUPABASE_URL}/rest/v1/user_caller_id_preferences?user_id=eq.${userId}&select=*`,
+        { headers: serviceHeaders },
+      );
+      const prefs = prefRes.ok ? await prefRes.json() : [];
+      const userPref = prefs[0];
+
+      let isGatewayActive = true;
+      let activeCallerId = defaultGateway;
+
+      if (userPref && userPref.selected_mode === "verified_number") {
+        const matched = rows.find((r: any) => r.id === userPref.selected_caller_id_id && r.is_verified);
+        if (matched) {
+          isGatewayActive = false;
+          activeCallerId = matched.phone_number;
+        }
+      } else if (!userPref) {
+        const defaultVerified = rows.find((r: any) => r.is_default && r.is_verified);
+        if (defaultVerified) {
+          isGatewayActive = false;
+          activeCallerId = defaultVerified.phone_number;
+        }
+      }
+
       return jsonResponse({
         success: true,
         callerIds: rows,
         defaultGatewayNumber: defaultGateway,
+        isGatewayActive,
+        activeCallerId,
       }, 200);
     }
 
     // ── 4. Set Default / Switch Caller ID ──
     if (action === "set_default") {
-      if (!phoneNumber) {
-        return jsonResponse({ success: false, errorMessage: "phoneNumber is required" }, 400);
-      }
+      const targetPhone = phoneNumber ? String(phoneNumber).trim() : null;
+      const cleanTarget = targetPhone ? normalizeE164(targetPhone) : null;
 
-      // Clear all defaults
-      await fetch(`${SUPABASE_URL}/rest/v1/user_caller_ids?user_id=eq.${userId}`, {
-        method: "PATCH",
-        headers: serviceHeaders,
-        body: JSON.stringify({ is_default: false }),
-      });
+      // User chose KeepSIMs Gateway explicitly
+      if (
+        callerIdId === "gateway" ||
+        targetPhone === "gateway" ||
+        cleanTarget === defaultGateway
+      ) {
+        await rpc("set_user_caller_id_preference", {
+          p_user_id: userId,
+          p_caller_id_id: null,
+          p_use_gateway: true,
+        });
 
-      // If user selected Gateway
-      if (phoneNumber === "gateway" || phoneNumber === defaultGateway) {
         return jsonResponse({
           success: true,
-          message: "KeepSIMs Gateway set as Outbound Caller ID",
+          message: "KeepSIMs Voice Gateway set as active Outbound Caller ID",
           isGateway: true,
           activeCallerId: defaultGateway,
         }, 200);
       }
 
-      // User selected one of their verified numbers
-      const cleanNumber = phoneNumber.trim().startsWith("+") ? phoneNumber.trim().replace(/\s+/g, "") : `+${phoneNumber.trim().replace(/\s+/g, "")}`;
-      const encodedNumber = encodeURIComponent(cleanNumber);
+      // User chose a verified number
+      let targetRow: any = null;
+      if (callerIdId) {
+        const res = await fetch(
+          `${SUPABASE_URL}/rest/v1/user_caller_ids?id=eq.${encodeURIComponent(callerIdId)}&user_id=eq.${userId}&select=*`,
+          { headers: serviceHeaders },
+        );
+        const rows = res.ok ? await res.json() : [];
+        targetRow = rows[0];
+      } else if (cleanTarget) {
+        const res = await fetch(
+          `${SUPABASE_URL}/rest/v1/user_caller_ids?phone_number=eq.${encodeURIComponent(cleanTarget)}&user_id=eq.${userId}&select=*`,
+          { headers: serviceHeaders },
+        );
+        const rows = res.ok ? await res.json() : [];
+        targetRow = rows[0];
+      }
 
-      await fetch(`${SUPABASE_URL}/rest/v1/user_caller_ids?user_id=eq.${userId}&phone_number=eq.${encodedNumber}`, {
-        method: "PATCH",
-        headers: serviceHeaders,
-        body: JSON.stringify({ is_default: true }),
+      if (!targetRow) {
+        return jsonResponse({ success: false, errorMessage: "Caller ID not found in your account" }, 404);
+      }
+      if (!targetRow.is_verified) {
+        return jsonResponse({ success: false, errorMessage: "This number is not verified yet" }, 400);
+      }
+
+      // Atomically set preference
+      const rpcResult = await rpc("set_user_caller_id_preference", {
+        p_user_id: userId,
+        p_caller_id_id: targetRow.id,
+        p_use_gateway: false,
       });
+
+      if (!rpcResult.ok) {
+        return jsonResponse({ success: false, errorMessage: "Failed to update default caller ID" }, 500);
+      }
 
       return jsonResponse({
         success: true,
-        message: `${cleanNumber} set as your Outbound Caller ID`,
+        message: `${targetRow.phone_number} set as your Outbound Caller ID`,
         isGateway: false,
-        activeCallerId: cleanNumber,
+        activeCallerId: targetRow.phone_number,
       }, 200);
     }
 
     // ── 5. Delete Caller ID ──
     if (action === "delete") {
-      if (!phoneNumber) {
-        return jsonResponse({ success: false, errorMessage: "phoneNumber is required" }, 400);
+      let targetRow: any = null;
+      if (callerIdId) {
+        const res = await fetch(
+          `${SUPABASE_URL}/rest/v1/user_caller_ids?id=eq.${encodeURIComponent(callerIdId)}&user_id=eq.${userId}&select=*`,
+          { headers: serviceHeaders },
+        );
+        const rows = res.ok ? await res.json() : [];
+        targetRow = rows[0];
+      } else if (phoneNumber) {
+        const clean = normalizeE164(phoneNumber);
+        if (clean) {
+          const res = await fetch(
+            `${SUPABASE_URL}/rest/v1/user_caller_ids?phone_number=eq.${encodeURIComponent(clean)}&user_id=eq.${userId}&select=*`,
+            { headers: serviceHeaders },
+          );
+          const rows = res.ok ? await res.json() : [];
+          targetRow = rows[0];
+        }
       }
-      const cleanNumber = phoneNumber.trim().startsWith("+") ? phoneNumber.trim().replace(/\s+/g, "") : `+${phoneNumber.trim().replace(/\s+/g, "")}`;
-      const encodedNumber = encodeURIComponent(cleanNumber);
 
-      await fetch(`${SUPABASE_URL}/rest/v1/user_caller_ids?user_id=eq.${userId}&phone_number=eq.${encodedNumber}`, {
+      if (!targetRow) {
+        return jsonResponse({ success: false, errorMessage: "Caller ID not found" }, 404);
+      }
+
+      // If it was the active default, revert preference to gateway
+      if (targetRow.is_default) {
+        await rpc("set_user_caller_id_preference", {
+          p_user_id: userId,
+          p_caller_id_id: null,
+          p_use_gateway: true,
+        });
+      }
+
+      await fetch(`${SUPABASE_URL}/rest/v1/user_caller_ids?id=eq.${targetRow.id}&user_id=eq.${userId}`, {
         method: "DELETE",
         headers: serviceHeaders,
       });
@@ -290,7 +415,7 @@ serve(async (req: Request) => {
     return jsonResponse({ success: false, errorMessage: "Invalid action" }, 400);
 
   } catch (err: any) {
-    console.error("manage-caller-id error:", err);
+    console.error("[manage-caller-id] error:", err);
     return jsonResponse({ success: false, errorMessage: err.message }, 500);
   }
 });

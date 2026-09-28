@@ -39,6 +39,10 @@ abstract interface class AuthContract {
   /// Check if a user session exists.
   bool get isAuthenticated;
 
+  /// Ensures that the user's active session is valid and not expired, refreshing if needed.
+  /// Returns `true` if a valid session is active, `false` otherwise.
+  Future<bool> ensureValidSession({bool force = false});
+
   /// Stream of auth state changes (user ID or null).
   Stream<String?> get authStateChanges;
 }

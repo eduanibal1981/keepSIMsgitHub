@@ -77,16 +77,16 @@ class SimLineCard extends ConsumerWidget {
         customSchedule != null && customSchedule.isActive;
 
     // ── Health / glow ────────────────────────────────────────────
-    final bool isRefillActive = isMiniActive || isCustomActive;
-    final bool isVerified = line.status == 'active' ||
-        line.isCarrierVerified ||
-        line.carrierVerifiedAt != null ||
-        line.verificationStatus == 'verified';
+    final bool isRealLiveVerified =
+        ref.watch(hasRealLiveVerificationProvider(line.id)).value ?? false;
+    final carrierRule = line.carrierId != null
+        ? ref.watch(carrierRuleProvider(line.carrierId!)).value
+        : null;
 
     final int computedHealthScore = line.displayHealthScore(
-      hasRefillSchedule: isRefillActive,
+      isRealLiveVerified: isRealLiveVerified,
       hasNotificationSchedule: isNotifyActive,
-      isVerified: isVerified,
+      carrierExpirationDays: carrierRule?.inactivityLimitDays,
     );
 
     Color glowColor = AppColors.healthGreen;

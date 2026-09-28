@@ -34,7 +34,7 @@ final class SimLinesControllerProvider
 }
 
 String _$simLinesControllerHash() =>
-    r'09c600db83f856dc0ba790e742fed68d67db9055';
+    r'b6965c4f7ffbdfc35b2ab32ebc71ed0d3bdc4ecd';
 
 abstract class _$SimLinesController extends $AsyncNotifier<List<SimLine>> {
   FutureOr<List<SimLine>> build();
@@ -627,4 +627,75 @@ final class SimLivenessValidationFamily extends $Family
 
   @override
   String toString() => r'simLivenessValidationProvider';
+}
+
+@ProviderFor(hasRealLiveVerification)
+final hasRealLiveVerificationProvider = HasRealLiveVerificationFamily._();
+
+final class HasRealLiveVerificationProvider
+    extends $FunctionalProvider<AsyncValue<bool>, bool, FutureOr<bool>>
+    with $FutureModifier<bool>, $FutureProvider<bool> {
+  HasRealLiveVerificationProvider._({
+    required HasRealLiveVerificationFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'hasRealLiveVerificationProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$hasRealLiveVerificationHash();
+
+  @override
+  String toString() {
+    return r'hasRealLiveVerificationProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<bool> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<bool> create(Ref ref) {
+    final argument = this.argument as String;
+    return hasRealLiveVerification(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is HasRealLiveVerificationProvider &&
+        other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$hasRealLiveVerificationHash() =>
+    r'de364c3e4f4e064e5ed97ad232beb067574a9b04';
+
+final class HasRealLiveVerificationFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<bool>, String> {
+  HasRealLiveVerificationFamily._()
+    : super(
+        retry: null,
+        name: r'hasRealLiveVerificationProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  HasRealLiveVerificationProvider call(String simLineId) =>
+      HasRealLiveVerificationProvider._(argument: simLineId, from: this);
+
+  @override
+  String toString() => r'hasRealLiveVerificationProvider';
 }
