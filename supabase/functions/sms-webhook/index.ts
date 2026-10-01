@@ -87,6 +87,8 @@ function xmlEscape(s: string): string {
 
 serve(async (req: Request) => {
   if (req.method !== 'POST') return twiml('');
+  if (!TWILIO_AUTH_TOKEN) return new Response('Webhook authentication is not configured', { status: 503 });
+  if (!req.headers.get('x-twilio-signature')) return new Response('Forbidden', { status: 403 });
 
   // D2 IP rate limiter (webhook_ip bucket: 60/1min per IP)
   const xForwardedFor = req.headers.get("x-forwarded-for");
@@ -108,15 +110,13 @@ serve(async (req: Request) => {
   const params: Record<string, string> = {};
   for (const [k, v] of form.entries()) params[k] = v;
 
-  if (TWILIO_AUTH_TOKEN) {
+  {
     const expected = await twilioSignature(publicUrl(req), params);
     const header = req.headers.get('x-twilio-signature') ?? '';
     if (!safeEqual(header, expected)) {
       console.error('sms-webhook: Twilio signature mismatch');
       return new Response('Forbidden', { status: 403 });
     }
-  } else {
-    console.warn('sms-webhook: TWILIO_AUTH_TOKEN unset — skipping signature check');
   }
 
   const from = params['From'];
@@ -125,7 +125,7 @@ serve(async (req: Request) => {
 
   if (!from || !msgId) {
     console.error('sms-webhook: missing From/MessageSid', params);
-    return twiml('');
+    return new Response('Missing sender or message ID', { status: 400 });
   }
 
   const { ok, status, body: out } = await rpc('handle_inbound_command', {
@@ -139,7 +139,7 @@ serve(async (req: Request) => {
 
   if (!ok) {
     console.error(`handle_inbound_command HTTP ${status}: ${JSON.stringify(out)}`);
-    return twiml('');
+    return new Response('Command processing temporarily unavailable', { status: 503 });
   }
 
   // An unknown sender, or one over the per-sender limit, returns no reply text

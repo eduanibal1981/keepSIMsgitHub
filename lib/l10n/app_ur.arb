@@ -1,5 +1,15 @@
 {
     "@@locale": "ur",
+    "dashboardKeepSimActive": "سم فعال رکھیں",
+    "dashboardProtectSimLines": "اپنی سم لائنوں کی حفاظت کریں",
+    "dashboardManageReminders": "یاد دہانیوں اور ری چارج کا انتظام کریں",
+    "dashboardManageSims": "سم کا انتظام کریں",
+    "dashboardSimLineCount": "{count, plural, one{1 سم لائن} other{{count} سم لائنیں}}",
+    "dashboardNewFeature": "نیا",
+    "dashboardWorldwideEsims": "دنیا بھر کی eSIM",
+    "dashboardExploreSmartCall": "سمارٹ کال دریافت کریں",
+    "dashboardExploreGlobalOffers": "عالمی آفرز دریافت کریں",
+    "dashboardAddSims": "سم شامل کریں",
     "appName":  "KeepSIMs",
     "@appName": {
         "description": "The name of the application"

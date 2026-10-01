@@ -1,0 +1,2 @@
+CREATE INDEX notification_channel_targets_user_id_idx ON public.notification_channel_targets(user_id);
+CREATE INDEX whatsapp_cycle_reservations_attempt_id_idx ON public.whatsapp_cycle_reservations(attempt_id);

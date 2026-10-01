@@ -9,6 +9,44 @@ class AppLocalizationsHi extends AppLocalizations {
   AppLocalizationsHi([String locale = 'hi']) : super(locale);
 
   @override
+  String get dashboardKeepSimActive => 'सिम सक्रिय रखें';
+
+  @override
+  String get dashboardProtectSimLines => 'अपनी सिम लाइनों को सुरक्षित रखें';
+
+  @override
+  String get dashboardManageReminders => 'रिमाइंडर और रिचार्ज प्रबंधित करें';
+
+  @override
+  String get dashboardManageSims => 'सिम प्रबंधित करें';
+
+  @override
+  String dashboardSimLineCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count सिम लाइनें',
+      one: '1 सिम लाइन',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get dashboardNewFeature => 'नया';
+
+  @override
+  String get dashboardWorldwideEsims => 'दुनियाभर की eSIM';
+
+  @override
+  String get dashboardExploreSmartCall => 'स्मार्ट कॉल देखें';
+
+  @override
+  String get dashboardExploreGlobalOffers => 'वैश्विक ऑफ़र देखें';
+
+  @override
+  String get dashboardAddSims => 'सिम जोड़ें';
+
+  @override
   String get appName => 'KeepSIMs';
 
   @override

@@ -1,5 +1,15 @@
 {
     "@@locale":  "si",
+    "dashboardKeepSimActive": "SIM සක්‍රියව තබාගන්න",
+    "dashboardProtectSimLines": "ඔබේ SIM සම්බන්ධතා ආරක්ෂා කරන්න",
+    "dashboardManageReminders": "මතක් කිරීම් සහ නැවත පිරවීම් කළමනාකරණය කරන්න",
+    "dashboardManageSims": "SIM කළමනාකරණය",
+    "dashboardSimLineCount": "{count, plural, one{SIM සම්බන්ධතා 1ක්} other{SIM සම්බන්ධතා {count}ක්}}",
+    "dashboardNewFeature": "නව",
+    "dashboardWorldwideEsims": "ලොව පුරා eSIM",
+    "dashboardExploreSmartCall": "Smart Call බලන්න",
+    "dashboardExploreGlobalOffers": "ගෝලීය දීමනා බලන්න",
+    "dashboardAddSims": "SIM එක් කරන්න",
     "appName":  "KeepSIMs",
     "@appName":  {
                      "description":  "The name of the application"

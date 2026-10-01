@@ -1,5 +1,15 @@
 {
     "@@locale": "bn",
+    "dashboardKeepSimActive": "সিম সক্রিয় রাখুন",
+    "dashboardProtectSimLines": "আপনার সিম লাইন সুরক্ষিত রাখুন",
+    "dashboardManageReminders": "রিমাইন্ডার ও রিচার্জ পরিচালনা করুন",
+    "dashboardManageSims": "সিম পরিচালনা করুন",
+    "dashboardSimLineCount": "{count, plural, one{১টি সিম লাইন} other{{count}টি সিম লাইন}}",
+    "dashboardNewFeature": "নতুন",
+    "dashboardWorldwideEsims": "বিশ্বব্যাপী eSIM",
+    "dashboardExploreSmartCall": "স্মার্ট কল দেখুন",
+    "dashboardExploreGlobalOffers": "বিশ্বব্যাপী অফার দেখুন",
+    "dashboardAddSims": "সিম যোগ করুন",
     "appName":  "KeepSIMs",
     "@appName": {
         "description": "The name of the application"

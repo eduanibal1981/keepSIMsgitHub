@@ -15,7 +15,6 @@ import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/core/utils/build_context_extension.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
-import 'package:keep_sims/features/calling/presentation/widgets/smart_call_navigation.dart';
 
 // ── Splash Screen ─────────────────────────────────────────────
 class SplashScreen extends ConsumerStatefulWidget {
@@ -303,7 +302,8 @@ class AppShell extends StatelessWidget {
     if (location.startsWith('/notifications')) {
       return 0; // Alerts is in Home header
     }
-    if (location.startsWith('/sim-lines')) return 1;
+    if (location.startsWith('/sim-lines')) return 0;
+    if (location.startsWith('/calling')) return 1;
     if (location.startsWith('/wallet')) return 2; // Under More menu
     if (location.startsWith('/settings')) return 2;
     if (location.startsWith('/household')) return 2; // Under More menu
@@ -312,21 +312,16 @@ class AppShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final location = GoRouterState.of(context).uri.path;
-    final isCallingRoute = location.startsWith('/calling');
-
     return Scaffold(
       body: child,
-      bottomNavigationBar: isCallingRoute
-          ? const SmartCallNavigation()
-          : CurvedBottomNavigationBar(
+      bottomNavigationBar: CurvedBottomNavigationBar(
               selectedIndex: _currentIndex(context),
               onTap: (index) {
                 switch (index) {
                   case 0:
                     context.go(AppRoutes.home);
                   case 1:
-                    context.go(AppRoutes.simLines);
+                    context.go(AppRoutes.calling);
                   case 2:
                     context.go(AppRoutes.settings);
                 }
@@ -338,9 +333,9 @@ class AppShell extends StatelessWidget {
                   label: AppLocalizations.of(context)!.navHome,
                 ),
                 CurvedNavigationBarItem(
-                  icon: Icons.sim_card_outlined,
-                  selectedIcon: Icons.sim_card_rounded,
-                  label: AppLocalizations.of(context)!.navSims,
+                  icon: Icons.phone_outlined,
+                  selectedIcon: Icons.phone_rounded,
+                  label: AppLocalizations.of(context)!.smartCall,
                 ),
                 CurvedNavigationBarItem(
                   icon: Icons.menu_rounded,

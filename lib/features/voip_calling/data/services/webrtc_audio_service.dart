@@ -24,6 +24,7 @@ class WebRTCAudioService {
   bool get hasRemoteDescription => _hasRemoteDescription;
   RTCSessionDescription? _lastLocalDescription;
   RTCSessionDescription? get lastLocalDescription => _lastLocalDescription;
+  List<IceServerModel> _lastIceServers = const [];
   Future<RTCSessionDescription?> getLocalDescription() async {
     return _peerConnection?.getLocalDescription();
   }
@@ -74,6 +75,20 @@ class WebRTCAudioService {
 
   /// Initialize WebRTC PeerConnection with ICE servers (STUN + TURN)
   Future<void> initialize({required List<IceServerModel> iceServers}) async {
+    _lastIceServers = iceServers;
+    if (_peerConnection != null) {
+      try {
+        await _peerConnection!.close();
+        await _peerConnection!.dispose();
+      } catch (_) {}
+      _peerConnection = null;
+    }
+
+    _pendingIceCandidates.clear();
+    _appliedCandidates.clear();
+    _hasRemoteDescription = false;
+    _lastLocalDescription = null;
+
     final expandedServers = _buildExpandedIceServers(iceServers);
     debugPrint('[WebRTC] Initializing with ${expandedServers.length} ICE server endpoints:');
     for (final s in expandedServers) {
@@ -222,7 +237,23 @@ class WebRTCAudioService {
     String offerSdp,
   ) async {
     if (_peerConnection == null) {
-      throw Exception('PeerConnection not initialized');
+      debugPrint('[WebRTC] PeerConnection was null in handleOfferAndCreateAnswer. Attempting auto-initialization...');
+      await initialize(iceServers: _lastIceServers);
+      if (_localStream == null) {
+        try {
+          await openMicrophone();
+        } catch (e) {
+          debugPrint('[WebRTC] Auto openMicrophone warning: $e');
+        }
+      } else {
+        for (final track in _localStream!.getAudioTracks()) {
+          await _peerConnection!.addTrack(track, _localStream!);
+        }
+      }
+    }
+
+    if (_peerConnection == null) {
+      throw StateError('Cannot handle offer: PeerConnection is not initialized');
     }
 
     final remoteDescription = RTCSessionDescription(offerSdp, 'offer');

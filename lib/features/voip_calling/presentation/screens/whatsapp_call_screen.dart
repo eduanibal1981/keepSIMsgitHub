@@ -90,6 +90,10 @@ class _WhatsAppCallScreenState extends ConsumerState<WhatsAppCallScreen>
           }
         }
       });
+      return const Scaffold(
+        backgroundColor: Color(0xFF0B141B),
+        body: SizedBox.expand(),
+      );
     }
 
     // Proximity Sensor Blackout: Blank screen completely when phone is pressed against ear
@@ -141,7 +145,7 @@ class _WhatsAppCallScreenState extends ConsumerState<WhatsAppCallScreen>
         statusColor = Colors.redAccent;
         break;
       default:
-        statusText = 'Connecting...';
+        statusText = state.status.isEmpty ? 'Call Ended' : 'Connecting...';
     }
 
     return PopScope(
@@ -433,7 +437,7 @@ class _WhatsAppCallScreenState extends ConsumerState<WhatsAppCallScreen>
                                       voipCallingControllerProvider.notifier,
                                     )
                                     .endCall();
-                                if (!state.isActive) {
+                                if (!state.isActive || state.isTerminal) {
                                   final router = GoRouter.of(context);
                                   if (router.canPop()) {
                                     router.pop();

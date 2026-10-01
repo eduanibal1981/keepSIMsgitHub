@@ -9,6 +9,44 @@ class AppLocalizationsTr extends AppLocalizations {
   AppLocalizationsTr([String locale = 'tr']) : super(locale);
 
   @override
+  String get dashboardKeepSimActive => 'SIM\'İNİ AKTİF TUT';
+
+  @override
+  String get dashboardProtectSimLines => 'SIM hatlarını koru';
+
+  @override
+  String get dashboardManageReminders => 'Hatırlatmaları ve yüklemeleri yönet';
+
+  @override
+  String get dashboardManageSims => 'SIM\'leri yönet';
+
+  @override
+  String dashboardSimLineCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count SIM hattı',
+      one: '1 SIM hattı',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get dashboardNewFeature => 'YENİ';
+
+  @override
+  String get dashboardWorldwideEsims => 'Dünya çapında eSIM';
+
+  @override
+  String get dashboardExploreSmartCall => 'Smart Call\'u keşfet';
+
+  @override
+  String get dashboardExploreGlobalOffers => 'Küresel teklifleri keşfet';
+
+  @override
+  String get dashboardAddSims => 'SIM ekle';
+
+  @override
   String get appName => 'KeepSIMs';
 
   @override

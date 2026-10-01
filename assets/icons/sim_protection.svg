@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="140" viewBox="0 0 120 140">
+  <defs>
+    <linearGradient id="halo" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#C9F7F4" stop-opacity=".55"/>
+      <stop offset="1" stop-color="#C9F7F4" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#E5F4F7"/>
+    </linearGradient>
+    <linearGradient id="chip" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#FFEAA4"/>
+      <stop offset="1" stop-color="#FFCA56"/>
+    </linearGradient>
+  </defs>
+  <circle cx="64" cy="72" r="59" fill="url(#halo)"/>
+  <path d="M96 17l1-10M106 30l8-6M108 47l9 2" fill="none" stroke="#36D5CC" stroke-width="4" stroke-linecap="round"/>
+  <g transform="rotate(9 60 75)">
+    <path d="M36 27h29l21 22v65q0 9-9 9H36q-9 0-9-9V36q0-9 9-9" fill="#007D91" opacity=".08" transform="translate(3 5)"/>
+    <path d="M34 24h29l21 22v65q0 9-9 9H34q-9 0-9-9V33q0-9 9-9" fill="#CDE6EB"/>
+    <path d="M31 22h29l21 22v65q0 9-9 9H31q-9 0-9-9V31q0-9 9-9" fill="url(#card)" stroke="#FFFFFF" stroke-width="2"/>
+    <path d="M43 54h17q9 0 9 9v28q0 9-9 9H43q-9 0-9-9V63q0-9 9-9" fill="url(#chip)" stroke="#D99B26" stroke-width="1.5"/>
+    <path d="M46 55v44M58 55v44M35 70h33M35 85h33" fill="none" stroke="#D99B26" stroke-width="1.5"/>
+  </g>
+</svg>

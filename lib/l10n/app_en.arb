@@ -1,5 +1,16 @@
 {
     "@@locale":  "en",
+    "dashboardKeepSimActive": "KEEP SIM ACTIVE",
+    "dashboardProtectSimLines": "Protect your SIM lines",
+    "dashboardManageReminders": "Manage reminders and top-ups",
+    "dashboardManageSims": "Manage SIMS",
+    "dashboardSimLineCount": "{count, plural, one{1 SIM line} other{{count} SIM lines}}",
+    "@dashboardSimLineCount": {"placeholders": {"count": {"type": "int"}}},
+    "dashboardNewFeature": "NEW",
+    "dashboardWorldwideEsims": "Worldwide eSIMs",
+    "dashboardExploreSmartCall": "Explore Smart Call",
+    "dashboardExploreGlobalOffers": "Explore global offers",
+    "dashboardAddSims": "Add SIMs",
     "appName":  "KeepSIMs",
     "@appName":  {
                      "description":  "The name of the application"

@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.8";
 import { routeAndSendWhatsApp } from "../_shared/whatsapp_router.ts";
+import { profileSecret } from "../_shared/whatsapp_profile.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -14,6 +15,8 @@ serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
+  if (req.method !== "POST") return new Response(JSON.stringify({ error: "method_not_allowed" }),
+    { status: 405, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
   try {
     // 1. Authenticate caller
@@ -27,6 +30,8 @@ serve(async (req: Request) => {
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
     const jwt = authHeader.replace(/^Bearer\s+/i, "");
+    const caller = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY,
+      { global: { headers: { Authorization: `Bearer ${jwt}` } } });
     const { data: { user }, error: authErr } = await supabase.auth.getUser(jwt);
 
     if (authErr || !user) {
@@ -36,12 +41,11 @@ serve(async (req: Request) => {
       });
     }
 
-    // 2. Security Check: Only Power Users / Admins can execute direct test sends
-    const { data: isPowerUser } = await supabase.rpc("is_power_user", {
-      user_id: user.id,
-    });
-
-    if (!isPowerUser) {
+    // getUser verifies identity and retrieves server-owned app metadata. Do not
+    // run a caller-claim RPC with this separate service-role client.
+    const { data: account, error: accountError } = await supabase.from("profiles")
+      .select("is_suspended").eq("id", user.id).maybeSingle();
+    if (user.app_metadata?.is_power_user !== true || accountError || !account || account.is_suspended === true) {
       return new Response(
         JSON.stringify({
           error: "Forbidden: Direct WhatsApp testing is restricted to administrator accounts.",
@@ -55,12 +59,13 @@ serve(async (req: Request) => {
 
     // 3. Rate-limit admin test sends (max 10 tests / 5 mins)
     try {
-      const { data: rateCheck } = await supabase.rpc("consume_rate_limit", {
+      const { data: rateCheck, error: rateError } = await supabase.rpc("consume_rate_limit", {
         p_bucket: "admin_whatsapp_test",
         p_key: user.id,
         p_capacity: 10,
         p_refill_per_minute: 2.0,
       });
+      if (rateError || !rateCheck?.length) throw new Error("Rate limit unavailable");
       if (rateCheck && rateCheck.length > 0 && rateCheck[0]?.allowed === false) {
         return new Response(
           JSON.stringify({ error: "Rate limit exceeded for test sends. Please wait before retrying." }),
@@ -71,28 +76,14 @@ serve(async (req: Request) => {
         );
       }
     } catch (_) {
-      // Non-fatal if rate limiting table is missing
+      return new Response(JSON.stringify({ error: "Management rate limit unavailable" }),
+        { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     const body = await req.json();
     const action = body.action || "test";
-
-    // Helper: read secret from vault or env fallback
-    async function getProfileSecret(profileId: string, fallbackEnvKey: string): Promise<string | null> {
-      try {
-        const { data: secrets } = await supabase
-          .schema("vault")
-          .from("decrypted_secrets")
-          .select("decrypted_secret")
-          .eq("name", `whatsapp_profile_${profileId}_secret`);
-        if (secrets && secrets.length > 0 && secrets[0]?.decrypted_secret) {
-          return secrets[0].decrypted_secret;
-        }
-      } catch (_) {
-        // Fallback if vault not accessible via direct query
-      }
-      return Deno.env.get(fallbackEnvKey) || null;
-    }
+    if (!["test", "probe", "qr", "logout"].includes(action)) return new Response(
+      JSON.stringify({ error: "unsupported_action" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
     if (action === "probe") {
       const { profile_id } = body;
@@ -120,17 +111,21 @@ serve(async (req: Request) => {
       let errorMessage: string | null = null;
       let metaPatch: Record<string, any> = {};
 
-      if (profile.provider_type === "baileys") {
-        const secret = await getProfileSecret(profile_id, "BAILEY_API_SECRET");
-        const endpoint = profile.endpoint_url || Deno.env.get("BAILEY_SERVER_URL");
-        if (!endpoint) {
-          errorMessage = "Endpoint URL not configured";
+      const connMeta = profile.connection_metadata || {};
+      const providerKind = profile.provider_kind || profile.provider_type;
+
+      if (providerKind === "baileys") {
+        const secret = await profileSecret(supabase, profile, "key");
+        const endpoint = connMeta.endpoint_url;
+        if (!endpoint || !secret) {
+          errorMessage = "Selected profile endpoint or credential is missing";
         } else {
           try {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 6000);
             const res = await fetch(`${endpoint.replace(/\/$/, "")}/health`, {
-              headers: secret ? { "x-api-key": secret } : {},
+              headers: { "x-api-key": secret },
+          signal: AbortSignal.timeout(10000),
               signal: controller.signal,
             });
             clearTimeout(timeoutId);
@@ -153,9 +148,9 @@ serve(async (req: Request) => {
             errorMessage = e.name === "AbortError" ? "Worker health check timed out" : (e.message || "Failed to reach worker");
           }
         }
-      } else if (profile.provider_type === "meta_cloud") {
-        const token = await getProfileSecret(profile_id, "WHATSAPP_ACCESS_TOKEN");
-        const phoneNumberId = profile.metadata?.phone_number_id || Deno.env.get("WHATSAPP_PHONE_NUMBER_ID");
+      } else if (providerKind === "meta_cloud") {
+        const token = await profileSecret(supabase, profile, "token");
+        const phoneNumberId = connMeta.phone_number_id;
         if (!token || !phoneNumberId) {
           errorMessage = "Meta Cloud API credentials or phone number ID missing";
         } else {
@@ -163,7 +158,7 @@ serve(async (req: Request) => {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 6000);
             const res = await fetch(
-              `https://graph.facebook.com/v20.0/${phoneNumberId}?fields=verified_name,code_verification_status,display_phone_number,quality_rating`,
+              `https://graph.facebook.com/v26.0/${phoneNumberId}?fields=verified_name,code_verification_status,display_phone_number,quality_rating`,
               {
                 headers: { Authorization: `Bearer ${token}` },
                 signal: controller.signal,
@@ -189,7 +184,17 @@ serve(async (req: Request) => {
         }
       }
 
-      await supabase.rpc("admin_record_whatsapp_probe", {
+      const observed = String(metaPatch.observed_phone || "").replace(/\D/g, "");
+      if (isHealthy && providerKind === "meta_cloud" && !await profileSecret(supabase, profile, "app_secret")) {
+        isHealthy = false;
+        errorMessage = "Configure the Meta App Secret in this profile to authenticate delivery webhooks.";
+      }
+      const expected = String(profile.expected_sender_number || "").replace(/\D/g, "");
+      if (isHealthy && (!expected || observed !== expected)) {
+        isHealthy = false;
+        errorMessage = "Connected sender does not match this profile's expected sender.";
+      }
+      const { error: recordError } = await caller.rpc("admin_record_whatsapp_probe", {
         p_profile_id: profile_id,
         p_observed_sender: metaPatch.observed_phone || null,
         p_ready_state: isHealthy ? "ready" : "degraded",
@@ -197,6 +202,7 @@ serve(async (req: Request) => {
         p_error_detail: errorMessage,
         p_metadata_patch: metaPatch,
       });
+      if (recordError) throw new Error("Could not save the provider probe result.");
 
       return new Response(
         JSON.stringify({
@@ -224,16 +230,19 @@ serve(async (req: Request) => {
         .eq("id", profile_id)
         .single();
 
-      if (pErr || !profile || profile.provider_type !== "baileys") {
+      const connMeta = profile?.connection_metadata || {};
+      const providerKind = profile?.provider_kind || profile?.provider_type;
+
+      if (pErr || !profile || providerKind !== "baileys") {
         return new Response(
           JSON.stringify({ error: "QR action is only available for Baileys profiles" }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 },
         );
       }
 
-      const secret = await getProfileSecret(profile_id, "BAILEY_API_SECRET");
-      const endpoint = profile.endpoint_url || Deno.env.get("BAILEY_SERVER_URL");
-      if (!endpoint) {
+      const secret = await profileSecret(supabase, profile, "key");
+      const endpoint = connMeta.endpoint_url;
+      if (!endpoint || !secret) {
         return new Response(
           JSON.stringify({ error: "Baileys endpoint URL not configured" }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 },
@@ -242,7 +251,8 @@ serve(async (req: Request) => {
 
       try {
         const res = await fetch(`${endpoint.replace(/\/$/, "")}/qr`, {
-          headers: secret ? { "x-api-key": secret } : {},
+          headers: { "x-api-key": secret },
+          signal: AbortSignal.timeout(10000),
         });
         const qrData = await res.json();
         return new Response(JSON.stringify(qrData), {
@@ -272,16 +282,19 @@ serve(async (req: Request) => {
         .eq("id", profile_id)
         .single();
 
-      if (pErr || !profile || profile.provider_type !== "baileys") {
+      const connMeta = profile?.connection_metadata || {};
+      const providerKind = profile?.provider_kind || profile?.provider_type;
+
+      if (pErr || !profile || providerKind !== "baileys") {
         return new Response(
           JSON.stringify({ error: "Logout action is only available for Baileys profiles" }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 },
         );
       }
 
-      const secret = await getProfileSecret(profile_id, "BAILEY_API_SECRET");
-      const endpoint = profile.endpoint_url || Deno.env.get("BAILEY_SERVER_URL");
-      if (!endpoint) {
+      const secret = await profileSecret(supabase, profile, "key");
+      const endpoint = connMeta.endpoint_url;
+      if (!endpoint || !secret) {
         return new Response(
           JSON.stringify({ error: "Baileys endpoint URL not configured" }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 },
@@ -291,10 +304,14 @@ serve(async (req: Request) => {
       try {
         const res = await fetch(`${endpoint.replace(/\/$/, "")}/logout`, {
           method: "POST",
-          headers: secret ? { "x-api-key": secret } : {},
+          headers: { "x-api-key": secret },
+          signal: AbortSignal.timeout(10000),
         });
         const logoutData = await res.json();
-        await supabase.rpc("admin_record_whatsapp_probe", {
+        if (!res.ok) return new Response(JSON.stringify(logoutData), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" }, status: res.status,
+        });
+        const { error: recordError } = await caller.rpc("admin_record_whatsapp_probe", {
           p_profile_id: profile_id,
           p_observed_sender: null,
           p_ready_state: "unconfigured",
@@ -302,6 +319,7 @@ serve(async (req: Request) => {
           p_error_detail: "Logged out by administrator",
           p_metadata_patch: { observed_phone: null },
         });
+        if (recordError) throw new Error("Could not save provider logout state.");
         return new Response(JSON.stringify(logoutData), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
           status: res.status,

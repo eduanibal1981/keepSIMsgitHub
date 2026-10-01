@@ -9,6 +9,45 @@ class AppLocalizationsUr extends AppLocalizations {
   AppLocalizationsUr([String locale = 'ur']) : super(locale);
 
   @override
+  String get dashboardKeepSimActive => 'سم فعال رکھیں';
+
+  @override
+  String get dashboardProtectSimLines => 'اپنی سم لائنوں کی حفاظت کریں';
+
+  @override
+  String get dashboardManageReminders =>
+      'یاد دہانیوں اور ری چارج کا انتظام کریں';
+
+  @override
+  String get dashboardManageSims => 'سم کا انتظام کریں';
+
+  @override
+  String dashboardSimLineCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count سم لائنیں',
+      one: '1 سم لائن',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get dashboardNewFeature => 'نیا';
+
+  @override
+  String get dashboardWorldwideEsims => 'دنیا بھر کی eSIM';
+
+  @override
+  String get dashboardExploreSmartCall => 'سمارٹ کال دریافت کریں';
+
+  @override
+  String get dashboardExploreGlobalOffers => 'عالمی آفرز دریافت کریں';
+
+  @override
+  String get dashboardAddSims => 'سم شامل کریں';
+
+  @override
   String get appName => 'KeepSIMs';
 
   @override

@@ -42,6 +42,7 @@ abstract class NotificationsRepository {
     required String title,
     required String body,
     String? simLineId,
+    String? channelType,
   });
 
   Future<void> emitEvent({

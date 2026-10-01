@@ -321,126 +321,38 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
   }
 
   @override
-  Future<void> simulateNotification(
-    String category,
-    String title,
-    String body, {
-    String? simLineId,
-    int delayMinutes = 0,
+  Future<void> simulateNotification(String category, String title, String body, {
+    String? simLineId, int delayMinutes = 0,
   }) async {
-    try {
-      if (delayMinutes > 0) {
-        await _supabase.rpc(
-          'schedule_delayed_notification',
-          params: {
-            'p_user_id': _currentUserId,
-            'p_category': category,
-            'p_title': title,
-            'p_body': body,
-            'p_delay_minutes': delayMinutes,
-          },
-        );
-      } else {
-        await _supabase.from('notifications').insert({
-          'user_id': _currentUserId,
-          'category': category,
-          'title': title,
-          'body': body,
-          'is_read': false,
-          'action_url': simLineId != null ? '/sim-lines/detail/$simLineId' : null,
-          'sim_line_id': simLineId,
-          'delivered_via': <String>[],
-        });
-      }
-    } on PostgrestException catch (e) {
-      throw Exception('Failed to simulate notification: ${e.message}');
-    }
+    await _supabase.rpc('request_notification_test', params: {
+      'p_channel': null, 'p_sim_line_id': simLineId, 'p_delay_minutes': delayMinutes,
+    });
   }
 
   @override
-  Future<void> sendNotification({
-    required String category,
-    required String title,
-    required String body,
-    String? simLineId,
+  Future<void> sendNotification({required String category, required String title,
+    required String body, String? simLineId, String? channelType,
   }) async {
-    try {
-      await _supabase.from('notifications').insert({
-        'user_id': _currentUserId,
-        'category': category,
-        'title': title,
-        'body': body,
-        'is_read': false,
-        'action_url': simLineId != null ? '/sim-lines/detail/$simLineId' : null,
-        'sim_line_id': simLineId,
-        'delivered_via': <String>[],
-      });
-    } on PostgrestException catch (e) {
-      throw Exception('Failed to send notification: ${e.message}');
-    }
+    // Tests use fixed server-rendered text and a bounded authenticated contract.
+    await _supabase.rpc('request_notification_test', params: {
+      'p_channel': channelType, 'p_sim_line_id': simLineId, 'p_delay_minutes': 0,
+    });
   }
 
   @override
-  Future<void> emitEvent({
-    required NotificationEventType eventType,
-    required Map<String, dynamic> templateData,
-    String? simLineId,
-    String? sourceEventKey,
-    DateTime? scheduledAt,
-    DateTime? expiresAt,
-    Map<String, dynamic>? target,
-    String? language,
+  Future<void> emitEvent({required NotificationEventType eventType,
+    required Map<String, dynamic> templateData, String? simLineId,
+    String? sourceEventKey, DateTime? scheduledAt, DateTime? expiresAt,
+    Map<String, dynamic>? target, String? language,
   }) async {
-    try {
-      final userLang = language ?? (await getUserPreferences()).language;
-      final rendered = NotificationEventCatalog.render(
-        eventType: eventType,
-        data: templateData,
-        language: userLang,
-      );
-
-      final category = NotificationEventCatalog.resolveCategory(eventType);
-      final canonicalActionUrl =
-          simLineId != null ? '/sim-lines/detail/$simLineId' : null;
-
-      final resolvedTarget = target ??
-          (simLineId != null
-              ? {'route': '/sim-lines/detail/$simLineId', 'id': simLineId}
-              : null);
-
-      // Sanitize templateData ensuring DateTime values are converted to ISO strings
-      final sanitizedTemplateData = templateData.map((key, value) {
-        if (value is DateTime) {
-          return MapEntry(key, value.toUtc().toIso8601String());
-        }
-        return MapEntry(key, value);
-      });
-
-      await _supabase.from('notifications').insert({
-        'user_id': _currentUserId,
-        'category': category,
-        'title': rendered.title,
-        'body': rendered.body,
-        'is_read': false,
-        'action_url': canonicalActionUrl,
-        'sim_line_id': simLineId,
-        'delivered_via': <String>[],
-        'schema_version': 2,
-        'event_type': eventType.wireName,
-        'source_event_key': sourceEventKey,
-        'occurred_at': DateTime.now().toUtc().toIso8601String(),
-        'scheduled_at': scheduledAt?.toUtc().toIso8601String(),
-        'expires_at': expiresAt?.toUtc().toIso8601String(),
-        'template_version': 1,
-        'template_data': sanitizedTemplateData,
-        'target': resolvedTarget,
-      });
-    } on PostgrestException catch (e) {
-      throw Exception('Failed to emit notification event: ${e.message}');
-    } catch (e) {
-      throw Exception('Unexpected error emitting notification event: $e');
-    }
+    if (simLineId == null) throw StateError('A SIM line is required for setup notifications.');
+    // Entitlement, wording, schedule evidence and deduplication come from stored
+    // server state. Caller-supplied title/body/template fields never authorize a send.
+    await _supabase.rpc('request_notification_event', params: {
+      'p_event_type': eventType.wireName, 'p_sim_line_id': simLineId,
+    });
   }
+
 }
 
 @riverpod

@@ -112,6 +112,66 @@ abstract class AppLocalizations {
     Locale('ur'),
   ];
 
+  /// No description provided for @dashboardKeepSimActive.
+  ///
+  /// In en, this message translates to:
+  /// **'KEEP SIM ACTIVE'**
+  String get dashboardKeepSimActive;
+
+  /// No description provided for @dashboardProtectSimLines.
+  ///
+  /// In en, this message translates to:
+  /// **'Protect your SIM lines'**
+  String get dashboardProtectSimLines;
+
+  /// No description provided for @dashboardManageReminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage reminders and top-ups'**
+  String get dashboardManageReminders;
+
+  /// No description provided for @dashboardManageSims.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage SIMS'**
+  String get dashboardManageSims;
+
+  /// No description provided for @dashboardSimLineCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{1 SIM line} other{{count} SIM lines}}'**
+  String dashboardSimLineCount(int count);
+
+  /// No description provided for @dashboardNewFeature.
+  ///
+  /// In en, this message translates to:
+  /// **'NEW'**
+  String get dashboardNewFeature;
+
+  /// No description provided for @dashboardWorldwideEsims.
+  ///
+  /// In en, this message translates to:
+  /// **'Worldwide eSIMs'**
+  String get dashboardWorldwideEsims;
+
+  /// No description provided for @dashboardExploreSmartCall.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore Smart Call'**
+  String get dashboardExploreSmartCall;
+
+  /// No description provided for @dashboardExploreGlobalOffers.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore global offers'**
+  String get dashboardExploreGlobalOffers;
+
+  /// No description provided for @dashboardAddSims.
+  ///
+  /// In en, this message translates to:
+  /// **'Add SIMs'**
+  String get dashboardAddSims;
+
   /// The name of the application
   ///
   /// In en, this message translates to:

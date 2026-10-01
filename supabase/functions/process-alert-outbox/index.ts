@@ -52,26 +52,17 @@ async function currentChannels(job: Job): Promise<string[] | null> {
   if (!notification || notification.user_id !== userId || notification.category !== category ||
       (notification.expires_at && Date.parse(notification.expires_at) <= Date.now())) return null;
 
-  const [settingsResult, channelsResult, catalogResult, lineResult, profileResult] = await Promise.all([
-    db.from("alert_settings").select("is_enabled, channels")
-      .eq("user_id", userId).eq("category", category).maybeSingle(),
-    db.from("notification_channels").select("channel_type, is_enabled")
-      .eq("user_id", userId),
-    db.from("notification_channel_catalog").select("channel_key, is_globally_enabled, min_tier"),
-    notification.sim_line_id
-      ? db.from("sim_lines").select("protection_tier, plan_type, validity_expires_at, status")
-        .eq("id", notification.sim_line_id).maybeSingle()
+  const [settingsResult, channelsResult, catalogResult, lineResult] = await Promise.all([
+    db.from("alert_settings").select("is_enabled,channels").eq("user_id", userId).eq("category", category).maybeSingle(),
+    db.from("notification_channels").select("channel_type,is_enabled").eq("user_id", userId),
+    db.from("notification_channel_catalog").select("channel_key,is_globally_enabled,min_tier"),
+    notification.sim_line_id ? db.from("sim_lines").select("user_id,status").eq("id", notification.sim_line_id).maybeSingle()
       : Promise.resolve({ data: null, error: null }),
-    notification.sim_line_id
-      ? Promise.resolve({ data: null, error: null })
-      : db.from("profiles").select("subscription_tier").eq("id", userId).maybeSingle(),
   ]);
-  for (const result of [settingsResult, channelsResult, catalogResult, lineResult, profileResult]) {
-    if (result.error) throw result.error;
-  }
-  if (settingsResult.data?.is_enabled === false ||
-      (!settingsResult.data && category === "promo")) return null;
-  if (notification.sim_line_id && (!lineResult.data || lineResult.data.status !== "active")) return null;
+  for (const result of [settingsResult, channelsResult, catalogResult, lineResult]) if (result.error) throw result.error;
+  if (settingsResult.data?.is_enabled === false || (!settingsResult.data && category === "promo")) return null;
+  if (notification.sim_line_id && (!lineResult.data || lineResult.data.user_id !== userId ||
+      ["deleted", "canceled", "archived"].includes(lineResult.data.status))) return null;
 
   if (payload.event_type === "line_deactivation_imminent") {
     if (!notification.sim_line_id || !payload.source_event_key) return null;
@@ -96,28 +87,24 @@ async function currentChannels(job: Job): Promise<string[] | null> {
   const global = new Set((catalogResult.data ?? [])
     .filter((row) => row.is_globally_enabled)
     .map((row) => row.channel_key as string));
-  const requiredTier = new Map((catalogResult.data ?? [])
-    .map((row) => [row.channel_key as string, String(row.min_tier ?? "basic").toLowerCase()]));
-  const rank = (value: string) => value === "premium" ? 2 : value === "standard" ? 1 : 0;
-
-  const line = lineResult.data;
-  const tier = String(line?.protection_tier ?? line?.plan_type ??
-    profileResult.data?.subscription_tier ?? "basic").toLowerCase();
-  const lineExpired = !!line?.validity_expires_at &&
-    Date.parse(String(line.validity_expires_at)) < Date.now();
-  return original.filter((channel) =>
-    global.has(channel) &&
-    rank(tier) >= rank(requiredTier.get(channel) ?? "basic") &&
+  const candidates = original.filter((channel) => global.has(channel) &&
     (!categoryChannels || categoryChannels.includes(channel)) &&
-    (enabled.get(channel) === true || (channel === "push" && !enabled.has("push"))) &&
-    (!notification.sim_line_id ||
-      (tier === "standard" || tier === "premium") && !lineExpired ||
-      (channel === "push" || channel === "telegram"))
-  );
+    (enabled.get(channel) === true || (channel === "push" && !enabled.has("push"))));
+  const eligibility = await Promise.all(candidates.map(async (channel) => {
+    const { data, error } = await db.rpc("notification_channel_eligible", {
+      p_user_id: userId, p_sim_line_id: notification.sim_line_id || null,
+      p_channel: channel, p_event_type: payload.event_type || null,
+    });
+    if (error) throw error;
+    return data === true ? channel : null;
+  }));
+  return eligibility.filter((channel): channel is string => channel !== null);
+
 }
 
 async function quietHoursRelease(job: Job): Promise<Date | null> {
   const payload = job.payload;
+  if (payload.event_type === "notification_test") return null;
   if (payload.category === "line_critical" ||
       payload.event_type === "line_deactivation_imminent") return null;
   const userId = String(payload.user_id ?? "");
@@ -168,6 +155,11 @@ async function processJob(job: Job) {
     if (response.ok && result.success === true) {
       await finish(job.id, "complete", undefined, result);
       return "complete";
+    }
+    if (response.ok && Array.isArray(result.outcomes)) {
+      const state = result.state === "unknown" ? "unknown" : "failed";
+      await finish(job.id, state, "One or more channel targets were not accepted", result, result.retryable === true);
+      return result.retryable === true && job.attempt_count < 3 ? "retrying" : state;
     }
     // Even an HTTP rate limit can originate after a provider accepted a send.
     // Quarantine it until there is evidence that replay cannot duplicate it.

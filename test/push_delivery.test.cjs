@@ -1,6 +1,7 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { readFileSync } = require('node:fs');
+const { loadEdge, targetLedger } = require('./edge_module_loader.cjs');
 const { stripTypeScriptTypes } = require('node:module');
 const source = readFileSync('supabase/functions/dispatch-alert/push_delivery.ts', 'utf8');
 const code = stripTypeScriptTypes(source).replace(/^export /gm, '');
@@ -83,8 +84,9 @@ test('dispatcher integration: one push per device, targeted fallback, correct An
     .replace(/^import .*;\r?\n/gm, '');
   const deliveries = [], sends = [];
   let handler;
+  const ledger = targetLedger();
   const db = {
-    rpc: async () => ({ data: 'test-secret' }),
+    rpc: async (name, args) => name === 'get_internal_secret' ? { data: 'test-secret' } : ledger.rpc(name, args),
     from: (table) => {
       if (table === 'notification_deliveries') return { insert: async (rows) => { deliveries.push(...rows); return {}; } };
       if (table === 'notifications') return { update: () => ({ eq: async () => ({ error: null }) }) };
@@ -106,10 +108,12 @@ test('dispatcher integration: one push per device, targeted fallback, correct An
   };
   const env = { SUPABASE_URL: 'test-url', SUPABASE_SERVICE_ROLE_KEY: 'test-key',
     ONESIGNAL_REST_API_KEY: 'test-os-key', FCM_SERVICE_ACCOUNT_JSON: '{"project_id":"test"}' };
-  new Function('serve', 'createClient', 'Deno', 'fetch', 'postOneSignal', 'pushIdempotencyKey', 'routePushDevices',
+  new Function('serve', 'createClient', 'Deno', 'fetch', 'postOneSignal', 'pushIdempotencyKey', 'routePushDevices', 'dispatchChannels', 'summarizeTargets',
     edge + ';getFcmAccessToken = async () => "test-access";')(
     (fn) => { handler = fn; }, () => db, { env: { get: (key) => env[key] } }, fetcher,
-    (payload, key) => postOneSignal(payload, key, fetcher), pushIdempotencyKey, routePushDevices);
+    (payload, key) => postOneSignal(payload, key, fetcher), pushIdempotencyKey, routePushDevices,
+    loadEdge('supabase/functions/dispatch-alert/channels.ts', { env, fetch: fetcher }).dispatchChannels,
+    loadEdge('supabase/functions/_shared/notification_delivery.ts').summarizeTargets);
   const payload = { notification_id: 'test-event', user_id: 'test-user', channels: ['push'],
     title: 'Test', body: 'Test body', event_type: 'line_added', category: 'system', action_url: '/wallet' };
   const response = await handler(new Request('https://test.invalid', { method: 'POST',

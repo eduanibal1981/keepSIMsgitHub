@@ -9,6 +9,44 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get dashboardKeepSimActive => 'KEEP SIM ACTIVE';
+
+  @override
+  String get dashboardProtectSimLines => 'Protect your SIM lines';
+
+  @override
+  String get dashboardManageReminders => 'Manage reminders and top-ups';
+
+  @override
+  String get dashboardManageSims => 'Manage SIMS';
+
+  @override
+  String dashboardSimLineCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count SIM lines',
+      one: '1 SIM line',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get dashboardNewFeature => 'NEW';
+
+  @override
+  String get dashboardWorldwideEsims => 'Worldwide eSIMs';
+
+  @override
+  String get dashboardExploreSmartCall => 'Explore Smart Call';
+
+  @override
+  String get dashboardExploreGlobalOffers => 'Explore global offers';
+
+  @override
+  String get dashboardAddSims => 'Add SIMs';
+
+  @override
   String get appName => 'KeepSIMs';
 
   @override

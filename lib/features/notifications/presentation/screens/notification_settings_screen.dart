@@ -9,7 +9,6 @@ import 'package:keep_sims/features/notifications/data/models/alert_setting_model
 import 'package:keep_sims/features/notifications/presentation/controllers/notification_settings_controller.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
 import 'package:keep_sims/features/auth/controller/auth_controller.dart';
-import 'package:keep_sims/features/profile/presentation/widgets/subscription_upsell_sheet.dart';
 import 'package:keep_sims/core/utils/build_context_extension.dart';
 import 'package:keep_sims/l10n/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -1066,13 +1065,13 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
     final type = widget.channel['channel_type'] as String;
     String initialText = '';
     if (type == 'email') {
-      final configEmail = (config['email'] as String?)?.trim();
+      final configEmail = ((config['email'] ?? config['email_address']) as String?)?.trim();
       final userEmail = ref.read(authControllerProvider).value?.email;
       initialText = (configEmail != null && configEmail.isNotEmpty)
           ? configEmail
           : (userEmail ?? '');
     } else if (type == 'whatsapp') {
-      initialText = config['phone'] ?? '';
+      initialText = ((config['phone'] ?? config['phone_number']) as String?) ?? '';
     } /* else if (type == 'webhook') {
       initialText = config['webhook_url'] ?? '';
     } */
@@ -1088,13 +1087,13 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
       final type = widget.channel['channel_type'] as String;
       String currentText = '';
       if (type == 'email') {
-        final configEmail = (config['email'] as String?)?.trim();
+        final configEmail = ((config['email'] ?? config['email_address']) as String?)?.trim();
         final userEmail = ref.read(authControllerProvider).value?.email;
         currentText = (configEmail != null && configEmail.isNotEmpty)
             ? configEmail
             : (userEmail ?? '');
       } else if (type == 'whatsapp') {
-        currentText = config['phone'] ?? '';
+        currentText = ((config['phone'] ?? config['phone_number']) as String?) ?? '';
       } /* else if (type == 'webhook') {
         currentText = config['webhook_url'] ?? '';
       } */
@@ -1118,7 +1117,9 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
     );
 
     if (type == 'email') {
-      currentConfig['email'] = _textController.text.trim();
+      final emailVal = _textController.text.trim();
+      currentConfig['email'] = emailVal;
+      currentConfig['email_address'] = emailVal;
     } else if (type == 'whatsapp') {
       String val = _textController.text.trim();
       val = val.replaceAll(RegExp(r'[\s\-\(\)]'), '');
@@ -1148,26 +1149,44 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
       }
       _textController.text = val;
       currentConfig['phone'] = val;
+      currentConfig['phone_number'] = val;
     } /* else if (type == 'webhook') {
       currentConfig['webhook_url'] = _textController.text.trim();
     } */
 
-    await ref
-        .read(notificationChannelsControllerProvider.notifier)
-        .updateChannelConfig(type, currentConfig);
-    if (mounted) {
-      setState(() => _isSaving = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            AppLocalizations.of(
-              context,
-            )!.channelSettingsUpdated(_getChannelName(context, type)),
+    final messenger = ScaffoldMessenger.of(context);
+    final localizations = AppLocalizations.of(context);
+    final channelName = _getChannelName(context, type);
+    final secondaryColor = context.colorScheme.secondary;
+
+    try {
+      await ref
+          .read(notificationChannelsControllerProvider.notifier)
+          .updateChannelConfig(type, currentConfig);
+      if (mounted) {
+        setState(() => _isSaving = false);
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(
+              localizations?.channelSettingsUpdated(channelName) ??
+                  'Settings updated for $channelName',
+            ),
+            backgroundColor: secondaryColor,
+            duration: const Duration(seconds: 2),
           ),
-          backgroundColor: context.colorScheme.secondary,
-          duration: const Duration(seconds: 2),
-        ),
-      );
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isSaving = false);
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text('Failed to update settings: $e'),
+            backgroundColor: Colors.redAccent,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
     }
   }
 
@@ -1234,26 +1253,26 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
     final catalogEntry = catalogMap[type];
     final bool isGloballyEnabled = catalogEntry != null ? (catalogEntry['is_globally_enabled'] == true) : true;
 
-    final user = ref.watch(authControllerProvider).value;
-    final globalTier = user?.subscriptionTier ?? 'basic';
     final simLines = ref.watch(simLinesControllerProvider).value ?? [];
     final requiredTier = '${catalogEntry?['min_tier'] ?? ((type == 'push' || type == 'telegram') ? 'basic' : 'standard')}'.toLowerCase();
+    final bool isPaidChannel = type == 'whatsapp' || type == 'email' || requiredTier != 'basic';
+
     int tierRank(String tier) => switch (tier.toLowerCase()) {
       'premium' => 2,
       'standard' => 1,
       _ => 0,
     };
-    final hasEligibleLine = simLines.any((line) {
-      final tier = line.protectionTier.trim().toLowerCase();
-      final plan = line.planType.trim().toLowerCase();
-      final isExpired = line.validityExpiresAt != null &&
-          line.validityExpiresAt!.isBefore(DateTime.now());
-      return (tierRank(tier) >= tierRank(requiredTier) ||
-              tierRank(plan) >= tierRank(requiredTier)) &&
-          !isExpired;
-    });
-    final bool isLocked = tierRank(globalTier) < tierRank(requiredTier) &&
-        !hasEligibleLine;
+    final eligibleLines = simLines.where((line) {
+      final canonicalTier = line.planType.trim().isNotEmpty
+          ? line.planType.trim().toLowerCase()
+          : (line.protectionTier.trim().isNotEmpty
+              ? line.protectionTier.trim().toLowerCase()
+              : 'basic');
+      final isExpired = line.planExpiresAt != null &&
+          line.planExpiresAt!.isBefore(DateTime.now());
+      return tierRank(canonicalTier) >= tierRank(requiredTier) && !isExpired;
+    }).toList();
+    final bool hasEligibleLine = eligibleLines.isNotEmpty;
     final isDark = context.isDarkMode;
 
     return Container(
@@ -1272,134 +1291,146 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header Row with Switch
-          GestureDetector(
-            onTap: !isGloballyEnabled
-                ? () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          '$name is temporarily paused across the platform. Other enabled routes may still receive alerts.',
-                        ),
-                        backgroundColor: Colors.amber.shade900,
-                      ),
-                    );
-                  }
-                : (isLocked
-                    ? () async {
-                        await HapticHelper.mediumImpact();
-                        if (!context.mounted) return;
-                        SubscriptionUpsellSheet.show(
-                          context: context,
-                          title: AppLocalizations.of(context)!.channelLocked(name),
-                          description: AppLocalizations.of(
-                            context,
-                          )!.lockedAlertSubtitle(name),
-                          requiredPlan: '${requiredTier == 'premium' ? 'Premium' : 'Standard'} Plan',
-                          highlights: [
-                            AppLocalizations.of(context)!.upsellProtect5Lines,
-                            AppLocalizations.of(context)!.upsellUnlockChannels,
-                            AppLocalizations.of(context)!.upsellEnableTravelModes,
-                          ],
-                        );
-                      }
-                    : null),
-            child: SwitchListTile(
-              value: (!isGloballyEnabled || isLocked) ? false : _isEnabled,
-              activeThumbColor: color,
-              activeTrackColor: color.withValues(alpha: 0.2),
-              inactiveThumbColor: isDark
-                  ? AppColors.textTertiaryDark
-                  : AppColors.textTertiaryLight,
-              inactiveTrackColor: isDark
-                  ? AppColors.darkBorder
-                  : AppColors.lightBorder,
-              title: Row(
-                children: [
-                  Icon(
-                    icon,
-                    color: (!isGloballyEnabled || isLocked) ? AppColors.textTertiaryDark : color,
-                    size: 22,
+          SwitchListTile(
+            value: _isEnabled,
+            activeThumbColor: color,
+            activeTrackColor: color.withValues(alpha: 0.2),
+            inactiveThumbColor: isDark
+                ? AppColors.textTertiaryDark
+                : AppColors.textTertiaryLight,
+            inactiveTrackColor: isDark
+                ? AppColors.darkBorder
+                : AppColors.lightBorder,
+            title: Row(
+              children: [
+                Icon(
+                  icon,
+                  color: !isGloballyEnabled ? AppColors.textTertiaryDark : color,
+                  size: 22,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    name,
+                    style: AppTextStyles.titleMedium.copyWith(
+                      color: !isGloballyEnabled
+                          ? (isDark
+                                ? AppColors.textSecondaryDark
+                                : AppColors.textSecondaryLight)
+                          : context.onSurfaceColor,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      name,
-                      style: AppTextStyles.titleMedium.copyWith(
-                        color: (!isGloballyEnabled || isLocked)
-                            ? (isDark
-                                  ? AppColors.textSecondaryDark
-                                  : AppColors.textSecondaryLight)
-                            : context.onSurfaceColor,
+                ),
+                if (!isGloballyEnabled) ...[
+                  const SizedBox(width: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: Colors.amber.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: Colors.amber.withValues(alpha: 0.4)),
+                    ),
+                    child: const Text(
+                      'Temporarily unavailable',
+                      style: TextStyle(
+                        fontSize: 10,
                         fontWeight: FontWeight.bold,
+                        color: Colors.amber,
                       ),
                     ),
                   ),
-                  if (!isGloballyEnabled) ...[
-                    const SizedBox(width: 6),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: Colors.amber.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(6),
-                        border: Border.all(color: Colors.amber.withValues(alpha: 0.4)),
-                      ),
-                      child: const Text(
-                        'Temporarily unavailable',
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.amber,
-                        ),
+                ],
+                if (isPaidChannel) ...[
+                  const SizedBox(width: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF0EA5E9).withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: const Color(0xFF0EA5E9).withValues(alpha: 0.3)),
+                    ),
+                    child: const Text(
+                      'Standard & Premium',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF0284C7),
                       ),
                     ),
-                  ] else if (isLocked) ...[
-                    const SizedBox(width: 8),
-                    const Icon(
-                      Icons.lock_rounded,
-                      color: Colors.amberAccent,
-                      size: 14,
+                  ),
+                ],
+                const SizedBox(width: 6),
+                _buildAvailabilityBadge(type, _isEnabled, config),
+              ],
+            ),
+            subtitle: Padding(
+              padding: const EdgeInsets.only(top: 4.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    !isGloballyEnabled
+                        ? 'This channel is currently paused by platform administrators. Your preference will be saved and respected once resumed.'
+                        : _getChannelDescription(context, type),
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: isDark
+                          ? AppColors.textSecondaryDark
+                          : AppColors.textSecondaryLight,
                     ),
-                  ] else ...[
-                    const SizedBox(width: 6),
-                    _buildAvailabilityBadge(type, _isEnabled, config),
+                  ),
+                  if (isPaidChannel) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      hasEligibleLine
+                          ? 'Available for your eligible Standard & Premium SIM lines when enabled.'
+                          : 'You can enable this now. Alerts are sent only for SIMs with an active Standard or Premium subscription.',
+                      style: AppTextStyles.caption.copyWith(
+                        color: hasEligibleLine
+                            ? (isDark ? const Color(0xFF4ADE80) : const Color(0xFF16A34A))
+                            : (isDark ? const Color(0xFFFBBF24) : const Color(0xFFD97706)),
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
                   ],
                 ],
               ),
-              subtitle: Padding(
-                padding: const EdgeInsets.only(top: 4.0),
-                child: Text(
-                  !isGloballyEnabled
-                      ? 'This channel is paused by platform administrators. Other enabled channels may still receive alerts according to your preferences.'
-                      : _getChannelDescription(context, type),
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: isDark
-                        ? AppColors.textSecondaryDark
-                        : AppColors.textSecondaryLight,
-                  ),
-                ),
-              ),
-              onChanged: (!isGloballyEnabled || isLocked)
-                  ? null
-                  : (val) async {
-                      await HapticHelper.mediumImpact();
-                      setState(() => _isEnabled = val);
-                      if (type == 'email' && val) {
-                        final currentText = _textController.text.trim();
-                        if (currentText.isEmpty) {
-                          final userEmail = ref.read(authControllerProvider).value?.email;
-                          if (userEmail != null && userEmail.isNotEmpty) {
-                            _textController.text = userEmail;
-                          }
-                        }
-                      }
-                      await ref
-                          .read(notificationChannelsControllerProvider.notifier)
-                          .toggleChannel(type, val);
-                    },
             ),
+            onChanged: (val) async {
+              final messenger = ScaffoldMessenger.of(context);
+              await HapticHelper.mediumImpact();
+              final previousVal = _isEnabled;
+              setState(() => _isEnabled = val);
+              if (type == 'email' && val) {
+                final currentText = _textController.text.trim();
+                if (currentText.isEmpty) {
+                  final userEmail = ref.read(authControllerProvider).value?.email;
+                  if (userEmail != null && userEmail.isNotEmpty) {
+                    _textController.text = userEmail;
+                  }
+                }
+              }
+              try {
+                await ref
+                    .read(notificationChannelsControllerProvider.notifier)
+                    .toggleChannel(type, val);
+              } catch (e) {
+                if (mounted) {
+                  setState(() => _isEnabled = previousVal);
+                  messenger.showSnackBar(
+                    SnackBar(
+                      content: Text('Failed to update $name: $e'),
+                      backgroundColor: Colors.redAccent,
+                      duration: const Duration(seconds: 3),
+                    ),
+                  );
+                }
+              }
+            },
           ),
 
-          if (_isEnabled && !isLocked && isGloballyEnabled) ...[
+          if (_isEnabled) ...[
             Divider(
               color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
               height: 1,
@@ -1427,8 +1458,15 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
                   ] else if (type == 'whatsapp') ...[
                     const SizedBox(height: 10),
                     _buildInfoBadge(
-                      AppLocalizations.of(context)!.whatsappMetaCloudCapped,
+                      'WhatsApp alerts are dispatched for active Standard and Premium SIM lines through the verified country route.',
                       const Color(0xFF4ADE80),
+                    ),
+                  ],
+                  if (isPaidChannel && !hasEligibleLine) ...[
+                    const SizedBox(height: 10),
+                    _buildInfoBadge(
+                      'Preference saved: Delivery will activate automatically when you upgrade any of your SIM lines to Standard or Premium.',
+                      Colors.amber,
                     ),
                   ],
                 ],
@@ -1500,6 +1538,7 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
                         category: 'system',
                         title: 'KeepSIMs Test Alert',
                         body: 'KeepSIMs requested a test notification for this device.',
+                        channelType: 'push',
                       );
                       if (!context.mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -1604,7 +1643,7 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
       needsSetup = phone == null || phone.trim().isEmpty;
     } else if (type == 'telegram') {
       final chatId = config['chat_id'] as String?;
-      needsSetup = chatId == null || chatId.trim().isEmpty;
+      needsSetup = chatId == null || chatId.trim().isEmpty || config['binding_verified_at'] == null;
     }
 
     if (needsSetup) {
@@ -1807,7 +1846,7 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
     Map<String, dynamic> config,
   ) {
     final chatId = config['chat_id'];
-    final isBound = chatId != null && chatId.toString().isNotEmpty;
+    final isBound = chatId != null && chatId.toString().isNotEmpty && config['binding_verified_at'] != null;
     final isDark = context.isDarkMode;
 
     return Container(

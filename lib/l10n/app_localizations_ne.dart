@@ -9,6 +9,46 @@ class AppLocalizationsNe extends AppLocalizations {
   AppLocalizationsNe([String locale = 'ne']) : super(locale);
 
   @override
+  String get dashboardKeepSimActive => 'सिम सक्रिय राख्नुहोस्';
+
+  @override
+  String get dashboardProtectSimLines =>
+      'आफ्ना सिम लाइनहरू सुरक्षित राख्नुहोस्';
+
+  @override
+  String get dashboardManageReminders =>
+      'रिमाइन्डर र रिचार्ज व्यवस्थापन गर्नुहोस्';
+
+  @override
+  String get dashboardManageSims => 'सिम व्यवस्थापन गर्नुहोस्';
+
+  @override
+  String dashboardSimLineCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count सिम लाइनहरू',
+      one: '1 सिम लाइन',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get dashboardNewFeature => 'नयाँ';
+
+  @override
+  String get dashboardWorldwideEsims => 'विश्वभरका eSIM';
+
+  @override
+  String get dashboardExploreSmartCall => 'स्मार्ट कल हेर्नुहोस्';
+
+  @override
+  String get dashboardExploreGlobalOffers => 'विश्वव्यापी अफरहरू हेर्नुहोस्';
+
+  @override
+  String get dashboardAddSims => 'सिम थप्नुहोस्';
+
+  @override
   String get appName => 'KeepSIMs';
 
   @override

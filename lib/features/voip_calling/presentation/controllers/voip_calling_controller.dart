@@ -138,6 +138,7 @@ class VoipCallingController extends Notifier<VoipActiveCallState> {
   Timer? _answerPollTimer;
   StreamSubscription<VoipCallSession?>? _dbSessionSub;
   bool _isEnding = false;
+  bool _isAnswering = false;
 
   @override
   VoipActiveCallState build() {
@@ -270,9 +271,19 @@ class VoipCallingController extends Notifier<VoipActiveCallState> {
         }
       });
     } catch (e) {
+      if (_isEnding || state.isTerminal) {
+        debugPrint('[VoIP Controller] Call start error during teardown suppressed: $e');
+        return;
+      }
       debugPrint('[VoIP Controller] Call start error: $e');
       state = state.copyWith(status: 'failed', errorMessage: e.toString());
       await _cleanup();
+      Future.delayed(const Duration(milliseconds: 3000), () {
+        if (state.status == 'failed') {
+          state = const VoipActiveCallState();
+          _isEnding = false;
+        }
+      });
     }
   }
 
@@ -283,6 +294,17 @@ class VoipCallingController extends Notifier<VoipActiveCallState> {
     String? callerAvatar,
     String? callerPhone,
   }) async {
+    if (_isAnswering) {
+      debugPrint('[VoIP Controller] answerCall already in progress, ignoring duplicate call');
+      return;
+    }
+    if (state.isActive && state.callId == callId && !state.isTerminal) {
+      debugPrint('[VoIP Controller] Call $callId already active in state');
+      return;
+    }
+    _isAnswering = true;
+    _isEnding = false;
+
     _ringTimeoutTimer?.cancel();
     state = VoipActiveCallState(
       callId: callId,
@@ -310,14 +332,29 @@ class VoipCallingController extends Notifier<VoipActiveCallState> {
         return;
       }
 
+      if (_isEnding || state.isTerminal) {
+        debugPrint('[VoIP Controller] Call aborted during session fetch');
+        return;
+      }
+
       // Retrieve authorized ICE servers (STUN + TURN) for the callee
       final iceServers = await repository.getCallIceServers(callId);
+      if (_isEnding || state.isTerminal) {
+        debugPrint('[VoIP Controller] Call aborted during ICE server fetch');
+        return;
+      }
+
       final hasTurn = iceServers.any(
         (s) => s.urls.any((u) => u.startsWith('turn:') || u.startsWith('turns:')),
       );
       _qualityCollector.setHasTurnServers(hasTurn);
       await _webrtc.initialize(iceServers: iceServers);
       await _webrtc.openMicrophone();
+
+      if (_isEnding || state.isTerminal) {
+        debugPrint('[VoIP Controller] Call aborted during WebRTC initialization');
+        return;
+      }
 
       // Initialize Call Recovery Coordinator (Callee is polite)
       _recoveryCoordinator = CallRecoveryCoordinator(
@@ -354,6 +391,11 @@ class VoipCallingController extends Notifier<VoipActiveCallState> {
 
       await _signaling.connect(callId);
 
+      if (_isEnding || state.isTerminal) {
+        debugPrint('[VoIP Controller] Call aborted during signaling connect');
+        return;
+      }
+
       // If offer is available from DB, handle it immediately
       if (session != null &&
           session.offerSdp != null &&
@@ -374,9 +416,21 @@ class VoipCallingController extends Notifier<VoipActiveCallState> {
 
       _subscribeDbSession(callId);
     } catch (e) {
+      if (_isEnding || state.isTerminal) {
+        debugPrint('[VoIP Controller] Answer error during teardown suppressed: $e');
+        return;
+      }
       debugPrint('[VoIP Controller] Answer error: $e');
       state = state.copyWith(status: 'failed', errorMessage: e.toString());
       await _cleanup();
+      Future.delayed(const Duration(milliseconds: 3000), () {
+        if (state.status == 'failed') {
+          state = const VoipActiveCallState();
+          _isEnding = false;
+        }
+      });
+    } finally {
+      _isAnswering = false;
     }
   }
 
@@ -456,24 +510,43 @@ class VoipCallingController extends Notifier<VoipActiveCallState> {
     };
 
     _signaling.onSdpOfferReceived = (sdp) async {
-      if (!state.isOutgoing && !_webrtc.hasRemoteDescription) {
-        final answer = await _webrtc.handleOfferAndCreateAnswer(sdp);
-        if (answer.sdp != null) {
-          await _signaling.sendAnswer(answer.sdp!);
-          final repo = ref.read(voipCallingRepositoryProvider);
-          if (state.callId != null) {
-            await repo.answerCall(callId: state.callId!, answerSdp: answer.sdp!);
+      try {
+        if (!state.isOutgoing &&
+            !_webrtc.hasRemoteDescription &&
+            !state.isTerminal &&
+            !_isEnding) {
+          if (_webrtc.peerConnection == null) {
+            debugPrint('[VoIP Controller] onSdpOfferReceived: peerConnection not initialized, skipping');
+            return;
+          }
+          final answer = await _webrtc.handleOfferAndCreateAnswer(sdp);
+          if (answer.sdp != null) {
+            await _signaling.sendAnswer(answer.sdp!);
+            final repo = ref.read(voipCallingRepositoryProvider);
+            if (state.callId != null) {
+              await repo.answerCall(callId: state.callId!, answerSdp: answer.sdp!);
+            }
           }
         }
+      } catch (e) {
+        debugPrint('[VoIP Controller] Error handling SDP offer from signaling: $e');
       }
     };
 
     _signaling.onSdpAnswerReceived = (sdp) async {
-      if (state.isOutgoing && !_webrtc.hasRemoteDescription) {
-        debugPrint('[VoIP Controller] SDP answer received via signaling');
-        state = state.copyWith(status: 'connecting');
-        _startConnectingDeadlineTimer();
-        await _webrtc.setRemoteAnswer(sdp);
+      try {
+        if (state.isOutgoing &&
+            !_webrtc.hasRemoteDescription &&
+            !state.isTerminal &&
+            !_isEnding &&
+            _webrtc.peerConnection != null) {
+          debugPrint('[VoIP Controller] SDP answer received via signaling');
+          state = state.copyWith(status: 'connecting');
+          _startConnectingDeadlineTimer();
+          await _webrtc.setRemoteAnswer(sdp);
+        }
+      } catch (e) {
+        debugPrint('[VoIP Controller] Error handling SDP answer from signaling: $e');
       }
     };
 
@@ -527,6 +600,7 @@ class VoipCallingController extends Notifier<VoipActiveCallState> {
       if (!state.isActive ||
           state.status == 'connected' ||
           state.isTerminal ||
+          _isEnding ||
           _webrtc.hasRemoteDescription) {
         timer.cancel();
         return;
@@ -544,6 +618,9 @@ class VoipCallingController extends Notifier<VoipActiveCallState> {
             session.offerSdp!.isNotEmpty &&
             state.isActive &&
             state.status == 'connecting' &&
+            !state.isTerminal &&
+            !_isEnding &&
+            _webrtc.peerConnection != null &&
             !_webrtc.hasRemoteDescription) {
           timer.cancel();
           final answer = await _webrtc.handleOfferAndCreateAnswer(
@@ -556,7 +633,9 @@ class VoipCallingController extends Notifier<VoipActiveCallState> {
                 .answerCall(callId: callId, answerSdp: answer.sdp!);
           }
         }
-      } catch (_) {}
+      } catch (e) {
+        debugPrint('[VoIP Controller] Poll offer fallback error: $e');
+      }
     });
   }
 
@@ -566,6 +645,7 @@ class VoipCallingController extends Notifier<VoipActiveCallState> {
       if (!state.isActive ||
           state.status == 'connected' ||
           state.isTerminal ||
+          _isEnding ||
           _webrtc.hasRemoteDescription) {
         timer.cancel();
         return;
@@ -583,6 +663,9 @@ class VoipCallingController extends Notifier<VoipActiveCallState> {
             session.answerSdp!.isNotEmpty &&
             state.isActive &&
             (state.status == 'calling' || state.status == 'ringing' || state.status == 'connecting') &&
+            !state.isTerminal &&
+            !_isEnding &&
+            _webrtc.peerConnection != null &&
             !_webrtc.hasRemoteDescription) {
           timer.cancel();
           debugPrint('[VoIP Controller] Answer retrieved from DB fallback. Setting remote description.');
@@ -590,7 +673,9 @@ class VoipCallingController extends Notifier<VoipActiveCallState> {
           _startConnectingDeadlineTimer();
           await _webrtc.setRemoteAnswer(session.answerSdp!);
         }
-      } catch (_) {}
+      } catch (e) {
+        debugPrint('[VoIP Controller] Poll answer fallback error: $e');
+      }
     });
   }
 
@@ -639,7 +724,7 @@ class VoipCallingController extends Notifier<VoipActiveCallState> {
     _dbSessionSub = ref
         .read(voipCallingRepositoryProvider)
         .watchCallSession(callId)
-        .listen((session) {
+        .listen((session) async {
           if (session == null) return;
           if (session.isTerminal && !state.isTerminal) {
             state = state.copyWith(status: session.status);
@@ -652,11 +737,18 @@ class VoipCallingController extends Notifier<VoipActiveCallState> {
               (session.status == 'accepted' || session.status == 'connected') &&
               session.answerSdp != null &&
               session.answerSdp!.isNotEmpty &&
+              !state.isTerminal &&
+              !_isEnding &&
+              _webrtc.peerConnection != null &&
               !_webrtc.hasRemoteDescription) {
             debugPrint('[VoIP Controller] DB session stream provided answer_sdp');
             state = state.copyWith(status: 'connecting');
             _startConnectingDeadlineTimer();
-            _webrtc.setRemoteAnswer(session.answerSdp!);
+            try {
+              await _webrtc.setRemoteAnswer(session.answerSdp!);
+            } catch (e) {
+              debugPrint('[VoIP Controller] Error setting remote answer from DB stream: $e');
+            }
           }
         });
   }
@@ -831,6 +923,17 @@ class VoipCallingController extends Notifier<VoipActiveCallState> {
 
     _recoveryCoordinator?.detach();
     _recoveryCoordinator = null;
+
+    // Release CallKit and Android Telecom call state immediately
+    final callId = state.callId;
+    if (callId != null) {
+      try {
+        await _callkit.endCall(callId);
+      } catch (_) {}
+    }
+    try {
+      await _callkit.endAllCalls();
+    } catch (_) {}
 
     try {
       await _webrtc.dispose();

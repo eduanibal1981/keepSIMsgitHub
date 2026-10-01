@@ -20,7 +20,8 @@ import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.39.8";
 
 import { postOneSignal, pushIdempotencyKey, routePushDevices, type PushDevice } from "./push_delivery.ts";
-import { routeAndSendWhatsApp } from "../_shared/whatsapp_router.ts";
+import { dispatchChannels } from "./channels.ts";
+import { summarizeTargets } from "../_shared/notification_delivery.ts";
 
 const ONESIGNAL_APP_ID = "434b9552-8005-4d08-b3b1-a7a35f0b15dc";
 
@@ -107,7 +108,7 @@ async function sendFcm(
   isUrgent = false,
   extraData: Record<string, string>,
   devices: PushDevice[],
-): Promise<{ status: "accepted_by_provider" | "failed" | "skipped"; detail: string }> {
+): Promise<{ status: "accepted_by_provider" | "failed" | "skipped" | "unknown"; detail: string; retryable?: boolean }> {
   const saRaw = Deno.env.get("FCM_SERVICE_ACCOUNT_JSON");
   if (!saRaw) return { status: "skipped", detail: "FCM_SERVICE_ACCOUNT_JSON not configured." };
 
@@ -130,6 +131,7 @@ async function sendFcm(
     return { status: "failed", detail: `FCM auth failed: ${(e as Error).message}` };
   }
 
+  let unknown = false, retryable = false;
   let ok = 0;
   const errs: string[] = [];
   for (const token of tokens) {
@@ -166,6 +168,7 @@ async function sendFcm(
       if (r.ok) {
         ok++;
       } else {
+        retryable ||= r.status === 429 || r.status >= 500;
         const errJson = await r.json().catch(() => ({} as Record<string, any>));
         const errorCode =
           errJson?.error?.details?.find((d: any) => d["@type"]?.includes("FcmError"))?.errorCode ||
@@ -185,15 +188,17 @@ async function sendFcm(
         }
       }
     } catch (e) {
+      unknown = true;
       errs.push((e as Error).message ?? String(e));
     }
   }
 
+  if (unknown) return { status: "unknown", detail: "FCM outcome is unknown; duplicate send withheld." };
   if (ok > 0) {
     const failureSummary = errs.length > 0 ? `; failed: ${errs.join(", ")}` : "";
     return { status: errs.length ? "failed" : "accepted_by_provider", detail: `FCM accepted ${ok}/${tokens.length} device message(s); display not confirmed${failureSummary}.` };
   }
-  return { status: "failed", detail: `FCM failed on all ${tokens.length} device(s): ${errs.join("; ")}` };
+  return { status: "failed", retryable, detail: `FCM failed on all ${tokens.length} device(s): ${errs.join("; ")}` };
 }
 
 // --------------------------------------------------------------------------
@@ -405,272 +410,15 @@ serve(async (req: Request) => {
       target: target ? (typeof target === "string" ? target : JSON.stringify(target)) : "",
     };
 
-    // 2. Dispatch only the channels selected by the preference/entitlement gate.
-    for (const channel of channels) {
-      try {
-        if (channel === "push") {
-          const oneSignalApiKey = Deno.env.get("ONESIGNAL_REST_API_KEY");
-          const { data: rows, error } = await supabase
-            .from("device_push_tokens")
-            .select("device_id, onesignal_player_id, fcm_token, updated_at")
-            .eq("user_id", user_id)
-            .order("updated_at", { ascending: false });
-          if (error) throw new Error("Cannot load push devices: " + error.message);
-          const devices = (rows ?? []) as PushDevice[];
-          if (!devices.some((d) => d.onesignal_player_id || d.fcm_token)) {
-            logDelivery("push", "skipped", "No push devices registered.");
-          }
-          const dispatchId = notification_id || crypto.randomUUID();
-          await routePushDevices(devices, async (device) => {
-            if (!oneSignalApiKey) {
-              logDelivery("push_onesignal", "skipped", "ONESIGNAL_REST_API_KEY not configured.");
-              return "rejected";
-            }
-            const response = await postOneSignal({
-              app_id: ONESIGNAL_APP_ID,
-              include_subscription_ids: [device.onesignal_player_id],
-              idempotency_key: await pushIdempotencyKey(dispatchId, device.onesignal_player_id!),
-              contents,
-              headings,
-              large_icon: "launcher_icon",
-              small_icon: "ic_stat_keepsims",
-              android_accent_color: "FF4CD7F6",
-              existing_android_channel_id: channelId,
-              priority: 10,
-              collapse_id: dispatchId,
-              data: pushData,
-            }, oneSignalApiKey);
-            const label = device.device_id || device.onesignal_player_id;
-            const detail = response.outcome === "accepted"
-              ? `OneSignal accepted for device ${label} (id ${response.id}); display not confirmed.`
-              : `OneSignal ${response.outcome} for device ${label}: ${response.detail}.`;
-            results["push"] = detail;
-            logDelivery("push_onesignal", response.outcome === "accepted"
-              ? "accepted_by_provider"
-              : response.outcome === "unknown" ? "unknown" : "failed",
-              detail + (response.outcome === "unknown" ? " FCM withheld to avoid a duplicate; retry with the same notification ID." : ""),
-              response.status);
-            return response.outcome;
-          }, async (fallbackDevices) => {
-            const fcm = await sendFcm(supabase, user_id, title, body,
-              canonicalActionUrl, channelId, isUrgent, pushData, fallbackDevices);
-            results["push_fcm"] = fcm.detail;
-            logDelivery("push_fcm", fcm.status, fcm.detail);
-          });
-        }
-
-        else if (channel === "telegram") {
-          const tgToken = Deno.env.get("TELEGRAM_BOT_TOKEN");
-          const { data: channelData } = await supabase
-            .from("notification_channels")
-            .select("config")
-            .eq("user_id", user_id)
-            .eq("channel_type", "telegram")
-            .eq("is_enabled", true)
-            .maybeSingle();
-
-          const chatId = channelData?.config?.chat_id;
-          if (tgToken && chatId) {
-            const response = await fetch(`https://api.telegram.org/bot${tgToken}/sendMessage`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                chat_id: chatId,
-                text: `*${title}*\n\n${body}`,
-                parse_mode: "Markdown",
-              }),
-            });
-            results["telegram"] = response.ok
-              ? `Telegram accepted the message (HTTP ${response.status}); recipient delivery is unconfirmed.`
-              : `Telegram rejected the message (HTTP ${response.status}).`;
-            logDelivery("telegram", response.ok ? "accepted_by_provider" : "failed", results["telegram"], response.status);
-          } else {
-            results["telegram"] = "Skipped: Telegram Bot Token or Chat ID not configured.";
-            logDelivery("telegram", "skipped", results["telegram"]);
-          }
-        }
-
-        else if (channel === "email") {
-          // Verify tier: only Standard and Premium lines/users receive email alerts
-          let userTier = "standard";
-          if (sim_line_id) {
-            const { data: line } = await supabase
-              .from("sim_lines")
-              .select("protection_tier, plan_type")
-              .eq("id", sim_line_id)
-              .maybeSingle();
-            if (line?.protection_tier) {
-              userTier = line.protection_tier.toLowerCase();
-            } else if (line?.plan_type) {
-              userTier = line.plan_type.toLowerCase();
-            }
-          }
-          if (userTier === "standard" || userTier === "basic") {
-            const { data: profile } = await supabase
-              .from("profiles")
-              .select("subscription_tier")
-              .eq("id", user_id)
-              .maybeSingle();
-            if (profile?.subscription_tier) {
-              const profileTier = profile.subscription_tier.toLowerCase();
-              if (profileTier === "premium") userTier = "premium";
-              else if (userTier === "basic") userTier = profileTier;
-            }
-          }
-
-          const isStandardOrPremium = userTier === "standard" || userTier === "premium";
-          if (!isStandardOrPremium) {
-            results["email"] = "Skipped: Email alerts require Standard or Premium plan.";
-            logDelivery("email", "skipped", results["email"]);
-            continue;
-          }
-
-          const isDeactivationThreat =
-            category === "top_up_failed" || category === "line_critical" || category === "wallet_depleted";
-          const isLineAdded = event_type === "line_added";
-          const isWeeklyDigest = event_type === "weekly_digest";
-
-          if (!isDeactivationThreat && !isLineAdded && !isWeeklyDigest) {
-            results["email"] = "Skipped: Non-critical email bypassed to protect Resend free plan limits.";
-            logDelivery("email", "skipped", results["email"]);
-            continue;
-          }
-
-          const resendKey = Deno.env.get("RESEND_API_KEY");
-          const { data: channelData } = await supabase
-            .from("notification_channels")
-            .select("config")
-            .eq("user_id", user_id)
-            .eq("channel_type", "email")
-            .eq("is_enabled", true)
-            .maybeSingle();
-
-          // The settings UI writes config.email; older rows/tests use
-          // config.email_address. Accept both — reading only the latter meant a
-          // user's configured address was silently ignored in favour of their
-          // account email (same shape as the phone_number/phone pair below).
-          let emailAddress = channelData?.config?.email_address ?? channelData?.config?.email;
-          if (!emailAddress) {
-            const { data: profile } = await supabase
-              .from("profiles")
-              .select("email")
-              .eq("id", user_id)
-              .maybeSingle();
-            emailAddress = profile?.email;
-          }
-
-          if (resendKey && emailAddress) {
-            const headerColor = isDeactivationThreat ? "#ef4444" : "#10b981";
-            const footerNote = isDeactivationThreat
-              ? "Please open the KeepSIMs application to resolve any outstanding wallet issues or SIM line blocks immediately."
-              : "Your line is now active and protected under your plan. You can view your line details, auto-recharge schedule, and status in the KeepSIMs application.";
-
-            const response = await fetch("https://api.resend.com/emails", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${resendKey}`,
-              },
-              body: JSON.stringify({
-                from: "KeepSIMs <alerts@keepsims.com>",
-                to: emailAddress,
-                subject: title,
-                html: `<div style="font-family:sans-serif;padding:30px;background-color:#0d0e12;color:#ffffff;border-radius:16px;max-width:600px;margin:0 auto;border:1px solid #1f222e;">
-                         <h2 style="color:${headerColor};border-bottom:1px solid #1f222e;padding-bottom:12px;margin-top:0;">${title}</h2>
-                         <p style="font-size:16px;line-height:1.6;color:#a9abb3;">${body}</p>
-                         <p style="font-size:14px;color:#858894;margin-top:20px;">${footerNote}</p>
-                         <div style="margin-top:30px;padding:16px;background-color:#161822;border-radius:8px;font-size:11px;color:#4b5563;border:1px solid #202433;">
-                           Notification event reference: ${notification_id} • KeepSIMs Auto-Protection System
-                         </div>
-                       </div>`,
-              }),
-            });
-            results["email"] = response.ok
-              ? `Resend accepted the email (HTTP ${response.status}); inbox delivery is unconfirmed.`
-              : `Resend rejected the email (HTTP ${response.status}).`;
-            logDelivery("email", response.ok ? "accepted_by_provider" : "failed", results["email"], response.status);
-          } else {
-            results["email"] = "Skipped: Resend API Key or recipient email not configured.";
-            logDelivery("email", "skipped", results["email"]);
-          }
-        }
-
-        else if (channel === "whatsapp") {
-          const { data: channelData } = await supabase
-            .from("notification_channels")
-            .select("config")
-            .eq("user_id", user_id)
-            .eq("channel_type", "whatsapp")
-            .eq("is_enabled", true)
-            .maybeSingle();
-
-          const phoneNumber = channelData?.config?.phone_number || channelData?.config?.phone;
-          if (!phoneNumber) {
-            results["whatsapp"] = "Skipped: Destination phone not configured in notification channels.";
-            logDelivery("whatsapp", "skipped", results["whatsapp"]);
-            continue;
-          }
-
-          const routeOutcome = await routeAndSendWhatsApp(supabase, {
-            purpose: "subscription_alert",
-            recipientPhone: String(phoneNumber),
-            titleText: title,
-            bodyText: body,
-            notificationId: notification_id ? String(notification_id) : undefined,
-            simLineId: sim_line_id ? String(sim_line_id) : undefined,
-            userId: user_id,
-            category: category,
-            eventType: event_type,
-          });
-
-          results["whatsapp"] = routeOutcome.detail;
-          const deliveryStatus = (routeOutcome.state === "delivered")
-            ? "delivered"
-            : (routeOutcome.state === "accepted" || routeOutcome.state === "sent")
-            ? "accepted_by_provider"
-            : (routeOutcome.state === "unknown" ? "unknown"
-              : routeOutcome.state === "skipped" ? "skipped" : "failed");
-
-          logDelivery("whatsapp", deliveryStatus, routeOutcome.detail);
-          // Safe retry on selected provider only: do NOT mutate channels or force unsolicited email/push.
-        }
-
-        else if (channel === "webhook") {
-          const { data: channelData } = await supabase
-            .from("notification_channels")
-            .select("config")
-            .eq("user_id", user_id)
-            .eq("channel_type", "webhook")
-            .eq("is_enabled", true)
-            .maybeSingle();
-
-          const webhookUrl = channelData?.config?.url;
-          if (webhookUrl) {
-            const response = await fetch(webhookUrl, {
-              method: "POST",
-              headers: { "Content-Type": "application/json", "x-keep-sims-event": category },
-              body: JSON.stringify({
-                event: category,
-                title,
-                body,
-                sim_line_id,
-                timestamp: new Date().toISOString(),
-              }),
-            });
-            results["webhook"] = response.ok
-              ? `Webhook endpoint accepted the request (HTTP ${response.status}); downstream processing is unconfirmed.`
-              : `Webhook endpoint rejected the request (HTTP ${response.status}).`;
-            logDelivery("webhook", response.ok ? "accepted_by_provider" : "failed", results["webhook"], response.status);
-          } else {
-            results["webhook"] = "Skipped: Webhook URL not configured.";
-            logDelivery("webhook", "skipped", results["webhook"]);
-          }
-        }
-      } catch (err) {
-        results[channel] = `Exception: ${(err as Error).message || err}`;
-        logDelivery(channel, "failed", `Exception: ${(err as Error).message || err}`);
-      }
+    if (!notification_id || !user_id || !Array.isArray(channels)) {
+      return new Response(JSON.stringify({ success: false, error: "A durable notification ID and channel list are required" }), { status: 400 });
     }
+    const dispatched = await dispatchChannels(supabase, {
+      ...payload, canonicalActionUrl, channelId, isUrgent, pushData, contents, headings, onesignalAppId: ONESIGNAL_APP_ID,
+    }, (devices: PushDevice[], saved: any) => sendFcm(supabase, user_id, saved.title, saved.body,
+      saved.canonicalActionUrl, saved.channelId, saved.isUrgent, saved.pushData, devices));
+    deliveries.push(...dispatched.deliveries);
+    for (const outcome of dispatched.outcomes) results[outcome.channel] = outcome.detail;
 
     // 3. Persist the delivery log before acknowledging the logical dispatch job.
     // Provider sends may already have occurred, so callers quarantine a failed
@@ -707,7 +455,7 @@ serve(async (req: Request) => {
       }
     }
 
-    return new Response(JSON.stringify({ success: true, results }), {
+    return new Response(JSON.stringify({ ...summarizeTargets(dispatched.outcomes), results }), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });

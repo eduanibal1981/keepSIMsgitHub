@@ -1,248 +1,107 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.8";
 import { routeAndSendWhatsApp } from "../_shared/whatsapp_router.ts";
+import { profileSecret, profileReady } from "../_shared/whatsapp_profile.ts";
 
-// WhatsApp Business (Cloud) API Webhook
-// Handles:
-// 1. Webhook subscription verification (GET)
-// 2. Delivery & read status updates (POST statuses[])
-// 3. Inbound offline refill commands and replies with sender affinity (POST messages[])
-
-const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
-const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-const WABA_VERIFY_TOKEN = Deno.env.get("WABA_VERIFY_TOKEN") ?? "";
-const WABA_APP_SECRET = Deno.env.get("WABA_APP_SECRET") ?? "";
-
-const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
-
-const json = (body: Record<string, unknown>, status: number) =>
-  new Response(JSON.stringify(body), {
-    headers: { "Content-Type": "application/json" },
-    status,
-  });
-
-async function hmacSha256Hex(secret: string, message: string): Promise<string> {
-  const key = await crypto.subtle.importKey(
-    "raw",
-    new TextEncoder().encode(secret),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"],
-  );
-  const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(message));
-  return Array.from(new Uint8Array(sig)).map((b) => b.toString(16).padStart(2, "0")).join("");
+const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+const json = (body: any, status = 200) => new Response(JSON.stringify(body), {
+  status, headers: { "Content-Type": "application/json" },
+});
+async function signature(secret: string, raw: string) {
+  const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(secret),
+    { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const digest = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(raw));
+  return "sha256=" + Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, "0")).join("");
 }
-
-function safeEqual(a: string, b: string): boolean {
+function equal(a: string, b: string) {
   if (a.length !== b.length) return false;
-  let diff = 0;
-  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
-  return diff === 0;
+  let difference = 0;
+  for (let i = 0; i < a.length; i++) difference |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return difference === 0;
 }
 
 serve(async (req: Request) => {
-  const url = new URL(req.url);
-
-  // 1. Webhook Verification (GET)
-  if (req.method === "GET") {
-    const mode = url.searchParams.get("hub.mode");
-    const token = url.searchParams.get("hub.verify_token");
-    const challenge = url.searchParams.get("hub.challenge");
-
-    if (mode === "subscribe") {
-      let isVerified = WABA_VERIFY_TOKEN && token === WABA_VERIFY_TOKEN;
-
-      // Also check profile-specific verify tokens if global token did not match
-      if (!isVerified) {
-        const { data: profiles } = await supabase
-          .from("whatsapp_provider_profiles")
-          .select("id, connection_metadata")
-          .eq("provider_kind", "meta_cloud");
-
-        if (profiles) {
-          for (const p of profiles) {
-            const vaultId = p.connection_metadata?.webhook_verify_token_vault_id;
-            if (vaultId) {
-              const { data: secret } = await supabase.rpc("get_internal_secret", {
-                p_name: `wa_meta_verify_${p.id}`,
-              });
-              if (secret && secret === token) {
-                isVerified = true;
-                break;
-              }
-            }
-          }
+  if (req.method !== "GET" && req.method !== "POST") return json({ error: "method_not_allowed" }, 405);
+  try {
+    const { data: profiles, error } = await db.from("whatsapp_provider_profiles")
+      .select("id,provider_kind,is_enabled,ready_state,expected_sender_number,observed_sender_number,connection_metadata")
+      .eq("provider_kind", "meta_cloud");
+    if (error || !profiles?.length) return json({ error: "webhook_profile_unavailable" }, 503);
+    if (req.method === "GET") {
+      const url = new URL(req.url), token = url.searchParams.get("hub.verify_token");
+      if (url.searchParams.get("hub.mode") !== "subscribe" || !token) return json({ error: "forbidden" }, 403);
+      for (const profile of profiles) {
+        if (!profile.is_enabled) continue;
+        const verify = await profileSecret(db, profile, "verify");
+        if (verify && equal(token, verify)) return new Response(url.searchParams.get("hub.challenge") || "", { status: 200 });
+      }
+      return json({ error: "forbidden" }, 403);
+    }
+    const raw = await req.text();
+    if (raw.length > 1024 * 1024) return json({ error: "payload_too_large" }, 413);
+    let payload: any;
+    try { payload = JSON.parse(raw); } catch (_) { return json({ error: "bad_json" }, 400); }
+    const header = req.headers.get("x-hub-signature-256") || "";
+    if (!/^sha256=[0-9a-f]{64}$/.test(header)) return json({ error: "bad_signature" }, 401);
+    // Only inspect untrusted routing identifiers before verification. Verify all
+    // changes before commands or receipts; multiple Meta profiles are supported.
+    const verified: { profile: any; value: any }[] = [];
+    for (const entry of payload.entry || []) {
+      for (const change of entry.changes || []) {
+        const value = change.value || {}, senderId = value.metadata?.phone_number_id;
+        const candidates = profiles.filter((p: any) => p.connection_metadata?.phone_number_id === senderId);
+        if (!senderId || candidates.length !== 1) return json({ error: "unknown_sender" }, 401);
+        const profile = candidates[0];
+        const accountId = profile.connection_metadata?.waba_account_id;
+        if (accountId && String(entry.id) !== String(accountId)) return json({ error: "sender_account_mismatch" }, 401);
+        const secret = await profileSecret(db, profile, "app_secret");
+        if (!secret) return json({ error: "webhook_secret_unconfigured" }, 503);
+        if (!equal(header, await signature(secret, raw))) return json({ error: "bad_signature" }, 401);
+        verified.push({ profile, value });
+      }
+    }
+    if (!verified.length) return json({ error: "no_verified_changes" }, 400);
+    for (const { profile, value } of verified) {
+      for (const receipt of value.statuses || []) {
+        const state = receipt.status === "read" || receipt.status === "delivered" ? "delivered"
+          : receipt.status === "sent" ? "sent" : receipt.status === "failed" ? "failed" : null;
+        if (!receipt.id || !state) continue;
+        const patch: any = { state, updated_at: new Date().toISOString() };
+        if (state === "delivered") patch.delivered_at = patch.updated_at;
+        if (state === "sent") patch.sent_at = patch.updated_at;
+        if (state === "failed") {
+          patch.retryable = false; patch.error_category = "meta_delivery_failed";
+          patch.error_detail = JSON.stringify(receipt.errors || []).slice(0, 1000);
+        }
+        const opaque = receipt.biz_opaque_callback_data;
+        const hasAttempt = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(opaque || "");
+        if (hasAttempt) patch.provider_message_id = receipt.id;
+        let update = db.from("whatsapp_message_attempts").update(patch)
+          .eq("profile_id", profile.id).eq("route_mode", "meta_cloud");
+        update = hasAttempt ? update.eq("id", opaque) : update.eq("provider_message_id", receipt.id);
+        const { error: receiptError } = await update;
+        if (receiptError) throw new Error("Receipt persistence failed");
+      }
+      if (!profileReady(profile)) continue; // Receipts still work while sends are paused.
+      for (const message of value.messages || []) {
+        if (message.type !== "text" || !message.from || !message.id) continue;
+        const phone = "+" + String(message.from).replace(/\D/g, "");
+        const { data: command, error: commandError } = await db.rpc("handle_inbound_command", {
+          p_provider: "whatsapp", p_provider_msg_id: message.id, p_sender_phone: phone,
+          p_channel: "whatsapp", p_body: message.text?.body || "", p_raw: message,
+        });
+        if (commandError) throw new Error("Command persistence failed");
+        if (command?.reply_text) {
+          const reply = await routeAndSendWhatsApp(db, { purpose: "offline_refill_reply",
+            recipientPhone: phone, commandId: message.id, bodyText: command.reply_text,
+            replyProfileId: profile.id, replyPhoneNumberId: value.metadata.phone_number_id });
+          if (reply.state === "failed" && reply.retryable) throw new Error("Reply temporarily unavailable");
         }
       }
-
-      if (isVerified) {
-        return new Response(challenge ?? "", { status: 200 });
-      }
     }
-    return new Response("Forbidden", { status: 403 });
-  }
-
-  if (req.method !== "POST") {
-    return json({ error: "method_not_allowed" }, 405);
-  }
-
-  // 2. IP Rate Limiter (60 requests / minute)
-  const xForwardedFor = req.headers.get("x-forwarded-for");
-  const clientIp = xForwardedFor
-    ? xForwardedFor.split(",")[0].trim()
-    : req.headers.get("x-real-ip") || "unknown_ip";
-
-  try {
-    const { data: limitRes } = await supabase.rpc("consume_rate_limit", {
-      p_bucket: "webhook_ip",
-      p_key: clientIp,
-      p_capacity: 60,
-      p_refill_per_minute: 60.0,
-    });
-    if (limitRes && limitRes.length > 0 && limitRes[0]?.allowed === false) {
-      const retryAfter = limitRes[0]?.retry_after_seconds ?? 60;
-      return json({ code: "rate_limited", bucket: "webhook_ip", retry_after: retryAfter }, 429);
-    }
+    return json({ received: true });
   } catch (_) {
-    // Non-fatal if rate limiting table not configured
+    // Meta retries failures. Never acknowledge a failed persistence operation.
+    return json({ error: "webhook_processing_unavailable" }, 503);
   }
-
-  // 3. Webhook Signature Check
-  const raw = await req.text();
-  const signatureHeader = req.headers.get("x-hub-signature-256") ?? "";
-
-  let appSecret = WABA_APP_SECRET;
-  if (!appSecret) {
-    // Attempt lookup from active Meta profiles in DB
-    const { data: metaProfile } = await supabase
-      .from("whatsapp_provider_profiles")
-      .select("id, connection_metadata")
-      .eq("provider_kind", "meta_cloud")
-      .maybeSingle();
-
-    if (metaProfile?.connection_metadata?.app_secret_vault_id) {
-      const { data: secret } = await supabase.rpc("get_internal_secret", {
-        p_name: `wa_meta_app_secret_${metaProfile.id}`,
-      });
-      if (secret) appSecret = secret;
-    }
-  }
-
-  if (appSecret) {
-    const expected = "sha256=" + await hmacSha256Hex(appSecret, raw);
-    if (!safeEqual(signatureHeader, expected)) {
-      console.error("waba-webhook: signature mismatch");
-      return json({ error: "bad_signature" }, 401);
-    }
-  } else {
-    console.warn("waba-webhook: WABA_APP_SECRET unset — skipping signature check");
-  }
-
-  let payload: any;
-  try {
-    payload = JSON.parse(raw);
-  } catch (_) {
-    return json({ error: "bad_json" }, 400);
-  }
-
-  const results: unknown[] = [];
-
-  try {
-    const entries = Array.isArray(payload?.entry) ? payload.entry : [];
-    for (const entry of entries) {
-      const changes = Array.isArray(entry?.changes) ? entry.changes : [];
-      for (const change of changes) {
-        const value = change?.value ?? {};
-        const receivingPhoneNumberId = value?.metadata?.phone_number_id;
-
-        // A. Handle Status Updates (sent, delivered, read, failed)
-        const statuses = Array.isArray(value?.statuses) ? value.statuses : [];
-        for (const st of statuses) {
-          const providerMsgId = st.id;
-          const statusVal = st.status; // 'sent' | 'delivered' | 'read' | 'failed'
-          if (!providerMsgId || !statusVal) continue;
-
-          let normalizedState: "sent" | "delivered" | "failed" | null = null;
-          if (statusVal === "delivered" || statusVal === "read") {
-            normalizedState = "delivered";
-          } else if (statusVal === "sent") {
-            normalizedState = "sent";
-          } else if (statusVal === "failed") {
-            normalizedState = "failed";
-          }
-
-          if (normalizedState) {
-            const updatePayload: Record<string, any> = {
-              state: normalizedState,
-              updated_at: new Date().toISOString(),
-            };
-            if (normalizedState === "delivered") {
-              updatePayload.delivered_at = new Date().toISOString();
-            }
-            if (normalizedState === "failed" && st.errors && st.errors.length > 0) {
-              updatePayload.error_category = "meta_delivery_failed";
-              updatePayload.error_detail = JSON.stringify(st.errors[0]).slice(0, 500);
-            }
-
-            // Monotonic state update: only update if not already delivered
-            await supabase
-              .from("whatsapp_message_attempts")
-              .update(updatePayload)
-              .eq("provider_message_id", providerMsgId)
-              .neq("state", "delivered");
-          }
-        }
-
-        // B. Handle Inbound Messages & Offline Refill Commands
-        const messages = Array.isArray(value?.messages) ? value.messages : [];
-        for (const msg of messages) {
-          if (msg?.type && msg.type !== "text") continue;
-          const from: string | undefined = msg?.from;
-          const msgId: string | undefined = msg?.id;
-          const bodyText: string | undefined = msg?.text?.body;
-          if (!from || !msgId) continue;
-
-          const senderPhone = "+" + from.replace(/\D/g, "");
-
-          // 1. Process command via handle_inbound_command RPC
-          const { data: commandResult, error: commandErr } = await supabase.rpc(
-            "handle_inbound_command",
-            {
-              p_provider: "whatsapp",
-              p_provider_msg_id: msgId,
-              p_sender_phone: senderPhone,
-              p_channel: "whatsapp",
-              p_body: bodyText ?? "",
-              p_raw: msg,
-            },
-          );
-
-          if (commandErr) {
-            console.error("handle_inbound_command error:", commandErr);
-            results.push({ error: commandErr.message });
-            continue;
-          }
-
-          // 2. Dispatch reply preserving the exact receiving Meta sender (Phone Number ID)
-          const replyText = commandResult?.reply_text;
-          if (typeof replyText === "string" && replyText.trim().length > 0) {
-            const replyOutcome = await routeAndSendWhatsApp(supabase, {
-              purpose: "offline_refill_reply",
-              recipientPhone: senderPhone,
-              bodyText: replyText,
-              commandId: msgId,
-              replyPhoneNumberId: receivingPhoneNumberId, // Strict conversation sender affinity
-            });
-            results.push({ commandResult, replyOutcome });
-          } else {
-            results.push({ commandResult });
-          }
-        }
-      }
-    }
-  } catch (e: any) {
-    console.error("waba-webhook processing error:", e);
-  }
-
-  return json({ received: true, results }, 200);
 });

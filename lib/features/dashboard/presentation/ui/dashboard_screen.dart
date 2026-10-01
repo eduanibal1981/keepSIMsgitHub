@@ -13,9 +13,9 @@ import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/core/services/connectivity_service.dart';
 import 'package:keep_sims/core/providers.dart';
 import 'package:keep_sims/features/auth/controller/auth_controller.dart';
-import 'package:keep_sims/features/auth/model/auth_model.dart';
 import 'package:keep_sims/features/dashboard/presentation/controller/dashboard_controller.dart';
-import 'package:intl/intl.dart';
+import 'package:keep_sims/features/dashboard/presentation/widgets/sim_protection_hero_card.dart';
+import 'package:keep_sims/features/dashboard/presentation/widgets/dashboard_feature_cards.dart';
 
 import 'package:keep_sims/core/widgets/shimmer_loading.dart';
 import 'package:keep_sims/core/widgets/error_state.dart';
@@ -216,20 +216,43 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
               // ── Header Row ──────────────────────────────────────────
               _buildHeader(context, ref, welcomeName, isPowerUser),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
 
-              // ── "At a Glance" Glassmorphic Hero Card ──────────────────
-              _buildHeroCard(context, profile.preferredCurrency, data, profile),
-              const SizedBox(height: 28),
-
-              // ── I3: carrier-targeted offer, if one is live for this user ──
-              // Renders nothing when there is no campaign, so it costs an
-              // ordinary dashboard one SizedBox.
-              const PromoBanner(),
+              // ── SIM Protection Hero Card ─────────────────────────────
+              SimProtectionHeroCard(
+                lineCount: ref.watch(simLinesControllerProvider).value?.length ??
+                    data.totalLines,
+                onManageSims: () async {
+                  await HapticHelper.lightTick();
+                  if (!context.mounted) return;
+                  final lines = ref.read(simLinesControllerProvider).value;
+                  final lineCount = lines?.length ?? data.totalLines;
+                  if (lineCount == 0) {
+                    context.push('${AppRoutes.simLines}/add');
+                  } else {
+                    context.go(AppRoutes.simLines);
+                  }
+                },
+              ),
+              const SizedBox(height: 12),
+              DashboardFeatureCards(
+                onSmartCall: () async {
+                  await HapticHelper.lightTick();
+                  if (context.mounted) context.push(AppRoutes.calling);
+                },
+                onEsims: () async {
+                  await HapticHelper.lightTick();
+                  if (context.mounted) context.push(AppRoutes.esim);
+                },
+              ),
+              const SizedBox(height: 16),
 
               // ── Protected SIM Line Health Cards ─────────────────────
               _buildHealthSection(context, ref, profile.id),
               const SizedBox(height: 28),
+
+              // Keep campaign offers below the SIM lines.
+              const PromoBanner(),
 
               // ── Quick Actions ───────────────────────────────────────
               _buildQuickActionsSection(context, profile),
@@ -912,401 +935,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             Icon(
               Icons.chevron_right,
               color: isLight ? Colors.black26 : Colors.white30,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ── Hero Card Widget ────────────────────────────────────────────
-  void _showHeroCardActionSheet(BuildContext context, String topUpId) {
-    final isLight = Theme.of(context).brightness == Brightness.light;
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (context) {
-        return Container(
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: isLight ? AppColors.lightSurface : AppColors.darkSurface,
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(28),
-              topRight: Radius.circular(28),
-            ),
-            border: Border(
-              top: BorderSide(
-                color: isLight ? AppColors.lightBorder : AppColors.darkBorder,
-                width: 1.5,
-              ),
-            ),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 48,
-                  height: 4,
-                  margin: const EdgeInsets.only(bottom: 20),
-                  decoration: BoxDecoration(
-                    color: isLight
-                        ? AppColors.lightBorder
-                        : AppColors.darkBorder,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              Text(
-                'Line Action',
-                style: AppTextStyles.headlineMedium.copyWith(
-                  color: isLight
-                      ? AppColors.textPrimaryLight
-                      : AppColors.textPrimaryDark,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'What would you like to do?',
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: isLight
-                      ? AppColors.textSecondaryLight
-                      : AppColors.textSecondaryDark,
-                ),
-              ),
-              const SizedBox(height: 24),
-              _buildHelpBulletPoint(
-                context,
-                Icons.sim_card_outlined,
-                'Open nearest top-up line',
-                onTap: () {
-                  Navigator.pop(context);
-                  context.push('${AppRoutes.simLines}/detail/$topUpId');
-                },
-              ),
-              const SizedBox(height: 10),
-              _buildHelpBulletPoint(
-                context,
-                Icons.add_circle_outline,
-                'Protect new line',
-                onTap: () {
-                  Navigator.pop(context);
-                  context.push('${AppRoutes.simLines}/add');
-                },
-              ),
-              const SizedBox(height: 28),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildHeroCard(
-    BuildContext context,
-    String currency,
-    DashboardState data,
-    UserProfile profile,
-  ) {
-    final bool isPremium = profile.isPowerUser;
-    final bool isDark = Theme.of(context).brightness == Brightness.dark;
-
-    final int nextTopUpMinutes = data.nextTopUpDate != null
-        ? data.nextTopUpDate!.difference(DateTime.now()).inMinutes.clamp(0, 60)
-        : 0;
-    final bool isHourlyMode =
-        data.nextTopUpTotalDays == 0 && data.nextTopUpId != null;
-
-    // Format the next top-up date
-    final DateTime dueDate =
-        data.nextTopUpDate ??
-        DateTime.now().add(Duration(days: data.nextTopUpDays));
-    final String formattedDate = data.nextTopUpDate != null
-        ? (isHourlyMode
-              ? DateFormat('MMMM dd, yyyy HH:mm').format(dueDate)
-              : DateFormat('MMMM dd, yyyy').format(dueDate))
-        : 'No Line Configuration';
-
-    final double progress = data.nextTopUpDate != null
-        ? (data.nextTopUpTotalDays > 0
-              ? (data.nextTopUpDays / data.nextTopUpTotalDays).clamp(0.0, 1.0)
-              : (isHourlyMode
-                    ? (nextTopUpMinutes / 60.0).clamp(0.0, 1.0)
-                    : 1.0))
-        : 0.0;
-
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.darkCard : AppColors.lightCard,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-          width: 1.5,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: context.primaryColor.withValues(alpha: isDark ? 0.08 : 0.04),
-            blurRadius: 24,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(24),
-        child: Stack(
-          children: [
-            // Decorative background glowing circular elements
-            Positioned(
-              right: -30,
-              top: -30,
-              child: Container(
-                width: 150,
-                height: 150,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.success.withValues(
-                    alpha: isDark ? 0.02 : 0.01,
-                  ),
-                ),
-              ),
-            ),
-
-            // Splash & InkWell tap area
-            Positioned.fill(
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: () async {
-                    await HapticHelper.mediumImpact();
-                    if (!context.mounted) return;
-                    if (data.nextTopUpId != null) {
-                      _showHeroCardActionSheet(context, data.nextTopUpId!);
-                    } else {
-                      context.push('${AppRoutes.simLines}/add');
-                    }
-                  },
-                  splashColor: context.onSurfaceColor.withValues(alpha: 0.05),
-                  highlightColor: context.onSurfaceColor.withValues(
-                    alpha: 0.02,
-                  ),
-                ),
-              ),
-            ),
-
-            // Card content layout
-            Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      // Left Side - Circular Ring Progress Indicator
-                      Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          SizedBox(
-                            width: 82,
-                            height: 82,
-                            child: CircularProgressIndicator(
-                              value: progress,
-                              strokeWidth: 7,
-                              backgroundColor: context.onSurfaceColor
-                                  .withValues(alpha: 0.08),
-                              valueColor: const AlwaysStoppedAnimation<Color>(
-                                AppColors.success,
-                              ),
-                            ),
-                          ),
-                          Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                data.nextTopUpDate != null
-                                    ? (isHourlyMode
-                                          ? '$nextTopUpMinutes'
-                                          : '${data.nextTopUpDays}')
-                                    : '0',
-                                style: AppTextStyles.headlineMedium.copyWith(
-                                  color: context.onSurfaceColor,
-                                  fontWeight: FontWeight.w900,
-                                  height: 1.1,
-                                ),
-                              ),
-                              Text(
-                                isHourlyMode
-                                    ? 'mins'
-                                    : AppLocalizations.of(context)!.days,
-                                style: AppTextStyles.caption.copyWith(
-                                  color: isDark
-                                      ? AppColors.textSecondaryDark
-                                      : AppColors.textSecondaryLight,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      const SizedBox(width: 24),
-
-                      // Right Side - SIM line info & dates
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    isPremium
-                                        ? 'NEXT TOP-UP'
-                                        : AppLocalizations.of(
-                                            context,
-                                          )!.nextNotify,
-                                    style: AppTextStyles.labelSmall.copyWith(
-                                      color: isDark
-                                          ? AppColors.textSecondaryDark
-                                          : AppColors.textSecondaryLight,
-                                      fontWeight: FontWeight.bold,
-                                      letterSpacing: 1.2,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                if (data.nextTopUpDate != null)
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                      vertical: 4,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.success.withValues(
-                                        alpha: 0.15,
-                                      ),
-                                      borderRadius: BorderRadius.circular(6),
-                                    ),
-                                    child: Text(
-                                      AppLocalizations.of(context)!.active,
-                                      style: AppTextStyles.labelSmall.copyWith(
-                                        color: AppColors.success,
-                                        fontWeight: FontWeight.w800,
-                                      ),
-                                    ),
-                                  ),
-                              ],
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              formattedDate,
-                              style: AppTextStyles.headlineSmall.copyWith(
-                                color: context.onSurfaceColor,
-                                fontWeight: FontWeight.w800,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              data.nextTopUpDate != null
-                                  ? (data.nextTopUpNickname != null
-                                        ? '${data.nextTopUpNickname} • ${data.nextTopUpPhone}'
-                                        : '${data.nextTopUpPhone}')
-                                  : 'Add or configure a SIM line',
-                              style: AppTextStyles.bodyMedium.copyWith(
-                                color: isDark
-                                    ? AppColors.textSecondaryDark
-                                    : AppColors.textSecondaryLight,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  Divider(
-                    color: isDark
-                        ? AppColors.darkBorder
-                        : AppColors.lightBorder,
-                    height: 1,
-                    thickness: 1.2,
-                  ),
-                  const SizedBox(height: 14),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Click "Showing nearest line" -> Open Protection Console of nearest line needing refill/notify
-                      GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () async {
-                          await HapticHelper.lightTick();
-                          if (!context.mounted) return;
-                          if (data.nextTopUpId != null) {
-                            context.push(
-                              '${AppRoutes.simLines}/detail/${data.nextTopUpId}',
-                            );
-                          } else if (data.totalLines > 0) {
-                            context.push(AppRoutes.simLines);
-                          } else {
-                            context.push('${AppRoutes.simLines}/add');
-                          }
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 4,
-                            horizontal: 2,
-                          ),
-                          child: Text(
-                            AppLocalizations.of(context)!.showingNearestLine,
-                            style: AppTextStyles.caption.copyWith(
-                              color:
-                                  (isDark
-                                          ? AppColors.textSecondaryDark
-                                          : AppColors.textSecondaryLight)
-                                      .withValues(alpha: 0.7),
-                            ),
-                          ),
-                        ),
-                      ),
-                      // Click "X lines" -> Go to SIMs Page
-                      GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () async {
-                          await HapticHelper.lightTick();
-                          if (!context.mounted) return;
-                          context.push(AppRoutes.simLines);
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 4,
-                            horizontal: 2,
-                          ),
-                          child: Text(
-                            data.totalLines == 1
-                                ? '1 line'
-                                : '${data.totalLines} lines',
-                            style: AppTextStyles.caption.copyWith(
-                              color: context.onSurfaceColor,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
             ),
           ],
         ),

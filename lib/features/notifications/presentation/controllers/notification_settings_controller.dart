@@ -228,6 +228,7 @@ class NotificationChannelsController extends _$NotificationChannelsController {
       );
     } catch (_) {
       ref.invalidateSelf();
+      rethrow;
     }
   }
 
@@ -258,6 +259,7 @@ class NotificationChannelsController extends _$NotificationChannelsController {
       );
     } catch (_) {
       ref.invalidateSelf();
+      rethrow;
     }
   }
 }

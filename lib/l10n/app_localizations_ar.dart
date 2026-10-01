@@ -9,6 +9,48 @@ class AppLocalizationsAr extends AppLocalizations {
   AppLocalizationsAr([String locale = 'ar']) : super(locale);
 
   @override
+  String get dashboardKeepSimActive => 'أبقِ شريحتك نشطة';
+
+  @override
+  String get dashboardProtectSimLines => 'احمِ خطوط شرائحك';
+
+  @override
+  String get dashboardManageReminders => 'إدارة التذكيرات وإعادة الشحن';
+
+  @override
+  String get dashboardManageSims => 'إدارة الشرائح';
+
+  @override
+  String dashboardSimLineCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count خط شريحة',
+      many: '$count خط شريحة',
+      few: '$count خطوط شرائح',
+      two: 'خطّا شريحتين',
+      one: 'خط شريحة واحد',
+      zero: 'لا توجد خطوط شرائح',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get dashboardNewFeature => 'جديد';
+
+  @override
+  String get dashboardWorldwideEsims => 'شرائح eSIM عالمية';
+
+  @override
+  String get dashboardExploreSmartCall => 'اكتشف الاتصال الذكي';
+
+  @override
+  String get dashboardExploreGlobalOffers => 'اكتشف العروض العالمية';
+
+  @override
+  String get dashboardAddSims => 'إضافة شرائح';
+
+  @override
   String get appName => 'KeepSIMs';
 
   @override

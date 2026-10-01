@@ -108,3 +108,9 @@ key.properties
 testsprite_tests\tmp\config.json
 # Widget Preview related
 .widget_preview/
+
+# Build and release output archives / binaries
+*.apk
+*.aab
+*.zip
+output/notification-fix-*/

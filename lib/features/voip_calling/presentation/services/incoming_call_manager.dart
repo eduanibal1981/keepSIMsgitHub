@@ -27,11 +27,14 @@ class IncomingCallManager {
   final Ref _ref;
   final VoipCallkitService _callkit = VoipCallkitService();
   final Set<String> _presentedCallIds = {};
+  final Set<String> _answeringCallIds = {};
   StreamSubscription<RemoteMessage>? _fcmSub;
   StreamSubscription<AuthState>? _authSub;
   RealtimeChannel? _realtimeChannel;
   RouterConfig<Object>? _router;
+  AppLifecycleListener? _lifecycleListener;
   bool _isInitialized = false;
+  DateTime? _lastVoipNavigationTime;
 
   IncomingCallManager(this._ref);
 
@@ -40,6 +43,14 @@ class IncomingCallManager {
   }
 
   void _navigateToCall([String? callId]) {
+    final now = DateTime.now();
+    if (_lastVoipNavigationTime != null &&
+        now.difference(_lastVoipNavigationTime!) < const Duration(milliseconds: 1200)) {
+      debugPrint('[IncomingCallManager] Debouncing duplicate navigateToCall within 1200ms');
+      return;
+    }
+    _lastVoipNavigationTime = now;
+
     final route = callId != null && callId.isNotEmpty
         ? '${AppRoutes.voipCall}/$callId'
         : AppRoutes.voipCall;
@@ -74,18 +85,29 @@ class IncomingCallManager {
     final callerPhone = callData['callerPhone'];
 
     debugPrint('[IncomingCallManager] Fast launch with accepted call: $callId');
+    if (_answeringCallIds.contains(callId)) {
+      debugPrint('[IncomingCallManager] Fast launch call $callId already answering, skipping duplicate');
+      _navigateToCall(callId);
+      return;
+    }
+    _answeringCallIds.add(callId);
+
     _ref.read(splashCompletedProvider.notifier).complete();
 
     // Start background listeners (CallKit, FCM, Realtime)
     unawaited(initialize());
 
     // Answer call immediately
-    await _ref.read(voipCallingControllerProvider.notifier).answerCall(
-          callId: callId,
-          callerName: callerName,
-          callerAvatar: callerAvatar?.isNotEmpty == true ? callerAvatar : null,
-          callerPhone: callerPhone?.isNotEmpty == true ? callerPhone : null,
-        );
+    try {
+      await _ref.read(voipCallingControllerProvider.notifier).answerCall(
+            callId: callId,
+            callerName: callerName,
+            callerAvatar: callerAvatar?.isNotEmpty == true ? callerAvatar : null,
+            callerPhone: callerPhone?.isNotEmpty == true ? callerPhone : null,
+          );
+    } finally {
+      _answeringCallIds.remove(callId);
+    }
 
     _navigateToCall(callId);
   }
@@ -95,6 +117,13 @@ class IncomingCallManager {
     if (_isInitialized) return;
     _isInitialized = true;
 
+    _lifecycleListener = AppLifecycleListener(
+      onDetach: () {
+        debugPrint('[IncomingCallManager] App detached, clearing active native calls');
+        FlutterCallkitIncoming.endAllCalls();
+      },
+    );
+
     _callkit.startListening();
 
     _callkit.onCallAccepted = (callId) async {
@@ -102,10 +131,20 @@ class IncomingCallManager {
       _presentedCallIds.remove(callId);
       _ref.read(splashCompletedProvider.notifier).complete();
 
+      if (_answeringCallIds.contains(callId)) {
+        debugPrint('[IncomingCallManager] Call $callId already answering, navigating directly');
+        _navigateToCall(callId);
+        return;
+      }
+      _answeringCallIds.add(callId);
+
       final currentCallState = _ref.read(voipCallingControllerProvider);
       if (currentCallState.isActive && currentCallState.callId == callId) {
-        debugPrint('[IncomingCallManager] Call $callId already active in controller; navigating directly');
-        _navigateToCall(callId);
+        debugPrint('[IncomingCallManager] Call $callId already active in controller');
+        _answeringCallIds.remove(callId);
+        if (!currentCallState.isOutgoing) {
+          _navigateToCall(callId);
+        }
         return;
       }
 
@@ -116,21 +155,26 @@ class IncomingCallManager {
               peerName: 'Sarah Connor',
               peerPhone: '+1 555-0199',
             );
+        _answeringCallIds.remove(callId);
         _navigateToCall(callId);
         return;
       }
 
-      final repo = _ref.read(voipCallingRepositoryProvider);
-      final session = await repo.getCallSession(callId);
+      try {
+        final repo = _ref.read(voipCallingRepositoryProvider);
+        final session = await repo.getCallSession(callId);
 
-      await _ref
-          .read(voipCallingControllerProvider.notifier)
-          .answerCall(
-            callId: callId,
-            callerName: session?.peerName ?? 'KeepSIMs Caller',
-            callerAvatar: session?.peerAvatarUrl,
-            callerPhone: session?.peerPhone,
-          );
+        await _ref
+            .read(voipCallingControllerProvider.notifier)
+            .answerCall(
+              callId: callId,
+              callerName: session?.peerName ?? 'KeepSIMs Caller',
+              callerAvatar: session?.peerAvatarUrl,
+              callerPhone: session?.peerPhone,
+            );
+      } finally {
+        _answeringCallIds.remove(callId);
+      }
 
       _navigateToCall(callId);
     };
@@ -167,10 +211,17 @@ class IncomingCallManager {
       _presentedCallIds.remove(callId);
       if (callId.startsWith('mock-call-')) return;
       final currentCallState = _ref.read(voipCallingControllerProvider);
-      if (currentCallState.isActive && currentCallState.callId == callId) {
+      // Only end call from native CallKit if call was actually connected.
+      // On Android, accepting an incoming call finishes the incoming Activity,
+      // which sends a spurious ACTION_CALL_ENDED event while the call is still 'connecting'.
+      if (currentCallState.status == 'connected' && currentCallState.callId == callId) {
         await _ref
             .read(voipCallingControllerProvider.notifier)
             .endCall(status: 'completed', reason: 'native_hangup');
+      } else {
+        debugPrint(
+          '[IncomingCallManager] Ignoring CallKit end event for $callId while state is ${currentCallState.status}',
+        );
       }
     };
 
@@ -185,6 +236,12 @@ class IncomingCallManager {
           continue;
         }
         if (call.isAccepted) {
+          if (_answeringCallIds.contains(call.id)) {
+            debugPrint('[IncomingCallManager] Call ${call.id} already being answered; skipping duplicate recovery');
+            _navigateToCall(call.id);
+            break;
+          }
+
           final currentCallState = _ref.read(voipCallingControllerProvider);
           if (currentCallState.isActive && currentCallState.callId == call.id) {
             debugPrint('[IncomingCallManager] Call ${call.id} already active in controller; skipping duplicate recovery');
@@ -192,34 +249,39 @@ class IncomingCallManager {
             break;
           }
 
-          final repo = _ref.read(voipCallingRepositoryProvider);
-          final session = await repo.getCallSession(call.id);
-          if (session == null ||
-              session.status == 'ended' ||
-              session.status == 'completed' ||
-              session.status == 'declined' ||
-              session.status == 'timeout' ||
-              session.status == 'failed') {
-            debugPrint('[IncomingCallManager] Call ${call.id} is already in terminal status (${session?.status}); clearing native CallKit');
-            await FlutterCallkitIncoming.endCall(call.id);
-            continue;
+          _answeringCallIds.add(call.id);
+          try {
+            final repo = _ref.read(voipCallingRepositoryProvider);
+            final session = await repo.getCallSession(call.id);
+            if (session == null ||
+                session.status == 'ended' ||
+                session.status == 'completed' ||
+                session.status == 'declined' ||
+                session.status == 'timeout' ||
+                session.status == 'failed') {
+              debugPrint('[IncomingCallManager] Call ${call.id} is already in terminal status (${session?.status}); clearing native CallKit');
+              await FlutterCallkitIncoming.endCall(call.id);
+              continue;
+            }
+
+            debugPrint('[IncomingCallManager] Recovering accepted CallKit call: ${call.id}');
+            _ref.read(splashCompletedProvider.notifier).complete();
+
+            await _ref
+                .read(voipCallingControllerProvider.notifier)
+                .answerCall(
+                  callId: call.id,
+                  callerName:
+                      session.peerName ?? call.nameCaller ?? 'KeepSIMs Caller',
+                  callerAvatar: session.peerAvatarUrl ?? call.avatar,
+                  callerPhone: session.peerPhone ?? call.handle,
+                );
+
+            _navigateToCall(call.id);
+            break;
+          } finally {
+            _answeringCallIds.remove(call.id);
           }
-
-          debugPrint('[IncomingCallManager] Recovering accepted CallKit call: ${call.id}');
-          _ref.read(splashCompletedProvider.notifier).complete();
-
-          await _ref
-              .read(voipCallingControllerProvider.notifier)
-              .answerCall(
-                callId: call.id,
-                callerName:
-                    session.peerName ?? call.nameCaller ?? 'KeepSIMs Caller',
-                callerAvatar: session.peerAvatarUrl ?? call.avatar,
-                callerPhone: session.peerPhone ?? call.handle,
-              );
-
-          _navigateToCall(call.id);
-          break;
         }
       }
     } catch (e) {
@@ -420,6 +482,8 @@ class IncomingCallManager {
   }
 
   void dispose() {
+    _lifecycleListener?.dispose();
+    _lifecycleListener = null;
     _fcmSub?.cancel();
     _authSub?.cancel();
     _realtimeChannel?.unsubscribe();

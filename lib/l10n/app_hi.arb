@@ -1,5 +1,15 @@
 {
     "@@locale": "hi",
+    "dashboardKeepSimActive": "सिम सक्रिय रखें",
+    "dashboardProtectSimLines": "अपनी सिम लाइनों को सुरक्षित रखें",
+    "dashboardManageReminders": "रिमाइंडर और रिचार्ज प्रबंधित करें",
+    "dashboardManageSims": "सिम प्रबंधित करें",
+    "dashboardSimLineCount": "{count, plural, one{1 सिम लाइन} other{{count} सिम लाइनें}}",
+    "dashboardNewFeature": "नया",
+    "dashboardWorldwideEsims": "दुनियाभर की eSIM",
+    "dashboardExploreSmartCall": "स्मार्ट कॉल देखें",
+    "dashboardExploreGlobalOffers": "वैश्विक ऑफ़र देखें",
+    "dashboardAddSims": "सिम जोड़ें",
     "appName":  "KeepSIMs",
     "@appName": {
         "description": "The name of the application"

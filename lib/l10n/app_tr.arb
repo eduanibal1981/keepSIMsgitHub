@@ -1,5 +1,15 @@
 {
     "@@locale": "tr",
+    "dashboardKeepSimActive": "SIM'İNİ AKTİF TUT",
+    "dashboardProtectSimLines": "SIM hatlarını koru",
+    "dashboardManageReminders": "Hatırlatmaları ve yüklemeleri yönet",
+    "dashboardManageSims": "SIM'leri yönet",
+    "dashboardSimLineCount": "{count, plural, one{1 SIM hattı} other{{count} SIM hattı}}",
+    "dashboardNewFeature": "YENİ",
+    "dashboardWorldwideEsims": "Dünya çapında eSIM",
+    "dashboardExploreSmartCall": "Smart Call'u keşfet",
+    "dashboardExploreGlobalOffers": "Küresel teklifleri keşfet",
+    "dashboardAddSims": "SIM ekle",
     "appName":  "KeepSIMs",
     "@appName": {
         "description": "The name of the application"
