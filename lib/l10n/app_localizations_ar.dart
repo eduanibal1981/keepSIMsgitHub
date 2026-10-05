@@ -3105,4 +3105,103 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get inspector => 'الفاحص';
+
+  @override
+  String fxChargesInUsd(String currency) {
+    return 'مبالغ $currency تقريبية. تُحتسب الرسوم بالدولار الأمريكي.';
+  }
+
+  @override
+  String get fxCurrencySaveFailed =>
+      'تعذّر حفظ عملة العرض. يرجى المحاولة مرة أخرى.';
+
+  @override
+  String get fxAnnualProtectionFee => 'رسوم الحماية السنوية';
+
+  @override
+  String get profileNotifications => 'الإشعارات';
+
+  @override
+  String get profileWhatsAppNumber => 'رقم واتساب';
+
+  @override
+  String get profileTitle => 'ملفي الشخصي';
+
+  @override
+  String get profilePersonalAccount => 'حساب شخصي';
+
+  @override
+  String get profileContactDetails => 'بيانات التواصل';
+
+  @override
+  String get profileNotificationEmail => 'بريد الإشعارات';
+
+  @override
+  String get profileCheckStatus => 'تحقق من الحالة';
+
+  @override
+  String get profileVerified => 'تم التحقق';
+
+  @override
+  String get profileVerify => 'تحقق';
+
+  @override
+  String get profileSavedStatus => 'محفوظ';
+
+  @override
+  String get profileAddNumber => 'أضف رقمًا';
+
+  @override
+  String get profileLoadFailed => 'تعذر تحميل هذه البيانات.';
+
+  @override
+  String get profilePreferences => 'التفضيلات';
+
+  @override
+  String get profilePreferredLanguage => 'اللغة المفضلة';
+
+  @override
+  String get profileTimeZone => 'المنطقة الزمنية';
+
+  @override
+  String get profileDeviceTimeZoneHint =>
+      'تتبع الأوقات المنطقة الزمنية لهذا الجهاز. غيّر إعدادات جهازك لتحديثها.';
+
+  @override
+  String get profileCurrency => 'العملة';
+
+  @override
+  String get profileCurrencyHint =>
+      'اختر العملة لعرض الأسعار التقديرية. تُحصّل المدفوعات بالدولار الأمريكي.';
+
+  @override
+  String get profileCurrencyUnavailable =>
+      'تُعرض الأسعار بالدولار حتى تتوفر العملة المختارة.';
+
+  @override
+  String get profileAccount => 'الحساب';
+
+  @override
+  String get profileSavedSims => 'الشرائح المحفوظة';
+
+  @override
+  String get profileEdit => 'تعديل الملف الشخصي';
+
+  @override
+  String get profileFullName => 'الاسم الكامل';
+
+  @override
+  String get profileHomeCountry => 'البلد الأم';
+
+  @override
+  String get profileNameRequired => 'أدخل اسمك.';
+
+  @override
+  String get profileCountryRequired => 'اختر بلدك.';
+
+  @override
+  String get profileSaveFailed => 'تعذر حفظ التغييرات. حاول مجددًا.';
+
+  @override
+  String get profileSaved => 'تم تحديث الملف الشخصي.';
 }

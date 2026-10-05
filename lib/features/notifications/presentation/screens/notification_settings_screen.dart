@@ -12,9 +12,10 @@ import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import 'package:keep_sims/core/utils/build_context_extension.dart';
 import 'package:keep_sims/l10n/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
 import 'package:keep_sims/features/notifications/data/repositories/notifications_repository_impl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:keep_sims/features/notifications/presentation/widgets/alert_preferences_dashboard.dart';
+import 'package:keep_sims/features/notifications/data/models/channel_destination.dart';
 
 class NotificationSettingsScreen extends ConsumerWidget {
   const NotificationSettingsScreen({super.key});
@@ -130,185 +131,180 @@ class NotificationSettingsScreen extends ConsumerWidget {
   static const List<String> _perCategoryChannels = ['push', 'email'];
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final alertSettingsAsync = ref.watch(alertSettingsControllerProvider);
-    final userPrefsAsync = ref.watch(userPreferencesControllerProvider);
-    final channelsAsync = ref.watch(notificationChannelsControllerProvider);
-    final userAsync = ref.watch(authControllerProvider);
-    final isDark = context.isDarkMode;
-
-    return Scaffold(
+  Widget build(BuildContext context, WidgetRef ref) => Scaffold(
+    backgroundColor: context.scaffoldBackgroundColor,
+    appBar: AppBar(
       backgroundColor: context.scaffoldBackgroundColor,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_rounded, color: context.onSurfaceColor),
-          onPressed: () async {
-            await HapticHelper.lightTick();
-            if (context.mounted) {
-              Navigator.pop(context);
-            }
+      title: const Text(
+        'Alert preferences',
+        style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
+      ),
+    ),
+    body: AlertPreferencesDashboard(
+      onChannel: (type) => showChannelSheet(context, type),
+      onTiming: (weekly) => _openSheet(
+        context,
+        weekly ? 'Weekly summary' : 'Quiet hours',
+        Consumer(
+          builder: (context, ref, _) {
+            return ref
+                .watch(userPreferencesControllerProvider)
+                .when(
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
+                  error: (_, _) => Column(
+                    children: [
+                      const Text('Your settings could not be saved or loaded.'),
+                      TextButton(
+                        onPressed: () =>
+                            ref.invalidate(userPreferencesControllerProvider),
+                        child: const Text('Retry'),
+                      ),
+                    ],
+                  ),
+                  data: (prefs) => _buildQuietHoursCard(
+                    context,
+                    ref,
+                    prefs,
+                    weeklyOnly: weekly,
+                  ),
+                );
           },
         ),
-        title: Text(
-          AppLocalizations.of(context)!.alertSettingsTitle,
-          style: AppTextStyles.headlineMedium.copyWith(
-            color: context.onSurfaceColor,
-          ),
+      ),
+      onAlertTypes: () => _openSheet(
+        context,
+        'Alert types & price watches',
+        Consumer(
+          builder: (context, ref, _) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ref
+                    .watch(alertSettingsControllerProvider)
+                    .when(
+                      data: (settings) => _buildIncidentChannels(
+                        context,
+                        ref,
+                        settings,
+                        ref
+                                .watch(notificationChannelsControllerProvider)
+                                .value ??
+                            [],
+                      ),
+                      loading: () =>
+                          const Center(child: CircularProgressIndicator()),
+                      error: (_, _) =>
+                          const Text('Could not load alert types.'),
+                    ),
+                _buildSectionHeader(context, 'Price watch'),
+                _buildPriceWatchEntry(context),
+              ],
+            );
+          },
         ),
       ),
-      body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.only(bottom: 40),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Do Not Disturb / Quiet Hours Preferences Card
-            _buildSectionHeader(
-              context,
-              AppLocalizations.of(context)!.quietHoursSchedule,
-            ),
-            userPrefsAsync.when(
-              data: (prefs) => _buildQuietHoursCard(context, ref, prefs),
-              loading: () => Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: CircularProgressIndicator(color: context.primaryColor),
-                ),
-              ),
-              error: (err, _) => const SizedBox.shrink(),
-            ),
+    ),
+  );
 
-            const SizedBox(height: 16),
-
-            // Alert Delivery Channels Highlighted Container
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: Colors.orange.withValues(alpha: isDark ? 0.08 : 0.04),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: Colors.orange.withValues(alpha: isDark ? 0.3 : 0.25),
-                  width: 1.5,
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          AppLocalizations.of(context)!.alertChannels,
-                          style: AppTextStyles.labelMedium.copyWith(
-                            color: Colors.orange.shade700,
-                            letterSpacing: 1.2,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 3,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.orange.withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: Colors.orange.withValues(alpha: 0.3),
-                              width: 1,
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.star_rounded,
-                                color: Colors.orange.shade700,
-                                size: 12,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                AppLocalizations.of(context)!.mostImportant,
-                                style: AppTextStyles.caption.copyWith(
-                                  color: Colors.orange.shade700,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 9,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
+  /// Shared editor, also opened directly from the per-SIM auto-notify sheet.
+  static Future<void> showChannelSheet(BuildContext context, String type) =>
+      _openSheet(
+        context,
+        switch (type) {
+          'push' => 'Push notifications',
+          'email' => 'Email alerts',
+          'whatsapp' => 'WhatsApp alerts',
+          _ => 'Telegram bot',
+        },
+        Consumer(
+          builder: (context, ref, _) {
+            return ref
+                .watch(notificationChannelsControllerProvider)
+                .when(
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
+                  error: (_, _) => const Text(
+                    'Could not load this channel. Close and try again.',
                   ),
-                  channelsAsync.when(
-                    data: (channels) => _buildAlertDeliveryChannels(
-                      context,
-                      ref,
-                      channels,
-                      userAsync.value?.id,
+                  data: (rows) {
+                    final matching = rows.where(
+                      (row) => row['channel_type'] == type,
+                    );
+                    if (matching.isEmpty) {
+                      return const Text(
+                        'Channel unavailable. Reload your preferences.',
+                      );
+                    }
+                    return ChannelConfigCard(
+                      key: ValueKey(type),
+                      channel: matching.first,
+                      userId: ref.watch(authControllerProvider).value?.id,
                       isNested: true,
-                    ),
-                    loading: () => Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(24.0),
-                        child: CircularProgressIndicator(
-                          color: Colors.orange.shade700,
+                    );
+                  },
+                );
+          },
+        ),
+      );
+  static Future<void> _openSheet(
+    BuildContext context,
+    String title,
+    Widget content,
+  ) => showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    useSafeArea: true,
+    showDragHandle: true,
+    backgroundColor: context.cardColor,
+    builder: (sheetContext) => Padding(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.viewInsetsOf(sheetContext).bottom,
+      ),
+      child: SafeArea(
+        top: false,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.sizeOf(sheetContext).height * .85,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 8, 8),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
-                    error: (err, _) => const SizedBox.shrink(),
-                  ),
-                  const SizedBox(height: 10),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            // Incident Channels (Alert settings per category)
-            _buildSectionHeader(
-              context,
-              AppLocalizations.of(context)!.incidentChannelsTitle,
-            ),
-            alertSettingsAsync.when(
-              data: (settings) => _buildIncidentChannels(
-                context,
-                ref,
-                settings,
-                channelsAsync.value ?? const [],
-              ),
-              loading: () => Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(32.0),
-                  child: CircularProgressIndicator(color: context.primaryColor),
+                    IconButton(
+                      tooltip: 'Close',
+                      onPressed: () => Navigator.pop(sheetContext),
+                      icon: const Icon(Icons.close),
+                    ),
+                  ],
                 ),
               ),
-              error: (err, _) => Center(
-                child: Text(
-                  'Failed to load alert channels.',
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: AppColors.healthRed,
+              Flexible(
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 20),
+                    child: content,
                   ),
                 ),
               ),
-            ),
-
-            // What the `promo` toggle above actually delivers today (G2).
-            // Without this the category reads as abstract "marketing", and the
-            // price watches are the only thing that currently uses it.
-            _buildSectionHeader(context, 'Price watch'),
-            _buildPriceWatchEntry(context),
-          ],
+            ],
+          ),
         ),
       ),
-    );
-  }
+    ),
+  );
 
   Widget _buildPriceWatchEntry(BuildContext context) {
     final isDark = context.isDarkMode;
@@ -329,8 +325,11 @@ class NotificationSettingsScreen extends ConsumerWidget {
             color: const Color(0xFFF59E0B).withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(10),
           ),
-          child: const Icon(Icons.trending_down_rounded,
-              color: Color(0xFFF59E0B), size: 20),
+          child: const Icon(
+            Icons.trending_down_rounded,
+            color: Color(0xFFF59E0B),
+            size: 20,
+          ),
         ),
         title: Text(
           'Countries and carriers you watch',
@@ -345,8 +344,10 @@ class NotificationSettingsScreen extends ConsumerWidget {
             color: context.onSurfaceColor.withValues(alpha: 0.6),
           ),
         ),
-        trailing: Icon(Icons.chevron_right_rounded,
-            color: context.onSurfaceColor.withValues(alpha: 0.4)),
+        trailing: Icon(
+          Icons.chevron_right_rounded,
+          color: context.onSurfaceColor.withValues(alpha: 0.4),
+        ),
       ),
     );
   }
@@ -371,8 +372,9 @@ class NotificationSettingsScreen extends ConsumerWidget {
   Widget _buildQuietHoursCard(
     BuildContext context,
     WidgetRef ref,
-    dynamic prefs,
-  ) {
+    dynamic prefs, {
+    bool weeklyOnly = false,
+  }) {
     final startVal = prefs.quietHoursStart;
     final endVal = prefs.quietHoursEnd;
     final isQuietHoursActive = startVal != null && endVal != null;
@@ -389,58 +391,60 @@ class NotificationSettingsScreen extends ConsumerWidget {
       ),
       child: Column(
         children: [
-          // Quiet Hours Toggle Row
-          SwitchListTile(
-            value: isQuietHoursActive,
-            activeThumbColor: context.colorScheme.secondary,
-            activeTrackColor: context.colorScheme.secondary.withValues(alpha: 0.2),
-            inactiveThumbColor: isDark
-                ? AppColors.textTertiaryDark
-                : AppColors.textTertiaryLight,
-            inactiveTrackColor: isDark
-                ? AppColors.darkBorder
-                : AppColors.lightBorder,
-            title: Row(
-              children: [
-                Icon(
-                  Icons.nights_stay_rounded,
-                  color: context.colorScheme.secondary,
-                  size: 20,
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  AppLocalizations.of(context)!.doNotDisturb,
-                  style: AppTextStyles.titleMedium.copyWith(
-                    color: context.onSurfaceColor,
-                  ),
-                ),
-              ],
-            ),
-            subtitle: Text(
-              AppLocalizations.of(context)!.dndDesc,
-              style: AppTextStyles.bodySmall.copyWith(
-                color: isDark
-                    ? AppColors.textSecondaryDark
-                    : AppColors.textSecondaryLight,
+          if (!weeklyOnly)
+            SwitchListTile(
+              value: isQuietHoursActive,
+              activeThumbColor: context.colorScheme.secondary,
+              activeTrackColor: context.colorScheme.secondary.withValues(
+                alpha: 0.2,
               ),
+              inactiveThumbColor: isDark
+                  ? AppColors.textTertiaryDark
+                  : AppColors.textTertiaryLight,
+              inactiveTrackColor: isDark
+                  ? AppColors.darkBorder
+                  : AppColors.lightBorder,
+              title: Row(
+                children: [
+                  Icon(
+                    Icons.nights_stay_rounded,
+                    color: context.colorScheme.secondary,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    'Pause routine alerts',
+                    style: AppTextStyles.titleMedium.copyWith(
+                      color: context.onSurfaceColor,
+                    ),
+                  ),
+                ],
+              ),
+              subtitle: Text(
+                AppLocalizations.of(context)!.dndDesc,
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: isDark
+                      ? AppColors.textSecondaryDark
+                      : AppColors.textSecondaryLight,
+                ),
+              ),
+              onChanged: (active) async {
+                await HapticHelper.mediumImpact();
+                if (active) {
+                  // Enable defaults: 10:00 PM to 7:00 AM
+                  await ref
+                      .read(userPreferencesControllerProvider.notifier)
+                      .updateQuietHours('22:00:00', '07:00:00');
+                } else {
+                  // Clear times to disable
+                  await ref
+                      .read(userPreferencesControllerProvider.notifier)
+                      .updateQuietHours(null, null);
+                }
+              },
             ),
-            onChanged: (active) async {
-              await HapticHelper.mediumImpact();
-              if (active) {
-                // Enable defaults: 10:00 PM to 7:00 AM
-                await ref
-                    .read(userPreferencesControllerProvider.notifier)
-                    .updateQuietHours('22:00:00', '07:00:00');
-              } else {
-                // Clear times to disable
-                await ref
-                    .read(userPreferencesControllerProvider.notifier)
-                    .updateQuietHours(null, null);
-              }
-            },
-          ),
 
-          if (isQuietHoursActive) ...[
+          if (!weeklyOnly && isQuietHoursActive) ...[
             Divider(
               color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
               height: 1,
@@ -485,49 +489,52 @@ class NotificationSettingsScreen extends ConsumerWidget {
             height: 1,
           ),
 
-          // Weekly Digest Preference Row
-          SwitchListTile(
-            value: prefs.weeklyDigestEnabled,
-            activeThumbColor: context.primaryColor,
-            activeTrackColor: context.primaryColor.withValues(alpha: 0.2),
-            inactiveThumbColor: isDark
-                ? AppColors.textTertiaryDark
-                : AppColors.textTertiaryLight,
-            inactiveTrackColor: isDark
-                ? AppColors.darkBorder
-                : AppColors.lightBorder,
-            title: Row(
-              children: [
-                Icon(
-                  Icons.summarize_rounded,
-                  color: isDark ? AppColors.primaryLight : context.primaryColor,
-                  size: 20,
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  AppLocalizations.of(context)!.weeklySummaryDigest,
-                  style: AppTextStyles.titleMedium.copyWith(
-                    color: context.onSurfaceColor,
+          if (weeklyOnly)
+            SwitchListTile(
+              value: prefs.weeklyDigestEnabled,
+              activeThumbColor: context.primaryColor,
+              activeTrackColor: context.primaryColor.withValues(alpha: 0.2),
+              inactiveThumbColor: isDark
+                  ? AppColors.textTertiaryDark
+                  : AppColors.textTertiaryLight,
+              inactiveTrackColor: isDark
+                  ? AppColors.darkBorder
+                  : AppColors.lightBorder,
+              title: Row(
+                children: [
+                  Icon(
+                    Icons.summarize_rounded,
+                    color: isDark
+                        ? AppColors.primaryLight
+                        : context.primaryColor,
+                    size: 20,
                   ),
-                ),
-              ],
-            ),
-            subtitle: Text(
-              AppLocalizations.of(context)!.weeklyDigestDesc,
-              style: AppTextStyles.bodySmall.copyWith(
-                color: isDark
-                    ? AppColors.textSecondaryDark
-                    : AppColors.textSecondaryLight,
+                  const SizedBox(width: 12),
+                  Text(
+                    'Enable weekly summary',
+                    style: AppTextStyles.titleMedium.copyWith(
+                      color: context.onSurfaceColor,
+                    ),
+                  ),
+                ],
               ),
+              subtitle: Text(
+                'Email a SIM status summary every Sunday at 9:00 AM in your saved notification time zone. Only eligible Standard and Premium SIMs are included.',
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: isDark
+                      ? AppColors.textSecondaryDark
+                      : AppColors.textSecondaryLight,
+                ),
+              ),
+              onChanged: (active) async {
+                await HapticHelper.mediumImpact();
+                ref
+                    .read(userPreferencesControllerProvider.notifier)
+                    .toggleWeeklyDigest(active);
+              },
             ),
-            onChanged: (active) async {
-              await HapticHelper.mediumImpact();
-              ref
-                  .read(userPreferencesControllerProvider.notifier)
-                  .toggleWeeklyDigest(active);
-            },
-          ),
-          if (prefs.weeklyDigestEnabled &&
+          if (weeklyOnly &&
+              prefs.weeklyDigestEnabled &&
               ref.watch(weeklyDigestConsentProvider).value == false)
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
@@ -979,57 +986,6 @@ class NotificationSettingsScreen extends ConsumerWidget {
     final minute = tod.minute.toString().padLeft(2, '0');
     return '$hour:$minute $period';
   }
-
-  Widget _buildAlertDeliveryChannels(
-    BuildContext context,
-    WidgetRef ref,
-    List<Map<String, dynamic>> channels,
-    String? userId, {
-    bool isNested = false,
-  }) {
-    final isDark = context.isDarkMode;
-    if (channels.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Text(
-            AppLocalizations.of(context)!.noAlertChannelsConfigured,
-            style: TextStyle(
-              color: isDark
-                  ? AppColors.textTertiaryDark
-                  : AppColors.textTertiaryLight,
-            ),
-          ),
-        ),
-      );
-    }
-
-    // Sort channels so they are displayed in a clean, consistent order
-    // Order: push, email, whatsapp, telegram (webhook temporarily disabled)
-    // final order = {'push': 1, 'email': 2, 'whatsapp': 3, 'telegram': 4, 'webhook': 5};
-    final order = {'push': 1, 'email': 2, 'whatsapp': 3, 'telegram': 4};
-    final sortedChannels = List<Map<String, dynamic>>.from(channels)
-      ..sort((a, b) {
-        final aOrder = order[a['channel_type']] ?? 99;
-        final bOrder = order[b['channel_type']] ?? 99;
-        return aOrder.compareTo(bOrder);
-      });
-
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: sortedChannels.length,
-      itemBuilder: (context, index) {
-        final channel = sortedChannels[index];
-        return ChannelConfigCard(
-          channel: channel,
-          userId: userId,
-          isNested: isNested,
-        );
-      },
-    );
-  }
-
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1056,6 +1012,19 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
   late bool _isEnabled;
   bool _isSaving = false;
   bool _isSendingTestPush = false;
+  bool _isLinkingTelegram = false;
+  bool _isToggling = false;
+  bool _isDirty = false;
+  String? _accountEmail;
+  String? _currentEmail;
+  String? _pendingEmail;
+  bool _emailStatusLoaded = false;
+  bool _emailStatusFailed = false;
+  bool _isLoadingEmailStatus = false;
+  bool _accountEmailVerified = false;
+  bool _emailIsVerified = false;
+  bool _emailIsAlternate = false;
+  String? _validationError;
 
   @override
   void initState() {
@@ -1065,13 +1034,18 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
     final type = widget.channel['channel_type'] as String;
     String initialText = '';
     if (type == 'email') {
-      final configEmail = ((config['email'] ?? config['email_address']) as String?)?.trim();
-      final userEmail = ref.read(authControllerProvider).value?.email;
-      initialText = (configEmail != null && configEmail.isNotEmpty)
-          ? configEmail
-          : (userEmail ?? '');
+      final authUser = Supabase.instance.client.auth.currentUser;
+      final userEmail =
+          authUser?.email ?? ref.read(authControllerProvider).value?.email;
+      _accountEmail = userEmail;
+      _accountEmailVerified = authUser?.emailConfirmedAt != null;
+      _currentEmail = userEmail;
+      _emailIsVerified = _accountEmailVerified;
+      initialText = userEmail ?? '';
+      _verificationCodeController = TextEditingController();
+      _loadEmailStatus();
     } else if (type == 'whatsapp') {
-      initialText = ((config['phone'] ?? config['phone_number']) as String?) ?? '';
+      initialText = channelDestination(type, config);
     } /* else if (type == 'webhook') {
       initialText = config['webhook_url'] ?? '';
     } */
@@ -1087,17 +1061,13 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
       final type = widget.channel['channel_type'] as String;
       String currentText = '';
       if (type == 'email') {
-        final configEmail = ((config['email'] ?? config['email_address']) as String?)?.trim();
-        final userEmail = ref.read(authControllerProvider).value?.email;
-        currentText = (configEmail != null && configEmail.isNotEmpty)
-            ? configEmail
-            : (userEmail ?? '');
+        currentText = _pendingEmail ?? _currentEmail ?? _accountEmail ?? '';
       } else if (type == 'whatsapp') {
-        currentText = ((config['phone'] ?? config['phone_number']) as String?) ?? '';
+        currentText = channelDestination(type, config);
       } /* else if (type == 'webhook') {
         currentText = config['webhook_url'] ?? '';
       } */
-      if (_textController.text != currentText) {
+      if (!_isDirty && _textController.text != currentText) {
         _textController.text = currentText;
       }
     }
@@ -1106,373 +1076,368 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
   @override
   void dispose() {
     _textController.dispose();
+    if ((widget.channel['channel_type'] as String) == 'email') {
+      _verificationCodeController.dispose();
+    }
     super.dispose();
   }
 
-  Future<void> _saveConfig() async {
-    setState(() => _isSaving = true);
-    final type = widget.channel['channel_type'] as String;
-    final currentConfig = Map<String, dynamic>.from(
-      widget.channel['config'] ?? {},
-    );
+  late final TextEditingController _verificationCodeController;
 
-    if (type == 'email') {
-      final emailVal = _textController.text.trim();
-      currentConfig['email'] = emailVal;
-      currentConfig['email_address'] = emailVal;
-    } else if (type == 'whatsapp') {
-      String val = _textController.text.trim();
-      val = val.replaceAll(RegExp(r'[\s\-\(\)]'), '');
-      if (val.startsWith('00')) {
-        val = '+${val.substring(2)}';
-      }
-      if (!val.startsWith('+') && val.isNotEmpty) {
-        if (val.length <= 9) {
-          final profile = ref.read(authControllerProvider).value;
-          final homeCode = profile?.homeCountryCode;
-          final countries = ref.read(supportedCountriesProvider).value ?? [];
-          String homeDial = '+20';
-          if (countries.isNotEmpty) {
-            try {
-              homeDial = countries
-                  .firstWhere((c) => c.isoCode == homeCode)
-                  .dialingCode;
-            } catch (_) {}
-          }
-          if (val.startsWith('0')) {
-            val = val.substring(1);
-          }
-          val = '$homeDial$val';
-        } else {
-          val = '+$val';
-        }
-      }
-      _textController.text = val;
-      currentConfig['phone'] = val;
-      currentConfig['phone_number'] = val;
-    } /* else if (type == 'webhook') {
-      currentConfig['webhook_url'] = _textController.text.trim();
-    } */
+  Future<void> _loadEmailStatus() async {
+    if (_isLoadingEmailStatus) return;
+    setState(() {
+      _isLoadingEmailStatus = true;
+    });
 
-    final messenger = ScaffoldMessenger.of(context);
-    final localizations = AppLocalizations.of(context);
-    final channelName = _getChannelName(context, type);
-    final secondaryColor = context.colorScheme.secondary;
+    final authUser = Supabase.instance.client.auth.currentUser;
+    final userEmail =
+        authUser?.email ?? ref.read(authControllerProvider).value?.email;
+    if (userEmail != null) {
+      _accountEmail = userEmail;
+      _accountEmailVerified = authUser?.emailConfirmedAt != null;
+    }
 
     try {
-      await ref
-          .read(notificationChannelsControllerProvider.notifier)
-          .updateChannelConfig(type, currentConfig);
-      if (mounted) {
-        setState(() => _isSaving = false);
-        messenger.showSnackBar(
+      final result = await Supabase.instance.client.functions.invoke(
+        'notification-email-verification',
+        body: const {'action': 'status'},
+      ).timeout(const Duration(seconds: 5));
+
+      if (result.status == 200 && result.data is Map) {
+        final data = Map<String, dynamic>.from(result.data as Map);
+        if (!mounted) return;
+        setState(() {
+          _accountEmail = data['account_email'] as String? ?? _accountEmail;
+          _accountEmailVerified =
+              data['account_email_verified'] == true || _accountEmailVerified;
+          _currentEmail = data['current_email'] as String? ?? _accountEmail;
+          _pendingEmail = data['pending_email'] as String?;
+          _emailIsAlternate = data['alternate_email'] is String;
+          _emailIsVerified = _currentEmail != null &&
+              (_emailIsAlternate || _accountEmailVerified);
+          _emailStatusLoaded = true;
+          _emailStatusFailed = false;
+          _isLoadingEmailStatus = false;
+          if (!_isDirty) {
+            _textController.text =
+                _pendingEmail ?? _currentEmail ?? _accountEmail ?? '';
+          }
+        });
+        return;
+      }
+    } catch (_) {
+      // Backend Edge Function is unreachable or timed out
+    }
+
+    if (!mounted) return;
+    setState(() {
+      _currentEmail = _accountEmail;
+      _emailIsVerified = _accountEmailVerified;
+      _emailIsAlternate = false;
+      _emailStatusLoaded = true;
+      _emailStatusFailed = false;
+      _isLoadingEmailStatus = false;
+      if (!_isDirty) {
+        _textController.text = _accountEmail ?? '';
+      }
+    });
+  }
+
+  Future<dynamic> _callEmailVerification(Map<String, dynamic> body) async {
+    final result = await Supabase.instance.client.functions.invoke(
+      'notification-email-verification',
+      body: body,
+    );
+    if (result.data is Map && (result.data as Map)['error'] != null) {
+      throw StateError((result.data as Map)['error'].toString());
+    }
+    if (result.status >= 400) {
+      throw StateError('Request failed (${result.status}).');
+    }
+    return result.data;
+  }
+
+  Future<void> _resendEmailCode() async {
+    final email = _pendingEmail;
+    if (email == null) return;
+    setState(() => _isSaving = true);
+    try {
+      await _callEmailVerification({'action': 'request_code', 'email': email});
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('A new code was sent to $email.')));
+    } catch (e) {
+      if (!mounted) return;
+      final msg = e is StateError
+          ? e.message
+          : 'Could not resend the code yet. Please try again shortly.';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(msg)),
+      );
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
+  }
+
+  Future<void> _saveEmailDestination() async {
+    final value = _textController.text.trim();
+    if (!RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$').hasMatch(value)) {
+      setState(() => _validationError = 'Enter a valid email address.');
+      return;
+    }
+    setState(() {
+      _isSaving = true;
+      _validationError = null;
+    });
+    try {
+      final isAccountEmail =
+          _accountEmail != null &&
+          value.toLowerCase() == _accountEmail!.toLowerCase();
+      if (isAccountEmail && !_accountEmailVerified) {
+        setState(() {
+          _isSaving = false;
+          _validationError =
+              'Confirm your account email before using it for alerts.';
+        });
+        return;
+      }
+      final isPendingEmail =
+          _pendingEmail != null &&
+          value.toLowerCase() == _pendingEmail!.toLowerCase();
+      if (isPendingEmail) {
+        final code = _verificationCodeController.text.trim();
+        if (!RegExp(r'^\d{8}$').hasMatch(code)) {
+          setState(() {
+            _isSaving = false;
+            _validationError = 'Enter the 8-digit code.';
+          });
+          return;
+        }
+        await _callEmailVerification({'action': 'confirm_code', 'code': code});
+        _verificationCodeController.clear();
+        _currentEmail = value;
+        _pendingEmail = null;
+        _emailIsAlternate = !isAccountEmail;
+        _emailIsVerified = true;
+
+        final config =
+            Map<String, dynamic>.from(widget.channel['config'] ?? {});
+        config['email'] = value;
+        config['email_address'] = value;
+        await ref
+            .read(notificationChannelsControllerProvider.notifier)
+            .updateChannelConfig('email', config);
+      } else if (isAccountEmail) {
+        try {
+          await _callEmailVerification({'action': 'use_account_email'});
+        } catch (_) {}
+        final config =
+            Map<String, dynamic>.from(widget.channel['config'] ?? {});
+        config['email'] = _accountEmail;
+        config['email_address'] = _accountEmail;
+        await ref
+            .read(notificationChannelsControllerProvider.notifier)
+            .updateChannelConfig('email', config);
+        _currentEmail = _accountEmail;
+        _pendingEmail = null;
+        _emailIsAlternate = false;
+        _emailIsVerified = _accountEmail != null && _accountEmailVerified;
+      } else if (_currentEmail != null &&
+          value.toLowerCase() == _currentEmail!.toLowerCase()) {
+        setState(() {
+          _isSaving = false;
+          _isDirty = false;
+        });
+        return;
+      } else {
+        await _callEmailVerification({
+          'action': 'request_code',
+          'email': value,
+        });
+        _verificationCodeController.clear();
+        _pendingEmail = value;
+      }
+      if (!mounted) return;
+      setState(() {
+        _isSaving = false;
+        _isDirty = false;
+      });
+      await _loadEmailStatus();
+      if (!mounted) return;
+      if (_pendingEmail != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              localizations?.channelSettingsUpdated(channelName) ??
-                  'Settings updated for $channelName',
+              'Verification code sent to $_pendingEmail. Check your inbox.',
             ),
-            backgroundColor: secondaryColor,
-            duration: const Duration(seconds: 2),
           ),
+        );
+      } else {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(
+          const SnackBar(content: Text('Alert email verified and updated.')),
         );
       }
     } catch (e) {
-      if (mounted) {
-        setState(() => _isSaving = false);
-        messenger.showSnackBar(
-          SnackBar(
-            content: Text('Failed to update settings: $e'),
-            backgroundColor: Colors.redAccent,
-            duration: const Duration(seconds: 3),
-          ),
+      if (!mounted) return;
+      setState(() => _isSaving = false);
+      final message = e is StateError
+          ? e.message
+          : 'Could not update the alert email. Check the address and try again.';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message)),
+      );
+    }
+  }
+
+  Future<void> _saveConfig() async {
+    final type = widget.channel['channel_type'] as String;
+    if (type == 'email') {
+      await _saveEmailDestination();
+      return;
+    }
+    final config = Map<String, dynamic>.from(widget.channel['config'] ?? {});
+    var value = _textController.text.trim();
+    if (type == 'whatsapp') {
+      value = value.replaceAll(RegExp(r'[\s\-()]'), '');
+      if (value.startsWith('00')) value = '+${value.substring(2)}';
+      if (!RegExp(r'^\+[1-9]\d{7,14}$').hasMatch(value)) {
+        setState(
+          () => _validationError =
+              'Enter the full international number, including + and country code.',
         );
+        return;
       }
+      config['phone'] = value;
+      config['phone_number'] = value;
     }
-  }
-
-  String _getChannelName(BuildContext context, String type) {
-    switch (type) {
-      case 'push':
-        return AppLocalizations.of(context)!.pushNotifications;
-      case 'email':
-        return AppLocalizations.of(context)!.emailAlerts;
-      case 'whatsapp':
-        return AppLocalizations.of(context)!.whatsappAlerts;
-      case 'telegram':
-        return AppLocalizations.of(context)!.telegramBot;
-      /* case 'webhook':
-        return 'Emergency Webhooks'; */
-      default:
-        return type.toUpperCase();
-    }
-  }
-
-  IconData _getChannelIcon(String type) {
-    switch (type) {
-      case 'push':
-        return Icons.notifications_active_rounded;
-      case 'email':
-        return Icons.email_rounded;
-      case 'whatsapp':
-        return Icons.chat_bubble_outline_rounded;
-      case 'telegram':
-        return Icons.telegram_rounded;
-      /* case 'webhook':
-        return Icons.webhook_rounded; */
-      default:
-        return Icons.device_unknown_rounded;
-    }
-  }
-
-  Color _getChannelColor(String type) {
-    switch (type) {
-      case 'push':
-        return AppColors.primaryLight;
-      case 'email':
-        return const Color(0xFF38BDF8);
-      case 'whatsapp':
-        return const Color(0xFF4ADE80);
-      case 'telegram':
-        return const Color(0xFF22D3EE);
-      /* case 'webhook':
-        return const Color(0xFFC084FC); */
-      default:
-        return AppColors.primary;
+    setState(() {
+      _isSaving = true;
+      _validationError = null;
+    });
+    try {
+      await ref
+          .read(notificationChannelsControllerProvider.notifier)
+          .updateChannelConfig(type, config);
+      if (!mounted) return;
+      setState(() {
+        _isSaving = false;
+        _isDirty = false;
+        _textController.text = value;
+      });
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Settings saved')));
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _isSaving = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Could not save settings. Please try again.'),
+        ),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final type = widget.channel['channel_type'] as String;
-    final config = widget.channel['config'] as Map<String, dynamic>? ?? {};
-    final name = _getChannelName(context, type);
-    final icon = _getChannelIcon(type);
-    final color = _getChannelColor(type);
-
-    final catalogMap = ref.watch(notificationChannelCatalogProvider).value ?? {};
-    final catalogEntry = catalogMap[type];
-    final bool isGloballyEnabled = catalogEntry != null ? (catalogEntry['is_globally_enabled'] == true) : true;
-
-    final simLines = ref.watch(simLinesControllerProvider).value ?? [];
-    final requiredTier = '${catalogEntry?['min_tier'] ?? ((type == 'push' || type == 'telegram') ? 'basic' : 'standard')}'.toLowerCase();
-    final bool isPaidChannel = type == 'whatsapp' || type == 'email' || requiredTier != 'basic';
-
-    int tierRank(String tier) => switch (tier.toLowerCase()) {
-      'premium' => 2,
-      'standard' => 1,
-      _ => 0,
-    };
-    final eligibleLines = simLines.where((line) {
-      final canonicalTier = line.planType.trim().isNotEmpty
-          ? line.planType.trim().toLowerCase()
-          : (line.protectionTier.trim().isNotEmpty
-              ? line.protectionTier.trim().toLowerCase()
-              : 'basic');
-      final isExpired = line.planExpiresAt != null &&
-          line.planExpiresAt!.isBefore(DateTime.now());
-      return tierRank(canonicalTier) >= tierRank(requiredTier) && !isExpired;
-    }).toList();
-    final bool hasEligibleLine = eligibleLines.isNotEmpty;
-    final isDark = context.isDarkMode;
-
-    return Container(
-      margin: EdgeInsets.symmetric(
-        horizontal: widget.isNested ? 12 : 16,
-        vertical: 6,
-      ),
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurface : AppColors.lightCard,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-        ),
-      ),
+    final config = Map<String, dynamic>.from(widget.channel['config'] ?? {});
+    final catalog = ref.watch(notificationChannelCatalogProvider).value?[type];
+    final available = catalog?['is_globally_enabled'] != false;
+    final paid = type == 'email' || type == 'whatsapp';
+    final telegramLinked =
+        '${config['chat_id'] ?? ''}'.trim().isNotEmpty &&
+        config['binding_verified_at'] != null;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header Row with Switch
-          SwitchListTile(
-            value: _isEnabled,
-            activeThumbColor: color,
-            activeTrackColor: color.withValues(alpha: 0.2),
-            inactiveThumbColor: isDark
-                ? AppColors.textTertiaryDark
-                : AppColors.textTertiaryLight,
-            inactiveTrackColor: isDark
-                ? AppColors.darkBorder
-                : AppColors.lightBorder,
-            title: Row(
-              children: [
-                Icon(
-                  icon,
-                  color: !isGloballyEnabled ? AppColors.textTertiaryDark : color,
-                  size: 22,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    name,
-                    style: AppTextStyles.titleMedium.copyWith(
-                      color: !isGloballyEnabled
-                          ? (isDark
-                                ? AppColors.textSecondaryDark
-                                : AppColors.textSecondaryLight)
-                          : context.onSurfaceColor,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                if (!isGloballyEnabled) ...[
-                  const SizedBox(width: 6),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: Colors.amber.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(6),
-                      border: Border.all(color: Colors.amber.withValues(alpha: 0.4)),
-                    ),
-                    child: const Text(
-                      'Temporarily unavailable',
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.amber,
-                      ),
-                    ),
-                  ),
-                ],
-                if (isPaidChannel) ...[
-                  const SizedBox(width: 6),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF0EA5E9).withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(6),
-                      border: Border.all(color: const Color(0xFF0EA5E9).withValues(alpha: 0.3)),
-                    ),
-                    child: const Text(
-                      'Standard & Premium',
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF0284C7),
-                      ),
-                    ),
-                  ),
-                ],
-                const SizedBox(width: 6),
-                _buildAvailabilityBadge(type, _isEnabled, config),
-              ],
-            ),
-            subtitle: Padding(
-              padding: const EdgeInsets.only(top: 4.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    !isGloballyEnabled
-                        ? 'This channel is currently paused by platform administrators. Your preference will be saved and respected once resumed.'
-                        : _getChannelDescription(context, type),
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: isDark
-                          ? AppColors.textSecondaryDark
-                          : AppColors.textSecondaryLight,
-                    ),
-                  ),
-                  if (isPaidChannel) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      hasEligibleLine
-                          ? 'Available for your eligible Standard & Premium SIM lines when enabled.'
-                          : 'You can enable this now. Alerts are sent only for SIMs with an active Standard or Premium subscription.',
-                      style: AppTextStyles.caption.copyWith(
-                        color: hasEligibleLine
-                            ? (isDark ? const Color(0xFF4ADE80) : const Color(0xFF16A34A))
-                            : (isDark ? const Color(0xFFFBBF24) : const Color(0xFFD97706)),
-                        fontSize: 11,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            onChanged: (val) async {
-              final messenger = ScaffoldMessenger.of(context);
-              await HapticHelper.mediumImpact();
-              final previousVal = _isEnabled;
-              setState(() => _isEnabled = val);
-              if (type == 'email' && val) {
-                final currentText = _textController.text.trim();
-                if (currentText.isEmpty) {
-                  final userEmail = ref.read(authControllerProvider).value?.email;
-                  if (userEmail != null && userEmail.isNotEmpty) {
-                    _textController.text = userEmail;
-                  }
-                }
-              }
-              try {
-                await ref
-                    .read(notificationChannelsControllerProvider.notifier)
-                    .toggleChannel(type, val);
-              } catch (e) {
-                if (mounted) {
-                  setState(() => _isEnabled = previousVal);
-                  messenger.showSnackBar(
-                    SnackBar(
-                      content: Text('Failed to update $name: $e'),
-                      backgroundColor: Colors.redAccent,
-                      duration: const Duration(seconds: 3),
-                    ),
-                  );
-                }
-              }
-            },
-          ),
-
-          if (_isEnabled) ...[
-            Divider(
-              color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-              height: 1,
-            ),
+          if (paid)
             Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (type == 'push') ...[
-                    _buildPushContent(context),
-                  ] else if (type == 'telegram') ...[
-                    _buildTelegramContent(context, config),
-                  ] else ...[
-                    _buildTextField(context, type),
-                    const SizedBox(height: 12),
-                    _buildSaveButton(context),
-                  ],
-                  if (type == 'email') ...[
-                    const SizedBox(height: 10),
-                    _buildInfoBadge(
-                      AppLocalizations.of(context)!.emailFreePlanGuarded,
-                      const Color(0xFF38BDF8),
-                    ),
-                  ] else if (type == 'whatsapp') ...[
-                    const SizedBox(height: 10),
-                    _buildInfoBadge(
-                      'WhatsApp alerts are dispatched for active Standard and Premium SIM lines through the verified country route.',
-                      const Color(0xFF4ADE80),
-                    ),
-                  ],
-                  if (isPaidChannel && !hasEligibleLine) ...[
-                    const SizedBox(height: 10),
-                    _buildInfoBadge(
-                      'Preference saved: Delivery will activate automatically when you upgrade any of your SIM lines to Standard or Premium.',
-                      Colors.amber,
-                    ),
-                  ],
-                ],
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Text(
+                'For eligible Standard and Premium SIMs.',
+                style: TextStyle(color: context.colorScheme.onSurfaceVariant),
               ),
             ),
+          if (!available)
+            _buildInfoBadge(
+              'Currently unavailable. You can still save your preference.',
+              context.colorScheme.onSurfaceVariant,
+            ),
+          if (type != 'telegram' || telegramLinked)
+            SwitchListTile.adaptive(
+              contentPadding: EdgeInsets.zero,
+              title: const Text(
+                'Enable alerts',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              ),
+              value: _isEnabled,
+              activeTrackColor: context.primaryColor,
+              onChanged:
+                  _isToggling ||
+                      _isSaving ||
+                      (type == 'email' && !_emailStatusLoaded)
+                  ? null
+                  : (value) async {
+                      if (type == 'email' && value && !_emailIsVerified) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'Verify an email address before enabling email alerts.',
+                            ),
+                          ),
+                        );
+                        return;
+                      }
+                      final previous = _isEnabled;
+                      setState(() {
+                        _isEnabled = value;
+                        _isToggling = true;
+                      });
+                      try {
+                        await ref
+                            .read(
+                              notificationChannelsControllerProvider.notifier,
+                            )
+                            .toggleChannel(type, value);
+                      } catch (_) {
+                        if (mounted) {
+                          setState(() => _isEnabled = previous);
+                          ScaffoldMessenger.of(this.context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Could not save your preference. Please try again.',
+                              ),
+                            ),
+                          );
+                        }
+                      } finally {
+                        if (mounted) setState(() => _isToggling = false);
+                      }
+                    },
+            ),
+          const SizedBox(height: 8),
+          if (type == 'push') _buildPushContent(context),
+          if (type == 'telegram') _buildTelegramContent(context, config),
+          if (paid) ...[
+            _buildTextField(context, type),
+            const SizedBox(height: 16),
+            _buildSaveButton(context),
           ],
+          const SizedBox(height: 16),
+          _buildInfoBadge(switch (type) {
+            'push' => 'Device permissions and Do Not Disturb still apply.',
+            'email' => 'Email alerts warn you about critical SIM events.',
+            'whatsapp' =>
+              'Refill failure alerts are sent to the saved WhatsApp number.',
+            _ => 'Telegram sends alerts only when linked and enabled.',
+          }, context.primaryColor),
         ],
       ),
     );
@@ -1482,6 +1447,10 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
     final isDark = context.isDarkMode;
     final playerId = OneSignal.User.pushSubscription.id;
     final isOptedIn = OneSignal.User.pushSubscription.optedIn;
+    final connected = playerId != null && isOptedIn == true;
+    final statusColor = connected
+        ? (isDark ? const Color(0xFF86EFAC) : const Color(0xFF166534))
+        : (isDark ? const Color(0xFFFBBF24) : const Color(0xFF92400E));
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1490,12 +1459,12 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
-            color: (playerId != null)
+            color: connected
                 ? Colors.green.withValues(alpha: isDark ? 0.15 : 0.08)
                 : Colors.amber.withValues(alpha: isDark ? 0.15 : 0.08),
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
-              color: (playerId != null)
+              color: connected
                   ? Colors.green.withValues(alpha: 0.3)
                   : Colors.amber.withValues(alpha: 0.3),
             ),
@@ -1503,19 +1472,23 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
           child: Row(
             children: [
               Icon(
-                playerId != null ? Icons.check_circle_rounded : Icons.info_outline_rounded,
+                connected
+                    ? Icons.check_circle_rounded
+                    : Icons.info_outline_rounded,
                 size: 16,
-                color: playerId != null ? Colors.green : Colors.amber,
+                color: statusColor,
               ),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   playerId != null
-                      ? ((isOptedIn ?? false) ? 'Device Subscribed & Active' : 'Push Permission Pending')
+                      ? ((isOptedIn ?? false)
+                            ? 'Device Subscribed & Active'
+                            : 'Push Permission Pending')
                       : 'Connecting to push service...',
                   style: AppTextStyles.bodySmall.copyWith(
                     fontWeight: FontWeight.w600,
-                    color: playerId != null ? Colors.green : Colors.amber,
+                    color: statusColor,
                   ),
                 ),
               ),
@@ -1528,33 +1501,46 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
         SizedBox(
           width: double.infinity,
           child: OutlinedButton.icon(
-            onPressed: (_isSendingTestPush || playerId == null)
+            onPressed:
+                (_isSendingTestPush || playerId == null || isOptedIn != true)
                 ? null
                 : () async {
-                    await HapticHelper.lightTick();
                     setState(() => _isSendingTestPush = true);
                     try {
-                      await ref.read(notificationsRepositoryProvider).sendNotification(
-                        category: 'system',
-                        title: 'KeepSIMs Test Alert',
-                        body: 'KeepSIMs requested a test notification for this device.',
-                        channelType: 'push',
-                      );
+                      await HapticHelper.lightTick();
+                      if (!mounted) return;
+                      await ref
+                          .read(notificationsRepositoryProvider)
+                          .sendNotification(
+                            category: 'system',
+                            title: 'KeepSIMs Test Alert',
+                            body:
+                                'KeepSIMs requested a test notification for this device.',
+                            channelType: 'push',
+                          );
                       if (!context.mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: const Row(
                             children: [
-                              Icon(Icons.check_circle_outline, color: Colors.white, size: 20),
+                              Icon(
+                                Icons.check_circle_outline,
+                                color: Colors.white,
+                                size: 20,
+                              ),
                               SizedBox(width: 8),
                               Expanded(
-                                child: Text('Test alert queued. Check your enabled routes and device permissions for arrival.'),
+                                child: Text(
+                                  'Test alert queued. Check your enabled routes and device permissions for arrival.',
+                                ),
                               ),
                             ],
                           ),
                           backgroundColor: Colors.green.shade700,
                           behavior: SnackBarBehavior.floating,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
                           duration: const Duration(seconds: 4),
                         ),
                       );
@@ -1565,7 +1551,9 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
                           content: Text('Failed to send test notification: $e'),
                           backgroundColor: context.colorScheme.error,
                           behavior: SnackBarBehavior.floating,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
                         ),
                       );
                     } finally {
@@ -1582,7 +1570,9 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
                   )
                 : const Icon(Icons.notifications_active_outlined, size: 18),
             label: Text(
-              _isSendingTestPush ? 'Sending Test Alert...' : 'Send Test Notification',
+              _isSendingTestPush
+                  ? 'Sending Test Alert...'
+                  : 'Send Test Notification',
               style: AppTextStyles.labelMedium.copyWith(
                 fontWeight: FontWeight.w600,
               ),
@@ -1602,101 +1592,13 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
         Text(
           'Requests an immediate test alert. Provider acceptance does not confirm display on this device.',
           style: AppTextStyles.caption.copyWith(
-            color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
+            color: isDark
+                ? AppColors.textTertiaryDark
+                : AppColors.textTertiaryLight,
           ),
         ),
       ],
     );
-  }
-
-  Widget _buildAvailabilityBadge(
-    String type,
-    bool isEnabled,
-    Map<String, dynamic> config,
-  ) {
-    if (!isEnabled) {
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-        decoration: BoxDecoration(
-          color: Colors.grey.withValues(alpha: 0.15),
-          borderRadius: BorderRadius.circular(6),
-        ),
-        child: const Text(
-          'Off',
-          style: TextStyle(
-            fontSize: 10,
-            fontWeight: FontWeight.w600,
-            color: Colors.grey,
-          ),
-        ),
-      );
-    }
-
-    bool needsSetup = false;
-    if (type == 'email') {
-      final email = (config['email'] as String?)?.trim();
-      final userEmail = ref.read(authControllerProvider).value?.email;
-      final effectiveEmail = (email != null && email.isNotEmpty) ? email : userEmail;
-      needsSetup = effectiveEmail == null || effectiveEmail.trim().isEmpty;
-    } else if (type == 'whatsapp') {
-      final phone = (config['phone'] ?? config['phone_number']) as String?;
-      needsSetup = phone == null || phone.trim().isEmpty;
-    } else if (type == 'telegram') {
-      final chatId = config['chat_id'] as String?;
-      needsSetup = chatId == null || chatId.trim().isEmpty || config['binding_verified_at'] == null;
-    }
-
-    if (needsSetup) {
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-        decoration: BoxDecoration(
-          color: Colors.orange.withValues(alpha: 0.15),
-          borderRadius: BorderRadius.circular(6),
-          border: Border.all(color: Colors.orange.withValues(alpha: 0.4)),
-        ),
-        child: const Text(
-          'Setup required',
-          style: TextStyle(
-            fontSize: 10,
-            fontWeight: FontWeight.bold,
-            color: Colors.orange,
-          ),
-        ),
-      );
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-      decoration: BoxDecoration(
-        color: AppColors.success.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: const Text(
-        'Enabled',
-        style: TextStyle(
-          fontSize: 10,
-          fontWeight: FontWeight.bold,
-          color: AppColors.success,
-        ),
-      ),
-    );
-  }
-
-  String _getChannelDescription(BuildContext context, String type) {
-    switch (type) {
-      case 'push':
-        return AppLocalizations.of(context)!.pushNotificationsDesc;
-      case 'email':
-        return AppLocalizations.of(context)!.emailAlertsDesc;
-      case 'whatsapp':
-        return AppLocalizations.of(context)!.whatsappAlertsDesc;
-      case 'telegram':
-        return AppLocalizations.of(context)!.telegramBotDesc;
-      /* case 'webhook':
-        return 'Post JSON alerts to custom REST API endpoints.'; */
-      default:
-        return 'Alert delivery route configuration.';
-    }
   }
 
   Widget _buildTextField(BuildContext context, String type) {
@@ -1738,12 +1640,18 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
         const SizedBox(height: 6),
         TextField(
           controller: _textController,
+          enabled: !_isSaving,
+          onChanged: (_) => setState(() {
+            _isDirty = true;
+            _validationError = null;
+          }),
           keyboardType: keyboardType,
           style: AppTextStyles.bodyMedium.copyWith(
             color: context.onSurfaceColor,
           ),
           decoration: InputDecoration(
             hintText: hint,
+            errorText: _validationError,
             hintStyle: AppTextStyles.bodyMedium.copyWith(
               color: isDark
                   ? AppColors.textTertiaryDark
@@ -1779,15 +1687,91 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
           Padding(
             padding: const EdgeInsets.only(left: 4.0),
             child: Text(
-              'Connected to your account email by default. You can change it above to receive alerts at a different address.',
+              !_emailStatusLoaded || _isLoadingEmailStatus
+                  ? 'Checking your verified alert address…'
+                  : _emailStatusFailed
+                  ? _accountEmailVerified
+                        ? 'Your account email is verified. We could not load the saved alert address details.'
+                        : 'Could not load your email verification and saved alert address details. Try again.'
+                  : _currentEmail != null
+                  ? 'Verified destination: $_currentEmail'
+                  : _accountEmail != null && !_accountEmailVerified
+                  ? 'Confirm your account email before using it for alerts.'
+                  : 'Verify an email address before email alerts can be sent.',
               style: AppTextStyles.bodySmall.copyWith(
                 color: isDark
                     ? AppColors.textSecondaryDark
                     : AppColors.textSecondaryLight,
-                fontSize: 11,
+                fontSize: 13,
               ),
             ),
           ),
+          if (_emailStatusFailed)
+            TextButton.icon(
+              onPressed: _isLoadingEmailStatus ? null : _loadEmailStatus,
+              icon: _isLoadingEmailStatus
+                  ? const SizedBox(
+                      width: 14,
+                      height: 14,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.refresh_rounded, size: 18),
+              label: Text(_isLoadingEmailStatus ? 'Checking…' : 'Retry'),
+            ),
+          if (_pendingEmail != null) ...[
+            const SizedBox(height: 12),
+            TextField(
+              controller: _verificationCodeController,
+              enabled: !_isSaving,
+              keyboardType: TextInputType.number,
+              maxLength: 8,
+              onChanged: (_) => setState(() {}),
+              decoration: const InputDecoration(
+                labelText: '8-digit verification code',
+                counterText: '',
+                prefixIcon: Icon(Icons.lock_outline),
+              ),
+            ),
+            Text(
+              _currentEmail != null
+                  ? 'Alerts continue going to $_currentEmail until this address is verified.'
+                  : 'No email alerts are sent until this address is verified.',
+              style: AppTextStyles.bodySmall.copyWith(
+                color: isDark
+                    ? AppColors.textSecondaryDark
+                    : AppColors.textSecondaryLight,
+                fontSize: 13,
+              ),
+            ),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                onPressed: _isSaving ? null : _resendEmailCode,
+                icon: const Icon(Icons.mark_email_unread_outlined, size: 18),
+                label: const Text('Resend code'),
+              ),
+            ),
+          ],
+          if (_emailIsAlternate &&
+              _accountEmail != null &&
+              _accountEmailVerified) ...[
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                onPressed: _isSaving
+                    ? null
+                    : () {
+                        _textController.text = _accountEmail!;
+                        setState(() {
+                          _isDirty = true;
+                          _validationError = null;
+                        });
+                      },
+                icon: const Icon(Icons.restore_rounded, size: 18),
+                label: const Text('Use account email'),
+              ),
+            ),
+          ],
         ],
         if (type == 'whatsapp') ...[
           const SizedBox(height: 6),
@@ -1799,7 +1783,7 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
                 color: isDark
                     ? AppColors.textSecondaryDark
                     : AppColors.textSecondaryLight,
-                fontSize: 11,
+                fontSize: 13,
                 fontStyle: FontStyle.italic,
               ),
             ),
@@ -1810,10 +1794,29 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
   }
 
   Widget _buildSaveButton(BuildContext context) {
+    final isEmail = widget.channel['channel_type'] == 'email';
+    final input = _textController.text.trim();
+    final isPending =
+        _pendingEmail != null &&
+        input.toLowerCase() == _pendingEmail!.toLowerCase();
+    final isUnverifiedAccount =
+        _accountEmail != null &&
+        input.toLowerCase() == _accountEmail!.toLowerCase() &&
+        !_accountEmailVerified;
+    final emailNeedsAction = isPending
+        ? RegExp(r'^\d{8}$').hasMatch(_verificationCodeController.text.trim())
+        : isUnverifiedAccount
+        ? false
+        : _currentEmail == null ||
+              input.toLowerCase() != _currentEmail!.toLowerCase();
+    final canSaveEmail =
+        _emailStatusLoaded && !_emailStatusFailed && emailNeedsAction;
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
-        onPressed: _isSaving ? null : _saveConfig,
+        onPressed: _isSaving || _isToggling || (isEmail && !canSaveEmail)
+            ? null
+            : _saveConfig,
         style: ElevatedButton.styleFrom(
           backgroundColor: context.primaryColor,
           padding: const EdgeInsets.symmetric(vertical: 12),
@@ -1831,7 +1834,19 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
                 ),
               )
             : Text(
-                AppLocalizations.of(context)!.saveSettings,
+                isEmail
+                    ? _emailStatusFailed
+                          ? 'Alert address details unavailable'
+                          : isPending
+                          ? 'Verify code'
+                          : isUnverifiedAccount
+                          ? 'Confirm account email'
+                          : input.isEmpty || !emailNeedsAction
+                          ? 'Email verified'
+                          : input.toLowerCase() == _accountEmail?.toLowerCase()
+                          ? 'Use account email'
+                          : 'Send verification code'
+                    : AppLocalizations.of(context)!.saveSettings,
                 style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -1846,7 +1861,10 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
     Map<String, dynamic> config,
   ) {
     final chatId = config['chat_id'];
-    final isBound = chatId != null && chatId.toString().isNotEmpty && config['binding_verified_at'] != null;
+    final isBound =
+        chatId != null &&
+        chatId.toString().isNotEmpty &&
+        config['binding_verified_at'] != null;
     final isDark = context.isDarkMode;
 
     return Container(
@@ -1897,30 +1915,51 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
-              onPressed: () async {
-                await HapticHelper.lightTick();
-                final userId = widget.userId;
-                if (userId == null) return;
-                try {
-                  final result = await Supabase.instance.client.rpc('create_telegram_bind_token');
-                  final token = result is Map ? result['token'] : null;
-                  if (result is! Map || result['success'] != true ||
-                      token is! String || !RegExp(r'^[0-9a-f]{32}$').hasMatch(token)) {
-                    throw StateError('Could not create a secure Telegram link');
-                  }
-                  final uri = Uri.parse('https://t.me/KeepSIMsBot?start=bind_$token');
-                  if (await canLaunchUrl(uri)) {
-                    await launchUrl(uri, mode: LaunchMode.externalApplication);
-                  } else {
-                    throw StateError('Could not open Telegram');
-                  }
-                } catch (error) {
-                  if (!context.mounted) return;
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Telegram link unavailable: $error')),
-                  );
-                }
-              },
+              onPressed: _isLinkingTelegram || widget.userId == null
+                  ? null
+                  : () async {
+                      setState(() => _isLinkingTelegram = true);
+                      final userId = widget.userId;
+                      if (userId == null) return;
+                      try {
+                        await HapticHelper.lightTick();
+                        if (!mounted) return;
+                        final result = await Supabase.instance.client.rpc(
+                          'create_telegram_bind_token',
+                        );
+                        if (!mounted) return;
+                        final token = result is Map ? result['token'] : null;
+                        if (result is! Map ||
+                            result['success'] != true ||
+                            token is! String ||
+                            !RegExp(r'^[0-9a-f]{32}$').hasMatch(token)) {
+                          throw StateError(
+                            'Could not create a secure Telegram link',
+                          );
+                        }
+                        final uri = Uri.parse(
+                          'https://t.me/KeepSIMsBot?start=bind_$token',
+                        );
+                        if (await canLaunchUrl(uri)) {
+                          if (!mounted) return;
+                          await launchUrl(
+                            uri,
+                            mode: LaunchMode.externalApplication,
+                          );
+                        } else {
+                          throw StateError('Could not open Telegram');
+                        }
+                      } catch (error) {
+                        if (!context.mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Telegram link unavailable: $error'),
+                          ),
+                        );
+                      } finally {
+                        if (mounted) setState(() => _isLinkingTelegram = false);
+                      }
+                    },
               icon: const Icon(Icons.telegram, color: Colors.white, size: 20),
               label: Text(
                 AppLocalizations.of(context)!.linkTelegramBot,
@@ -1930,7 +1969,7 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
                 ),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF22D3EE),
+                backgroundColor: context.primaryColor,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
@@ -1960,8 +1999,9 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
             child: Text(
               text,
               style: AppTextStyles.caption.copyWith(
-                color: AppColors.textSecondaryDark,
-                height: 1.3,
+                color: context.colorScheme.onSurfaceVariant,
+                height: 1.4,
+                fontSize: 14,
               ),
             ),
           ),

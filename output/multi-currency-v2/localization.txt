@@ -1,0 +1,21 @@
+l10n.yaml: The argument "synthetic-package" no longer has any effect and should be removed. See http://flutter.dev/to/flutter-gen-deprecation
+Because l10n.yaml exists, the options defined there will be used instead.
+To use the command line arguments, delete the l10n.yaml file in the Flutter project.
+
+
+"ar": 125 untranslated message(s).
+"bn": 184 untranslated message(s).
+"es": 184 untranslated message(s).
+"hi": 184 untranslated message(s).
+"ne": 202 untranslated message(s).
+"si": 184 untranslated message(s).
+"tr": 184 untranslated message(s).
+"ur": 184 untranslated message(s).
+To see a detailed report, use the untranslated-messages-file 
+option in the l10n.yaml file:
+untranslated-messages-file: desiredFileName.txt
+<other option>: <other selection> 
+
+
+This will generate a JSON format file containing all messages that 
+need to be translated.

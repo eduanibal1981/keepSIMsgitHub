@@ -996,5 +996,8 @@
     "refreshSims": "Actualizar SIMs",
     "noMatchingSims": "No hay SIMs coincidentes",
     "tryDifferentSimSearch": "Prueba con otro nombre, número o filtro.",
-    "clearSearchAndFilters": "Borrar búsqueda y filtros"
+    "clearSearchAndFilters": "Borrar búsqueda y filtros",
+  "fxChargesInUsd": "Los importes en {currency} son aproximados. Los cargos son en USD.",
+  "fxCurrencySaveFailed": "No se pudo guardar la moneda de visualización. Inténtalo de nuevo.",
+  "fxAnnualProtectionFee": "Cuota anual de protección"
 }

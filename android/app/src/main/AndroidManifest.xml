@@ -8,10 +8,15 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_PHONE_CALL" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
     <application
         android:label="KeepSIMs"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon"
+        android:fullBackupContent="@xml/alert_alarm_backup_rules"
+        android:dataExtractionRules="@xml/alert_alarm_extraction_rules"
         android:usesCleartextTraffic="true">
         <activity
             android:name=".MainActivity"
@@ -62,6 +67,17 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/keepsims_widget_info" />
         </receiver>
+
+        <receiver android:name=".AlertAlarmReceiver" android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+                <action android:name="android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED" />
+            </intent-filter>
+        </receiver>
+        <service android:name=".AlertAlarmService" android:exported="false" android:foregroundServiceType="mediaPlayback" />
 
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->

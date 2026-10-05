@@ -291,7 +291,15 @@ class PlanPayment {
   /// build(). Until the gateway row loads it quotes without PayPal's fee
   /// rather than guessing a rate; [premiumYearlyTotal] awaits the real row
   /// before anything is charged.
-  static double premiumYearlyTotalSync(WidgetRef ref, CarrierRule rule) {
+  /// The single up-front charge for a year of premium, for display during
+  /// build(). Until the gateway row loads it quotes without PayPal's fee
+  /// rather than guessing a rate; [premiumYearlyTotal] awaits the real row
+  /// before anything is charged.
+  static double premiumYearlyTotalSync(
+    WidgetRef ref,
+    CarrierRule rule, {
+    bool isUpgrade = false,
+  }) {
     final paypal = ref.watch(paymentGatewayProvider('paypal')).value;
     return RefillPricing.premiumYearlyTotal(
       baseServiceFeeUsd:
@@ -307,12 +315,17 @@ class PlanPayment {
       gatewayFeePercentage: paypal?.feePercentage ?? 0,
       gatewayFeeFixed: paypal?.feeFixed ?? 0,
       inappPricingOverride: overrideFor(rule),
+      isUpgrade: isUpgrade,
     );
   }
 
   /// The up-front charge for a year of premium when paid via wallet, for
   /// display during build(). Uses 0% + $0.00 gateway fees.
-  static double premiumWalletTotalSync(WidgetRef ref, CarrierRule rule) {
+  static double premiumWalletTotalSync(
+    WidgetRef ref,
+    CarrierRule rule, {
+    bool isUpgrade = false,
+  }) {
     return RefillPricing.premiumYearlyTotal(
       baseServiceFeeUsd:
           ref.watch(baseServiceFeeUsdProvider).value ?? kDefaultBaseServiceFeeUsd,
@@ -327,6 +340,7 @@ class PlanPayment {
       gatewayFeePercentage: 0,
       gatewayFeeFixed: 0,
       inappPricingOverride: overrideFor(rule),
+      isUpgrade: isUpgrade,
     );
   }
 
@@ -339,15 +353,17 @@ class PlanPayment {
   /// the server actually debits.
   static Future<double> premiumWalletTotal(
     WidgetRef ref,
-    CarrierRule rule,
-  ) async {
+    CarrierRule rule, {
+    String? simLineId,
+    bool isUpgrade = false,
+  }) async {
     final baseFee = await ref.read(baseServiceFeeUsdProvider.future);
     final appFee = await ref.read(appFeePercentProvider.future);
     final margin = await ref.read(premiumMarginPercentProvider.future);
     final marginFlat = await ref.read(premiumMarginPerRefillUsdProvider.future);
 
     final serverQuote = await fetchQuotedPlanPrice(
-      simLineId: rule.carrierId,
+      simLineId: simLineId,
       plan: 'premium',
       gateway: 'wallet',
       carrierRuleId: rule.id,
@@ -367,6 +383,7 @@ class PlanPayment {
       gatewayFeePercentage: 0,
       gatewayFeeFixed: 0,
       inappPricingOverride: overrideFor(rule),
+      isUpgrade: isUpgrade,
     );
   }
 
@@ -376,6 +393,7 @@ class PlanPayment {
     WidgetRef ref,
     CarrierRule rule, {
     String? simLineId,
+    bool isUpgrade = false,
   }) async {
     final serverQuote = await fetchQuotedPlanPrice(
       simLineId: simLineId,
@@ -404,6 +422,7 @@ class PlanPayment {
       gatewayFeePercentage: paypal?.feePercentage ?? 0,
       gatewayFeeFixed: paypal?.feeFixed ?? 0,
       inappPricingOverride: overrideFor(rule),
+      isUpgrade: isUpgrade,
     );
   }
 
@@ -450,11 +469,17 @@ class PlanPayment {
         final firstRefill = (response['first_refill_cost_usd'] as num?)?.toDouble() ?? 0.0;
         final total = (response['total_charge_usd'] as num?)?.toDouble() ?? (annualFee + firstRefill);
         final interval = (response['refill_interval_days'] as num?)?.toInt() ?? 30;
+        final isUpgrade = response['is_upgrade'] == true;
+        final upgradeCredit = (response['upgrade_credit_usd'] as num?)?.toDouble() ?? (isUpgrade ? 2.50 : 0.0);
+        final fullAnnualFee = (response['full_annual_fee_usd'] as num?)?.toDouble() ?? 5.00;
         return PremiumInitialBreakdown(
           annualFeeUsd: annualFee,
           firstRefillUsd: firstRefill,
           totalUsd: total,
           refillIntervalDays: interval,
+          isUpgrade: isUpgrade,
+          upgradeCreditUsd: upgradeCredit,
+          fullAnnualFeeUsd: fullAnnualFee,
         );
       }
     } catch (_) {}
@@ -462,7 +487,11 @@ class PlanPayment {
   }
 
   /// Calculates synchronous itemized breakdown for build() rendering.
-  static PremiumInitialBreakdown premiumBreakdownSync(WidgetRef ref, CarrierRule rule) {
+  static PremiumInitialBreakdown premiumBreakdownSync(
+    WidgetRef ref,
+    CarrierRule rule, {
+    bool isUpgrade = false,
+  }) {
     return RefillPricing.premiumInitialBreakdown(
       baseServiceFeeUsd:
           ref.watch(baseServiceFeeUsdProvider).value ?? kDefaultBaseServiceFeeUsd,
@@ -475,6 +504,7 @@ class PlanPayment {
       premiumMarginPerRefillUsd:
           ref.watch(premiumMarginPerRefillUsdProvider).value ?? 0,
       inappPricingOverride: overrideFor(rule),
+      isUpgrade: isUpgrade,
     );
   }
 
@@ -530,12 +560,21 @@ class PlanPayment {
   }
 
   /// Reserves the dual holds (or single fee hold) in wallet_holds atomically.
-  static Future<Map<String, dynamic>> reserveSimSetupHolds(String orderId) async {
-    final client = Supabase.instance.client;
-    final response = await client.rpc('reserve_sim_setup_holds', params: {
-      'p_order_id': orderId,
-    }).timeout(const Duration(seconds: 10));
-    return Map<String, dynamic>.from(response as Map);
+  static Future<Map<String, dynamic>> reserveSimSetupHolds(
+    String orderId, {
+    SupabaseClient? client,
+  }) async {
+    final response = await (client ?? Supabase.instance.client)
+        .rpc('reserve_sim_setup_holds', params: {'p_order_id': orderId})
+        .timeout(const Duration(seconds: 10));
+    final result = Map<String, dynamic>.from(response as Map);
+    // Older servers use code/available_balance; the deposit flow uses
+    // error/current_balance. Accept both contracts during rollout.
+    if (result['success'] == false && result['code'] == 'insufficient_funds') {
+      result['error'] = 'insufficient_balance';
+      result['current_balance'] = result['available_balance'];
+    }
+    return result;
   }
 
   /// Dispatches the setup verification execution via the topup_executions queue.

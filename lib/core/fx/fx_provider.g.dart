@@ -45,7 +45,7 @@ final class FxControllerProvider
   FxController create() => FxController();
 }
 
-String _$fxControllerHash() => r'9b6fda69daba7efc2940c859a4320862296c4417';
+String _$fxControllerHash() => r'5515ea2fdfd2a5b65978eaf30cdc3a08cfcd4001';
 
 /// The caller's display-currency context.
 ///

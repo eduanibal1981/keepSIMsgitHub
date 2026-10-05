@@ -996,5 +996,8 @@
     "refreshSims": "सिम रीफ़्रेश करें",
     "noMatchingSims": "कोई मेल खाता सिम नहीं",
     "tryDifferentSimSearch": "कोई अन्य नाम, नंबर या फ़िल्टर आज़माएं।",
-    "clearSearchAndFilters": "खोज और फ़िल्टर साफ़ करें"
+    "clearSearchAndFilters": "खोज और फ़िल्टर साफ़ करें",
+  "fxChargesInUsd": "{currency} में राशि अनुमानित है। शुल्क USD में लिया जाता है।",
+  "fxCurrencySaveFailed": "प्रदर्शन मुद्रा सहेजी नहीं जा सकी। कृपया फिर से प्रयास करें।",
+  "fxAnnualProtectionFee": "वार्षिक सुरक्षा शुल्क"
 }

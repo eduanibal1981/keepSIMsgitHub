@@ -15,6 +15,8 @@ import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/core/utils/build_context_extension.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
+import 'package:keep_sims/features/dashboard/presentation/widgets/perspective_drawer.dart';
+import 'package:keep_sims/features/dashboard/presentation/controller/perspective_drawer_controller.dart';
 
 // ── Splash Screen ─────────────────────────────────────────────
 class SplashScreen extends ConsumerStatefulWidget {
@@ -33,22 +35,26 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     super.initState();
 
     // Fast check: if an accepted VoIP call is pending, bypass splash and navigate directly
-    FlutterCallkitIncoming.activeCalls().then((calls) {
-      if (!mounted) return;
-      for (final c in calls) {
-        if (c.isAccepted) {
-          final id = c.id;
-          debugPrint('[SplashScreen] Detected accepted call at launch: $id');
-          ref.read(splashCompletedProvider.notifier).complete();
-          if (id.isNotEmpty) {
-            context.go('${AppRoutes.voipCall}/$id');
-          } else {
-            _navigateToNext();
+    FlutterCallkitIncoming.activeCalls()
+        .then((calls) {
+          if (!mounted) return;
+          for (final c in calls) {
+            if (c.isAccepted) {
+              final id = c.id;
+              debugPrint(
+                '[SplashScreen] Detected accepted call at launch: $id',
+              );
+              ref.read(splashCompletedProvider.notifier).complete();
+              if (id.isNotEmpty) {
+                context.go('${AppRoutes.voipCall}/$id');
+              } else {
+                _navigateToNext();
+              }
+              return;
+            }
           }
-          return;
-        }
-      }
-    }).catchError((_) {});
+        })
+        .catchError((_) {});
 
     _videoController = VideoPlayerController.asset('assets/splashfastcp.mp4');
 
@@ -291,59 +297,90 @@ class SettingsPlaceholder extends StatelessWidget {
 }
 
 // ── App Shell (Bottom Nav) ────────────────────────────────────
-class AppShell extends StatelessWidget {
+class AppShell extends ConsumerWidget {
   const AppShell({super.key, required this.child});
 
   final Widget child;
 
-  int _currentIndex(BuildContext context) {
+  int? _currentIndex(BuildContext context, WidgetRef ref) {
+    final isDrawerOpen = ref.watch(perspectiveDrawerControllerProvider);
+    if (isDrawerOpen) return 2;
+
     final location = GoRouterState.of(context).uri.path;
-    if (location.startsWith('/home')) return 0;
-    if (location.startsWith('/notifications')) {
-      return 0; // Alerts is in Home header
+    if (location == AppRoutes.home || location == '${AppRoutes.home}/') {
+      return 0;
     }
-    if (location.startsWith('/sim-lines')) return 0;
-    if (location.startsWith('/calling')) return 1;
-    if (location.startsWith('/wallet')) return 2; // Under More menu
-    if (location.startsWith('/settings')) return 2;
-    if (location.startsWith('/household')) return 2; // Under More menu
-    return 0;
+    if (location == AppRoutes.calling ||
+        location.startsWith('${AppRoutes.calling}/')) {
+      return 1;
+    }
+
+    return null;
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: child,
-      bottomNavigationBar: CurvedBottomNavigationBar(
-              selectedIndex: _currentIndex(context),
-              onTap: (index) {
-                switch (index) {
-                  case 0:
-                    context.go(AppRoutes.home);
-                  case 1:
-                    context.go(AppRoutes.calling);
-                  case 2:
-                    context.go(AppRoutes.settings);
-                }
-              },
-              items: [
-                CurvedNavigationBarItem(
-                  icon: Icons.dashboard_outlined,
-                  selectedIcon: Icons.dashboard_rounded,
-                  label: AppLocalizations.of(context)!.navHome,
-                ),
-                CurvedNavigationBarItem(
-                  icon: Icons.phone_outlined,
-                  selectedIcon: Icons.phone_rounded,
-                  label: AppLocalizations.of(context)!.smartCall,
-                ),
-                CurvedNavigationBarItem(
-                  icon: Icons.menu_rounded,
-                  selectedIcon: Icons.menu_rounded,
-                  label: AppLocalizations.of(context)!.navMore,
-                ),
-              ],
-            ),
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectedIdx = _currentIndex(context, ref);
+    final location = GoRouterState.of(context).uri.path;
+    final isHome = location == AppRoutes.home || location == '${AppRoutes.home}/';
+
+    return PopScope(
+      canPop: isHome || Navigator.of(context).canPop(),
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) {
+          final isDrawerOpen = ref.read(perspectiveDrawerControllerProvider);
+          if (isDrawerOpen) {
+            ref.read(perspectiveDrawerControllerProvider.notifier).close();
+            return;
+          }
+          if (context.mounted && !isHome) {
+            context.go(AppRoutes.home);
+          }
+        }
+      },
+      child: PerspectiveDrawerScaffold(
+        child: Scaffold(
+          body: child,
+          bottomNavigationBar: CurvedBottomNavigationBar(
+            selectedIndex: selectedIdx,
+            onTap: (index) {
+              switch (index) {
+                case 0:
+                  ref
+                      .read(perspectiveDrawerControllerProvider.notifier)
+                      .close();
+                  context.go(AppRoutes.home);
+                case 1:
+                  ref
+                      .read(perspectiveDrawerControllerProvider.notifier)
+                      .close();
+                  context.go(AppRoutes.calling);
+                case 2:
+                  ref
+                      .read(perspectiveDrawerControllerProvider.notifier)
+                      .toggle();
+              }
+            },
+            items: [
+              CurvedNavigationBarItem(
+                icon: Icons.dashboard_outlined,
+                selectedIcon: Icons.dashboard_rounded,
+                label: AppLocalizations.of(context)!.navHome,
+              ),
+              CurvedNavigationBarItem(
+                icon: Icons.phone_outlined,
+                selectedIcon: Icons.phone_rounded,
+                label: AppLocalizations.of(context)!.smartCall,
+              ),
+              CurvedNavigationBarItem(
+                icon: Icons.menu_rounded,
+                selectedIcon: Icons.menu_rounded,
+                label: AppLocalizations.of(context)!.navMore,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
@@ -364,6 +401,7 @@ class CurvedNavigationBarItem {
 // ── Custom Curved Navigation Bar Painter ──────────────────────
 class CurvedNavigationBarPainter extends CustomPainter {
   final double activeIndex;
+  final double cutoutProgress;
   final int itemCount;
   final Color backgroundColor;
   final Color borderColor;
@@ -371,6 +409,7 @@ class CurvedNavigationBarPainter extends CustomPainter {
 
   CurvedNavigationBarPainter({
     required this.activeIndex,
+    required this.cutoutProgress,
     required this.itemCount,
     required this.backgroundColor,
     required this.borderColor,
@@ -402,16 +441,35 @@ class CurvedNavigationBarPainter extends CustomPainter {
     const D = 25.0; // Depth of cutout
     const cornerRadius = 24.0;
 
+    final currentR = R * cutoutProgress;
+    final currentD = D * cutoutProgress;
+
     // Background Top-left corner
     path.moveTo(0, cornerRadius);
     path.quadraticBezierTo(0, 0, cornerRadius, 0);
 
-    // Line to start of cutout dip
-    path.lineTo(x - R, 0);
+    if (cutoutProgress > 0.005) {
+      // Line to start of cutout dip
+      path.lineTo(x - currentR, 0);
 
-    // Smooth Bezier Curve dip
-    path.cubicTo(x - R + 10, 0, x - R + 6, D, x, D);
-    path.cubicTo(x + R - 6, D, x + R - 10, 0, x + R, 0);
+      // Smooth Bezier Curve dip
+      path.cubicTo(
+        x - currentR + (10 * cutoutProgress),
+        0,
+        x - currentR + (6 * cutoutProgress),
+        currentD,
+        x,
+        currentD,
+      );
+      path.cubicTo(
+        x + currentR - (6 * cutoutProgress),
+        currentD,
+        x + currentR - (10 * cutoutProgress),
+        0,
+        x + currentR,
+        0,
+      );
+    }
 
     // Line to top-right corner
     path.lineTo(width - cornerRadius, 0);
@@ -437,9 +495,27 @@ class CurvedNavigationBarPainter extends CustomPainter {
     final borderPath = Path();
     borderPath.moveTo(0, cornerRadius);
     borderPath.quadraticBezierTo(0, 0, cornerRadius, 0);
-    borderPath.lineTo(x - R, 0);
-    borderPath.cubicTo(x - R + 10, 0, x - R + 6, D, x, D);
-    borderPath.cubicTo(x + R - 6, D, x + R - 10, 0, x + R, 0);
+
+    if (cutoutProgress > 0.005) {
+      borderPath.lineTo(x - currentR, 0);
+      borderPath.cubicTo(
+        x - currentR + (10 * cutoutProgress),
+        0,
+        x - currentR + (6 * cutoutProgress),
+        currentD,
+        x,
+        currentD,
+      );
+      borderPath.cubicTo(
+        x + currentR - (6 * cutoutProgress),
+        currentD,
+        x + currentR - (10 * cutoutProgress),
+        0,
+        x + currentR,
+        0,
+      );
+    }
+
     borderPath.lineTo(width - cornerRadius, 0);
     borderPath.quadraticBezierTo(width, 0, width, cornerRadius);
 
@@ -449,6 +525,7 @@ class CurvedNavigationBarPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CurvedNavigationBarPainter oldDelegate) {
     return oldDelegate.activeIndex != activeIndex ||
+        oldDelegate.cutoutProgress != cutoutProgress ||
         oldDelegate.backgroundColor != backgroundColor ||
         oldDelegate.borderColor != borderColor ||
         oldDelegate.textDirection != textDirection;
@@ -457,7 +534,7 @@ class CurvedNavigationBarPainter extends CustomPainter {
 
 // ── Premium Curved Bottom Navigation Bar ──────────────────────
 class CurvedBottomNavigationBar extends StatefulWidget {
-  final int selectedIndex;
+  final int? selectedIndex;
   final Function(int) onTap;
   final List<CurvedNavigationBarItem> items;
 
@@ -474,41 +551,94 @@ class CurvedBottomNavigationBar extends StatefulWidget {
 }
 
 class _CurvedBottomNavigationBarState extends State<CurvedBottomNavigationBar>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _animation;
+    with TickerProviderStateMixin {
+  late AnimationController _posController;
+  late Animation<double> _posAnimation;
+
+  late AnimationController _cutoutController;
+  late Animation<double> _cutoutAnimation;
+
+  late int _lastValidIndex;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
+    final hasSelection = widget.selectedIndex != null &&
+        widget.selectedIndex! >= 0 &&
+        widget.selectedIndex! < widget.items.length;
+    _lastValidIndex = hasSelection ? widget.selectedIndex! : 0;
+
+    _posController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 350),
     );
-    _animation = Tween<double>(
-      begin: widget.selectedIndex.toDouble(),
-      end: widget.selectedIndex.toDouble(),
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
+    _posAnimation = Tween<double>(
+      begin: _lastValidIndex.toDouble(),
+      end: _lastValidIndex.toDouble(),
+    ).animate(
+      CurvedAnimation(parent: _posController, curve: Curves.easeOutCubic),
+    );
+
+    _cutoutController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+      value: hasSelection ? 1.0 : 0.0,
+    );
+    _cutoutAnimation = CurvedAnimation(
+      parent: _cutoutController,
+      curve: Curves.easeInOutCubic,
+    );
   }
 
   @override
   void didUpdateWidget(covariant CurvedBottomNavigationBar oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.selectedIndex != widget.selectedIndex) {
-      _animation =
-          Tween<double>(
-            begin: _animation.value,
-            end: widget.selectedIndex.toDouble(),
-          ).animate(
-            CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
-          );
-      _controller.forward(from: 0.0);
+    final hasNewSelection = widget.selectedIndex != null &&
+        widget.selectedIndex! >= 0 &&
+        widget.selectedIndex! < widget.items.length;
+    final hadOldSelection = oldWidget.selectedIndex != null &&
+        oldWidget.selectedIndex! >= 0 &&
+        oldWidget.selectedIndex! < oldWidget.items.length;
+
+    if (hasNewSelection) {
+      final newIndex = widget.selectedIndex!;
+      _lastValidIndex = newIndex;
+
+      if (!hadOldSelection) {
+        // Was inactive, now active at newIndex
+        _posAnimation = Tween<double>(
+          begin: newIndex.toDouble(),
+          end: newIndex.toDouble(),
+        ).animate(
+          CurvedAnimation(parent: _posController, curve: Curves.easeOutCubic),
+        );
+        _posController.value = 1.0;
+        _cutoutController.forward();
+      } else if (oldWidget.selectedIndex != newIndex) {
+        // Animated between two active tabs
+        _posAnimation = Tween<double>(
+          begin: _posAnimation.value,
+          end: newIndex.toDouble(),
+        ).animate(
+          CurvedAnimation(parent: _posController, curve: Curves.easeOutCubic),
+        );
+        _posController.forward(from: 0.0);
+        if (_cutoutController.value < 1.0) {
+          _cutoutController.forward();
+        }
+      }
+    } else {
+      // Now inactive
+      if (hadOldSelection) {
+        _cutoutController.reverse();
+      }
     }
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _posController.dispose();
+    _cutoutController.dispose();
     super.dispose();
   }
 
@@ -520,11 +650,13 @@ class _CurvedBottomNavigationBarState extends State<CurvedBottomNavigationBar>
     final bottomPadding = MediaQuery.paddingOf(context).bottom;
 
     return AnimatedBuilder(
-      animation: _animation,
+      animation: Listenable.merge([_posAnimation, _cutoutAnimation]),
       builder: (context, child) {
         final effectiveIndex = isRtl
-            ? (widget.items.length - 1 - _animation.value)
-            : _animation.value;
+            ? (widget.items.length - 1 - _posAnimation.value)
+            : _posAnimation.value;
+
+        final cutoutVal = _cutoutAnimation.value;
 
         return Container(
           height: 85.0 + bottomPadding,
@@ -537,7 +669,8 @@ class _CurvedBottomNavigationBarState extends State<CurvedBottomNavigationBar>
                 child: RepaintBoundary(
                   child: CustomPaint(
                     painter: CurvedNavigationBarPainter(
-                      activeIndex: _animation.value,
+                      activeIndex: _posAnimation.value,
+                      cutoutProgress: cutoutVal,
                       itemCount: widget.items.length,
                       backgroundColor: context.surfaceColor,
                       borderColor: context.onSurfaceColor.withValues(
@@ -550,45 +683,60 @@ class _CurvedBottomNavigationBarState extends State<CurvedBottomNavigationBar>
               ),
 
               // Floating Active Icon Circle with glow shadow
-              Positioned(
-                left:
-                    (effectiveIndex + 0.5) * singleWidth -
-                    30, // center 60px wide circle
-                top: -15, // float elevated
-                child: Container(
-                  width: 60,
-                  height: 60,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: AppColors.primaryGradient,
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primary.withValues(alpha: 0.35),
-                        blurRadius: 16,
-                        offset: const Offset(0, 6),
+              if (cutoutVal > 0.005)
+                Positioned(
+                  left:
+                      (effectiveIndex + 0.5) * singleWidth -
+                      30, // center 60px wide circle
+                  top: -15 * cutoutVal, // float elevated
+                  child: Opacity(
+                    opacity: cutoutVal.clamp(0.0, 1.0),
+                    child: Transform.scale(
+                      scale: cutoutVal.clamp(0.0, 1.0),
+                      child: Container(
+                        width: 60,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: AppColors.primaryGradient,
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.primary.withValues(
+                                alpha: 0.35 * cutoutVal.clamp(0.0, 1.0),
+                              ),
+                              blurRadius: 16,
+                              offset: const Offset(0, 6),
+                            ),
+                          ],
+                        ),
+                        child: Center(
+                          child: Icon(
+                            widget.items[_lastValidIndex].selectedIcon,
+                            color: Colors.white,
+                            size: 26,
+                          ),
+                        ),
                       ),
-                    ],
-                  ),
-                  child: Center(
-                    child: Icon(
-                      widget.items[widget.selectedIndex].selectedIcon,
-                      color: Colors.white,
-                      size: 26,
                     ),
                   ),
                 ),
-              ),
 
               // Inactive Icons & Text Labels Row
               Positioned.fill(
                 child: Row(
                   children: List.generate(widget.items.length, (index) {
                     final item = widget.items[index];
-                    final isSelected = index == widget.selectedIndex;
+                    final isSelected = widget.selectedIndex != null &&
+                        index == widget.selectedIndex;
 
                     // Calculate distance to active index to fade out standard icon
-                    final distance = (index - _animation.value).abs();
-                    final opacity = (distance * 1.5).clamp(0.0, 1.0);
+                    final distance = (index - _posAnimation.value).abs();
+                    final baseDistanceOpacity = (distance * 1.5).clamp(0.0, 1.0);
+                    final opacity =
+                        (1.0 - (1.0 - baseDistanceOpacity) * cutoutVal).clamp(
+                          0.0,
+                          1.0,
+                        );
 
                     return Expanded(
                       child: GestureDetector(

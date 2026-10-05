@@ -17,6 +17,11 @@ enabled = true
 verify_jwt = true
 entrypoint = "./functions/make-call/index.ts"
 
+[functions.notification-email-verification]
+enabled = true
+verify_jwt = true
+entrypoint = "./functions/notification-email-verification/index.ts"
+
 [functions.telnyx-cdr]
 enabled = true
 verify_jwt = false

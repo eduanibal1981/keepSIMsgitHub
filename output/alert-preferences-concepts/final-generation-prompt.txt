@@ -1,0 +1,34 @@
+Generated with the built-in image generation tool.
+
+Use case: ui-mockup.
+Asset type: Final high fidelity mobile UI proposal for KeepSIMs Alert preferences.
+Primary request: Refine the compact dashboard plus channel bottom sheet approach to accommodate FOUR actual channels: Push notifications, Email alerts, WhatsApp alerts, Telegram bot. Include prominent but compact Quiet hours and Weekly summary schedule navigation buttons. Make the interface eye friendly, readable, highly usable and as restrained and coherent as a leading mobile app.
+Composition: ONE polished landscape design board, approximately1536x1024. TWO large tall straight-on flat mobile screens side by side, proportional to390x844, occupying most of image height. Left is the complete dashboard. Right is the SAME dashboard dimmed underneath a Telegram setup bottom sheet. Barely visible rounded screen border; no physical phone hardware, perspective, scenery or illustrations. Board title above: "Alert preferences". Small captions below screens "Compact dashboard" and "Channel bottom sheet".
+Style: White and very pale neutral gray surfaces, dark charcoal text, readable muted slate secondary text, deep teal actions and small cyan brand accent. Very subtle dividers, 16dp grouped surface corners, one consistent outline icon style, 8pt spacing, restrained high quality mobile typography with approximately16sp body text and18sp row labels. Compact through removing prose; never tiny text. Touch targets roomy. No gradient or glow, no nested bordered cards, no oversized floating tab, no multi-color channel styling. Teal for enabled state, subdued amber only for setup-required state. Header left back arrow and "Alert preferences" on one line. Simple mobile status bar9:41. Preserve safe areas and don't overlap content with bottom navigation. All text exact and readable.
+LEFT DASHBOARD:
+Header as specified, subtitle "Choose how and when we notify you".
+One SLIM quiet neutral summary strip, no green success banner or check: label "3 channels on", subtitle "Telegram needs setup"; small muted bell icon.
+Section heading "Alert channels".
+ONE white grouped container holding FOUR compact navigation rows with subtle dividers. Each full row tappable, icon left, title+subtitle center, state text and small chevron right. NO switches on the overview.
+Row1 bell outline icon, title "Push notifications", subtitle "This device • Connected", right "On" teal then chevron.
+Row2 envelope outline icon, title "Email alerts", subtitle "Critical SIM alerts", right "On" teal then chevron.
+Row3 chat bubble outline icon, title "WhatsApp alerts", subtitle "Refill failure alerts", right "On" teal then chevron.
+Row4 paper plane outline icon, title "Telegram bot", subtitle "Link your account", right a compact readable muted-amber status text "Setup required" then chevron. Fit this title and status without collision or awkward line wraps; subtitle on separate line.
+Small clear footnote directly below the group: "Email and WhatsApp require Standard or Premium."
+Section heading "Quiet hours & schedule".
+ONE white grouped container with TWO comfortably tappable navigation button rows, using moon and calendar outline icons and chevrons:
+"Quiet hours" with subtitle "Pause routine alerts", right status "Off" and chevron.
+"Weekly summary" with subtitle "Sunday at 9:00 AM", right status "Off" and chevron.
+All SIX rows plus summary and normal navigation fit on the visible screen, no clipped card.
+Bottom navigation Home, Smart Call, More, all equal height, More selected in a SMALL pale teal rounded pill, icon above text, no giant floating home button.
+RIGHT SCREEN:
+Same complete dashboard visible through gray scrim, modal bottom sheet covers lower approximately52% screen INCLUDING global bottom navigation. Sheet has handle, compact header outline paper plane icon with "Telegram bot" and close X.
+Readable status row amber small info icon and "Not connected".
+Short readable helper: "Link the bot to receive free, interactive alerts."
+Simple three numbered instructions with comfortable line height:
+"1  Open Telegram"
+"2  Link the bot to your account"
+"3  Return here to check the connection"
+Large teal primary button "Link Telegram bot".
+Secondary text button "Close".
+No enabled toggle for an unlinked bot. No fabricated successful connection, no developer provider details. Sheet design uses one clean white surface; no nested cards. Critical consistency: four channels, Telegram visibly setup-required, Quiet hours and Weekly summary both appear in complete left overview. Accurate capitalization and spelling. This is a professional final UI design proposal, not a production screenshot.

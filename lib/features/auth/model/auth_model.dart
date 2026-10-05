@@ -47,6 +47,14 @@ abstract class UserProfile with _$UserProfile {
 /// fails with 42501 — the same breakage the D5d column lockdown caused for SIM
 /// line editing. Send this instead on UPDATE.
 extension UserProfileWritablePayload on UserProfile {
+  /// Editing identity details must not overwrite a concurrently changed
+  /// currency, phone, or onboarding preference.
+  Map<String, dynamic> toDetailsWritableJson() => {
+    'full_name': fullName,
+    'home_country_code': homeCountryCode,
+    'updated_at': DateTime.now().toIso8601String(),
+  };
+
   Map<String, dynamic> toClientWritableJson() {
     return {
       'full_name': fullName,

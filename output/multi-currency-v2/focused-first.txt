@@ -1,0 +1,176 @@
+00:00 +0: loading C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/fx_lifecycle_test.dart
+00:00 +0: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/fx_lifecycle_test.dart: expiry delay uses server age, a safety margin and request elapsed time
+00:00 +1: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/fx_lifecycle_test.dart: account change, sign-out and sign-in clear and reload display FX
+00:00 +2: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/fx_lifecycle_test.dart: account change, sign-out and sign-in clear and reload display FX
+00:00 +3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/fx_lifecycle_test.dart: account change, sign-out and sign-in clear and reload display FX
+00:00 +4: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/fx_lifecycle_test.dart: account change, sign-out and sign-in clear and reload display FX
+00:00 +5: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/fx_lifecycle_test.dart: account change, sign-out and sign-in clear and reload display FX
+00:00 +6: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/fx_lifecycle_test.dart: account change, sign-out and sign-in clear and reload display FX
+00:00 +7: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/fx_lifecycle_test.dart: account change, sign-out and sign-in clear and reload display FX
+00:00 +8: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/fx_lifecycle_test.dart: account change, sign-out and sign-in clear and reload display FX
+00:00 +9: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/fx_lifecycle_test.dart: account change, sign-out and sign-in clear and reload display FX
+00:00 +10: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/fx_lifecycle_test.dart: account change, sign-out and sign-in clear and reload display FX
+00:00 +11: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/fx_lifecycle_test.dart: account change, sign-out and sign-in clear and reload display FX
+00:00 +12: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/fx_lifecycle_test.dart: account change, sign-out and sign-in clear and reload display FX
+00:00 +13: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/fx_lifecycle_test.dart: account change, sign-out and sign-in clear and reload display FX
+00:00 +14: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/fx_lifecycle_test.dart: account change, sign-out and sign-in clear and reload display FX
+00:00 +15: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/fx_lifecycle_test.dart: account change, sign-out and sign-in clear and reload display FX
+00:00 +16: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/fx_lifecycle_test.dart: account change, sign-out and sign-in clear and reload display FX
+00:00 +17: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/fx_lifecycle_test.dart: account change, sign-out and sign-in clear and reload display FX
+00:00 +18: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/fx_lifecycle_test.dart: account change, sign-out and sign-in clear and reload display FX
+00:00 +19: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/fx_lifecycle_test.dart: account change, sign-out and sign-in clear and reload display FX
+00:00 +20: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/fx_lifecycle_test.dart: account change, sign-out and sign-in clear and reload display FX
+00:00 +21: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/fx_lifecycle_test.dart: account change, sign-out and sign-in clear and reload display FX
+00:00 +22: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/fx_lifecycle_test.dart: account change, sign-out and sign-in clear and reload display FX
+00:00 +23: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/fx_lifecycle_test.dart: account change, sign-out and sign-in clear and reload display FX
+Pending timers:
+Timer (duration: 6:00:00.000000, periodic: false), created:
+#0      new FakeTimer._ (package:fake_async/fake_async.dart:342:62)
+#1      FakeAsync._createTimer (package:fake_async/fake_async.dart:260:29)
+#2      FakeAsync.run.<anonymous closure> (package:fake_async/fake_async.dart:185:15)
+#5      FxController.build.schedule (package:keep_sims/core/fx/fx_provider.dart:87:22)
+#6      FxController.build (package:keep_sims/core/fx/fx_provider.dart:104:9)
+<asynchronous suspension>
+#7      ElementWithFuture.handleFuture.<anonymous closure>.<anonymous closure> (package:riverpod/src/core/element.dart:232:17)
+<asynchronous suspension>
+#8      ElementWithFuture.handleFuture.<anonymous closure>.<anonymous closure> (package:riverpod/src/core/element.dart:237:29)
+<asynchronous suspension>
+(elided 2 frames from dart:async)
+
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following assertion was thrown running a test:
+A Timer is still pending even after the widget tree was disposed.
+'package:flutter_test/src/binding.dart':
+Failed assertion: line 2543 pos 12: '!timersPending'
+
+When the exception was thrown, this was the stack:
+#2      AutomatedTestWidgetsFlutterBinding._verifyInvariants (package:flutter_test/src/binding.dart:2543:12)
+#3      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1974:7)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 3 frames from class _AssertionError and package:stack_trace)
+
+The test description was:
+  account change, sign-out and sign-in clear and reload display FX
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:01 +23 -1: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/fx_lifecycle_test.dart: account change, sign-out and sign-in clear and reload display FX [E]
+  Test failed. See exception logs above.
+  The test description was: account change, sign-out and sign-in clear and reload display FX
+  
+00:01 +23 -1: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/fx_lifecycle_test.dart: expiry refresh hides retained data and failed refresh falls back
+Pending timers:
+Timer (duration: 0:05:00.000000, periodic: false), created:
+#0      new FakeTimer._ (package:fake_async/fake_async.dart:342:62)
+#1      FakeAsync._createTimer (package:fake_async/fake_async.dart:260:29)
+#2      FakeAsync.run.<anonymous closure> (package:fake_async/fake_async.dart:185:15)
+#5      FxController.build.schedule (package:keep_sims/core/fx/fx_provider.dart:87:22)
+#6      FxController.build (package:keep_sims/core/fx/fx_provider.dart:112:7)
+<asynchronous suspension>
+#7      ElementWithFuture.handleFuture.<anonymous closure>.<anonymous closure> (package:riverpod/src/core/element.dart:232:17)
+<asynchronous suspension>
+#8      ElementWithFuture.handleFuture.<anonymous closure>.<anonymous closure> (package:riverpod/src/core/element.dart:237:29)
+<asynchronous suspension>
+(elided 2 frames from dart:async)
+
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following assertion was thrown running a test:
+A Timer is still pending even after the widget tree was disposed.
+'package:flutter_test/src/binding.dart':
+Failed assertion: line 2543 pos 12: '!timersPending'
+
+When the exception was thrown, this was the stack:
+#2      AutomatedTestWidgetsFlutterBinding._verifyInvariants (package:flutter_test/src/binding.dart:2543:12)
+#3      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1974:7)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 3 frames from class _AssertionError and package:stack_trace)
+
+The test description was:
+  expiry refresh hides retained data and failed refresh falls back
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:01 +23 -2: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/fx_lifecycle_test.dart: expiry refresh hides retained data and failed refresh falls back [E]
+  Test failed. See exception logs above.
+  The test description was: expiry refresh hides retained data and failed refresh falls back
+  
+00:01 +23 -2: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/fx_lifecycle_test.dart: resume revalidates FX and pause cancels background refresh
+══╡ EXCEPTION CAUGHT BY WIDGETS LIBRARY ╞═══════════════════════════════════════════════════════════
+The following assertion was thrown while dispatching notifications for
+WidgetsBindingObserver.didChangeAppLifecycleState:
+Invalid state transition from AppLifecycleState.paused to AppLifecycleState.resumed
+'package:flutter/src/widgets/app_lifecycle_listener.dart':
+Failed assertion: line 225 pos 11: 'previousState == null ||
+              previousState == AppLifecycleState.inactive ||
+              previousState == AppLifecycleState.detached'
+
+Either the assertion indicates an error in the framework itself, or we should provide substantially
+more information in this error message to help you determine and fix the underlying cause.
+In either case, please report this assertion by filing a bug on GitHub:
+  https://github.com/flutter/flutter/issues/new?template=02_bug.yml
+
+When the exception was thrown, this was the stack:
+#2      AppLifecycleListener.didChangeAppLifecycleState (package:flutter/src/widgets/app_lifecycle_listener.dart:225:11)
+#3      WidgetsBinding.handleAppLifecycleStateChanged (package:flutter/src/widgets/binding.dart:1334:18)
+#4      main.<anonymous closure> (file:///C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/fx_lifecycle_test.dart:113:20)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 3 frames from class _AssertionError and package:stack_trace)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: <2>
+  Actual: <1>
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/fx_lifecycle_test.dart:115:5)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/fx_lifecycle_test.dart line 115
+The test description was:
+  resume revalidates FX and pause cancels background refresh
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following message was thrown:
+Multiple exceptions (2) were detected during the running of the current test, and at least one was
+unexpected.
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:01 +23 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/fx_lifecycle_test.dart: resume revalidates FX and pause cancels background refresh [E]
+  Test failed. See exception logs above.
+  The test description was: resume revalidates FX and pause cancels background refresh
+  
+00:03 +23 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/payments/paypal_checkout_screen_test.dart: PayPalCheckoutScreen & Quote Parity Unit Tests renders payment title and secure pay button correctly
+lib/features/profile/presentation/ui/onboarding_screen.dart:2698:38: Error: The getter 'isFree' isn't defined for the type '_OnboardingScreenState'.
+ - '_OnboardingScreenState' is from 'package:keep_sims/features/profile/presentation/ui/onboarding_screen.dart' ('lib/features/profile/presentation/ui/onboarding_screen.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'isFree'.
+                                if (!isFree) ApproxLocalText(_baseServiceFeeUsd, textAlign: TextAlign.end),
+                                     ^^^^^^
+[Analytics] Consent check error: 'package:supabase_flutter/src/supabase.dart': Failed assertion: line 44 pos 7: '_instance._isInitialized': You must initialize the supabase instance before calling Supabase.instance
+00:05 +24 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/payments/paypal_checkout_screen_test.dart: PayPalCheckoutScreen & Quote Parity Unit Tests renders plan payment kind correctly
+[Analytics] Consent check error: 'package:supabase_flutter/src/supabase.dart': Failed assertion: line 44 pos 7: '_instance._isInitialized': You must initialize the supabase instance before calling Supabase.instance
+00:05 +25 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/payments/paypal_checkout_screen_test.dart: PayPalCheckoutScreen & Quote Parity Unit Tests Standard plan PayPal grossUpTotal matches SQL calculation ($3.10)
+00:05 +26 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/payments/paypal_checkout_screen_test.dart: PayPalCheckoutScreen & Quote Parity Unit Tests Premium plan initial charge for Orange Egypt (override $4.30 + $2.50 fee) matches SQL ($7.55)
+00:07 +27 -4: loading C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/smart_call_savings_screen_test.dart [E]
+  Failed to load "C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/smart_call_savings_screen_test.dart":
+  Compilation failed for testPath=C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/smart_call_savings_screen_test.dart: lib/features/profile/presentation/ui/onboarding_screen.dart:2698:38: Error: The getter 'isFree' isn't defined for the type '_OnboardingScreenState'.
+   - '_OnboardingScreenState' is from 'package:keep_sims/features/profile/presentation/ui/onboarding_screen.dart' ('lib/features/profile/presentation/ui/onboarding_screen.dart').
+  Try correcting the name to the name of an existing getter, or defining a getter or field named 'isFree'.
+                                  if (!isFree) ApproxLocalText(_baseServiceFeeUsd, textAlign: TextAlign.end),
+                                       ^^^^^^
+  .
+00:07 +27 -4: Some tests failed.
+
+Failing tests:
+  C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/smart_call_savings_screen_test.dart: loading C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/smart_call_savings_screen_test.dart
+  C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/fx_lifecycle_test.dart: account change, sign-out and sign-in clear and reload display FX
+  C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/fx_lifecycle_test.dart: expiry refresh hides retained data and failed refresh falls back
+  C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/fx_lifecycle_test.dart: resume revalidates FX and pause cancels background refresh

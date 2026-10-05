@@ -5,8 +5,10 @@
 library;
 
 import 'dart:async';
+import 'package:keep_sims/core/fx/fx_provider.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:keep_sims/core/fx/money.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:keep_sims/core/result.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
@@ -54,6 +56,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   final TextEditingController _nameController = TextEditingController();
   String _selectedCountryCode = 'EG';
   String _selectedCurrency = 'USD';
+  bool _isSavingCurrency = false;
 
   // Step 3 Data
   String _selectedTier = 'free';
@@ -90,7 +93,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   // The four rupee/taka corridors below were missing while the country picker
   // above has listed India, Philippines, Pakistan and Nepal all along — and
   // this feature exists for exactly those users.
-  final List<Map<String, String>> _currencies = [
+  static const _seedCurrencies = <Map<String, String>>[
+    {'code': 'OMR', 'name': 'Omani Rial (OMR)'},
     {'code': 'USD', 'name': 'US Dollar (\$)'},
     {'code': 'EUR', 'name': 'Euro (€)'},
     {'code': 'GBP', 'name': 'British Pound (£)'},
@@ -106,6 +110,26 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     {'code': 'NPR', 'name': 'Nepalese Rupee (Rs)'},
     {'code': 'TRY', 'name': 'Turkish Lira (₺)'},
   ];
+  List<Map<String, String>> get _currencies {
+    final state = ref.watch(fxControllerProvider);
+    final available = !state.isLoading && !state.hasError
+        ? state.asData?.value.available ?? const []
+        : const [];
+    final options = available.isEmpty
+        ? _seedCurrencies.toList()
+        : available
+              .map(
+                (option) => <String, String>{
+                  'code': option.code,
+                  'name': '${option.name} (${option.code})',
+                },
+              )
+              .toList();
+    if (!options.any((option) => option['code'] == _selectedCurrency)) {
+      options.add({'code': _selectedCurrency, 'name': _selectedCurrency});
+    }
+    return options;
+  }
 
   @override
   void initState() {
@@ -202,19 +226,22 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   .value ??
               [];
           final opLower = result.detectedOperatorName!.toLowerCase();
-          final matched = carriers.firstWhereOrNull(
-            (c) {
-              final cNameLower = c.name.toLowerCase();
-              return opLower.contains(cNameLower) ||
-                  cNameLower.contains(opLower) ||
-                  (opLower.contains('friendi') && cNameLower.contains('friendi')) ||
-                  (opLower.contains('omantel') && cNameLower.contains('omantel')) ||
-                  (opLower.contains('ooredoo') && cNameLower.contains('ooredoo')) ||
-                  (opLower.contains('vodafone') && cNameLower.contains('vodafone')) ||
-                  (opLower.contains('red bull') && cNameLower.contains('red bull')) ||
-                  (opLower.contains('renna') && cNameLower.contains('renna'));
-            },
-          );
+          final matched = carriers.firstWhereOrNull((c) {
+            final cNameLower = c.name.toLowerCase();
+            return opLower.contains(cNameLower) ||
+                cNameLower.contains(opLower) ||
+                (opLower.contains('friendi') &&
+                    cNameLower.contains('friendi')) ||
+                (opLower.contains('omantel') &&
+                    cNameLower.contains('omantel')) ||
+                (opLower.contains('ooredoo') &&
+                    cNameLower.contains('ooredoo')) ||
+                (opLower.contains('vodafone') &&
+                    cNameLower.contains('vodafone')) ||
+                (opLower.contains('red bull') &&
+                    cNameLower.contains('red bull')) ||
+                (opLower.contains('renna') && cNameLower.contains('renna'));
+          });
           if (matched != null) {
             setState(() {
               _selectedSimCarrier = matched;
@@ -366,12 +393,37 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   }
 
   Future<void> _nextPage() async {
+    if (_isSavingCurrency) return;
     if (_currentPage == 1) {
       final name = _nameController.text.trim();
       if (name.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Please enter your full name.'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+        return;
+      }
+    }
+
+    if (_currentPage == 1) {
+      setState(() => _isSavingCurrency = true);
+      var saved = false;
+      try {
+        saved = await ref
+            .read(fxControllerProvider.notifier)
+            .setDisplayCurrency(_selectedCurrency);
+      } catch (_) {
+        saved = false;
+      } finally {
+        if (mounted) setState(() => _isSavingCurrency = false);
+      }
+      if (!mounted) return;
+      if (!saved) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.fxCurrencySaveFailed),
             backgroundColor: AppColors.error,
           ),
         );
@@ -635,6 +687,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             isPowerUser: _selectedTier == 'premium',
             subscriptionTier: _selectedTier == 'free' ? 'basic' : _selectedTier,
           );
+
+      ref.invalidate(fxControllerProvider);
 
       if (mounted && result is Failure<UserProfile>) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -1162,13 +1216,15 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     ),
                   );
                 }).toList(),
-                onChanged: (val) {
-                  if (val != null) {
-                    setState(() {
-                      _selectedCurrency = val;
-                    });
-                  }
-                },
+                onChanged: _isSavingCurrency
+                    ? null
+                    : (val) {
+                        if (val != null) {
+                          setState(() {
+                            _selectedCurrency = val;
+                          });
+                        }
+                      },
               ),
             ),
           ),
@@ -1881,7 +1937,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     }
 
                     // On basic tier, WhatsApp and Email are locked (Push and Telegram are free)
-                    final bool isLocked = type != 'push' && type != 'telegram' && isBasic;
+                    final bool isLocked =
+                        type != 'push' && type != 'telegram' && isBasic;
 
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -2041,6 +2098,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   // ── Footer Navigation Buttons ────────────────────────────────────
   Widget _buildFooter(bool isLoading) {
+    isLoading = isLoading || _isSavingCurrency;
     final isDark = context.isDarkMode;
     return Container(
       padding: const EdgeInsets.all(24),
@@ -2135,7 +2193,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     final isDark = context.isDarkMode;
     final bool isStandard = selectedTier == 'standard';
     final bool isPremium = selectedTier == 'premium';
-    final bool isFree = selectedTier == 'free';
 
     String planName = 'Free Plan';
     Color planColor = isDark ? Colors.blueAccent : Colors.blue;
@@ -2232,12 +2289,25 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   color: planColor.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Text(
-                  billingRate,
-                  style: AppTextStyles.caption.copyWith(
-                    color: planColor,
-                    fontWeight: FontWeight.w900,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      billingRate,
+                      style: AppTextStyles.caption.copyWith(
+                        color: planColor,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    if (isStandard)
+                      ApproxLocalText(_baseServiceFeeUsd)
+                    else if (isPremium &&
+                        premiumRule != null &&
+                        !isPremiumLoading &&
+                        !CarrierActivityNotice.blocksPremium(premiumRule))
+                      ApproxLocalText(_premiumYearlyTotalSync(premiumRule)),
+                  ],
                 ),
               ),
             ],
@@ -2252,6 +2322,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               height: 1.4,
             ),
           ),
+          const FxChargeNotice(),
           // i8: same link as the add-line form. Onboarding is where most people
           // meet this decision for the first time, so it is the last place that
           // should hide what the carrier's rules actually are.
@@ -2346,6 +2417,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       children: tiers.map((tier) {
         final isSelected = _selectedTier == tier['key'];
         final isDisabled = tier['key'] == 'free' && _isFreePlanDisabled;
+        final double? displayPriceUsd = tier['key'] == 'standard'
+            ? _baseServiceFeeUsd
+            : tier['key'] == 'premium' &&
+                  premiumRule != null &&
+                  !isPremiumLoading &&
+                  !CarrierActivityNotice.blocksPremium(premiumRule)
+            ? _premiumYearlyTotalSync(premiumRule)
+            : null;
 
         final isChecking =
             _isCheckingLiveness &&
@@ -2443,6 +2522,16 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                               fontSize: 12,
                             ),
                           ),
+                          if (displayPriceUsd != null) ...[
+                            Text(
+                              '${Money.usd(displayPriceUsd)}${tier['key'] == 'premium' ? ' USD' : '/yr'}',
+                              style: TextStyle(
+                                color: context.onSurfaceColor,
+                                fontSize: 12,
+                              ),
+                            ),
+                            ApproxLocalText(displayPriceUsd),
+                          ],
                         ],
                       ),
                     ),
@@ -2629,13 +2718,24 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            Text(
-                              priceStr,
-                              style: AppTextStyles.titleLarge.copyWith(
-                                color: accentColor,
-                                fontWeight: FontWeight.w900,
-                                fontSize: 22,
-                              ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  priceStr,
+                                  style: AppTextStyles.titleLarge.copyWith(
+                                    color: accentColor,
+                                    fontWeight: FontWeight.w900,
+                                    fontSize: 22,
+                                  ),
+                                ),
+                                if (isPremium || isStandard)
+                                  ApproxLocalText(
+                                    _baseServiceFeeUsd,
+                                    textAlign: TextAlign.end,
+                                  ),
+                              ],
                             ),
                             Text(
                               billingPeriod,
@@ -2648,13 +2748,23 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                               textAlign: TextAlign.end,
                             ),
                             if (isPremium && premiumRule != null)
-                              Text(
-                                '+ ${_premiumRefillPriceSync(premiumRule).toStringAsFixed(2)} ${premiumRule.inappPricingCurrency.toUpperCase()} refill',
-                                style: TextStyle(
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.w600,
-                                  color: accentColor.withValues(alpha: 0.7),
-                                ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    '+ ${_premiumRefillPriceSync(premiumRule).toStringAsFixed(2)} ${premiumRule.inappPricingCurrency.toUpperCase()} refill',
+                                    style: TextStyle(
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.w600,
+                                      color: accentColor.withValues(alpha: 0.7),
+                                    ),
+                                  ),
+                                  ApproxLocalText(
+                                    _premiumRefillPriceSync(premiumRule),
+                                    textAlign: TextAlign.end,
+                                  ),
+                                ],
                               ),
                           ],
                         ),
@@ -3024,14 +3134,17 @@ class _InlineOnboardingChannelConfigState
                   if (userId == null) return;
                   String bindParam = userId;
                   try {
-                    final token = await Supabase.instance.client.rpc('create_telegram_bind_token');
+                    final token = await Supabase.instance.client.rpc(
+                      'create_telegram_bind_token',
+                    );
                     if (token != null && token.toString().isNotEmpty) {
                       bindParam = token.toString();
                     }
                   } catch (_) {
                     // Fallback to userId if token RPC fails
                   }
-                  final botUrl = 'https://t.me/KeepSIMsBot?start=bind_$bindParam';
+                  final botUrl =
+                      'https://t.me/KeepSIMsBot?start=bind_$bindParam';
                   final uri = Uri.parse(botUrl);
                   if (await canLaunchUrl(uri)) {
                     await launchUrl(uri, mode: LaunchMode.externalApplication);

@@ -43,10 +43,13 @@ abstract class FxContext with _$FxContext {
 
     /// When the quote was taken. Null on any fallback.
     DateTime? asOf,
+
+    /// Age assessed by the server, rather than the device's wall clock.
+    double? ageHours,
     @Default(false) bool stale,
 
-    /// `base` | `disabled` | `stale` | `unknown_currency`, or null when a real
-    /// rate is in play.
+    /// Server fallback reason, or client `refresh_required` when no safe
+    /// remaining lifetime can be established. Null when a real rate is in play.
     String? fallbackReason,
     @Default(72.0) double maxAgeHours,
 
@@ -61,7 +64,8 @@ abstract class FxContext with _$FxContext {
 
   /// True when there is a real conversion to show. Every widget that renders a
   /// secondary local figure gates on this and nothing else.
-  bool get convertsMoney => currency != 'USD' && rate > 0;
+  bool get convertsMoney =>
+      enabled && !stale && currency != 'USD' && rate.isFinite && rate > 0;
 
   /// The user asked for a currency and did not get it — the settings screen
   /// owes them an explanation.

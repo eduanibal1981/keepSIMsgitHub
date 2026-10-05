@@ -996,5 +996,8 @@
     "refreshSims": "SIM'leri yenile",
     "noMatchingSims": "Eşleşen SIM bulunamadı",
     "tryDifferentSimSearch": "Farklı bir isim, numara veya filtre deneyin.",
-    "clearSearchAndFilters": "Aramayı ve filtreleri temizle"
+    "clearSearchAndFilters": "Aramayı ve filtreleri temizle",
+  "fxChargesInUsd": "{currency} tutarları yaklaşık değerlerdir. Ücretler USD olarak alınır.",
+  "fxCurrencySaveFailed": "Görüntüleme para birimi kaydedilemedi. Lütfen tekrar deneyin.",
+  "fxAnnualProtectionFee": "Yıllık koruma ücreti"
 }

@@ -1630,5 +1630,44 @@
     "smartCallSavings": "Smart Call Savings",
     "virtualNumbers": "Virtual Numbers",
     "voicemail": "Voicemail",
-    "inspector": "Inspector"
+    "inspector": "Inspector",
+  "fxChargesInUsd": "{currency} amounts are approximate. Charges are in USD.",
+  "fxCurrencySaveFailed": "Couldn't save your display currency. Please try again.",
+  "fxAnnualProtectionFee": "Annual protection fee",
+  "@fxChargesInUsd": {
+    "description": "Explanation for presentation-only currency estimates.",
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
+  "profileNotifications": "Notifications",
+  "profileWhatsAppNumber": "WhatsApp number",
+  "profileTitle": "My profile",
+  "profilePersonalAccount": "Personal account",
+  "profileContactDetails": "Contact details",
+  "profileNotificationEmail": "Notification email",
+  "profileCheckStatus": "Check status",
+  "profileVerified": "Verified",
+  "profileVerify": "Verify",
+  "profileSavedStatus": "Saved",
+  "profileAddNumber": "Add a number",
+  "profileLoadFailed": "Could not load these details.",
+  "profilePreferences": "Preferences",
+  "profilePreferredLanguage": "Preferred language",
+  "profileTimeZone": "Time zone",
+  "profileDeviceTimeZoneHint": "Times follow this device’s time zone. Change your device settings to update it.",
+  "profileCurrency": "Currency",
+  "profileCurrencyHint": "Choose the currency for estimated prices. Payments are charged in USD.",
+  "profileCurrencyUnavailable": "Showing USD until your selected currency is available.",
+  "profileAccount": "Account",
+  "profileSavedSims": "Saved SIMs",
+  "profileEdit": "Edit profile",
+  "profileFullName": "Full name",
+  "profileHomeCountry": "Home country",
+  "profileNameRequired": "Enter your name.",
+  "profileCountryRequired": "Select your home country.",
+  "profileSaveFailed": "Could not save your changes. Please try again.",
+  "profileSaved": "Profile updated."
 }

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:keep_sims/core/fx/money.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
@@ -101,7 +102,9 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
 
     // Auto-validate line format & carrier when full expected digits are typed
     final localNumber = _phoneController.text.trim();
-    final cleanDigits = localNumber.startsWith('0') ? localNumber.substring(1) : localNumber;
+    final cleanDigits = localNumber.startsWith('0')
+        ? localNumber.substring(1)
+        : localNumber;
     final expectedLen = PhoneNumberValidator.getExpectedLength(
       countryIsoCode: _selectedCountry?.isoCode,
       dialingCode: _selectedCountry?.dialingCode,
@@ -150,7 +153,9 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
     }
   }
 
-  Future<SimLivenessResult?> _triggerLivenessCheck({bool showMissingError = true}) async {
+  Future<SimLivenessResult?> _triggerLivenessCheck({
+    bool showMissingError = true,
+  }) async {
     if (!mounted) return null;
     if (_selectedCountry == null) {
       if (showMissingError) {
@@ -201,21 +206,28 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
 
         // Auto-match carrier if detected and matches country carrier catalogue
         if (result.detectedOperatorName != null && _selectedCountry != null) {
-          final carriers = ref.read(carriersForCountryProvider(_selectedCountry!.id)).value ?? [];
+          final carriers =
+              ref
+                  .read(carriersForCountryProvider(_selectedCountry!.id))
+                  .value ??
+              [];
           final opLower = result.detectedOperatorName!.toLowerCase();
-          final matched = carriers.firstWhereOrNull(
-            (c) {
-              final cNameLower = c.name.toLowerCase();
-              return opLower.contains(cNameLower) ||
-                  cNameLower.contains(opLower) ||
-                  (opLower.contains('friendi') && cNameLower.contains('friendi')) ||
-                  (opLower.contains('omantel') && cNameLower.contains('omantel')) ||
-                  (opLower.contains('ooredoo') && cNameLower.contains('ooredoo')) ||
-                  (opLower.contains('vodafone') && cNameLower.contains('vodafone')) ||
-                  (opLower.contains('red bull') && cNameLower.contains('red bull')) ||
-                  (opLower.contains('renna') && cNameLower.contains('renna'));
-            },
-          );
+          final matched = carriers.firstWhereOrNull((c) {
+            final cNameLower = c.name.toLowerCase();
+            return opLower.contains(cNameLower) ||
+                cNameLower.contains(opLower) ||
+                (opLower.contains('friendi') &&
+                    cNameLower.contains('friendi')) ||
+                (opLower.contains('omantel') &&
+                    cNameLower.contains('omantel')) ||
+                (opLower.contains('ooredoo') &&
+                    cNameLower.contains('ooredoo')) ||
+                (opLower.contains('vodafone') &&
+                    cNameLower.contains('vodafone')) ||
+                (opLower.contains('red bull') &&
+                    cNameLower.contains('red bull')) ||
+                (opLower.contains('renna') && cNameLower.contains('renna'));
+          });
           if (matched != null && _selectedCarrier?.id != matched.id) {
             setState(() {
               _selectedCarrier = matched;
@@ -273,7 +285,9 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
         return;
       }
 
-      final isConfirmedActive = _livenessResult!.isActive || _livenessResult!.carrierStatus == 'active';
+      final isConfirmedActive =
+          _livenessResult!.isActive ||
+          _livenessResult!.carrierStatus == 'active';
       if (!isConfirmedActive && _selectedCarrier == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -322,7 +336,8 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
       return;
     }
 
-    final isConfirmedActive = result.isActive || result.carrierStatus == 'active';
+    final isConfirmedActive =
+        result.isActive || result.carrierStatus == 'active';
     if (!isConfirmedActive && _selectedCarrier == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -446,7 +461,9 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
         );
         if (matched != null) {
           _selectedCarrier = matched;
-          WidgetsBinding.instance.addPostFrameCallback((_) => _updateServerQuote());
+          WidgetsBinding.instance.addPostFrameCallback(
+            (_) => _updateServerQuote(),
+          );
         }
       }
     }
@@ -995,9 +1012,12 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
     String billingRate = 'FREE';
 
     final annualFee = _serverQuote?.annualFeeUsd ?? _baseServiceFeeUsd;
-    final firstRefill = _serverQuote?.firstRefillCostUsd ?? (premiumRule?.minimumTopupAmount ?? 0.59);
+    final firstRefill =
+        _serverQuote?.firstRefillCostUsd ??
+        (premiumRule?.minimumTopupAmount ?? 0.59);
     final totalDue = _serverQuote?.totalChargeUsd ?? (annualFee + firstRefill);
-    final bool showPremiumBreakdown = isPremium &&
+    final bool showPremiumBreakdown =
+        isPremium &&
         (_serverQuote != null || premiumRule != null) &&
         !CarrierActivityNotice.blocksPremium(premiumRule);
 
@@ -1130,12 +1150,19 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                           color: context.onSurfaceColor,
                         ),
                       ),
-                      Text(
-                        '\$${annualFee.toStringAsFixed(2)}',
-                        style: AppTextStyles.bodySmall.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: context.onSurfaceColor,
-                        ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            '\$${annualFee.toStringAsFixed(2)}',
+                            style: AppTextStyles.bodySmall.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: context.onSurfaceColor,
+                            ),
+                          ),
+                          ApproxLocalText(annualFee, textAlign: TextAlign.end),
+                        ],
                       ),
                     ],
                   ),
@@ -1159,12 +1186,22 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                           ),
                         ],
                       ),
-                      Text(
-                        '\$${firstRefill.toStringAsFixed(2)}',
-                        style: AppTextStyles.bodySmall.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: context.onSurfaceColor,
-                        ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            '\$${firstRefill.toStringAsFixed(2)}',
+                            style: AppTextStyles.bodySmall.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: context.onSurfaceColor,
+                            ),
+                          ),
+                          ApproxLocalText(
+                            firstRefill,
+                            textAlign: TextAlign.end,
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -1182,12 +1219,19 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                           color: context.onSurfaceColor,
                         ),
                       ),
-                      Text(
-                        '\$${totalDue.toStringAsFixed(2)} USD',
-                        style: AppTextStyles.titleMedium.copyWith(
-                          fontWeight: FontWeight.w900,
-                          color: planColor,
-                        ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            '\$${totalDue.toStringAsFixed(2)} USD',
+                            style: AppTextStyles.titleMedium.copyWith(
+                              fontWeight: FontWeight.w900,
+                              color: planColor,
+                            ),
+                          ),
+                          ApproxLocalText(totalDue, textAlign: TextAlign.end),
+                        ],
                       ),
                     ],
                   ),
@@ -1224,11 +1268,7 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(
-                  Icons.phone_in_talk_outlined,
-                  size: 16,
-                  color: planColor,
-                ),
+                Icon(Icons.phone_in_talk_outlined, size: 16, color: planColor),
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
@@ -1250,15 +1290,21 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
           // be worth — and an opinion on whether to buy anything at all.
           if (premiumRule != null && _selectedCarrier != null)
             _buildCarrierRulesLink(premiumRule, planColor),
-          if (isPremium && _selectedCarrier?.name.toLowerCase().contains('mobily') == true) ...[
+          if (isPremium &&
+              _selectedCarrier?.name.toLowerCase().contains('mobily') ==
+                  true) ...[
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: (isDark ? Colors.amber : Colors.orange).withValues(alpha: 0.12),
+                color: (isDark ? Colors.amber : Colors.orange).withValues(
+                  alpha: 0.12,
+                ),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: (isDark ? Colors.amber : Colors.orange).withValues(alpha: 0.4),
+                  color: (isDark ? Colors.amber : Colors.orange).withValues(
+                    alpha: 0.4,
+                  ),
                   width: 1,
                 ),
               ),
@@ -1347,17 +1393,20 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
       {
         'key': 'free',
         'name': 'Free Plan',
-        'desc': 'Permanent Free Protection. Manual refills (7% fee), basic reminders.',
+        'desc':
+            'Permanent Free Protection. Manual refills (7% fee), basic reminders.',
       },
       {
         'key': 'standard',
         'name': 'Standard Plan (\$2.50/yr)',
-        'desc': 'Annual Membership. 5% refill fee, annual SMS/WhatsApp alert allowance (\$0.50 pool).',
+        'desc':
+            'Annual Membership. 5% refill fee, annual SMS/WhatsApp alert allowance (\$0.50 pool).',
       },
       {
         'key': 'premium',
         'name': 'Premium Plan (\$5.00/yr)',
-        'desc': 'Automated Protection. 100% automated refills (lowest 3% fee), \$1.00 alert allowance pool, priority support.',
+        'desc':
+            'Automated Protection. 100% automated refills (lowest 3% fee), \$1.00 alert allowance pool, priority support.',
       },
     ];
 
@@ -1366,7 +1415,9 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
         final isSelected = _selectedTier == tier['key'];
         final isDisabled = tier['key'] == 'free' && _isFreePlanDisabled;
 
-        final isChecking = _isCheckingLiveness && (tier['key'] == 'standard' || tier['key'] == 'premium');
+        final isChecking =
+            _isCheckingLiveness &&
+            (tier['key'] == 'standard' || tier['key'] == 'premium');
 
         return Container(
           margin: const EdgeInsets.only(bottom: 12),
@@ -1415,7 +1466,9 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                           height: 20,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            color: isDark ? AppColors.primaryLight : AppColors.lightPrimary,
+                            color: isDark
+                                ? AppColors.primaryLight
+                                : AppColors.lightPrimary,
                           ),
                         ),
                       )
@@ -1450,7 +1503,9 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                           const SizedBox(height: 4),
                           Text(
                             tier['desc']! +
-                                (isDisabled ? ' (Already used for this number)' : ''),
+                                (isDisabled
+                                    ? ' (Already used for this number)'
+                                    : ''),
                             style: TextStyle(
                               color: isDark
                                   ? AppColors.textSecondaryDark
@@ -1679,8 +1734,10 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                                       onTap: () {
                                         setState(() {
                                           _selectedCountry = c;
-                                          _selectedCarrier = null; // Reset carrier
-                                          _livenessResult = null; // Reset verification
+                                          _selectedCarrier =
+                                              null; // Reset carrier
+                                          _livenessResult =
+                                              null; // Reset verification
                                         });
                                         _updateServerQuote();
                                         Navigator.pop(context);
@@ -1746,7 +1803,9 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
 
       if (selectedPlanType == 'premium') {
         if (_selectedCarrier == null) {
-          throw Exception('Please select a carrier before choosing the Premium plan.');
+          throw Exception(
+            'Please select a carrier before choosing the Premium plan.',
+          );
         }
         final rule = await ref
             .read(simLinesRepositoryProvider)
@@ -1802,7 +1861,9 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
             carrierStatus: carrierStatus,
             verificationStatus: verificationStatus ?? line.verificationStatus,
             lastTopupAt: lastTopupDate ?? line.lastTopupAt,
-            carrierVerifiedAt: isCarrierVerified ? DateTime.now() : line.carrierVerifiedAt,
+            carrierVerifiedAt: isCarrierVerified
+                ? DateTime.now()
+                : line.carrierVerifiedAt,
           );
           await ref
               .read(simLinesControllerProvider.notifier)
@@ -1834,7 +1895,9 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
 
       if (!needsCharge) {
         // Free plan or existing unchanged paid plan
-        if (selectedPlanType == 'free' && _serverQuote != null && !_serverQuote!.freeEligible) {
+        if (selectedPlanType == 'free' &&
+            _serverQuote != null &&
+            !_serverQuote!.freeEligible) {
           throw Exception(
             'This phone number has already utilized its 6-month Free Plan grant. Please choose Standard or Premium.',
           );
@@ -1842,7 +1905,9 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
 
         await commitSave(
           planType: selectedPlanType,
-          protectionTier: selectedPlanType == 'free' ? 'basic' : selectedPlanType,
+          protectionTier: selectedPlanType == 'free'
+              ? 'basic'
+              : selectedPlanType,
           planExpiresAt: selectedPlanType == 'free'
               ? DateTime.now().add(const Duration(days: 180))
               : DateTime.now().add(const Duration(days: 365)),
@@ -1879,11 +1944,16 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
       }
 
       final orderId = orderRes['order_id'] as String;
-      final totalChargeUsd = (orderRes['total_charge_usd'] as num?)?.toDouble() ?? 2.50;
-      final annualFeeUsd = (orderRes['annual_fee_usd'] as num?)?.toDouble() ?? 2.50;
+      final totalChargeUsd =
+          (orderRes['total_charge_usd'] as num?)?.toDouble() ?? 2.50;
+      final annualFeeUsd =
+          (orderRes['annual_fee_usd'] as num?)?.toDouble() ?? 2.50;
 
       // Security check (Biometrics / 4-digit token)
-      final phoneDigits = _phoneController.text.replaceAll(RegExp(r'[^0-9]'), '');
+      final phoneDigits = _phoneController.text.replaceAll(
+        RegExp(r'[^0-9]'),
+        '',
+      );
       final confirmationToken = phoneDigits.length <= 4
           ? phoneDigits
           : phoneDigits.substring(phoneDigits.length - 4);
@@ -1891,7 +1961,8 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
       final authGuard = ref.read(paymentAuthGuardProvider);
       final authOk = await authGuard.confirmPaymentInteractive(
         context,
-        reason: 'Authorize payment of \$${totalChargeUsd.toStringAsFixed(2)} for ${selectedPlanType.toUpperCase()} plan setup',
+        reason:
+            'Authorize payment of \$${totalChargeUsd.toStringAsFixed(2)} for ${selectedPlanType.toUpperCase()} plan setup',
         confirmationToken: confirmationToken,
       );
       if (!authOk) {
@@ -1901,10 +1972,12 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
 
       // Reserve holds
       var reserveRes = await PlanPayment.reserveSimSetupHolds(orderId);
-      if (reserveRes['success'] == false && reserveRes['error'] == 'insufficient_balance') {
+      if (reserveRes['success'] == false &&
+          reserveRes['error'] == 'insufficient_balance') {
         final shortfall = (reserveRes['shortfall'] as num).toDouble();
         final depositAmount = shortfall < 5.00 ? 5.00 : shortfall;
-        final currentBal = (reserveRes['current_balance'] as num?)?.toDouble() ?? 0.0;
+        final currentBal =
+            (reserveRes['current_balance'] as num?)?.toDouble() ?? 0.0;
 
         setState(() => _isSaving = false);
         if (!mounted) return;
@@ -1932,7 +2005,9 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
 
         reserveRes = await PlanPayment.reserveSimSetupHolds(orderId);
         if (reserveRes['success'] != true) {
-          throw Exception('Could not reserve funds after deposit: ${reserveRes['error']}');
+          throw Exception(
+            'Could not reserve funds after deposit: ${reserveRes['error']}',
+          );
         }
       } else if (reserveRes['success'] != true) {
         throw Exception(reserveRes['error'] ?? 'Reservation failed');
@@ -1955,7 +2030,10 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
           simLineId: saved.id,
         );
         if (finalizeRes['success'] != true) {
-          throw Exception(finalizeRes['error'] ?? 'Failed to finalize standard plan activation');
+          throw Exception(
+            finalizeRes['error'] ??
+                'Failed to finalize standard plan activation',
+          );
         }
 
         ref.invalidate(simLinesControllerProvider);
@@ -1964,7 +2042,9 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Standard Plan activated! Annual protection secured.'),
+              content: Text(
+                'Standard Plan activated! Annual protection secured.',
+              ),
               backgroundColor: AppColors.success,
             ),
           );
@@ -1991,7 +2071,9 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
       );
 
       if (dispatchRes['success'] != true) {
-        throw Exception(dispatchRes['error'] ?? 'Could not dispatch verification recharge.');
+        throw Exception(
+          dispatchRes['error'] ?? 'Could not dispatch verification recharge.',
+        );
       }
 
       // 3. Poll finalizeSimSetupOrder for execution result (up to 15 attempts * 2s = 30s)
@@ -2009,14 +2091,18 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
         }
       }
 
-      if (finalOutcome != null && (finalOutcome['status'] == 'active' || finalOutcome['success'] == true)) {
+      if (finalOutcome != null &&
+          (finalOutcome['status'] == 'active' ||
+              finalOutcome['success'] == true)) {
         // Success!
         ref.invalidate(simLinesControllerProvider);
         ref.invalidate(scheduledTopupControllerProvider);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Premium Plan activated! Line verified with live recharge.'),
+              content: Text(
+                'Premium Plan activated! Line verified with live recharge.',
+              ),
               backgroundColor: AppColors.success,
             ),
           );
@@ -2024,7 +2110,8 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
         }
       } else if (finalOutcome != null && finalOutcome['status'] == 'failed') {
         // Recharge Failed: Holds were released on server. Show fallback sheet
-        final errorMsg = finalOutcome['reason']?.toString() ??
+        final errorMsg =
+            finalOutcome['reason']?.toString() ??
             finalOutcome['failure_reason']?.toString() ??
             'Carrier could not deliver initial recharge.';
 
@@ -2037,10 +2124,15 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
             failureReason: errorMsg,
             isFreeEligible: _serverQuote?.freeEligible ?? true,
             onUseAnotherNumber: () async {
-              await PlanPayment.cancelSimSetupOrder(orderId, reason: 'User chose another number');
+              await PlanPayment.cancelSimSetupOrder(
+                orderId,
+                reason: 'User chose another number',
+              );
               if (!_isEdit) {
                 try {
-                  await ref.read(simLinesRepositoryProvider).deleteSimLine(saved.id);
+                  await ref
+                      .read(simLinesRepositoryProvider)
+                      .deleteSimLine(saved.id);
                   ref.invalidate(simLinesControllerProvider);
                   ref.invalidate(scheduledTopupControllerProvider);
                 } catch (_) {}
@@ -2048,7 +2140,9 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
             },
             onFallbackToReminders: () async {
               setState(() => _isSaving = true);
-              final targetPlan = (_serverQuote?.freeEligible ?? true) ? 'free' : 'standard';
+              final targetPlan = (_serverQuote?.freeEligible ?? true)
+                  ? 'free'
+                  : 'standard';
               final fallbackRes = await PlanPayment.fallbackSimSetupToReminders(
                 orderId: orderId,
                 simLineId: saved.id,
@@ -2074,7 +2168,9 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('Failed to switch plan: ${fallbackRes['message'] ?? fallbackRes['error']}'),
+                      content: Text(
+                        'Failed to switch plan: ${fallbackRes['message'] ?? fallbackRes['error']}',
+                      ),
                       backgroundColor: AppColors.error,
                     ),
                   );
@@ -2129,7 +2225,8 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
       MaterialPageRoute(
         builder: (ctx) => PayPalCheckoutScreen(
           initialAmount: depositAmount,
-          paymentReason: 'Wallet deposit for ${plan == 'premium' ? 'Premium' : 'Standard'} plan setup',
+          paymentReason:
+              'Wallet deposit for ${plan == 'premium' ? 'Premium' : 'Standard'} plan setup',
           paymentKind: 'deposit',
           plan: plan,
           simLineId: _isEdit ? widget.id : null,
@@ -2243,7 +2340,9 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                             child: Text(
                               'The full amount of \$${totalAmount.toStringAsFixed(2)}, including the \$${annualFee.toStringAsFixed(2)} subscription fee, has been returned to your KeepSIMs wallet.',
                               style: AppTextStyles.bodySmall.copyWith(
-                                color: isDark ? Colors.green.shade200 : Colors.green.shade900,
+                                color: isDark
+                                    ? Colors.green.shade200
+                                    : Colors.green.shade900,
                                 fontWeight: FontWeight.w600,
                                 height: 1.35,
                               ),
@@ -2323,7 +2422,9 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                   child: Text(
                     'View KeepSIMs Wallet',
                     style: TextStyle(
-                      color: isDark ? AppColors.primaryLight : AppColors.lightPrimary,
+                      color: isDark
+                          ? AppColors.primaryLight
+                          : AppColors.lightPrimary,
                       fontSize: 13,
                     ),
                   ),

@@ -1,4 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collection/collection.dart';
+import 'package:keep_sims/features/sim_lines/data/models/country_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
 import 'package:keep_sims/features/scheduled_topups/model/scheduled_topup_model.dart';
 
@@ -58,6 +60,59 @@ void main() {
 
       final shouldFreeze = !protectedLine.requiresProtectionAtHome;
       expect(shouldFreeze, isFalse, reason: 'Always-protected lines must skip auto-freeze');
+    });
+
+    test('International lines filtering correctly handles Country lookup without type error', () {
+      const supportedCountries = <Country>[
+        Country(
+          id: 'country-us',
+          name: 'United States',
+          isoCode: 'US',
+          dialingCode: '+1',
+          currencyCode: 'USD',
+        ),
+        Country(
+          id: 'country-uk',
+          name: 'United Kingdom',
+          isoCode: 'GB',
+          dialingCode: '+44',
+          currencyCode: 'GBP',
+        ),
+      ];
+
+      final simLines = [
+        const SimLine(
+          id: 'line-1',
+          userId: 'user-1',
+          phoneNumber: '+1111111111',
+          countryId: 'country-us',
+        ),
+        const SimLine(
+          id: 'line-2',
+          userId: 'user-1',
+          phoneNumber: '+4444444444',
+          countryId: 'country-uk',
+        ),
+        const SimLine(
+          id: 'line-3',
+          userId: 'user-1',
+          phoneNumber: '+9999999999',
+          countryId: 'non-existent-country',
+        ),
+      ];
+
+      const homeCountryCode = 'US';
+
+      // Simulating the exact logic in GeoScreen._buildInternationalLinesSection
+      final intlLines = simLines.where((l) {
+        final country = supportedCountries.firstWhereOrNull(
+          (c) => c.id == l.countryId,
+        );
+        return country == null || country.isoCode != homeCountryCode;
+      }).toList();
+
+      expect(intlLines.length, equals(2));
+      expect(intlLines.map((l) => l.id), containsAll(['line-2', 'line-3']));
     });
   });
 }

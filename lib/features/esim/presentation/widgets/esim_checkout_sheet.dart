@@ -15,12 +15,17 @@ class EsimCheckoutSheet extends ConsumerStatefulWidget {
 
   const EsimCheckoutSheet({super.key, required this.plan, this.speedDetail});
 
-  static Future<void> show(BuildContext context, EsimPlan plan, {String? speedDetail}) {
+  static Future<void> show(
+    BuildContext context,
+    EsimPlan plan, {
+    String? speedDetail,
+  }) {
     return showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => EsimCheckoutSheet(plan: plan, speedDetail: speedDetail),
+      builder: (context) =>
+          EsimCheckoutSheet(plan: plan, speedDetail: speedDetail),
     );
   }
 
@@ -158,7 +163,9 @@ class _EsimCheckoutSheetState extends ConsumerState<EsimCheckoutSheet> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
+              color: theme.colorScheme.surfaceContainerHighest.withValues(
+                alpha: 0.4,
+              ),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: Colors.teal.withValues(alpha: 0.3)),
             ),
@@ -208,8 +215,8 @@ class _EsimCheckoutSheetState extends ConsumerState<EsimCheckoutSheet> {
                         widget.plan.dataAmountMB <= 0
                             ? 'Unlimited'
                             : (widget.plan.dataAmountMB >= 1024
-                                ? '${(widget.plan.dataAmountMB / 1024).toStringAsFixed(1)} GB'
-                                : '${widget.plan.dataAmountMB} MB'),
+                                  ? '${(widget.plan.dataAmountMB / 1024).toStringAsFixed(1)} GB'
+                                  : '${widget.plan.dataAmountMB} MB'),
                       ),
                       visualDensity: VisualDensity.compact,
                     ),
@@ -223,16 +230,25 @@ class _EsimCheckoutSheetState extends ConsumerState<EsimCheckoutSheet> {
                 if (widget.speedDetail != null) ...[
                   const SizedBox(height: 10),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.teal.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.teal.withValues(alpha: 0.3)),
+                      border: Border.all(
+                        color: Colors.teal.withValues(alpha: 0.3),
+                      ),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.speed_rounded, size: 14, color: Colors.teal),
+                        const Icon(
+                          Icons.speed_rounded,
+                          size: 14,
+                          color: Colors.teal,
+                        ),
                         const SizedBox(width: 6),
                         Flexible(
                           child: Text(
@@ -322,12 +338,15 @@ class _EsimCheckoutSheetState extends ConsumerState<EsimCheckoutSheet> {
               Expanded(
                 child: Text(
                   'Validity period begins automatically upon first connection to a supported network.',
-                  style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: Colors.grey,
+                  ),
                 ),
               ),
             ],
           ),
 
+          const FxChargeNotice(),
           if (_errorMessage != null) ...[
             const SizedBox(height: 12),
             Text(
@@ -344,26 +363,29 @@ class _EsimCheckoutSheetState extends ConsumerState<EsimCheckoutSheet> {
             onPressed: (_isSubmitting || _isLoadingWallet)
                 ? null
                 : (hasSufficientBalance
-                    ? _handleConfirmPurchase
-                    : () {
-                        final shortfall = widget.plan.priceUsd - _walletBalance;
-                        final depositAmount = shortfall < 5.00 ? 5.00 : shortfall;
-                        final navigator = Navigator.of(context);
-                        navigator.push(
-                          MaterialPageRoute(
-                            builder: (_) => PayPalCheckoutScreen(
-                              initialAmount: depositAmount,
-                              paymentReason:
-                                  'Add funds for eSIM ${widget.plan.name}',
-                              paymentKind: 'deposit',
-                              onSuccess: () async {
-                                navigator.pop();
-                                _fetchWalletBalance();
-                              },
+                      ? _handleConfirmPurchase
+                      : () {
+                          final shortfall =
+                              widget.plan.priceUsd - _walletBalance;
+                          final depositAmount = shortfall < 5.00
+                              ? 5.00
+                              : shortfall;
+                          final navigator = Navigator.of(context);
+                          navigator.push(
+                            MaterialPageRoute(
+                              builder: (_) => PayPalCheckoutScreen(
+                                initialAmount: depositAmount,
+                                paymentReason:
+                                    'Add funds for eSIM ${widget.plan.name}',
+                                paymentKind: 'deposit',
+                                onSuccess: () async {
+                                  navigator.pop();
+                                  _fetchWalletBalance();
+                                },
+                              ),
                             ),
-                          ),
-                        );
-                      }),
+                          );
+                        }),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.teal,
               foregroundColor: Colors.white,
@@ -385,8 +407,11 @@ class _EsimCheckoutSheetState extends ConsumerState<EsimCheckoutSheet> {
                     hasSufficientBalance
                         ? 'Confirm & Pay \$${widget.plan.priceUsd.toStringAsFixed(2)}'
                         : () {
-                            final shortfall = widget.plan.priceUsd - _walletBalance;
-                            final depositAmount = shortfall < 5.00 ? 5.00 : shortfall;
+                            final shortfall =
+                                widget.plan.priceUsd - _walletBalance;
+                            final depositAmount = shortfall < 5.00
+                                ? 5.00
+                                : shortfall;
                             return 'Add \$${depositAmount.toStringAsFixed(2)} & Continue';
                           }(),
                     style: const TextStyle(

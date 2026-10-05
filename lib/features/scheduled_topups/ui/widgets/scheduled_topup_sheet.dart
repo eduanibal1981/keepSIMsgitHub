@@ -6,6 +6,7 @@ library;
 
 import 'package:keep_sims/core/utils/build_context_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:keep_sims/core/fx/money.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
@@ -15,6 +16,8 @@ import 'package:keep_sims/core/result.dart';
 import 'package:keep_sims/core/providers/app_config_provider.dart';
 import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import 'package:keep_sims/features/notifications/presentation/controllers/notification_settings_controller.dart';
+import 'package:keep_sims/features/notifications/data/models/channel_destination.dart';
+import 'package:keep_sims/features/notifications/presentation/screens/notification_settings_screen.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
 import '../../model/scheduled_topup_model.dart';
 import '../../controller/scheduled_topup_controller.dart';
@@ -30,8 +33,7 @@ import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_line_d
 import 'package:keep_sims/features/sim_lines/domain/line_refill_quote.dart';
 import 'package:keep_sims/features/scheduled_topups/domain/refill_schedule_math.dart';
 import 'package:keep_sims/features/sim_lines/presentation/providers/sim_line_alert_clock_provider.dart';
-import 'package:keep_sims/features/sim_lines/data/models/sim_line_alert_clock_state.dart';
-import 'package:keep_sims/features/sim_lines/presentation/widgets/manual_recharge_dialog.dart';
+import 'package:keep_sims/features/sim_lines/presentation/widgets/alarm_clock_preferences_sheet.dart';
 
 class ScheduledTopupSheet extends ConsumerStatefulWidget {
   final String simLineId;
@@ -72,7 +74,7 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
   bool _appliedSuggestedOffer = false;
   double _rangeFinalPriceUsd = 0.0;
   double _rangeBaseCostUsd = 0.0;
-  
+
   final TextEditingController _amountController = TextEditingController();
 
   /// I2: does *this* line carry the premium plan?
@@ -83,11 +85,12 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
   /// lines have been paid up to premium.
   bool _lineIsPremium() {
     if (widget.simLine != null) return widget.simLine!.isPremiumPlan;
-    final lines = ref.read(simLinesControllerProvider).value ?? const <SimLine>[];
+    final lines =
+        ref.read(simLinesControllerProvider).value ?? const <SimLine>[];
     final line = lines.cast<SimLine?>().firstWhere(
-          (l) => l?.id == widget.simLineId,
-          orElse: () => null,
-        );
+      (l) => l?.id == widget.simLineId,
+      orElse: () => null,
+    );
     return line?.isPremiumPlan ?? false;
   }
 
@@ -98,17 +101,19 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
     SimLine? targetLine = line;
     if (targetLine == null) {
       final simLines = ref.read(simLinesControllerProvider).value ?? [];
-      targetLine = simLines.cast<SimLine?>().firstWhere(
-        (l) => l?.id == widget.simLineId,
-        orElse: () => null,
-      ) ?? ref.read(simLineDetailControllerProvider(widget.simLineId)).value?.simLine;
+      targetLine =
+          simLines.cast<SimLine?>().firstWhere(
+            (l) => l?.id == widget.simLineId,
+            orElse: () => null,
+          ) ??
+          ref
+              .read(simLineDetailControllerProvider(widget.simLineId))
+              .value
+              ?.simLine;
     }
 
     if (targetLine != null && mounted) {
-      await LineUpgradeSheet.show(
-        context: context,
-        simLine: targetLine,
-      );
+      await LineUpgradeSheet.show(context: context, simLine: targetLine);
     } else if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -124,6 +129,7 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
     _amountController.dispose();
     super.dispose();
   }
+
   @override
   void initState() {
     super.initState();
@@ -160,12 +166,17 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
     final bool isEditMode = widget.existingSchedule != null;
     final walletState = ref.watch(walletControllerProvider).value;
     final simLines = ref.watch(simLinesControllerProvider).value ?? [];
-    final SimLine? detailLine =
-        ref.watch(simLineDetailControllerProvider(widget.simLineId)).value?.simLine;
-    final SimLine? currentLine = simLines.cast<SimLine?>().firstWhere(
-      (l) => l?.id == widget.simLineId,
-      orElse: () => detailLine ?? widget.simLine,
-    ) ?? detailLine ?? widget.simLine;
+    final SimLine? detailLine = ref
+        .watch(simLineDetailControllerProvider(widget.simLineId))
+        .value
+        ?.simLine;
+    final SimLine? currentLine =
+        simLines.cast<SimLine?>().firstWhere(
+          (l) => l?.id == widget.simLineId,
+          orElse: () => detailLine ?? widget.simLine,
+        ) ??
+        detailLine ??
+        widget.simLine;
     // I2: per-line entitlement — see _lineIsPremium().
     final bool isPremium = currentLine?.isPremiumPlan ?? _lineIsPremium();
     final bool isNotifyMode = widget.configMode == 'notify';
@@ -434,26 +445,21 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                               subtitle = 'Disabled · Tap to configure';
                             } else {
                               if (type == 'email') {
-                                final email = config['email'] as String?;
-                                needsSetup =
-                                    email == null || email.trim().isEmpty;
-                                subtitle = needsSetup
-                                    ? 'No email configured · Tap to setup'
-                                    : 'Alerts sent to $email';
+                                subtitle = 'Managed in Alert preferences';
                               } else if (type == 'whatsapp') {
-                                final phone =
-                                    (config['phone'] ??
-                                            config['phone_number'])
-                                        as String?;
-                                needsSetup =
-                                    phone == null || phone.trim().isEmpty;
+                                final phone = channelDestination(type, config);
+                                needsSetup = !RegExp(
+                                  r'^\+[1-9]\d{7,14}$',
+                                ).hasMatch(phone);
                                 subtitle = needsSetup
                                     ? 'No WhatsApp number · Tap to setup'
                                     : 'Alerts sent to $phone';
                               } else if (type == 'telegram') {
                                 final chatId = config['chat_id']?.toString();
                                 needsSetup =
-                                    chatId == null || chatId.trim().isEmpty;
+                                    chatId == null ||
+                                    chatId.trim().isEmpty ||
+                                    config['binding_verified_at'] == null;
                                 subtitle = needsSetup
                                     ? 'Telegram bot unbound · Tap to link'
                                     : 'Bot connected · Chat ID: $chatId';
@@ -465,15 +471,13 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
 
                             return ListTile(
                               dense: true,
-                              onTap: isUnavailable
-                                  ? () => _openUpgradeSheet(currentLine)
-                                  : () async {
-                                      await HapticHelper.lightTick();
-                                      if (context.mounted) {
-                                        Navigator.of(context).pop();
-                                        context.push('/notifications/settings');
-                                      }
-                                    },
+                              onTap: () {
+                                HapticHelper.lightTick();
+                                NotificationSettingsScreen.showChannelSheet(
+                                  context,
+                                  type,
+                                );
+                              },
                               leading: Icon(
                                 icon,
                                 color: (isUnavailable || !isGloballyEnabled)
@@ -486,7 +490,8 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                                   Text(
                                     label,
                                     style: AppTextStyles.bodyMedium.copyWith(
-                                      color: (isUnavailable || !isGloballyEnabled)
+                                      color:
+                                          (isUnavailable || !isGloballyEnabled)
                                           ? AppColors.textSecondaryDark
                                           : context.onSurfaceColor,
                                       fontWeight: FontWeight.bold,
@@ -511,13 +516,15 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                                           color: needsSetup
                                               ? Colors.orange.shade400
                                               : (!isGloballyEnabled
-                                                  ? Colors.amber.shade400
-                                                  : (isUnavailable
-                                                      ? AppColors.textSecondaryDark
-                                                      : context.onSurfaceColor
-                                                          .withValues(
-                                                            alpha: 0.5,
-                                                          ))),
+                                                    ? Colors.amber.shade400
+                                                    : (isUnavailable
+                                                          ? AppColors
+                                                                .textSecondaryDark
+                                                          : context
+                                                                .onSurfaceColor
+                                                                .withValues(
+                                                                  alpha: 0.5,
+                                                                ))),
                                           fontSize: 11,
                                         ),
                                         maxLines: 1,
@@ -529,7 +536,8 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                                   ? Material(
                                       color: Colors.transparent,
                                       child: InkWell(
-                                        onTap: () => _openUpgradeSheet(currentLine),
+                                        onTap: () =>
+                                            _openUpgradeSheet(currentLine),
                                         borderRadius: BorderRadius.circular(8),
                                         child: Container(
                                           padding: const EdgeInsets.symmetric(
@@ -539,7 +547,9 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                                           decoration: BoxDecoration(
                                             color: AppColors.healthRed
                                                 .withValues(alpha: 0.1),
-                                            borderRadius: BorderRadius.circular(8),
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
                                             border: Border.all(
                                               color: AppColors.healthRed
                                                   .withValues(alpha: 0.3),
@@ -561,7 +571,8 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                                   ? Material(
                                       color: Colors.transparent,
                                       child: InkWell(
-                                        onTap: () => _openUpgradeSheet(currentLine),
+                                        onTap: () =>
+                                            _openUpgradeSheet(currentLine),
                                         borderRadius: BorderRadius.circular(8),
                                         child: Container(
                                           padding: const EdgeInsets.symmetric(
@@ -571,7 +582,9 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                                           decoration: BoxDecoration(
                                             color: Colors.amberAccent
                                                 .withValues(alpha: 0.1),
-                                            borderRadius: BorderRadius.circular(8),
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
                                             border: Border.all(
                                               color: Colors.amberAccent
                                                   .withValues(alpha: 0.3),
@@ -596,10 +609,14 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                                         vertical: 4,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: Colors.amber.withValues(alpha: 0.15),
+                                        color: Colors.amber.withValues(
+                                          alpha: 0.15,
+                                        ),
                                         borderRadius: BorderRadius.circular(8),
                                         border: Border.all(
-                                          color: Colors.amber.withValues(alpha: 0.4),
+                                          color: Colors.amber.withValues(
+                                            alpha: 0.4,
+                                          ),
                                         ),
                                       ),
                                       child: const Text(
@@ -644,16 +661,20 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                                         vertical: 4,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: Colors.orange
-                                            .withValues(alpha: 0.15),
+                                        color: Colors.orange.withValues(
+                                          alpha: 0.15,
+                                        ),
                                         borderRadius: BorderRadius.circular(8),
                                         border: Border.all(
-                                          color: Colors.orange
-                                              .withValues(alpha: 0.4),
+                                          color: Colors.orange.withValues(
+                                            alpha: 0.4,
+                                          ),
                                         ),
                                       ),
                                       child: Text(
-                                        type == 'telegram' ? 'UNBOUND' : 'NOT SET',
+                                        type == 'telegram'
+                                            ? 'UNBOUND'
+                                            : 'NOT SET',
                                         style: const TextStyle(
                                           fontSize: 10,
                                           fontWeight: FontWeight.bold,
@@ -713,7 +734,8 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                 ),
               ),
               const SizedBox(height: 12),
-              if (currentLine?.countryId == null || currentLine?.carrierId == null)
+              if (currentLine?.countryId == null ||
+                  currentLine?.carrierId == null)
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 24),
                   child: Center(
@@ -726,176 +748,211 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
               else
                 // I1: line-scoped so every enabled supplier is listed and the
                 // ranking matches what the purchase RPC will re-apply.
-                ref.watch(lineRefillOffersProvider(widget.simLineId)).when(
-                  data: (offers) {
-                    if (offers.isEmpty) {
-                      return const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 24),
-                        child: Center(
-                          child: Text(
-                            'No offers available for this carrier.',
-                            style: TextStyle(color: Colors.grey),
-                          ),
-                        ),
-                      );
-                    }
-                    
-                    final rangeOfferIdx =
-                        offers.indexWhere((o) => o['priceType'] == 'RANGE');
-                    final rangeOffer =
-                        rangeOfferIdx != -1 ? offers[rangeOfferIdx] : null;
-                    final fixedOffers = offers
-                        .where((o) => o['priceType'] != 'RANGE')
-                        .toList();
-
-                    _maybeApplySuggestedOffer(
-                      fixedOffers.isNotEmpty ? fixedOffers : offers,
-                      forecast?.suggestedOfferId,
-                      isEditMode: isEditMode,
-                      line: currentLine,
-                    );
-
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (fixedOffers.isNotEmpty)
-                          ConstrainedBox(
-                            constraints: BoxConstraints(
-                              maxHeight:
-                                  MediaQuery.of(context).size.height * 0.35,
+                ref
+                    .watch(lineRefillOffersProvider(widget.simLineId))
+                    .when(
+                      data: (offers) {
+                        if (offers.isEmpty) {
+                          return const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 24),
+                            child: Center(
+                              child: Text(
+                                'No offers available for this carrier.',
+                                style: TextStyle(color: Colors.grey),
+                              ),
                             ),
-                            child: ListView.separated(
-                              shrinkWrap: true,
-                              itemCount: fixedOffers.length,
-                              separatorBuilder: (_, _) =>
-                                  const SizedBox(height: 8),
-                              itemBuilder: (context, index) {
-                                final offer = fixedOffers[index];
-                                final isSelected =
-                                    _selectedOffer?['offerId'] ==
+                          );
+                        }
+
+                        final rangeOfferIdx = offers.indexWhere(
+                          (o) => o['priceType'] == 'RANGE',
+                        );
+                        final rangeOffer = rangeOfferIdx != -1
+                            ? offers[rangeOfferIdx]
+                            : null;
+                        final fixedOffers = offers
+                            .where((o) => o['priceType'] != 'RANGE')
+                            .toList();
+
+                        _maybeApplySuggestedOffer(
+                          fixedOffers.isNotEmpty ? fixedOffers : offers,
+                          forecast?.suggestedOfferId,
+                          isEditMode: isEditMode,
+                          line: currentLine,
+                        );
+
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (fixedOffers.isNotEmpty)
+                              ConstrainedBox(
+                                constraints: BoxConstraints(
+                                  maxHeight:
+                                      MediaQuery.of(context).size.height * 0.35,
+                                ),
+                                child: ListView.separated(
+                                  shrinkWrap: true,
+                                  itemCount: fixedOffers.length,
+                                  separatorBuilder: (_, _) =>
+                                      const SizedBox(height: 8),
+                                  itemBuilder: (context, index) {
+                                    final offer = fixedOffers[index];
+                                    final isSelected =
+                                        _selectedOffer?['offerId'] ==
                                         offer['offerId'];
 
-                                final baseCost =
-                                    (offer['baseCostUsd'] as num).toDouble();
-                                final q = _quote(baseCost, line: currentLine);
-                                final finalPrice = q.total;
+                                    final baseCost =
+                                        (offer['baseCostUsd'] as num)
+                                            .toDouble();
+                                    final q = _quote(
+                                      baseCost,
+                                      line: currentLine,
+                                    );
+                                    final finalPrice = q.total;
 
-                                final name =
-                                    offer['description'] ?? offer['offerId'];
+                                    final name =
+                                        offer['description'] ??
+                                        offer['offerId'];
 
-                                return InkWell(
-                                  onTap: () {
-                                    setState(() {
-                                      _selectedOffer = offer;
-                                      _amount = finalPrice;
-                                      _amountController.clear();
-                                      _rangeValue = null;
-                                      _rangeFinalPriceUsd = 0.0;
-                                      _rangeBaseCostUsd = 0.0;
-                                    });
-                                  },
-                                  borderRadius: BorderRadius.circular(12),
-                                  child: Container(
-                                    padding: const EdgeInsets.all(16),
-                                    decoration: BoxDecoration(
-                                      color: isSelected
-                                          ? AppColors.primary
-                                              .withValues(alpha: 0.1)
-                                          : AppColors.darkCard,
+                                    return InkWell(
+                                      onTap: () {
+                                        setState(() {
+                                          _selectedOffer = offer;
+                                          _amount = finalPrice;
+                                          _amountController.clear();
+                                          _rangeValue = null;
+                                          _rangeFinalPriceUsd = 0.0;
+                                          _rangeBaseCostUsd = 0.0;
+                                        });
+                                      },
                                       borderRadius: BorderRadius.circular(12),
-                                      border: Border.all(
-                                        color: isSelected
-                                            ? AppColors.primary
-                                            : AppColors.darkBorder,
-                                        width: isSelected ? 2 : 1,
-                                      ),
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(16),
+                                        decoration: BoxDecoration(
+                                          color: isSelected
+                                              ? AppColors.primary.withValues(
+                                                  alpha: 0.1,
+                                                )
+                                              : AppColors.darkCard,
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                          border: Border.all(
+                                            color: isSelected
+                                                ? AppColors.primary
+                                                : AppColors.darkBorder,
+                                            width: isSelected ? 2 : 1,
+                                          ),
+                                        ),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
-                                            Expanded(
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    name,
-                                                    style: AppTextStyles
-                                                        .labelLarge
-                                                        .copyWith(
-                                                      color: AppColors
-                                                          .textPrimaryDark,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    ),
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Expanded(
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Text(
+                                                        name,
+                                                        style: AppTextStyles
+                                                            .labelLarge
+                                                            .copyWith(
+                                                              color: AppColors
+                                                                  .textPrimaryDark,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                            ),
+                                                      ),
+                                                      if (offer['provider'] !=
+                                                          null) ...[
+                                                        const SizedBox(
+                                                          height: 4,
+                                                        ),
+                                                        ProviderBadge(
+                                                          provider:
+                                                              offer['provider']
+                                                                  as String?,
+                                                          showFullName: true,
+                                                        ),
+                                                      ],
+                                                    ],
                                                   ),
-                                                  if (offer['provider'] !=
-                                                      null) ...[
-                                                    const SizedBox(height: 4),
-                                                    ProviderBadge(
-                                                      provider:
-                                                          offer['provider']
-                                                              as String?,
-                                                      showFullName: true,
+                                                ),
+                                                Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.end,
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    Text(
+                                                      '\$${finalPrice.toStringAsFixed(2)}',
+                                                      style: AppTextStyles
+                                                          .titleMedium
+                                                          .copyWith(
+                                                            color: AppColors
+                                                                .primaryLight,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                          ),
+                                                    ),
+                                                    ApproxLocalText(
+                                                      finalPrice,
+                                                      textAlign: TextAlign.end,
                                                     ),
                                                   ],
-                                                ],
-                                              ),
+                                                ),
+                                              ],
                                             ),
+                                            const SizedBox(height: 8),
                                             Text(
-                                              '\$${finalPrice.toStringAsFixed(2)}',
-                                              style: AppTextStyles.titleMedium
+                                              q.breakdownText,
+                                              style: AppTextStyles.labelSmall
                                                   .copyWith(
-                                                color: AppColors.primaryLight,
-                                                fontWeight: FontWeight.bold,
-                                              ),
+                                                    color: AppColors
+                                                        .textTertiaryDark,
+                                                  ),
                                             ),
                                           ],
                                         ),
-                                        const SizedBox(height: 8),
-                                        Text(
-                                          q.breakdownText,
-                                          style: AppTextStyles.labelSmall
-                                              .copyWith(
-                                            color: AppColors.textTertiaryDark,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            if (rangeOffer != null)
+                              _buildRangeUI(
+                                rangeOffer,
+                                currentLine: currentLine,
+                                hasOtherOffers: fixedOffers.isNotEmpty,
+                              ),
+                          ],
+                        );
+                      },
+                      loading: () => const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(24.0),
+                          child: CircularProgressIndicator(
+                            color: AppColors.primary,
                           ),
-                        if (rangeOffer != null)
-                          _buildRangeUI(
-                            rangeOffer,
-                            currentLine: currentLine,
-                            hasOtherOffers: fixedOffers.isNotEmpty,
-                          ),
-                      ],
-                    );
-                  },
-                  loading: () => const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(24.0),
-                      child: CircularProgressIndicator(color: AppColors.primary),
+                        ),
+                      ),
+                      error: (err, _) => Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text(
+                          'Failed to load offers: $err',
+                          style: const TextStyle(color: AppColors.error),
+                        ),
+                      ),
                     ),
-                  ),
-                  error: (err, _) => Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Text(
-                      'Failed to load offers: $err',
-                      style: const TextStyle(color: AppColors.error),
-                    ),
-                  ),
-                ),
               const SizedBox(height: 24),
             ],
 
@@ -924,8 +981,9 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                 }
                 if (widget.existingSchedule != null &&
                     widget.existingSchedule!.frequencyDays > 0) {
-                  if (!intervalOptions
-                      .contains(widget.existingSchedule!.frequencyDays)) {
+                  if (!intervalOptions.contains(
+                    widget.existingSchedule!.frequencyDays,
+                  )) {
                     intervalOptions.add(widget.existingSchedule!.frequencyDays);
                   }
                 }
@@ -1048,7 +1106,9 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                               ? 'Estimated Next Renewal:'
                               : 'Estimated Next Execution:',
                           style: AppTextStyles.caption.copyWith(
-                            color: context.onSurfaceColor.withValues(alpha: 0.4),
+                            color: context.onSurfaceColor.withValues(
+                              alpha: 0.4,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 2),
@@ -1068,47 +1128,49 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
               ),
             ),
             if (!isNotifyMode && walletState != null && _amount > 0) ...[
-              Builder(builder: (context) {
-                final balance = walletState.wallet.balance;
-                final possibleRefills = (balance / _amount).floor();
-                if (possibleRefills > 1) return const SizedBox(height: 32);
+              Builder(
+                builder: (context) {
+                  final balance = walletState.wallet.balance;
+                  final possibleRefills = (balance / _amount).floor();
+                  if (possibleRefills > 1) return const SizedBox(height: 32);
 
-                return Padding(
-                  padding: const EdgeInsets.only(top: 16.0, bottom: 32.0),
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.amberAccent.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: Colors.amberAccent.withValues(alpha: 0.5),
-                      ),
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Icon(
-                          Icons.warning_amber_rounded,
-                          color: Colors.amber,
-                          size: 20,
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 16.0, bottom: 32.0),
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.amberAccent.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Colors.amberAccent.withValues(alpha: 0.5),
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            possibleRefills == 1
-                                ? 'Your wallet balance (\$$balance) covers only 1 refill. Remember to top up later!'
-                                : 'Your wallet balance (\$$balance) is not enough for this refill amount.',
-                            style: AppTextStyles.bodySmall.copyWith(
-                              color: Colors.amber.shade700,
-                              height: 1.4,
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(
+                            Icons.warning_amber_rounded,
+                            color: Colors.amber,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              possibleRefills == 1
+                                  ? 'Your wallet balance (\$$balance) covers only 1 refill. Remember to top up later!'
+                                  : 'Your wallet balance (\$$balance) is not enough for this refill amount.',
+                              style: AppTextStyles.bodySmall.copyWith(
+                                color: Colors.amber.shade700,
+                                height: 1.4,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                );
-              }),
+                  );
+                },
+              ),
             ] else ...[
               const SizedBox(height: 32),
             ],
@@ -1205,7 +1267,9 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text('Please select a refill package or enter a custom amount first.'),
+                content: Text(
+                  'Please select a refill package or enter a custom amount first.',
+                ),
                 backgroundColor: AppColors.error,
               ),
             );
@@ -1219,7 +1283,9 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text('Insufficient wallet balance. Please add funds first.'),
+                content: Text(
+                  'Insufficient wallet balance. Please add funds first.',
+                ),
                 backgroundColor: AppColors.error,
               ),
             );
@@ -1230,10 +1296,12 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
       }
 
       final simLines = ref.read(simLinesControllerProvider).value ?? [];
-      final currentLine = widget.simLine ?? simLines.cast<SimLine?>().firstWhere(
-        (l) => l?.id == widget.simLineId,
-        orElse: () => null,
-      );
+      final currentLine =
+          widget.simLine ??
+          simLines.cast<SimLine?>().firstWhere(
+            (l) => l?.id == widget.simLineId,
+            orElse: () => null,
+          );
 
       DateTime calculatedNextExecution;
       if (widget.existingSchedule != null &&
@@ -1258,12 +1326,16 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
       final double? targetLocalValue = isNotifyMode
           ? null
           : (isRange
-              ? (_rangeValue != null
-                  ? _rangeValue! / (_selectedOffer?['sendCurrencyDivisor'] as num? ?? 100)
-                  : null)
-              : ((_selectedOffer?['min'] as num?) != null
-                  ? (_selectedOffer!['min'] as num).toDouble() / (_selectedOffer?['sendCurrencyDivisor'] as num? ?? 100)
-                  : null));
+                ? (_rangeValue != null
+                      ? _rangeValue! /
+                            (_selectedOffer?['sendCurrencyDivisor'] as num? ??
+                                100)
+                      : null)
+                : ((_selectedOffer?['min'] as num?) != null
+                      ? (_selectedOffer!['min'] as num).toDouble() /
+                            (_selectedOffer?['sendCurrencyDivisor'] as num? ??
+                                100)
+                      : null));
       final String? targetLocalCurrency = isNotifyMode
           ? null
           : _selectedOffer?['send']?['currency']?.toString();
@@ -1484,10 +1556,16 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
       });
     }
 
-    final minLocal = (offer['min'] as num? ?? 800) / (offer['sendCurrencyDivisor'] as num? ?? 100);
-    final maxLocal = (offer['max'] as num? ?? 20000) / (offer['sendCurrencyDivisor'] as num? ?? 100);
+    final minLocal =
+        (offer['min'] as num? ?? 800) /
+        (offer['sendCurrencyDivisor'] as num? ?? 100);
+    final maxLocal =
+        (offer['max'] as num? ?? 20000) /
+        (offer['sendCurrencyDivisor'] as num? ?? 100);
     final currency = offer['send']?['currency'] ?? 'EGP';
-    final isRangeSelected = _selectedOffer?['offerId'] == offer['offerId'] && _selectedOffer?['priceType'] == 'RANGE';
+    final isRangeSelected =
+        _selectedOffer?['offerId'] == offer['offerId'] &&
+        _selectedOffer?['priceType'] == 'RANGE';
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -1519,7 +1597,9 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
             children: [
               Text(
                 'Custom Amount ($currency)',
-                style: AppTextStyles.labelLarge.copyWith(color: AppColors.textPrimaryDark),
+                style: AppTextStyles.labelLarge.copyWith(
+                  color: AppColors.textPrimaryDark,
+                ),
               ),
               if (offer['provider'] != null) ...[
                 const SizedBox(width: 8),
@@ -1539,7 +1619,9 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
               hintText: 'Enter amount (Min: $minLocal, Max: $maxLocal)',
               hintStyle: const TextStyle(color: Colors.grey),
               filled: true,
-              fillColor: isRangeSelected ? AppColors.primary.withValues(alpha: 0.08) : AppColors.darkCard,
+              fillColor: isRangeSelected
+                  ? AppColors.primary.withValues(alpha: 0.08)
+                  : AppColors.darkCard,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: const BorderSide(color: AppColors.darkBorder),
@@ -1547,19 +1629,27 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(
-                  color: isRangeSelected ? AppColors.primary : AppColors.darkBorder,
+                  color: isRangeSelected
+                      ? AppColors.primary
+                      : AppColors.darkBorder,
                   width: isRangeSelected ? 1.5 : 1.0,
                 ),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.primary, width: 2),
+                borderSide: const BorderSide(
+                  color: AppColors.primary,
+                  width: 2,
+                ),
               ),
             ),
             onChanged: (value) {
               final doubleVal = double.tryParse(value);
-              if (doubleVal != null && doubleVal >= minLocal && doubleVal <= maxLocal) {
-                final divisor = (offer['sendCurrencyDivisor'] as num? ?? 100).toInt();
+              if (doubleVal != null &&
+                  doubleVal >= minLocal &&
+                  doubleVal <= maxLocal) {
+                final divisor = (offer['sendCurrencyDivisor'] as num? ?? 100)
+                    .toInt();
                 final fxRate = (offer['costFx'] as num? ?? 39.0).toDouble();
 
                 final intValue = (doubleVal * divisor).round();
@@ -1584,13 +1674,22 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
             },
           ),
           if (_rangeValue != null)
-             Padding(
-               padding: const EdgeInsets.only(top: 8),
-               child: Text(
-                 _quote(_rangeBaseCostUsd, line: currentLine).breakdownText,
-                 style: AppTextStyles.labelSmall.copyWith(color: AppColors.textTertiaryDark),
-               ),
-             ),
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    _quote(_rangeBaseCostUsd, line: currentLine).breakdownText,
+                    style: AppTextStyles.labelSmall.copyWith(
+                      color: AppColors.textTertiaryDark,
+                    ),
+                  ),
+                  ApproxLocalText(_rangeFinalPriceUsd),
+                ],
+              ),
+            ),
         ],
       ),
     );
@@ -1606,8 +1705,7 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
     final clockState = clockAsync.value;
 
     final bool isEligible = clockState?.isEligible == true;
-    final bool isNeedsDate =
-        clockState == null || clockState.isNeedsActivityDate;
+    final bool isNeedsDate = clockState?.isNeedsActivityDate == true;
     final bool isNeedsAmount = clockState?.isNeedsAmount == true;
     final bool isNeedsUsage = clockState?.isNeedsUsage == true;
     final bool isMissingRule = clockState?.isMissingRule == true;
@@ -1615,23 +1713,35 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
 
     String badgeText = 'ACTIVE';
     Color badgeColor = AppColors.success;
-    String subtitle = 'Active fail-safe · Rings loudly before deactivation';
+    String subtitle = 'Check deactivation reminder readiness';
 
-    if (isProtectionPaused) {
+    if (clockAsync.isLoading) {
+      badgeText = 'CHECKING';
+      badgeColor = context.onSurfaceColor;
+      subtitle = 'Checking deactivation reminder readiness';
+    } else if (clockAsync.hasError) {
+      badgeText = 'RETRY';
+      badgeColor = context.colorScheme.error;
+      subtitle = 'Could not check deactivation reminder';
+    } else if (isProtectionPaused) {
       badgeText = 'PAUSED';
       badgeColor = Colors.amber;
       subtitle = 'Line protection paused · Resume to arm alarm';
+    } else if (clockState == null) {
+      badgeText = 'NOT READY';
+      badgeColor = context.onSurfaceColor;
+      subtitle = 'Estimated deactivation cutoff unavailable';
     } else if (isEligible) {
-      badgeText = 'ACTIVE';
+      badgeText = 'READY';
       badgeColor = AppColors.success;
-      final days = clockState?.daysRemaining;
+      final days = clockState.daysRemaining;
       subtitle = days != null
-          ? 'Active fail-safe · $days days until deactivation cutoff'
-          : 'Active fail-safe · Authoritative countdown armed';
+          ? 'Estimated cutoff in $days days · Device alarm setup'
+          : 'Estimated cutoff available · Device alarm setup';
     } else if (isNeedsDate) {
       badgeText = 'NEEDS DATE';
       badgeColor = Colors.orange;
-      subtitle = 'Needs last recharge date to arm alarm countdown';
+      subtitle = 'Last recharge date needed for an estimate';
     } else if (isNeedsAmount) {
       badgeText = 'NEEDS TOPUP';
       badgeColor = Colors.orange;
@@ -1639,37 +1749,32 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
     } else if (isNeedsUsage) {
       badgeText = 'NEEDS USAGE';
       badgeColor = Colors.orange;
-      subtitle = 'Needs outgoing call or SMS activity to keep line alive';
+      subtitle = 'Qualifying SIM usage needed for an estimate';
     } else if (isMissingRule) {
       badgeText = 'VERIFYING';
       badgeColor = Colors.orange;
       subtitle = 'Carrier deactivation policy verification in progress';
+    } else if (clockState.isStaleRule) {
+      badgeText = 'VERIFYING';
+      badgeColor = Colors.orange;
+      subtitle = 'Carrier policy needs current verification';
     } else {
       badgeText = 'INACTIVE';
       badgeColor = Colors.orange;
-      subtitle = 'Add qualifying activity to arm alarm countdown';
+      subtitle = 'Deactivation estimate unavailable for this SIM';
     }
 
     return ListTile(
       dense: true,
-      onTap: () async {
-        await HapticHelper.lightTick();
-        if (!context.mounted) return;
-        if (isNeedsDate && currentLine != null) {
-          ManualRechargeDialog.show(context: context, simLine: currentLine);
-        } else {
-          _showAlarmClockInfoDialog(
-            context,
-            isEligible,
-            subtitle,
-            currentLine,
-            clockState,
-          );
-        }
+      onTap: () {
+        HapticHelper.lightTick();
+        AlarmClockPreferencesSheet.show(context, simLineId: widget.simLineId);
       },
       leading: Icon(
         Icons.alarm_on_rounded,
-        color: isEligible ? const Color(0xFFF43F5E) : AppColors.textTertiaryDark,
+        color: isEligible
+            ? const Color(0xFFF43F5E)
+            : AppColors.textTertiaryDark,
         size: 20,
       ),
       title: Text(
@@ -1711,173 +1816,6 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
           ),
         ),
       ),
-    );
-  }
-
-  void _showAlarmClockInfoDialog(
-    BuildContext context,
-    bool isEligible,
-    String subtitle,
-    SimLine? currentLine,
-    SimLineAlertClockState? clockState,
-  ) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: context.cardColor,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (ctx) {
-        return Padding(
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 36,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: context.dividerColor,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF43F5E).withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: const Icon(
-                      Icons.alarm_on_rounded,
-                      color: Color(0xFFF43F5E),
-                      size: 22,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Alarm Clock (Last Line of Defense)',
-                          style: AppTextStyles.titleMedium.copyWith(
-                            color: context.onSurfaceColor,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          isEligible
-                              ? 'Armed & Monitoring Line'
-                              : 'Action Required to Arm',
-                          style: AppTextStyles.bodySmall.copyWith(
-                            color: isEligible
-                                ? AppColors.success
-                                : Colors.orange,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 14),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: context.scaffoldBackgroundColor,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: context.dividerColor),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Protection Status for ${currentLine?.phoneNumber ?? widget.simNickname}:',
-                      style: AppTextStyles.labelSmall.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: context.onSurfaceColor,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      subtitle,
-                      style: AppTextStyles.bodySmall.copyWith(
-                        color: context.onSurfaceColor.withValues(alpha: 0.7),
-                        height: 1.4,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                'The Alarm Clock acts as your device\'s hardware fail-safe. If all other alerts (push, email, WhatsApp, Telegram) fail to resolve deactivation risk, a loud emergency alarm sounds in the final 24 hours before your SIM is permanently recycled by the carrier.',
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: context.onSurfaceColor.withValues(alpha: 0.6),
-                  height: 1.4,
-                  fontSize: 11.5,
-                ),
-              ),
-              const SizedBox(height: 18),
-              if (clockState?.isNeedsActivityDate == true && currentLine != null)
-                SizedBox(
-                  width: double.infinity,
-                  height: 44,
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.pop(ctx);
-                      ManualRechargeDialog.show(
-                        context: context,
-                        simLine: currentLine,
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    icon: const Icon(Icons.edit_calendar_rounded, size: 18),
-                    label: const Text('Record Last Recharge Date to Arm'),
-                  ),
-                )
-              else
-                SizedBox(
-                  width: double.infinity,
-                  height: 44,
-                  child: OutlinedButton.icon(
-                    onPressed: () {
-                      Navigator.pop(ctx);
-                      Navigator.of(context).pop();
-                      context.push('/notifications/settings');
-                    },
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: context.onSurfaceColor,
-                      side: BorderSide(color: context.dividerColor),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    icon: const Icon(
-                      Icons.notifications_active_outlined,
-                      size: 18,
-                    ),
-                    label: const Text('Configure & Test in Alert Settings ➜'),
-                  ),
-                ),
-            ],
-          ),
-        );
-      },
     );
   }
 }

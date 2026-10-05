@@ -18,6 +18,8 @@ import 'package:keep_sims/features/scheduled_topups/model/scheduled_topup_model.
 import 'package:keep_sims/core/result.dart';
 import 'package:keep_sims/features/notifications/data/repositories/notifications_repository_impl.dart';
 import 'package:keep_sims/features/notifications/domain/notification_event_catalog.dart';
+import 'package:keep_sims/features/sim_lines/presentation/providers/sim_line_alert_clock_provider.dart';
+import 'package:keep_sims/features/sim_lines/presentation/providers/usage_forecast_provider.dart';
 
 part 'sim_lines_controller.g.dart';
 
@@ -707,6 +709,35 @@ class SimLinesController extends _$SimLinesController {
     } catch (_) {
       // Ignore background refresh errors
     }
+  }
+
+  /// Records a manual external recharge for a SIM line and invalidates all
+  /// relevant controllers, clocks, and device alarm reminders.
+  Future<void> recordManualRecharge({
+    required String simLineId,
+    required DateTime rechargeDate,
+    double? amount,
+    String? note,
+  }) async {
+    final repo = ref.read(simLinesRepositoryProvider);
+    await repo.recordManualExternalRecharge(
+      simLineId: simLineId,
+      rechargeDate: rechargeDate,
+      amount: amount,
+      note: note,
+    );
+
+    // Refresh SIM lines list
+    await _triggerAutoRefresh(simLineId);
+
+    // Invalidate Alert Clock so the new deactivation cutoff applies immediately
+    ref.invalidate(simLineAlertClockForLineProvider(simLineId));
+
+    // Invalidate executions and forecasts
+    ref.invalidate(topupExecutionsForLineProvider(simLineId));
+    ref.invalidate(simLineActivityLogsProvider(simLineId));
+    ref.invalidate(simLineExecutionsHistoryProvider(simLineId));
+    ref.invalidate(usageForecastForLineProvider(simLineId));
   }
 }
 

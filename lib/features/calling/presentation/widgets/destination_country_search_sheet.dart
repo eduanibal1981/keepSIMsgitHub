@@ -2,6 +2,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:keep_sims/core/fx/money.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/features/calling/data/models/call_rate_model.dart';
 
@@ -326,15 +327,31 @@ class _DestinationCountrySearchSheetState
                                       ],
                                     ),
                                     const SizedBox(height: 3),
-                                    Text(
-                                      '\$${rate.ratePerMinute.toStringAsFixed(3)}/min  •  \$${rate.ratePerSecond.toStringAsFixed(4)}/s',
-                                      style: TextStyle(
-                                        color: isSelected
-                                            ? AppColors.primary
-                                            : Colors.white54,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w500,
-                                      ),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          '\$${rate.ratePerMinute.toStringAsFixed(3)}/min  •  \$${rate.ratePerSecond.toStringAsFixed(4)}/s',
+                                          style: TextStyle(
+                                            color: isSelected
+                                                ? AppColors.primary
+                                                : Colors.white54,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                        ApproxLocalRateText(
+                                          rate.ratePerMinute,
+                                          unit: '/min',
+                                          minDigits: 3,
+                                          style: const TextStyle(
+                                            color: Colors.amberAccent,
+                                            fontSize: 11,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),

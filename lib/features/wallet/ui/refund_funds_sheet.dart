@@ -5,6 +5,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:keep_sims/core/fx/money.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
@@ -50,7 +51,9 @@ class _RefundFundsSheetState extends ConsumerState<RefundFundsSheet> {
     });
 
     try {
-      final quote = await ref.read(walletControllerProvider.notifier).quoteRefund();
+      final quote = await ref
+          .read(walletControllerProvider.notifier)
+          .quoteRefund();
       if (!mounted) return;
       setState(() {
         _quote = quote;
@@ -78,7 +81,10 @@ class _RefundFundsSheetState extends ConsumerState<RefundFundsSheet> {
 
     final eligible = (_quote?['eligible_amount'] as num?)?.toDouble() ?? 0.0;
     if (amount > eligible + 0.001) {
-      setState(() => _error = 'Amount exceeds eligible refundable balance of \$${eligible.toStringAsFixed(2)}.');
+      setState(
+        () => _error =
+            'Amount exceeds eligible refundable balance of \$${eligible.toStringAsFixed(2)}.',
+      );
       return;
     }
 
@@ -93,10 +99,9 @@ class _RefundFundsSheetState extends ConsumerState<RefundFundsSheet> {
           ? 'Customer requested refund of unused balance'
           : _reasonController.text.trim();
 
-      final res = await ref.read(walletControllerProvider.notifier).requestRefund(
-        amount: amount,
-        reason: reason,
-      );
+      final res = await ref
+          .read(walletControllerProvider.notifier)
+          .requestRefund(amount: amount, reason: reason);
 
       await HapticHelper.successFeedback();
       if (!mounted) return;
@@ -138,7 +143,9 @@ class _RefundFundsSheetState extends ConsumerState<RefundFundsSheet> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.2),
+                color: (isDark ? Colors.white : Colors.black).withValues(
+                  alpha: 0.2,
+                ),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -169,13 +176,17 @@ class _RefundFundsSheetState extends ConsumerState<RefundFundsSheet> {
                       'Refund Unused Funds',
                       style: AppTextStyles.titleMedium.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                        color: isDark
+                            ? AppColors.textPrimaryDark
+                            : AppColors.textPrimaryLight,
                       ),
                     ),
                     Text(
                       'Direct return to your original PayPal capture',
                       style: AppTextStyles.bodySmall.copyWith(
-                        color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                        color: isDark
+                            ? AppColors.textSecondaryDark
+                            : AppColors.textSecondaryLight,
                       ),
                     ),
                   ],
@@ -226,7 +237,9 @@ class _RefundFundsSheetState extends ConsumerState<RefundFundsSheet> {
           'Refund Request Submitted',
           style: AppTextStyles.titleLarge.copyWith(
             fontWeight: FontWeight.bold,
-            color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+            color: isDark
+                ? AppColors.textPrimaryDark
+                : AppColors.textPrimaryLight,
           ),
         ),
         const SizedBox(height: 8),
@@ -234,7 +247,9 @@ class _RefundFundsSheetState extends ConsumerState<RefundFundsSheet> {
           'A hold of \$${amount.toStringAsFixed(2)} has been placed on your wallet. Your refund is being processed directly to your PayPal account.',
           textAlign: TextAlign.center,
           style: AppTextStyles.bodyMedium.copyWith(
-            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+            color: isDark
+                ? AppColors.textSecondaryDark
+                : AppColors.textSecondaryLight,
           ),
         ),
         const SizedBox(height: 24),
@@ -250,7 +265,10 @@ class _RefundFundsSheetState extends ConsumerState<RefundFundsSheet> {
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            child: const Text('Done', style: TextStyle(fontWeight: FontWeight.bold)),
+            child: const Text(
+              'Done',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
           ),
         ),
       ],
@@ -277,31 +295,44 @@ class _RefundFundsSheetState extends ConsumerState<RefundFundsSheet> {
           ),
           child: Column(
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                spacing: 12,
+                runSpacing: 6,
                 children: [
                   Text(
                     'Available Balance',
                     style: AppTextStyles.bodyMedium.copyWith(
-                      color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                      color: isDark
+                          ? AppColors.textSecondaryDark
+                          : AppColors.textSecondaryLight,
                     ),
                   ),
                   Text(
                     '\$${available.toStringAsFixed(2)}',
                     style: AppTextStyles.titleMedium.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                      color: isDark
+                          ? AppColors.textPrimaryDark
+                          : AppColors.textPrimaryLight,
                     ),
                   ),
                 ],
               ),
               const Divider(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                spacing: 12,
+                runSpacing: 6,
                 children: [
-                  Row(
+                  Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
-                      const Icon(Icons.check_circle_outline, size: 16, color: AppColors.success),
+                      const Icon(
+                        Icons.check_circle_outline,
+                        size: 16,
+                        color: AppColors.success,
+                      ),
                       const SizedBox(width: 6),
                       Text(
                         'Eligible for Cash Refund',
@@ -323,17 +354,26 @@ class _RefundFundsSheetState extends ConsumerState<RefundFundsSheet> {
               ),
               if (nonRefundable > 0.001) ...[
                 const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                Wrap(
+                  alignment: WrapAlignment.spaceBetween,
+                  spacing: 12,
+                  runSpacing: 6,
                   children: [
-                    Row(
+                    Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
-                        const Icon(Icons.info_outline, size: 16, color: Colors.orange),
+                        const Icon(
+                          Icons.info_outline,
+                          size: 16,
+                          color: Colors.orange,
+                        ),
                         const SizedBox(width: 6),
                         Text(
                           'Promotional / Non-refundable',
                           style: AppTextStyles.bodySmall.copyWith(
-                            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                            color: isDark
+                                ? AppColors.textSecondaryDark
+                                : AppColors.textSecondaryLight,
                           ),
                         ),
                       ],
@@ -359,7 +399,9 @@ class _RefundFundsSheetState extends ConsumerState<RefundFundsSheet> {
               ? 'Only unspent funds deposited via PayPal within the last 180 days are refundable to original payment methods. Promotional credits and gifts cannot be refunded to cash.'
               : 'You do not have any paid deposits within the 180-day refund window eligible for cash return. Promotional balances and expired lots can only be spent on services.',
           style: AppTextStyles.bodySmall.copyWith(
-            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+            color: isDark
+                ? AppColors.textSecondaryDark
+                : AppColors.textSecondaryLight,
             fontSize: 12,
           ),
         ),
@@ -371,7 +413,9 @@ class _RefundFundsSheetState extends ConsumerState<RefundFundsSheet> {
             'Refund Amount',
             style: AppTextStyles.bodySmall.copyWith(
               fontWeight: FontWeight.bold,
-              color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+              color: isDark
+                  ? AppColors.textPrimaryDark
+                  : AppColors.textPrimaryLight,
             ),
           ),
           const SizedBox(height: 6),
@@ -400,6 +444,7 @@ class _RefundFundsSheetState extends ConsumerState<RefundFundsSheet> {
               ),
             ),
           ),
+          ApproxLocalAmountPreview(_amountController),
           const SizedBox(height: 12),
 
           // Reason Field
@@ -407,7 +452,9 @@ class _RefundFundsSheetState extends ConsumerState<RefundFundsSheet> {
             'Reason (Optional)',
             style: AppTextStyles.bodySmall.copyWith(
               fontWeight: FontWeight.bold,
-              color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+              color: isDark
+                  ? AppColors.textPrimaryDark
+                  : AppColors.textPrimaryLight,
             ),
           ),
           const SizedBox(height: 6),
@@ -458,9 +505,23 @@ class _RefundFundsSheetState extends ConsumerState<RefundFundsSheet> {
                     color: Colors.white,
                   ),
                 )
-              : Text(
-                  eligible > 0 ? 'Submit Refund Request' : 'No Refundable Funds',
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              : ValueListenableBuilder<TextEditingValue>(
+                  valueListenable: _amountController,
+                  builder: (context, value, _) {
+                    final amount = double.tryParse(value.text.trim());
+                    return Text(
+                      eligible <= 0
+                          ? 'No Refundable Funds'
+                          : amount != null && amount.isFinite && amount > 0
+                          ? 'Request ${Money.usd(amount)} USD refund'
+                          : 'Submit Refund Request',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    );
+                  },
                 ),
         ),
       ],

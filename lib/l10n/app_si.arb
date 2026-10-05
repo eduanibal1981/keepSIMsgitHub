@@ -996,5 +996,8 @@
     "refreshSims": "SIMපත් නැවුම් කරන්න",
     "noMatchingSims": "ගැලපෙන SIMපත් නැත",
     "tryDifferentSimSearch": "වෙනත් නමක්, අංකයක් හෝ පෙරහනක් උත්සාහ කරන්න.",
-    "clearSearchAndFilters": "සෙවුම සහ පෙරහන් ඉවත් කරන්න"
+    "clearSearchAndFilters": "සෙවුම සහ පෙරහන් ඉවත් කරන්න",
+  "fxChargesInUsd": "{currency} අගයන් ආසන්න අගයන් වේ. අය කිරීම් USD වලින් සිදු වේ.",
+  "fxCurrencySaveFailed": "පෙන්වන මුදල් ඒකකය සුරැකිය නොහැකි විය. නැවත උත්සාහ කරන්න.",
+  "fxAnnualProtectionFee": "වාර්ෂික ආරක්ෂණ ගාස්තුව"
 }

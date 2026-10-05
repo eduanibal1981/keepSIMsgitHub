@@ -1,0 +1,37 @@
+00:00 +0: loading C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart
+00:00 +0: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: USD amount previews react to typing, clearing and programmatic MAX
+00:01 +1: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: USD amount previews react to typing, clearing and programmatic MAX
+00:01 +2: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: USD amount previews react to typing, clearing and programmatic MAX
+00:01 +3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: USD amount previews react to typing, clearing and programmatic MAX
+00:01 +4: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: USD amount previews react to typing, clearing and programmatic MAX
+00:01 +5: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: USD amount previews react to typing, clearing and programmatic MAX
+00:01 +6: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: USD amount previews react to typing, clearing and programmatic MAX
+00:01 +7: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: USD amount previews react to typing, clearing and programmatic MAX
+00:01 +8: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: USD amount previews react to typing, clearing and programmatic MAX
+00:01 +9: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: USD amount previews react to typing, clearing and programmatic MAX
+00:01 +10: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: USD amount previews react to typing, clearing and programmatic MAX
+00:01 +11: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: USD amount previews react to typing, clearing and programmatic MAX
+00:01 +12: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: USD amount previews react to typing, clearing and programmatic MAX
+00:01 +13: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: USD amount previews react to typing, clearing and programmatic MAX
+00:01 +14: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: USD amount previews react to typing, clearing and programmatic MAX
+00:01 +15: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: USD amount previews react to typing, clearing and programmatic MAX
+00:01 +16: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: USD amount previews react to typing, clearing and programmatic MAX
+00:01 +17: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: USD amount previews react to typing, clearing and programmatic MAX
+00:01 +18: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: USD amount previews react to typing, clearing and programmatic MAX
+00:01 +19: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: USD amount previews react to typing, clearing and programmatic MAX
+00:01 +20: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: USD amount previews react to typing, clearing and programmatic MAX
+00:01 +21: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: USD amount previews react to typing, clearing and programmatic MAX
+00:01 +22: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: USD amount previews react to typing, clearing and programmatic MAX
+00:01 +23: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: USD amount previews react to typing, clearing and programmatic MAX
+00:01 +24: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: USD amount previews react to typing, clearing and programmatic MAX
+00:02 +25: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/fx_lifecycle_test.dart: account change, sign-out and sign-in clear and reload display FX
+00:02 +26: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: PayPal presets keep USD selection and input with local estimates
+00:03 +27: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: PayPal presets keep USD selection and input with local estimates
+00:03 +28: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: PayPal presets keep USD selection and input with local estimates
+[Analytics] Consent check error: 'package:supabase_flutter/src/supabase.dart': Failed assertion: line 44 pos 7: '_instance._isInitialized': You must initialize the supabase instance before calling Supabase.instance
+00:03 +29: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: rate chip preserves both USD units at narrow width (light)
+00:03 +30: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: rate chip preserves both USD units at narrow width (dark)
+00:03 +31: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: RTL estimates and charge explanation fit without hiding USD
+00:03 +32: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:06 +33: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition shows retryable failure
+00:07 +34: All tests passed!

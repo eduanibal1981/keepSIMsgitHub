@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:keep_sims/core/fx/money.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:keep_sims/core/providers/app_config_provider.dart';
+import 'package:keep_sims/l10n/app_localizations.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
 
-class SubscriptionUpsellSheet extends StatelessWidget {
+class SubscriptionUpsellSheet extends ConsumerWidget {
   final String title;
   final String description;
   final String requiredPlan;
@@ -39,7 +42,9 @@ class SubscriptionUpsellSheet extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final baseFee =
+        ref.watch(baseServiceFeeUsdProvider).value ?? kDefaultBaseServiceFeeUsd;
     final bool isPremium = requiredPlan.toLowerCase() == 'premium';
     final Color accentColor = isPremium
         ? Colors.purpleAccent
@@ -54,7 +59,10 @@ class SubscriptionUpsellSheet extends StatelessWidget {
           topRight: Radius.circular(28),
         ),
         border: Border(
-          top: BorderSide(color: accentColor.withValues(alpha: 0.2), width: 1.5),
+          top: BorderSide(
+            color: accentColor.withValues(alpha: 0.2),
+            width: 1.5,
+          ),
         ),
       ),
       child: Column(
@@ -116,6 +124,23 @@ class SubscriptionUpsellSheet extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 24),
+
+          // The configured annual protection component, not a total refill quote.
+          Text(
+            '${AppLocalizations.of(context)?.fxAnnualProtectionFee ?? 'Annual protection fee'}: ${Money.usd(baseFee)}',
+            style: TextStyle(color: accentColor, fontWeight: FontWeight.w600),
+          ),
+          ApproxLocalText(
+            baseFee,
+            style: TextStyle(
+              color: accentColor.withValues(alpha: 0.8),
+              fontSize: 12,
+            ),
+          ),
+          const FxChargeNotice(
+            style: TextStyle(color: Colors.white60, fontSize: 11),
+          ),
+          const SizedBox(height: 12),
 
           // Feature Highlights Section
           Container(

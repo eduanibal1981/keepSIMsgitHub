@@ -3117,4 +3117,104 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get inspector => 'Inspector';
+
+  @override
+  String fxChargesInUsd(String currency) {
+    return '$currency amounts are approximate. Charges are in USD.';
+  }
+
+  @override
+  String get fxCurrencySaveFailed =>
+      'Couldn\'t save your display currency. Please try again.';
+
+  @override
+  String get fxAnnualProtectionFee => 'Annual protection fee';
+
+  @override
+  String get profileNotifications => 'Notifications';
+
+  @override
+  String get profileWhatsAppNumber => 'WhatsApp number';
+
+  @override
+  String get profileTitle => 'My profile';
+
+  @override
+  String get profilePersonalAccount => 'Personal account';
+
+  @override
+  String get profileContactDetails => 'Contact details';
+
+  @override
+  String get profileNotificationEmail => 'Notification email';
+
+  @override
+  String get profileCheckStatus => 'Check status';
+
+  @override
+  String get profileVerified => 'Verified';
+
+  @override
+  String get profileVerify => 'Verify';
+
+  @override
+  String get profileSavedStatus => 'Saved';
+
+  @override
+  String get profileAddNumber => 'Add a number';
+
+  @override
+  String get profileLoadFailed => 'Could not load these details.';
+
+  @override
+  String get profilePreferences => 'Preferences';
+
+  @override
+  String get profilePreferredLanguage => 'Preferred language';
+
+  @override
+  String get profileTimeZone => 'Time zone';
+
+  @override
+  String get profileDeviceTimeZoneHint =>
+      'Times follow this device’s time zone. Change your device settings to update it.';
+
+  @override
+  String get profileCurrency => 'Currency';
+
+  @override
+  String get profileCurrencyHint =>
+      'Choose the currency for estimated prices. Payments are charged in USD.';
+
+  @override
+  String get profileCurrencyUnavailable =>
+      'Showing USD until your selected currency is available.';
+
+  @override
+  String get profileAccount => 'Account';
+
+  @override
+  String get profileSavedSims => 'Saved SIMs';
+
+  @override
+  String get profileEdit => 'Edit profile';
+
+  @override
+  String get profileFullName => 'Full name';
+
+  @override
+  String get profileHomeCountry => 'Home country';
+
+  @override
+  String get profileNameRequired => 'Enter your name.';
+
+  @override
+  String get profileCountryRequired => 'Select your home country.';
+
+  @override
+  String get profileSaveFailed =>
+      'Could not save your changes. Please try again.';
+
+  @override
+  String get profileSaved => 'Profile updated.';
 }

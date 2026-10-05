@@ -134,8 +134,8 @@ class _SmartCallDashboardScreenState
                           line.nickname?.isNotEmpty == true
                               ? line.nickname!
                               : (line.detectedOperatorName?.isNotEmpty == true
-                                  ? line.detectedOperatorName!
-                                  : line.phoneNumber),
+                                    ? line.detectedOperatorName!
+                                    : line.phoneNumber),
                           style: TextStyle(
                             color: textColor,
                             fontSize: 14,
@@ -144,10 +144,7 @@ class _SmartCallDashboardScreenState
                         ),
                         subtitle: Text(
                           line.phoneNumber,
-                          style: TextStyle(
-                            color: subtextColor,
-                            fontSize: 12,
-                          ),
+                          style: TextStyle(color: subtextColor, fontSize: 12),
                         ),
                         trailing: Icon(
                           Icons.arrow_forward_ios_rounded,
@@ -174,7 +171,9 @@ class _SmartCallDashboardScreenState
     HapticHelper.lightTick();
     final number = _numberController.text.trim();
     if (number.isNotEmpty) {
-      context.push('${AppRoutes.callingDialer}?number=${Uri.encodeComponent(number)}');
+      context.push(
+        '${AppRoutes.callingDialer}?number=${Uri.encodeComponent(number)}',
+      );
     } else {
       context.push(AppRoutes.callingDialer);
     }
@@ -192,13 +191,21 @@ class _SmartCallDashboardScreenState
     // Adaptive Theme Palette
     final bgColor = isDark ? const Color(0xFF070E17) : AppColors.lightBg;
     final cardBg = isDark ? const Color(0xFF0F1A2E) : Colors.white;
-    final cardBorder = isDark ? const Color(0xFF1E2B45) : const Color(0xFFE2E8F0);
+    final cardBorder = isDark
+        ? const Color(0xFF1E2B45)
+        : const Color(0xFFE2E8F0);
     final inputBg = isDark ? const Color(0xFF0B1424) : Colors.white;
-    final inputBorder = isDark ? const Color(0xFF1E2B45) : const Color(0xFFCBD5E1);
+    final inputBorder = isDark
+        ? const Color(0xFF1E2B45)
+        : const Color(0xFFCBD5E1);
 
     final textPrimary = isDark ? Colors.white : AppColors.textPrimaryLight;
-    final textSecondary = isDark ? const Color(0xFF94A3B8) : AppColors.textSecondaryLight;
-    final textMuted = isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8);
+    final textSecondary = isDark
+        ? const Color(0xFF94A3B8)
+        : AppColors.textSecondaryLight;
+    final textMuted = isDark
+        ? const Color(0xFF64748B)
+        : const Color(0xFF94A3B8);
 
     final cardShadow = isDark
         ? null
@@ -211,95 +218,121 @@ class _SmartCallDashboardScreenState
           ];
 
     // Calling cards styling
-    final purpleIcon = isDark ? const Color(0xFF818CF8) : const Color(0xFF4F46E5);
-    final purpleIconBg = (isDark ? const Color(0xFF818CF8) : const Color(0xFF6366F1))
-        .withValues(alpha: isDark ? 0.15 : 0.10);
-    final purpleButtonBg = isDark ? const Color(0xFF282554) : const Color(0xFF4F46E5);
-    final purpleButtonBorder = isDark ? const Color(0xFF4338CA) : const Color(0xFF4338CA);
+    final purpleIcon = isDark
+        ? const Color(0xFF818CF8)
+        : const Color(0xFF4F46E5);
+    final purpleIconBg =
+        (isDark ? const Color(0xFF818CF8) : const Color(0xFF6366F1)).withValues(
+          alpha: isDark ? 0.15 : 0.10,
+        );
+    final purpleButtonBg = isDark
+        ? const Color(0xFF282554)
+        : const Color(0xFF4F46E5);
+    final purpleButtonBorder = isDark
+        ? const Color(0xFF4338CA)
+        : const Color(0xFF4338CA);
 
-    final cyanAccent = isDark ? const Color(0xFF22D3EE) : const Color(0xFF0891B2);
-    final cyanIconBg = (isDark ? const Color(0xFF22D3EE) : const Color(0xFF0891B2))
-        .withValues(alpha: isDark ? 0.15 : 0.10);
-    final cyanButtonBg = isDark ? const Color(0xFF0E4E63) : const Color(0xFF0891B2);
-    final cyanButtonBorder = isDark ? const Color(0xFF0891B2) : const Color(0xFF0E7490);
+    final cyanAccent = isDark
+        ? const Color(0xFF22D3EE)
+        : const Color(0xFF0891B2);
+    final cyanIconBg =
+        (isDark ? const Color(0xFF22D3EE) : const Color(0xFF0891B2)).withValues(
+          alpha: isDark ? 0.15 : 0.10,
+        );
+    final cyanButtonBg = isDark
+        ? const Color(0xFF0E4E63)
+        : const Color(0xFF0891B2);
+    final cyanButtonBorder = isDark
+        ? const Color(0xFF0891B2)
+        : const Color(0xFF0E7490);
 
     final walletAsync = ref.watch(walletControllerProvider);
-    final walletBalance =
-        walletAsync.asData?.value.wallet.balance ?? 1922.48;
+    final walletBalance = walletAsync.asData?.value.wallet.balance ?? 1922.48;
 
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
-      child: Scaffold(
-        backgroundColor: bgColor,
-        body: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildTopBar(
-                  balance: walletBalance,
-                  cardBg: cardBg,
-                  cardBorder: cardBorder,
-                  textPrimary: textPrimary,
-                  textSecondary: textSecondary,
-                  cardShadow: cardShadow,
-                ),
-                const SizedBox(height: 22),
-                _buildTitleHeader(
-                  cardBg: cardBg,
-                  cardBorder: cardBorder,
-                  textPrimary: textPrimary,
-                  textSecondary: textSecondary,
-                  cardShadow: cardShadow,
-                ),
-                const SizedBox(height: 16),
-                _buildInputAndContactsRow(
-                  isDark: isDark,
-                  cardBg: cardBg,
-                  inputBg: inputBg,
-                  inputBorder: inputBorder,
-                  textPrimary: textPrimary,
-                  textSecondary: textSecondary,
-                  textMuted: textMuted,
-                  cardShadow: cardShadow,
-                ),
-                const SizedBox(height: 24),
-                _buildHowToCallSection(
-                  cardBg: cardBg,
-                  cardBorder: cardBorder,
-                  cardShadow: cardShadow,
-                  textPrimary: textPrimary,
-                  textSecondary: textSecondary,
-                  purpleIcon: purpleIcon,
-                  purpleIconBg: purpleIconBg,
-                  purpleButtonBg: purpleButtonBg,
-                  purpleButtonBorder: purpleButtonBorder,
-                  cyanAccent: cyanAccent,
-                  cyanIconBg: cyanIconBg,
-                  cyanButtonBg: cyanButtonBg,
-                  cyanButtonBorder: cyanButtonBorder,
-                ),
-                const SizedBox(height: 26),
-                _buildNumbersAndVoicemailSection(
-                  isDark: isDark,
-                  cardBg: cardBg,
-                  cardBorder: cardBorder,
-                  cardShadow: cardShadow,
-                  textPrimary: textPrimary,
-                  textSecondary: textSecondary,
-                ),
-                const SizedBox(height: 24),
-                _buildToolsSection(
-                  isDark: isDark,
-                  cardBg: cardBg,
-                  cardBorder: cardBorder,
-                  cardShadow: cardShadow,
-                  textPrimary: textPrimary,
-                  textSecondary: textSecondary,
-                ),
-                const SizedBox(height: 28),
-              ],
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) return;
+        if (Navigator.of(context).canPop()) {
+          Navigator.of(context).pop();
+        } else {
+          context.go(AppRoutes.home);
+        }
+      },
+      child: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
+        child: Scaffold(
+          backgroundColor: bgColor,
+          body: SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildTopBar(
+                    balance: walletBalance,
+                    cardBg: cardBg,
+                    cardBorder: cardBorder,
+                    textPrimary: textPrimary,
+                    textSecondary: textSecondary,
+                    cardShadow: cardShadow,
+                  ),
+                  const SizedBox(height: 22),
+                  _buildTitleHeader(
+                    cardBg: cardBg,
+                    cardBorder: cardBorder,
+                    textPrimary: textPrimary,
+                    textSecondary: textSecondary,
+                    cardShadow: cardShadow,
+                  ),
+                  const SizedBox(height: 16),
+                  _buildInputAndContactsRow(
+                    isDark: isDark,
+                    cardBg: cardBg,
+                    inputBg: inputBg,
+                    inputBorder: inputBorder,
+                    textPrimary: textPrimary,
+                    textSecondary: textSecondary,
+                    textMuted: textMuted,
+                    cardShadow: cardShadow,
+                  ),
+                  const SizedBox(height: 24),
+                  _buildHowToCallSection(
+                    cardBg: cardBg,
+                    cardBorder: cardBorder,
+                    cardShadow: cardShadow,
+                    textPrimary: textPrimary,
+                    textSecondary: textSecondary,
+                    purpleIcon: purpleIcon,
+                    purpleIconBg: purpleIconBg,
+                    purpleButtonBg: purpleButtonBg,
+                    purpleButtonBorder: purpleButtonBorder,
+                    cyanAccent: cyanAccent,
+                    cyanIconBg: cyanIconBg,
+                    cyanButtonBg: cyanButtonBg,
+                    cyanButtonBorder: cyanButtonBorder,
+                  ),
+                  const SizedBox(height: 26),
+                  _buildNumbersAndVoicemailSection(
+                    isDark: isDark,
+                    cardBg: cardBg,
+                    cardBorder: cardBorder,
+                    cardShadow: cardShadow,
+                    textPrimary: textPrimary,
+                    textSecondary: textSecondary,
+                  ),
+                  const SizedBox(height: 24),
+                  _buildToolsSection(
+                    isDark: isDark,
+                    cardBg: cardBg,
+                    cardBorder: cardBorder,
+                    cardShadow: cardShadow,
+                    textPrimary: textPrimary,
+                    textSecondary: textSecondary,
+                  ),
+                  const SizedBox(height: 28),
+                ],
+              ),
             ),
           ),
         ),
@@ -321,6 +354,22 @@ class _SmartCallDashboardScreenState
       children: [
         Row(
           children: [
+            IconButton(
+              icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+              color: textPrimary,
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+              tooltip: 'Back to Home',
+              onPressed: () {
+                HapticHelper.lightTick();
+                if (Navigator.of(context).canPop()) {
+                  Navigator.of(context).pop();
+                } else {
+                  context.go(AppRoutes.home);
+                }
+              },
+            ),
+            const SizedBox(width: 12),
             Container(
               width: 32,
               height: 32,
@@ -418,10 +467,7 @@ class _SmartCallDashboardScreenState
             const SizedBox(height: 4),
             Text(
               'Choose a number, then how to call',
-              style: TextStyle(
-                color: textSecondary,
-                fontSize: 14,
-              ),
+              style: TextStyle(color: textSecondary, fontSize: 14),
             ),
           ],
         ),
@@ -667,10 +713,7 @@ class _SmartCallDashboardScreenState
         children: [
           Container(
             padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: iconBg,
-              shape: BoxShape.circle,
-            ),
+            decoration: BoxDecoration(color: iconBg, shape: BoxShape.circle),
             child: Icon(icon, color: iconColor, size: 26),
           ),
           const SizedBox(height: 16),
@@ -683,13 +726,7 @@ class _SmartCallDashboardScreenState
             ),
           ),
           const SizedBox(height: 4),
-          Text(
-            subtitle,
-            style: TextStyle(
-              color: textSecondary,
-              fontSize: 12,
-            ),
-          ),
+          Text(subtitle, style: TextStyle(color: textSecondary, fontSize: 12)),
           if (linkText != null) ...[
             const SizedBox(height: 4),
             InkWell(
@@ -809,7 +846,9 @@ class _SmartCallDashboardScreenState
     required Color textPrimary,
     required Color textSecondary,
   }) {
-    final testBtnBg = isDark ? const Color(0xFF07243B) : const Color(0xFFE0F2FE);
+    final testBtnBg = isDark
+        ? const Color(0xFF07243B)
+        : const Color(0xFFE0F2FE);
     const testBtnBorder = Color(0xFF0284C7);
     final testBtnText = isDark ? Colors.white : const Color(0xFF0369A1);
 
@@ -852,10 +891,7 @@ class _SmartCallDashboardScreenState
                     const SizedBox(height: 2),
                     Text(
                       'Check mic, audio & capabilities',
-                      style: TextStyle(
-                        color: textSecondary,
-                        fontSize: 12,
-                      ),
+                      style: TextStyle(color: textSecondary, fontSize: 12),
                     ),
                   ],
                 ),
@@ -915,16 +951,9 @@ class _SmartCallDashboardScreenState
       ),
       subtitle: Text(
         subtitle,
-        style: TextStyle(
-          color: textSecondary,
-          fontSize: 12,
-        ),
+        style: TextStyle(color: textSecondary, fontSize: 12),
       ),
-      trailing: Icon(
-        Icons.chevron_right,
-        color: textSecondary,
-        size: 18,
-      ),
+      trailing: Icon(Icons.chevron_right, color: textSecondary, size: 18),
     );
   }
 }

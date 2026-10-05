@@ -1,0 +1,218 @@
+00:00 +0: loading C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart
+00:00 +0: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: upgrade displays the configured USD fee on the plan and action
+00:00 +1: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: upgrade displays the configured USD fee on the plan and action
+00:00 +2: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: upgrade displays the configured USD fee on the plan and action
+00:00 +3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: upgrade displays the configured USD fee on the plan and action
+00:00 +4: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: upgrade displays the configured USD fee on the plan and action
+00:00 +5: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: upgrade displays the configured USD fee on the plan and action
+00:00 +6: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: upgrade displays the configured USD fee on the plan and action
+00:00 +7: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: upgrade displays the configured USD fee on the plan and action
+00:00 +8: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: upgrade displays the configured USD fee on the plan and action
+00:00 +9: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: upgrade displays the configured USD fee on the plan and action
+00:00 +10: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: upgrade displays the configured USD fee on the plan and action
+00:00 +11: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: upgrade displays the configured USD fee on the plan and action
+00:00 +12: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: upgrade displays the configured USD fee on the plan and action
+00:00 +13: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: upgrade displays the configured USD fee on the plan and action
+00:01 +14: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: upgrade displays the configured USD fee on the plan and action
+00:01 +15: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: upgrade displays the configured USD fee on the plan and action
+00:01 +16: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: upgrade displays the configured USD fee on the plan and action
+00:01 +17: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: upgrade displays the configured USD fee on the plan and action
+00:01 +18: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: upgrade displays the configured USD fee on the plan and action
+00:01 +19: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: upgrade displays the configured USD fee on the plan and action
+00:01 +20: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: upgrade displays the configured USD fee on the plan and action
+00:01 +21: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: upgrade displays the configured USD fee on the plan and action
+00:01 +22: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: upgrade displays the configured USD fee on the plan and action
+00:01 +23: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: upgrade displays the configured USD fee on the plan and action
+00:01 +24: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: upgrade displays the configured USD fee on the plan and action
+00:02 +25: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: upgrade displays the configured USD fee on the plan and action
+00:02 +26: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: upgrade displays the configured USD fee on the plan and action
+00:02 +27: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: upgrade displays the configured USD fee on the plan and action
+00:02 +28: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: gift previews preserve USD typing and commit labels
+00:03 +29: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: gift previews preserve USD typing and commit labels
+00:03 +30: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: gift previews preserve USD typing and commit labels
+00:03 +31: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: gift previews preserve USD typing and commit labels
+00:03 +32: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:04 +33: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:04 +34: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:04 +35: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:04 +36: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:04 +37: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:04 +38: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:04 +39: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:04 +40: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:04 +41: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:04 +42: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:04 +43: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:04 +44: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:04 +45: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:04 +46: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:04 +47: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:04 +48: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:05 +49: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:05 +49: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: PayPal presets keep USD selection and input with local estimates
+[Analytics] Consent check error: 'package:supabase_flutter/src/supabase.dart': Failed assertion: line 44 pos 7: '_instance._isInitialized': You must initialize the supabase instance before calling Supabase.instance
+00:05 +50: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:06 +51: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:06 +52: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:06 +53: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:06 +53: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/payments/paypal_checkout_screen_test.dart: PayPalCheckoutScreen & Quote Parity Unit Tests renders payment title and secure pay button correctly
+[Analytics] Consent check error: 'package:supabase_flutter/src/supabase.dart': Failed assertion: line 44 pos 7: '_instance._isInitialized': You must initialize the supabase instance before calling Supabase.instance
+00:06 +54: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:07 +54: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/payments/paypal_checkout_screen_test.dart: PayPalCheckoutScreen & Quote Parity Unit Tests renders plan payment kind correctly
+[Analytics] Consent check error: 'package:supabase_flutter/src/supabase.dart': Failed assertion: line 44 pos 7: '_instance._isInitialized': You must initialize the supabase instance before calling Supabase.instance
+00:07 +55: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:07 +56: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:07 +57: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:08 +58: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:08 +59: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:08 +60: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:08 +61: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:08 +62: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:08 +63: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:08 +64: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:08 +65: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:08 +66: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:08 +67: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:08 +68: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:08 +69: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition shows retryable failure
+00:09 +70: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/dtmf_keypad_test.dart: ActiveCallScreen renders Keypad button and opens DTMF dialpad
+00:11 +71: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/my_numbers_screen_test.dart: MyNumbersScreen renders header, numbers list, Add Number, and Smart Call Setup matching Image 2
+00:12 +72: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/rate_savings_calculator_test.dart: RateSavingsCalculatorWidget computes accurate carrier vs KeepSIMs savings
+00:12 +73: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/rate_savings_calculator_test.dart: RateSavingsCalculatorWidget computes accurate carrier vs KeepSIMs savings
+00:12 +74: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/my_numbers_screen_test.dart: MyNumbersScreen updates MMI code when selecting Reliance Jio
+00:13 +75: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/my_numbers_screen_test.dart: MyNumbersScreen updates MMI code when selecting Reliance Jio
+00:13 +76: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/my_numbers_screen_test.dart: MyNumbersScreen does not overflow on narrow mobile screens (360x800)
+00:13 +77: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/my_numbers_screen_test.dart: MyNumbersScreen does not overflow on narrow mobile screens (360x800)
+00:13 +78: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/my_numbers_screen_test.dart: MyNumbersScreen does not overflow on narrow mobile screens (360x800)
+00:13 +79: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/my_numbers_screen_test.dart: MyNumbersScreen does not overflow on narrow mobile screens (360x800)
+00:13 +80: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/my_numbers_screen_test.dart: MyNumbersScreen does not overflow on narrow mobile screens (360x800)
+00:13 +81: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/my_numbers_screen_test.dart: MyNumbersScreen does not overflow on narrow mobile screens (360x800)
+00:13 +82: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/smart_call_dialer_controller_test.dart: SmartCallDialerNotifier Unit Tests 1. Initial state has empty number, gateway selected, and no quote
+00:13 +83: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/smart_call_dialer_controller_test.dart: SmartCallDialerNotifier Unit Tests 2. Typing number triggers debounced server preview quote
+00:14 +84: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/smart_call_dialer_controller_test.dart: SmartCallDialerNotifier Unit Tests 3. Quote race protection: stale Quote A arriving after Quote B is discarded
+00:14 +85: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/smart_call_dialer_controller_test.dart: SmartCallDialerNotifier Unit Tests 3. Quote race protection: stale Quote A arriving after Quote B is discarded
+00:14 +86: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/smart_call_dialer_controller_test.dart: SmartCallDialerNotifier Unit Tests 3. Quote race protection: stale Quote A arriving after Quote B is discarded
+00:15 +87: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/smart_call_navigation_test.dart: SmartCallNavigation renders all 6 navigation destinations
+00:15 +88: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/smart_call_navigation_test.dart: SmartCallNavigation renders all 6 navigation destinations
+00:15 +89: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/smart_call_navigation_test.dart: SmartCallNavigation renders all 6 navigation destinations
+00:15 +90: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/smart_call_navigation_test.dart: SmartCallNavigation renders all 6 navigation destinations
+00:16 +91: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/smart_call_savings_screen_test.dart: SmartCallSavingsScreen renders destination rate and computes savings
+00:16 +92: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/smart_call_savings_screen_test.dart: SmartCallSavingsScreen renders destination rate and computes savings
+00:16 +93: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/smart_call_savings_screen_test.dart: SmartCallSavingsScreen renders destination rate and computes savings
+00:17 +94: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/smart_call_savings_screen_test.dart: SmartCallSavingsScreen renders destination rate and computes savings
+00:17 +95: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/smart_call_savings_screen_test.dart: SmartCallSavingsScreen renders destination rate and computes savings
+00:17 +96: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +97: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +98: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +99: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +100: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +101: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +102: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +103: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +104: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +105: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +106: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +107: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +108: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +109: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +110: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +111: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +112: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +113: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +114: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +115: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +116: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +117: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +118: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +119: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +120: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +121: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +122: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +123: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +124: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +125: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +126: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +127: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +128: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +129: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +130: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +131: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +132: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +133: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +134: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +135: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +136: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +137: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +138: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +139: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +140: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +141: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +142: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:20 +143: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:20 +144: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:20 +145: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:20 +146: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:20 +147: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:20 +148: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:20 +149: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:21 +150: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:21 +151: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:21 +152: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:21 +153: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:21 +154: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:21 +155: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:21 +156: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:21 +157: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:21 +158: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:21 +159: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:21 +160: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:21 +161: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferCard renders More details label and country count
+00:21 +162: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: switching validity mode drops the other mode's answers
+00:22 +163: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: switching validity mode drops the other mode's answers
+00:22 +164: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: switching validity mode drops the other mode's answers
+00:22 +165: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: switching validity mode drops the other mode's answers
+00:22 +166: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: switching validity mode drops the other mode's answers
+00:22 +167: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: switching validity mode drops the other mode's answers
+00:22 +168: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: switching validity mode drops the other mode's answers
+00:22 +169: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: switching validity mode drops the other mode's answers
+00:22 +170: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: switching validity mode drops the other mode's answers
+00:22 +171: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: switching validity mode drops the other mode's answers
+00:22 +172: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: switching validity mode drops the other mode's answers
+00:22 +173: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: switching validity mode drops the other mode's answers
+00:22 +174: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: switching validity mode drops the other mode's answers
+00:22 +175: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: switching validity mode drops the other mode's answers
+00:22 +176: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: switching validity mode drops the other mode's answers
+00:22 +177: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: switching validity mode drops the other mode's answers
+00:22 +178: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: switching validity mode drops the other mode's answers
+00:22 +179: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: switching validity mode drops the other mode's answers
+00:22 +180: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: switching validity mode drops the other mode's answers
+00:22 +181: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferDetailsSheet displays professional details and filters countries
+00:22 +182: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferDetailsSheet displays professional details and filters countries
+00:22 +183: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferDetailsSheet displays professional details and filters countries
+00:22 +184: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferDetailsSheet displays professional details and filters countries
+00:22 +185: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferDetailsSheet displays professional details and filters countries
+00:22 +186: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferDetailsSheet displays professional details and filters countries
+00:22 +187: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferDetailsSheet displays professional details and filters countries
+00:22 +188: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferDetailsSheet displays professional details and filters countries
+00:22 +189: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferDetailsSheet displays professional details and filters countries
+00:22 +190: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferDetailsSheet displays professional details and filters countries
+00:22 +191: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferDetailsSheet displays professional details and filters countries
+00:22 +192: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferDetailsSheet displays professional details and filters countries
+00:22 +193: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferDetailsSheet displays professional details and filters countries
+00:22 +194: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferDetailsSheet displays professional details and filters countries
+00:22 +195: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferDetailsSheet displays professional details and filters countries
+00:22 +196: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferDetailsSheet displays professional details and filters countries
+00:22 +197: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferDetailsSheet displays professional details and filters countries
+00:22 +198: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferDetailsSheet displays professional details and filters countries
+00:22 +199: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferDetailsSheet displays professional details and filters countries
+00:22 +200: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferDetailsSheet displays professional details and filters countries
+00:22 +201: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferDetailsSheet displays professional details and filters countries
+00:22 +202: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferDetailsSheet displays professional details and filters countries
+00:22 +203: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: data offers Unlimited as a mode, and no stray switch
+00:23 +204: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferCard omits speed line and speed badge, details sheet retains speed policy
+00:23 +205: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: data sizes are drawn from the catalogue in 1000-MB GB
+00:23 +206: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: an empty price box stays null and is not read as zero
+00:24 +207: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: speed choices are hidden until Unlimited is selected, explain exact speed, and clear on mode switch
+00:24 +208: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: replaces Local coverage label with selected country only (e.g. Egypt only)
+00:24 +209: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: resolves country name from ISO code when countryName is omitted
+00:25 +210: All tests passed!

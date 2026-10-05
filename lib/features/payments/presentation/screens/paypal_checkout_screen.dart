@@ -54,12 +54,15 @@ class PayPalCheckoutScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<PayPalCheckoutScreen> createState() => _PayPalCheckoutScreenState();
+  ConsumerState<PayPalCheckoutScreen> createState() =>
+      _PayPalCheckoutScreenState();
 }
 
 class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen>
     with WidgetsBindingObserver {
-  final TextEditingController _amountController = TextEditingController(text: '10.00');
+  final TextEditingController _amountController = TextEditingController(
+    text: '10.00',
+  );
   double _selectedDepositAmount = 10.00;
   PayPalCheckoutStatus _status = PayPalCheckoutStatus.idle;
   String? _orderId;
@@ -91,7 +94,9 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen>
     _selectedDepositAmount = amt < 5.00 ? 5.00 : amt;
     _amountController.text = _selectedDepositAmount.toStringAsFixed(2);
     Future.microtask(() {
-      ref.read(analyticsServiceProvider).logRechargeFunnelStep(
+      ref
+          .read(analyticsServiceProvider)
+          .logRechargeFunnelStep(
             'checkout_started',
             parameters: {'amount': _selectedDepositAmount},
           );
@@ -121,7 +126,8 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen>
 
         // A stale link from an earlier order must not resolve this one.
         final returned = uri.queryParameters['order_id'];
-        if (returned != null && returned.isNotEmpty && returned != _orderId) return;
+        if (returned != null && returned.isNotEmpty && returned != _orderId)
+          return;
 
         // On iOS the SFSafariViewController stays up behind the app.
         closeInAppWebView();
@@ -186,9 +192,9 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen>
 
   Future<void> _initiateCheckout() async {
     // 1. Biometric / Passcode Auth Guard Gate (mandatory-if-enrolled)
-    final authResult = await ref.read(paymentAuthGuardProvider).confirmPayment(
-      reason: 'Authorize PayPal payment',
-    );
+    final authResult = await ref
+        .read(paymentAuthGuardProvider)
+        .confirmPayment(reason: 'Authorize PayPal payment');
 
     if (authResult == BiometricResult.lockedOut) {
       if (mounted) {
@@ -208,7 +214,8 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen>
       return;
     }
 
-    final rawAmt = double.tryParse(_amountController.text) ?? _selectedDepositAmount;
+    final rawAmt =
+        double.tryParse(_amountController.text) ?? _selectedDepositAmount;
     final effectiveAmt = rawAmt < 5.00 ? 5.00 : rawAmt;
 
     setState(() {
@@ -247,7 +254,9 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen>
 
       final data = response.data as Map<String, dynamic>;
       if (data['success'] != true || data['approval_url'] == null) {
-        throw Exception(data['error'] ?? 'Failed to generate PayPal approval link');
+        throw Exception(
+          data['error'] ?? 'Failed to generate PayPal approval link',
+        );
       }
 
       _orderId = data['order_id'];
@@ -301,7 +310,8 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen>
               if (mounted) {
                 setState(() {
                   _status = PayPalCheckoutStatus.failed;
-                  _errorMessage = AppLocalizations.of(context)?.payPalPaymentFailed ??
+                  _errorMessage =
+                      AppLocalizations.of(context)?.payPalPaymentFailed ??
                       'Payment failed or was cancelled.';
                 });
               }
@@ -356,7 +366,8 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen>
         _stopWaitTimers();
         setState(() {
           _status = PayPalCheckoutStatus.failed;
-          _errorMessage = AppLocalizations.of(context)?.payPalPaymentFailed ??
+          _errorMessage =
+              AppLocalizations.of(context)?.payPalPaymentFailed ??
               'Payment failed or was cancelled.';
         });
       }
@@ -391,7 +402,8 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen>
     if (!mounted) return;
     setState(() {
       _status = PayPalCheckoutStatus.failed;
-      _errorMessage = AppLocalizations.of(context)?.payPalPaymentCancelled ??
+      _errorMessage =
+          AppLocalizations.of(context)?.payPalPaymentCancelled ??
           'Payment cancelled. You have not been charged.';
     });
   }
@@ -470,14 +482,19 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen>
     final l10n = AppLocalizations.of(context)!;
     final isDeposit = widget.paymentKind == 'deposit';
 
-    final rawAmt = double.tryParse(_amountController.text) ?? _selectedDepositAmount;
+    final rawAmt =
+        double.tryParse(_amountController.text) ?? _selectedDepositAmount;
     final hasRemainder = isDeposit && rawAmt > 0 && rawAmt < 5.00;
+    // Mirror the existing USD deposit minimum for the label only.
+    final displayedDepositUsd = rawAmt < 5.00 ? 5.00 : rawAmt;
     final remainderAmount = hasRemainder ? (5.00 - rawAmt) : 0.0;
 
     return Scaffold(
       backgroundColor: context.scaffoldBackgroundColor,
       appBar: AppBar(
-        title: Text(isDeposit ? 'Refill Your Wallet' : l10n.payPalCheckoutTitle),
+        title: Text(
+          isDeposit ? 'Refill Your Wallet' : l10n.payPalCheckoutTitle,
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
@@ -485,274 +502,365 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen>
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
-          child: Column(
-            children: [
-              const SizedBox(height: 12),
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: isDark ? AppColors.darkCard : AppColors.lightCard,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    Icon(
-                      isDeposit
-                          ? Icons.account_balance_wallet_rounded
-                          : Icons.payment_rounded,
-                      size: 44,
-                      color: const Color(0xFF003087),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      isDeposit
-                          ? 'Refill Your Wallet'
-                          : (widget.paymentReason ?? l10n.payPalWalletTopUp),
-                      style: AppTextStyles.titleMedium.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: context.onSurfaceColor,
-                      ),
-                    ),
-                    if (isDeposit) ...[
-                      const SizedBox(height: 6),
-                      Text(
-                        widget.paymentReason != null &&
-                                widget.paymentReason!.isNotEmpty &&
-                                widget.paymentReason != 'KeepSIMs Wallet Top-up'
-                            ? 'Deposit to account wallet for: ${widget.paymentReason}\n(Wallet balance is shared across all your SIM lines)'
-                            : 'Funds are credited to your account wallet and can be used for any SIM line.',
-                        textAlign: TextAlign.center,
-                        style: AppTextStyles.bodySmall.copyWith(
-                          color: isDark
-                              ? AppColors.textSecondaryDark
-                              : AppColors.textSecondaryLight,
-                        ),
-                      ),
-                    ],
-                    const SizedBox(height: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF0070BA).withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: const Color(0xFF0070BA).withValues(alpha: 0.3),
-                        ),
-                      ),
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.shield_outlined, size: 14, color: Color(0xFF0070BA)),
-                          SizedBox(width: 5),
-                          Text(
-                            'PayPal Sandbox Mode',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF0070BA),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    if (isDeposit) ...[
-                      // Preset Amount Chips (Defect #1 fix)
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: _presetAmounts.map((amt) {
-                          final isSelected = (_selectedDepositAmount - amt).abs() < 0.01;
-                          return ChoiceChip(
-                            label: Text('\$${amt.toInt()}'),
-                            selected: isSelected,
-                            onSelected: (_) => _onAmountSelected(amt),
-                            selectedColor: const Color(0xFF0070BA),
-                            labelStyle: TextStyle(
-                              color: isSelected ? Colors.white : context.onSurfaceColor,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          );
-                        }).toList(),
-                      ),
+          child: LayoutBuilder(
+            builder: (context, constraints) => SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: IntrinsicHeight(
+                  child: Column(
+                    children: [
                       const SizedBox(height: 12),
-                      TextField(
-                        controller: _amountController,
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                        textAlign: TextAlign.center,
-                        onChanged: (val) {
-                          final parsed = double.tryParse(val);
-                          if (parsed != null) {
-                            setState(() => _selectedDepositAmount = parsed);
-                          }
-                        },
-                        style: AppTextStyles.headlineLarge.copyWith(
-                          color: const Color(0xFF0070BA),
-                          fontWeight: FontWeight.w800,
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? AppColors.darkCard
+                              : AppColors.lightCard,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: isDark
+                                ? AppColors.darkBorder
+                                : AppColors.lightBorder,
+                          ),
                         ),
-                        decoration: const InputDecoration(
-                          prefixText: '\$ ',
-                          border: InputBorder.none,
+                        child: Column(
+                          children: [
+                            Icon(
+                              isDeposit
+                                  ? Icons.account_balance_wallet_rounded
+                                  : Icons.payment_rounded,
+                              size: 44,
+                              color: const Color(0xFF003087),
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              isDeposit
+                                  ? 'Refill Your Wallet'
+                                  : (widget.paymentReason ??
+                                        l10n.payPalWalletTopUp),
+                              style: AppTextStyles.titleMedium.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: context.onSurfaceColor,
+                              ),
+                            ),
+                            if (isDeposit) ...[
+                              const SizedBox(height: 6),
+                              Text(
+                                widget.paymentReason != null &&
+                                        widget.paymentReason!.isNotEmpty &&
+                                        widget.paymentReason !=
+                                            'KeepSIMs Wallet Top-up'
+                                    ? 'Deposit to account wallet for: ${widget.paymentReason}\n(Wallet balance is shared across all your SIM lines)'
+                                    : 'Funds are credited to your account wallet and can be used for any SIM line.',
+                                textAlign: TextAlign.center,
+                                style: AppTextStyles.bodySmall.copyWith(
+                                  color: isDark
+                                      ? AppColors.textSecondaryDark
+                                      : AppColors.textSecondaryLight,
+                                ),
+                              ),
+                            ],
+                            const SizedBox(height: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(
+                                  0xFF0070BA,
+                                ).withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: const Color(
+                                    0xFF0070BA,
+                                  ).withValues(alpha: 0.3),
+                                ),
+                              ),
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.shield_outlined,
+                                    size: 14,
+                                    color: Color(0xFF0070BA),
+                                  ),
+                                  SizedBox(width: 5),
+                                  Text(
+                                    'PayPal Sandbox Mode',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF0070BA),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            if (isDeposit) ...[
+                              // Preset Amount Chips (Defect #1 fix)
+                              Wrap(
+                                alignment: WrapAlignment.center,
+                                spacing: 8,
+                                runSpacing: 8,
+                                children: _presetAmounts.map((amt) {
+                                  final isSelected =
+                                      (_selectedDepositAmount - amt).abs() <
+                                      0.01;
+                                  return ChoiceChip(
+                                    label: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text('\$${amt.toInt()}'),
+                                        ApproxLocalText(
+                                          amt,
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            color: isSelected
+                                                ? Colors.white70
+                                                : context.onSurfaceColor
+                                                      .withValues(alpha: 0.6),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    selected: isSelected,
+                                    onSelected: (_) => _onAmountSelected(amt),
+                                    selectedColor: const Color(0xFF0070BA),
+                                    labelStyle: TextStyle(
+                                      color: isSelected
+                                          ? Colors.white
+                                          : context.onSurfaceColor,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+                              const SizedBox(height: 12),
+                              TextField(
+                                controller: _amountController,
+                                keyboardType:
+                                    const TextInputType.numberWithOptions(
+                                      decimal: true,
+                                    ),
+                                textAlign: TextAlign.center,
+                                onChanged: (val) {
+                                  final parsed = double.tryParse(val);
+                                  if (parsed != null) {
+                                    setState(
+                                      () => _selectedDepositAmount = parsed,
+                                    );
+                                  }
+                                },
+                                style: AppTextStyles.headlineLarge.copyWith(
+                                  color: const Color(0xFF0070BA),
+                                  fontWeight: FontWeight.w800,
+                                ),
+                                decoration: const InputDecoration(
+                                  prefixText: '\$ ',
+                                  border: InputBorder.none,
+                                ),
+                              ),
+                              // G11 — what this deposit is worth in the user's own
+                              // money. The field itself stays in dollars: accepting
+                              // local input would mean dividing it back into USD, and
+                              // that rounding lands inside the money path.
+                              ApproxLocalText(
+                                _selectedDepositAmount,
+                                textAlign: TextAlign.center,
+                              ),
+                              if (hasRemainder)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 8.0),
+                                  child: Text(
+                                    'Minimum PayPal deposit is \$5.00 — \$${remainderAmount.toStringAsFixed(2)} remainder will stay in your wallet balance.',
+                                    textAlign: TextAlign.center,
+                                    style: AppTextStyles.bodySmall.copyWith(
+                                      color: AppColors.warning,
+                                    ),
+                                  ),
+                                ),
+                            ] else ...[
+                              if (widget.initialAmount != null) ...[
+                                Text(
+                                  '\$${widget.initialAmount!.toStringAsFixed(2)}',
+                                  style: AppTextStyles.headlineLarge.copyWith(
+                                    color: const Color(0xFF0070BA),
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                                ApproxLocalText(
+                                  widget.initialAmount!,
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ],
+                          ],
                         ),
                       ),
-                      // G11 — what this deposit is worth in the user's own
-                      // money. The field itself stays in dollars: accepting
-                      // local input would mean dividing it back into USD, and
-                      // that rounding lands inside the money path.
-                      ApproxLocalText(
-                        _selectedDepositAmount,
-                        textAlign: TextAlign.center,
-                      ),
-                      if (hasRemainder)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8.0),
-                          child: Text(
-                            'Minimum PayPal deposit is \$5.00 — \$${remainderAmount.toStringAsFixed(2)} remainder will stay in your wallet balance.',
-                            textAlign: TextAlign.center,
-                            style: AppTextStyles.bodySmall.copyWith(
-                              color: AppColors.warning,
+                      const SizedBox(height: 24),
+                      const FxChargeNotice(),
+                      _buildStatusWidget(isDark, l10n, isDeposit),
+                      const Spacer(),
+                      if (_status == PayPalCheckoutStatus.idle ||
+                          _status == PayPalCheckoutStatus.failed)
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: _initiateCheckout,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF0070BA),
+                              foregroundColor: Colors.white,
+                              minimumSize: const Size.fromHeight(54),
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.lock_rounded, size: 20),
+                                const SizedBox(width: 8),
+                                Flexible(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        isDeposit
+                                            ? 'Refill Wallet with PayPal'
+                                            : l10n.payPalPaySecurely,
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      Text(
+                                        '${Money.usd(displayedDepositUsd)} USD',
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
-                    ] else ...[
-                      if (widget.initialAmount != null) ...[
-                        Text(
-                          '\$${widget.initialAmount!.toStringAsFixed(2)}',
-                          style: AppTextStyles.headlineLarge.copyWith(
-                            color: const Color(0xFF0070BA),
-                            fontWeight: FontWeight.w800,
+                      if (_status == PayPalCheckoutStatus.awaitingApproval) ...[
+                        SizedBox(
+                          width: double.infinity,
+                          height: 54,
+                          child: ElevatedButton.icon(
+                            onPressed: _isCapturingManually
+                                ? null
+                                : _verifyAfterReturn,
+                            icon: _isCapturingManually
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : const Icon(
+                                    Icons.check_circle_rounded,
+                                    size: 20,
+                                  ),
+                            label: Text(
+                              l10n.payPalForceCaptureButton,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF10B981),
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            ),
                           ),
                         ),
-                        ApproxLocalText(
-                          widget.initialAmount!,
-                          textAlign: TextAlign.center,
+                        const SizedBox(height: 10),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 48,
+                          child: OutlinedButton.icon(
+                            onPressed: _openApprovalUrl,
+                            icon: const Icon(
+                              Icons.open_in_new_rounded,
+                              size: 18,
+                            ),
+                            label: Text(
+                              l10n.payPalReopenButton,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: const Color(0xFF0070BA),
+                              side: const BorderSide(color: Color(0xFF0070BA)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            ),
+                          ),
                         ),
                       ],
+                      if (_status == PayPalCheckoutStatus.capturing)
+                        const SizedBox(
+                          height: 54,
+                          child: Center(
+                            child: SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                          ),
+                        ),
+                      if (_status == PayPalCheckoutStatus.success)
+                        SizedBox(
+                          width: double.infinity,
+                          height: 54,
+                          child: ElevatedButton(
+                            onPressed: () => Navigator.pop(context),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF10B981),
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            ),
+                            child: Text(
+                              l10n.payPalDoneButton,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
                     ],
-                  ],
+                  ),
                 ),
               ),
-              const SizedBox(height: 24),
-              _buildStatusWidget(isDark, l10n, isDeposit),
-              const Spacer(),
-              if (_status == PayPalCheckoutStatus.idle || _status == PayPalCheckoutStatus.failed)
-                SizedBox(
-                  width: double.infinity,
-                  height: 54,
-                  child: ElevatedButton(
-                    onPressed: _initiateCheckout,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF0070BA),
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.lock_rounded, size: 20),
-                        const SizedBox(width: 8),
-                        Text(
-                          isDeposit
-                              ? 'Refill Wallet with PayPal'
-                              : l10n.payPalPaySecurely,
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              if (_status == PayPalCheckoutStatus.awaitingApproval) ...[
-                SizedBox(
-                  width: double.infinity,
-                  height: 54,
-                  child: ElevatedButton.icon(
-                    onPressed: _isCapturingManually ? null : _verifyAfterReturn,
-                    icon: _isCapturingManually
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : const Icon(Icons.check_circle_rounded, size: 20),
-                    label: Text(
-                      l10n.payPalForceCaptureButton,
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF10B981),
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                SizedBox(
-                  width: double.infinity,
-                  height: 48,
-                  child: OutlinedButton.icon(
-                    onPressed: _openApprovalUrl,
-                    icon: const Icon(Icons.open_in_new_rounded, size: 18),
-                    label: Text(
-                      l10n.payPalReopenButton,
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: const Color(0xFF0070BA),
-                      side: const BorderSide(color: Color(0xFF0070BA)),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-              if (_status == PayPalCheckoutStatus.capturing)
-                const SizedBox(
-                  height: 54,
-                  child: Center(
-                    child: SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
-                  ),
-                ),
-              if (_status == PayPalCheckoutStatus.success)
-                SizedBox(
-                  width: double.infinity,
-                  height: 54,
-                  child: ElevatedButton(
-                    onPressed: () => Navigator.pop(context),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF10B981),
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
-                    child: Text(
-                      l10n.payPalDoneButton,
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
-            ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildStatusWidget(bool isDark, AppLocalizations l10n, bool isDeposit) {
+  Widget _buildStatusWidget(
+    bool isDark,
+    AppLocalizations l10n,
+    bool isDeposit,
+  ) {
     switch (_status) {
       case PayPalCheckoutStatus.idle:
         return Text(
@@ -761,7 +869,9 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen>
               : l10n.payPalRedirectInfo,
           textAlign: TextAlign.center,
           style: AppTextStyles.bodyMedium.copyWith(
-            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+            color: isDark
+                ? AppColors.textSecondaryDark
+                : AppColors.textSecondaryLight,
           ),
         );
       case PayPalCheckoutStatus.creatingOrder:
@@ -776,12 +886,18 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen>
         final isSlow = _secondsAwaiting >= _slowApprovalSeconds;
         return Column(
           children: [
-            const Icon(Icons.open_in_browser_rounded, size: 40, color: Color(0xFF0070BA)),
+            const Icon(
+              Icons.open_in_browser_rounded,
+              size: 40,
+              color: Color(0xFF0070BA),
+            ),
             const SizedBox(height: 12),
             Text(
               l10n.payPalBrowserOpened,
               textAlign: TextAlign.center,
-              style: AppTextStyles.titleMedium.copyWith(fontWeight: FontWeight.bold),
+              style: AppTextStyles.titleMedium.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 8),
             Text(
@@ -790,7 +906,9 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen>
               style: AppTextStyles.bodySmall.copyWith(
                 color: isSlow
                     ? AppColors.warning
-                    : (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+                    : (isDark
+                          ? AppColors.textSecondaryDark
+                          : AppColors.textSecondaryLight),
               ),
             ),
             if (_errorMessage != null) ...[
@@ -811,14 +929,18 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen>
             Text(
               l10n.payPalVerifying,
               textAlign: TextAlign.center,
-              style: AppTextStyles.titleMedium.copyWith(fontWeight: FontWeight.bold),
+              style: AppTextStyles.titleMedium.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 8),
             Text(
               l10n.payPalVerifyingBody,
               textAlign: TextAlign.center,
               style: AppTextStyles.bodySmall.copyWith(
-                color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                color: isDark
+                    ? AppColors.textSecondaryDark
+                    : AppColors.textSecondaryLight,
               ),
             ),
           ],
@@ -826,18 +948,30 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen>
       case PayPalCheckoutStatus.success:
         return Column(
           children: [
-            const Icon(Icons.check_circle_rounded, color: Color(0xFF10B981), size: 64),
+            const Icon(
+              Icons.check_circle_rounded,
+              color: Color(0xFF10B981),
+              size: 64,
+            ),
             const SizedBox(height: 12),
             Text(
               l10n.payPalPaymentConfirmed,
-              style: const TextStyle(color: Color(0xFF10B981), fontSize: 20, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                color: Color(0xFF10B981),
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ],
         );
       case PayPalCheckoutStatus.failed:
         return Column(
           children: [
-            const Icon(Icons.error_outline_rounded, color: Colors.redAccent, size: 48),
+            const Icon(
+              Icons.error_outline_rounded,
+              color: Colors.redAccent,
+              size: 48,
+            ),
             const SizedBox(height: 12),
             Text(
               _errorMessage ?? l10n.payPalPaymentFailed,

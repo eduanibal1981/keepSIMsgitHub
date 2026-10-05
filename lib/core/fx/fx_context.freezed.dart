@@ -20,8 +20,9 @@ mixin _$FxContext {
  String get currency;/// What `profiles.preferred_currency` says.
  String get requestedCurrency;/// Units of [currency] per 1 USD. Exactly 1 when [currency] is `USD`.
  double get rate; String get symbol; int get decimalDigits;/// When the quote was taken. Null on any fallback.
- DateTime? get asOf; bool get stale;/// `base` | `disabled` | `stale` | `unknown_currency`, or null when a real
-/// rate is in play.
+ DateTime? get asOf;/// Age assessed by the server, rather than the device's wall clock.
+ double? get ageHours; bool get stale;/// Server fallback reason, or client `refresh_required` when no safe
+/// remaining lifetime can be established. Null when a real rate is in play.
  String? get fallbackReason; double get maxAgeHours;/// Everything the picker may offer, USD first.
  List<FxCurrencyOption> get available;
 /// Create a copy of FxContext
@@ -36,16 +37,16 @@ $FxContextCopyWith<FxContext> get copyWith => _$FxContextCopyWithImpl<FxContext>
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is FxContext&&(identical(other.enabled, enabled) || other.enabled == enabled)&&(identical(other.currency, currency) || other.currency == currency)&&(identical(other.requestedCurrency, requestedCurrency) || other.requestedCurrency == requestedCurrency)&&(identical(other.rate, rate) || other.rate == rate)&&(identical(other.symbol, symbol) || other.symbol == symbol)&&(identical(other.decimalDigits, decimalDigits) || other.decimalDigits == decimalDigits)&&(identical(other.asOf, asOf) || other.asOf == asOf)&&(identical(other.stale, stale) || other.stale == stale)&&(identical(other.fallbackReason, fallbackReason) || other.fallbackReason == fallbackReason)&&(identical(other.maxAgeHours, maxAgeHours) || other.maxAgeHours == maxAgeHours)&&const DeepCollectionEquality().equals(other.available, available));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FxContext&&(identical(other.enabled, enabled) || other.enabled == enabled)&&(identical(other.currency, currency) || other.currency == currency)&&(identical(other.requestedCurrency, requestedCurrency) || other.requestedCurrency == requestedCurrency)&&(identical(other.rate, rate) || other.rate == rate)&&(identical(other.symbol, symbol) || other.symbol == symbol)&&(identical(other.decimalDigits, decimalDigits) || other.decimalDigits == decimalDigits)&&(identical(other.asOf, asOf) || other.asOf == asOf)&&(identical(other.ageHours, ageHours) || other.ageHours == ageHours)&&(identical(other.stale, stale) || other.stale == stale)&&(identical(other.fallbackReason, fallbackReason) || other.fallbackReason == fallbackReason)&&(identical(other.maxAgeHours, maxAgeHours) || other.maxAgeHours == maxAgeHours)&&const DeepCollectionEquality().equals(other.available, available));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,enabled,currency,requestedCurrency,rate,symbol,decimalDigits,asOf,stale,fallbackReason,maxAgeHours,const DeepCollectionEquality().hash(available));
+int get hashCode => Object.hash(runtimeType,enabled,currency,requestedCurrency,rate,symbol,decimalDigits,asOf,ageHours,stale,fallbackReason,maxAgeHours,const DeepCollectionEquality().hash(available));
 
 @override
 String toString() {
-  return 'FxContext(enabled: $enabled, currency: $currency, requestedCurrency: $requestedCurrency, rate: $rate, symbol: $symbol, decimalDigits: $decimalDigits, asOf: $asOf, stale: $stale, fallbackReason: $fallbackReason, maxAgeHours: $maxAgeHours, available: $available)';
+  return 'FxContext(enabled: $enabled, currency: $currency, requestedCurrency: $requestedCurrency, rate: $rate, symbol: $symbol, decimalDigits: $decimalDigits, asOf: $asOf, ageHours: $ageHours, stale: $stale, fallbackReason: $fallbackReason, maxAgeHours: $maxAgeHours, available: $available)';
 }
 
 
@@ -56,7 +57,7 @@ abstract mixin class $FxContextCopyWith<$Res>  {
   factory $FxContextCopyWith(FxContext value, $Res Function(FxContext) _then) = _$FxContextCopyWithImpl;
 @useResult
 $Res call({
- bool enabled, String currency, String requestedCurrency, double rate, String symbol, int decimalDigits, DateTime? asOf, bool stale, String? fallbackReason, double maxAgeHours, List<FxCurrencyOption> available
+ bool enabled, String currency, String requestedCurrency, double rate, String symbol, int decimalDigits, DateTime? asOf, double? ageHours, bool stale, String? fallbackReason, double maxAgeHours, List<FxCurrencyOption> available
 });
 
 
@@ -73,7 +74,7 @@ class _$FxContextCopyWithImpl<$Res>
 
 /// Create a copy of FxContext
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? enabled = null,Object? currency = null,Object? requestedCurrency = null,Object? rate = null,Object? symbol = null,Object? decimalDigits = null,Object? asOf = freezed,Object? stale = null,Object? fallbackReason = freezed,Object? maxAgeHours = null,Object? available = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? enabled = null,Object? currency = null,Object? requestedCurrency = null,Object? rate = null,Object? symbol = null,Object? decimalDigits = null,Object? asOf = freezed,Object? ageHours = freezed,Object? stale = null,Object? fallbackReason = freezed,Object? maxAgeHours = null,Object? available = null,}) {
   return _then(_self.copyWith(
 enabled: null == enabled ? _self.enabled : enabled // ignore: cast_nullable_to_non_nullable
 as bool,currency: null == currency ? _self.currency : currency // ignore: cast_nullable_to_non_nullable
@@ -82,7 +83,8 @@ as String,rate: null == rate ? _self.rate : rate // ignore: cast_nullable_to_non
 as double,symbol: null == symbol ? _self.symbol : symbol // ignore: cast_nullable_to_non_nullable
 as String,decimalDigits: null == decimalDigits ? _self.decimalDigits : decimalDigits // ignore: cast_nullable_to_non_nullable
 as int,asOf: freezed == asOf ? _self.asOf : asOf // ignore: cast_nullable_to_non_nullable
-as DateTime?,stale: null == stale ? _self.stale : stale // ignore: cast_nullable_to_non_nullable
+as DateTime?,ageHours: freezed == ageHours ? _self.ageHours : ageHours // ignore: cast_nullable_to_non_nullable
+as double?,stale: null == stale ? _self.stale : stale // ignore: cast_nullable_to_non_nullable
 as bool,fallbackReason: freezed == fallbackReason ? _self.fallbackReason : fallbackReason // ignore: cast_nullable_to_non_nullable
 as String?,maxAgeHours: null == maxAgeHours ? _self.maxAgeHours : maxAgeHours // ignore: cast_nullable_to_non_nullable
 as double,available: null == available ? _self.available : available // ignore: cast_nullable_to_non_nullable
@@ -171,10 +173,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool enabled,  String currency,  String requestedCurrency,  double rate,  String symbol,  int decimalDigits,  DateTime? asOf,  bool stale,  String? fallbackReason,  double maxAgeHours,  List<FxCurrencyOption> available)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool enabled,  String currency,  String requestedCurrency,  double rate,  String symbol,  int decimalDigits,  DateTime? asOf,  double? ageHours,  bool stale,  String? fallbackReason,  double maxAgeHours,  List<FxCurrencyOption> available)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _FxContext() when $default != null:
-return $default(_that.enabled,_that.currency,_that.requestedCurrency,_that.rate,_that.symbol,_that.decimalDigits,_that.asOf,_that.stale,_that.fallbackReason,_that.maxAgeHours,_that.available);case _:
+return $default(_that.enabled,_that.currency,_that.requestedCurrency,_that.rate,_that.symbol,_that.decimalDigits,_that.asOf,_that.ageHours,_that.stale,_that.fallbackReason,_that.maxAgeHours,_that.available);case _:
   return orElse();
 
 }
@@ -192,10 +194,10 @@ return $default(_that.enabled,_that.currency,_that.requestedCurrency,_that.rate,
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool enabled,  String currency,  String requestedCurrency,  double rate,  String symbol,  int decimalDigits,  DateTime? asOf,  bool stale,  String? fallbackReason,  double maxAgeHours,  List<FxCurrencyOption> available)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool enabled,  String currency,  String requestedCurrency,  double rate,  String symbol,  int decimalDigits,  DateTime? asOf,  double? ageHours,  bool stale,  String? fallbackReason,  double maxAgeHours,  List<FxCurrencyOption> available)  $default,) {final _that = this;
 switch (_that) {
 case _FxContext():
-return $default(_that.enabled,_that.currency,_that.requestedCurrency,_that.rate,_that.symbol,_that.decimalDigits,_that.asOf,_that.stale,_that.fallbackReason,_that.maxAgeHours,_that.available);case _:
+return $default(_that.enabled,_that.currency,_that.requestedCurrency,_that.rate,_that.symbol,_that.decimalDigits,_that.asOf,_that.ageHours,_that.stale,_that.fallbackReason,_that.maxAgeHours,_that.available);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -212,10 +214,10 @@ return $default(_that.enabled,_that.currency,_that.requestedCurrency,_that.rate,
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool enabled,  String currency,  String requestedCurrency,  double rate,  String symbol,  int decimalDigits,  DateTime? asOf,  bool stale,  String? fallbackReason,  double maxAgeHours,  List<FxCurrencyOption> available)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool enabled,  String currency,  String requestedCurrency,  double rate,  String symbol,  int decimalDigits,  DateTime? asOf,  double? ageHours,  bool stale,  String? fallbackReason,  double maxAgeHours,  List<FxCurrencyOption> available)?  $default,) {final _that = this;
 switch (_that) {
 case _FxContext() when $default != null:
-return $default(_that.enabled,_that.currency,_that.requestedCurrency,_that.rate,_that.symbol,_that.decimalDigits,_that.asOf,_that.stale,_that.fallbackReason,_that.maxAgeHours,_that.available);case _:
+return $default(_that.enabled,_that.currency,_that.requestedCurrency,_that.rate,_that.symbol,_that.decimalDigits,_that.asOf,_that.ageHours,_that.stale,_that.fallbackReason,_that.maxAgeHours,_that.available);case _:
   return null;
 
 }
@@ -227,7 +229,7 @@ return $default(_that.enabled,_that.currency,_that.requestedCurrency,_that.rate,
 
 @JsonSerializable(fieldRename: FieldRename.snake)
 class _FxContext extends FxContext {
-  const _FxContext({this.enabled = true, this.currency = 'USD', this.requestedCurrency = 'USD', this.rate = 1.0, this.symbol = r'$', this.decimalDigits = 2, this.asOf, this.stale = false, this.fallbackReason, this.maxAgeHours = 72.0, final  List<FxCurrencyOption> available = const <FxCurrencyOption>[]}): _available = available,super._();
+  const _FxContext({this.enabled = true, this.currency = 'USD', this.requestedCurrency = 'USD', this.rate = 1.0, this.symbol = r'$', this.decimalDigits = 2, this.asOf, this.ageHours, this.stale = false, this.fallbackReason, this.maxAgeHours = 72.0, final  List<FxCurrencyOption> available = const <FxCurrencyOption>[]}): _available = available,super._();
   factory _FxContext.fromJson(Map<String, dynamic> json) => _$FxContextFromJson(json);
 
 /// The global brake (`FX_DISPLAY_ENABLED`).
@@ -242,9 +244,11 @@ class _FxContext extends FxContext {
 @override@JsonKey() final  int decimalDigits;
 /// When the quote was taken. Null on any fallback.
 @override final  DateTime? asOf;
+/// Age assessed by the server, rather than the device's wall clock.
+@override final  double? ageHours;
 @override@JsonKey() final  bool stale;
-/// `base` | `disabled` | `stale` | `unknown_currency`, or null when a real
-/// rate is in play.
+/// Server fallback reason, or client `refresh_required` when no safe
+/// remaining lifetime can be established. Null when a real rate is in play.
 @override final  String? fallbackReason;
 @override@JsonKey() final  double maxAgeHours;
 /// Everything the picker may offer, USD first.
@@ -270,16 +274,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FxContext&&(identical(other.enabled, enabled) || other.enabled == enabled)&&(identical(other.currency, currency) || other.currency == currency)&&(identical(other.requestedCurrency, requestedCurrency) || other.requestedCurrency == requestedCurrency)&&(identical(other.rate, rate) || other.rate == rate)&&(identical(other.symbol, symbol) || other.symbol == symbol)&&(identical(other.decimalDigits, decimalDigits) || other.decimalDigits == decimalDigits)&&(identical(other.asOf, asOf) || other.asOf == asOf)&&(identical(other.stale, stale) || other.stale == stale)&&(identical(other.fallbackReason, fallbackReason) || other.fallbackReason == fallbackReason)&&(identical(other.maxAgeHours, maxAgeHours) || other.maxAgeHours == maxAgeHours)&&const DeepCollectionEquality().equals(other._available, _available));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FxContext&&(identical(other.enabled, enabled) || other.enabled == enabled)&&(identical(other.currency, currency) || other.currency == currency)&&(identical(other.requestedCurrency, requestedCurrency) || other.requestedCurrency == requestedCurrency)&&(identical(other.rate, rate) || other.rate == rate)&&(identical(other.symbol, symbol) || other.symbol == symbol)&&(identical(other.decimalDigits, decimalDigits) || other.decimalDigits == decimalDigits)&&(identical(other.asOf, asOf) || other.asOf == asOf)&&(identical(other.ageHours, ageHours) || other.ageHours == ageHours)&&(identical(other.stale, stale) || other.stale == stale)&&(identical(other.fallbackReason, fallbackReason) || other.fallbackReason == fallbackReason)&&(identical(other.maxAgeHours, maxAgeHours) || other.maxAgeHours == maxAgeHours)&&const DeepCollectionEquality().equals(other._available, _available));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,enabled,currency,requestedCurrency,rate,symbol,decimalDigits,asOf,stale,fallbackReason,maxAgeHours,const DeepCollectionEquality().hash(_available));
+int get hashCode => Object.hash(runtimeType,enabled,currency,requestedCurrency,rate,symbol,decimalDigits,asOf,ageHours,stale,fallbackReason,maxAgeHours,const DeepCollectionEquality().hash(_available));
 
 @override
 String toString() {
-  return 'FxContext(enabled: $enabled, currency: $currency, requestedCurrency: $requestedCurrency, rate: $rate, symbol: $symbol, decimalDigits: $decimalDigits, asOf: $asOf, stale: $stale, fallbackReason: $fallbackReason, maxAgeHours: $maxAgeHours, available: $available)';
+  return 'FxContext(enabled: $enabled, currency: $currency, requestedCurrency: $requestedCurrency, rate: $rate, symbol: $symbol, decimalDigits: $decimalDigits, asOf: $asOf, ageHours: $ageHours, stale: $stale, fallbackReason: $fallbackReason, maxAgeHours: $maxAgeHours, available: $available)';
 }
 
 
@@ -290,7 +294,7 @@ abstract mixin class _$FxContextCopyWith<$Res> implements $FxContextCopyWith<$Re
   factory _$FxContextCopyWith(_FxContext value, $Res Function(_FxContext) _then) = __$FxContextCopyWithImpl;
 @override @useResult
 $Res call({
- bool enabled, String currency, String requestedCurrency, double rate, String symbol, int decimalDigits, DateTime? asOf, bool stale, String? fallbackReason, double maxAgeHours, List<FxCurrencyOption> available
+ bool enabled, String currency, String requestedCurrency, double rate, String symbol, int decimalDigits, DateTime? asOf, double? ageHours, bool stale, String? fallbackReason, double maxAgeHours, List<FxCurrencyOption> available
 });
 
 
@@ -307,7 +311,7 @@ class __$FxContextCopyWithImpl<$Res>
 
 /// Create a copy of FxContext
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? enabled = null,Object? currency = null,Object? requestedCurrency = null,Object? rate = null,Object? symbol = null,Object? decimalDigits = null,Object? asOf = freezed,Object? stale = null,Object? fallbackReason = freezed,Object? maxAgeHours = null,Object? available = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? enabled = null,Object? currency = null,Object? requestedCurrency = null,Object? rate = null,Object? symbol = null,Object? decimalDigits = null,Object? asOf = freezed,Object? ageHours = freezed,Object? stale = null,Object? fallbackReason = freezed,Object? maxAgeHours = null,Object? available = null,}) {
   return _then(_FxContext(
 enabled: null == enabled ? _self.enabled : enabled // ignore: cast_nullable_to_non_nullable
 as bool,currency: null == currency ? _self.currency : currency // ignore: cast_nullable_to_non_nullable
@@ -316,7 +320,8 @@ as String,rate: null == rate ? _self.rate : rate // ignore: cast_nullable_to_non
 as double,symbol: null == symbol ? _self.symbol : symbol // ignore: cast_nullable_to_non_nullable
 as String,decimalDigits: null == decimalDigits ? _self.decimalDigits : decimalDigits // ignore: cast_nullable_to_non_nullable
 as int,asOf: freezed == asOf ? _self.asOf : asOf // ignore: cast_nullable_to_non_nullable
-as DateTime?,stale: null == stale ? _self.stale : stale // ignore: cast_nullable_to_non_nullable
+as DateTime?,ageHours: freezed == ageHours ? _self.ageHours : ageHours // ignore: cast_nullable_to_non_nullable
+as double?,stale: null == stale ? _self.stale : stale // ignore: cast_nullable_to_non_nullable
 as bool,fallbackReason: freezed == fallbackReason ? _self.fallbackReason : fallbackReason // ignore: cast_nullable_to_non_nullable
 as String?,maxAgeHours: null == maxAgeHours ? _self.maxAgeHours : maxAgeHours // ignore: cast_nullable_to_non_nullable
 as double,available: null == available ? _self._available : available // ignore: cast_nullable_to_non_nullable

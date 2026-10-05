@@ -23,15 +23,12 @@ import 'package:keep_sims/core/widgets/haptic_helper.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
 import 'package:keep_sims/features/dashboard/presentation/widgets/dashboard_sim_line_card.dart';
 import 'package:keep_sims/features/notifications/presentation/controllers/notifications_controller.dart';
-import 'package:keep_sims/features/household/presentation/controllers/household_controller.dart';
 import 'package:keep_sims/l10n/app_localizations.dart';
 import 'package:keep_sims/core/providers/locale_provider.dart';
 import 'package:keep_sims/features/notifications/presentation/controllers/notification_settings_controller.dart';
 import 'package:keep_sims/core/services/esim_capability_service.dart';
 import 'package:keep_sims/features/dashboard/presentation/widgets/promo_banner.dart';
 import 'package:keep_sims/features/geo/controller/geo_controller.dart';
-
-enum _HeaderMenuAction { intlCall, esim, wallet, openTicket, help }
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -89,7 +86,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 ? Builder(
                     builder: (context) {
                       final errStr = dashboardState.error.toString();
-                      final isAuthError = errStr.toLowerCase().contains('jwt') ||
+                      final isAuthError =
+                          errStr.toLowerCase().contains('jwt') ||
                           errStr.toLowerCase().contains('token') ||
                           errStr.toLowerCase().contains('authenticated');
                       return ErrorStateView(
@@ -122,7 +120,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             errorDetails: err.toString(),
             actionLabel: 'Re-authenticate',
             onRetry: () async {
-              await ref.read(authRepositoryProvider).ensureValidSession(force: true);
+              await ref
+                  .read(authRepositoryProvider)
+                  .ensureValidSession(force: true);
               ref.invalidate(authControllerProvider);
             },
           ),
@@ -154,7 +154,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       child: SafeArea(
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -216,11 +216,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
               // ── Header Row ──────────────────────────────────────────
               _buildHeader(context, ref, welcomeName, isPowerUser),
-              const SizedBox(height: 16),
+              const SizedBox(height: 14),
 
               // ── SIM Protection Hero Card ─────────────────────────────
               SimProtectionHeroCard(
-                lineCount: ref.watch(simLinesControllerProvider).value?.length ??
+                lineCount:
+                    ref.watch(simLinesControllerProvider).value?.length ??
                     data.totalLines,
                 onManageSims: () async {
                   await HapticHelper.lightTick();
@@ -399,7 +400,19 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     );
   }
 
-  // ── Header Widget ───────────────────────────────────────────────
+  String _getGreeting(BuildContext context) {
+    final hour = DateTime.now().hour;
+    final isArabic = Localizations.localeOf(context).languageCode == 'ar';
+    if (hour < 12) {
+      return isArabic ? 'صباح الخير' : 'Good Morning';
+    } else if (hour < 17) {
+      return isArabic ? 'مساء الخير' : 'Good Afternoon';
+    } else {
+      return isArabic ? 'مساء الخير' : 'Good Evening';
+    }
+  }
+
+  // ── Header Widget (Compact Layout) ──────────────────────────────
   Widget _buildHeader(
     BuildContext context,
     WidgetRef ref,
@@ -418,9 +431,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final flagEmoji = _isoToFlagEmoji(currentIso);
     final isLight = Theme.of(context).brightness == Brightness.light;
 
+    final displayName = name.trim().split(' ').first;
+
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        // Geo-detected Country Flag Avatar
+        // ── Brand Logo / Avatar (Transparent background, no red) ─
         GestureDetector(
           onTap: () async {
             await HapticHelper.lightTick();
@@ -429,219 +445,160 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             }
           },
           child: Tooltip(
-            message: countryName,
-            child: Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: isLight
-                    ? const Color(0xFFEAEEF1)
-                    : AppColors.darkSurface,
-                border: Border.all(
-                  color: isLight ? AppColors.lightBorder : AppColors.darkBorder,
-                  width: 1.5,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.15),
-                    blurRadius: 10,
-                    offset: const Offset(0, 3),
+            message: countryName.isNotEmpty ? countryName : 'KeepSIMs',
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                SizedBox(
+                  width: 40,
+                  height: 40,
+                  child: Image.asset(
+                    'assets/images/Logo.png',
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) => Icon(
+                      Icons.shield_rounded,
+                      color: isLight
+                          ? AppColors.lightPrimary
+                          : AppColors.primary,
+                      size: 28,
+                    ),
                   ),
-                ],
-              ),
-              child: Center(
-                child: Text(flagEmoji, style: const TextStyle(fontSize: 26)),
-              ),
+                ),
+                if (flagEmoji.isNotEmpty && flagEmoji != '🌐')
+                  Positioned(
+                    bottom: -2,
+                    right: -2,
+                    child: Container(
+                      padding: const EdgeInsets.all(1.5),
+                      decoration: BoxDecoration(
+                        color: isLight ? Colors.white : AppColors.darkSurface,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: isLight
+                              ? AppColors.lightBorder
+                              : AppColors.darkBorder,
+                          width: 1,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.08),
+                            blurRadius: 3,
+                            offset: const Offset(0, 1),
+                          ),
+                        ],
+                      ),
+                      child: Text(
+                        flagEmoji,
+                        style: const TextStyle(fontSize: 10),
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
         ),
-        const SizedBox(width: 14),
+        const SizedBox(width: 10),
+
+        // ── Greeting & Name Stack ───────────────────────────────
         Expanded(
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                AppLocalizations.of(context)!.welcomeBack,
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: context.onSurfaceColor.withValues(alpha: 0.6),
+                _getGreeting(context),
+                style: AppTextStyles.caption.copyWith(
+                  fontSize: 12,
+                  color: isLight
+                      ? AppColors.textSecondaryLight
+                      : AppColors.textSecondaryDark,
+                  fontWeight: FontWeight.w500,
+                  height: 1.2,
                 ),
               ),
+              const SizedBox(height: 1),
               Text(
-                name,
-                style: AppTextStyles.headlineLarge.copyWith(
+                displayName.isNotEmpty ? displayName : name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.titleMedium.copyWith(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w800,
                   color: context.onSurfaceColor,
+                  letterSpacing: -0.2,
+                  height: 1.2,
                 ),
               ),
             ],
           ),
         ),
 
-        // Language Selector Icon Button
-        IconButton(
-          icon: const Icon(Icons.translate_rounded, size: 22),
-          color: context.onSurfaceColor.withValues(alpha: 0.8),
-          tooltip: 'App Language',
-          onPressed: () async {
-            await HapticHelper.lightTick();
-            if (context.mounted) {
-              _showLanguageSelector(context);
-            }
-          },
-        ),
+        // ── Right Action Cluster (Globe/Lang, Wallet, Bell) ───────
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
 
-        // Alerts Icon Button with dynamic unread badge
-        IconButton(
-          icon: Badge(
-            isLabelVisible: unreadCount > 0,
-            label: Text(
-              unreadCount > 9 ? '9+' : unreadCount.toString(),
-              style: const TextStyle(
-                fontSize: 9,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
+            // 2. Earth Globe Language Button (Multilingual selector)
+            IconButton(
+              icon: const Icon(Icons.language_rounded, size: 23),
+              color: context.onSurfaceColor.withValues(alpha: 0.85),
+              padding: const EdgeInsets.all(4),
+              constraints: const BoxConstraints(),
+              tooltip: AppLocalizations.of(context)!.selectAppLanguage,
+              onPressed: () async {
+                await HapticHelper.lightTick();
+                if (context.mounted) {
+                  _showLanguageSelector(context);
+                }
+              },
             ),
-            backgroundColor: AppColors.healthRed,
-            child: const Icon(Icons.notifications_outlined, size: 24),
-          ),
-          color: context.onSurfaceColor.withValues(alpha: 0.8),
-          tooltip: 'Alerts',
-          onPressed: () async {
-            await HapticHelper.lightTick();
-            if (context.mounted) {
-              context.push(AppRoutes.notifications);
-            }
-          },
-        ),
+            const SizedBox(width: 6),
 
-        // Header menu: quick actions and Help & Support live together here.
-        PopupMenuButton<_HeaderMenuAction>(
-          tooltip: 'Quick actions and help',
-          padding: EdgeInsets.zero,
-          offset: const Offset(0, 48),
-          icon: Icon(
-            Icons.menu_rounded,
-            size: 25,
-            color: context.onSurfaceColor.withValues(alpha: 0.8),
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18),
-            side: BorderSide(
-              color: isLight ? AppColors.lightBorder : AppColors.darkBorder,
+            // 3. Wallet Button (Direct wallet navigation)
+            IconButton(
+              icon: const Icon(Icons.account_balance_wallet_outlined, size: 23),
+              color: context.onSurfaceColor.withValues(alpha: 0.85),
+              padding: const EdgeInsets.all(4),
+              constraints: const BoxConstraints(),
+              tooltip: 'Wallet',
+              onPressed: () async {
+                await HapticHelper.lightTick();
+                if (context.mounted) {
+                  context.push(AppRoutes.wallet);
+                }
+              },
             ),
-          ),
-          color: isLight ? AppColors.lightCard : AppColors.darkSurface,
-          onSelected: (action) async {
-            await HapticHelper.lightTick();
-            if (!context.mounted) return;
+            const SizedBox(width: 4),
 
-            switch (action) {
-              case _HeaderMenuAction.intlCall:
-                context.push(AppRoutes.calling);
-              case _HeaderMenuAction.esim:
-                context.push(AppRoutes.esim);
-              case _HeaderMenuAction.wallet:
-                context.go('/wallet');
-              case _HeaderMenuAction.openTicket:
-                context.push('/support/create');
-              case _HeaderMenuAction.help:
-                _showHelpModalSheet(context);
-            }
-          },
-          itemBuilder: (context) => [
-            PopupMenuItem<_HeaderMenuAction>(
-              enabled: false,
-              height: 40,
-              child: Text(
-                'Quick Actions',
-                style: AppTextStyles.labelLarge.copyWith(
-                  color: context.onSurfaceColor.withValues(alpha: 0.55),
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.4,
+            // 4. Notifications Bell with Badge
+            IconButton(
+              icon: Badge(
+                isLabelVisible: unreadCount > 0,
+                label: Text(
+                  unreadCount > 9 ? '9+' : unreadCount.toString(),
+                  style: const TextStyle(
+                    fontSize: 9,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
+                backgroundColor: AppColors.healthRed,
+                child: const Icon(Icons.notifications_none_rounded, size: 23),
               ),
-            ),
-            _buildHeaderMenuItem(
-              context,
-              action: _HeaderMenuAction.intlCall,
-              icon: Icons.phone_in_talk_rounded,
-              label: 'Smart Calling',
-              color: AppColors.primary,
-            ),
-            _buildHeaderMenuItem(
-              context,
-              action: _HeaderMenuAction.esim,
-              icon: Icons.sim_card_rounded,
-              label: 'Manage eSIM',
-              color: const Color(0xFF8B7CFF),
-            ),
-            _buildHeaderMenuItem(
-              context,
-              action: _HeaderMenuAction.wallet,
-              icon: Icons.account_balance_wallet_rounded,
-              label: 'Wallet',
-              color: const Color(0xFF14B8A6),
-            ),
-            _buildHeaderMenuItem(
-              context,
-              action: _HeaderMenuAction.openTicket,
-              icon: Icons.support_agent_rounded,
-              label: 'Open a Ticket',
-              color: Colors.blueAccent,
-            ),
-            const PopupMenuDivider(),
-            _buildHeaderMenuItem(
-              context,
-              action: _HeaderMenuAction.help,
-              icon: Icons.help_outline_rounded,
-              label: 'Help & Support',
-              color: AppColors.secondary,
+              color: context.onSurfaceColor.withValues(alpha: 0.85),
+              padding: const EdgeInsets.all(4),
+              constraints: const BoxConstraints(),
+              tooltip: 'Alerts',
+              onPressed: () async {
+                await HapticHelper.lightTick();
+                if (context.mounted) {
+                  context.push(AppRoutes.notifications);
+                }
+              },
             ),
           ],
         ),
       ],
-    );
-  }
-
-  PopupMenuItem<_HeaderMenuAction> _buildHeaderMenuItem(
-    BuildContext context, {
-    required _HeaderMenuAction action,
-    required IconData icon,
-    required String label,
-    required Color color,
-  }) {
-    return PopupMenuItem<_HeaderMenuAction>(
-      value: action,
-      height: 50,
-      child: Row(
-        children: [
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.14),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(icon, size: 18, color: color),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              label,
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: context.onSurfaceColor,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-          Icon(
-            Icons.chevron_right_rounded,
-            size: 18,
-            color: context.onSurfaceColor.withValues(alpha: 0.35),
-          ),
-        ],
-      ),
     );
   }
 
@@ -680,14 +637,41 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  AppLocalizations.of(context)!.selectAppLanguage,
-                  style: AppTextStyles.titleLarge.copyWith(
-                    color: context.onSurfaceColor,
-                    fontWeight: FontWeight.bold,
+                Center(
+                  child: Container(
+                    width: 44,
+                    height: 4,
+                    margin: const EdgeInsets.only(bottom: 16),
+                    decoration: BoxDecoration(
+                      color: context.onSurfaceColor.withValues(alpha: 0.18),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
                   ),
                 ),
-                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      AppLocalizations.of(context)!.selectAppLanguage,
+                      style: AppTextStyles.titleLarge.copyWith(
+                        color: context.onSurfaceColor,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close_rounded, size: 24),
+                      color: context.onSurfaceColor.withValues(alpha: 0.75),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      tooltip: 'Close',
+                      onPressed: () {
+                        HapticHelper.lightTick();
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
                 Flexible(
                   child: SingleChildScrollView(
                     child: Column(
@@ -772,183 +756,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     );
   }
 
-  // ── Help Modal Sheet ───────────────────────────────────────────
-  void _showHelpModalSheet(BuildContext context) {
-    final isLight = Theme.of(context).brightness == Brightness.light;
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (context) {
-        return Container(
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: isLight ? AppColors.lightSurface : AppColors.darkSurface,
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(28),
-              topRight: Radius.circular(28),
-            ),
-            border: Border(
-              top: BorderSide(
-                color: isLight ? AppColors.lightBorder : AppColors.darkBorder,
-                width: 1.5,
-              ),
-            ),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 48,
-                  height: 4,
-                  margin: const EdgeInsets.only(bottom: 20),
-                  decoration: BoxDecoration(
-                    color: isLight
-                        ? AppColors.lightBorder
-                        : AppColors.darkBorder,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: context.primaryColor.withValues(alpha: 0.15),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.help_outline_rounded,
-                      color: context.primaryColor,
-                      size: 24,
-                    ),
-                  ),
-                  const SizedBox(width: 14),
-                  Text(
-                    'Help & Support',
-                    style: AppTextStyles.headlineMedium.copyWith(
-                      color: isLight
-                          ? AppColors.textPrimaryLight
-                          : AppColors.textPrimaryDark,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              Text(
-                'How can we help you?',
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: isLight
-                      ? AppColors.textSecondaryLight
-                      : AppColors.textSecondaryDark,
-                ),
-              ),
-              const SizedBox(height: 16),
-              _buildHelpBulletPoint(
-                context,
-                Icons.confirmation_number_outlined,
-                'Tickets Manager',
-                subtitle: '(report your problem, solve ASAP)',
-                onTap: () {
-                  Navigator.pop(context);
-                  context.push(AppRoutes.support);
-                },
-              ),
-              const SizedBox(height: 10),
-              _buildHelpBulletPoint(
-                context,
-                Icons.menu_book_rounded,
-                'Browse FAQs & troubleshooting guides',
-                onTap: () {
-                  Navigator.pop(context);
-                  context.push(AppRoutes.supportFaq);
-                },
-              ),
-              const SizedBox(height: 10),
-              _buildHelpBulletPoint(
-                context,
-                Icons.bug_report_rounded,
-                'Submit Feedback and request improvements',
-                onTap: () {
-                  Navigator.pop(context);
-                  context.push(AppRoutes.supportFeedback);
-                },
-              ),
-              const SizedBox(height: 28),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildHelpBulletPoint(
-    BuildContext context,
-    IconData icon,
-    String text, {
-    String? subtitle,
-    VoidCallback? onTap,
-  }) {
-    final isLight = Theme.of(context).brightness == Brightness.light;
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-        child: Row(
-          children: [
-            Icon(icon, color: AppColors.secondary, size: 20),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    text,
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: isLight
-                          ? AppColors.textPrimaryLight
-                          : AppColors.textPrimaryDark,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  if (subtitle != null && subtitle.isNotEmpty) ...[
-                    const SizedBox(height: 2),
-                    Text(
-                      subtitle,
-                      style: AppTextStyles.caption.copyWith(
-                        color: isLight
-                            ? AppColors.textTertiaryLight
-                            : AppColors.textTertiaryDark,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            Icon(
-              Icons.chevron_right,
-              color: isLight ? Colors.black26 : Colors.white30,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildHealthSection(
     BuildContext context,
     WidgetRef ref,
     String currentUserId,
   ) {
     final simLinesState = ref.watch(simLinesControllerProvider);
-    final householdState = ref.watch(householdControllerProvider).value;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -958,7 +771,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           children: [
             Text(
               AppLocalizations.of(context)!.linesToProtect,
-              style: AppTextStyles.headlineSmall.copyWith(
+              style: AppTextStyles.titleMedium.copyWith(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
                 color: context.onSurfaceColor,
               ),
             ),
@@ -1277,7 +1092,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               color: const Color(0xFF14B8A6),
               onTap: () async {
                 await HapticHelper.lightTick();
-                context.go('/wallet');
+                if (context.mounted) {
+                  context.go('/wallet');
+                }
               },
             ),
             const SizedBox(width: 12),
@@ -1297,311 +1114,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         ),
       ],
     );
-  }
-
-  void _showOpenTicketSheet(BuildContext context) {
-    String selectedCategory = 'Technical Support';
-    final subjectController = TextEditingController();
-    final messageController = TextEditingController();
-    bool isSubmitting = false;
-    final isLight = Theme.of(context).brightness == Brightness.light;
-
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setModalState) {
-            return Container(
-              padding: EdgeInsets.only(
-                left: 24,
-                right: 24,
-                top: 24,
-                bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-              ),
-              decoration: BoxDecoration(
-                color: isLight ? AppColors.lightSurface : AppColors.darkSurface,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(28),
-                  topRight: Radius.circular(28),
-                ),
-                border: Border(
-                  top: BorderSide(
-                    color: isLight
-                        ? AppColors.lightBorder
-                        : AppColors.darkBorder,
-                    width: 1.5,
-                  ),
-                ),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Center(
-                    child: Container(
-                      width: 48,
-                      height: 4,
-                      margin: const EdgeInsets.only(bottom: 20),
-                      decoration: BoxDecoration(
-                        color: isLight
-                            ? AppColors.lightBorder
-                            : AppColors.darkBorder,
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    ),
-                  ),
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: Colors.blueAccent.withValues(alpha: 0.15),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.support_agent_rounded,
-                          color: Colors.blueAccent,
-                          size: 24,
-                        ),
-                      ),
-                      const SizedBox(width: 14),
-                      Text(
-                        'Open Support Ticket',
-                        style: AppTextStyles.headlineMedium.copyWith(
-                          color: isLight
-                              ? AppColors.textPrimaryLight
-                              : AppColors.textPrimaryDark,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  Text(
-                    'Ticket Category',
-                    style: AppTextStyles.labelSmall.copyWith(
-                      color: isLight
-                          ? AppColors.textSecondaryLight
-                          : AppColors.textSecondaryDark,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  DropdownButtonFormField<String>(
-                    initialValue: selectedCategory,
-                    dropdownColor: isLight
-                        ? AppColors.lightCard
-                        : AppColors.darkCard,
-                    style: TextStyle(
-                      color: isLight
-                          ? AppColors.textPrimaryLight
-                          : Colors.white,
-                    ),
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: isLight
-                          ? const Color(0xFFEAEEF1)
-                          : Colors.black.withValues(alpha: 0.15),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: isLight
-                              ? AppColors.lightBorder
-                              : Colors.white.withValues(alpha: 0.1),
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Colors.blueAccent),
-                      ),
-                    ),
-                    items:
-                        [
-                              'Technical Support',
-                              'Billing & Wallet',
-                              'SIM Lines Management',
-                              'Feedback & Other',
-                            ]
-                            .map(
-                              (category) => DropdownMenuItem<String>(
-                                value: category,
-                                child: Text(category),
-                              ),
-                            )
-                            .toList(),
-                    onChanged: (val) {
-                      if (val != null) {
-                        setModalState(() {
-                          selectedCategory = val;
-                        });
-                      }
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Subject',
-                    style: AppTextStyles.labelSmall.copyWith(
-                      color: isLight
-                          ? AppColors.textSecondaryLight
-                          : AppColors.textSecondaryDark,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  TextField(
-                    controller: subjectController,
-                    style: TextStyle(
-                      color: isLight
-                          ? AppColors.textPrimaryLight
-                          : Colors.white,
-                    ),
-                    decoration: InputDecoration(
-                      hintText: 'Summary of the issue',
-                      hintStyle: TextStyle(
-                        color: isLight
-                            ? AppColors.textTertiaryLight
-                            : Colors.white.withValues(alpha: 0.3),
-                      ),
-                      filled: true,
-                      fillColor: isLight
-                          ? const Color(0xFFEAEEF1)
-                          : Colors.black.withValues(alpha: 0.15),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: isLight
-                              ? AppColors.lightBorder
-                              : Colors.white.withValues(alpha: 0.1),
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Colors.blueAccent),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Message Details',
-                    style: AppTextStyles.labelSmall.copyWith(
-                      color: isLight
-                          ? AppColors.textSecondaryLight
-                          : AppColors.textSecondaryDark,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  TextField(
-                    controller: messageController,
-                    maxLines: 4,
-                    style: TextStyle(
-                      color: isLight
-                          ? AppColors.textPrimaryLight
-                          : Colors.white,
-                    ),
-                    decoration: InputDecoration(
-                      hintText: 'Describe the issue or request in detail...',
-                      hintStyle: TextStyle(
-                        color: isLight
-                            ? AppColors.textTertiaryLight
-                            : Colors.white.withValues(alpha: 0.3),
-                      ),
-                      filled: true,
-                      fillColor: isLight
-                          ? const Color(0xFFEAEEF1)
-                          : Colors.black.withValues(alpha: 0.15),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: isLight
-                              ? AppColors.lightBorder
-                              : Colors.white.withValues(alpha: 0.1),
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Colors.blueAccent),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 52,
-                    child: ElevatedButton(
-                      onPressed: isSubmitting
-                          ? null
-                          : () async {
-                              if (subjectController.text.trim().isEmpty ||
-                                  messageController.text.trim().isEmpty) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      'Please fill out all fields.',
-                                    ),
-                                    backgroundColor: AppColors.error,
-                                  ),
-                                );
-                                return;
-                              }
-
-                              setModalState(() {
-                                isSubmitting = true;
-                              });
-
-                              // Mock network delay
-                              await Future.delayed(const Duration(seconds: 1));
-
-                              if (context.mounted) {
-                                Navigator.pop(context);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      'Ticket submitted successfully under $selectedCategory! ID: #T-${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}',
-                                    ),
-                                    backgroundColor: AppColors.success,
-                                  ),
-                                );
-                              }
-                            },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blueAccent,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                      child: isSubmitting
-                          ? const SizedBox(
-                              height: 24,
-                              width: 24,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 2.5,
-                              ),
-                            )
-                          : Text(
-                              'Submit Support Ticket',
-                              style: AppTextStyles.titleMedium.copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    ).whenComplete(() {
-      subjectController.dispose();
-      messageController.dispose();
-    });
   }
 
   Widget _buildQuickActionCard(

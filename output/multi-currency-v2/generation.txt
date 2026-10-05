@@ -1,0 +1,15 @@
+W These options have been removed and were ignored: --delete-conflicting-outputs
+  0s riverpod_generator on 3 inputs; lib/core/fx/fx_context.dart
+  0s riverpod_generator on 3 inputs: 1 no-op; lib/core/fx/fx_provider.dart
+  16s riverpod_generator on 3 inputs: 1 output, 1 no-op; spent 14s analyzing, 2s resolving; lib/core/fx/money.dart
+  16s riverpod_generator on 3 inputs: 1 output, 2 no-op; spent 14s analyzing, 2s resolving
+  0s freezed on 3 inputs; lib/core/fx/fx_context.dart
+  0s freezed on 3 inputs: 1 output, 2 no-op
+  0s json_serializable on 6 inputs; lib/core/fx/fx_context.dart
+W json_serializable on lib/core/fx/fx_context.dart:
+  The version constraint "^4.9.0" on json_annotation allows versions before 4.12.0 which is not allowed.
+  0s json_serializable on 6 inputs: 2 skipped, 1 output, 3 no-op
+  0s source_gen:combining_builder on 6 inputs; lib/core/fx/fx_context.dart
+  0s source_gen:combining_builder on 6 inputs: 2 skipped, 2 output, 2 no-op
+  0s json_serializable (lazy); lib/features/alert_alarm/model/device_alarm_model.dart
+  Built with build_runner/aot in 25s; wrote 6 outputs.

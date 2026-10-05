@@ -28,6 +28,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:keep_sims/core/services/local_cache_service.dart';
 import 'package:keep_sims/core/widgets/biometric_lock_overlay.dart';
+import 'package:keep_sims/features/alert_alarm/ui/device_alarm_sync.dart';
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:keep_sims/features/voip_calling/data/services/voip_callkit_service.dart';
 import 'package:keep_sims/features/voip_calling/presentation/services/incoming_call_manager.dart';
@@ -84,108 +85,123 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 }
 
 void main() async {
-  runZonedGuarded(() async {
-    WidgetsFlutterBinding.ensureInitialized();
+  runZonedGuarded(
+    () async {
+      WidgetsFlutterBinding.ensureInitialized();
 
-    // Force semantics for TestSprite AI
-    RendererBinding.instance.ensureSemantics();
+      // Force semantics for TestSprite AI
+      RendererBinding.instance.ensureSemantics();
 
-    const sentryDsn = String.fromEnvironment(
-      'SENTRY_DSN',
-      defaultValue: 'https://f28e8212c19fe8c11273864b68642156@o4511843465494528.ingest.de.sentry.io/4511843492560976',
-    );
+      const sentryDsn = String.fromEnvironment(
+        'SENTRY_DSN',
+        defaultValue:
+            'https://f28e8212c19fe8c11273864b68642156@o4511843465494528.ingest.de.sentry.io/4511843492560976',
+      );
 
-    Future<void> runAppMain() async {
-      // Global error handling hooks for app resilience
-      FlutterError.onError = (FlutterErrorDetails details) {
-        FlutterError.presentError(details);
-        debugPrint('Uncaught Flutter Error: ${details.exceptionAsString()}\n${details.stack}');
-        if (sentryDsn.isNotEmpty) {
-          Sentry.captureException(details.exception, stackTrace: details.stack);
+      Future<void> runAppMain() async {
+        // Global error handling hooks for app resilience
+        FlutterError.onError = (FlutterErrorDetails details) {
+          FlutterError.presentError(details);
+          debugPrint(
+            'Uncaught Flutter Error: ${details.exceptionAsString()}\n${details.stack}',
+          );
+          if (sentryDsn.isNotEmpty) {
+            Sentry.captureException(
+              details.exception,
+              stackTrace: details.stack,
+            );
+          }
+        };
+
+        WidgetsBinding.instance.platformDispatcher.onError =
+            (Object error, StackTrace stack) {
+              debugPrint('Uncaught Platform Error: $error\n$stack');
+              if (sentryDsn.isNotEmpty) {
+                Sentry.captureException(error, stackTrace: stack);
+              }
+              return true; // Error handled
+            };
+
+        // Lock to portrait on mobile
+        await SystemChrome.setPreferredOrientations([
+          DeviceOrientation.portraitUp,
+        ]);
+
+        // Fast check: did the user launch the app by accepting an incoming VoIP call?
+        final initialAcceptedCall = await _checkPendingAcceptedCall();
+        final isCallFastLaunch = initialAcceptedCall != null;
+
+        if (isCallFastLaunch) {
+          debugPrint(
+            '[Startup] Fast-launching directly into calling screen for call: ${initialAcceptedCall['callId']}',
+          );
         }
-      };
 
-      WidgetsBinding.instance.platformDispatcher.onError = (Object error, StackTrace stack) {
-        debugPrint('Uncaught Platform Error: $error\n$stack');
-        if (sentryDsn.isNotEmpty) {
-          Sentry.captureException(error, stackTrace: stack);
+        // Initialize OneSignal (for push notifications)
+        OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
+        OneSignal.initialize('434b9552-8005-4d08-b3b1-a7a35f0b15dc');
+        if (isCallFastLaunch) {
+          unawaited(OneSignal.Notifications.requestPermission(false));
+        } else {
+          await OneSignal.Notifications.requestPermission(false);
         }
-        return true; // Error handled
-      };
 
-      // Lock to portrait on mobile
-      await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+        // Firebase initialization for FCM fallback
+        try {
+          await Firebase.initializeApp();
+          FirebaseMessaging.onBackgroundMessage(
+            _firebaseMessagingBackgroundHandler,
+          );
 
-      // Fast check: did the user launch the app by accepting an incoming VoIP call?
-      final initialAcceptedCall = await _checkPendingAcceptedCall();
-      final isCallFastLaunch = initialAcceptedCall != null;
+          if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+            Future<void> activateAppCheck() async {
+              try {
+                await FirebaseAppCheck.instance.activate(
+                  providerAndroid: kDebugMode
+                      ? const AndroidDebugProvider()
+                      : const AndroidPlayIntegrityProvider(),
+                );
+              } catch (e) {
+                debugPrint('App Check not active (not registered yet?): $e');
+              }
+            }
 
-      if (isCallFastLaunch) {
-        debugPrint(
-          '[Startup] Fast-launching directly into calling screen for call: ${initialAcceptedCall['callId']}',
+            if (isCallFastLaunch) {
+              unawaited(activateAppCheck());
+            } else {
+              await activateAppCheck();
+            }
+          }
+        } catch (e) {
+          debugPrint('Firebase init skipped; FCM fallback inactive: $e');
+        }
+
+        // Initialize Supabase
+        await initSupabase();
+
+        final sharedPrefs = await SharedPreferences.getInstance();
+
+        runApp(
+          ProviderScope(
+            overrides: [
+              sharedPreferencesProvider.overrideWith((ref) => sharedPrefs),
+              if (isCallFastLaunch)
+                initialAcceptedCallProvider.overrideWithValue(
+                  initialAcceptedCall,
+                ),
+            ],
+            child: const KeepSIMsApp(),
+          ),
         );
       }
 
-      // Initialize OneSignal (for push notifications)
-      OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
-      OneSignal.initialize('434b9552-8005-4d08-b3b1-a7a35f0b15dc');
-      if (isCallFastLaunch) {
-        unawaited(OneSignal.Notifications.requestPermission(false));
+      if (sentryDsn.isEmpty) {
+        debugPrint(
+          'WARNING: SENTRY_DSN is not configured. Skipping SentryFlutter.init to avoid silent event drops.',
+        );
+        await runAppMain();
       } else {
-        await OneSignal.Notifications.requestPermission(false);
-      }
-
-      // Firebase initialization for FCM fallback
-      try {
-        await Firebase.initializeApp();
-        FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
-        if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
-          Future<void> activateAppCheck() async {
-            try {
-              await FirebaseAppCheck.instance.activate(
-                providerAndroid: kDebugMode
-                    ? const AndroidDebugProvider()
-                    : const AndroidPlayIntegrityProvider(),
-              );
-            } catch (e) {
-              debugPrint('App Check not active (not registered yet?): $e');
-            }
-          }
-
-          if (isCallFastLaunch) {
-            unawaited(activateAppCheck());
-          } else {
-            await activateAppCheck();
-          }
-        }
-      } catch (e) {
-        debugPrint('Firebase init skipped; FCM fallback inactive: $e');
-      }
-
-      // Initialize Supabase
-      await initSupabase();
-
-      final sharedPrefs = await SharedPreferences.getInstance();
-
-      runApp(
-        ProviderScope(
-          overrides: [
-            sharedPreferencesProvider.overrideWith((ref) => sharedPrefs),
-            if (isCallFastLaunch)
-              initialAcceptedCallProvider.overrideWithValue(initialAcceptedCall),
-          ],
-          child: const KeepSIMsApp(),
-        ),
-      );
-    }
-
-    if (sentryDsn.isEmpty) {
-      debugPrint('WARNING: SENTRY_DSN is not configured. Skipping SentryFlutter.init to avoid silent event drops.');
-      await runAppMain();
-    } else {
-      await SentryFlutter.init(
-        (options) {
+        await SentryFlutter.init((options) {
           options.dsn = sentryDsn;
           options.sendDefaultPii = false;
           options.tracesSampleRate = kReleaseMode ? 0.05 : 1.0;
@@ -198,23 +214,23 @@ void main() async {
               scrubbed.removeWhere((key, value) {
                 final k = key.toLowerCase();
                 return k.contains('phone') ||
-                       k.contains('wallet') ||
-                       k.contains('iccid') ||
-                       k.contains('amount') ||
-                       k.contains('token') ||
-                       k.contains('secret');
+                    k.contains('wallet') ||
+                    k.contains('iccid') ||
+                    k.contains('amount') ||
+                    k.contains('token') ||
+                    k.contains('secret');
               });
               scrubbedEvent = scrubbedEvent.copyWith(extra: scrubbed);
             }
             return scrubbedEvent;
           };
-        },
-        appRunner: runAppMain,
-      );
-    }
-  }, (error, stackTrace) {
-    Sentry.captureException(error, stackTrace: stackTrace);
-  });
+        }, appRunner: runAppMain);
+      }
+    },
+    (error, stackTrace) {
+      Sentry.captureException(error, stackTrace: stackTrace);
+    },
+  );
 }
 
 /// Root application widget.
@@ -283,7 +299,7 @@ class KeepSIMsApp extends ConsumerWidget {
         return BiometricLockOverlay(
           child: Stack(
             children: [
-              child ?? const SizedBox.shrink(),
+              DeviceAlarmSync(child: child ?? const SizedBox.shrink()),
               const Positioned(
                 top: 0,
                 left: 0,

@@ -2,6 +2,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:keep_sims/core/fx/money.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/features/calling/data/models/call_rate_model.dart';
 import 'package:keep_sims/features/calling/domain/smart_call_cost_calculator.dart';
@@ -91,7 +92,10 @@ class _RateSavingsCalculatorWidgetState
             const SizedBox(height: 20),
             Row(
               children: [
-                Text(widget.rate.flagEmoji, style: const TextStyle(fontSize: 26)),
+                Text(
+                  widget.rate.flagEmoji,
+                  style: const TextStyle(fontSize: 26),
+                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -107,7 +111,10 @@ class _RateSavingsCalculatorWidgetState
                       ),
                       Text(
                         'KeepSIMs: \$${keepSimsRate.toStringAsFixed(2)}/min vs Carrier Roaming: \$${_comparisonRate.toStringAsFixed(2)}/min',
-                        style: const TextStyle(color: Colors.white60, fontSize: 11),
+                        style: const TextStyle(
+                          color: Colors.white60,
+                          fontSize: 11,
+                        ),
                       ),
                     ],
                   ),
@@ -135,14 +142,27 @@ class _RateSavingsCalculatorWidgetState
                           style: TextStyle(color: Colors.white54, fontSize: 11),
                         ),
                         const SizedBox(height: 6),
-                        Text(
-                          '\$${carrierTotalCost.toStringAsFixed(2)}',
-                          style: const TextStyle(
-                            color: Colors.redAccent,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            decoration: TextDecoration.lineThrough,
-                          ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              '\$${carrierTotalCost.toStringAsFixed(2)}',
+                              style: const TextStyle(
+                                color: Colors.redAccent,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                decoration: TextDecoration.lineThrough,
+                              ),
+                            ),
+                            ApproxLocalText(
+                              carrierTotalCost,
+                              style: const TextStyle(
+                                color: Colors.white60,
+                                fontSize: 11,
+                              ),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 4),
                         Text(
@@ -179,28 +199,56 @@ class _RateSavingsCalculatorWidgetState
                           ),
                         ),
                         const SizedBox(height: 6),
-                        Text(
-                          '\$${keepSimsTotalCost.toStringAsFixed(2)}',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              '\$${keepSimsTotalCost.toStringAsFixed(2)}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            ApproxLocalText(
+                              keepSimsTotalCost,
+                              style: const TextStyle(
+                                color: Colors.white60,
+                                fontSize: 11,
+                              ),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 4),
-                        Text(
-                          savingsResult.isPositiveSavings
-                              ? 'Save \$${totalSavings.toStringAsFixed(2)} (${savingsPercentage.toStringAsFixed(0)}%)'
-                              : savingsResult.isEqualCost
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              savingsResult.isPositiveSavings
+                                  ? 'Save \$${totalSavings.toStringAsFixed(2)} (${savingsPercentage.toStringAsFixed(0)}%)'
+                                  : savingsResult.isEqualCost
                                   ? 'Equal Cost'
                                   : 'Cost: +\$${(-totalSavings).toStringAsFixed(2)}',
-                          style: TextStyle(
-                            color: savingsResult.isPositiveSavings
-                                ? AppColors.secondary
-                                : Colors.amber,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                          ),
+                              style: TextStyle(
+                                color: savingsResult.isPositiveSavings
+                                    ? AppColors.secondary
+                                    : Colors.amber,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            ApproxLocalText(
+                              savingsResult.isPositiveSavings
+                                  ? totalSavings
+                                  : -totalSavings,
+                              style: const TextStyle(
+                                color: Colors.amberAccent,
+                                fontSize: 11,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),

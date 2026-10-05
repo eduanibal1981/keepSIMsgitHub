@@ -1,8 +1,8 @@
+import 'package:keep_sims/features/settings/presentation/widgets/regional_preferences_sheets.dart';
 import 'package:keep_sims/core/utils/build_context_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/features/notifications/presentation/controllers/notification_settings_controller.dart';
 import 'package:keep_sims/features/notifications/data/models/user_preferences_model.dart';
@@ -23,7 +23,6 @@ class PreferencesScreen extends ConsumerStatefulWidget {
 
 class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
   // Custom Keyboard variables for PIN setup
-  bool _isSettingPin = false;
   String _pinInput = '';
   String _firstPinInput = '';
   bool _isConfirmStep = false;
@@ -32,7 +31,6 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
   // Interactive Custom PIN Keyboard bottom sheet
   void _showPinSetupSheet(BuildContext context, bool isChange) {
     setState(() {
-      _isSettingPin = true;
       _pinInput = '';
       _firstPinInput = '';
       _isConfirmStep = false;
@@ -43,186 +41,221 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) {
+      builder: (sheetContext) {
+        final isDark = sheetContext.isDarkMode;
+        final sheetBg = isDark
+            ? const Color(0xFF0F172A)
+            : sheetContext.scaffoldBackgroundColor;
         return StatefulBuilder(
-          builder: (context, setSheetState) {
+          builder: (builderContext, setSheetState) {
             return Container(
-              height: MediaQuery.of(context).size.height * 0.85,
+              height: MediaQuery.of(sheetContext).size.height * 0.85,
               decoration: BoxDecoration(
-                color: const Color(0xFF0F172A),
+                color: sheetBg,
                 borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(32),
                 ),
                 border: Border.all(
-                  color: context.onSurfaceColor.withValues(alpha: 0.08),
+                  color: sheetContext.onSurfaceColor.withValues(alpha: 0.08),
                   width: 1.5,
                 ),
               ),
-              child: Column(
-                children: [
-                  const SizedBox(height: 12),
-                  // Drag handle
-                  Container(
-                    width: 48,
-                    height: 5,
-                    decoration: BoxDecoration(
-                      color: context.onSurfaceColor.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(2.5),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Header
-                  const Icon(
-                    Icons.lock_rounded,
-                    size: 40,
-                    color: Color(0xFFD946EF),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    _isConfirmStep
-                        ? 'Confirm 4-Digit PIN'
-                        : (isChange
-                              ? 'Enter New Transaction PIN'
-                              : 'Setup Transaction PIN'),
-                    style: AppTextStyles.titleLarge.copyWith(
-                      color: context.onSurfaceColor,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 22,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 40.0),
-                    child: Text(
-                      _isConfirmStep
-                          ? 'Please re-enter your PIN to verify.'
-                          : 'This PIN protects wallet balance withdrawals, funding, and lines freeze edits.',
-                      textAlign: TextAlign.center,
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        color: context.onSurfaceColor.withValues(alpha: 0.6),
+              child: SafeArea(
+                top: false,
+                child: Column(
+                  children: [
+                    const SizedBox(height: 12),
+                    // Drag handle
+                    Container(
+                      width: 48,
+                      height: 5,
+                      decoration: BoxDecoration(
+                        color: sheetContext.onSurfaceColor.withValues(
+                          alpha: 0.2,
+                        ),
+                        borderRadius: BorderRadius.circular(2.5),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 32),
+                    const SizedBox(height: 24),
 
-                  // Circle Indicators
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(4, (index) {
-                      final isEntered = index < _pinInput.length;
-                      return AnimatedContainer(
-                        duration: const Duration(milliseconds: 150),
-                        margin: const EdgeInsets.symmetric(horizontal: 12),
-                        width: 20,
-                        height: 20,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: isEntered
-                              ? const Color(0xFFD946EF)
-                              : Colors.transparent,
-                          border: Border.all(
+                    // Header
+                    const Icon(
+                      Icons.lock_rounded,
+                      size: 40,
+                      color: Color(0xFFD946EF),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      _isConfirmStep
+                          ? 'Confirm 4-Digit PIN'
+                          : (isChange
+                                ? 'Enter New Transaction PIN'
+                                : 'Setup Transaction PIN'),
+                      style: AppTextStyles.titleLarge.copyWith(
+                        color: sheetContext.onSurfaceColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 22,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 40.0),
+                      child: Text(
+                        _isConfirmStep
+                            ? 'Please re-enter your PIN to verify.'
+                            : 'This PIN protects wallet balance withdrawals, funding, and lines freeze edits.',
+                        textAlign: TextAlign.center,
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          color: sheetContext.onSurfaceColor.withValues(
+                            alpha: 0.65,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+
+                    // Circle Indicators
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(4, (index) {
+                        final isEntered = index < _pinInput.length;
+                        return AnimatedContainer(
+                          duration: const Duration(milliseconds: 150),
+                          margin: const EdgeInsets.symmetric(horizontal: 12),
+                          width: 20,
+                          height: 20,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
                             color: isEntered
                                 ? const Color(0xFFD946EF)
-                                : context.onSurfaceColor.withValues(alpha: 0.2),
-                            width: 2,
+                                : Colors.transparent,
+                            border: Border.all(
+                              color: isEntered
+                                  ? const Color(0xFFD946EF)
+                                  : sheetContext.onSurfaceColor.withValues(
+                                      alpha: 0.25,
+                                    ),
+                              width: 2,
+                            ),
+                            boxShadow: isEntered
+                                ? [
+                                    BoxShadow(
+                                      color: const Color(
+                                        0xFFD946EF,
+                                      ).withValues(alpha: 0.4),
+                                      blurRadius: 8,
+                                      spreadRadius: 1,
+                                    ),
+                                  ]
+                                : [],
                           ),
-                          boxShadow: isEntered
-                              ? [
-                                  BoxShadow(
-                                    color: const Color(
-                                      0xFFD946EF,
-                                    ).withValues(alpha: 0.4),
-                                    blurRadius: 8,
-                                    spreadRadius: 1,
-                                  ),
-                                ]
-                              : [],
+                        );
+                      }),
+                    ),
+
+                    if (_pinSetupError.isNotEmpty) ...[
+                      const SizedBox(height: 20),
+                      Text(
+                        _pinSetupError,
+                        style: const TextStyle(
+                          color: Colors.redAccent,
+                          fontWeight: FontWeight.w500,
                         ),
-                      );
-                    }),
-                  ),
-
-                  if (_pinSetupError.isNotEmpty) ...[
-                    const SizedBox(height: 20),
-                    Text(
-                      _pinSetupError,
-                      style: const TextStyle(
-                        color: Colors.redAccent,
-                        fontWeight: FontWeight.w500,
                       ),
-                    ),
-                  ],
+                    ],
 
-                  const Spacer(),
+                    const Spacer(),
 
-                  // Custom Pin Pad Grid (4x3)
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 32,
-                      vertical: 24,
-                    ),
-                    decoration: BoxDecoration(
-                      color: context.theme.shadowColor.withValues(alpha: 0.2),
-                      borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(28),
+                    // Custom Pin Pad Grid (4x3)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 32,
+                        vertical: 24,
                       ),
-                    ),
-                    child: Column(
-                      children: [
-                        for (var row in [
-                          ['1', '2', '3'],
-                          ['4', '5', '6'],
-                          ['7', '8', '9'],
-                        ]) ...[
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? Colors.black.withValues(alpha: 0.25)
+                            : sheetContext.onSurfaceColor.withValues(
+                                alpha: 0.03,
+                              ),
+                        borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(28),
+                        ),
+                        border: Border(
+                          top: BorderSide(
+                            color: sheetContext.onSurfaceColor.withValues(
+                              alpha: 0.06,
+                            ),
+                            width: 1,
+                          ),
+                        ),
+                      ),
+                      child: Column(
+                        children: [
+                          for (var row in [
+                            ['1', '2', '3'],
+                            ['4', '5', '6'],
+                            ['7', '8', '9'],
+                          ]) ...[
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: row.map((val) {
+                                return _buildKeypadButton(
+                                  sheetContext,
+                                  val,
+                                  () {
+                                    if (_pinInput.length >= 4) return;
+                                    setSheetState(() {
+                                      _pinInput += val;
+                                      _pinSetupError = '';
+                                    });
+                                    _checkAndProgressPin(
+                                      setSheetState,
+                                      sheetContext,
+                                    );
+                                  },
+                                );
+                              }).toList(),
+                            ),
+                            const SizedBox(height: 16),
+                          ],
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: row.map((val) {
-                              return _buildKeypadButton(val, () {
-                                if (_pinInput.length >= 4) return;
+                            children: [
+                              // Backspace
+                              _buildKeypadButton(sheetContext, '⌫', () {
+                                if (_pinInput.isEmpty) return;
                                 setSheetState(() {
-                                  _pinInput += val;
+                                  _pinInput = _pinInput.substring(
+                                    0,
+                                    _pinInput.length - 1,
+                                  );
                                   _pinSetupError = '';
                                 });
-                                _checkAndProgressPin(setSheetState);
-                              });
-                            }).toList(),
-                          ),
-                          const SizedBox(height: 16),
-                        ],
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            // Backspace
-                            _buildKeypadButton('⌫', () {
-                              if (_pinInput.isEmpty) return;
-                              setSheetState(() {
-                                _pinInput = _pinInput.substring(
-                                  0,
-                                  _pinInput.length - 1,
+                              }, isAction: true),
+                              _buildKeypadButton(sheetContext, '0', () {
+                                if (_pinInput.length >= 4) return;
+                                setSheetState(() {
+                                  _pinInput += '0';
+                                  _pinSetupError = '';
+                                });
+                                _checkAndProgressPin(
+                                  setSheetState,
+                                  sheetContext,
                                 );
-                                _pinSetupError = '';
-                              });
-                            }, isAction: true),
-                            _buildKeypadButton('0', () {
-                              if (_pinInput.length >= 4) return;
-                              setSheetState(() {
-                                _pinInput += '0';
-                                _pinSetupError = '';
-                              });
-                              _checkAndProgressPin(setSheetState);
-                            }),
-                            // Close
-                            _buildKeypadButton('✕', () {
-                              Navigator.pop(context);
-                            }, isAction: true),
-                          ],
-                        ),
-                      ],
+                              }),
+                              // Close
+                              _buildKeypadButton(sheetContext, '✕', () {
+                                Navigator.pop(sheetContext);
+                              }, isAction: true),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                ],
+                    const SizedBox(height: 12),
+                  ],
+                ),
               ),
             );
           },
@@ -232,10 +265,12 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
   }
 
   Widget _buildKeypadButton(
+    BuildContext context,
     String value,
     VoidCallback onTap, {
     bool isAction = false,
   }) {
+    final isDark = context.isDarkMode;
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -250,10 +285,25 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: isAction
-                ? context.onSurfaceColor.withValues(alpha: 0.04)
-                : context.onSurfaceColor.withValues(alpha: 0.08),
+                ? (isDark
+                      ? context.onSurfaceColor.withValues(alpha: 0.04)
+                      : context.onSurfaceColor.withValues(alpha: 0.04))
+                : (isDark
+                      ? context.onSurfaceColor.withValues(alpha: 0.08)
+                      : context.cardColor),
+            boxShadow: (!isAction && !isDark)
+                ? [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.04),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
             border: Border.all(
-              color: context.onSurfaceColor.withValues(alpha: 0.05),
+              color: isAction
+                  ? Colors.transparent
+                  : context.onSurfaceColor.withValues(alpha: 0.08),
               width: 1,
             ),
           ),
@@ -264,7 +314,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
                 color: isAction
                     ? const Color(0xFFD946EF)
                     : context.onSurfaceColor,
-                fontSize: isAction ? 20 : 26,
+                fontSize: isAction ? 22 : 26,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -274,7 +324,10 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
     );
   }
 
-  void _checkAndProgressPin(StateSetter setSheetState) {
+  void _checkAndProgressPin(
+    StateSetter setSheetState,
+    BuildContext sheetContext,
+  ) {
     if (_pinInput.length == 4) {
       Future.delayed(const Duration(milliseconds: 250), () async {
         if (!mounted) return;
@@ -293,17 +346,26 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
             ref
                 .read(userPreferencesControllerProvider.notifier)
                 .updateTransactionPin(_pinInput);
-            Navigator.pop(context);
+            if (!sheetContext.mounted) return;
+            Navigator.pop(sheetContext);
+            if (!mounted) return;
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Row(
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.check_circle_outline_rounded,
-                      color: context.onSurfaceColor,
+                      color: Colors.white,
                     ),
                     const SizedBox(width: 12),
-                    const Text('Transaction PIN successfully updated!'),
+                    Text(
+                      AppLocalizations.of(context)?.pinSuccess ??
+                          'Transaction PIN successfully updated!',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ],
                 ),
                 backgroundColor: const Color(0xFFD946EF),
@@ -317,12 +379,129 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
             await HapticHelper.errorFeedback();
             setSheetState(() {
               _pinInput = '';
-              _pinSetupError = 'PINs do not match. Try again!';
+              _pinSetupError =
+                  AppLocalizations.of(sheetContext)?.pinMismatch ??
+                  'PINs do not match. Try again!';
             });
           }
         }
       });
     }
+  }
+
+  void _showPinOptionsSheet(BuildContext context) {
+    final isDark = context.isDarkMode;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) {
+        return Container(
+          padding: const EdgeInsets.all(24.0),
+          decoration: BoxDecoration(
+            color: isDark
+                ? const Color(0xFF0F172A)
+                : sheetContext.scaffoldBackgroundColor,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+            border: Border.all(
+              color: sheetContext.onSurfaceColor.withValues(alpha: 0.08),
+              width: 1.5,
+            ),
+          ),
+          child: SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Center(
+                  child: Container(
+                    width: 44,
+                    height: 4,
+                    margin: const EdgeInsets.only(bottom: 20),
+                    decoration: BoxDecoration(
+                      color: sheetContext.onSurfaceColor.withValues(
+                        alpha: 0.18,
+                      ),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                ListTile(
+                  leading: Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFD946EF).withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.pin_rounded,
+                      color: Color(0xFFD946EF),
+                    ),
+                  ),
+                  title: Text(
+                    'Change Transaction PIN',
+                    style: TextStyle(
+                      color: sheetContext.onSurfaceColor,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.pop(sheetContext);
+                    _showPinSetupSheet(context, true);
+                  },
+                ),
+                const SizedBox(height: 8),
+                ListTile(
+                  leading: Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.redAccent.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.delete_outline_rounded,
+                      color: Colors.redAccent,
+                    ),
+                  ),
+                  title: const Text(
+                    'Remove Transaction PIN',
+                    style: TextStyle(
+                      color: Colors.redAccent,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  onTap: () async {
+                    Navigator.pop(sheetContext);
+                    await HapticHelper.mediumImpact();
+                    await ref
+                        .read(userPreferencesControllerProvider.notifier)
+                        .clearTransactionPin();
+                    if (!context.mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Row(
+                          children: [
+                            Icon(
+                              Icons.check_circle_outline_rounded,
+                              color: Colors.white,
+                            ),
+                            SizedBox(width: 12),
+                            Text('Transaction PIN removed'),
+                          ],
+                        ),
+                        backgroundColor: Colors.grey.shade800,
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   // Interactive Language Selection Bottom Sheet
@@ -359,14 +538,41 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  AppLocalizations.of(context)!.selectAppLanguage,
-                  style: AppTextStyles.titleLarge.copyWith(
-                    color: context.onSurfaceColor,
-                    fontWeight: FontWeight.bold,
+                Center(
+                  child: Container(
+                    width: 44,
+                    height: 4,
+                    margin: const EdgeInsets.only(bottom: 16),
+                    decoration: BoxDecoration(
+                      color: context.onSurfaceColor.withValues(alpha: 0.18),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
                   ),
                 ),
-                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      AppLocalizations.of(context)!.selectAppLanguage,
+                      style: AppTextStyles.titleLarge.copyWith(
+                        color: context.onSurfaceColor,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close_rounded, size: 24),
+                      color: context.onSurfaceColor.withValues(alpha: 0.75),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      tooltip: 'Close',
+                      onPressed: () {
+                        HapticHelper.lightTick();
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
                 Flexible(
                   child: SingleChildScrollView(
                     child: Column(
@@ -384,6 +590,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
                             ref
                                 .read(localeControllerProvider.notifier)
                                 .setLocale(Locale(lang['code']!));
+                            if (!context.mounted) return;
                             Navigator.pop(context);
                             await HapticHelper.successFeedback();
                           },
@@ -468,15 +675,23 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
     final picked = await showTimePicker(
       context: context,
       initialTime: TimeOfDay(hour: currentHour, minute: currentMinute),
-      builder: (context, child) {
+      builder: (pickerContext, child) {
+        final isDark = pickerContext.isDarkMode;
         return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.dark(
-              primary: const Color(0xFF8B5CF6),
-              onPrimary: context.onSurfaceColor,
-              surface: const Color(0xFF0F172A),
-              onSurface: context.onSurfaceColor,
-            ),
+          data: Theme.of(pickerContext).copyWith(
+            colorScheme: isDark
+                ? const ColorScheme.dark(
+                    primary: Color(0xFF8B5CF6),
+                    onPrimary: Colors.white,
+                    surface: Color(0xFF0F172A),
+                    onSurface: Colors.white,
+                  )
+                : const ColorScheme.light(
+                    primary: Color(0xFF8B5CF6),
+                    onPrimary: Colors.white,
+                    surface: Colors.white,
+                    onSurface: Color(0xFF0F172A),
+                  ),
           ),
           child: child!,
         );
@@ -828,13 +1043,14 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
       // The user picked something and is not getting it. Say which and why
       // rather than quietly showing dollars and looking broken.
       subtitle = switch (fx.fallbackReason) {
-        'stale' =>
+        'stale' || 'refresh_required' =>
           'No fresh ${fx.requestedCurrency} rate — showing US Dollars for now',
         'disabled' => 'Currency conversion is temporarily switched off',
         _ => '${fx.requestedCurrency} is not available — showing US Dollars',
       };
     } else if (fx.convertsMoney) {
-      subtitle = 'Prices show an approximate ${fx.currency} value · '
+      subtitle =
+          'Prices show an approximate ${fx.currency} value · '
           'charges are always in USD';
     } else {
       subtitle = 'Show an approximate home-currency value beside every price';
@@ -914,160 +1130,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
   }
 
   void _showCurrencySelector(BuildContext context, FxContext fx) {
-    // The server hands back the list along with the rate, so the picker can
-    // never offer a currency the formatter cannot render. If the RPC failed we
-    // have nothing truthful to offer beyond dollars.
-    final options = fx.available.isNotEmpty
-        ? fx.available
-        : const [
-            FxCurrencyOption(code: 'USD', name: 'US Dollar', symbol: r'$'),
-          ];
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (sheetContext) {
-        return Container(
-          padding: const EdgeInsets.all(24.0),
-          decoration: BoxDecoration(
-            color: sheetContext.scaffoldBackgroundColor,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-            border: Border.all(
-              color: sheetContext.onSurfaceColor.withValues(alpha: 0.08),
-              width: 1.5,
-            ),
-          ),
-          child: SafeArea(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Display Currency',
-                  style: AppTextStyles.titleLarge.copyWith(
-                    color: sheetContext.onSurfaceColor,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(
-                      Icons.info_outline_rounded,
-                      size: 16,
-                      color: sheetContext.onSurfaceColor.withValues(alpha: 0.5),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        'Your wallet, top-ups and every charge stay in US '
-                        'Dollars. This only adds an approximate value beside '
-                        'each price.',
-                        style: AppTextStyles.bodySmall.copyWith(
-                          color: sheetContext.onSurfaceColor.withValues(
-                            alpha: 0.6,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                Flexible(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: options.map((opt) {
-                        final isSelected = opt.code == fx.requestedCurrency;
-                        return InkWell(
-                          onTap: () async {
-                            await HapticHelper.mediumImpact();
-                            final ok = await ref
-                                .read(fxControllerProvider.notifier)
-                                .setDisplayCurrency(opt.code);
-                            if (!sheetContext.mounted) return;
-                            Navigator.pop(sheetContext);
-                            if (ok) {
-                              await HapticHelper.successFeedback();
-                            } else if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Could not save your currency. Try again.',
-                                  ),
-                                ),
-                              );
-                            }
-                          },
-                          borderRadius: BorderRadius.circular(16),
-                          child: Container(
-                            margin: const EdgeInsets.symmetric(vertical: 4),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 14,
-                            ),
-                            decoration: BoxDecoration(
-                              color: isSelected
-                                  ? sheetContext.onSurfaceColor.withValues(
-                                      alpha: 0.05,
-                                    )
-                                  : Colors.transparent,
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                color: isSelected
-                                    ? const Color(
-                                        0xFF6366F1,
-                                      ).withValues(alpha: 0.3)
-                                    : Colors.transparent,
-                                width: 1,
-                              ),
-                            ),
-                            child: Row(
-                              children: [
-                                SizedBox(
-                                  width: 44,
-                                  child: Text(
-                                    opt.symbol,
-                                    style: AppTextStyles.bodyLarge.copyWith(
-                                      color: sheetContext.onSurfaceColor,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(
-                                    '${opt.name} (${opt.code})',
-                                    style: AppTextStyles.bodyMedium.copyWith(
-                                      color: sheetContext.onSurfaceColor,
-                                      fontWeight: isSelected
-                                          ? FontWeight.bold
-                                          : FontWeight.normal,
-                                    ),
-                                  ),
-                                ),
-                                if (isSelected)
-                                  const Icon(
-                                    Icons.check_circle_rounded,
-                                    color: Color(0xFF6366F1),
-                                  ),
-                              ],
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-              ],
-            ),
-          ),
-        );
-      },
-    );
+    showDisplayCurrencySheet(context);
   }
 
   // ── Security Panel ──────────────────────────────────────────────────
@@ -1120,19 +1183,17 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
             trailing: Switch(
               value: ref.watch(biometricLockControllerProvider).value ?? false,
               onChanged: (val) async {
+                final loc = AppLocalizations.of(context)!;
+                final reason = loc.biometricReasonUnlock;
+                final cancelMsg = loc.biometricCancel;
                 await HapticHelper.mediumImpact();
-                final reason =
-                    AppLocalizations.of(context)!.biometricReasonUnlock;
                 final success = await ref
                     .read(biometricLockControllerProvider.notifier)
                     .setLockEnabled(val, reason: reason);
-                if (!success && mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                          AppLocalizations.of(context)!.biometricCancel),
-                    ),
-                  );
+                if (!success && context.mounted) {
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text(cancelMsg)));
                 }
               },
               activeThumbColor: const Color(0xFF6366F1),
@@ -1150,7 +1211,11 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
             onTap: () async {
               await HapticHelper.lightTick();
               if (!context.mounted) return;
-              _showPinSetupSheet(context, hasPin);
+              if (hasPin) {
+                _showPinOptionsSheet(context);
+              } else {
+                _showPinSetupSheet(context, false);
+              }
             },
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 20,
@@ -1428,4 +1493,3 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
     );
   }
 }
-

@@ -13,6 +13,7 @@ import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import 'package:keep_sims/features/auth/ui/login_screen.dart';
 import 'package:keep_sims/features/auth/ui/email_auth_screen.dart';
 import 'package:keep_sims/features/profile/presentation/ui/onboarding_screen.dart';
+import 'package:keep_sims/features/profile/presentation/ui/profile_screen.dart';
 import 'package:keep_sims/core/router/placeholder_screens.dart';
 import 'package:keep_sims/features/dashboard/presentation/ui/dashboard_screen.dart';
 import 'package:keep_sims/features/sim_lines/presentation/screens/sim_lines_list_screen.dart';
@@ -111,8 +112,9 @@ class SplashCompleted extends _$SplashCompleted {
 
 /// Pending accepted VoIP call detected at app launch to allow direct routing
 /// to the call screen, bypassing splash and dashboard loading.
-final initialAcceptedCallProvider =
-    Provider<Map<String, String>?>((ref) => null);
+final initialAcceptedCallProvider = Provider<Map<String, String>?>(
+  (ref) => null,
+);
 
 /// A notifier that triggers router re-evaluation when auth or splash states change.
 class RouterNotifier extends ChangeNotifier {
@@ -130,7 +132,8 @@ RouterConfig<Object> appRouter(Ref ref) {
   ref.onDispose(notifier.dispose);
 
   final initialAcceptedCall = ref.watch(initialAcceptedCallProvider);
-  final hasInitialAcceptedCall = initialAcceptedCall != null &&
+  final hasInitialAcceptedCall =
+      initialAcceptedCall != null &&
       initialAcceptedCall['callId'] != null &&
       initialAcceptedCall['callId']!.isNotEmpty;
 
@@ -271,6 +274,11 @@ RouterConfig<Object> appRouter(Ref ref) {
             path: AppRoutes.home,
             name: 'home',
             builder: (context, state) => const DashboardScreen(),
+          ),
+          GoRoute(
+            path: AppRoutes.profile,
+            name: 'profile',
+            builder: (context, state) => const ProfileScreen(),
           ),
           GoRoute(
             path: AppRoutes.calling,

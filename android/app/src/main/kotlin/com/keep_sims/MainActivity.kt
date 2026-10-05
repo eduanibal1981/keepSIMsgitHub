@@ -24,6 +24,38 @@ class MainActivity : FlutterFragmentActivity() {
 
         createNotificationChannels()
 
+        val alarmScheduler = AlertAlarmScheduler(this)
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.keep_sims/alert_alarm")
+            .setMethodCallHandler { call, result ->
+                try {
+                    when (call.method) {
+                        "status" -> result.success(alarmScheduler.status(call.argument<String>("userId")))
+                        "setEnabled" -> {
+                            val userId = call.argument<String>("userId") ?: ""
+                            val enabled = call.argument<Boolean>("enabled") == true
+                            alarmScheduler.setEnabled(userId, enabled)
+                            result.success(null)
+                        }
+                        "setAlarmTime" -> {
+                            val userId = call.argument<String>("userId") ?: ""
+                            val hour = (call.argument<Number>("hour"))?.toInt() ?: 18
+                            val minute = (call.argument<Number>("minute"))?.toInt() ?: 0
+                            alarmScheduler.setAlarmTime(userId, hour, minute)
+                            result.success(null)
+                        }
+                        "synchronize" -> {
+                            val userId = call.argument<String>("userId") ?: ""
+                            val schedules = call.argument<List<Map<*, *>>>("schedules") ?: emptyList()
+                            alarmScheduler.synchronize(userId, schedules)
+                            result.success(null)
+                        }
+                        "clear" -> { alarmScheduler.clear(); result.success(null) }
+                        "openPermissionSettings" -> { alarmScheduler.openPermissionSettings(); result.success(null) }
+                        else -> result.notImplemented()
+                    }
+                } catch (error: Exception) { result.error("alert_alarm", error.message, null) }
+            }
+
         pushChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.keep_sims/notifications")
         pushChannel?.setMethodCallHandler { call, result ->
             when (call.method) {
@@ -44,7 +76,7 @@ class MainActivity : FlutterFragmentActivity() {
                     // OneSignal retries and FCM cards have accumulated together.
                     // Notification history remains available in the app inbox.
                     val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-                    val old = manager.activeNotifications.sortedByDescending { it.postTime }.drop(20)
+                    val old = manager.activeNotifications.filter { it.notification.flags and Notification.FLAG_ONGOING_EVENT == 0 }.sortedByDescending { it.postTime }.drop(20)
                     old.forEach { manager.cancel(it.tag, it.id) }
                     // OneSignal must also mark its old cards dismissed so it
                     // does not restore them on the next launch.

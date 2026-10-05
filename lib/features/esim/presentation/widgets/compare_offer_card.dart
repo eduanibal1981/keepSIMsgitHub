@@ -82,9 +82,13 @@ class CompareOfferCard extends StatelessWidget {
 
   // ── Who is selling this, and on which rail ──────────────────────────────
   Widget _sourceRow(
-      BuildContext context, AppLocalizations l10n, bool isPartner) {
-    final primaryCountry =
-        offer.countries.isNotEmpty ? offer.countries.first : null;
+    BuildContext context,
+    AppLocalizations l10n,
+    bool isPartner,
+  ) {
+    final primaryCountry = offer.countries.isNotEmpty
+        ? offer.countries.first
+        : null;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -123,16 +127,21 @@ class CompareOfferCard extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     if (primaryCountry != null)
-                      Text(countryFlag(primaryCountry),
-                          style: const TextStyle(fontSize: 13)),
+                      Text(
+                        countryFlag(primaryCountry),
+                        style: const TextStyle(fontSize: 13),
+                      ),
                     const SizedBox(width: 4),
                     Flexible(
                       child: Text(
                         offer.countryCount > 1
                             ? '${offer.countryCount} ${l10n.compareCountriesSuffix}'
                             : (primaryCountry != null
-                                ? (CompareOffer.countryNameForCode(primaryCountry) ?? primaryCountry)
-                                : ''),
+                                  ? (CompareOffer.countryNameForCode(
+                                          primaryCountry,
+                                        ) ??
+                                        primaryCountry)
+                                  : ''),
                         overflow: TextOverflow.ellipsis,
                         style: AppTextStyles.caption.copyWith(
                           color: context.onSurfaceColor.withValues(alpha: 0.6),
@@ -159,8 +168,7 @@ class CompareOfferCard extends StatelessWidget {
             if (isBestValue) ...[
               const SizedBox(height: 6),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
                     colors: [Color(0xFF10B981), Color(0xFF059669)],
@@ -184,7 +192,10 @@ class CompareOfferCard extends StatelessWidget {
   }
 
   Widget _railBadge(
-      BuildContext context, AppLocalizations l10n, bool isPartner) {
+    BuildContext context,
+    AppLocalizations l10n,
+    bool isPartner,
+  ) {
     final colour = isPartner ? const Color(0xFF8B5CF6) : AppColors.primary;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
@@ -257,14 +268,18 @@ class CompareOfferCard extends StatelessWidget {
 
   // ── Data / validity / price ─────────────────────────────────────────────
   Widget _specsAndPrice(BuildContext context, AppLocalizations l10n) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.end,
+    return Wrap(
+      alignment: WrapAlignment.spaceBetween,
+      crossAxisAlignment: WrapCrossAlignment.end,
+      spacing: 20,
+      runSpacing: 8,
       children: [
         _spec(context, l10n.compareDataLabel, offer.formattedData),
-        const SizedBox(width: 20),
-        _spec(context, l10n.compareValidityLabel,
-            '${offer.durationDays} ${l10n.compareDaysSuffix}'),
-        const Spacer(),
+        _spec(
+          context,
+          l10n.compareValidityLabel,
+          '${offer.durationDays} ${l10n.compareDaysSuffix}',
+        ),
         _price(context, l10n),
       ],
     );
@@ -300,20 +315,18 @@ class CompareOfferCard extends StatelessWidget {
     // not print a number about someone else's shop that we can no longer
     // stand behind.
     if (!offer.canQuotePrice) {
-      return Flexible(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Text(
-              l10n.comparePriceAtPartner,
-              textAlign: TextAlign.end,
-              style: AppTextStyles.bodySmall.copyWith(
-                color: context.onSurfaceColor.withValues(alpha: 0.75),
-                fontWeight: FontWeight.w600,
-              ),
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Text(
+            l10n.comparePriceAtPartner,
+            textAlign: TextAlign.end,
+            style: AppTextStyles.bodySmall.copyWith(
+              color: context.onSurfaceColor.withValues(alpha: 0.75),
+              fontWeight: FontWeight.w600,
             ),
-          ],
-        ),
+          ),
+        ],
       );
     }
 
@@ -321,12 +334,25 @@ class CompareOfferCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         if (offer.listPriceUsd != null && offer.listPriceUsd! > offer.priceUsd)
-          Text(
-            '\$${offer.listPriceUsd!.toStringAsFixed(2)}',
-            style: AppTextStyles.caption.copyWith(
-              color: context.onSurfaceColor.withValues(alpha: 0.45),
-              decoration: TextDecoration.lineThrough,
-            ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                '\$${offer.listPriceUsd!.toStringAsFixed(2)}',
+                style: AppTextStyles.caption.copyWith(
+                  color: context.onSurfaceColor.withValues(alpha: 0.45),
+                  decoration: TextDecoration.lineThrough,
+                ),
+              ),
+              ApproxLocalText(
+                offer.listPriceUsd!,
+                textAlign: TextAlign.end,
+                style: AppTextStyles.caption.copyWith(
+                  decoration: TextDecoration.lineThrough,
+                ),
+              ),
+            ],
           ),
         Text(
           '\$${offer.priceUsd.toStringAsFixed(2)}',
@@ -340,12 +366,24 @@ class CompareOfferCard extends StatelessWidget {
         // NULL for unlimited, and it stays absent rather than rendering
         // "$0.00 / GB" — the server sends NULL precisely so this cannot lie.
         if (offer.pricePerGbUsd != null)
-          Text(
-            '\$${offer.pricePerGbUsd!.toStringAsFixed(2)} ${l10n.perGb}',
-            style: AppTextStyles.caption.copyWith(
-              color: AppColors.primary,
-              fontWeight: FontWeight.w600,
-            ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                '\$${offer.pricePerGbUsd!.toStringAsFixed(2)} ${l10n.perGb}',
+                style: AppTextStyles.caption.copyWith(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              ApproxLocalRateText(
+                offer.pricePerGbUsd!,
+                unit: ' ${l10n.perGb}',
+                minDigits: 2,
+                textAlign: TextAlign.end,
+              ),
+            ],
           ),
       ],
     );
@@ -362,8 +400,11 @@ class CompareOfferCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(Icons.local_offer_outlined,
-              size: 15, color: Color(0xFF059669)),
+          const Icon(
+            Icons.local_offer_outlined,
+            size: 15,
+            color: Color(0xFF059669),
+          ),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
@@ -387,11 +428,11 @@ class CompareOfferCard extends StatelessWidget {
             },
             borderRadius: BorderRadius.circular(8),
             child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
                 border: Border.all(
-                    color: const Color(0xFF059669).withValues(alpha: 0.5)),
+                  color: const Color(0xFF059669).withValues(alpha: 0.5),
+                ),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
@@ -405,8 +446,11 @@ class CompareOfferCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 4),
-                  const Icon(Icons.copy_rounded,
-                      size: 12, color: Color(0xFF059669)),
+                  const Icon(
+                    Icons.copy_rounded,
+                    size: 12,
+                    color: Color(0xFF059669),
+                  ),
                 ],
               ),
             ),
@@ -487,7 +531,9 @@ class CompareOfferCard extends StatelessWidget {
               child: Text(
                 '${l10n.buyPlanButton} • \$${offer.priceUsd.toStringAsFixed(2)}',
                 style: const TextStyle(
-                    fontWeight: FontWeight.bold, fontSize: 15),
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                ),
               ),
             ),
     );

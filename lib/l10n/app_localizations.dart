@@ -5509,6 +5509,192 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Inspector'**
   String get inspector;
+
+  /// Explanation for presentation-only currency estimates.
+  ///
+  /// In en, this message translates to:
+  /// **'{currency} amounts are approximate. Charges are in USD.'**
+  String fxChargesInUsd(String currency);
+
+  /// No description provided for @fxCurrencySaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save your display currency. Please try again.'**
+  String get fxCurrencySaveFailed;
+
+  /// No description provided for @fxAnnualProtectionFee.
+  ///
+  /// In en, this message translates to:
+  /// **'Annual protection fee'**
+  String get fxAnnualProtectionFee;
+
+  /// No description provided for @profileNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get profileNotifications;
+
+  /// No description provided for @profileWhatsAppNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'WhatsApp number'**
+  String get profileWhatsAppNumber;
+
+  /// No description provided for @profileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My profile'**
+  String get profileTitle;
+
+  /// No description provided for @profilePersonalAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal account'**
+  String get profilePersonalAccount;
+
+  /// No description provided for @profileContactDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact details'**
+  String get profileContactDetails;
+
+  /// No description provided for @profileNotificationEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification email'**
+  String get profileNotificationEmail;
+
+  /// No description provided for @profileCheckStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Check status'**
+  String get profileCheckStatus;
+
+  /// No description provided for @profileVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'Verified'**
+  String get profileVerified;
+
+  /// No description provided for @profileVerify.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify'**
+  String get profileVerify;
+
+  /// No description provided for @profileSavedStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get profileSavedStatus;
+
+  /// No description provided for @profileAddNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a number'**
+  String get profileAddNumber;
+
+  /// No description provided for @profileLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load these details.'**
+  String get profileLoadFailed;
+
+  /// No description provided for @profilePreferences.
+  ///
+  /// In en, this message translates to:
+  /// **'Preferences'**
+  String get profilePreferences;
+
+  /// No description provided for @profilePreferredLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Preferred language'**
+  String get profilePreferredLanguage;
+
+  /// No description provided for @profileTimeZone.
+  ///
+  /// In en, this message translates to:
+  /// **'Time zone'**
+  String get profileTimeZone;
+
+  /// No description provided for @profileDeviceTimeZoneHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Times follow this device’s time zone. Change your device settings to update it.'**
+  String get profileDeviceTimeZoneHint;
+
+  /// No description provided for @profileCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get profileCurrency;
+
+  /// No description provided for @profileCurrencyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the currency for estimated prices. Payments are charged in USD.'**
+  String get profileCurrencyHint;
+
+  /// No description provided for @profileCurrencyUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing USD until your selected currency is available.'**
+  String get profileCurrencyUnavailable;
+
+  /// No description provided for @profileAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get profileAccount;
+
+  /// No description provided for @profileSavedSims.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved SIMs'**
+  String get profileSavedSims;
+
+  /// No description provided for @profileEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit profile'**
+  String get profileEdit;
+
+  /// No description provided for @profileFullName.
+  ///
+  /// In en, this message translates to:
+  /// **'Full name'**
+  String get profileFullName;
+
+  /// No description provided for @profileHomeCountry.
+  ///
+  /// In en, this message translates to:
+  /// **'Home country'**
+  String get profileHomeCountry;
+
+  /// No description provided for @profileNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your name.'**
+  String get profileNameRequired;
+
+  /// No description provided for @profileCountryRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Select your home country.'**
+  String get profileCountryRequired;
+
+  /// No description provided for @profileSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save your changes. Please try again.'**
+  String get profileSaveFailed;
+
+  /// No description provided for @profileSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile updated.'**
+  String get profileSaved;
 }
 
 class _AppLocalizationsDelegate

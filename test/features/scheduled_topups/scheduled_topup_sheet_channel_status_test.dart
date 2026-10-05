@@ -2,7 +2,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:keep_sims/core/providers/app_config_provider.dart';
+import 'package:keep_sims/features/auth/controller/auth_controller.dart';
+import 'package:keep_sims/features/auth/model/auth_model.dart';
+import 'package:keep_sims/l10n/app_localizations.dart';
+import 'package:keep_sims/features/alert_alarm/controller/device_alarm_controller.dart';
+import 'package:keep_sims/features/alert_alarm/model/device_alarm_model.dart';
+import 'package:keep_sims/features/sim_lines/presentation/providers/sim_line_alert_clock_provider.dart';
 import 'package:keep_sims/features/notifications/presentation/controllers/notification_settings_controller.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
@@ -77,100 +82,156 @@ void main() {
     },
   };
 
-  testWidgets('ScheduledTopupSheet accurately displays channel readiness badges on paid line',
-      (tester) async {
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          notificationChannelsControllerProvider
-              .overrideWith(() => _MockNotificationChannelsController(testChannels)),
-          notificationChannelCatalogProvider
-              .overrideWith((ref) => Future.value(testCatalog)),
-          simLinesControllerProvider
-              .overrideWith(() => _MockSimLinesController([paidLine])),
-          walletControllerProvider.overrideWith(() => _MockWalletController()),
-        ],
-        child: const MaterialApp(
-          home: Scaffold(
-            body: ScheduledTopupSheet(
-              simLineId: 'line-paid-1',
-              simNickname: 'Paid Line',
-              simLine: paidLine,
-              configMode: 'notify',
+  testWidgets(
+    'ScheduledTopupSheet accurately displays channel readiness badges on paid line',
+    (tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            authControllerProvider.overrideWith(() => _MockAuthController()),
+            deviceAlarmControllerProvider.overrideWith(
+              () => _MockAlarmController(),
+            ),
+            simLineAlertClockForLineProvider.overrideWith(
+              (ref, id) async => null,
+            ),
+            notificationChannelsControllerProvider.overrideWith(
+              () => _MockNotificationChannelsController(testChannels),
+            ),
+            notificationChannelCatalogProvider.overrideWith(
+              (ref) => Future.value(testCatalog),
+            ),
+            simLinesControllerProvider.overrideWith(
+              () => _MockSimLinesController([paidLine]),
+            ),
+            walletControllerProvider.overrideWith(
+              () => _MockWalletController(),
+            ),
+          ],
+          child: const MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: Scaffold(
+              body: ScheduledTopupSheet(
+                simLineId: 'line-paid-1',
+                simNickname: 'Paid Line',
+                simLine: paidLine,
+                configMode: 'notify',
+              ),
             ),
           ),
         ),
-      ),
-    );
+      );
 
-    await tester.pumpAndSettle();
+      await tester.pumpAndSettle();
 
-    // 1. Push Notifications should be ACTIVE
-    expect(find.text('Push Notifications'), findsOneWidget);
-    expect(find.text('ACTIVE'), findsOneWidget);
+      // 1. Push Notifications should be ACTIVE
+      expect(find.text('Push Notifications'), findsOneWidget);
+      expect(find.text('ACTIVE'), findsOneWidget);
 
-    // 2. Email Alerts has empty email -> NOT SET
-    expect(find.text('Email Alerts'), findsOneWidget);
-    expect(find.text('NOT SET'), findsOneWidget);
-    expect(find.text('No email configured · Tap to setup'), findsOneWidget);
+      // 2. Email Alerts has empty email -> NOT SET
+      expect(find.text('Email Alerts'), findsOneWidget);
+      expect(find.text('NOT SET'), findsOneWidget);
+      expect(find.text('No email configured · Tap to setup'), findsOneWidget);
 
-    // 3. WhatsApp Alerts is globally disabled -> PAUSED
-    expect(find.text('WhatsApp Alerts'), findsOneWidget);
-    expect(find.text('PAUSED'), findsOneWidget);
-    expect(find.text('Temporarily paused across platform'), findsOneWidget);
+      // 3. WhatsApp Alerts is globally disabled -> PAUSED
+      expect(find.text('WhatsApp Alerts'), findsOneWidget);
+      expect(find.text('PAUSED'), findsOneWidget);
+      expect(find.text('Temporarily paused across platform'), findsOneWidget);
 
-    // 4. Telegram Bot has empty chat_id -> UNBOUND
-    expect(find.text('Telegram Bot'), findsOneWidget);
-    expect(find.text('UNBOUND'), findsOneWidget);
-    expect(find.text('Telegram bot unbound · Tap to link'), findsOneWidget);
+      // 4. Telegram Bot has empty chat_id -> UNBOUND
+      expect(find.text('Telegram Bot'), findsOneWidget);
+      expect(find.text('UNBOUND'), findsOneWidget);
+      expect(find.text('Telegram bot unbound · Tap to link'), findsOneWidget);
 
-    // 5. Alarm Clock displays readiness without test button
-    expect(find.text('Alarm Clock'), findsOneWidget);
-    expect(find.text('Test'), findsNothing);
-  });
+      // 5. Alarm Clock displays readiness without test button
+      expect(find.text('Alarm Clock'), findsOneWidget);
+      expect(find.text('Test'), findsNothing);
 
-  testWidgets('ScheduledTopupSheet allows Telegram on Free plan line without Upgrade badge',
-      (tester) async {
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          notificationChannelsControllerProvider
-              .overrideWith(() => _MockNotificationChannelsController(testChannels)),
-          notificationChannelCatalogProvider
-              .overrideWith((ref) => Future.value(testCatalog)),
-          simLinesControllerProvider
-              .overrideWith(() => _MockSimLinesController([freeLine])),
-          walletControllerProvider.overrideWith(() => _MockWalletController()),
-        ],
-        child: const MaterialApp(
-          home: Scaffold(
-            body: ScheduledTopupSheet(
-              simLineId: 'line-free-1',
-              simNickname: 'Free Line',
-              simLine: freeLine,
-              configMode: 'notify',
+      // Open the same editor directly, keeping Auto-Notify underneath.
+      await tester.tap(find.text('Email Alerts'));
+      await tester.pumpAndSettle();
+      expect(find.text('Email alerts'), findsOneWidget);
+      expect(find.byType(TextField), findsOneWidget);
+      expect(find.text('Save Settings'), findsOneWidget);
+      expect(find.byType(ScheduledTopupSheet), findsOneWidget);
+      await tester.tap(find.byTooltip('Close').last);
+      await tester.pumpAndSettle();
+      expect(find.text('Email Alerts'), findsOneWidget);
+      expect(find.byType(TextField), findsNothing);
+      await tester.tap(find.text('Alarm Clock'));
+      await tester.pumpAndSettle();
+      expect(find.text('When it rings'), findsOneWidget);
+      expect(find.byType(ScheduledTopupSheet), findsOneWidget);
+      await tester.tap(find.byTooltip('Close').last);
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
+    'ScheduledTopupSheet allows Telegram on Free plan line without Upgrade badge',
+    (tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            notificationChannelsControllerProvider.overrideWith(
+              () => _MockNotificationChannelsController(testChannels),
+            ),
+            notificationChannelCatalogProvider.overrideWith(
+              (ref) => Future.value(testCatalog),
+            ),
+            simLinesControllerProvider.overrideWith(
+              () => _MockSimLinesController([freeLine]),
+            ),
+            walletControllerProvider.overrideWith(
+              () => _MockWalletController(),
+            ),
+          ],
+          child: const MaterialApp(
+            home: Scaffold(
+              body: ScheduledTopupSheet(
+                simLineId: 'line-free-1',
+                simNickname: 'Free Line',
+                simLine: freeLine,
+                configMode: 'notify',
+              ),
             ),
           ),
         ),
-      ),
-    );
+      );
 
-    await tester.pumpAndSettle();
+      await tester.pumpAndSettle();
 
-    // Push is free & ACTIVE
-    expect(find.text('Push Notifications'), findsOneWidget);
-    expect(find.text('ACTIVE'), findsOneWidget);
+      // Push is free & ACTIVE
+      expect(find.text('Push Notifications'), findsOneWidget);
+      expect(find.text('ACTIVE'), findsOneWidget);
 
-    // Telegram is free & UNBOUND (not locked to Upgrade!)
-    expect(find.text('Telegram Bot'), findsOneWidget);
-    expect(find.text('UNBOUND'), findsOneWidget);
-    expect(find.text('Telegram bot unbound · Tap to link'), findsOneWidget);
+      // Telegram is free & UNBOUND (not locked to Upgrade!)
+      expect(find.text('Telegram Bot'), findsOneWidget);
+      expect(find.text('UNBOUND'), findsOneWidget);
+      expect(find.text('Telegram bot unbound · Tap to link'), findsOneWidget);
 
-    // Email and WhatsApp are paid features -> show 'Upgrade'
-    expect(find.text('Email Alerts'), findsOneWidget);
-    expect(find.text('WhatsApp Alerts'), findsOneWidget);
-    expect(find.text('Upgrade'), findsNWidgets(2));
-  });
+      // Email and WhatsApp are paid features -> show 'Upgrade'
+      expect(find.text('Email Alerts'), findsOneWidget);
+      expect(find.text('WhatsApp Alerts'), findsOneWidget);
+      expect(find.text('Upgrade'), findsNWidgets(2));
+    },
+  );
+}
+
+class _MockAuthController extends AuthController {
+  @override
+  FutureOr<UserProfile?> build() => null;
+}
+
+class _MockAlarmController extends DeviceAlarmController {
+  @override
+  Future<DeviceAlarmStatus> build() async => const DeviceAlarmStatus(
+    supported: true,
+    exactAlarmAllowed: true,
+    notificationsAllowed: true,
+  );
 }
 
 class _MockNotificationChannelsController

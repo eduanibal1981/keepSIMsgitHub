@@ -63,20 +63,12 @@ class SimProtectionHeroCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            l10n.dashboardKeepSimActive,
-                            style: AppTextStyles.labelSmall.copyWith(
-                              color: accent,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: 1.1,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          Text(
                             l10n.dashboardProtectSimLines,
-                            style: AppTextStyles.headlineMedium.copyWith(
+                            style: AppTextStyles.titleLarge.copyWith(
+                              fontSize: 16,
                               color: textColor,
-                              fontWeight: FontWeight.w800,
-                              height: 1.2,
+                              fontWeight: FontWeight.w700,
+                              height: 1.25,
                             ),
                           ),
                           const SizedBox(height: 5),

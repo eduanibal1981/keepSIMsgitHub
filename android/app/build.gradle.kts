@@ -44,6 +44,10 @@ val releaseKeystoreProblem: String? =
 
 val allowDebugSigning = project.findProperty("allowDebugSigning")?.toString() == "true"
 
+dependencies {
+    testImplementation("junit:junit:4.13.2")
+}
+
 extensions.configure<com.android.build.api.dsl.ApplicationExtension> {
     namespace = "com.keep_sims"
     compileSdk = flutter.compileSdkVersion

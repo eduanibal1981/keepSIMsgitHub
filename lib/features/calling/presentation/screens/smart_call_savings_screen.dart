@@ -9,6 +9,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:keep_sims/core/fx/money.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:keep_sims/core/router/app_router.dart';
@@ -103,7 +104,11 @@ class _SmartCallSavingsScreenState
 
           // Initialize default rate (Oman or first available)
           _selectedRate ??=
-              rates.where((r) => r.countryCode == (widget.initialCountryCode ?? 'OM')).firstOrNull ??
+              rates
+                  .where(
+                    (r) => r.countryCode == (widget.initialCountryCode ?? 'OM'),
+                  )
+                  .firstOrNull ??
               rates.first;
 
           final currentRate = _selectedRate!;
@@ -191,10 +196,10 @@ class _SmartCallSavingsScreenState
                       onTap: () async {
                         final selected =
                             await DestinationCountrySearchSheet.show(
-                          context,
-                          rates: rates,
-                          selectedRate: _selectedRate,
-                        );
+                              context,
+                              rates: rates,
+                              selectedRate: _selectedRate,
+                            );
                         if (selected != null) {
                           setState(() => _selectedRate = selected);
                         }
@@ -323,7 +328,10 @@ class _SmartCallSavingsScreenState
                     children: [1, 5, 10, 15, 30].map((m) {
                       return Text(
                         '$m',
-                        style: const TextStyle(color: Colors.white38, fontSize: 11),
+                        style: const TextStyle(
+                          color: Colors.white38,
+                          fontSize: 11,
+                        ),
                       );
                     }).toList(),
                   ),
@@ -379,7 +387,10 @@ class _SmartCallSavingsScreenState
                 ),
                 const SizedBox(height: 10),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0xFF0F172A),
                     borderRadius: BorderRadius.circular(12),
@@ -399,7 +410,9 @@ class _SmartCallSavingsScreenState
                       Expanded(
                         child: TextField(
                           controller: _roamingInputController,
-                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 14,
@@ -407,7 +420,10 @@ class _SmartCallSavingsScreenState
                           ),
                           decoration: const InputDecoration(
                             hintText: 'Enter rate (e.g. 2.00)',
-                            hintStyle: TextStyle(color: Colors.white24, fontSize: 13),
+                            hintStyle: TextStyle(
+                              color: Colors.white24,
+                              fontSize: 13,
+                            ),
                             border: InputBorder.none,
                             isDense: true,
                           ),
@@ -417,14 +433,20 @@ class _SmartCallSavingsScreenState
                             );
                             setState(() {
                               _customRoamingRate =
-                                  (parsed != null && parsed > 0) ? parsed : null;
+                                  (parsed != null && parsed > 0)
+                                  ? parsed
+                                  : null;
                             });
                           },
                         ),
                       ),
                       if (_customRoamingRate != null)
                         IconButton(
-                          icon: const Icon(Icons.close, color: Colors.white38, size: 16),
+                          icon: const Icon(
+                            Icons.close,
+                            color: Colors.white38,
+                            size: 16,
+                          ),
                           padding: EdgeInsets.zero,
                           constraints: const BoxConstraints(),
                           onPressed: () {
@@ -450,7 +472,9 @@ class _SmartCallSavingsScreenState
                           color: const Color(0xFF0F172A),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: const Color(0xFF818CF8).withValues(alpha: 0.3),
+                            color: const Color(
+                              0xFF818CF8,
+                            ).withValues(alpha: 0.3),
                           ),
                         ),
                         child: Column(
@@ -461,9 +485,9 @@ class _SmartCallSavingsScreenState
                                 Container(
                                   padding: const EdgeInsets.all(6),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFF818CF8).withValues(
-                                      alpha: 0.15,
-                                    ),
+                                    color: const Color(
+                                      0xFF818CF8,
+                                    ).withValues(alpha: 0.15),
                                     shape: BoxShape.circle,
                                   ),
                                   child: const Icon(
@@ -484,13 +508,26 @@ class _SmartCallSavingsScreenState
                               ],
                             ),
                             const SizedBox(height: 10),
-                            Text(
-                              '\$${calcResult.keepSimsCost.toStringAsFixed(2)}',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                              ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  '\$${calcResult.keepSimsCost.toStringAsFixed(2)}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                ApproxLocalText(
+                                  calcResult.keepSimsCost,
+                                  style: const TextStyle(
+                                    color: Colors.white60,
+                                    fontSize: 11,
+                                  ),
+                                ),
+                              ],
                             ),
                             const SizedBox(height: 6),
                             Text(
@@ -528,7 +565,9 @@ class _SmartCallSavingsScreenState
                                 Container(
                                   padding: const EdgeInsets.all(6),
                                   decoration: BoxDecoration(
-                                    color: Colors.redAccent.withValues(alpha: 0.15),
+                                    color: Colors.redAccent.withValues(
+                                      alpha: 0.15,
+                                    ),
                                     shape: BoxShape.circle,
                                   ),
                                   child: const Icon(
@@ -549,15 +588,29 @@ class _SmartCallSavingsScreenState
                               ],
                             ),
                             const SizedBox(height: 10),
-                            Text(
-                              calcResult.comparisonCost != null
-                                  ? '\$${calcResult.comparisonCost!.toStringAsFixed(2)}'
-                                  : '—',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                              ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  calcResult.comparisonCost != null
+                                      ? '\$${calcResult.comparisonCost!.toStringAsFixed(2)}'
+                                      : '—',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                if (calcResult.comparisonCost != null)
+                                  ApproxLocalText(
+                                    calcResult.comparisonCost!,
+                                    style: const TextStyle(
+                                      color: Colors.white60,
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                              ],
                             ),
                             const SizedBox(height: 6),
                             Text(
@@ -593,7 +646,9 @@ class _SmartCallSavingsScreenState
                       Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF10B981).withValues(alpha: 0.15),
+                          color: const Color(
+                            0xFF10B981,
+                          ).withValues(alpha: 0.15),
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(
@@ -617,19 +672,33 @@ class _SmartCallSavingsScreenState
                               ),
                             ),
                             const SizedBox(height: 4),
-                            Text(
-                              calcResult.isPositiveSavings
-                                  ? 'You save \$${(calcResult.savingsAmount ?? 0.0).toStringAsFixed(2)} (${(calcResult.savingsPercentage ?? 0.0).toStringAsFixed(0)}%)'
-                                  : calcResult.isEqualCost
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  calcResult.isPositiveSavings
+                                      ? 'You save \$${(calcResult.savingsAmount ?? 0.0).toStringAsFixed(2)} (${(calcResult.savingsPercentage ?? 0.0).toStringAsFixed(0)}%)'
+                                      : calcResult.isEqualCost
                                       ? 'Equal cost'
                                       : calcResult.hasComparison
-                                          ? 'Cost difference: +\$${(-(calcResult.savingsAmount ?? 0.0)).toStringAsFixed(2)}'
-                                          : 'Add a roaming rate to compare',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
+                                      ? 'Cost difference: +\$${(-(calcResult.savingsAmount ?? 0.0)).toStringAsFixed(2)}'
+                                      : 'Add a roaming rate to compare',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                if (calcResult.hasComparison)
+                                  ApproxLocalText(
+                                    (calcResult.savingsAmount ?? 0).abs(),
+                                    style: const TextStyle(
+                                      color: Colors.amberAccent,
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                              ],
                             ),
                             const SizedBox(height: 2),
                             const Text(
@@ -651,9 +720,10 @@ class _SmartCallSavingsScreenState
                               width: 50,
                               height: 50,
                               child: CircularProgressIndicator(
-                                value: ((calcResult.savingsPercentage ?? 0.0) /
-                                        100.0)
-                                    .clamp(0.0, 1.0),
+                                value:
+                                    ((calcResult.savingsPercentage ?? 0.0) /
+                                            100.0)
+                                        .clamp(0.0, 1.0),
                                 backgroundColor: const Color(0xFF1E293B),
                                 color: const Color(0xFF10B981),
                                 strokeWidth: 5,

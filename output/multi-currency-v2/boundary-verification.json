@@ -1,0 +1,15 @@
+{
+  "backend_and_schema_baseline_unchanged": true,
+  "servers_clean": true,
+  "paypal_checkout_and_capture_tokens_unchanged": true,
+  "gift_and_refund_submission_tokens_unchanged": true,
+  "other_changed_preexisting_files_unedited_by_this_task": [
+    "lib/features/notifications/presentation/controllers/notification_settings_controller.dart"
+  ],
+  "overlapping_ui_files": [
+    "lib/features/scheduled_topups/ui/widgets/scheduled_topup_sheet.dart",
+    "lib/features/settings/presentation/screens/preferences_screen.dart",
+    "lib/features/sim_lines/presentation/widgets/line_upgrade_sheet.dart",
+    "lib/features/wallet/ui/wallet_screen.dart"
+  ]
+}

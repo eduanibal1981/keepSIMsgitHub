@@ -1,0 +1,52 @@
+00:00 +0: loading C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart
+00:00 +0: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: gift previews preserve USD typing and commit labels
+00:00 +1: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: gift previews preserve USD typing and commit labels
+00:00 +2: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: gift previews preserve USD typing and commit labels
+00:00 +3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: gift previews preserve USD typing and commit labels
+00:00 +4: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: gift previews preserve USD typing and commit labels
+00:00 +5: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: gift previews preserve USD typing and commit labels
+00:00 +6: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: gift previews preserve USD typing and commit labels
+00:00 +7: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: gift previews preserve USD typing and commit labels
+00:00 +8: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: gift previews preserve USD typing and commit labels
+00:00 +9: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: gift previews preserve USD typing and commit labels
+00:00 +10: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: gift previews preserve USD typing and commit labels
+00:00 +11: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: gift previews preserve USD typing and commit labels
+00:00 +12: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: gift previews preserve USD typing and commit labels
+00:00 +13: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: gift previews preserve USD typing and commit labels
+00:00 +14: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: gift previews preserve USD typing and commit labels
+00:00 +15: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: gift previews preserve USD typing and commit labels
+00:00 +16: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: gift previews preserve USD typing and commit labels
+00:00 +17: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: gift previews preserve USD typing and commit labels
+00:00 +18: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: gift previews preserve USD typing and commit labels
+00:00 +19: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: gift previews preserve USD typing and commit labels
+00:01 +20: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: gift previews preserve USD typing and commit labels
+00:01 +21: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: gift previews preserve USD typing and commit labels
+00:01 +22: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: gift previews preserve USD typing and commit labels
+00:01 +23: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: gift previews preserve USD typing and commit labels
+00:01 +24: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: gift previews preserve USD typing and commit labels
+00:02 +25: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: gift previews preserve USD typing and commit labels
+00:02 +26: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: gift previews preserve USD typing and commit labels
+00:02 +27: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: gift previews preserve USD typing and commit labels
+00:03 +28: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: refund previews preserve USD typing and commit labels
+00:04 +29: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:04 +30: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:04 +31: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:05 +32: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:05 +33: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:06 +33: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: PayPal presets keep USD selection and input with local estimates
+[Analytics] Consent check error: 'package:supabase_flutter/src/supabase.dart': Failed assertion: line 44 pos 7: '_instance._isInitialized': You must initialize the supabase instance before calling Supabase.instance
+00:06 +34: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:06 +35: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:06 +36: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:06 +37: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:06 +38: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:07 +38: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/payments/paypal_checkout_screen_test.dart: PayPalCheckoutScreen & Quote Parity Unit Tests renders payment title and secure pay button correctly
+[Analytics] Consent check error: 'package:supabase_flutter/src/supabase.dart': Failed assertion: line 44 pos 7: '_instance._isInitialized': You must initialize the supabase instance before calling Supabase.instance
+00:07 +39: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:07 +39: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/payments/paypal_checkout_screen_test.dart: PayPalCheckoutScreen & Quote Parity Unit Tests renders plan payment kind correctly
+[Analytics] Consent check error: 'package:supabase_flutter/src/supabase.dart': Failed assertion: line 44 pos 7: '_instance._isInitialized': You must initialize the supabase instance before calling Supabase.instance
+00:07 +40: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:07 +41: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:07 +42: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:08 +43: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition shows retryable failure
+00:08 +44: All tests passed!

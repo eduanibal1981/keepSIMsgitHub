@@ -11,6 +11,7 @@ library;
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:keep_sims/core/fx/money.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -60,7 +61,9 @@ class _CallingScreenState extends ConsumerState<CallingScreen>
     if (widget.initialNumber != null && widget.initialNumber!.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
-        ref.read(smartCallDialerProvider.notifier).setNumber(widget.initialNumber!);
+        ref
+            .read(smartCallDialerProvider.notifier)
+            .setNumber(widget.initialNumber!);
         _phoneController.text = widget.initialNumber!;
       });
     }
@@ -74,7 +77,9 @@ class _CallingScreenState extends ConsumerState<CallingScreen>
         widget.initialNumber!.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
-        ref.read(smartCallDialerProvider.notifier).setNumber(widget.initialNumber!);
+        ref
+            .read(smartCallDialerProvider.notifier)
+            .setNumber(widget.initialNumber!);
         _phoneController.text = widget.initialNumber!;
       });
     }
@@ -180,7 +185,8 @@ class _CallingScreenState extends ConsumerState<CallingScreen>
                   child: ListView.separated(
                     shrinkWrap: true,
                     itemCount: simLines.length,
-                    separatorBuilder: (context, index) => const Divider(color: Colors.white12),
+                    separatorBuilder: (context, index) =>
+                        const Divider(color: Colors.white12),
                     itemBuilder: (context, idx) {
                       final line = simLines[idx];
                       return ListTile(
@@ -200,13 +206,19 @@ class _CallingScreenState extends ConsumerState<CallingScreen>
                           line.nickname?.isNotEmpty == true
                               ? line.nickname!
                               : (line.detectedOperatorName?.isNotEmpty == true
-                                  ? line.detectedOperatorName!
-                                  : line.phoneNumber),
-                          style: const TextStyle(color: Colors.white, fontSize: 14),
+                                    ? line.detectedOperatorName!
+                                    : line.phoneNumber),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                          ),
                         ),
                         subtitle: Text(
                           line.phoneNumber,
-                          style: const TextStyle(color: Colors.white54, fontSize: 12),
+                          style: const TextStyle(
+                            color: Colors.white54,
+                            fontSize: 12,
+                          ),
                         ),
                         trailing: const Icon(
                           Icons.arrow_forward_ios_rounded,
@@ -247,17 +259,19 @@ class _CallingScreenState extends ConsumerState<CallingScreen>
 
     final callerIdData = ref.read(callerIdListProvider).asData?.value;
     final isGatewayActive =
-        forceGateway || dialerState.isGatewaySelected || (callerIdData?.isGatewayActive ?? true);
+        forceGateway ||
+        dialerState.isGatewaySelected ||
+        (callerIdData?.isGatewayActive ?? true);
     final activeCallerId = isGatewayActive
         ? null
         : callerIdData?.callerIds
-            .where((c) => c.isVerified && c.isDefault)
-            .firstOrNull;
+              .where((c) => c.isVerified && c.isDefault)
+              .firstOrNull;
     final effectiveId = isGatewayActive
         ? (callerIdData?.defaultGatewayNumber ?? '+17543180369')
         : (activeCallerId?.phoneNumber ??
-            callerIdData?.defaultGatewayNumber ??
-            '+17543180369');
+              callerIdData?.defaultGatewayNumber ??
+              '+17543180369');
 
     // Policy check: Self-dialing conflict
     if (!isGatewayActive && effectiveId == formattedNumber) {
@@ -345,7 +359,10 @@ class _CallingScreenState extends ConsumerState<CallingScreen>
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Cancel', style: TextStyle(color: Colors.white60)),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Colors.white60),
+            ),
           ),
           ElevatedButton.icon(
             onPressed: () {
@@ -404,7 +421,10 @@ class _CallingScreenState extends ConsumerState<CallingScreen>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel', style: TextStyle(color: Colors.white54)),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Colors.white54),
+            ),
           ),
           ElevatedButton.icon(
             style: ElevatedButton.styleFrom(
@@ -454,7 +474,9 @@ class _CallingScreenState extends ConsumerState<CallingScreen>
           rates.first;
       if (dialerState.selectedRate == null) {
         Future.microtask(() {
-          ref.read(smartCallDialerProvider.notifier).selectCountryRate(defaultRate);
+          ref
+              .read(smartCallDialerProvider.notifier)
+              .selectCountryRate(defaultRate);
         });
       }
     }
@@ -561,7 +583,10 @@ class _CallingScreenState extends ConsumerState<CallingScreen>
           indicatorColor: const Color(0xFF818CF8),
           labelColor: const Color(0xFF818CF8),
           unselectedLabelColor: Colors.white54,
-          labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+          labelStyle: const TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.bold,
+          ),
           tabs: const [
             Tab(text: 'Dialer'),
             Tab(text: 'Recent Calls'),
@@ -646,13 +671,29 @@ class _CallingScreenState extends ConsumerState<CallingScreen>
                                 ],
                               ),
                             ),
-                            Text(
-                              '\$${dialerState.effectiveRatePerMinute.toStringAsFixed(3)}/min',
-                              style: const TextStyle(
-                                color: Color(0xFF10B981),
-                                fontWeight: FontWeight.bold,
-                                fontSize: 15,
-                              ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  '\$${dialerState.effectiveRatePerMinute.toStringAsFixed(3)}/min',
+                                  style: const TextStyle(
+                                    color: Color(0xFF10B981),
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 15,
+                                  ),
+                                ),
+                                if (!dialerState.isPreviewLoading)
+                                  ApproxLocalRateText(
+                                    dialerState.effectiveRatePerMinute,
+                                    unit: '/min',
+                                    minDigits: 3,
+                                    style: const TextStyle(
+                                      color: Colors.amberAccent,
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                              ],
                             ),
                           ],
                         ),
@@ -732,15 +773,31 @@ class _CallingScreenState extends ConsumerState<CallingScreen>
                               fontSize: 11,
                             ),
                           ),
-                          Text(
-                            dialerState.isPreviewLoading
-                                ? 'Calculating rate...'
-                                : '\$${dialerState.effectiveRatePerSecond.toStringAsFixed(5)}/sec',
-                            style: const TextStyle(
-                              color: Colors.white70,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                            ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                dialerState.isPreviewLoading
+                                    ? 'Calculating rate...'
+                                    : '\$${dialerState.effectiveRatePerSecond.toStringAsFixed(5)}/sec',
+                                style: const TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              if (!dialerState.isPreviewLoading)
+                                ApproxLocalRateText(
+                                  dialerState.effectiveRatePerSecond,
+                                  unit: '/s',
+                                  maxDigits: 5,
+                                  style: const TextStyle(
+                                    color: Colors.amberAccent,
+                                    fontSize: 11,
+                                  ),
+                                ),
+                            ],
                           ),
                         ],
                       ),
@@ -1006,7 +1063,9 @@ class _CallingScreenState extends ConsumerState<CallingScreen>
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFF10B981).withValues(alpha: 0.35),
+                                color: const Color(
+                                  0xFF10B981,
+                                ).withValues(alpha: 0.35),
                                 blurRadius: 18,
                                 spreadRadius: 2,
                               ),
@@ -1152,8 +1211,9 @@ class _CallingScreenState extends ConsumerState<CallingScreen>
                     },
                   );
                 },
-                loading: () =>
-                    const Center(child: CircularProgressIndicator(color: AppColors.primary)),
+                loading: () => const Center(
+                  child: CircularProgressIndicator(color: AppColors.primary),
+                ),
                 error: (err, _) => Center(
                   child: Text(
                     'Error: $err',

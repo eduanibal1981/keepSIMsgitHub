@@ -304,12 +304,13 @@ class DashboardSimLineCard extends ConsumerWidget {
                 Expanded(
                   child: Text(
                     line.nickname ?? 'SIM Line',
-                    style: AppTextStyles.headlineMedium.copyWith(
+                    style: AppTextStyles.titleMedium.copyWith(
                       // color: glowColor,
                       color: isLight
                           ? AppColors.textPrimaryLight
                           : Colors.white,
-                      fontWeight: FontWeight.w800,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
                       shadows: isLight
                           ? null
                           : [

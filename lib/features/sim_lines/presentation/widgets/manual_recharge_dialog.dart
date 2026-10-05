@@ -6,7 +6,7 @@ import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/core/utils/build_context_extension.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
-import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_line_detail_controller.dart';
+import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
 
 class ManualRechargeDialog extends ConsumerStatefulWidget {
   final SimLine simLine;
@@ -103,8 +103,9 @@ class _ManualRechargeDialogState extends ConsumerState<ManualRechargeDialog> {
           : _noteController.text.trim();
 
       await ref
-          .read(simLineDetailControllerProvider(widget.simLine.id).notifier)
+          .read(simLinesControllerProvider.notifier)
           .recordManualRecharge(
+            simLineId: widget.simLine.id,
             rechargeDate: _selectedDate,
             amount: amount,
             note: note,

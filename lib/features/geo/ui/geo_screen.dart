@@ -6,6 +6,9 @@ import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import 'package:keep_sims/core/utils/build_context_extension.dart';
+import 'package:collection/collection.dart';
+import 'package:keep_sims/features/sim_lines/data/models/country_model.dart';
+import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
 import '../controller/geo_controller.dart';
 import '../model/geo_state.dart';
@@ -51,7 +54,6 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
     final simLines = ref.watch(simLinesControllerProvider).value ?? [];
     final supportedCountries = ref.watch(supportedCountriesProvider).value ?? [];
     final l10n = AppLocalizations.of(context)!;
-    final isDark = context.isDarkMode;
 
     return Scaffold(
       backgroundColor: context.scaffoldBackgroundColor,
@@ -66,7 +68,9 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
           ),
           onPressed: () async {
             await HapticHelper.lightTick();
-            context.pop();
+            if (context.mounted) {
+              context.pop();
+            }
           },
         ),
         title: Text(
@@ -333,14 +337,17 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                l10n.detectedViaIp,
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: isDark
-                      ? AppColors.textSecondaryDark
-                      : AppColors.textSecondaryLight,
+              Expanded(
+                child: Text(
+                  l10n.detectedViaIp,
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: isDark
+                        ? AppColors.textSecondaryDark
+                        : AppColors.textSecondaryLight,
+                  ),
                 ),
               ),
+              const SizedBox(width: 8),
               Row(
                 children: [
                   Container(
@@ -502,7 +509,7 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
                     await ref
                         .read(geoControllerProvider.notifier)
                         .freezeAllInternationalLines();
-                    if (context.mounted) {
+                    if (mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text(l10n.linesFrozenSuccess)),
                       );
@@ -595,7 +602,7 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
                     await ref
                         .read(geoControllerProvider.notifier)
                         .resumeAllInternationalLines();
-                    if (context.mounted) {
+                    if (mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text(l10n.linesResumedSuccess)),
                       );
@@ -730,17 +737,16 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
   }
 
   Widget _buildInternationalLinesSection({
-    required List<dynamic> simLines,
-    required List<dynamic> supportedCountries,
+    required List<SimLine> simLines,
+    required List<Country> supportedCountries,
     required String homeCountryCode,
   }) {
     final isDark = context.isDarkMode;
     final l10n = AppLocalizations.of(context)!;
 
     final intlLines = simLines.where((l) {
-      final country = supportedCountries.firstWhere(
+      final country = supportedCountries.firstWhereOrNull(
         (c) => c.id == l.countryId,
-        orElse: () => null,
       );
       return country == null || country.isoCode != homeCountryCode;
     }).toList();
@@ -761,53 +767,112 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'International SIM Lines',
-                style: AppTextStyles.titleMedium.copyWith(
-                  color: context.onSurfaceColor,
-                  fontWeight: FontWeight.bold,
+              Expanded(
+                child: Text(
+                  'International SIM Lines',
+                  style: AppTextStyles.titleMedium.copyWith(
+                    color: context.onSurfaceColor,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
-              Row(
-                children: [
-                  TextButton(
-                    onPressed: intlLines.isEmpty
-                        ? null
-                        : () async {
-                            await HapticHelper.mediumImpact();
-                            await ref
-                                .read(geoControllerProvider.notifier)
-                                .freezeAllInternationalLines();
-                          },
-                    child: Text(
-                      l10n.freezeInternationalLines,
-                      style: AppTextStyles.labelSmall.copyWith(
-                        color: context.primaryColor,
-                        fontWeight: FontWeight.bold,
-                      ),
+              if (intlLines.isNotEmpty) ...[
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: context.primaryColor.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    '${intlLines.length}',
+                    style: AppTextStyles.labelSmall.copyWith(
+                      color: context.primaryColor,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  TextButton(
-                    onPressed: intlLines.isEmpty
-                        ? null
-                        : () async {
-                            await HapticHelper.mediumImpact();
-                            await ref
-                                .read(geoControllerProvider.notifier)
-                                .resumeAllInternationalLines();
-                          },
-                    child: Text(
-                      l10n.resumeInternationalLines,
-                      style: AppTextStyles.labelSmall.copyWith(
-                        color: context.colorScheme.secondary,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ],
           ),
+          if (intlLines.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 4,
+              children: [
+                TextButton.icon(
+                  onPressed: () async {
+                    await HapticHelper.mediumImpact();
+                    await ref
+                        .read(geoControllerProvider.notifier)
+                        .freezeAllInternationalLines();
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(l10n.linesFrozenSuccess)),
+                      );
+                    }
+                  },
+                  icon: Icon(
+                    Icons.pause_circle_outline_rounded,
+                    size: 16,
+                    color: context.primaryColor,
+                  ),
+                  label: Text(
+                    l10n.freezeInternationalLines,
+                    style: AppTextStyles.labelSmall.copyWith(
+                      color: context.primaryColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                ),
+                TextButton.icon(
+                  onPressed: () async {
+                    await HapticHelper.mediumImpact();
+                    await ref
+                        .read(geoControllerProvider.notifier)
+                        .resumeAllInternationalLines();
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(l10n.linesResumedSuccess)),
+                      );
+                    }
+                  },
+                  icon: Icon(
+                    Icons.play_circle_outline_rounded,
+                    size: 16,
+                    color: context.colorScheme.secondary,
+                  ),
+                  label: Text(
+                    l10n.resumeInternationalLines,
+                    style: AppTextStyles.labelSmall.copyWith(
+                      color: context.colorScheme.secondary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                ),
+              ],
+            ),
+          ],
           const SizedBox(height: 12),
           if (intlLines.isEmpty)
             Padding(
@@ -826,7 +891,7 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: intlLines.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 10),
+              separatorBuilder: (_, _) => const SizedBox(height: 10),
               itemBuilder: (context, index) {
                 final line = intlLines[index];
                 final isPaused = line.status == 'paused';
@@ -856,7 +921,9 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              line.phoneNumber as String? ?? 'SIM Line',
+                              line.phoneNumber.isNotEmpty
+                                  ? line.phoneNumber
+                                  : 'SIM Line',
                               style: AppTextStyles.labelLarge.copyWith(
                                 color: context.onSurfaceColor,
                                 fontWeight: FontWeight.bold,
@@ -909,7 +976,7 @@ class _GeoScreenState extends ConsumerState<GeoScreen>
                             await HapticHelper.lightTick();
                             await ref
                                 .read(simLinesControllerProvider.notifier)
-                                .freezeLine(line.id as String, !isPaused);
+                                .freezeLine(line.id, !isPaused);
                           },
                         ),
                     ],

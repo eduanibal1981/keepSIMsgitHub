@@ -978,5 +978,8 @@
     "refreshSims": "सिम रिफ्रेस गर्नुहोस्",
     "noMatchingSims": "कुनै मिल्दो सिम फेला परेन",
     "tryDifferentSimSearch": "फरक नाम, नम्बर वा फिल्टर प्रयास गर्नुहोस्।",
-    "clearSearchAndFilters": "खोजी र फिल्टरहरू खाली गर्नुहोस्"
+    "clearSearchAndFilters": "खोजी र फिल्टरहरू खाली गर्नुहोस्",
+  "fxChargesInUsd": "{currency} का रकम अनुमानित हुन्। शुल्क USD मा लाग्छ।",
+  "fxCurrencySaveFailed": "देखाउने मुद्रा सुरक्षित गर्न सकिएन। फेरि प्रयास गर्नुहोस्।",
+  "fxAnnualProtectionFee": "वार्षिक सुरक्षा शुल्क"
 }

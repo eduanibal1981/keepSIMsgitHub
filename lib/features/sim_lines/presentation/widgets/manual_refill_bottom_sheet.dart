@@ -12,6 +12,7 @@ import 'package:keep_sims/features/sim_lines/presentation/providers/api_offers_p
 import 'package:keep_sims/core/providers/app_config_provider.dart';
 import 'package:keep_sims/features/sim_lines/domain/refill_pricing.dart';
 import 'package:keep_sims/core/services/biometric_auth_service.dart';
+import 'package:keep_sims/features/notifications/presentation/controllers/notification_settings_controller.dart';
 import 'package:keep_sims/core/utils/error_formatter.dart';
 import 'package:keep_sims/core/fx/money.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/provider_badge.dart';
@@ -80,19 +81,16 @@ class _ManualRefillBottomSheetState
     }
   }
 
-  RefillQuote _quote(double baseCostUsd) =>
-      RefillPricing.quote(
-        baseCostUsd: baseCostUsd,
-        appFeePercent: _appFeePercent,
-        minAppFeeUsd: _minAppFeeUsd,
-        gatewayFeePercentage: 0,
-        gatewayFeeFixed: 0,
-      );
+  RefillQuote _quote(double baseCostUsd) => RefillPricing.quote(
+    baseCostUsd: baseCostUsd,
+    appFeePercent: _appFeePercent,
+    minAppFeeUsd: _minAppFeeUsd,
+    gatewayFeePercentage: 0,
+    gatewayFeeFixed: 0,
+  );
 
   Future<void> _handleRefill() async {
     if (_selectedOffer == null) return;
-
-    setState(() => _isLoading = true);
 
     try {
       final isRange = _selectedOffer!['isRange'] == true;
@@ -103,26 +101,51 @@ class _ManualRefillBottomSheetState
 
       final totalAmount = _quote(baseCostUsd).total;
 
-      final authGuard = ref.read(paymentAuthGuardProvider);
-      final authResult = await authGuard.confirmPayment(
-        reason: 'Authenticate to confirm refill',
-      );
-      if (authResult == BiometricResult.cancelled ||
-          authResult == BiometricResult.failed ||
-          authResult == BiometricResult.lockedOut) {
-        if (mounted) setState(() => _isLoading = false);
-        return;
-      }
-
-      // Wallet is the single payment rail. If balance is insufficient,
-      // prompt shortfall deposit via PayPal to fund the wallet.
-      final balance = ref.read(walletControllerProvider).value?.wallet.balance ?? 0.0;
+      // 1. Check wallet balance first before prompting authorization
+      final balance =
+          ref.read(walletControllerProvider).value?.wallet.balance ?? 0.0;
       if (balance < totalAmount) {
         if (!mounted) return;
-        setState(() => _isLoading = false);
         await _promptTopUp(balance, totalAmount);
         return;
       }
+
+      // 2. Authorize via Transaction PIN, Biometrics, or Last 4 Digits of SIM
+      final phoneDigits = widget.simLine.phoneNumber.replaceAll(
+        RegExp(r'\D'),
+        '',
+      );
+      final confirmationToken = phoneDigits.length >= 4
+          ? phoneDigits.substring(phoneDigits.length - 4)
+          : phoneDigits;
+
+      final userPrefs = ref.read(userPreferencesControllerProvider).value;
+      final authGuard = ref.read(paymentAuthGuardProvider);
+      final authOk = await authGuard.confirmPaymentInteractive(
+        context,
+        reason:
+            'Authorize refill of \$${totalAmount.toStringAsFixed(2)} for ${widget.simLine.phoneNumber}',
+        confirmationToken: confirmationToken,
+        transactionPinHash: userPrefs?.transactionPinHash,
+        biometricEnabled: userPrefs?.biometricEnabled ?? false,
+        amountPreview: Padding(
+          padding: const EdgeInsets.only(top: 8.0),
+          child: Text(
+            'Refill Total: \$${totalAmount.toStringAsFixed(2)} USD',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+        ),
+      );
+
+      if (!authOk) {
+        return;
+      }
+
+      if (!mounted) return;
+      setState(() => _isLoading = true);
 
       await ref
           .read(simLinesControllerProvider.notifier)
@@ -230,7 +253,8 @@ class _ManualRefillBottomSheetState
         MaterialPageRoute(
           builder: (context) => PayPalCheckoutScreen(
             initialAmount: shortfall,
-            paymentReason: 'Refill for ${widget.simLine.nickname ?? widget.simLine.phoneNumber}',
+            paymentReason:
+                'Refill for ${widget.simLine.nickname ?? widget.simLine.phoneNumber}',
             paymentKind: 'deposit',
             simLineId: widget.simLine.id,
             onSuccess: () async {
@@ -437,8 +461,9 @@ class _ManualRefillBottomSheetState
                       final rangeOfferIdx = offers.indexWhere(
                         (o) => o['priceType'] == 'RANGE',
                       );
-                      final rangeOffer =
-                          rangeOfferIdx != -1 ? offers[rangeOfferIdx] : null;
+                      final rangeOffer = rangeOfferIdx != -1
+                          ? offers[rangeOfferIdx]
+                          : null;
                       final fixedOffers = offers
                           .where((o) => o['priceType'] != 'RANGE')
                           .toList();
@@ -450,7 +475,8 @@ class _ManualRefillBottomSheetState
 
                       final sortedOffers = _sortOffers(filteredOffers);
 
-                      final showRangeUI = rangeOffer != null &&
+                      final showRangeUI =
+                          rangeOffer != null &&
                           (_categoryFilter == 'all' ||
                               _categoryFilter == 'airtime');
 
@@ -491,7 +517,7 @@ class _ManualRefillBottomSheetState
                                     final offer = sortedOffers[index];
                                     final isSelected =
                                         _selectedOffer?['offerId'] ==
-                                            offer['offerId'];
+                                        offer['offerId'];
 
                                     final baseCost =
                                         (offer['baseCostUsd'] as num)
@@ -583,9 +609,7 @@ class _ManualRefillBottomSheetState
           ? 'Enter valid amount'
           : 'Refill \$${_rangeFinalPriceUsd.toStringAsFixed(2)} with Wallet';
     }
-    final total = _quote(
-      (offer['baseCostUsd'] as num).toDouble(),
-    ).total;
+    final total = _quote((offer['baseCostUsd'] as num).toDouble()).total;
     return 'Refill \$${total.toStringAsFixed(2)} with Wallet';
   }
 
@@ -681,7 +705,10 @@ class _ManualRefillBottomSheetState
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.primary, width: 2),
+                borderSide: const BorderSide(
+                  color: AppColors.primary,
+                  width: 2,
+                ),
               ),
             ),
             onChanged: (value) {
@@ -726,7 +753,14 @@ class _ManualRefillBottomSheetState
               }
             },
           ),
-          if (_rangeValue != null) ApproxLocalText(_rangeFinalPriceUsd),
+          if (_rangeValue != null)
+            ApproxLocalText(
+              _rangeFinalPriceUsd,
+              style: const TextStyle(
+                color: AppColors.textSecondaryDark,
+                fontSize: 12,
+              ),
+            ),
           if (_rangeValue != null)
             Padding(
               padding: const EdgeInsets.only(top: 8),
@@ -776,9 +810,7 @@ class _ManualRefillBottomSheetState
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: isSelected
-              ? AppColors.primary
-              : AppColors.darkCard,
+          color: isSelected ? AppColors.primary : AppColors.darkCard,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected ? AppColors.primary : AppColors.darkBorder,
@@ -826,7 +858,8 @@ class _ManualRefillBottomSheetState
     if (offer['dataMb'] != null && (offer['dataMb'] as num) > 0) {
       return (offer['dataMb'] as num).toDouble();
     }
-    final summary = (offer['benefitSummary'] ?? offer['description'] ?? '').toString();
+    final summary = (offer['benefitSummary'] ?? offer['description'] ?? '')
+        .toString();
     final match = RegExp(r'(\d+(?:\.\d+)?)').firstMatch(summary);
     if (match != null) {
       return double.tryParse(match.group(1)!) ?? 0.0;
@@ -838,18 +871,28 @@ class _ManualRefillBottomSheetState
     final sorted = List<Map<String, dynamic>>.from(list);
     switch (_sortBy) {
       case 'price_asc':
-        sorted.sort((a, b) => ((a['baseCostUsd'] as num?) ?? 0)
-            .compareTo((b['baseCostUsd'] as num?) ?? 0));
+        sorted.sort(
+          (a, b) => ((a['baseCostUsd'] as num?) ?? 0).compareTo(
+            (b['baseCostUsd'] as num?) ?? 0,
+          ),
+        );
         break;
       case 'price_desc':
-        sorted.sort((a, b) => ((b['baseCostUsd'] as num?) ?? 0)
-            .compareTo((a['baseCostUsd'] as num?) ?? 0));
+        sorted.sort(
+          (a, b) => ((b['baseCostUsd'] as num?) ?? 0).compareTo(
+            (a['baseCostUsd'] as num?) ?? 0,
+          ),
+        );
         break;
       case 'value_asc':
-        sorted.sort((a, b) => _extractOfferValue(a).compareTo(_extractOfferValue(b)));
+        sorted.sort(
+          (a, b) => _extractOfferValue(a).compareTo(_extractOfferValue(b)),
+        );
         break;
       case 'value_desc':
-        sorted.sort((a, b) => _extractOfferValue(b).compareTo(_extractOfferValue(a)));
+        sorted.sort(
+          (a, b) => _extractOfferValue(b).compareTo(_extractOfferValue(a)),
+        );
         break;
     }
     return sorted;
@@ -881,11 +924,7 @@ class _ManualRefillBottomSheetState
           ),
           if (isSelected) ...[
             const Spacer(),
-            const Icon(
-              Icons.check_rounded,
-              size: 16,
-              color: AppColors.primary,
-            ),
+            const Icon(Icons.check_rounded, size: 16, color: AppColors.primary),
           ],
         ],
       ),
@@ -934,11 +973,7 @@ class _ManualRefillBottomSheetState
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
-              Icons.sort_rounded,
-              size: 14,
-              color: AppColors.primary,
-            ),
+            const Icon(Icons.sort_rounded, size: 14, color: AppColors.primary),
             const SizedBox(width: 6),
             Text(
               _getSortLabel(_sortBy),
@@ -970,7 +1005,8 @@ class _ManualRefillBottomSheetState
   }) {
     final isData = offer['serviceType'] == 'data';
     final isPin = offer['deliveryType'] == 'pin';
-    final benefitSummary = (offer['benefitSummary'] as String?)?.isNotEmpty == true
+    final benefitSummary =
+        (offer['benefitSummary'] as String?)?.isNotEmpty == true
         ? offer['benefitSummary'] as String
         : (offer['description'] ?? offer['offerId']);
     final durationDays = offer['durationDays'] as int?;
@@ -1126,7 +1162,19 @@ class _ManualRefillBottomSheetState
               ],
             ),
             const SizedBox(height: 8),
-            ApproxLocalText(finalPrice),
+            ApproxLocalText(
+              finalPrice,
+              style: const TextStyle(
+                color: AppColors.textSecondaryDark,
+                fontSize: 12,
+              ),
+            ),
+            const FxChargeNotice(
+              style: TextStyle(
+                color: AppColors.textSecondaryDark,
+                fontSize: 12,
+              ),
+            ),
             const SizedBox(height: 2),
             Text(
               'Base: \$${baseCost.toStringAsFixed(2)} | App Fee ($_tierLabel): \$${appFee.toStringAsFixed(2)}',

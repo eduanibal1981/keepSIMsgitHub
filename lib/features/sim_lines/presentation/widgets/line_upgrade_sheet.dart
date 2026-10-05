@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:keep_sims/core/fx/money.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:keep_sims/features/payments/presentation/screens/paypal_checkout_screen.dart';
 import 'package:keep_sims/core/services/biometric_auth_service.dart';
@@ -11,6 +12,7 @@ import 'package:keep_sims/core/widgets/haptic_helper.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/carrier_rule_model.dart';
 import 'package:keep_sims/features/sim_lines/domain/plan_payment.dart';
+import 'package:keep_sims/features/sim_lines/domain/refill_pricing.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/carrier_activity_notice.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/carrier_rules_sheet.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_liveness_result.dart';
@@ -27,11 +29,7 @@ class LineUpgradeSheet extends ConsumerStatefulWidget {
   final SimLine simLine;
   final String? initialPlan;
 
-  const LineUpgradeSheet({
-    super.key,
-    required this.simLine,
-    this.initialPlan,
-  });
+  const LineUpgradeSheet({super.key, required this.simLine, this.initialPlan});
 
   /// Convenience method to show this sheet.
   static Future<void> show({
@@ -43,10 +41,8 @@ class LineUpgradeSheet extends ConsumerStatefulWidget {
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (context) => LineUpgradeSheet(
-        simLine: simLine,
-        initialPlan: initialPlan,
-      ),
+      builder: (context) =>
+          LineUpgradeSheet(simLine: simLine, initialPlan: initialPlan),
     );
   }
 
@@ -56,11 +52,36 @@ class LineUpgradeSheet extends ConsumerStatefulWidget {
 
 class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
   String? _selectedPlan;
+  PremiumInitialBreakdown? _serverBreakdown;
+
+  bool get _isStandardUpgrade {
+    final currentTier = widget.simLine.protectionTier.trim().toLowerCase();
+    final currentPlan = widget.simLine.planType.trim().toLowerCase();
+    return currentTier == 'standard' || currentPlan == 'standard';
+  }
 
   @override
   void initState() {
     super.initState();
     _selectedPlan = widget.initialPlan;
+    _loadBreakdown();
+  }
+
+  Future<void> _loadBreakdown() async {
+    final carrierId = widget.simLine.carrierId;
+    if (carrierId == null) return;
+    try {
+      final rule = await ref.read(carrierRuleProvider(carrierId).future);
+      if (rule != null && mounted) {
+        final b = await PlanPayment.fetchPremiumBreakdown(
+          carrierRuleId: rule.id,
+          simLineId: widget.simLine.id,
+        );
+        if (mounted && b != null) {
+          setState(() => _serverBreakdown = b);
+        }
+      }
+    } catch (_) {}
   }
 
   // Plan definitions. Prices are NOT stored here: this sheet used to carry a
@@ -121,7 +142,8 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
     final livenessAsync = ref.watch(
       simLivenessValidationProvider(phoneNumber: widget.simLine.phoneNumber),
     );
-    final livenessResult = livenessAsync.value ??
+    final livenessResult =
+        livenessAsync.value ??
         (widget.simLine.isCarrierVerified
             ? SimLivenessResult(
                 isActive: widget.simLine.carrierStatus == 'active',
@@ -141,6 +163,20 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
     } else if (currentTier == 'standard' || currentPlan == 'standard') {
       availablePlans.add('premium');
     }
+
+    final double? displayedWalletChargeUsd = _selectedPlan == 'standard'
+        ? _baseServiceFeeUsd
+        : _selectedPlan == 'premium' &&
+              carrierRule != null &&
+              !isRuleLoading &&
+              !CarrierActivityNotice.blocksPremium(carrierRule)
+        ? (_serverBreakdown?.totalDueNowUsd ??
+            PlanPayment.premiumWalletTotalSync(
+              ref,
+              carrierRule,
+              isUpgrade: _isStandardUpgrade,
+            ))
+        : null;
 
     return Container(
       constraints: BoxConstraints(
@@ -169,16 +205,35 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Drag handle
-              Container(
-                width: 48,
-                height: 4,
-                margin: const EdgeInsets.only(bottom: 20),
-                decoration: BoxDecoration(
-                  color: isDark ? Colors.white24 : Colors.black12,
-                  borderRadius: BorderRadius.circular(2),
-                ),
+              // Drag handle and Close button
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  Container(
+                    width: 48,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: isDark ? Colors.white24 : Colors.black12,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: IconButton(
+                      icon: const Icon(Icons.close_rounded, size: 24),
+                      color: context.onSurfaceColor.withValues(alpha: 0.75),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      tooltip: 'Close',
+                      onPressed: () {
+                        HapticHelper.lightTick();
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ),
+                ],
               ),
+              const SizedBox(height: 12),
 
               // Header icon
               Container(
@@ -269,18 +324,14 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
               // work at all.
               // SimLine carries only carrier_id, so the notice falls back to
               // its generic "This carrier" phrasing here.
-              if (carrierRule != null)
-                CarrierActivityNotice(rule: carrierRule),
+              if (carrierRule != null) CarrierActivityNotice(rule: carrierRule),
 
               // i8: the third purchase surface gets the same link as the form
               // and onboarding. SimLine carries carrier_id but no carrier or
               // country name, so the sheet falls back to its generic phrasing
               // rather than this widget inventing one.
               if (carrierRule != null && widget.simLine.carrierId != null)
-                _buildCarrierRulesLink(
-                  carrierRule,
-                  widget.simLine.carrierId!,
-                ),
+                _buildCarrierRulesLink(carrierRule, widget.simLine.carrierId!),
 
               // Plan selection cards
               ...availablePlans.map((planKey) {
@@ -310,7 +361,6 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
                 duration: const Duration(milliseconds: 200),
                 child: SizedBox(
                   width: double.infinity,
-                  height: 54,
                   child: ElevatedButton(
                     onPressed: _selectedPlan != null
                         ? () async {
@@ -384,18 +434,24 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
                               planExpiresAt: DateTime.now().add(
                                 const Duration(days: 365),
                               ),
-                              isCarrierVerified: livenessResult?.isActive ?? widget.simLine.isCarrierVerified,
-                              carrierStatus: livenessResult?.carrierStatus ?? widget.simLine.carrierStatus,
-                              detectedOperatorName: livenessResult?.detectedOperatorName ?? widget.simLine.detectedOperatorName,
-                              carrierVerifiedAt: livenessResult != null ? DateTime.now() : widget.simLine.carrierVerifiedAt,
+                              isCarrierVerified:
+                                  livenessResult?.isActive ??
+                                  widget.simLine.isCarrierVerified,
+                              carrierStatus:
+                                  livenessResult?.carrierStatus ??
+                                  widget.simLine.carrierStatus,
+                              detectedOperatorName:
+                                  livenessResult?.detectedOperatorName ??
+                                  widget.simLine.detectedOperatorName,
+                              carrierVerifiedAt: livenessResult != null
+                                  ? DateTime.now()
+                                  : widget.simLine.carrierVerifiedAt,
                             );
 
                             Future<void> commitUpgrade() async {
                               try {
                                 await container
-                                    .read(
-                                      simLinesControllerProvider.notifier,
-                                    )
+                                    .read(simLinesControllerProvider.notifier)
                                     .updateSimLine(updatedLine);
                                 container.invalidate(
                                   simLineDetailControllerProvider(
@@ -431,9 +487,7 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
                               } catch (e) {
                                 messenger.showSnackBar(
                                   SnackBar(
-                                    content: Text(
-                                      'Failed to save upgrade: $e',
-                                    ),
+                                    content: Text('Failed to save upgrade: $e'),
                                     backgroundColor: Colors.red,
                                   ),
                                 );
@@ -446,8 +500,15 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
                             // charge, same math as onboarding.
                             final double planFee = double.parse(
                               (tier == 'standard'
-                                      ? await ref.read(baseServiceFeeUsdProvider.future)
-                                      : await PlanPayment.premiumWalletTotal(ref, carrierRule!))
+                                      ? await ref.read(
+                                          baseServiceFeeUsdProvider.future,
+                                        )
+                                      : await PlanPayment.premiumWalletTotal(
+                                          ref,
+                                          carrierRule!,
+                                          simLineId: widget.simLine.id,
+                                          isUpgrade: _isStandardUpgrade,
+                                        ))
                                   .toStringAsFixed(2),
                             );
 
@@ -480,7 +541,9 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
 
                             // Read available wallet balance
                             double walletBalance = 0.0;
-                            final walletRead = await ref.read(walletRepositoryProvider).getWallet();
+                            final walletRead = await ref
+                                .read(walletRepositoryProvider)
+                                .getWallet();
                             if (walletRead case Success(data: final w)) {
                               walletBalance = w.balance;
                             }
@@ -491,11 +554,16 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
                             );
 
                             if (!context.mounted) return;
-                            final authGuard = ref.read(paymentAuthGuardProvider);
-                            final authOk = await authGuard.confirmPaymentInteractive(
-                              context,
-                              reason: 'Authenticate to deposit \$${shortfall.toStringAsFixed(2)} for plan upgrade',
+                            final authGuard = ref.read(
+                              paymentAuthGuardProvider,
                             );
+                            final authOk = await authGuard
+                                .confirmPaymentInteractive(
+                                  context,
+                                  reason:
+                                      'Authenticate to deposit \$${shortfall.toStringAsFixed(2)} for plan upgrade',
+                                  amountPreview: ApproxLocalText(shortfall),
+                                );
                             if (!authOk) {
                               return;
                             }
@@ -506,7 +574,8 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
                               MaterialPageRoute(
                                 builder: (_) => PayPalCheckoutScreen(
                                   initialAmount: shortfall,
-                                  paymentReason: 'Wallet deposit for $planName plan upgrade ($lineNickname)',
+                                  paymentReason:
+                                      'Wallet deposit for $planName plan upgrade ($lineNickname)',
                                   paymentKind: 'deposit',
                                   plan: tier,
                                   simLineId: widget.simLine.id,
@@ -518,18 +587,21 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
                                         atLeast: planFee,
                                       );
 
-                                      final paid = await PlanPayment.tryPlanFromWallet(
-                                        ref,
-                                        plan: tier,
-                                        rule: carrierRule,
-                                        simLineId: widget.simLine.id,
-                                      );
+                                      final paid =
+                                          await PlanPayment.tryPlanFromWallet(
+                                            ref,
+                                            plan: tier,
+                                            rule: carrierRule,
+                                            simLineId: widget.simLine.id,
+                                          );
 
                                       if (paid) {
                                         await commitUpgrade();
                                         messenger.showSnackBar(
                                           SnackBar(
-                                            content: Text(l.planFeePaidFromWallet),
+                                            content: Text(
+                                              l.planFeePaidFromWallet,
+                                            ),
                                             backgroundColor: AppColors.success,
                                           ),
                                         );
@@ -546,7 +618,9 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
                                     } catch (e) {
                                       messenger.showSnackBar(
                                         SnackBar(
-                                          content: Text('Plan upgrade failed: $e'),
+                                          content: Text(
+                                            'Plan upgrade failed: $e',
+                                          ),
                                           backgroundColor: AppColors.error,
                                         ),
                                       );
@@ -558,6 +632,8 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
                           }
                         : null,
                     style: ElevatedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(54),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                       backgroundColor: _selectedPlan == 'premium'
                           ? (isDark
                                 ? const Color(0xFFFFD700)
@@ -586,19 +662,24 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
                           size: 20,
                         ),
                         const SizedBox(width: 8),
-                        Text(
-                          _selectedPlan != null
-                              ? 'Continue to Payment'
-                              : 'Select a plan to continue',
-                          style: AppTextStyles.titleMedium.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: _selectedPlan == 'premium' && isDark
-                                ? Colors.black
-                                : (_selectedPlan != null
-                                      ? Colors.white
-                                      : context.onSurfaceColor.withValues(
-                                          alpha: 0.3,
-                                        )),
+                        Flexible(
+                          child: Text(
+                            _selectedPlan != null
+                                ? displayedWalletChargeUsd == null
+                                      ? 'Continue to Payment'
+                                      : 'Continue to Payment • ${Money.usd(displayedWalletChargeUsd)} USD'
+                                : 'Select a plan to continue',
+                            textAlign: TextAlign.center,
+                            style: AppTextStyles.titleMedium.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: _selectedPlan == 'premium' && isDark
+                                  ? Colors.black
+                                  : (_selectedPlan != null
+                                        ? Colors.white
+                                        : context.onSurfaceColor.withValues(
+                                            alpha: 0.3,
+                                          )),
+                            ),
                           ),
                         ),
                       ],
@@ -641,7 +722,11 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
           // a refusal reads as an offer.
           premiumYearlyTotal: CarrierActivityNotice.blocksPremium(rule)
               ? null
-              : PlanPayment.premiumYearlyTotalSync(ref, rule),
+              : PlanPayment.premiumYearlyTotalSync(
+                  ref,
+                  rule,
+                  isUpgrade: _isStandardUpgrade,
+                ),
         ),
         icon: const Icon(Icons.menu_book_rounded, size: 16),
         label: Text(
@@ -749,23 +834,41 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
                   ),
                 ),
 
-                // Price column — the canonical yearly model (C3c): premium
-                // shows the single all-in charge for the year, standard the
-                // bare service fee.
+                // Price column — canonical model: premium shows initial due today
+                // (annual fee delta + 1st refill), standard shows bare service fee.
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text(
-                      planKey == 'premium' && carrierRule != null
-                          ? '\$${PlanPayment.premiumYearlyTotalSync(ref, carrierRule).toStringAsFixed(2)}'
-                          : '\$${_baseServiceFeeUsd.toStringAsFixed(2)}',
-                      style: AppTextStyles.titleLarge.copyWith(
-                        color: accentColor,
-                        fontWeight: FontWeight.w900,
-                      ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          planKey == 'premium' && carrierRule != null
+                              ? '\$${(_serverBreakdown?.totalDueNowUsd ?? PlanPayment.premiumYearlyTotalSync(ref, carrierRule, isUpgrade: _isStandardUpgrade)).toStringAsFixed(2)}'
+                              : '\$${_baseServiceFeeUsd.toStringAsFixed(2)}',
+                          style: AppTextStyles.titleLarge.copyWith(
+                            color: accentColor,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                        ApproxLocalText(
+                          planKey == 'premium' && carrierRule != null
+                              ? (_serverBreakdown?.totalDueNowUsd ??
+                                  PlanPayment.premiumYearlyTotalSync(
+                                    ref,
+                                    carrierRule,
+                                    isUpgrade: _isStandardUpgrade,
+                                  ))
+                              : _baseServiceFeeUsd,
+                          textAlign: TextAlign.end,
+                        ),
+                      ],
                     ),
                     Text(
-                      '/yr per line',
+                      _isStandardUpgrade && planKey == 'premium'
+                          ? 'upgrade total today'
+                          : '/yr per line',
                       style: AppTextStyles.caption.copyWith(
                         color: context.onSurfaceColor.withValues(alpha: 0.4),
                         fontSize: 10,
@@ -774,7 +877,9 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
                     // Show "+ Refill" for premium if carrier rule exists
                     if (planKey == 'premium' && carrierRule != null)
                       Text(
-                        'incl. ${PlanPayment.premiumRefillPriceSync(ref, carrierRule).toStringAsFixed(2)} ${carrierRule.inappPricingCurrency.toUpperCase()} × ${carrierRule.refillsPerYear} refills',
+                        _isStandardUpgrade
+                            ? 'incl. 1st refill + \$2.50 fee'
+                            : 'incl. 1st refill + \$5.00 fee',
                         style: TextStyle(
                           fontSize: 9,
                           fontWeight: FontWeight.w600,
@@ -827,7 +932,7 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
 
                     // Auto-refill cost info for Premium
                     if (planKey == 'premium') ...[
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 10),
                       if (isRuleLoading)
                         Row(
                           children: [
@@ -851,39 +956,50 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
                             ),
                           ],
                         )
-                      else if (carrierRule != null)
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: accentColor.withValues(alpha: 0.08),
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(
-                              color: accentColor.withValues(alpha: 0.15),
+                      else if (carrierRule != null) ...[
+                        if (_isStandardUpgrade)
+                          Container(
+                            margin: const EdgeInsets.only(bottom: 10),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
                             ),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.autorenew_rounded,
-                                size: 16,
-                                color: accentColor,
+                            decoration: BoxDecoration(
+                              color: isDark
+                                  ? const Color(0x22FFD700)
+                                  : const Color(0x182E7D32),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: accentColor.withValues(alpha: 0.3),
                               ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  'Auto-refill: ${PlanPayment.premiumRefillPriceSync(ref, carrierRule).toStringAsFixed(2)} ${carrierRule.inappPricingCurrency.toUpperCase()} every ${carrierRule.refillIntervalDays} days (telecom, VAT included)',
-                                  style: AppTextStyles.caption.copyWith(
-                                    color: context.onSurfaceColor.withValues(
-                                      alpha: 0.7,
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.card_giftcard_rounded,
+                                  size: 18,
+                                  color: accentColor,
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    'Upgrade Reward: 1 Full Year (365 days) protection granted starting today!',
+                                    style: AppTextStyles.caption.copyWith(
+                                      color: context.onSurfaceColor,
+                                      fontWeight: FontWeight.w600,
                                     ),
-                                    fontWeight: FontWeight.w600,
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        )
-                      else
+                        _buildBreakdownCard(
+                          context: context,
+                          carrierRule: carrierRule,
+                          accentColor: accentColor,
+                          isDark: isDark,
+                        ),
+                      ] else
                         Container(
                           padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
@@ -946,6 +1062,150 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildBreakdownCard({
+    required BuildContext context,
+    required CarrierRule carrierRule,
+    required Color accentColor,
+    required bool isDark,
+  }) {
+    final breakdown = _serverBreakdown ??
+        PlanPayment.premiumBreakdownSync(
+          ref,
+          carrierRule,
+          isUpgrade: _isStandardUpgrade,
+        );
+
+    final refillIntervalDays = breakdown.recurringRefillDays > 0
+        ? breakdown.recurringRefillDays
+        : carrierRule.refillIntervalDays;
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: accentColor.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: accentColor.withValues(alpha: 0.15)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.receipt_long_rounded, size: 16, color: accentColor),
+              const SizedBox(width: 6),
+              Text(
+                'Initial Payment Breakdown',
+                style: AppTextStyles.caption.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: context.onSurfaceColor,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Divider(color: accentColor.withValues(alpha: 0.15), height: 1),
+          const SizedBox(height: 8),
+
+          if (_isStandardUpgrade) ...[
+            _buildBreakdownRow(
+              'Premium Annual Fee',
+              '\$${breakdown.fullAnnualFeeUsd.toStringAsFixed(2)}',
+              context: context,
+            ),
+            _buildBreakdownRow(
+              'Standard Credit (already paid)',
+              '-\$${breakdown.upgradeCreditUsd.toStringAsFixed(2)}',
+              context: context,
+              color: Colors.green,
+            ),
+            _buildBreakdownRow(
+              'Net Upgrade Fee',
+              '\$${breakdown.serviceFeeUsd.toStringAsFixed(2)}',
+              context: context,
+              isBold: true,
+            ),
+          ] else
+            _buildBreakdownRow(
+              'Annual Protection Fee',
+              '\$${breakdown.serviceFeeUsd.toStringAsFixed(2)}',
+              context: context,
+            ),
+
+          const SizedBox(height: 4),
+          _buildBreakdownRow(
+            '1st SIM Recharge (current rate)',
+            '\$${breakdown.firstRefillUsd.toStringAsFixed(2)}',
+            context: context,
+          ),
+          const SizedBox(height: 6),
+          Divider(color: accentColor.withValues(alpha: 0.15), height: 1),
+          const SizedBox(height: 6),
+          _buildBreakdownRow(
+            'Total Due Today',
+            '\$${breakdown.totalDueNowUsd.toStringAsFixed(2)}',
+            context: context,
+            isBold: true,
+            color: accentColor,
+          ),
+          const SizedBox(height: 8),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                Icons.autorenew_rounded,
+                size: 14,
+                color: context.onSurfaceColor.withValues(alpha: 0.5),
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  'Future refills: Pay-per-refill from wallet balance (~every $refillIntervalDays days, subject to carrier rate).',
+                  style: AppTextStyles.caption.copyWith(
+                    color: context.onSurfaceColor.withValues(alpha: 0.6),
+                    fontSize: 10,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBreakdownRow(
+    String label,
+    String amount, {
+    required BuildContext context,
+    bool isBold = false,
+    Color? color,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: AppTextStyles.caption.copyWith(
+              color:
+                  context.onSurfaceColor.withValues(alpha: isBold ? 0.9 : 0.7),
+              fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+            ),
+          ),
+          Text(
+            amount,
+            style: AppTextStyles.caption.copyWith(
+              color: color ??
+                  context.onSurfaceColor.withValues(alpha: isBold ? 1.0 : 0.8),
+              fontWeight: isBold ? FontWeight.bold : FontWeight.w600,
+            ),
+          ),
+        ],
       ),
     );
   }

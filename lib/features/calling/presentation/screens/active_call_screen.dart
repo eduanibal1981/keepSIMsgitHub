@@ -2,6 +2,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:keep_sims/core/fx/money.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -339,19 +340,37 @@ class ActiveCallScreen extends ConsumerWidget {
                                 color: Colors.black.withValues(alpha: 0.3),
                                 borderRadius: BorderRadius.circular(16),
                               ),
-                              child: Text(
-                                isConnected || callState.status == 'completed'
-                                    ? 'Cost: \$${callState.estimatedCost.toStringAsFixed(3)} (@ \$${(rate?.ratePerMinute ?? 0.08).toStringAsFixed(2)}/min)'
-                                    : 'Rate: \$${(rate?.ratePerMinute ?? 0.08).toStringAsFixed(2)}/min (Free while ringing)',
-                                style: TextStyle(
-                                  color:
-                                      isConnected ||
-                                          callState.status == 'completed'
-                                      ? AppColors.secondary
-                                      : Colors.white60,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    isConnected ||
+                                            callState.status == 'completed'
+                                        ? 'Cost: \$${callState.estimatedCost.toStringAsFixed(3)} (@ \$${(rate?.ratePerMinute ?? 0.08).toStringAsFixed(2)}/min)'
+                                        : 'Rate: \$${(rate?.ratePerMinute ?? 0.08).toStringAsFixed(2)}/min (Free while ringing)',
+                                    style: TextStyle(
+                                      color:
+                                          isConnected ||
+                                              callState.status == 'completed'
+                                          ? AppColors.secondary
+                                          : Colors.white60,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  if ((isConnected ||
+                                          callState.status == 'completed') &&
+                                      callState.estimatedCost > 0)
+                                    ApproxLocalRateText(
+                                      callState.estimatedCost,
+                                      minDigits: 3,
+                                      style: const TextStyle(
+                                        color: Colors.amberAccent,
+                                        fontSize: 11,
+                                      ),
+                                    ),
+                                ],
                               ),
                             ),
                           ],
@@ -546,9 +565,13 @@ class _DtmfKeypadSheetState extends ConsumerState<_DtmfKeypadSheet> {
                 height: 44,
                 alignment: Alignment.center,
                 child: Text(
-                  _enteredDigits.isEmpty ? 'Touch-tone dialpad' : _enteredDigits,
+                  _enteredDigits.isEmpty
+                      ? 'Touch-tone dialpad'
+                      : _enteredDigits,
                   style: TextStyle(
-                    color: _enteredDigits.isEmpty ? Colors.white38 : Colors.white,
+                    color: _enteredDigits.isEmpty
+                        ? Colors.white38
+                        : Colors.white,
                     fontSize: _enteredDigits.isEmpty ? 14 : 26,
                     fontWeight: FontWeight.w600,
                     letterSpacing: _enteredDigits.isEmpty ? 0 : 4,

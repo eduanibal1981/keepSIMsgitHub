@@ -48,10 +48,35 @@ export async function dispatchChannels(db: any, p: any, fcm: any) {
     if (error) { outcomes.push({ channel, target: "primary", state: "failed", retryable: true, detail: "Cannot load the channel configuration; no send attempted." }); continue; }
     if (!row && channel !== "push") { outcomes.push({ channel, target: "primary", state: "skipped", detail: "Channel is disabled or unavailable." }); continue; }
     let config = row?.config || {};
-    if (channel === "email" && !config.email_address && !config.email) {
-      const { data: user, error: profileError } = await db.from("profiles").select("email").eq("id", p.user_id).maybeSingle();
-      if (profileError) { outcomes.push({ channel, target: "primary", state: "failed", retryable: true, detail: "Cannot load the account email." }); continue; }
-      config = { ...config, email: user?.email };
+    if (channel === "email") {
+      const { data: destination, error: destinationError } = await db
+        .from("notification_email_destinations").select("email,verified_at")
+        .eq("user_id", p.user_id).maybeSingle();
+      if (destinationError) {
+        outcomes.push({ channel, target: "primary", state: "failed", retryable: true,
+          detail: "Cannot confirm the verified email destination; no send attempted." });
+        continue;
+      }
+      let verifiedAddress = destination?.email || null;
+      if (!verifiedAddress) {
+        const { data: authResult, error: authError } = await db.auth.admin.getUserById(p.user_id);
+        if (authError) {
+          outcomes.push({ channel, target: "primary", state: "failed", retryable: true,
+            detail: "Cannot confirm the account email; no send attempted." });
+          continue;
+        }
+        verifiedAddress = authResult.user?.email_confirmed_at
+          ? authResult.user.email
+          : null;
+      }
+      if (!verifiedAddress) {
+        outcomes.push({ channel, target: "primary", state: "skipped",
+          detail: "A verified email address is required before email alerts can be sent." });
+        continue;
+      }
+      // Ignore the client-editable channel config for email delivery. Only the
+      // service-owned verified destination or confirmed sign-in email is used.
+      config = { email: verifiedAddress, email_address: verifiedAddress };
     }
     const outcome = await deliverTarget(db, p.notification_id, channel, "primary", { ...config, message: p }, async (snapshot) => {
       const { message: p, ...saved } = snapshot;

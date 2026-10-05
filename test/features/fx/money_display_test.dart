@@ -16,7 +16,7 @@ void main() {
     String currency = 'EGP',
     String requestedCurrency = 'EGP',
     double rate = 50.693486,
-    String symbol = 'E£',
+    String symbol = '£',
     int decimalDigits = 2,
     String? asOf = '2026-07-30T00:02:31Z',
     bool stale = false,
@@ -149,24 +149,36 @@ void main() {
 
     test('keeps the minor unit below 100, where it still means something', () {
       final fx = FxContext.fromJson(
-        row(currency: 'EUR', requestedCurrency: 'EUR', rate: 0.875576,
-            symbol: '€'),
+        row(
+          currency: 'EUR',
+          requestedCurrency: 'EUR',
+          rate: 0.875576,
+          symbol: '€',
+        ),
       );
       expect(Money.approxLocal(12.50, fx), '≈ €10.94');
     });
 
     test('groups thousands so a rupee figure stays readable', () {
       final fx = FxContext.fromJson(
-        row(currency: 'INR', requestedCurrency: 'INR', rate: 95.755723,
-            symbol: '₹'),
+        row(
+          currency: 'INR',
+          requestedCurrency: 'INR',
+          rate: 95.755723,
+          symbol: '₹',
+        ),
       );
       expect(Money.approxLocal(50.0, fx), '≈ ₹4,788');
     });
 
     test('spaces letter-only codes and tightens real glyphs', () {
       final aed = FxContext.fromJson(
-        row(currency: 'AED', requestedCurrency: 'AED', rate: 3.6725,
-            symbol: 'AED'),
+        row(
+          currency: 'AED',
+          requestedCurrency: 'AED',
+          rate: 3.6725,
+          symbol: 'AED',
+        ),
       );
       // 'AED 45.91', not 'AED45.91'. Under 100, so the fils survive.
       expect(Money.approxLocal(12.50, aed), '≈ AED 45.91');
@@ -179,8 +191,13 @@ void main() {
 
     test('honours a three-decimal currency', () {
       final fx = FxContext.fromJson(
-        row(currency: 'JOD', requestedCurrency: 'JOD', rate: 0.709,
-            symbol: 'JD', decimalDigits: 3),
+        row(
+          currency: 'JOD',
+          requestedCurrency: 'JOD',
+          rate: 0.709,
+          symbol: 'JD',
+          decimalDigits: 3,
+        ),
       );
       // 12.50 * 0.709 is 8.8625 in decimal but lands a hair below in binary
       // floating point, so this truncates rather than rounding up. That is
@@ -191,8 +208,13 @@ void main() {
 
     test('renders NOTHING for a USD user rather than a redundant line', () {
       final fx = FxContext.fromJson(
-        row(currency: 'USD', requestedCurrency: 'USD', rate: 1, symbol: r'$',
-            fallbackReason: 'base'),
+        row(
+          currency: 'USD',
+          requestedCurrency: 'USD',
+          rate: 1,
+          symbol: r'$',
+          fallbackReason: 'base',
+        ),
       );
       expect(Money.approxLocal(12.50, fx), isNull);
     });
@@ -201,16 +223,26 @@ void main() {
       // A three-week-old rate presented as today's is a number that is simply
       // false. Silence is the correct output.
       final fx = FxContext.fromJson(
-        row(currency: 'USD', rate: 1, symbol: r'$', stale: true,
-            fallbackReason: 'stale'),
+        row(
+          currency: 'USD',
+          rate: 1,
+          symbol: r'$',
+          stale: true,
+          fallbackReason: 'stale',
+        ),
       );
       expect(Money.approxLocal(12.50, fx), isNull);
     });
 
     test('renders NOTHING when the global brake is off', () {
       final fx = FxContext.fromJson(
-        row(enabled: false, currency: 'USD', rate: 1, symbol: r'$',
-            fallbackReason: 'disabled'),
+        row(
+          enabled: false,
+          currency: 'USD',
+          rate: 1,
+          symbol: r'$',
+          fallbackReason: 'disabled',
+        ),
       );
       expect(Money.approxLocal(12.50, fx), isNull);
     });
@@ -227,13 +259,16 @@ void main() {
       expect(Money.approxLocal(0, fx), '≈ E£0.00');
     });
 
-    test('the conversion is exactly one multiplication, never a round trip', () {
-      // If a local->USD helper is ever added, this is the test that should
-      // stop it: display rounding must not be able to travel back into an
-      // amount anyone is charged.
-      final fx = FxContext.fromJson(row(rate: 50.0));
-      expect(Money.approxLocal(2.0, fx), '≈ E£100');
-      expect(Money.approxLocal(0.10, fx), '≈ E£5.00');
-    });
+    test(
+      'the conversion is exactly one multiplication, never a round trip',
+      () {
+        // If a local->USD helper is ever added, this is the test that should
+        // stop it: display rounding must not be able to travel back into an
+        // amount anyone is charged.
+        final fx = FxContext.fromJson(row(rate: 50.0));
+        expect(Money.approxLocal(2.0, fx), '≈ E£100');
+        expect(Money.approxLocal(0.10, fx), '≈ E£5.00');
+      },
+    );
   });
 }

@@ -32,13 +32,23 @@ class PremiumInitialBreakdown {
   final double firstRefillUsd;
   final double totalUsd;
   final int refillIntervalDays;
+  final bool isUpgrade;
+  final double upgradeCreditUsd;
+  final double fullAnnualFeeUsd;
 
   const PremiumInitialBreakdown({
     required this.annualFeeUsd,
     required this.firstRefillUsd,
     required this.totalUsd,
     required this.refillIntervalDays,
+    this.isUpgrade = false,
+    this.upgradeCreditUsd = 0.0,
+    this.fullAnnualFeeUsd = 5.0,
   });
+
+  double get totalDueNowUsd => totalUsd;
+  double get serviceFeeUsd => annualFeeUsd;
+  int get recurringRefillDays => refillIntervalDays;
 }
 
 class RefillPricing {
@@ -179,7 +189,8 @@ class RefillPricing {
   /// Breakdown of the initial Premium checkout: Annual fee + 1st SIM recharge.
   /// Subsequent refills are billed from the wallet only when due.
   static PremiumInitialBreakdown premiumInitialBreakdown({
-    required double baseServiceFeeUsd,
+    double baseServiceFeeUsd = 2.50,
+    double premiumFeeUsd = 5.00,
     required double minimumTopupAmount,
     required int inactivityLimitDays,
     int? refillIntervalDaysOverride,
@@ -187,6 +198,8 @@ class RefillPricing {
     required double premiumMarginPercent,
     required double premiumMarginPerRefillUsd,
     double? inappPricingOverride,
+    bool isUpgrade = false,
+    double upgradeCreditUsd = 2.50,
   }) {
     final perRefill = round2(
       premiumRefillPrice(
@@ -201,18 +214,25 @@ class RefillPricing {
       inactivityLimitDays,
       override: refillIntervalDaysOverride,
     );
+    final effectiveFee = isUpgrade
+        ? round2((premiumFeeUsd - upgradeCreditUsd).clamp(0.0, double.infinity))
+        : round2(premiumFeeUsd);
     return PremiumInitialBreakdown(
-      annualFeeUsd: round2(baseServiceFeeUsd),
+      annualFeeUsd: effectiveFee,
       firstRefillUsd: perRefill,
-      totalUsd: round2(baseServiceFeeUsd + perRefill),
+      totalUsd: round2(effectiveFee + perRefill),
       refillIntervalDays: interval,
+      isUpgrade: isUpgrade,
+      upgradeCreditUsd: isUpgrade ? upgradeCreditUsd : 0.0,
+      fullAnnualFeeUsd: round2(premiumFeeUsd),
     );
   }
 
   /// The initial up-front charge for Premium onboarding (Annual fee + 1st SIM recharge).
   /// Future scheduled refills are billed individually from the wallet as they fall due.
   static double premiumYearlyTotal({
-    required double baseServiceFeeUsd,
+    double baseServiceFeeUsd = 2.50,
+    double premiumFeeUsd = 5.00,
     required double minimumTopupAmount,
     required int inactivityLimitDays,
     int? refillIntervalDaysOverride,
@@ -222,6 +242,8 @@ class RefillPricing {
     required double gatewayFeePercentage,
     required double gatewayFeeFixed,
     double? inappPricingOverride,
+    bool isUpgrade = false,
+    double upgradeCreditUsd = 2.50,
   }) {
     final perRefill = premiumRefillPrice(
       minimumTopupAmount: minimumTopupAmount,
@@ -230,8 +252,11 @@ class RefillPricing {
       premiumMarginPerRefillUsd: premiumMarginPerRefillUsd,
       inappPricingOverride: inappPricingOverride,
     );
+    final effectiveFee = isUpgrade
+        ? (premiumFeeUsd - upgradeCreditUsd).clamp(0.0, double.infinity)
+        : premiumFeeUsd;
     // PAY-PER-REFILL: 1st refill + annual service fee
-    final net = baseServiceFeeUsd + perRefill;
+    final net = effectiveFee + perRefill;
 
     return grossUpTotal(
       net: net,

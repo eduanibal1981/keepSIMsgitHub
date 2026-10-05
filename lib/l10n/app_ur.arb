@@ -996,5 +996,8 @@
     "refreshSims": "سمز ریفریش کریں",
     "noMatchingSims": "کوئی مماثل سم نہیں",
     "tryDifferentSimSearch": "کوئی دوسرا نام، نمبر یا فلٹر آزمائیں۔",
-    "clearSearchAndFilters": "تلاش اور فلٹرز صاف کریں"
+    "clearSearchAndFilters": "تلاش اور فلٹرز صاف کریں",
+  "fxChargesInUsd": "{currency} کی رقم تخمینی ہے۔ چارجز USD میں لیے جاتے ہیں۔",
+  "fxCurrencySaveFailed": "ڈسپلے کرنسی محفوظ نہیں ہو سکی۔ دوبارہ کوشش کریں۔",
+  "fxAnnualProtectionFee": "سالانہ تحفظ کی فیس"
 }

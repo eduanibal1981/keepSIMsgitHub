@@ -478,13 +478,20 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                   ),
                 ),
                 const SizedBox(height: 2),
-                Text(
-                  'Your balance is below \$10.00. Scheduled SIM topups may fail soon.',
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: context.isDarkMode
-                        ? Colors.yellow
-                        : AppColors.textSecondaryLight,
-                  ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Your balance is below \$10.00. Scheduled SIM topups may fail soon.',
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: context.isDarkMode
+                            ? Colors.yellow
+                            : AppColors.textSecondaryLight,
+                      ),
+                    ),
+                    const ApproxLocalText(10),
+                  ],
                 ),
               ],
             ),
@@ -593,6 +600,76 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
               ),
             ),
           ],
+        ),
+        const SizedBox(height: 12),
+        InkWell(
+          onTap: () async {
+            await HapticHelper.lightTick();
+            if (context.mounted) {
+              context.push('/settings/payments');
+            }
+          },
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            decoration: BoxDecoration(
+              color: context.isDarkMode ? AppColors.darkSurface : Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: context.isDarkMode
+                    ? AppColors.darkBorder
+                    : AppColors.lightBorder,
+                width: 1,
+              ),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFEC4899).withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.credit_card_rounded,
+                    color: Color(0xFFEC4899),
+                    size: 22,
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Payment Methods & Cards',
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          color: context.isDarkMode
+                              ? AppColors.textPrimaryDark
+                              : AppColors.textPrimaryLight,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Manage credit/debit cards & auto-pay funding',
+                        style: AppTextStyles.caption.copyWith(
+                          color: context.isDarkMode
+                              ? AppColors.textSecondaryDark
+                              : AppColors.textSecondaryLight,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  size: 16,
+                  color: context.isDarkMode ? Colors.white38 : Colors.black26,
+                ),
+              ],
+            ),
+          ),
         ),
       ],
     );
@@ -822,7 +899,8 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
     final isDeposit = tx.type == 'deposit' || tx.type == 'auto_fund';
     final isReferral = tx.type == 'referral' || tx.type == 'referral_credit';
     final isRefund = tx.type == 'refund';
-    final isSetupRefill = tx.metadata?['order_type'] == 'setup_refill' ||
+    final isSetupRefill =
+        tx.metadata?['order_type'] == 'setup_refill' ||
         (tx.description != null &&
             tx.description!.toLowerCase().contains('setup refill'));
 
@@ -898,8 +976,11 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                         (isDeposit
                             ? AppLocalizations.of(context)!.depositFunds
                             : (isSetupRefill
-                                ? (AppLocalizations.of(context)?.setupRefill ?? 'Setup Refill')
-                                : 'Line Renewal')),
+                                  ? (AppLocalizations.of(
+                                          context,
+                                        )?.setupRefill ??
+                                        'Setup Refill')
+                                  : 'Line Renewal')),
                     style: AppTextStyles.titleMedium.copyWith(
                       color: isDark
                           ? AppColors.textPrimaryDark
@@ -975,33 +1056,33 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
     }
 
     Widget row(String label, String value, {bool bold = false}) => Padding(
-          padding: const EdgeInsets.symmetric(vertical: 6),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                label,
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: isDark
-                      ? AppColors.textSecondaryDark
-                      : AppColors.textSecondaryLight,
-                ),
-              ),
-              Flexible(
-                child: Text(
-                  value,
-                  textAlign: TextAlign.end,
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: isDark
-                        ? AppColors.textPrimaryDark
-                        : AppColors.textPrimaryLight,
-                    fontWeight: bold ? FontWeight.bold : FontWeight.normal,
-                  ),
-                ),
-              ),
-            ],
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: isDark
+                  ? AppColors.textSecondaryDark
+                  : AppColors.textSecondaryLight,
+            ),
           ),
-        );
+          Flexible(
+            child: Text(
+              value,
+              textAlign: TextAlign.end,
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: isDark
+                    ? AppColors.textPrimaryDark
+                    : AppColors.textPrimaryLight,
+                fontWeight: bold ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
 
     showModalBottomSheet(
       context: context,
@@ -1035,10 +1116,23 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
               ],
             ),
             const SizedBox(height: 14),
-            row(tx.type == 'deposit' || tx.type == 'auto_fund' ? 'Amount credited' : 'Amount', money(tx.amount), bold: true),
-            if (meta['order_type'] == 'setup_refill') row('Order Type', AppLocalizations.of(context)?.setupRefill ?? 'Setup Refill'),
-            if (meta['order_type'] != null && meta['order_type'] != 'setup_refill') row('Order Type', '${meta['order_type']}'),
-            if (meta['gross'] != null) row('Gross payment', money(meta['gross'])),
+            row(
+              tx.type == 'deposit' || tx.type == 'auto_fund'
+                  ? 'Amount credited'
+                  : 'Amount',
+              money(tx.amount),
+              bold: true,
+            ),
+            if (meta['order_type'] == 'setup_refill')
+              row(
+                'Order Type',
+                AppLocalizations.of(context)?.setupRefill ?? 'Setup Refill',
+              ),
+            if (meta['order_type'] != null &&
+                meta['order_type'] != 'setup_refill')
+              row('Order Type', '${meta['order_type']}'),
+            if (meta['gross'] != null)
+              row('Gross payment', money(meta['gross'])),
             if (meta['paypal_fee'] != null)
               row('Gateway fee', money(meta['paypal_fee'])),
             if (meta['net'] != null) row('Net payout', money(meta['net'])),
@@ -1191,4 +1285,3 @@ class AnalyticsChartPainter extends CustomPainter {
     return false;
   }
 }
-

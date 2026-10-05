@@ -996,5 +996,8 @@
     "refreshSims": "সিম রিফ্রেশ করুন",
     "noMatchingSims": "কোনো মিলে যাওয়া সিম নেই",
     "tryDifferentSimSearch": "ভিন্ন কোনো নাম, নম্বর বা ফিল্টার দিয়ে চেষ্টা করুন।",
-    "clearSearchAndFilters": "অনুসন্ধান ও ফিল্টার মুছুন"
+    "clearSearchAndFilters": "অনুসন্ধান ও ফিল্টার মুছুন",
+  "fxChargesInUsd": "{currency}-এর পরিমাণ আনুমানিক। চার্জ USD-তে নেওয়া হয়।",
+  "fxCurrencySaveFailed": "প্রদর্শনের মুদ্রা সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।",
+  "fxAnnualProtectionFee": "বার্ষিক সুরক্ষা ফি"
 }

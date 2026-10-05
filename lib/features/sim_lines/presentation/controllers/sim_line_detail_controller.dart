@@ -1,12 +1,10 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
-import 'package:keep_sims/features/sim_lines/data/repositories/sim_lines_repository_impl.dart';
 import 'package:keep_sims/features/scheduled_topups/model/scheduled_topup_model.dart';
 import 'package:keep_sims/features/scheduled_topups/model/topup_execution_model.dart';
 import 'package:keep_sims/features/scheduled_topups/controller/scheduled_topup_controller.dart';
 import 'package:keep_sims/features/sim_lines/data/models/line_activity_log_model.dart';
-import 'package:keep_sims/features/sim_lines/presentation/providers/usage_forecast_provider.dart';
 import 'package:keep_sims/core/result.dart';
 
 part 'sim_line_detail_controller.g.dart';
@@ -130,18 +128,12 @@ class SimLineDetailController extends _$SimLineDetailController {
     double? amount,
     String? note,
   }) async {
-    final repo = ref.read(simLinesRepositoryProvider);
-    await repo.recordManualExternalRecharge(
+    await ref.read(simLinesControllerProvider.notifier).recordManualRecharge(
       simLineId: id,
       rechargeDate: rechargeDate,
       amount: amount,
       note: note,
     );
     ref.invalidateSelf();
-    ref.invalidate(simLinesControllerProvider);
-    ref.invalidate(topupExecutionsForLineProvider(id));
-    ref.invalidate(simLineActivityLogsProvider(id));
-    ref.invalidate(simLineExecutionsHistoryProvider(id));
-    ref.invalidate(usageForecastForLineProvider(id));
   }
 }

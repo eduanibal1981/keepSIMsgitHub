@@ -1,16 +1,17 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import 'package:keep_sims/features/notifications/data/models/alert_setting_model.dart';
 import 'package:keep_sims/features/notifications/data/models/user_preferences_model.dart';
+import 'package:keep_sims/core/services/biometric_auth_service.dart';
 import 'package:keep_sims/features/notifications/data/repositories/notifications_repository_impl.dart';
 
 part 'notification_settings_controller.g.dart';
 
-final weeklyDigestConsentProvider = FutureProvider<bool>((ref) =>
-    ref.watch(notificationsRepositoryProvider).hasWeeklyDigestConsent());
+final weeklyDigestConsentProvider = FutureProvider<bool>(
+  (ref) => ref.watch(notificationsRepositoryProvider).hasWeeklyDigestConsent(),
+);
 
 @riverpod
 class AlertSettingsController extends _$AlertSettingsController {
@@ -155,6 +156,13 @@ class UserPreferencesController extends _$UserPreferencesController {
     await updatePreferences(current.copyWith(transactionPinHash: hashed));
   }
 
+  /// Clears and removes the transaction PIN.
+  Future<void> clearTransactionPin() async {
+    final current = state.value;
+    if (current == null) return;
+    await updatePreferences(current.copyWith(transactionPinHash: null));
+  }
+
   /// Updates the application theme.
   Future<void> updateTheme(String theme) async {
     final current = state.value;
@@ -169,14 +177,7 @@ class UserPreferencesController extends _$UserPreferencesController {
     await updatePreferences(current.copyWith(language: language));
   }
 
-  String _hashPin(String pin) {
-    final bytes = utf8.encode('${pin}SIM_SHIELD_SALT_2026');
-    var hash = 0;
-    for (var byte in bytes) {
-      hash = (hash * 31 + byte) & 0xFFFFFFFF;
-    }
-    return hash.toRadixString(16);
-  }
+  String _hashPin(String pin) => hashTransactionPin(pin);
 }
 
 @riverpod
@@ -198,7 +199,9 @@ class NotificationChannelsController extends _$NotificationChannelsController {
     final matchIndex = currentList.indexWhere(
       (c) => c['channel_type'] == channelType,
     );
-    if (matchIndex == -1) return;
+    if (matchIndex == -1) {
+      throw StateError('Channel unavailable. Reload your preferences.');
+    }
 
     final updatedChannel = Map<String, dynamic>.from(currentList[matchIndex]);
     updatedChannel['is_enabled'] = isEnabled;
@@ -207,7 +210,9 @@ class NotificationChannelsController extends _$NotificationChannelsController {
     newList[matchIndex] = updatedChannel;
     state = AsyncData(newList);
 
-    final updatedConfig = Map<String, dynamic>.from(updatedChannel['config'] ?? {});
+    final updatedConfig = Map<String, dynamic>.from(
+      updatedChannel['config'] ?? {},
+    );
     if (channelType == 'email' && isEnabled) {
       final currentEmail = (updatedConfig['email'] as String?)?.trim();
       if (currentEmail == null || currentEmail.isEmpty) {
@@ -226,6 +231,7 @@ class NotificationChannelsController extends _$NotificationChannelsController {
         isEnabled: isEnabled,
         config: updatedConfig,
       );
+      ref.invalidateSelf();
     } catch (_) {
       ref.invalidateSelf();
       rethrow;
@@ -242,7 +248,9 @@ class NotificationChannelsController extends _$NotificationChannelsController {
     final matchIndex = currentList.indexWhere(
       (c) => c['channel_type'] == channelType,
     );
-    if (matchIndex == -1) return;
+    if (matchIndex == -1) {
+      throw StateError('Channel unavailable. Reload your preferences.');
+    }
 
     final updatedChannel = Map<String, dynamic>.from(currentList[matchIndex]);
     updatedChannel['config'] = config;
@@ -257,6 +265,7 @@ class NotificationChannelsController extends _$NotificationChannelsController {
         isEnabled: updatedChannel['is_enabled'] ?? false,
         config: config,
       );
+      ref.invalidateSelf();
     } catch (_) {
       ref.invalidateSelf();
       rethrow;
@@ -265,7 +274,9 @@ class NotificationChannelsController extends _$NotificationChannelsController {
 }
 
 @riverpod
-Future<Map<String, Map<String, dynamic>>> notificationChannelCatalog(Ref ref) async {
+Future<Map<String, Map<String, dynamic>>> notificationChannelCatalog(
+  Ref ref,
+) async {
   final repo = ref.watch(notificationsRepositoryProvider);
   return repo.getChannelCatalog();
 }

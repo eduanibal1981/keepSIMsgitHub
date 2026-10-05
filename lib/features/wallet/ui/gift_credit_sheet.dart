@@ -11,6 +11,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:keep_sims/core/fx/money.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
@@ -197,7 +198,10 @@ class _GiftCreditSheetState extends ConsumerState<GiftCreditSheet> {
                   children: quickPicks
                       .map(
                         (email) => ActionChip(
-                          avatar: const Icon(Icons.people_alt_rounded, size: 16),
+                          avatar: const Icon(
+                            Icons.people_alt_rounded,
+                            size: 16,
+                          ),
                           label: Text(
                             email,
                             style: AppTextStyles.caption,
@@ -241,6 +245,7 @@ class _GiftCreditSheetState extends ConsumerState<GiftCreditSheet> {
                   border: OutlineInputBorder(),
                 ),
               ),
+              ApproxLocalAmountPreview(_amountController),
               const SizedBox(height: 14),
               TextField(
                 controller: _noteController,
@@ -276,7 +281,8 @@ class _GiftCreditSheetState extends ConsumerState<GiftCreditSheet> {
                       ),
                       // A refusal that came back with a number is a correction
                       // the user can take in one tap, not a dead end.
-                      if (_suggestedAmount != null && _suggestedAmount! > 0) ...[
+                      if (_suggestedAmount != null &&
+                          _suggestedAmount! > 0) ...[
                         const SizedBox(height: 6),
                         TextButton(
                           style: TextButton.styleFrom(
@@ -320,7 +326,20 @@ class _GiftCreditSheetState extends ConsumerState<GiftCreditSheet> {
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : const Icon(Icons.send_rounded),
-                  label: Text(_busy ? 'Sending…' : 'Send credit'),
+                  label: ValueListenableBuilder<TextEditingValue>(
+                    valueListenable: _amountController,
+                    builder: (context, value, _) {
+                      final amount = double.tryParse(value.text.trim());
+                      return Text(
+                        _busy
+                            ? 'Sending…'
+                            : amount != null && amount.isFinite && amount > 0
+                            ? 'Send ${Money.usd(amount)} USD'
+                            : 'Send credit',
+                        textAlign: TextAlign.center,
+                      );
+                    },
+                  ),
                   style: FilledButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),

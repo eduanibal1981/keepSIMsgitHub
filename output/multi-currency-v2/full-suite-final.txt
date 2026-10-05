@@ -1,0 +1,785 @@
+00:00 +0: loading C:/Users/abdal/Work/KeepSIMs/keep_sims/test/core/services/auth_session_manager_test.dart
+00:00 +0: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/core/utils/phone_number_validator_test.dart: PhoneNumberValidator Oman (+968) Tests Validates Friendi Mobile Oman starting with 79
+00:00 +1: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/core/utils/phone_number_validator_test.dart: PhoneNumberValidator Oman (+968) Tests Validates Friendi Mobile Oman starting with 98
+00:00 +2: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/core/utils/phone_number_validator_test.dart: PhoneNumberValidator Oman (+968) Tests Validates Omantel starting with 90 (e.g. 90634453)
+00:00 +3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/core/services/auth_session_manager_test.dart: AuthSessionManager — isJwtExpiredError identifies PostgrestException with JWT expired message
+00:00 +4: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/core/services/auth_session_manager_test.dart: AuthSessionManager — isJwtExpiredError identifies PostgrestException with JWT expired message
+00:00 +5: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/core/services/auth_session_manager_test.dart: AuthSessionManager — isJwtExpiredError identifies PostgrestException with JWT expired message
+00:00 +6: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/core/services/auth_session_manager_test.dart: AuthSessionManager — isJwtExpiredError identifies PostgrestException with JWT expired message
+00:00 +7: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/core/services/auth_session_manager_test.dart: AuthSessionManager — isJwtExpiredError identifies PostgrestException with JWT expired message
+00:00 +8: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/core/utils/phone_number_validator_test.dart: PhoneNumberValidator Oman (+968) Tests Rejects invalid digit length for Oman
+00:00 +9: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/core/services/auth_session_manager_test.dart: AuthSessionManager — isJwtExpiredError identifies PostgrestException with token in message
+00:00 +10: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/core/utils/phone_number_validator_test.dart: PhoneNumberValidator Oman (+968) Tests Validates full E.164 +96879761061 when dialingCode is omitted
+00:00 +11: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/core/services/auth_session_manager_test.dart: AuthSessionManager — isJwtExpiredError identifies PostgrestException with PGRST301 code
+00:00 +12: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/core/utils/phone_number_validator_test.dart: PhoneNumberValidator Oman (+968) Tests Validates full E.164 +96890634453 when dialingCode is omitted
+00:00 +13: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/core/services/auth_session_manager_test.dart: AuthSessionManager — isJwtExpiredError identifies PostgrestException with 401 code
+00:00 +14: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/core/services/auth_session_manager_test.dart: AuthSessionManager — isJwtExpiredError identifies FunctionException with jwt in reasonPhrase
+00:00 +15: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/core/services/auth_session_manager_test.dart: AuthSessionManager — isJwtExpiredError identifies generic Exception with JWT expired text
+00:00 +16: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/core/services/auth_session_manager_test.dart: AuthSessionManager — isJwtExpiredError returns false for unrelated errors
+00:00 +17: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/core/services/auth_session_manager_test.dart: AuthSessionManager — isSessionExpiredOrExpiring returns false when currentSession is null
+00:00 +18: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/core/services/auth_session_manager_test.dart: AuthSessionManager — isSessionExpiredOrExpiring returns true when session.isExpired is true
+00:00 +19: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/core/services/auth_session_manager_test.dart: AuthSessionManager — isSessionExpiredOrExpiring returns true when expiresAt is within buffer (e.g. 30 seconds)
+00:00 +20: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/core/services/auth_session_manager_test.dart: AuthSessionManager — isSessionExpiredOrExpiring returns false when expiresAt is far in the future
+00:00 +21: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/core/services/auth_session_manager_test.dart: AuthSessionManager — ensureFreshSession returns false when session is null without refreshing
+00:00 +22: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/core/services/auth_session_manager_test.dart: AuthSessionManager — ensureFreshSession returns true when session is fresh and force is false
+00:00 +23: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/core/services/auth_session_manager_test.dart: AuthSessionManager — ensureFreshSession calls refreshSession and returns true when session is expired
+00:00 +24: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/core/services/auth_session_manager_test.dart: AuthSessionManager — ensureFreshSession de-duplicates concurrent refresh calls (mutex single-flight)
+00:00 +25: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/core/services/auth_session_manager_test.dart: AuthSessionManager — ensureFreshSession signs out and returns false when refresh token is invalid or revoked
+00:00 +26: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/core/services/auth_session_manager_test.dart: AuthSessionManager — ensureFreshSession returns false without signing out on transient network error
+00:00 +27: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/core/services/auth_session_manager_test.dart: AuthSessionManager — withAuthRecovery returns action result directly on success
+00:00 +28: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/core/services/auth_session_manager_test.dart: AuthSessionManager — withAuthRecovery retries and succeeds when first call throws JWT expired
+00:01 +29: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/caller_id_policy_test.dart: International Calling: Caller ID & Route Policy Verification 1. Gateway to Oman preserves gateway; explicit gateway selection wins over verified default
+00:01 +30: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/caller_id_policy_test.dart: International Calling: Caller ID & Route Policy Verification 2. External verified Oman identity to different Oman destination detects unsupported carrier route and suggests gateway
+00:01 +31: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/caller_id_policy_test.dart: International Calling: Caller ID & Route Policy Verification 3. Self-dialing never silently substitutes caller ID; prompts gateway selection
+00:01 +32: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/caller_id_policy_test.dart: International Calling: Caller ID & Route Policy Verification 4. Supported verified-ID cross-border routes (e.g. US/Canada/UK) remain selectable
+00:01 +33: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/caller_id_policy_test.dart: International Calling: Caller ID & Route Policy Verification 5. Unowned or unverified caller IDs cannot be accepted as outbound identity
+00:01 +34: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/caller_id_policy_test.dart: International Calling: Caller ID & Route Policy Verification 6. HTTP 200 does not display ringing prematurely; retains initiating until alerting
+00:01 +35: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/caller_id_policy_test.dart: International Calling: Caller ID & Route Policy Verification 7. Observed 603/user_busy classifies as declined with $0 charge; true busy and no_answer remain distinct
+00:01 +36: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/caller_id_policy_test.dart: International Calling: Caller ID & Route Policy Verification 8. Final 603 status survives later user hangup; completed is terminal in UI and cannot be reopened by late events
+00:01 +37: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/caller_id_policy_test.dart: International Calling: Caller ID & Route Policy Verification 9. Ed25519 webhook security fails closed if key or signature is invalid
+00:01 +38: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/caller_id_policy_test.dart: International Calling: Caller ID & Route Policy Verification 10. Atomic default selection allows at most one default verified number per user
+00:01 +39: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/caller_id_policy_test.dart: International Calling: Caller ID & Route Policy Verification 11. Answered calls bill strictly on answered duration once; unanswered fixtures never debit
+00:01 +40: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/caller_id_policy_test.dart: International Calling: Caller ID & Route Policy Verification 12. Call rate per-second calculation and country flag formatting
+00:06 +41: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/calling_mode_switcher_test.dart: CallingModeSwitcher renders all 3 modes and badges
+00:06 +42: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/calling_mode_switcher_test.dart: CallingModeSwitcher renders all 3 modes and badges
+00:06 +43: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/calling_mode_switcher_test.dart: CallingModeSwitcher renders all 3 modes and badges
+00:07 +44: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/calling_mode_switcher_test.dart: CallingModeSwitcher renders all 3 modes and badges
+00:07 +45: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/calling_mode_switcher_test.dart: CallingModeSwitcher renders all 3 modes and badges
+00:07 +46: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/calling_mode_switcher_test.dart: CallingModeSwitcher renders all 3 modes and badges
+00:07 +47: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/calling_mode_switcher_test.dart: CallingModeSwitcher renders all 3 modes and badges
+00:07 +48: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/calling_mode_switcher_test.dart: CallingModeSwitcher renders all 3 modes and badges
+00:07 +49: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/calling_mode_switcher_test.dart: CallingModeSwitcher renders all 3 modes and badges
+00:07 +50: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/calling_mode_switcher_test.dart: CallingModeSwitcher renders all 3 modes and badges
+00:07 +51: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/dtmf_keypad_test.dart: ActiveCallScreen renders Keypad button and opens DTMF dialpad
+00:07 +52: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/dtmf_keypad_test.dart: ActiveCallScreen renders Keypad button and opens DTMF dialpad
+00:09 +53: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/dtmf_keypad_test.dart: ActiveCallScreen renders Keypad button and opens DTMF dialpad
+00:09 +54: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/my_numbers_screen_test.dart: MyNumbersScreen updates MMI code when selecting Reliance Jio
+00:10 +55: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/my_numbers_screen_test.dart: MyNumbersScreen does not overflow on narrow mobile screens (360x800)
+00:11 +56: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/rate_savings_calculator_test.dart: RateSavingsCalculatorWidget computes accurate carrier vs KeepSIMs savings
+00:12 +57: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/rate_savings_calculator_test.dart: RateSavingsCalculatorWidget computes accurate carrier vs KeepSIMs savings
+00:12 +58: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/rate_savings_calculator_test.dart: RateSavingsCalculatorWidget computes accurate carrier vs KeepSIMs savings
+00:12 +59: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/rate_savings_calculator_test.dart: RateSavingsCalculatorWidget computes accurate carrier vs KeepSIMs savings
+00:12 +60: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/rate_savings_calculator_test.dart: RateSavingsCalculatorWidget computes accurate carrier vs KeepSIMs savings
+00:12 +61: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/rate_savings_calculator_test.dart: RateSavingsCalculatorWidget computes accurate carrier vs KeepSIMs savings
+00:12 +62: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/rate_savings_calculator_test.dart: RateSavingsCalculatorWidget computes accurate carrier vs KeepSIMs savings
+00:13 +63: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/rate_savings_calculator_test.dart: RateSavingsCalculatorWidget computes accurate carrier vs KeepSIMs savings
+00:13 +64: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/roaming_forwarding_wizard_test.dart: RoamingForwardingWizardSheet renders correct GSM MMI codes and DID
+00:13 +65: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/roaming_forwarding_wizard_test.dart: RoamingForwardingWizardSheet renders correct GSM MMI codes and DID
+00:13 +66: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/smart_call_dialer_controller_test.dart: SmartCallDialerNotifier Unit Tests 3. Quote race protection: stale Quote A arriving after Quote B is discarded
+00:14 +67: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/smart_call_dialer_controller_test.dart: SmartCallDialerNotifier Unit Tests 3. Quote race protection: stale Quote A arriving after Quote B is discarded
+00:14 +68: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/smart_call_dialer_controller_test.dart: SmartCallDialerNotifier Unit Tests 3. Quote race protection: stale Quote A arriving after Quote B is discarded
+00:14 +69: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/smart_call_navigation_test.dart: SmartCallNavigation renders all 6 navigation destinations
+00:15 +70: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/smart_call_navigation_test.dart: SmartCallNavigation renders all 6 navigation destinations
+00:15 +71: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/smart_call_navigation_test.dart: SmartCallNavigation renders all 6 navigation destinations
+00:15 +72: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/smart_call_navigation_test.dart: SmartCallNavigation renders all 6 navigation destinations
+00:15 +73: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/smart_call_navigation_test.dart: SmartCallNavigation renders all 6 navigation destinations
+00:15 +74: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/smart_call_navigation_test.dart: SmartCallNavigation renders all 6 navigation destinations
+00:16 +75: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/smart_call_savings_screen_test.dart: SmartCallSavingsScreen renders destination rate and computes savings
+00:17 +76: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/smart_call_savings_screen_test.dart: SmartCallSavingsScreen renders destination rate and computes savings
+00:18 +77: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/calling/smart_call_savings_screen_test.dart: SmartCallSavingsScreen renders destination rate and computes savings
+00:18 +78: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +79: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +80: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +81: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +82: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +83: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +84: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +85: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +86: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +87: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +88: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +89: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +90: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +91: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +92: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +93: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +94: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +95: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +96: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +97: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +98: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +99: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +100: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +101: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +102: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +103: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +104: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +105: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:19 +106: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:20 +107: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:20 +108: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: gift previews preserve USD typing and commit labels
+00:21 +109: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: gift previews preserve USD typing and commit labels
+00:21 +110: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: gift previews preserve USD typing and commit labels
+00:22 +111: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: gift previews preserve USD typing and commit labels
+00:22 +112: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: gift previews preserve USD typing and commit labels
+00:22 +113: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: gift previews preserve USD typing and commit labels
+00:22 +114: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: gift previews preserve USD typing and commit labels
+00:22 +115: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: gift previews preserve USD typing and commit labels
+00:22 +116: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: data sizes are drawn from the catalogue in 1000-MB GB
+00:22 +117: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: data sizes are drawn from the catalogue in 1000-MB GB
+00:23 +118: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: data sizes are drawn from the catalogue in 1000-MB GB
+00:23 +119: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: refund previews preserve USD typing and commit labels
+00:23 +120: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: an empty price box stays null and is not read as zero
+00:24 +121: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: an empty price box stays null and is not read as zero
+00:24 +122: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: an empty price box stays null and is not read as zero
+00:24 +123: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: eSIM stale price hides estimates
+00:24 +124: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: eSIM stale price hides estimates
+00:24 +125: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: eSIM stale price hides estimates
+00:24 +126: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: eSIM stale price hides estimates
+00:24 +127: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: eSIM stale price hides estimates
+00:24 +128: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: eSIM stale price hides estimates
+00:24 +129: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: eSIM stale price hides estimates
+00:24 +130: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: speed choices are hidden until Unlimited is selected, explain exact speed, and clear on mode switch
+00:24 +131: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: speed choices are hidden until Unlimited is selected, explain exact speed, and clear on mode switch
+00:24 +132: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: speed choices are hidden until Unlimited is selected, explain exact speed, and clear on mode switch
+00:24 +133: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: speed choices are hidden until Unlimited is selected, explain exact speed, and clear on mode switch
+00:24 +134: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: speed choices are hidden until Unlimited is selected, explain exact speed, and clear on mode switch
+00:24 +135: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: speed choices are hidden until Unlimited is selected, explain exact speed, and clear on mode switch
+00:24 +136: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: speed choices are hidden until Unlimited is selected, explain exact speed, and clear on mode switch
+00:24 +137: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: speed choices are hidden until Unlimited is selected, explain exact speed, and clear on mode switch
+00:24 +138: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: speed choices are hidden until Unlimited is selected, explain exact speed, and clear on mode switch
+00:24 +139: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: speed choices are hidden until Unlimited is selected, explain exact speed, and clear on mode switch
+00:24 +140: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: speed choices are hidden until Unlimited is selected, explain exact speed, and clear on mode switch
+00:24 +141: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: speed choices are hidden until Unlimited is selected, explain exact speed, and clear on mode switch
+00:24 +142: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: speed choices are hidden until Unlimited is selected, explain exact speed, and clear on mode switch
+00:24 +143: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: speed choices are hidden until Unlimited is selected, explain exact speed, and clear on mode switch
+00:24 +144: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: speed choices are hidden until Unlimited is selected, explain exact speed, and clear on mode switch
+00:24 +145: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: speed choices are hidden until Unlimited is selected, explain exact speed, and clear on mode switch
+00:24 +146: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: speed choices are hidden until Unlimited is selected, explain exact speed, and clear on mode switch
+00:24 +147: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: speed choices are hidden until Unlimited is selected, explain exact speed, and clear on mode switch
+00:25 +148: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: PayPal presets keep USD selection and input with local estimates
+[Analytics] Consent check error: 'package:supabase_flutter/src/supabase.dart': Failed assertion: line 44 pos 7: '_instance._isInitialized': You must initialize the supabase instance before calling Supabase.instance
+00:25 +149: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: replaces Local coverage label with selected country only (e.g. Egypt only)
+00:25 +150: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: replaces Local coverage label with selected country only (e.g. Egypt only)
+00:25 +151: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: replaces Local coverage label with selected country only (e.g. Egypt only)
+00:25 +152: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/fx/display_widgets_test.dart: RTL estimates and charge explanation fit without hiding USD
+00:25 +153: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: resolves country name from ISO code when countryName is omitted
+00:25 +154: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: resolves country name from ISO code when countryName is omitted
+00:25 +155: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: resolves country name from ISO code when countryName is omitted
+00:25 +156: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: resolves country name from ISO code when countryName is omitted
+00:25 +157: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/geo/geo_controller_test.dart: C8 - Travel & Geolocation Freeze Unit Tests International lines filtering correctly handles Country lookup without type error
+00:26 +158: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/geo/line_mode_resolver_test.dart: resolveLineMode a line whose country the user is not in is Travel Mode
+00:26 +159: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/geo/line_mode_resolver_test.dart: resolveLineMode a line whose country the user is in is Home Mode and pauses
+00:26 +160: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/geo/line_mode_resolver_test.dart: resolveLineMode requiresProtectionAtHome keeps protection running while home
+00:26 +161: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/geo/line_mode_resolver_test.dart: resolveLineMode writes nothing when the stored row already agrees
+00:26 +162: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/geo/line_mode_resolver_test.dart: resolveLineMode still corrects protection_paused when only it disagrees
+00:26 +163: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/geo/line_mode_resolver_test.dart: resolveLineMode an unresolved location changes nothing
+00:26 +164: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/geo/line_mode_resolver_test.dart: resolveLineMode a line with no country on file changes nothing
+00:26 +165: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/geo/line_mode_resolver_test.dart: resolveLineMode comparison ignores case and surrounding whitespace
+00:26 +166: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/geo/line_mode_resolver_test.dart: resolveLineMode user in Oman creating an Egyptian SIM line resolves to Travel Mode
+00:27 +167: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/home_widget/widget_snapshot_test.dart: formatting megabytes read as GB above 1024 and drop a trailing .0
+00:27 +168: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/home_widget/widget_snapshot_test.dart: formatting a phone number is reduced to its last four digits
+00:27 +169: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/home_widget/widget_snapshot_test.dart: formatting a part-day remaining still counts as a day, not zero
+00:27 +170: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/home_widget/widget_snapshot_test.dart: formatting the day words match what the native renderers re-derive
+00:27 +171: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/home_widget/widget_snapshot_test.dart: subject selection the most urgent subject headlines the widget
+00:27 +172: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/home_widget/widget_snapshot_test.dart: subject selection a paused line sorts last however soon it expires
+00:27 +173: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/home_widget/widget_snapshot_test.dart: subject selection the alert lead day, not a fixed number, is what turns a line red
+00:27 +174: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/home_widget/widget_snapshot_test.dart: subject selection no session publishes an empty payload, not the last user's lines
+00:27 +175: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/home_widget/widget_snapshot_test.dart: subject selection an account with nothing in it says so instead of rendering blank
+00:27 +176: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/home_widget/widget_snapshot_test.dart: subject selection at most five subjects are published
+00:27 +177: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/home_widget/widget_snapshot_test.dart: SIM lines the countdown falls back through forecast, validity, next refill
+00:27 +178: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/home_widget/widget_snapshot_test.dart: SIM lines a line with nothing to count down admits it rather than showing 0
+00:27 +179: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/home_widget/widget_snapshot_test.dart: SIM lines a measured forecast is labelled differently from an estimate
+00:27 +180: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/home_widget/widget_snapshot_test.dart: SIM lines an expired line reads as expired, never as a negative day count
+00:27 +181: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/home_widget/widget_snapshot_test.dart: eSIMs data remaining drives the metric and the bar
+00:27 +182: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/home_widget/widget_snapshot_test.dart: eSIMs an almost-empty eSIM is critical even with weeks of validity left
+00:27 +183: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/home_widget/widget_snapshot_test.dart: eSIMs undelivered orders are not rendered as 0 MB tiles
+00:27 +184: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/home_widget/widget_snapshot_test.dart: eSIMs a bundle with no supplier expiry borrows G1's fitted prediction
+00:27 +185: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/home_widget/widget_snapshot_test.dart: payload carries no phone number, ICCID or balance
+00:27 +186: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/home_widget/widget_snapshot_test.dart: payload is stamped with the schema the native renderers check
+00:27 +187: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/home_widget/widget_snapshot_test.dart: payload identical inputs encode identically, so nothing is republished
+00:27 +188: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/home_widget/widget_snapshot_test.dart: deep links our own links resolve to routes
+00:27 +189: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/home_widget/widget_snapshot_test.dart: deep links anything else is refused rather than followed
+00:27 +190: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/household/household_spend_test.dart: HouseholdSpendRow deserialization maps the snake_case row household_spend_summary() returns
+00:27 +191: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/household/household_spend_test.dart: HouseholdSpendRow deserialization falls back to the email when the member has no profile name
+00:27 +192: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/household/household_spend_test.dart: HouseholdSpendRow deserialization survives a never-accepted invite with no member id
+00:27 +193: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/household/household_spend_test.dart: a zero cap means MAY NOT SPEND, never "unlimited" isFunded is false at exactly zero
+00:27 +194: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/household/household_spend_test.dart: a zero cap means MAY NOT SPEND, never "unlimited" usedFraction is 0 rather than a division by zero
+00:27 +195: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/household/household_spend_test.dart: a zero cap means MAY NOT SPEND, never "unlimited" an unfunded member is not reported as exhausted
+00:27 +196: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/household/household_spend_test.dart: canBeFunded mirrors the server trigger an accepted manager can be funded
+00:27 +197: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/household/household_spend_test.dart: canBeFunded mirrors the server trigger a viewer cannot — they cannot act on the owner lines at all
+00:27 +198: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/household/household_spend_test.dart: canBeFunded mirrors the server trigger a manager whose invite is still pending cannot
+00:27 +199: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/household/household_spend_test.dart: usedFraction and isExhausted is the spent share of the cap
+00:27 +200: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/household/household_spend_test.dart: usedFraction and isExhausted clamps at 1.0 when spend somehow exceeds the cap
+00:27 +201: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/household/household_spend_test.dart: usedFraction and isExhausted a funded member with nothing left is exhausted
+00:27 +202: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/household/household_spend_test.dart: in-flight is reported separately from committed spent = committed + in flight, as the server computes it
+00:27 +203: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/household/household_spend_test.dart: in-flight is reported separately from committed a member with nothing queued reports zero in flight
+00:27 +204: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/household/household_spend_test.dart: HouseholdAllowance — the member side maps my_household_allowances() and names the owner
+00:27 +205: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/household/household_spend_test.dart: HouseholdAllowance — the member side falls back to the owner email, then to a generic label
+00:27 +206: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/household/household_spend_test.dart: HouseholdAllowance — the member side an unfunded membership reports no headroom and no progress
+00:27 +207: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/household/household_spend_test.dart: HouseholdAllowance — the member side clamps the bar when the owner lowers the cap below what was spent
+00:28 +208: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/household/invite_dialog_layout_test.dart: invite dialog lays out and is visible
+00:29 +209: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/household/invite_dialog_layout_test.dart: invite dialog lays out and is visible
+00:29 +210: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/household/invite_dialog_layout_test.dart: invite dialog lays out and is visible
+00:29 +211: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/household/invite_dialog_layout_test.dart: invite dialog lays out and is visible
+00:29 +212: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/household/invite_dialog_layout_test.dart: invite dialog lays out and is visible
+00:30 +213: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/household/invite_dialog_layout_test.dart: invite dialog lays out and is visible
+00:30 +214: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/household/invite_dialog_layout_test.dart: invite dialog lays out and is visible
+00:30 +215: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/household/invite_dialog_layout_test.dart: invite dialog lays out and is visible
+00:30 +216: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/household/invite_dialog_layout_test.dart: invite dialog lays out and is visible
+00:30 +217: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/household/invite_dialog_layout_test.dart: invite dialog lays out and is visible
+00:30 +218: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/household/invite_dialog_layout_test.dart: invite dialog lays out and is visible
+00:30 +219: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/household/invite_dialog_layout_test.dart: invite dialog lays out and is visible
+00:30 +220: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/household/invite_dialog_layout_test.dart: invite dialog lays out and is visible
+00:30 +221: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/household/invite_dialog_layout_test.dart: invite dialog lays out and is visible
+00:32 +222: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/household/invite_dialog_layout_test.dart: invite dialog lays out and is visible
+00:32 +223: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/household/invite_dialog_layout_test.dart: invite dialog lays out and is visible
+00:32 +224: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/household/invite_dialog_layout_test.dart: invite dialog lays out and is visible
+00:32 +225: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/household/invite_dialog_layout_test.dart: invite dialog lays out and is visible
+00:32 +226: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/household/invite_dialog_layout_test.dart: invite dialog lays out and is visible
+00:32 +227: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/household/invite_dialog_layout_test.dart: invite dialog lays out and is visible
+00:32 +228: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/household/invite_dialog_layout_test.dart: invite dialog lays out and is visible
+00:32 +229: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/household/invite_dialog_layout_test.dart: invite dialog lays out and is visible
+00:32 +230: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/household/invite_dialog_layout_test.dart: invite dialog lays out and is visible
+00:32 +231: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/household/invite_dialog_layout_test.dart: invite dialog lays out and is visible
+00:32 +232: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/household/invite_dialog_layout_test.dart: invite dialog lays out and is visible
+00:32 +233: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/household/invite_dialog_layout_test.dart: invite dialog lays out and is visible
+00:32 +234: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/household/invite_dialog_layout_test.dart: invite dialog lays out and is visible
+00:32 +235: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/notifications/alert_preferences_dashboard_test.dart: WhatsApp editor refuses guessed country code and saves international destination
+00:33 +236: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/notifications/alert_preferences_dashboard_test.dart: WhatsApp editor refuses guessed country code and saves international destination
+00:33 +237: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/notifications/alert_preferences_dashboard_test.dart: WhatsApp editor refuses guessed country code and saves international destination
+00:33 +238: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/notifications/alert_preferences_dashboard_test.dart: WhatsApp editor refuses guessed country code and saves international destination
+00:33 +239: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/notifications/alert_preferences_dashboard_test.dart: WhatsApp editor refuses guessed country code and saves international destination
+00:33 +240: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/notifications/alert_preferences_dashboard_test.dart: WhatsApp editor refuses guessed country code and saves international destination
+00:33 +241: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/notifications/alert_preferences_dashboard_test.dart: WhatsApp editor refuses guessed country code and saves international destination
+00:33 +242: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/notifications/alert_preferences_dashboard_test.dart: WhatsApp editor refuses guessed country code and saves international destination
+00:34 +243: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/notifications/alert_preferences_dashboard_test.dart: WhatsApp editor refuses guessed country code and saves international destination
+00:34 +244: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/notifications/alert_preferences_dashboard_test.dart: WhatsApp editor refuses guessed country code and saves international destination
+00:34 +245: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/notifications/alert_preferences_dashboard_test.dart: WhatsApp editor refuses guessed country code and saves international destination
+00:34 +246: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/notifications/alert_preferences_dashboard_test.dart: WhatsApp editor refuses guessed country code and saves international destination
+00:34 +247: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/notifications/alert_preferences_dashboard_test.dart: WhatsApp editor refuses guessed country code and saves international destination
+00:34 +248: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/notifications/alert_preferences_dashboard_test.dart: WhatsApp editor refuses guessed country code and saves international destination
+00:34 +249: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/notifications/alert_preferences_dashboard_test.dart: WhatsApp editor refuses guessed country code and saves international destination
+00:34 +250: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/notifications/alert_preferences_dashboard_test.dart: WhatsApp editor refuses guessed country code and saves international destination
+00:34 +251: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/notifications/alert_preferences_dashboard_test.dart: WhatsApp editor refuses guessed country code and saves international destination
+00:34 +252: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/notifications/alert_preferences_dashboard_test.dart: WhatsApp editor refuses guessed country code and saves international destination
+00:34 +253: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/notifications/alert_preferences_dashboard_test.dart: WhatsApp editor refuses guessed country code and saves international destination
+00:34 +254: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/notifications/alert_preferences_dashboard_test.dart: WhatsApp editor refuses guessed country code and saves international destination
+00:34 +255: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/notifications/alert_preferences_dashboard_test.dart: WhatsApp editor refuses guessed country code and saves international destination
+00:34 +256: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/notifications/alert_preferences_dashboard_test.dart: WhatsApp editor refuses guessed country code and saves international destination
+00:34 +257: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/notifications/alert_preferences_dashboard_test.dart: WhatsApp editor refuses guessed country code and saves international destination
+00:34 +258: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/notifications/alert_preferences_dashboard_test.dart: WhatsApp editor refuses guessed country code and saves international destination
+00:34 +259: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/notifications/alert_preferences_dashboard_test.dart: WhatsApp editor refuses guessed country code and saves international destination
+00:35 +260: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/notifications/alert_preferences_dashboard_test.dart: failed switch save restores the previous value
+00:35 +261: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/notifications/alert_preferences_dashboard_test.dart: failed switch save restores the previous value
+00:35 +262: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/notifications/alert_preferences_dashboard_test.dart: failed switch save restores the previous value
+00:35 +263: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/notifications/alert_preferences_dashboard_test.dart: failed switch save restores the previous value
+00:35 +264: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/notifications/alert_preferences_dashboard_test.dart: failed switch save restores the previous value
+00:35 +265: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/notifications/alert_preferences_dashboard_test.dart: alarm editor explains the schedule and missing recharge data
+00:36 +266: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/notifications/alert_preferences_dashboard_test.dart: alarm editor explains the schedule and missing recharge data
+00:36 +267: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/notifications/alert_preferences_dashboard_test.dart: alarm editor explains the schedule and missing recharge data
+00:36 +268: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/notifications/alert_preferences_dashboard_test.dart: alarm editor explains the schedule and missing recharge data
+00:36 +269: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/notifications/alert_preferences_dashboard_test.dart: alarm editor explains the schedule and missing recharge data
+00:36 +270: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/offline_recharge/recovery_reachability_service_test.dart: RecoveryReachabilityService Tests updateFromRemote correctly updates profile and allowance values
+00:36 +271: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/notifications/alert_preferences_dashboard_test.dart: typing an unsaved destination survives switching the channel
+00:36 +272: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/notifications/alert_preferences_dashboard_test.dart: typing an unsaved destination survives switching the channel
+00:36 +273: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/notifications/alert_preferences_dashboard_test.dart: typing an unsaved destination survives switching the channel
+00:36 +274: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/notifications/alert_preferences_dashboard_test.dart: typing an unsaved destination survives switching the channel
+00:36 +275: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/notifications/alert_preferences_dashboard_test.dart: typing an unsaved destination survives switching the channel
+00:36 +276: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/notifications/alert_preferences_dashboard_test.dart: typing an unsaved destination survives switching the channel
+00:36 +277: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/notifications/alert_preferences_dashboard_test.dart: typing an unsaved destination survives switching the channel
+00:37 +278: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/notifications/alert_preferences_dashboard_test.dart: compact and large text layouts stay usable (light)
+00:38 +279: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/payments/paypal_checkout_screen_test.dart: PayPalCheckoutScreen & Quote Parity Unit Tests renders payment title and secure pay button correctly
+00:38 +280: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/payments/paypal_checkout_screen_test.dart: PayPalCheckoutScreen & Quote Parity Unit Tests renders payment title and secure pay button correctly
+00:38 +281: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/payments/paypal_checkout_screen_test.dart: PayPalCheckoutScreen & Quote Parity Unit Tests renders payment title and secure pay button correctly
+00:38 +282: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/payments/paypal_checkout_screen_test.dart: PayPalCheckoutScreen & Quote Parity Unit Tests renders payment title and secure pay button correctly
+00:38 +283: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/payments/paypal_checkout_screen_test.dart: PayPalCheckoutScreen & Quote Parity Unit Tests renders payment title and secure pay button correctly
+00:38 +284: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/payments/paypal_checkout_screen_test.dart: PayPalCheckoutScreen & Quote Parity Unit Tests renders payment title and secure pay button correctly
+00:38 +285: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/payments/paypal_checkout_screen_test.dart: PayPalCheckoutScreen & Quote Parity Unit Tests renders payment title and secure pay button correctly
+00:38 +286: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/payments/paypal_checkout_screen_test.dart: PayPalCheckoutScreen & Quote Parity Unit Tests renders payment title and secure pay button correctly
+00:38 +287: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/payments/paypal_checkout_screen_test.dart: PayPalCheckoutScreen & Quote Parity Unit Tests renders payment title and secure pay button correctly
+00:38 +288: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/payments/paypal_checkout_screen_test.dart: PayPalCheckoutScreen & Quote Parity Unit Tests renders payment title and secure pay button correctly
+00:38 +289: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/payments/paypal_checkout_screen_test.dart: PayPalCheckoutScreen & Quote Parity Unit Tests renders payment title and secure pay button correctly
+00:38 +290: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/payments/paypal_checkout_screen_test.dart: PayPalCheckoutScreen & Quote Parity Unit Tests renders payment title and secure pay button correctly
+00:38 +291: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/payments/paypal_checkout_screen_test.dart: PayPalCheckoutScreen & Quote Parity Unit Tests renders payment title and secure pay button correctly
+00:38 +292: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/payments/paypal_checkout_screen_test.dart: PayPalCheckoutScreen & Quote Parity Unit Tests renders payment title and secure pay button correctly
+00:39 +293: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/payments/paypal_checkout_screen_test.dart: PayPalCheckoutScreen & Quote Parity Unit Tests renders payment title and secure pay button correctly
+00:40 +294: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/payments/paypal_checkout_screen_test.dart: PayPalCheckoutScreen & Quote Parity Unit Tests renders payment title and secure pay button correctly
+00:40 +295: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/payments/paypal_checkout_screen_test.dart: PayPalCheckoutScreen & Quote Parity Unit Tests renders payment title and secure pay button correctly
+00:40 +296: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/payments/paypal_checkout_screen_test.dart: PayPalCheckoutScreen & Quote Parity Unit Tests renders payment title and secure pay button correctly
+[Analytics] Consent check error: 'package:supabase_flutter/src/supabase.dart': Failed assertion: line 44 pos 7: '_instance._isInitialized': You must initialize the supabase instance before calling Supabase.instance
+00:41 +297: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:41 +297: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/payments/paypal_checkout_screen_test.dart: PayPalCheckoutScreen & Quote Parity Unit Tests renders plan payment kind correctly
+[Analytics] Consent check error: 'package:supabase_flutter/src/supabase.dart': Failed assertion: line 44 pos 7: '_instance._isInitialized': You must initialize the supabase instance before calling Supabase.instance
+00:41 +298: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:41 +299: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:41 +300: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:41 +301: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:41 +302: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:41 +303: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:41 +304: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:41 +305: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:41 +306: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:41 +307: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:41 +308: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:41 +309: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:41 +310: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:42 +311: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:42 +312: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:42 +313: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:42 +314: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:42 +315: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:42 +316: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:42 +317: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:42 +318: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:42 +319: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:42 +320: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:42 +321: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:42 +322: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:42 +323: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:42 +324: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:42 +325: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:42 +326: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:42 +327: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:42 +328: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:42 +329: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:42 +330: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:42 +331: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:43 +332: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:43 +333: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:43 +334: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:43 +335: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:43 +336: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:43 +337: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:43 +338: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:43 +339: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:43 +340: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:43 +341: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:43 +342: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:43 +343: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:43 +344: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:43 +345: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:45 +346: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:45 +347: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart: currency transition saves and previews
+00:45 +348: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/scheduled_topups/scheduled_topup_sheet_channel_status_test.dart: ScheduledTopupSheet accurately displays channel readiness badges on paid line
+00:46 +349: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/scheduled_topups/scheduled_topup_sheet_channel_status_test.dart: ScheduledTopupSheet accurately displays channel readiness badges on paid line
+00:48 +350: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/scheduled_topups/scheduled_topup_sheet_channel_status_test.dart: ScheduledTopupSheet accurately displays channel readiness badges on paid line
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TextWidgetFinder:<Found 2 widgets with text "ACTIVE": [
+            Text("ACTIVE", inherit: true, color: Color(alpha: 1.0000, red: 0.3059, green: 0.8706,
+blue: 0.6392, colorSpace: ColorSpace.sRGB), family: Inter_regular, size: 10.0, weight: 700,
+letterSpacing: 0.5, dependencies: [DefaultSelectionStyle, DefaultTextStyle, MediaQuery]),
+            Text("ACTIVE", inherit: true, color: Color(alpha: 1.0000, red: 0.3059, green: 0.8706,
+blue: 0.6392, colorSpace: ColorSpace.sRGB), family: Inter_regular, size: 10.0, weight: 700,
+letterSpacing: 0.5, dependencies: [DefaultSelectionStyle, DefaultTextStyle, MediaQuery]),
+          ]>
+   Which: is too many
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/scheduled_topups/scheduled_topup_sheet_channel_status_test.dart:130:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/scheduled_topups/scheduled_topup_sheet_channel_status_test.dart line 130
+The test description was:
+  ScheduledTopupSheet accurately displays channel readiness badges on paid line
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:49 +350 -1: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/biometric_lock_overlay_test.dart: BiometricLockOverlay Widget Tests renders child normally when lock is disabled
+00:49 +350 -1: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/scheduled_topups/scheduled_topup_sheet_channel_status_test.dart: ScheduledTopupSheet accurately displays channel readiness badges on paid line [E]
+  Test failed. See exception logs above.
+  The test description was: ScheduledTopupSheet accurately displays channel readiness badges on paid line
+  
+00:49 +351 -1: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/biometric_lock_overlay_test.dart: BiometricLockOverlay Widget Tests renders child normally when lock is disabled
+00:49 +352 -1: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/biometric_lock_overlay_test.dart: BiometricLockOverlay Widget Tests renders child normally when lock is disabled
+00:49 +353 -1: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/biometric_lock_overlay_test.dart: BiometricLockOverlay Widget Tests renders child normally when lock is disabled
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following assertion was thrown running a test:
+Cannot use Ref or modify other providers inside life-cycles/selectors.
+'package:riverpod/src/core/ref.dart':
+Failed assertion: line 235 pos 9: '_debugCallbackStack == 0'
+
+When the exception was thrown, this was the stack:
+#2      Ref._throwIfInvalidUsage (package:riverpod/src/core/ref.dart:235:9)
+#3      AnyNotifier.state (package:riverpod/src/core/provider/notifier_provider.dart:82:9)
+#4      VoipCallingController._cleanup (package:keep_sims/features/voip_calling/presentation/controllers/voip_calling_controller.dart:928:20)
+#5      VoipCallingController.build.<anonymous closure> (package:keep_sims/features/voip_calling/presentation/controllers/voip_calling_controller.dart:146:7)
+#6      InternalProviderContainer.runGuarded (package:riverpod/src/core/provider_container.dart:741:9)
+#7      _runCallbacks (package:riverpod/src/core/ref.dart:793:17)
+#8      ProviderElement.runOnDispose (package:riverpod/src/core/element.dart:1228:5)
+#9      ElementWithFuture.runOnDispose (package:riverpod/src/core/element.dart:320:11)
+#10     ProviderElement.clearState (package:riverpod/src/core/element.dart:1263:5)
+#11     ProviderElement.dispose (package:riverpod/src/core/element.dart:1296:5)
+#12     ElementWithFuture.dispose (package:riverpod/src/core/element.dart:344:11)
+#13     ProviderContainer._dispose (package:riverpod/src/core/provider_container.dart:1278:15)
+#14     ProviderContainer.dispose (package:riverpod/src/core/provider_container.dart:1296:21)
+#15     ProviderScopeState.dispose (package:flutter_riverpod/src/core/provider_scope.dart:220:15)
+#16     StatefulElement.unmount (package:flutter/src/widgets/framework.dart:6043:11)
+#17     _InactiveElements._unmount (package:flutter/src/widgets/framework.dart:2119:13)
+#18     ListIterable.forEach (dart:_internal/iterable.dart:49:13)
+#19     _InactiveElements._unmountAll (package:flutter/src/widgets/framework.dart:2128:25)
+#20     BuildOwner.lockState (package:flutter/src/widgets/framework.dart:3033:15)
+#21     BuildOwner.finalizeTree (package:flutter/src/widgets/framework.dart:3357:7)
+#22     AutomatedTestWidgetsFlutterBinding.drawFrame (package:flutter_test/src/binding.dart:2454:19)
+#23     RendererBinding._handlePersistentFrameCallback (package:flutter/src/rendering/binding.dart:558:5)
+#24     SchedulerBinding._invokeFrameCallback (package:flutter/src/scheduler/binding.dart:1430:15)
+#25     SchedulerBinding.handleDrawFrame (package:flutter/src/scheduler/binding.dart:1345:9)
+#26     AutomatedTestWidgetsFlutterBinding.scheduleWarmUpFrame (package:flutter_test/src/binding.dart:2358:5)
+#27     _runWidget (package:flutter/src/widgets/binding.dart:1952:7)
+#28     runApp (package:flutter/src/widgets/binding.dart:1885:3)
+#29     TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1960:7)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 3 frames from class _AssertionError and package:stack_trace)
+
+The test description was:
+  renders child normally when lock is disabled
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:49 +353 -2: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/scheduled_topups/scheduled_topup_sheet_channel_status_test.dart: ScheduledTopupSheet allows Telegram on Free plan line without Upgrade badge
+00:49 +353 -2: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/biometric_lock_overlay_test.dart: BiometricLockOverlay Widget Tests renders child normally when lock is disabled [E]
+  Test failed. See exception logs above.
+  The test description was: renders child normally when lock is disabled
+  
+00:49 +353 -2: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/biometric_lock_overlay_test.dart: BiometricLockOverlay Widget Tests shows overlay when lock is enabled and unlocks on success
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following assertion was thrown running a test:
+Cannot use Ref or modify other providers inside life-cycles/selectors.
+'package:riverpod/src/core/ref.dart':
+Failed assertion: line 235 pos 9: '_debugCallbackStack == 0'
+
+When the exception was thrown, this was the stack:
+#2      Ref._throwIfInvalidUsage (package:riverpod/src/core/ref.dart:235:9)
+#3      AnyNotifier.state (package:riverpod/src/core/provider/notifier_provider.dart:82:9)
+#4      VoipCallingController._cleanup (package:keep_sims/features/voip_calling/presentation/controllers/voip_calling_controller.dart:928:20)
+#5      VoipCallingController.build.<anonymous closure> (package:keep_sims/features/voip_calling/presentation/controllers/voip_calling_controller.dart:146:7)
+#6      InternalProviderContainer.runGuarded (package:riverpod/src/core/provider_container.dart:741:9)
+#7      _runCallbacks (package:riverpod/src/core/ref.dart:793:17)
+#8      ProviderElement.runOnDispose (package:riverpod/src/core/element.dart:1228:5)
+#9      ElementWithFuture.runOnDispose (package:riverpod/src/core/element.dart:320:11)
+#10     ProviderElement.clearState (package:riverpod/src/core/element.dart:1263:5)
+#11     ProviderElement.dispose (package:riverpod/src/core/element.dart:1296:5)
+#12     ElementWithFuture.dispose (package:riverpod/src/core/element.dart:344:11)
+#13     ProviderContainer._dispose (package:riverpod/src/core/provider_container.dart:1278:15)
+#14     ProviderContainer.dispose (package:riverpod/src/core/provider_container.dart:1296:21)
+#15     ProviderScopeState.dispose (package:flutter_riverpod/src/core/provider_scope.dart:220:15)
+#16     StatefulElement.unmount (package:flutter/src/widgets/framework.dart:6043:11)
+#17     _InactiveElements._unmount (package:flutter/src/widgets/framework.dart:2119:13)
+#18     ListIterable.forEach (dart:_internal/iterable.dart:49:13)
+#19     _InactiveElements._unmountAll (package:flutter/src/widgets/framework.dart:2128:25)
+#20     BuildOwner.lockState (package:flutter/src/widgets/framework.dart:3033:15)
+#21     BuildOwner.finalizeTree (package:flutter/src/widgets/framework.dart:3357:7)
+#22     AutomatedTestWidgetsFlutterBinding.drawFrame (package:flutter_test/src/binding.dart:2454:19)
+#23     RendererBinding._handlePersistentFrameCallback (package:flutter/src/rendering/binding.dart:558:5)
+#24     SchedulerBinding._invokeFrameCallback (package:flutter/src/scheduler/binding.dart:1430:15)
+#25     SchedulerBinding.handleDrawFrame (package:flutter/src/scheduler/binding.dart:1345:9)
+#26     AutomatedTestWidgetsFlutterBinding.scheduleWarmUpFrame (package:flutter_test/src/binding.dart:2358:5)
+#27     _runWidget (package:flutter/src/widgets/binding.dart:1952:7)
+#28     runApp (package:flutter/src/widgets/binding.dart:1885:3)
+#29     TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1960:7)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 3 frames from class _AssertionError and package:stack_trace)
+
+The test description was:
+  shows overlay when lock is enabled and unlocks on success
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:49 +353 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/scheduled_topups/scheduled_topup_sheet_channel_status_test.dart: ScheduledTopupSheet allows Telegram on Free plan line without Upgrade badge
+00:49 +353 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/biometric_lock_overlay_test.dart: BiometricLockOverlay Widget Tests shows overlay when lock is enabled and unlocks on success [E]
+  Test failed. See exception logs above.
+  The test description was: shows overlay when lock is enabled and unlocks on success
+  
+00:50 +354 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard confirms when biometric auth succeeds
+00:51 +355 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard confirms when biometric auth succeeds
+00:51 +356 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard confirms when biometric auth succeeds
+00:51 +357 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard confirms when biometric auth succeeds
+00:51 +358 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard confirms when biometric auth succeeds
+00:51 +359 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard confirms when biometric auth succeeds
+00:51 +360 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard confirms when biometric auth succeeds
+00:51 +361 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard confirms when biometric auth succeeds
+00:51 +362 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard confirms when biometric auth succeeds
+00:51 +363 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard confirms when biometric auth succeeds
+00:51 +364 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard confirms when biometric auth succeeds
+00:51 +365 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard confirms when biometric auth succeeds
+00:51 +366 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard confirms when biometric auth succeeds
+00:51 +367 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard confirms when biometric auth succeeds
+00:51 +368 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard confirms when biometric auth succeeds
+00:51 +369 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard confirms when biometric auth succeeds
+00:51 +370 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard confirms when biometric auth succeeds
+00:51 +371 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard confirms when biometric auth succeeds
+00:51 +372 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard confirms when biometric auth succeeds
+00:51 +373 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard confirms when biometric auth succeeds
+00:51 +374 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard confirms when biometric auth succeeds
+00:51 +375 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard confirms when biometric auth succeeds
+00:51 +376 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard refuses when the user cancels the prompt
+00:52 +377 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard refuses on a failed fingerprint
+00:52 +378 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard refuses when biometrics are locked out
+00:52 +379 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard refuses when biometrics are locked out
+00:52 +380 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard refuses when biometrics are locked out
+00:52 +381 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard refuses when biometrics are locked out
+00:52 +382 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/rate_limiting_test.dart: RateLimitErrorFormatter - Rate Limit Parsing Tests (Session D2) defaults to 60s for generic 429 / too many requests without explicit seconds
+00:52 +383 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard prompts on every call - no grace window
+00:52 +384 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard prompts on every call - no grace window
+00:52 +385 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard no device lock enrolled falls back to typed confirmation instead of passing
+00:53 +386 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard no device lock enrolled falls back to typed confirmation instead of passing
+00:53 +387 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard no device lock enrolled falls back to typed confirmation instead of passing
+00:53 +388 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard no device lock enrolled falls back to typed confirmation instead of passing
+00:53 +389 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard no device lock enrolled falls back to typed confirmation instead of passing
+00:53 +390 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard no device lock enrolled falls back to typed confirmation instead of passing
+00:53 +391 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard no device lock enrolled falls back to typed confirmation instead of passing
+00:53 +392 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard no device lock enrolled falls back to typed confirmation instead of passing
+00:53 +393 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard no device lock enrolled falls back to typed confirmation instead of passing
+00:53 +394 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard no device lock enrolled falls back to typed confirmation instead of passing
+00:53 +395 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard no device lock enrolled falls back to typed confirmation instead of passing
+00:53 +396 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard no device lock enrolled falls back to typed confirmation instead of passing
+00:53 +397 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard no device lock enrolled falls back to typed confirmation instead of passing
+00:53 +398 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard no device lock enrolled falls back to typed confirmation instead of passing
+00:53 +399 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard no device lock enrolled keeps delete disabled until the token matches
+00:53 +400 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard no device lock enrolled keeps delete disabled until the token matches
+00:53 +401 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard no device lock enrolled keeps delete disabled until the token matches
+00:53 +402 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard no device lock enrolled keeps delete disabled until the token matches
+00:53 +403 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard no device lock enrolled keeps delete disabled until the token matches
+00:54 +404 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard no device lock enrolled confirms once the correct token is typed
+00:54 +405 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard no device lock enrolled confirms once the correct token is typed
+00:54 +406 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard no device lock enrolled confirms once the correct token is typed
+00:54 +407 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard no device lock enrolled confirms once the correct token is typed
+00:54 +408 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard no device lock enrolled confirms once the correct token is typed
+00:54 +409 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard no device lock enrolled confirms once the correct token is typed
+00:54 +410 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard no device lock enrolled confirms once the correct token is typed
+00:54 +411 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard no device lock enrolled confirms once the correct token is typed
+00:54 +412 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard no device lock enrolled confirms once the correct token is typed
+00:54 +413 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard no device lock enrolled confirms once the correct token is typed
+00:54 +414 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard no device lock enrolled refuses when the fallback is cancelled
+00:55 +415 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/destructive_action_guard_test.dart: DestructiveActionGuard no device lock enrolled accepts the literal token case-insensitively
+00:55 +416 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/line_activity_log_test.dart: LineActivityLog formatting tests getLocalizedDescription formats single dollar sign and avoids duplicate $$
+00:56 +417 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/line_activity_log_test.dart: LineActivityLog formatting tests getLocalizedDescription formats single dollar sign and avoids duplicate $$
+00:56 +418 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/line_activity_log_test.dart: LineActivityLog formatting tests getLocalizedDescription formats single dollar sign and avoids duplicate $$
+00:56 +419 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/line_activity_log_test.dart: LineActivityLog formatting tests getLocalizedDescription formats single dollar sign and avoids duplicate $$
+00:56 +420 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/line_activity_log_test.dart: LineActivityLog formatting tests getLocalizedDescription formats single dollar sign and avoids duplicate $$
+00:56 +421 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/line_activity_log_test.dart: LineActivityLog formatting tests getLocalizedDescription formats single dollar sign and avoids duplicate $$
+00:56 +422 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/line_activity_log_test.dart: LineActivityLog formatting tests getLocalizedDescription formats single dollar sign and avoids duplicate $$
+00:56 +423 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/line_activity_log_test.dart: LineActivityLog formatting tests getLocalizedDescription formats single dollar sign and avoids duplicate $$
+00:57 +424 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/line_activity_log_test.dart: LineActivityLog formatting tests getLocalizedDescription formats single dollar sign and avoids duplicate $$
+00:57 +425 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/line_activity_log_test.dart: LineActivityLog formatting tests getLocalizedDescription formats single dollar sign and avoids duplicate $$
+00:57 +426 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/line_activity_log_test.dart: LineActivityLog formatting tests getLocalizedDescription formats single dollar sign and avoids duplicate $$
+00:57 +427 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/line_activity_log_test.dart: LineActivityLog formatting tests getLocalizedDescription formats single dollar sign and avoids duplicate $$
+00:57 +428 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/line_activity_log_test.dart: LineActivityLog formatting tests getLocalizedDescription formats single dollar sign and avoids duplicate $$
+00:57 +429 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/line_refill_quote_test.dart: LineRefillQuote & calculateLineRefillQuote — Tier-Aware Pricing Unrecognized tier string falls back to free tier safely
+00:57 +430 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/line_rescue_policy_test.dart: deserialization maps the snake_case row the table returns
+00:57 +431 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/line_rescue_policy_test.dart: deserialization correctly parses max_usd when returned as String from Supabase PostgREST
+00:57 +432 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/line_rescue_policy_test.dart: deserialization a never-configured line deserializes to the fail-closed default
+00:57 +433 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/line_rescue_policy_test.dart: a zero cap means NOT INSURED, never "unlimited" isInsured is false at exactly zero
+00:57 +434 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/line_rescue_policy_test.dart: a zero cap means NOT INSURED, never "unlimited" an uninsured line reports no outstanding warning even if one is set
+00:57 +435 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/line_rescue_policy_test.dart: hasOutstandingWarning true only when insured and a warning is on record
+00:57 +436 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/line_rescue_policy_test.dart: graceHoursLeft counts down from the configured window
+00:57 +437 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/line_rescue_policy_test.dart: graceHoursLeft never goes negative once the window has passed
+00:57 +438 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/line_rescue_policy_test.dart: graceHoursLeft is zero when no warning has been written
+00:57 +439 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/line_rescue_policy_test.dart: graceHoursLeft honours a non-default grace window
+00:57 +440 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/line_rescue_policy_test.dart: hasEverRescued false until a rescue has actually happened
+00:58 +441 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/line_rescue_policy_test.dart: RescuePolicyResult reads the success envelope the RPC returns
+00:58 +442 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/line_rescue_policy_test.dart: RescuePolicyResult carries the server sentence for every refusal
+00:58 +443 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/presentation/widgets/depletion_forecast_card_test.dart: DepletionForecastCard displays tier-aware total ($0.70 for Free tier) instead of raw base ($0.25)
+01:00 +444 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/presentation/widgets/depletion_forecast_card_test.dart: DepletionForecastCard displays tier-aware total ($0.70 for Free tier) instead of raw base ($0.25)
+01:00 +445 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/presentation/widgets/depletion_forecast_card_test.dart: DepletionForecastCard displays tier-aware total ($0.70 for Free tier) instead of raw base ($0.25)
+01:00 +446 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/presentation/widgets/depletion_forecast_card_test.dart: DepletionForecastCard displays tier-aware total ($0.70 for Free tier) instead of raw base ($0.25)
+01:00 +447 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/presentation/widgets/depletion_forecast_card_test.dart: DepletionForecastCard displays tier-aware total ($0.70 for Free tier) instead of raw base ($0.25)
+01:01 +448 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/presentation/widgets/depletion_forecast_card_test.dart: DepletionForecastCard displays tier-aware total ($0.70 for Free tier) instead of raw base ($0.25)
+01:01 +449 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/presentation/widgets/depletion_forecast_card_test.dart: DepletionForecastCard displays tier-aware total ($0.70 for Free tier) instead of raw base ($0.25)
+01:01 +450 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/presentation/widgets/depletion_forecast_card_test.dart: DepletionForecastCard displays tier-aware total ($0.70 for Free tier) instead of raw base ($0.25)
+01:01 +451 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/presentation/widgets/depletion_forecast_card_test.dart: DepletionForecastCard displays tier-aware total ($0.70 for Free tier) instead of raw base ($0.25)
+01:01 +452 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/presentation/widgets/depletion_forecast_card_test.dart: DepletionForecastCard displays tier-aware total ($0.70 for Free tier) instead of raw base ($0.25)
+01:01 +453 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/presentation/widgets/depletion_forecast_card_test.dart: DepletionForecastCard displays tier-aware total ($0.70 for Free tier) instead of raw base ($0.25)
+01:01 +454 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/presentation/widgets/depletion_forecast_card_test.dart: DepletionForecastCard displays tier-aware total ($0.70 for Free tier) instead of raw base ($0.25)
+01:01 +455 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/presentation/widgets/depletion_forecast_card_test.dart: DepletionForecastCard displays tier-aware total ($0.70 for Free tier) instead of raw base ($0.25)
+01:01 +456 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/presentation/widgets/sim_health_score_sheet_test.dart: SimHealthScoreSheet displays score and achieved / non-achieved pillars correctly
+01:01 +457 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/presentation/widgets/sim_health_score_sheet_test.dart: SimHealthScoreSheet displays score and achieved / non-achieved pillars correctly
+01:01 +458 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/presentation/widgets/sim_health_score_sheet_test.dart: SimHealthScoreSheet displays score and achieved / non-achieved pillars correctly
+01:01 +459 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/presentation/widgets/sim_health_score_sheet_test.dart: SimHealthScoreSheet displays score and achieved / non-achieved pillars correctly
+01:02 +460 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/presentation/widgets/sim_health_score_sheet_test.dart: SimHealthScoreSheet displays score and achieved / non-achieved pillars correctly
+01:02 +461 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/presentation/widgets/sim_health_score_sheet_test.dart: SimHealthScoreSheet displays score and achieved / non-achieved pillars correctly
+01:02 +462 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/presentation/widgets/sim_health_score_sheet_test.dart: SimHealthScoreSheet displays score and achieved / non-achieved pillars correctly
+01:02 +463 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/presentation/widgets/sim_health_score_sheet_test.dart: SimHealthScoreSheet displays score and achieved / non-achieved pillars correctly
+01:02 +464 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/presentation/widgets/sim_health_score_sheet_test.dart: SimHealthScoreSheet displays score and achieved / non-achieved pillars correctly
+01:02 +465 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/presentation/widgets/sim_health_score_sheet_test.dart: SimHealthScoreSheet displays score and achieved / non-achieved pillars correctly
+01:02 +466 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/presentation/widgets/sim_health_score_sheet_test.dart: SimHealthScoreSheet displays score and achieved / non-achieved pillars correctly
+01:02 +467 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/presentation/widgets/sim_health_score_sheet_test.dart: SimHealthScoreSheet displays score and achieved / non-achieved pillars correctly
+01:02 +468 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/presentation/widgets/sim_health_score_sheet_test.dart: SimHealthScoreSheet displays score and achieved / non-achieved pillars correctly
+01:02 +469 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/presentation/widgets/sim_health_score_sheet_test.dart: SimHealthScoreSheet displays score and achieved / non-achieved pillars correctly
+01:02 +470 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/presentation/widgets/sim_health_score_sheet_test.dart: SimHealthScoreSheet displays score and achieved / non-achieved pillars correctly
+01:02 +471 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/presentation/widgets/sim_health_score_sheet_test.dart: SimHealthScoreSheet displays score and achieved / non-achieved pillars correctly
+01:02 +472 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/presentation/widgets/sim_health_score_sheet_test.dart: SimHealthScoreSheet displays score and achieved / non-achieved pillars correctly
+01:02 +473 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/presentation/widgets/sim_health_score_sheet_test.dart: SimHealthScoreSheet displays score and achieved / non-achieved pillars correctly
+01:02 +474 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/presentation/widgets/sim_health_score_sheet_test.dart: SimHealthScoreSheet displays score and achieved / non-achieved pillars correctly
+01:02 +475 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/presentation/widgets/sim_health_score_sheet_test.dart: SimHealthScoreSheet displays score and achieved / non-achieved pillars correctly
+01:02 +476 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/presentation/widgets/sim_health_score_sheet_test.dart: SimHealthScoreSheet displays score and achieved / non-achieved pillars correctly
+01:02 +477 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/presentation/widgets/sim_health_score_sheet_test.dart: SimHealthScoreSheet displays score and achieved / non-achieved pillars correctly
+01:02 +478 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/presentation/widgets/sim_health_score_sheet_test.dart: SimHealthScoreSheet displays score and achieved / non-achieved pillars correctly
+01:02 +479 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/presentation/widgets/sim_health_score_sheet_test.dart: SimHealthScoreSheet displays score and achieved / non-achieved pillars correctly
+01:02 +480 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/presentation/widgets/sim_health_score_sheet_test.dart: SimHealthScoreSheet displays score and achieved / non-achieved pillars correctly
+01:02 +481 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/presentation/widgets/sim_health_score_sheet_test.dart: SimHealthScoreSheet displays score and achieved / non-achieved pillars correctly
+01:02 +482 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/presentation/widgets/sim_health_score_sheet_test.dart: SimHealthScoreSheet displays score and achieved / non-achieved pillars correctly
+01:02 +483 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/presentation/widgets/sim_health_score_sheet_test.dart: SimHealthScoreSheet displays score and achieved / non-achieved pillars correctly
+01:02 +484 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/presentation/widgets/sim_health_score_sheet_test.dart: SimHealthScoreSheet displays score and achieved / non-achieved pillars correctly
+01:02 +485 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/presentation/widgets/sim_health_score_sheet_test.dart: SimHealthScoreSheet displays score and achieved / non-achieved pillars correctly
+01:02 +486 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/provider_badge_test.dart: ProviderBadge Widget renders full provider name and abbreviation
+01:03 +487 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/provider_badge_test.dart: ProviderBadge Widget renders short abbreviation when showFullName is false
+01:03 +488 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/provider_badge_test.dart: ProviderBadge Widget renders empty widget for null provider
+01:03 +489 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/sim_lines_list_filter_test.dart: filterSimLines pure tests 1. Empty query plus all returns the same lines in the same order
+01:04 +490 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/sim_lines_list_filter_test.dart: filterSimLines pure tests 2. Nickname search is case-insensitive
+01:04 +491 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/sim_lines_list_filter_test.dart: filterSimLines pure tests 3. Phone search ignores spaces, +, hyphens, and parentheses
+01:04 +492 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/sim_lines_list_filter_test.dart: filterSimLines pure tests 4. Search and quick filter combine with AND
+01:04 +493 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/sim_lines_list_filter_test.dart: filterSimLines pure tests 5. Active includes only status == active and excludes protectionPaused
+01:04 +494 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/sim_lines_list_filter_test.dart: filterSimLines pure tests 6. Alert soon includes an active notify schedule within 30 days
+01:04 +495 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/sim_lines_list_filter_test.dart: filterSimLines pure tests 7. Alert soon includes an overdue active notify schedule
+01:04 +496 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/sim_lines_list_filter_test.dart: filterSimLines pure tests 8. Alert soon excludes a notify schedule after 30 days and an inactive schedule
+01:04 +497 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/sim_lines_list_filter_test.dart: filterSimLines pure tests 9. Auto-refill includes active refill_mini and refill_custom
+01:04 +498 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/sim_lines_list_filter_test.dart: filterSimLines pure tests 10. Auto-refill excludes notify and inactive refill schedules
+01:04 +499 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/sim_lines_list_filter_test.dart: filterSimLines pure tests 11. Filtering does not reorder the input list
+01:04 +500 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/sim_lines_list_header_test.dart: SimLinesListHeader widget tests 1. Search hint and filter button render
+01:04 +501 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/sim_lines_list_header_test.dart: SimLinesListHeader widget tests 1. Search hint and filter button render
+01:04 +502 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/sim_lines_list_header_test.dart: SimLinesListHeader widget tests 1. Search hint and filter button render
+01:04 +503 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/sim_lines_list_header_test.dart: SimLinesListHeader widget tests 1. Search hint and filter button render
+01:04 +504 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/sim_lines_list_header_test.dart: SimLinesListHeader widget tests 1. Search hint and filter button render
+01:04 +505 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/sim_lines_list_header_test.dart: SimLinesListHeader widget tests 1. Search hint and filter button render
+01:05 +506 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/sim_lines_list_header_test.dart: SimLinesListHeader widget tests 1. Search hint and filter button render
+01:05 +507 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/sim_lines_list_header_test.dart: SimLinesListHeader widget tests 1. Search hint and filter button render
+01:05 +508 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/sim_lines_list_header_test.dart: SimLinesListHeader widget tests 1. Search hint and filter button render
+01:05 +509 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/sim_lines_list_header_test.dart: SimLinesListHeader widget tests 1. Search hint and filter button render
+01:05 +510 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/sim_lines_list_header_test.dart: SimLinesListHeader widget tests 1. Search hint and filter button render
+01:05 +511 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/sim_lines_list_header_test.dart: SimLinesListHeader widget tests 1. Search hint and filter button render
+01:06 +512 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/sim_lines_list_header_test.dart: SimLinesListHeader widget tests 1. Search hint and filter button render
+01:06 +513 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/sim_lines_list_header_test.dart: SimLinesListHeader widget tests 1. Search hint and filter button render
+01:06 +514 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/sim_lines_list_header_test.dart: SimLinesListHeader widget tests 1. Search hint and filter button render
+01:07 +515 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/sim_setup_reservation_test.dart: zero-balance server response reaches the deposit flow
+01:08 +516 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/sim_setup_reservation_test.dart: zero-balance server response reaches the deposit flow
+01:08 +517 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/sim_setup_reservation_test.dart: zero-balance server response reaches the deposit flow
+01:08 +518 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/sim_setup_reservation_test.dart: zero-balance server response reaches the deposit flow
+01:08 +519 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/sim_lines_list_header_test.dart: SimLinesListHeader widget tests 3. Clear button clears the controller and invokes onClearSearch
+01:08 +520 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/sim_lines_list_header_test.dart: SimLinesListHeader widget tests 3. Clear button clears the controller and invokes onClearSearch
+01:08 +521 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/sim_lines_list_header_test.dart: SimLinesListHeader widget tests 3. Clear button clears the controller and invokes onClearSearch
+01:08 +522 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/sim_lines_list_header_test.dart: SimLinesListHeader widget tests 3. Clear button clears the controller and invokes onClearSearch
+01:08 +523 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/sim_lines_list_header_test.dart: SimLinesListHeader widget tests 3. Clear button clears the controller and invokes onClearSearch
+01:08 +524 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/sim_lines_list_header_test.dart: SimLinesListHeader widget tests 3. Clear button clears the controller and invokes onClearSearch
+01:08 +525 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/sim_lines_list_header_test.dart: SimLinesListHeader widget tests 3. Clear button clears the controller and invokes onClearSearch
+01:08 +526 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/sim_lines_list_header_test.dart: SimLinesListHeader widget tests 3. Clear button clears the controller and invokes onClearSearch
+01:08 +527 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/sim_lines_list_header_test.dart: SimLinesListHeader widget tests 3. Clear button clears the controller and invokes onClearSearch
+01:08 +528 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/sim_lines_list_header_test.dart: SimLinesListHeader widget tests 3. Clear button clears the controller and invokes onClearSearch
+01:08 +529 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/sim_lines_list_header_test.dart: SimLinesListHeader widget tests 3. Clear button clears the controller and invokes onClearSearch
+01:08 +530 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/sim_lines_list_header_test.dart: SimLinesListHeader widget tests 3. Clear button clears the controller and invokes onClearSearch
+01:08 +531 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/usage_forecast_test.dart: isUrgent — mirrors the server alert window respects a lead window widened in system_configs
+01:08 +532 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/sim_lines_list_header_test.dart: SimLinesListHeader widget tests 4. Filter button invokes the expand/collapse callback
+01:09 +533 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/sim_lines_list_header_test.dart: SimLinesListHeader widget tests 5. All four chips appear when expanded
+01:09 +534 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/sim_lines_list_header_test.dart: SimLinesListHeader widget tests 6. Selecting a chip invokes the correct enum value
+01:09 +535 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/sim_lines_list_header_test.dart: SimLinesListHeader widget tests 7. Schedule-dependent chips are disabled when scheduleFiltersEnabled is false
+01:10 +536 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/sim_lines_list_header_test.dart: SimLinesListHeader widget tests 8. Non-All filter displays a badge; All does not
+01:10 +537 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/sim_lines_list_header_test.dart: SimLinesListHeader widget tests 9. No overflow at 320 logical-pixel width
+01:10 +538 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/call_recovery_coordinator_test.dart: CallRecoveryCoordinator State Machine Tests Disconnected triggers debounced recovery, not immediate restart
+[Recovery] PeerConnection state: RTCPeerConnectionState.RTCPeerConnectionStateDisconnected (current recovery state: RecoveryState.stable)
+[Recovery] Trigger recovery (immediate: false, reason: ice_disconnected)
+[Recovery] Starting ICE restart renegotiation for generation 1
+[Recovery] Sent ICE restart offer for generation 1
+01:10 +539 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/sim_lines_list_header_test.dart: SimLinesListHeader widget tests 10. Arabic locale renders without overflow
+01:10 +540 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/call_recovery_coordinator_test.dart: CallRecoveryCoordinator State Machine Tests Failed state triggers immediate recovery without debounce
+[Recovery] PeerConnection state: RTCPeerConnectionState.RTCPeerConnectionStateFailed (current recovery state: RecoveryState.stable)
+[Recovery] Trigger recovery (immediate: true, reason: ice_failed)
+[Recovery] Starting ICE restart renegotiation for generation 1
+[Recovery] Sent ICE restart offer for generation 1
+01:11 +541 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/sim_lines_list_header_test.dart: SimLinesListHeader widget tests 11. Dark theme renders without error or overflow
+01:11 +541 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/call_recovery_coordinator_test.dart: CallRecoveryCoordinator State Machine Tests Collision handling: Impolite peer ignores colliding remote offer
+[Recovery] Trigger recovery (immediate: true, reason: unspecified)
+[Recovery] Starting ICE restart renegotiation for generation 1
+[Recovery] Sent ICE restart offer for generation 1
+[Recovery] Received remote restart offer for generation 1 (local: 1, isPolite: false)
+[Recovery] Impolite peer ignoring colliding remote offer
+01:11 +542 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/sim_lines/sim_lines_list_header_test.dart: SimLinesListHeader widget tests 11. Dark theme renders without error or overflow
+01:11 +543 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/call_recovery_coordinator_test.dart: CallRecoveryCoordinator State Machine Tests Collision handling: Polite peer yields and answers remote offer
+[Recovery] Trigger recovery (immediate: true, reason: unspecified)
+[Recovery] Starting ICE restart renegotiation for generation 1
+[Recovery] Sent ICE restart offer for generation 1
+[Recovery] Received remote restart offer for generation 2 (local: 1, isPolite: true)
+[Recovery] Sent ICE restart answer for generation 2
+01:11 +544 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/call_recovery_coordinator_test.dart: CallRecoveryCoordinator State Machine Tests Obsolete generation candidate is discarded
+[Recovery] Trigger recovery (immediate: true, reason: unspecified)
+[Recovery] Starting ICE restart renegotiation for generation 1
+[Recovery] Sent ICE restart offer for generation 1
+[Recovery] Dropping obsolete ICE candidate from gen 0 (current: 1)
+01:11 +545 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/floating_minimized_call_bar_test.dart: FloatingMinimizedCallBar renders nothing when call is inactive
+01:11 +545 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/call_recovery_coordinator_test.dart: CallRecoveryCoordinator State Machine Tests Connected peer state completes recovery and returns to stable
+[Recovery] Trigger recovery (immediate: true, reason: unspecified)
+[Recovery] Starting ICE restart renegotiation for generation 1
+[Recovery] Sent ICE restart offer for generation 1
+[Recovery] PeerConnection state: RTCPeerConnectionState.RTCPeerConnectionStateConnected (current recovery state: RecoveryState.renegotiating)
+[Recovery] ICE recovery succeeded for generation 1!
+01:11 +546 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/floating_minimized_call_bar_test.dart: FloatingMinimizedCallBar renders nothing when call is inactive
+01:11 +546 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/call_recovery_coordinator_test.dart: CallRecoveryCoordinator State Machine Tests Network interface handover (Wi-Fi to Cellular) while stable triggers debounced recovery
+[Recovery] Connectivity change: active={ConnectivityResult.mobile}, prev={ConnectivityResult.wifi}, changed=true, state=RecoveryState.stable
+[Recovery] Trigger recovery (immediate: false, reason: interface_handover)
+[Recovery] Starting ICE restart renegotiation for generation 1
+[Recovery] Sent ICE restart offer for generation 1
+01:11 +547 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/floating_minimized_call_bar_test.dart: FloatingMinimizedCallBar renders nothing when call is inactive
+01:11 +547 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/call_recovery_coordinator_test.dart: CallRecoveryCoordinator State Machine Tests Initial network event on attach does not trigger spurious handover
+[Recovery] Connectivity change: active={ConnectivityResult.wifi}, prev={}, changed=false, state=RecoveryState.stable
+01:11 +548 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/floating_minimized_call_bar_test.dart: FloatingMinimizedCallBar renders nothing when call is inactive
+01:13 +549 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/floating_minimized_call_bar_test.dart: FloatingMinimizedCallBar renders nothing when call is inactive
+01:13 +550 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/floating_minimized_call_bar_test.dart: FloatingMinimizedCallBar renders nothing when call is inactive
+01:13 +551 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/floating_minimized_call_bar_test.dart: FloatingMinimizedCallBar renders nothing when call is inactive
+01:13 +552 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/floating_minimized_call_bar_test.dart: FloatingMinimizedCallBar renders nothing when call is inactive
+01:13 +553 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/floating_minimized_call_bar_test.dart: FloatingMinimizedCallBar renders nothing when call is inactive
+01:13 +554 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/internet_calling_screen_test.dart: InternetCallingScreen renders WhatsApp-style voice calling tabs and headers
+01:13 +555 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/internet_calling_screen_test.dart: InternetCallingScreen renders WhatsApp-style voice calling tabs and headers
+01:13 +556 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/internet_calling_screen_test.dart: InternetCallingScreen renders WhatsApp-style voice calling tabs and headers
+01:14 +557 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/internet_calling_screen_test.dart: InternetCallingScreen renders WhatsApp-style voice calling tabs and headers
+01:14 +558 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/internet_calling_screen_test.dart: InternetCallingScreen renders WhatsApp-style voice calling tabs and headers
+01:14 +559 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/internet_calling_screen_test.dart: InternetCallingScreen renders WhatsApp-style voice calling tabs and headers
+01:14 +560 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/internet_calling_screen_test.dart: InternetCallingScreen renders WhatsApp-style voice calling tabs and headers
+01:14 +561 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/internet_calling_screen_test.dart: InternetCallingScreen renders WhatsApp-style voice calling tabs and headers
+01:14 +562 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/internet_calling_screen_test.dart: InternetCallingScreen renders WhatsApp-style voice calling tabs and headers
+01:16 +563 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/voip_navigation_and_recovery_test.dart: FilteringRouterConfig Delegation Tests exposes rawRouter and delegates go, push, pop correctly
+01:16 +564 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/voip_navigation_and_recovery_test.dart: FilteringRouterConfig Delegation Tests exposes rawRouter and delegates go, push, pop correctly
+01:16 +565 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/voip_navigation_and_recovery_test.dart: FilteringRouterConfig Delegation Tests exposes rawRouter and delegates go, push, pop correctly
+01:16 +566 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/voip_navigation_and_recovery_test.dart: FilteringRouterConfig Delegation Tests exposes rawRouter and delegates go, push, pop correctly
+01:17 +567 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/voip_navigation_and_recovery_test.dart: FilteringRouterConfig Delegation Tests exposes rawRouter and delegates go, push, pop correctly
+01:17 +568 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/voip_navigation_and_recovery_test.dart: FilteringRouterConfig Delegation Tests exposes rawRouter and delegates go, push, pop correctly
+01:17 +569 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/voip_navigation_and_recovery_test.dart: FilteringRouterConfig Delegation Tests exposes rawRouter and delegates go, push, pop correctly
+01:17 +570 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/voip_navigation_and_recovery_test.dart: FilteringRouterConfig Delegation Tests exposes rawRouter and delegates go, push, pop correctly
+01:17 +571 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/voip_navigation_and_recovery_test.dart: FilteringRouterConfig Delegation Tests exposes rawRouter and delegates go, push, pop correctly
+01:17 +572 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/voip_navigation_and_recovery_test.dart: FilteringRouterConfig Delegation Tests exposes rawRouter and delegates go, push, pop correctly
+01:17 +573 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/voip_navigation_and_recovery_test.dart: FilteringRouterConfig Delegation Tests exposes rawRouter and delegates go, push, pop correctly
+01:17 +574 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/voip_navigation_and_recovery_test.dart: FilteringRouterConfig Delegation Tests exposes rawRouter and delegates go, push, pop correctly
+01:17 +575 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/voip_navigation_and_recovery_test.dart: FilteringRouterConfig Delegation Tests exposes rawRouter and delegates go, push, pop correctly
+01:17 +576 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/voip_navigation_and_recovery_test.dart: FilteringRouterConfig Delegation Tests exposes rawRouter and delegates go, push, pop correctly
+01:17 +577 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/voip_navigation_and_recovery_test.dart: FilteringRouterConfig Delegation Tests exposes rawRouter and delegates go, push, pop correctly
+01:17 +578 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/voip_navigation_and_recovery_test.dart: FilteringRouterConfig Delegation Tests exposes rawRouter and delegates go, push, pop correctly
+01:17 +579 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/voip_navigation_and_recovery_test.dart: FilteringRouterConfig Delegation Tests exposes rawRouter and delegates go, push, pop correctly
+01:17 +580 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/voip_navigation_and_recovery_test.dart: FilteringRouterConfig Delegation Tests exposes rawRouter and delegates go, push, pop correctly
+01:17 +581 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/voip_navigation_and_recovery_test.dart: FilteringRouterConfig Delegation Tests exposes rawRouter and delegates go, push, pop correctly
+01:17 +582 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/voip_navigation_and_recovery_test.dart: FilteringRouterConfig Delegation Tests exposes rawRouter and delegates go, push, pop correctly
+01:17 +583 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/voip_navigation_and_recovery_test.dart: FilteringRouterConfig Delegation Tests exposes rawRouter and delegates go, push, pop correctly
+01:17 +584 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/voip_navigation_and_recovery_test.dart: FilteringRouterConfig Delegation Tests exposes rawRouter and delegates go, push, pop correctly
+01:17 +585 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/voip_navigation_and_recovery_test.dart: FilteringRouterConfig Delegation Tests exposes rawRouter and delegates go, push, pop correctly
+01:17 +586 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/voip_navigation_and_recovery_test.dart: FilteringRouterConfig Delegation Tests exposes rawRouter and delegates go, push, pop correctly
+01:17 +587 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/voip_navigation_and_recovery_test.dart: FilteringRouterConfig Delegation Tests exposes rawRouter and delegates go, push, pop correctly
+01:18 +588 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/voip_navigation_and_recovery_test.dart: AppRoutes VoIP Routes Definition voipCall path is properly formatted
+01:18 +589 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/voip_navigation_and_recovery_test.dart: Cold Start VoIP Fast Direct Launch Tests initialAcceptedCallProvider returns null by default
+01:18 +590 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/voip_navigation_and_recovery_test.dart: Cold Start VoIP Fast Direct Launch Tests initialAcceptedCallProvider provides call data when overridden at launch
+01:18 +591 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/voip_calling/voip_navigation_and_recovery_test.dart: Cold Start VoIP Fast Direct Launch Tests Cold start with accepted call routes directly to /voip-call/:id bypassing splash and home
+01:18 +592 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/wallet/pending_plan_fee_test.dart: PendingPlanFee round-trips through the cache
+01:18 +593 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/wallet/pending_plan_fee_test.dart: PendingPlanFee a fresh fee is still spendable
+01:18 +594 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/wallet/pending_plan_fee_test.dart: PendingPlanFee a fee older than a day is dropped rather than replayed
+01:18 +595 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/wallet/pending_plan_fee_test.dart: PendingPlanFee nothing cached means nothing owed
+01:18 +596 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/wallet/pending_plan_fee_test.dart: PendingPlanFee an unreadable entry is discarded, never guessed at
+01:18 +597 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/wallet/pending_plan_fee_test.dart: PendingPlanFee a missing amount still yields a usable reference
+01:18 +598 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/wallet/pending_plan_fee_test.dart: PendingPlanFee an amount stored as a string survives
+01:19 +599 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/wallet/plan_fee_result_test.dart: PlanFeeResult a real debit is paid
+01:19 +600 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/wallet/plan_fee_result_test.dart: PlanFeeResult a replayed reference id counts as paid, not as a reason to bill again
+01:19 +601 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/wallet/plan_fee_result_test.dart: PlanFeeResult DEVICE_BLOCKED is not paid and keeps the server sentence
+01:19 +602 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/wallet/plan_fee_result_test.dart: PlanFeeResult UNAUTHORIZED is not paid
+01:19 +603 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/wallet/plan_fee_result_test.dart: PlanFeeResult a suspended account is not paid
+01:19 +604 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/wallet/plan_fee_result_test.dart: PlanFeeResult falls back to reason when the refusal carried no error sentence
+01:19 +605 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/wallet/plan_fee_result_test.dart: PlanFeeResult a refusal with no message at all still reads as unpaid
+01:19 +606 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/wallet/plan_fee_result_test.dart: PlanFeeResult an unreadable body is a refusal, never an assumed debit
+01:19 +607 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/wallet/plan_fee_result_test.dart: PlanFeeResult a missing success key is not a success
+01:19 +608 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/wallet/plan_fee_result_test.dart: PlanFeeResult the string "true" is not a success
+01:19 +609 -3: C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/wallet/plan_fee_result_test.dart: PlanFeeResult amount survives arriving as a numeric string
+01:19 +610 -3: Some tests failed.
+
+Failing tests:
+  C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/scheduled_topups/scheduled_topup_sheet_channel_status_test.dart: ScheduledTopupSheet accurately displays channel readiness badges on paid line
+  C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/biometric_lock_overlay_test.dart: BiometricLockOverlay Widget Tests renders child normally when lock is disabled
+  C:/Users/abdal/Work/KeepSIMs/keep_sims/test/features/security/biometric_lock_overlay_test.dart: BiometricLockOverlay Widget Tests shows overlay when lock is enabled and unlocks on success

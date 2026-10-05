@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:keep_sims/core/fx/money.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/core/utils/build_context_extension.dart';
@@ -25,10 +26,8 @@ class CompareOfferDetailsSheet extends StatefulWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => CompareOfferDetailsSheet(
-        offer: offer,
-        onBuyPressed: onBuyPressed,
-      ),
+      builder: (_) =>
+          CompareOfferDetailsSheet(offer: offer, onBuyPressed: onBuyPressed),
     );
   }
 
@@ -72,8 +71,9 @@ class _CompareOfferDetailsSheetState extends State<CompareOfferDetailsSheet>
     final isDark = context.isDarkMode;
     final offer = widget.offer;
     final countries = _resolvedCountries();
-    final countryCount =
-        offer.countryCount > 0 ? offer.countryCount : countries.length;
+    final countryCount = offer.countryCount > 0
+        ? offer.countryCount
+        : countries.length;
 
     return Container(
       constraints: BoxConstraints(
@@ -126,7 +126,9 @@ class _CompareOfferDetailsSheetState extends State<CompareOfferDetailsSheet>
                           Text(
                             offer.sourceName,
                             style: AppTextStyles.caption.copyWith(
-                              color: context.onSurfaceColor.withValues(alpha: 0.6),
+                              color: context.onSurfaceColor.withValues(
+                                alpha: 0.6,
+                              ),
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -164,11 +166,15 @@ class _CompareOfferDetailsSheetState extends State<CompareOfferDetailsSheet>
             indicatorColor: AppColors.primary,
             indicatorWeight: 3,
             labelColor: AppColors.primary,
-            unselectedLabelColor:
-                context.onSurfaceColor.withValues(alpha: 0.6),
-            labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-            unselectedLabelStyle:
-                const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
+            unselectedLabelColor: context.onSurfaceColor.withValues(alpha: 0.6),
+            labelStyle: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+            ),
+            unselectedLabelStyle: const TextStyle(
+              fontWeight: FontWeight.w500,
+              fontSize: 14,
+            ),
             tabs: [
               Tab(text: l10n.compareDetailsTab),
               Tab(text: '${l10n.compareCountriesTab} ($countryCount)'),
@@ -241,7 +247,10 @@ class _CompareOfferDetailsSheetState extends State<CompareOfferDetailsSheet>
 
   // ── Summary Cards ─────────────────────────────────────────────────────────
   Widget _summaryCard(
-      BuildContext context, AppLocalizations l10n, int countryCount) {
+    BuildContext context,
+    AppLocalizations l10n,
+    int countryCount,
+  ) {
     final isDark = context.isDarkMode;
     final offer = widget.offer;
 
@@ -254,8 +263,10 @@ class _CompareOfferDetailsSheetState extends State<CompareOfferDetailsSheet>
           color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
         ),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+      child: Wrap(
+        alignment: WrapAlignment.spaceAround,
+        spacing: 16,
+        runSpacing: 12,
         children: [
           _metricItem(
             context,
@@ -264,12 +275,13 @@ class _CompareOfferDetailsSheetState extends State<CompareOfferDetailsSheet>
             value: countryCount > 1
                 ? '$countryCount'
                 : (offer.countries.isNotEmpty
-                    ? (CompareOffer.countryNameForCode(offer.countries.first) ??
-                        offer.countries.first)
-                    : '1'),
+                      ? (CompareOffer.countryNameForCode(
+                              offer.countries.first,
+                            ) ??
+                            offer.countries.first)
+                      : '1'),
             sub: countryCount > 1 ? l10n.compareCountriesSuffix : '',
           ),
-          _divider(),
           _metricItem(
             context,
             icon: Icons.calendar_today_rounded,
@@ -277,7 +289,6 @@ class _CompareOfferDetailsSheetState extends State<CompareOfferDetailsSheet>
             value: '${offer.durationDays}',
             sub: l10n.compareDaysSuffix,
           ),
-          _divider(),
           _metricItem(
             context,
             icon: Icons.data_usage_rounded,
@@ -285,24 +296,20 @@ class _CompareOfferDetailsSheetState extends State<CompareOfferDetailsSheet>
             value: offer.formattedData,
             sub: '',
           ),
-          _divider(),
           _metricItem(
             context,
             icon: Icons.payments_outlined,
             label: l10n.comparePriceLabel,
-            value: '\$${offer.priceUsd.toStringAsFixed(2)}',
-            sub: 'USD',
+            value: offer.canQuotePrice
+                ? '\$${offer.priceUsd.toStringAsFixed(2)}'
+                : l10n.comparePriceAtPartner,
+            sub: offer.canQuotePrice ? 'USD' : '',
+            usdAmount: offer.canQuotePrice ? offer.priceUsd : null,
           ),
         ],
       ),
     );
   }
-
-  Widget _divider() => Container(
-        height: 32,
-        width: 1,
-        color: Colors.grey.withValues(alpha: 0.25),
-      );
 
   Widget _metricItem(
     BuildContext context, {
@@ -310,6 +317,7 @@ class _CompareOfferDetailsSheetState extends State<CompareOfferDetailsSheet>
     required String label,
     required String value,
     required String sub,
+    double? usdAmount,
   }) {
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -323,6 +331,8 @@ class _CompareOfferDetailsSheetState extends State<CompareOfferDetailsSheet>
             color: context.onSurfaceColor,
           ),
         ),
+        if (usdAmount != null)
+          ApproxLocalText(usdAmount, textAlign: TextAlign.center),
         if (sub.isNotEmpty)
           Text(
             sub,
@@ -337,7 +347,10 @@ class _CompareOfferDetailsSheetState extends State<CompareOfferDetailsSheet>
 
   // ── Details Tab ───────────────────────────────────────────────────────────
   Widget _detailsTab(
-      BuildContext context, AppLocalizations l10n, int countryCount) {
+    BuildContext context,
+    AppLocalizations l10n,
+    int countryCount,
+  ) {
     final offer = widget.offer;
 
     return ListView(
@@ -362,7 +375,8 @@ class _CompareOfferDetailsSheetState extends State<CompareOfferDetailsSheet>
           context,
           icon: Icons.speed_rounded,
           title: l10n.compareSpeedLabel,
-          description: offer.exactSpeedDetail ??
+          description:
+              offer.exactSpeedDetail ??
               'High-speed 4G / 5G data with no throttling until data allowance is used.',
         ),
         _detailDivider(),
@@ -393,8 +407,7 @@ class _CompareOfferDetailsSheetState extends State<CompareOfferDetailsSheet>
           context,
           icon: Icons.info_outline_rounded,
           title: l10n.compareOtherInfoLabel,
-          description:
-              '${l10n.compareRoamingNotice}\n${l10n.compareApnNotice}',
+          description: '${l10n.compareRoamingNotice}\n${l10n.compareApnNotice}',
         ),
         const SizedBox(height: 16),
       ],
@@ -460,8 +473,11 @@ class _CompareOfferDetailsSheetState extends State<CompareOfferDetailsSheet>
   Widget _detailDivider() => const Divider(height: 16, thickness: 0.7);
 
   // ── Countries Tab ─────────────────────────────────────────────────────────
-  Widget _countriesTab(BuildContext context, AppLocalizations l10n,
-      List<({String code, String name})> countries) {
+  Widget _countriesTab(
+    BuildContext context,
+    AppLocalizations l10n,
+    List<({String code, String name})> countries,
+  ) {
     final isDark = context.isDarkMode;
     final q = _searchQuery.trim().toLowerCase();
     final filtered = countries.where((c) {
@@ -494,8 +510,10 @@ class _CompareOfferDetailsSheetState extends State<CompareOfferDetailsSheet>
               filled: true,
               fillColor: isDark ? AppColors.darkCard : AppColors.lightCard,
               isDense: true,
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 10,
+              ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(14),
                 borderSide: BorderSide.none,
@@ -514,14 +532,18 @@ class _CompareOfferDetailsSheetState extends State<CompareOfferDetailsSheet>
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.search_off_rounded,
-                            size: 40, color: Colors.grey),
+                        const Icon(
+                          Icons.search_off_rounded,
+                          size: 40,
+                          color: Colors.grey,
+                        ),
                         const SizedBox(height: 8),
                         Text(
                           l10n.compareNoCountriesMatch,
                           style: AppTextStyles.caption.copyWith(
-                            color:
-                                context.onSurfaceColor.withValues(alpha: 0.6),
+                            color: context.onSurfaceColor.withValues(
+                              alpha: 0.6,
+                            ),
                           ),
                         ),
                       ],
@@ -529,8 +551,10 @@ class _CompareOfferDetailsSheetState extends State<CompareOfferDetailsSheet>
                   ),
                 )
               : ListView.separated(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 8,
+                  ),
                   itemCount: filtered.length,
                   separatorBuilder: (_, _) =>
                       const Divider(height: 1, thickness: 0.6),
@@ -560,8 +584,9 @@ class _CompareOfferDetailsSheetState extends State<CompareOfferDetailsSheet>
                                   item.code,
                                   style: AppTextStyles.caption.copyWith(
                                     fontSize: 11,
-                                    color: context.onSurfaceColor
-                                        .withValues(alpha: 0.5),
+                                    color: context.onSurfaceColor.withValues(
+                                      alpha: 0.5,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -569,7 +594,9 @@ class _CompareOfferDetailsSheetState extends State<CompareOfferDetailsSheet>
                           ),
                           Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 4),
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
                               color: AppColors.primary.withValues(alpha: 0.08),
                               borderRadius: BorderRadius.circular(8),
@@ -622,11 +649,7 @@ class _CompareOfferDetailsSheetState extends State<CompareOfferDetailsSheet>
       ),
       child: Text(
         tag,
-        style: TextStyle(
-          fontSize: 9,
-          fontWeight: FontWeight.bold,
-          color: fg,
-        ),
+        style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: fg),
       ),
     );
   }
