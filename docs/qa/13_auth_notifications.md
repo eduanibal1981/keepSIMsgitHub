@@ -21,6 +21,13 @@
 - **Status**: CATALOGED - UNTESTED
 - **Notes/Found Issues**: Auth redirects are configured in app_router.dart; no route widget test completed.
 
+## Password recovery
+### TC-AUTH-008: Reset a password with an emailed recovery code
+- **Preconditions**: Reset password email uses `supabase/templates/recovery.html`; a dedicated test mailbox/account is available for the live delivery check.
+- **Expected**: Forgot password pre-fills the sign-in email; invalid emails/codes are rejected; resend waits 60 seconds; password confirmation is required; OTP verification keeps the user on recovery; completion returns to sign-in. Recovery tokens are never persisted as the app session.
+- **Status**: AUTOMATED VERIFIED — LIVE EMAIL UNVERIFIED
+- **Notes/Found Issues**: 11 Auth REST repository tests and 7 Flutter screen/router tests passed. Analysis found no errors and only the existing deprecated `anonKey` notice. Hosted template activation and a real mailbox reset remain unverified; see `docs/password_recovery.md`.
+
 ## Notification center
 ### TC-AUTH-004: Mark alerts read, mark all read, and delete an alert
 - **Preconditions**: User has multiple read and unread notifications.
@@ -34,6 +41,13 @@
 - **Expected**: Category/channel choices persist; email verification and Telegram binding are verified; unavailable channels are explained.
 - **Status**: CATALOGED - UNTESTED
 - **Notes/Found Issues**: Settings screen and provider tests were inspected. Live email, SMS, WhatsApp, and Telegram messages were not sent.
+
+## Contextual device permissions
+### TC-AUTH-009: Choose device access during setup or later
+- **Preconditions**: A new or existing account can open setup, push settings, and supported device alarm settings.
+- **Expected**: App startup and opening settings never prompt. Setup can continue without access. Notification permission is requested only by Enable or enabling push/alarm delivery; denial stays off without automatically opening system settings. An explicit settings action handles blocked access. Returning to the app refreshes access, including revocation. Microphone remains a first-call request; contacts and phone access are not added. Exact-alarm settings open only after alarm opt-in.
+- **Status**: AUTOMATED VERIFIED - NATIVE DEVICE UNVERIFIED
+- **Notes/Found Issues**: The focused Flutter suite passed 45/45 checks on 2026-10-10. Permission service/controller tests cover Android/iOS status mapping, request arguments, denial, settings failure, and request deduplication. Onboarding widget tests cover skip/continue, push preference gating, resume during a request, retry, alarm opt-in, and both themes with enlarged text. Push Settings has a later-enable check. Native OS dialogs and end-to-end push/alarm delivery still require real-device checks.
 
 ## Notification delivery contracts
 ### TC-AUTH-006: Route and acknowledge notifications with provider test doubles

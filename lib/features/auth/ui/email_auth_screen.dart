@@ -11,14 +11,18 @@ import 'package:keep_sims/core/router/app_router.dart';
 import '../controller/auth_controller.dart';
 
 class EmailAuthScreen extends ConsumerStatefulWidget {
-  const EmailAuthScreen({super.key});
+  const EmailAuthScreen({super.key, this.initialEmail = ''});
+
+  final String initialEmail;
 
   @override
   ConsumerState<EmailAuthScreen> createState() => _EmailAuthScreenState();
 }
 
 class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
-  final _emailController = TextEditingController();
+  late final _emailController = TextEditingController(
+    text: widget.initialEmail,
+  );
   final _passwordController = TextEditingController();
   final _otpController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
@@ -71,6 +75,7 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
               _passwordController.text,
             )
             .then((_) {
+              if (!mounted) return;
               final authState = ref.read(authControllerProvider);
               if (!authState.hasError) {
                 setState(() {
@@ -99,10 +104,7 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
       if (next.hasError && !next.isLoading) {
         final formatted = RateLimitErrorFormatter.format(next.error, context);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(formatted),
-            backgroundColor: AppColors.error,
-          ),
+          SnackBar(content: Text(formatted), backgroundColor: AppColors.error),
         );
       }
     });
@@ -255,7 +257,8 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                           ),
                           const SizedBox(height: 16),
                           TextButton(
-                            onPressed: (authState.isLoading || _resendCooldown > 0)
+                            onPressed:
+                                (authState.isLoading || _resendCooldown > 0)
                                 ? null
                                 : () {
                                     _startResendCooldown(60);
@@ -265,7 +268,7 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                                           _emailController.text.trim(),
                                         )
                                         .then((_) {
-                                          if (mounted) {
+                                          if (context.mounted) {
                                             ScaffoldMessenger.of(
                                               context,
                                             ).showSnackBar(
@@ -295,8 +298,8 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                                     style: AppTextStyles.bodyLarge.copyWith(
                                       color: _resendCooldown > 0
                                           ? (isDark
-                                              ? AppColors.textSecondaryDark
-                                              : AppColors.textSecondaryLight)
+                                                ? AppColors.textSecondaryDark
+                                                : AppColors.textSecondaryLight)
                                           : AppColors.primary,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -332,6 +335,19 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                                 ? null
                                 : 'Enter your password',
                           ),
+                          if (!_isSignUp)
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: TextButton(
+                                onPressed: authState.isLoading
+                                    ? null
+                                    : () => context.push(
+                                        AppRoutes.forgotPassword,
+                                        extra: _emailController.text.trim(),
+                                      ),
+                                child: const Text('Forgot password?'),
+                              ),
+                            ),
                           const SizedBox(height: 24),
                           SizedBox(
                             height: 56,
@@ -365,8 +381,9 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                         ],
 
                         const SizedBox(height: 24),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                        Wrap(
+                          alignment: WrapAlignment.center,
+                          crossAxisAlignment: WrapCrossAlignment.center,
                           children: [
                             Text(
                               _isSignUp

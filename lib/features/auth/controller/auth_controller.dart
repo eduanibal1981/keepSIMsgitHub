@@ -124,7 +124,9 @@ class AuthController extends _$AuthController {
           return;
         }
         final msgLower = f.message.toLowerCase();
-        if (msgLower.contains('canceled') || msgLower.contains('sign_in_canceled') || msgLower.contains('account reauth failed')) {
+        if (msgLower.contains('canceled') ||
+            msgLower.contains('sign_in_canceled') ||
+            msgLower.contains('account reauth failed')) {
           state = const AsyncValue.data(null);
           return;
         }

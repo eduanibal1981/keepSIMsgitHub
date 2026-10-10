@@ -124,7 +124,14 @@ void main() {
           ),
         );
         await tester.pumpAndSettle();
-        await tester.tap(find.text('Start'));
+        await tester.ensureVisible(
+          find.byKey(const ValueKey('onboarding-terms-checkbox')),
+        );
+        await tester.tap(
+          find.byKey(const ValueKey('onboarding-terms-checkbox')),
+        );
+        await tester.pumpAndSettle();
+        await tester.tap(find.byKey(const ValueKey('onboarding-continue')));
         await tester.pumpAndSettle();
         await tester.enterText(find.byType(TextField).first, 'Display Test');
         final dropdown = find.byWidgetPredicate(

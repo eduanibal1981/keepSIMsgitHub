@@ -8,7 +8,9 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:keep_sims/core/supabase_client.dart';
 import 'package:keep_sims/features/auth/contract/auth_contract.dart';
+import 'package:keep_sims/features/auth/contract/password_recovery_contract.dart';
 import 'package:keep_sims/features/auth/repository/auth_repository.dart';
+import 'package:keep_sims/features/auth/repository/password_recovery_repository.dart';
 import 'package:keep_sims/features/profile/domain/contract/profile_contract.dart';
 import 'package:keep_sims/features/profile/data/repository/profile_repository.dart';
 import 'package:keep_sims/features/wallet/contract/wallet_contract.dart';
@@ -39,6 +41,17 @@ AuthContract authRepository(Ref ref) {
   final cache = ref.watch(localCacheServiceProvider);
   final connectivity = ref.watch(connectivityServiceProvider.notifier);
   return AuthRepository(supabase, cache, connectivity);
+}
+
+/// Recovery has a separate, short-lived client with no persisted sign-in session.
+@riverpod
+PasswordRecoveryContract passwordRecoveryRepository(Ref ref) {
+  final repository = PasswordRecoveryRepository(
+    authUrl: Uri.parse('$supabaseProjectUrl/auth/v1'),
+    apiKey: supabasePublishableKey,
+  );
+  ref.onDispose(repository.dispose);
+  return repository;
 }
 
 // ============================================================

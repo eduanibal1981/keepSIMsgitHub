@@ -15,6 +15,8 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:keep_sims/features/notifications/data/repositories/notifications_repository_impl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:keep_sims/features/notifications/presentation/widgets/alert_preferences_dashboard.dart';
+import 'package:keep_sims/features/notifications/presentation/widgets/notification_permission_control.dart';
+import 'package:keep_sims/features/notifications/presentation/controllers/notification_permission_controller.dart';
 import 'package:keep_sims/features/notifications/data/models/channel_destination.dart';
 
 class NotificationSettingsScreen extends ConsumerWidget {
@@ -1444,6 +1446,7 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
   }
 
   Widget _buildPushContent(BuildContext context) {
+    ref.watch(notificationPermissionControllerProvider);
     final isDark = context.isDarkMode;
     final playerId = OneSignal.User.pushSubscription.id;
     final isOptedIn = OneSignal.User.pushSubscription.optedIn;
@@ -1455,6 +1458,8 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        const NotificationPermissionControl(),
+        const SizedBox(height: 16),
         // Status Row
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -1484,7 +1489,7 @@ class _ChannelConfigCardState extends ConsumerState<ChannelConfigCard> {
                   playerId != null
                       ? ((isOptedIn ?? false)
                             ? 'Device Subscribed & Active'
-                            : 'Push Permission Pending')
+                            : 'Push subscription paused')
                       : 'Connecting to push service...',
                   style: AppTextStyles.bodySmall.copyWith(
                     fontWeight: FontWeight.w600,

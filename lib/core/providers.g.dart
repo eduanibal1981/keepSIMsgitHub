@@ -54,6 +54,60 @@ final class AuthRepositoryProvider
 
 String _$authRepositoryHash() => r'9fb27787d792c45e75056c4229faf3868506a783';
 
+/// Recovery has a separate, short-lived client with no persisted sign-in session.
+
+@ProviderFor(passwordRecoveryRepository)
+final passwordRecoveryRepositoryProvider =
+    PasswordRecoveryRepositoryProvider._();
+
+/// Recovery has a separate, short-lived client with no persisted sign-in session.
+
+final class PasswordRecoveryRepositoryProvider
+    extends
+        $FunctionalProvider<
+          PasswordRecoveryContract,
+          PasswordRecoveryContract,
+          PasswordRecoveryContract
+        >
+    with $Provider<PasswordRecoveryContract> {
+  /// Recovery has a separate, short-lived client with no persisted sign-in session.
+  PasswordRecoveryRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'passwordRecoveryRepositoryProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$passwordRecoveryRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<PasswordRecoveryContract> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  PasswordRecoveryContract create(Ref ref) {
+    return passwordRecoveryRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(PasswordRecoveryContract value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<PasswordRecoveryContract>(value),
+    );
+  }
+}
+
+String _$passwordRecoveryRepositoryHash() =>
+    r'df93b4c84b8df71b2c77fad13ee9853200eb0b2e';
+
 /// Provides the [ProfileContract] implementation.
 
 @ProviderFor(profileRepository)

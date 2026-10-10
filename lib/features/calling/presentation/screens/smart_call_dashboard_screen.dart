@@ -645,8 +645,9 @@ class _SmartCallDashboardScreenState
                   icon: Icons.phone_rounded,
                   iconColor: purpleIcon,
                   iconBg: purpleIconBg,
-                  title: 'Dialer',
-                  subtitle: 'Call with your credit',
+                  title: 'International Calls',
+                  subtitle:
+                      'Call international mobiles/landlines number at low rates',
                   buttonText: 'Call with Dialer',
                   buttonBg: purpleButtonBg,
                   buttonBorder: purpleButtonBorder,

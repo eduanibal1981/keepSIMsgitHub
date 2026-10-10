@@ -140,11 +140,6 @@ void main() async {
         // Initialize OneSignal (for push notifications)
         OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
         OneSignal.initialize('434b9552-8005-4d08-b3b1-a7a35f0b15dc');
-        if (isCallFastLaunch) {
-          unawaited(OneSignal.Notifications.requestPermission(false));
-        } else {
-          await OneSignal.Notifications.requestPermission(false);
-        }
 
         // Firebase initialization for FCM fallback
         try {

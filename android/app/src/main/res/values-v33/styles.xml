@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="LaunchTheme" parent="@style/Android12LaunchTheme">
+        <!-- Also show the logo when an installer opens the app on Android 13+. -->
+        <item name="android:windowSplashScreenBehavior">icon_preferred</item>
+    </style>
+</resources>

@@ -18,7 +18,11 @@ import 'package:keep_sims/features/auth/model/auth_model.dart';
 import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 
 import 'package:keep_sims/features/profile/presentation/controller/profile_controller.dart';
+import 'package:keep_sims/features/profile/presentation/widgets/account_setup_welcome.dart';
+import 'package:keep_sims/features/profile/presentation/widgets/setup_device_permissions.dart';
+import 'package:keep_sims/features/notifications/presentation/controllers/notification_permission_controller.dart';
 import 'package:keep_sims/features/notifications/presentation/controllers/notification_settings_controller.dart';
+import 'package:keep_sims/features/notifications/data/models/channel_destination.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
@@ -51,15 +55,26 @@ class OnboardingScreen extends ConsumerStatefulWidget {
 class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
+  bool _agreedToTerms = false;
 
   // Step 2 Data
   final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _whatsappNumberController =
+      TextEditingController();
+  final TextEditingController _notificationEmailController =
+      TextEditingController();
+  final FocusNode _whatsappNumberFocus = FocusNode();
+  bool _hasEditedWhatsAppNumber = false;
+  String? _whatsappNumberError;
   String _selectedCountryCode = 'EG';
   String _selectedCurrency = 'USD';
-  bool _isSavingCurrency = false;
+  bool _isSavingProfileStep = false;
 
   // Step 3 Data
   String _selectedTier = 'free';
+  bool _skippedFirstSim = false;
+
+  String get _setupTier => _skippedFirstSim ? 'free' : _selectedTier;
 
   // Step 4 (First SIM) Data
   final TextEditingController _simPhoneController = TextEditingController();
@@ -73,7 +88,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   // Step 5 Data
   final bool _isPowerUser = false;
-  bool _agreedToTerms = false;
   bool _isFreePlanDisabled = false;
 
   final List<Map<String, String>> _countries = [
@@ -135,13 +149,25 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   void initState() {
     super.initState();
     _simPhoneController.addListener(_onSimPhoneChanged);
-    // Pre-fill user name from auth profile if available
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final profile = ref.read(authControllerProvider).value;
-      if (profile?.fullName != null && profile!.fullName!.isNotEmpty) {
-        _nameController.text = profile.fullName!;
+    ref.listenManual(authControllerProvider, (previous, next) {
+      final profile = next.asData?.value;
+      if (profile == null) return;
+      if (_nameController.text.isEmpty) {
+        _nameController.text = profile.fullName ?? '';
       }
-    });
+      _notificationEmailController.text = profile.email;
+    }, fireImmediately: true);
+    ref.listenManual(notificationChannelsControllerProvider, (previous, next) {
+      if (_hasEditedWhatsAppNumber) return;
+      final channel = next.asData?.value.firstWhereOrNull(
+        (channel) => channel['channel_type'] == 'whatsapp',
+      );
+      if (channel == null) return;
+      _whatsappNumberController.text = channelDestination(
+        'whatsapp',
+        Map<String, dynamic>.from(channel['config'] ?? {}),
+      );
+    }, fireImmediately: true);
   }
 
   @override
@@ -150,6 +176,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     _simPhoneController.removeListener(_onSimPhoneChanged);
     _pageController.dispose();
     _nameController.dispose();
+    _whatsappNumberController.dispose();
+    _notificationEmailController.dispose();
+    _whatsappNumberFocus.dispose();
     _simPhoneController.dispose();
     _simNicknameController.dispose();
     super.dispose();
@@ -392,8 +421,31 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     }
   }
 
+  Future<void> _saveWhatsAppContact() async {
+    if (!_hasEditedWhatsAppNumber) return;
+    final channels = await ref.read(
+      notificationChannelsControllerProvider.future,
+    );
+    if (!mounted) return;
+    final channel = channels.firstWhereOrNull(
+      (channel) => channel['channel_type'] == 'whatsapp',
+    );
+    if (channel == null) {
+      throw StateError('WhatsApp settings are unavailable. Please try again.');
+    }
+    final config = Map<String, dynamic>.from(channel['config'] ?? {});
+    final number = _whatsappNumberController.text.trim();
+    config['phone'] = number;
+    config['phone_number'] = number;
+    await ref
+        .read(notificationChannelsControllerProvider.notifier)
+        .updateChannelConfig('whatsapp', config);
+    _hasEditedWhatsAppNumber = false;
+  }
+
   Future<void> _nextPage() async {
-    if (_isSavingCurrency) return;
+    if (_isSavingProfileStep) return;
+    if (_currentPage == 0 && !_agreedToTerms) return;
     if (_currentPage == 1) {
       final name = _nameController.text.trim();
       if (name.isEmpty) {
@@ -405,25 +457,56 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         );
         return;
       }
+      var whatsapp = _whatsappNumberController.text.trim().replaceAll(
+        RegExp(r'[\s\-()]'),
+        '',
+      );
+      if (whatsapp.startsWith('00')) whatsapp = '+${whatsapp.substring(2)}';
+      if (whatsapp.isNotEmpty &&
+          !RegExp(r'^\+[1-9]\d{7,14}$').hasMatch(whatsapp)) {
+        setState(() {
+          _whatsappNumberError =
+              'Add + and the country code before your number, e.g. +96891234567.';
+        });
+        _whatsappNumberFocus.requestFocus();
+        return;
+      }
+      _whatsappNumberController.text = whatsapp;
     }
 
     if (_currentPage == 1) {
-      setState(() => _isSavingCurrency = true);
+      setState(() => _isSavingProfileStep = true);
       var saved = false;
+      var contactsSaved = false;
       try {
         saved = await ref
             .read(fxControllerProvider.notifier)
             .setDisplayCurrency(_selectedCurrency);
+        if (saved && mounted) {
+          await _saveWhatsAppContact();
+          contactsSaved = true;
+        }
       } catch (_) {
-        saved = false;
+        // Keep this step open so either failed save can be retried.
       } finally {
-        if (mounted) setState(() => _isSavingCurrency = false);
+        if (mounted) setState(() => _isSavingProfileStep = false);
       }
       if (!mounted) return;
       if (!saved) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(AppLocalizations.of(context)!.fxCurrencySaveFailed),
+            backgroundColor: AppColors.error,
+          ),
+        );
+        return;
+      }
+      if (!contactsSaved) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Could not save your WhatsApp number. Please try again.',
+            ),
             backgroundColor: AppColors.error,
           ),
         );
@@ -512,11 +595,22 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     }
 
     if (_currentPage < 4) {
+      if (_currentPage == 2) _skippedFirstSim = false;
       _pageController.nextPage(
         duration: const Duration(milliseconds: 400),
         curve: Curves.easeInOut,
       );
     }
+  }
+
+  void _skipFirstSim() {
+    if (_currentPage != 2 || _isCheckingLiveness) return;
+    FocusScope.of(context).unfocus();
+    setState(() => _skippedFirstSim = true);
+    _pageController.nextPage(
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeInOut,
+    );
   }
 
   void _prevPage() {
@@ -551,6 +645,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       PlanPayment.premiumYearlyTotal(ref, rule);
 
   Future<void> _submit() async {
+    final selectedTier = _setupTier;
     if (!_agreedToTerms) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -579,6 +674,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
     final phone = _simPhoneController.text.trim();
     final hasSimDetails =
+        !_skippedFirstSim &&
         phone.isNotEmpty &&
         _selectedSimCountry != null &&
         _selectedSimCarrier != null;
@@ -596,7 +692,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           String? carrierRuleId;
           DateTime? planExpiresAt;
 
-          if (_selectedTier == 'premium') {
+          if (selectedTier == 'premium') {
             final rule = await ref
                 .read(simLinesRepositoryProvider)
                 .getCarrierRule(_selectedSimCarrier!.id);
@@ -620,7 +716,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             }
           }
 
-          if (_selectedTier != 'free') {
+          if (selectedTier != 'free') {
             planExpiresAt = DateTime.now().add(const Duration(days: 365));
           }
 
@@ -634,10 +730,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 avatarIcon: _selectedSimIcon,
                 countryId: _selectedSimCountry!.id,
                 carrierId: _selectedSimCarrier!.id,
-                planType: _selectedTier,
-                protectionTier: _selectedTier == 'free'
-                    ? 'basic'
-                    : _selectedTier,
+                planType: selectedTier,
+                protectionTier: selectedTier == 'free' ? 'basic' : selectedTier,
                 planExpiresAt: planExpiresAt,
                 carrierRuleId: carrierRuleId,
                 isCarrierVerified: _simLivenessResult?.isActive ?? false,
@@ -684,8 +778,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             fullName: name,
             homeCountryCode: _selectedCountryCode,
             preferredCurrency: _selectedCurrency,
-            isPowerUser: _selectedTier == 'premium',
-            subscriptionTier: _selectedTier == 'free' ? 'basic' : _selectedTier,
+            isPowerUser: selectedTier == 'premium',
+            subscriptionTier: selectedTier == 'free' ? 'basic' : selectedTier,
           );
 
       ref.invalidate(fxControllerProvider);
@@ -700,10 +794,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       }
     }
 
-    final isPaid = _selectedTier != 'free';
+    final isPaid = selectedTier != 'free';
     if (isPaid) {
       CarrierRule? premiumRule;
-      if (_selectedTier == 'premium' && hasSimDetails) {
+      if (selectedTier == 'premium' && hasSimDetails) {
         final rule = await ref
             .read(simLinesRepositoryProvider)
             .getCarrierRule(_selectedSimCarrier!.id);
@@ -728,7 +822,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       }
 
       final double planFee = double.parse(
-        (_selectedTier == 'premium' && premiumRule != null
+        (selectedTier == 'premium' && premiumRule != null
                 ? await PlanPayment.premiumWalletTotal(ref, premiumRule)
                 : await ref.read(baseServiceFeeUsdProvider.future))
             .toStringAsFixed(2),
@@ -738,7 +832,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       try {
         if (await PlanPayment.tryPlanFromWallet(
           ref,
-          plan: _selectedTier,
+          plan: selectedTier,
           rule: premiumRule,
         )) {
           if (mounted) {
@@ -794,9 +888,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           MaterialPageRoute(
             builder: (_) => PayPalCheckoutScreen(
               initialAmount: shortfall,
-              paymentReason: 'Wallet deposit for $_selectedTier plan',
+              paymentReason: 'Wallet deposit for $selectedTier plan',
               paymentKind: 'deposit',
-              plan: _selectedTier,
+              plan: selectedTier,
               carrierRuleId: premiumRule?.id,
               onSuccess: () async {
                 navigator.pop();
@@ -805,7 +899,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
                   final paid = await PlanPayment.tryPlanFromWallet(
                     ref,
-                    plan: _selectedTier,
+                    plan: selectedTier,
                     rule: premiumRule,
                   );
 
@@ -922,31 +1016,37 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   Widget _buildHeader() {
     final isDark = context.isDarkMode;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       child: Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Setup Protection',
-                style: AppTextStyles.titleMedium.copyWith(
-                  color: isDark
-                      ? AppColors.textSecondaryDark
-                      : AppColors.textSecondaryLight,
-                  fontWeight: FontWeight.w600,
+              Expanded(
+                child: Text(
+                  'Setup Protection',
+                  style: AppTextStyles.titleMedium.copyWith(
+                    color: isDark
+                        ? AppColors.textSecondaryDark
+                        : AppColors.textSecondaryLight,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
-              Text(
-                'Step ${_currentPage + 1} of 5',
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: context.primaryColor,
-                  fontWeight: FontWeight.w700,
+              const SizedBox(width: 12),
+              Flexible(
+                child: Text(
+                  'Step ${_currentPage + 1} of 5',
+                  textAlign: TextAlign.end,
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: context.primaryColor,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           // Clean custom linear progress indicator
           Stack(
             children: [
@@ -964,7 +1064,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 width:
                     MediaQuery.of(context).size.width *
                         ((_currentPage + 1) / 5) -
-                    48,
+                    40,
                 decoration: BoxDecoration(
                   gradient: AppColors.primaryGradient,
                   borderRadius: BorderRadius.circular(2),
@@ -979,64 +1079,29 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   // ── Step 1: Welcome Screen ──────────────────────────────────────
   Widget _buildStepWelcome() {
-    return GestureDetector(
-      onTap: _nextPage,
-      behavior: HitTestBehavior.opaque,
-      child: Container(
-        color: Colors.white, // Seamless white background
-        alignment: Alignment.center,
-        child: Image.asset(
-          'assets/images/startinwhite.png',
-          fit: BoxFit.contain,
-          errorBuilder: (context, error, stackTrace) {
-            final isDark = context.isDarkMode;
-            return SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                children: [
-                  const SizedBox(height: 80),
-                  Icon(
-                    Icons.shield_rounded,
-                    color: context.primaryColor,
-                    size: 80,
-                  ),
-                  const SizedBox(height: 24),
-                  Text(
-                    'Welcome to KeepSIMs',
-                    style: AppTextStyles.headlineLarge.copyWith(
-                      color: context.onSurfaceColor,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Keep your international SIM cards protected from carrier deactivation due to inactivity automatically.',
-                    textAlign: TextAlign.center,
-                    style: AppTextStyles.bodyLarge.copyWith(
-                      color: isDark
-                          ? AppColors.textSecondaryDark
-                          : AppColors.textSecondaryLight,
-                    ),
-                  ),
-                  const SizedBox(height: 40),
-                  ElevatedButton(
-                    onPressed: _nextPage,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: context.primaryColor,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 32,
-                        vertical: 16,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text('Start'),
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
+    return AccountSetupWelcome(
+      agreedToTerms: _agreedToTerms,
+      onAgreementChanged: (value) => setState(() => _agreedToTerms = value),
+      onOpenTerms: () => _openPolicy('https://keepsims.com/terms'),
+      onOpenPrivacy: () => _openPolicy('https://keepsims.com/privacy'),
+    );
+  }
+
+  Future<void> _openPolicy(String url) async {
+    try {
+      if (await launchUrl(
+        Uri.parse(url),
+        mode: LaunchMode.externalApplication,
+      )) {
+        return;
+      }
+    } catch (_) {
+      // Keep the welcome step available if the device cannot open the browser.
+    }
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Could not open this page. Please try again.'),
       ),
     );
   }
@@ -1045,28 +1110,32 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   Widget _buildStepProfile() {
     final isDark = context.isDarkMode;
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 12),
+          const SizedBox(height: 4),
           Text(
             'Personalize Profile',
-            style: AppTextStyles.headlineLarge.copyWith(
+            style: AppTextStyles.headlineSmall.copyWith(
               color: context.onSurfaceColor,
+              fontWeight: FontWeight.w700,
+              fontSize: 21,
+              letterSpacing: -0.3,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
           Text(
-            'Tell us who you are and select your defaults to let us tailor currency displays and geo-tracking features.',
-            style: AppTextStyles.bodyMedium.copyWith(
+            'Tell us who you are and set your preferences so we can deliver timely SIM alerts.',
+            style: AppTextStyles.bodySmall.copyWith(
               color: isDark
                   ? AppColors.textSecondaryDark
                   : AppColors.textSecondaryLight,
-              height: 1.4,
+              fontSize: 12.5,
+              height: 1.35,
             ),
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 16),
 
           // Name Input
           Text(
@@ -1074,13 +1143,19 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             style: AppTextStyles.bodyMedium.copyWith(
               color: context.onSurfaceColor,
               fontWeight: FontWeight.w600,
+              fontSize: 13,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           TextField(
             controller: _nameController,
             style: TextStyle(color: context.onSurfaceColor),
             decoration: InputDecoration(
+              isDense: true,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 12,
+              ),
               hintText: 'John Doe',
               hintStyle: TextStyle(
                 color: isDark
@@ -1090,30 +1165,31 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               filled: true,
               fillColor: isDark ? AppColors.darkCard : Colors.white,
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(
                   color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
                 ),
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(
                   color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
                 ),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(color: context.primaryColor, width: 1.5),
               ),
               prefixIcon: Icon(
                 Icons.person_rounded,
+                size: 20,
                 color: isDark
                     ? AppColors.textSecondaryDark
                     : AppColors.textSecondaryLight,
               ),
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 14),
 
           // Home Country Dropdown
           Text(
@@ -1121,14 +1197,15 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             style: AppTextStyles.bodyMedium.copyWith(
               color: context.onSurfaceColor,
               fontWeight: FontWeight.w600,
+              fontSize: 13,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
             decoration: BoxDecoration(
               color: isDark ? AppColors.darkCard : Colors.white,
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
               ),
@@ -1136,6 +1213,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
                 value: _selectedCountryCode,
+                isDense: true,
                 dropdownColor: isDark ? AppColors.darkSurface : Colors.white,
                 icon: Icon(
                   Icons.keyboard_arrow_down_rounded,
@@ -1151,12 +1229,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       children: [
                         Text(
                           country['flag']!,
-                          style: const TextStyle(fontSize: 20),
+                          style: const TextStyle(fontSize: 18),
                         ),
-                        const SizedBox(width: 12),
+                        const SizedBox(width: 10),
                         Text(
                           country['name']!,
-                          style: AppTextStyles.bodyLarge.copyWith(
+                          style: AppTextStyles.bodyMedium.copyWith(
                             color: context.onSurfaceColor,
                           ),
                         ),
@@ -1174,7 +1252,128 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               ),
             ),
           ),
-          const SizedBox(height: 24),
+
+          const SizedBox(height: 8),
+
+          Text(
+            'WhatsApp Number',
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: context.onSurfaceColor,
+              fontWeight: FontWeight.w600,
+              fontSize: 13,
+            ),
+          ),
+          Text(
+            'Keepsims will send you alerts about your SIM',
+            style: AppTextStyles.bodySmall.copyWith(
+              color: isDark
+                  ? AppColors.textSecondaryDark
+                  : AppColors.textSecondaryLight,
+              fontStyle: FontStyle.italic,
+              fontSize: 11.5,
+            ),
+          ),
+          const SizedBox(height: 6),
+          TextField(
+            key: const ValueKey('onboarding-whatsapp-number'),
+            controller: _whatsappNumberController,
+            focusNode: _whatsappNumberFocus,
+            enabled: !_isSavingProfileStep,
+            keyboardType: TextInputType.phone,
+            textInputAction: TextInputAction.done,
+            autofillHints: const [AutofillHints.telephoneNumber],
+            style: TextStyle(color: context.onSurfaceColor),
+            onChanged: (_) {
+              _hasEditedWhatsAppNumber = true;
+              if (_whatsappNumberError != null) {
+                setState(() => _whatsappNumberError = null);
+              }
+            },
+            decoration: _notificationContactDecoration(
+              hintText: 'e.g. +96891234567',
+              icon: Icons.chat_bubble_outline_rounded,
+              errorText: _whatsappNumberError,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: context.primaryColor.withValues(alpha: 0.06),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: context.primaryColor.withValues(alpha: 0.15),
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Format: + followed by country code and mobile number',
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: context.onSurfaceColor,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 11.5,
+                    height: 1.3,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'Example (Oman): +96891234567',
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: context.primaryColor,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 11.5,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'For Standard and Premium SIM subscriptions',
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: isDark
+                        ? AppColors.textSecondaryDark
+                        : AppColors.textSecondaryLight,
+                    fontSize: 11,
+                    height: 1.3,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 14),
+          Text(
+            'Notification email',
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: context.onSurfaceColor,
+              fontWeight: FontWeight.w600,
+              fontSize: 13,
+            ),
+          ),
+          const SizedBox(height: 6),
+          TextField(
+            key: const ValueKey('onboarding-notification-email'),
+            controller: _notificationEmailController,
+            readOnly: true,
+            keyboardType: TextInputType.emailAddress,
+            style: TextStyle(color: context.onSurfaceColor),
+            decoration: _notificationContactDecoration(
+              hintText: 'Your account email',
+              icon: Icons.email_outlined,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Uses your account email. You can choose a different verified email later in notification settings.',
+            style: AppTextStyles.bodySmall.copyWith(
+              color: isDark
+                  ? AppColors.textSecondaryDark
+                  : AppColors.textSecondaryLight,
+              fontSize: 11.5,
+              height: 1.3,
+            ),
+          ),
+          const SizedBox(height: 14),
 
           // Currency Dropdown
           Text(
@@ -1182,14 +1381,15 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             style: AppTextStyles.bodyMedium.copyWith(
               color: context.onSurfaceColor,
               fontWeight: FontWeight.w600,
+              fontSize: 13,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
             decoration: BoxDecoration(
               color: isDark ? AppColors.darkCard : Colors.white,
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
               ),
@@ -1197,6 +1397,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
                 value: _selectedCurrency,
+                isDense: true,
                 dropdownColor: isDark ? AppColors.darkSurface : Colors.white,
                 icon: Icon(
                   Icons.keyboard_arrow_down_rounded,
@@ -1210,13 +1411,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     value: curr['code'],
                     child: Text(
                       curr['name']!,
-                      style: AppTextStyles.bodyLarge.copyWith(
+                      style: AppTextStyles.bodyMedium.copyWith(
                         color: context.onSurfaceColor,
                       ),
                     ),
                   );
                 }).toList(),
-                onChanged: _isSavingCurrency
+                onChanged: _isSavingProfileStep
                     ? null
                     : (val) {
                         if (val != null) {
@@ -1228,7 +1429,58 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               ),
             ),
           ),
+          const SizedBox(height: 6),
+          Text(
+            'Prices are in USD. Your preferred currency is used to show an approximate converted value.',
+            style: AppTextStyles.bodySmall.copyWith(
+              color: isDark
+                  ? AppColors.textSecondaryDark
+                  : AppColors.textSecondaryLight,
+              fontSize: 11.5,
+              height: 1.3,
+            ),
+          ),
         ],
+      ),
+    );
+  }
+
+  InputDecoration _notificationContactDecoration({
+    required String hintText,
+    required IconData icon,
+    String? errorText,
+  }) {
+    final isDark = context.isDarkMode;
+    final border = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: BorderSide(
+        color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+      ),
+    );
+    return InputDecoration(
+      isDense: true,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      hintText: hintText,
+      errorText: errorText,
+      errorMaxLines: 3,
+      hintStyle: TextStyle(
+        color: isDark
+            ? AppColors.textTertiaryDark
+            : AppColors.textTertiaryLight,
+      ),
+      filled: true,
+      fillColor: isDark ? AppColors.darkCard : Colors.white,
+      border: border,
+      enabledBorder: border,
+      focusedBorder: border.copyWith(
+        borderSide: BorderSide(color: context.primaryColor, width: 1.5),
+      ),
+      prefixIcon: Icon(
+        icon,
+        size: 20,
+        color: isDark
+            ? AppColors.textSecondaryDark
+            : AppColors.textSecondaryLight,
       ),
     );
   }
@@ -1249,11 +1501,25 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 12),
-          Text(
-            'Protect First SIM',
-            style: AppTextStyles.headlineLarge.copyWith(
-              color: context.onSurfaceColor,
-            ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  'Protect First SIM',
+                  style: AppTextStyles.headlineLarge.copyWith(
+                    color: context.onSurfaceColor,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              TextButton.icon(
+                key: const ValueKey('onboarding-first-sim-skip'),
+                onPressed: _isCheckingLiveness ? null : _skipFirstSim,
+                icon: const Icon(Icons.arrow_forward, size: 18),
+                label: const Text('Skip'),
+              ),
+            ],
           ),
           const SizedBox(height: 8),
           Text(
@@ -1602,6 +1868,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   // ── Step 5: Smart Preferences Screen ──────────────────────────────
   Widget _buildStepSmartPreferences() {
     final isDark = context.isDarkMode;
+    final selectedTier = _setupTier;
     final selectedCountry = _countries.firstWhere(
       (c) => c['code'] == _selectedCountryCode,
       orElse: () => {'code': '', 'name': '', 'flag': ''},
@@ -1626,7 +1893,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Confirm your configuration and accept the terms of service to activate active line shield guards.',
+            'Review your configuration before activating protection for your lines.',
             style: AppTextStyles.bodyMedium.copyWith(
               color: isDark
                   ? AppColors.textSecondaryDark
@@ -1706,19 +1973,20 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 ),
                 _buildSummaryRow(
                   label: 'Selected Plan',
-                  value: _selectedTier == 'free'
+                  value: selectedTier == 'free'
                       ? 'Free Plan (\$0)'
-                      : (_selectedTier == 'standard'
+                      : (selectedTier == 'standard'
                             ? 'Standard Plan ($_feePerYearLabel)'
                             : 'Premium Plan ($_feePerYearLabel + Refill)'),
                   icon: Icons.shield_rounded,
-                  valueColor: _selectedTier == 'free'
+                  valueColor: selectedTier == 'free'
                       ? Colors.blueAccent
-                      : (_selectedTier == 'standard'
+                      : (selectedTier == 'standard'
                             ? context.primaryColor
                             : Colors.purpleAccent),
                 ),
-                if (_simPhoneController.text.trim().isNotEmpty) ...[
+                if (!_skippedFirstSim &&
+                    _simPhoneController.text.trim().isNotEmpty) ...[
                   Divider(
                     color: isDark
                         ? AppColors.darkBorder
@@ -1773,54 +2041,26 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           ),
           const SizedBox(height: 32),
 
-          // Terms Acceptance Checkbox
-          GestureDetector(
-            onTap: () {
-              setState(() {
-                _agreedToTerms = !_agreedToTerms;
-              });
-            },
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  width: 22,
-                  height: 22,
-                  decoration: BoxDecoration(
-                    color: _agreedToTerms
-                        ? context.primaryColor
-                        : Colors.transparent,
-                    border: Border.all(
-                      color: _agreedToTerms
-                          ? context.primaryColor
-                          : (isDark
-                                ? AppColors.darkBorder
-                                : AppColors.lightBorder),
-                      width: 2,
-                    ),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: _agreedToTerms
-                      ? const Icon(
-                          Icons.check_rounded,
-                          color: Colors.white,
-                          size: 16,
-                        )
-                      : null,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'I confirm that I understand and agree to the SIM Shield Terms of Service and Privacy Policy. I authorize smart checks on my protected lines.',
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: context.onSurfaceColor,
-                      height: 1.4,
-                    ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                Icons.check_circle_outline_rounded,
+                color: isDark ? AppColors.secondary : AppColors.lightSecondary,
+                size: 22,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Terms of Service and Privacy Policy accepted. Activating '
+                  'protection authorizes smart checks on the lines you add.',
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: context.onSurfaceColor,
+                    height: 1.4,
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ],
       ),
@@ -1829,7 +2069,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   Widget _buildStepNotifications() {
     final isDark = context.isDarkMode;
-    final isBasic = _selectedTier == 'free';
+    final isBasic = _setupTier == 'free';
     final channelsAsync = ref.watch(notificationChannelsControllerProvider);
 
     return SingleChildScrollView(
@@ -1838,11 +2078,25 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 12),
-          Text(
-            'Setup Alerts',
-            style: AppTextStyles.headlineLarge.copyWith(
-              color: context.onSurfaceColor,
-            ),
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 12,
+            runSpacing: 6,
+            children: [
+              Text(
+                'Setup Alerts',
+                style: AppTextStyles.headlineLarge.copyWith(
+                  color: context.onSurfaceColor,
+                ),
+              ),
+              TextButton.icon(
+                key: const ValueKey('onboarding-alerts-skip'),
+                onPressed: _nextPage,
+                icon: const Icon(Icons.arrow_forward, size: 18),
+                label: const Text('Set up later'),
+              ),
+            ],
           ),
           const SizedBox(height: 8),
           Text(
@@ -1858,6 +2112,15 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           ),
           const SizedBox(height: 24),
 
+          const SetupDevicePermissions(),
+          const Divider(height: 40),
+          Text(
+            'Alert channels',
+            style: AppTextStyles.titleLarge.copyWith(
+              color: context.onSurfaceColor,
+            ),
+          ),
+          const SizedBox(height: 12),
           channelsAsync.when(
             data: (channels) {
               final order = {
@@ -1876,11 +2139,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       ),
                     );
 
-              return Container(
-                decoration: BoxDecoration(
-                  color: isDark ? AppColors.darkCard : Colors.white,
+              return Material(
+                color: isDark ? AppColors.darkCard : Colors.white,
+                clipBehavior: Clip.antiAlias,
+                shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
+                  side: BorderSide(
                     color: isDark
                         ? AppColors.darkBorder
                         : AppColors.lightBorder,
@@ -1909,7 +2173,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       case 'push':
                         label = 'Push Notifications';
                         subtitle =
-                            'Aggressive native notifications on this device.';
+                            'SIM reminders and account updates on this device.';
                         icon = Icons.notifications_active_rounded;
                         color = AppColors.primaryLight;
                         break;
@@ -1944,9 +2208,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         SwitchListTile(
-                          value: isLocked
-                              ? false
-                              : (type == 'push' && isBasic ? true : isEnabled),
+                          key: ValueKey('onboarding-channel-$type'),
+                          value: isLocked ? false : isEnabled,
                           activeThumbColor: color,
                           activeTrackColor: color.withValues(alpha: 0.2),
                           inactiveThumbColor: AppColors.textTertiaryDark,
@@ -1963,13 +2226,15 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                                 size: 20,
                               ),
                               const SizedBox(width: 12),
-                              Text(
-                                label,
-                                style: AppTextStyles.bodyMedium.copyWith(
-                                  color: isLocked
-                                      ? AppColors.textSecondaryDark
-                                      : context.onSurfaceColor,
-                                  fontWeight: FontWeight.bold,
+                              Expanded(
+                                child: Text(
+                                  label,
+                                  style: AppTextStyles.bodyMedium.copyWith(
+                                    color: isLocked
+                                        ? AppColors.textSecondaryDark
+                                        : context.onSurfaceColor,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
                               if (isLocked) ...[
@@ -2013,16 +2278,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                               ),
                             ),
                           ),
-                          onChanged: isLocked || (type == 'push' && isBasic)
+                          onChanged: isLocked
                               ? null
-                              : (val) async {
-                                  await ref
-                                      .read(
-                                        notificationChannelsControllerProvider
-                                            .notifier,
-                                      )
-                                      .toggleChannel(type, val);
-                                },
+                              : (val) => _toggleAlertChannel(type, val),
                         ),
                         if (isEnabled && type != 'push' && !isLocked) ...[
                           _InlineOnboardingChannelConfig(
@@ -2048,6 +2306,27 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _toggleAlertChannel(String type, bool enabled) async {
+    try {
+      if (type == 'push' && enabled) {
+        final allowed = await ref
+            .read(notificationPermissionControllerProvider.notifier)
+            .enable();
+        if (!mounted || !allowed) return;
+      }
+      await ref
+          .read(notificationChannelsControllerProvider.notifier)
+          .toggleChannel(type, enabled);
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Could not update alerts. Please try again.'),
+        ),
+      );
+    }
   }
 
   Widget _buildSummaryRow({
@@ -2098,10 +2377,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   // ── Footer Navigation Buttons ────────────────────────────────────
   Widget _buildFooter(bool isLoading) {
-    isLoading = isLoading || _isSavingCurrency;
+    isLoading = isLoading || _isSavingProfileStep;
     final isDark = context.isDarkMode;
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
       decoration: BoxDecoration(
         border: Border(
           top: BorderSide(
@@ -2118,7 +2397,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               child: Padding(
                 padding: const EdgeInsets.only(right: 12),
                 child: SizedBox(
-                  height: 54,
+                  height: 48,
                   child: OutlinedButton(
                     onPressed: isLoading ? null : _prevPage,
                     style: OutlinedButton.styleFrom(
@@ -2129,7 +2408,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                             : AppColors.lightBorder,
                       ),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                     ),
                     child: const Text('Back'),
@@ -2142,21 +2421,24 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           Expanded(
             flex: 2,
             child: SizedBox(
-              height: 54,
+              height: 48,
               child: ElevatedButton(
-                onPressed: (isLoading)
+                key: const ValueKey('onboarding-continue'),
+                onPressed: (isLoading || (_currentPage == 0 && !_agreedToTerms))
                     ? null
                     : (_currentPage == 4)
                     ? _submit
                     : _nextPage,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: context.primaryColor,
-                  foregroundColor: Colors.white,
+                  foregroundColor: isDark && _currentPage == 0
+                      ? AppColors.darkBg
+                      : Colors.white,
                   disabledBackgroundColor: context.primaryColor.withValues(
-                    alpha: 0.5,
+                    alpha: _currentPage == 0 ? 0.15 : 0.5,
                   ),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   elevation: 0,
                 ),
@@ -2170,11 +2452,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                         ),
                       )
                     : Text(
-                        _currentPage == 0
-                            ? 'Start'
-                            : (_currentPage == 5
-                                  ? 'Start Protecting'
-                                  : 'Continue'),
+                        _currentPage == 4 ? 'Start Protecting' : 'Continue',
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
               ),

@@ -259,11 +259,7 @@ class AuthRepository implements AuthContract {
 
       final response = await AuthSessionManager.withAuthRecovery(
         _client,
-        () => _client
-            .from('profiles')
-            .select()
-            .eq('id', userId)
-            .single(),
+        () => _client.from('profiles').select().eq('id', userId).single(),
       );
 
       await _cache.writeJson('cached_user_profile', response);

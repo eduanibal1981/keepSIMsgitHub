@@ -16,6 +16,8 @@ import 'package:keep_sims/features/notifications/data/models/alert_setting_model
 import 'package:keep_sims/features/notifications/data/models/channel_destination.dart';
 import 'package:keep_sims/features/notifications/data/models/user_preferences_model.dart';
 import 'package:keep_sims/features/notifications/presentation/controllers/notification_settings_controller.dart';
+import 'package:keep_sims/features/notifications/data/services/notification_permission_service.dart';
+import 'package:keep_sims/features/notifications/presentation/controllers/notification_permission_controller.dart';
 import 'package:keep_sims/features/notifications/presentation/screens/notification_settings_screen.dart';
 import 'package:keep_sims/features/notifications/presentation/widgets/alert_preferences_dashboard.dart';
 import 'package:keep_sims/l10n/app_localizations.dart';
@@ -150,6 +152,7 @@ void main() {
     bool dark = false,
     double scale = 1,
     double width = 390,
+    _NotificationAccess? access,
   }) async {
     tester.view.physicalSize = Size(width, 844);
     tester.view.devicePixelRatio = 1;
@@ -159,6 +162,9 @@ void main() {
       ProviderScope(
         overrides: [
           notificationChannelsControllerProvider.overrideWith(() => controller),
+          notificationPermissionServiceProvider.overrideWithValue(
+            access ?? _NotificationAccess(),
+          ),
           userPreferencesControllerProvider.overrideWith(() => _Preferences()),
           alertSettingsControllerProvider.overrideWith(() => _Categories()),
           authControllerProvider.overrideWith(() => _Auth()),
@@ -251,6 +257,27 @@ void main() {
       findsOneWidget,
     );
   });
+
+  testWidgets(
+    'push permissions can be enabled later without prompting on open',
+    (tester) async {
+      final access = _NotificationAccess();
+      await mount(tester, _Channels(), access: access);
+      await tester.tap(find.text('Push notifications'));
+      await tester.pumpAndSettle();
+      expect(access.requests, 0);
+      expect(find.text('Not enabled'), findsOneWidget);
+      final action = find.byKey(
+        const ValueKey('notification-permission-action'),
+      );
+      await tester.ensureVisible(action);
+      await tester.tap(action);
+      await tester.pumpAndSettle();
+      expect(access.requests, 1);
+      expect(find.text('Allowed'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
   testWidgets('alarm editor explains the schedule and missing recharge data', (
     tester,
   ) async {
@@ -344,6 +371,28 @@ class _Channels extends NotificationChannelsController {
           .toList(),
     );
   }
+}
+
+class _NotificationAccess implements NotificationPermissionService {
+  bool granted = false;
+  int requests = 0;
+
+  @override
+  Future<NotificationPermissionAccess> status() async =>
+      NotificationPermissionAccess(
+        supported: true,
+        granted: granted,
+        canRequest: !granted,
+      );
+
+  @override
+  Future<void> request() async {
+    requests++;
+    granted = true;
+  }
+
+  @override
+  Future<bool> openSettings() async => true;
 }
 
 class _Preferences extends UserPreferencesController {

@@ -95,6 +95,7 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/images/onboarding/
     - assets/icons/
     - assets/fonts/
     - assets/sounds/
@@ -104,6 +105,8 @@ flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
   remove_alpha_ios: true
-  image_path: "assets/images/Logo.png"
-  adaptive_icon_background: "#0d0e12"
-  adaptive_icon_foreground: "assets/images/Logo.png"
+  image_path: "assets/images/launcher-icon.png"
+  adaptive_icon_background: "#0A295A"
+  adaptive_icon_foreground: "assets/images/launcher-foreground.png"
+  # Keeps the complete shield and checkmark inside Android's circular safe area.
+  adaptive_icon_foreground_inset: 22

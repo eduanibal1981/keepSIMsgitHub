@@ -39,6 +39,10 @@ Supporting intentions:
 - Freezed/json serialization is used for immutable models.
 - Repositories convert infrastructure exceptions to typed `Result`/failure values.
 - Only `lib/core/supabase_client.dart` initializes Supabase.
+- Customer password recovery uses a separate contract/controller and stateless
+  Auth REST client. Recovery tokens remain in memory and never enter the
+  primary session or the SDK's browser BroadcastChannel. See
+  `docs/password_recovery.md` for the hosted email-code template requirement.
 - UI and controllers do not perform direct Supabase queries.
 - Business invariants, authorization, financial mutation, and provider secrets stay server-side.
 - SQL migrations are forward-only and secure-by-default.

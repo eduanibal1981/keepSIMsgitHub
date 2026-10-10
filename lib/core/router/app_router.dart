@@ -12,6 +12,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import 'package:keep_sims/features/auth/ui/login_screen.dart';
 import 'package:keep_sims/features/auth/ui/email_auth_screen.dart';
+import 'package:keep_sims/features/auth/ui/forgot_password_screen.dart';
 import 'package:keep_sims/features/profile/presentation/ui/onboarding_screen.dart';
 import 'package:keep_sims/features/profile/presentation/ui/profile_screen.dart';
 import 'package:keep_sims/core/router/placeholder_screens.dart';
@@ -61,6 +62,7 @@ abstract final class AppRoutes {
   static const String splash = '/';
   static const String login = '/login';
   static const String emailAuth = '/email-auth';
+  static const String forgotPassword = '/forgot-password';
   static const String onboarding = '/onboarding';
   static const String home = '/home';
   static const String calling = '/calling';
@@ -177,7 +179,8 @@ RouterConfig<Object> appRouter(Ref ref) {
       // Not logged in → go to login (unless already on a public route)
       if (!isLoggedIn) {
         if (currentPath == AppRoutes.login ||
-            currentPath == AppRoutes.emailAuth) {
+            currentPath == AppRoutes.emailAuth ||
+            currentPath == AppRoutes.forgotPassword) {
           return null; // allow access
         }
         return AppRoutes.login;
@@ -196,6 +199,7 @@ RouterConfig<Object> appRouter(Ref ref) {
       if (currentPath == AppRoutes.splash ||
           currentPath == AppRoutes.login ||
           currentPath == AppRoutes.emailAuth ||
+          currentPath == AppRoutes.forgotPassword ||
           currentPath == AppRoutes.onboarding) {
         return AppRoutes.home;
       }
@@ -223,7 +227,16 @@ RouterConfig<Object> appRouter(Ref ref) {
       GoRoute(
         path: AppRoutes.emailAuth,
         name: 'emailAuth',
-        builder: (context, state) => const EmailAuthScreen(),
+        builder: (context, state) => EmailAuthScreen(
+          initialEmail: state.extra is String ? state.extra as String : '',
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.forgotPassword,
+        name: 'forgotPassword',
+        builder: (context, state) => ForgotPasswordScreen(
+          initialEmail: state.extra is String ? state.extra as String : '',
+        ),
       ),
 
       // ── Onboarding ─────────────────────────────────────────

@@ -31,9 +31,9 @@
 ## Onboarding walkthrough
 ### TC-PRO-005: Complete onboarding and save the completion flag
 - **Preconditions**: A new account has not completed onboarding.
-- **Expected**: Walkthrough advances through each page, saves the selected preferences, and routes to the authenticated home after completion.
+- **Expected**: The welcome step requires explicit acceptance of the Terms of Service and Privacy Policy before advancing. Both policy links open externally without accepting on the user's behalf. Walkthrough saves the selected preferences and routes to the authenticated home after completion.
 - **Status**: CATALOGED - UNTESTED
-- **Notes/Found Issues**: Onboarding profile test exists but Flutter execution stalled.
+- **Notes/Found Issues**: Local widget checks passed on 2026-10-10 (20 tests): consent gating and retention on Back, policy URLs and browser-open failure, optional permission setup/skip, notification denial/grant/revocation and return from settings, concurrent requests, alarm opt-in, compact permission layouts with enlarged text in both themes, and contact transitions. Full account completion remains untested. The separate currency transition suite has one existing price expectation mismatch (`$8.50 USD`); these changes do not alter pricing. The carrier validation badge in the preceding SIM step also overflows at 320px with 1.8x text; permission-layout checks resize after reaching the alerts step. Previews are under `output/onboarding-consent/` and `output/onboarding-permissions/`.
 
 ## Onboarding SIM setup
 ### TC-PRO-006: Select an initial SIM and finish protected setup

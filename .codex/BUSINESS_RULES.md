@@ -119,6 +119,10 @@ qualifying supplier cost * (1 + app fee % + premium margin %) + flat premium mar
 ## Notifications, privacy, and lifecycle
 
 - Notification preference/channel state is user-scoped; delivery attempts and system alerts are server-authored.
+- Account setup requires explicit terms/privacy acceptance separately from device permission choices. Device access is optional and may be configured later (2026-10-10).
+- Do not request notification access at app startup. Offer an explicit action in onboarding and push settings, display the actual device status, and recheck on resume. Denial must not block setup or automatically open phone settings.
+- Request microphone access when making or answering a call, not during account setup. Do not request contacts or phone access without a supported feature that needs it.
+- Opening alarm settings must not request access. Request notifications when the user enables device alarms; request exact-alarm settings only after that opt-in. Keep device permissions distinct from server-side alert channel preferences.
 - Account deletion is a delayed/request/purge workflow, not a client cascade. Export/cancel/purge APIs enforce caller ownership or admin role.
 - Activity, financial, payment, provider, and admin audit records must not be casually deleted as “unused data.” Retention should be explicit and legally/operationally approved.
 - Client and operational logs must redact phone numbers, ICCIDs, wallet/payment values where sensitive, tokens, secrets, and raw provider payloads.

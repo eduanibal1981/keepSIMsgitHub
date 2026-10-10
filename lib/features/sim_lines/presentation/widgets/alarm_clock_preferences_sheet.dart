@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:keep_sims/core/utils/build_context_extension.dart';
 import 'package:keep_sims/features/alert_alarm/controller/device_alarm_controller.dart';
+import 'package:keep_sims/features/notifications/presentation/controllers/notification_permission_controller.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
 import 'package:keep_sims/features/sim_lines/presentation/providers/sim_line_alert_clock_provider.dart';
@@ -28,18 +29,33 @@ class AlarmClockPreferencesSheet extends ConsumerStatefulWidget {
 }
 
 class _AlarmClockPreferencesSheetState
-    extends ConsumerState<AlarmClockPreferencesSheet> {
+    extends ConsumerState<AlarmClockPreferencesSheet>
+    with WidgetsBindingObserver {
   bool _saving = false;
   String? _error;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         ref.invalidate(simLineAlertClockForLineProvider);
       }
     });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && !_saving) {
+      ref.invalidate(deviceAlarmControllerProvider);
+    }
   }
 
   Future<void> _change(bool enabled) async {
@@ -48,9 +64,29 @@ class _AlarmClockPreferencesSheetState
       _error = null;
     });
     try {
+      if (enabled) {
+        final allowed = await ref
+            .read(notificationPermissionControllerProvider.notifier)
+            .enable();
+        if (!mounted) return;
+        if (!allowed) {
+          setState(
+            () => _error = 'Allow notifications to enable SIM alarm reminders.',
+          );
+          return;
+        }
+      }
       await ref
           .read(deviceAlarmControllerProvider.notifier)
           .setEnabled(enabled);
+      if (!mounted) return;
+      final status = await ref.read(deviceAlarmControllerProvider.future);
+      if (!mounted) return;
+      if (enabled && status.supported && !status.exactAlarmAllowed) {
+        await ref
+            .read(deviceAlarmControllerProvider.notifier)
+            .openPermissionSettings();
+      }
     } catch (e) {
       if (mounted) {
         setState(
@@ -208,10 +244,10 @@ class _AlarmClockPreferencesSheetState
                                 onTap: _saving
                                     ? null
                                     : () => _pickTime(
-                                          context,
-                                          s.alarmHour,
-                                          s.alarmMinute,
-                                        ),
+                                        context,
+                                        s.alarmHour,
+                                        s.alarmMinute,
+                                      ),
                                 borderRadius: BorderRadius.circular(12),
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(
@@ -219,7 +255,8 @@ class _AlarmClockPreferencesSheetState
                                     vertical: 12,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: context.colorScheme
+                                    color: context
+                                        .colorScheme
                                         .surfaceContainerHighest
                                         .withValues(alpha: 0.5),
                                     borderRadius: BorderRadius.circular(12),
@@ -252,7 +289,8 @@ class _AlarmClockPreferencesSheetState
                                               'Rings at this local time 48+ hours before cutoff',
                                               style: TextStyle(
                                                 fontSize: 12,
-                                                color: context.colorScheme
+                                                color: context
+                                                    .colorScheme
                                                     .onSurfaceVariant,
                                               ),
                                             ),
@@ -267,8 +305,9 @@ class _AlarmClockPreferencesSheetState
                                         decoration: BoxDecoration(
                                           color: context.primaryColor
                                               .withValues(alpha: 0.12),
-                                          borderRadius:
-                                              BorderRadius.circular(8),
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
                                         ),
                                         child: Row(
                                           mainAxisSize: MainAxisSize.min,
@@ -295,8 +334,9 @@ class _AlarmClockPreferencesSheetState
                                 ),
                               ),
                             ),
-                            if (!s.exactAlarmAllowed ||
-                                !s.notificationsAllowed) ...[
+                            if (s.enabled &&
+                                (!s.exactAlarmAllowed ||
+                                    !s.notificationsAllowed)) ...[
                               const SizedBox(height: 8),
                               Text(
                                 !s.exactAlarmAllowed
