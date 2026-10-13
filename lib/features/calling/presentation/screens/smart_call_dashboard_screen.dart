@@ -452,7 +452,8 @@ class _SmartCallDashboardScreenState
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Column(
+        Expanded(
+          child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
@@ -470,7 +471,9 @@ class _SmartCallDashboardScreenState
               style: TextStyle(color: textSecondary, fontSize: 14),
             ),
           ],
+          ),
         ),
+        const SizedBox(width: 12),
         InkWell(
           onTap: _openDialer,
           borderRadius: BorderRadius.circular(20),
@@ -772,7 +775,7 @@ class _SmartCallDashboardScreenState
     );
   }
 
-  /// 5. "Numbers & voicemail" Inset Grouped Section
+  /// 5. "Voicemail" Section + Standalone Virtual Numbers Cross-Link
   Widget _buildNumbersAndVoicemailSection({
     required bool isDark,
     required Color cardBg,
@@ -781,11 +784,19 @@ class _SmartCallDashboardScreenState
     required Color textPrimary,
     required Color textSecondary,
   }) {
+    final emeraldAccent = isDark
+        ? const Color(0xFF34D399)
+        : const Color(0xFF059669);
+    final crossLinkBg = isDark
+        ? const Color(0xFF0C221E)
+        : const Color(0xFFECFDF5);
+    final crossLinkBorder = emeraldAccent.withValues(alpha: 0.3);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Numbers & voicemail',
+          'Voicemail',
           style: TextStyle(
             color: textPrimary,
             fontSize: 18,
@@ -800,38 +811,80 @@ class _SmartCallDashboardScreenState
             border: Border.all(color: cardBorder, width: 1.2),
             boxShadow: cardShadow,
           ),
-          child: Column(
-            children: [
-              _buildListTile(
-                icon: Icons.filter_none_outlined,
-                title: 'Virtual Numbers',
-                subtitle: 'Manage your numbers',
-                textPrimary: textPrimary,
-                textSecondary: textSecondary,
-                onTap: () {
-                  HapticHelper.lightTick();
-                  context.push(AppRoutes.myNumbers);
-                },
-              ),
-              Divider(
-                height: 1,
-                thickness: 1,
-                color: isDark
-                    ? cardBorder.withValues(alpha: 0.6)
-                    : const Color(0xFFF1F5F9),
-              ),
-              _buildListTile(
-                icon: Icons.voicemail_rounded,
-                title: 'Voicemail',
-                subtitle: 'Inbox & audio transcripts',
-                textPrimary: textPrimary,
-                textSecondary: textSecondary,
-                onTap: () {
-                  HapticHelper.lightTick();
-                  context.push(AppRoutes.voicemail);
-                },
-              ),
-            ],
+          child: _buildListTile(
+            icon: Icons.voicemail_rounded,
+            title: 'Voicemail Inbox',
+            subtitle: 'Listen to messages & audio transcripts',
+            textPrimary: textPrimary,
+            textSecondary: textSecondary,
+            onTap: () {
+              HapticHelper.lightTick();
+              context.push(AppRoutes.voicemail);
+            },
+          ),
+        ),
+        const SizedBox(height: 14),
+        // Subtle cross-link to standalone Virtual Numbers service
+        InkWell(
+          onTap: () {
+            HapticHelper.lightTick();
+            context.push(AppRoutes.myNumbers);
+          },
+          borderRadius: BorderRadius.circular(14),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: BoxDecoration(
+              color: crossLinkBg,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: crossLinkBorder),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 34,
+                  height: 34,
+                  decoration: BoxDecoration(
+                    color: emeraldAccent.withValues(alpha: 0.15),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.phone_forwarded_rounded,
+                    color: emeraldAccent,
+                    size: 18,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Need a Virtual Number or Caller ID?',
+                        style: TextStyle(
+                          color: textPrimary,
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Get a global number or set up Zero-Roaming call divert',
+                        style: TextStyle(
+                          color: textSecondary,
+                          fontSize: 11.5,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  color: emeraldAccent,
+                  size: 14,
+                ),
+              ],
+            ),
           ),
         ),
       ],

@@ -8,15 +8,22 @@ class DashboardFeatureCards extends StatelessWidget {
   const DashboardFeatureCards({
     super.key,
     required this.onSmartCall,
+    required this.onVirtualNumbers,
     required this.onEsims,
   });
 
   final VoidCallback onSmartCall;
+  final VoidCallback onVirtualNumbers;
   final VoidCallback onEsims;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final isAr = Localizations.localeOf(context).languageCode == 'ar';
+    final virtualNumbersSubtitle = isAr
+        ? 'أرقام دولية وتحويل مكالمات'
+        : 'Global numbers & divert';
+
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -32,7 +39,19 @@ class DashboardFeatureCards extends StatelessWidget {
               onTap: onSmartCall,
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 8),
+          Expanded(
+            child: _FeatureCard(
+              title: l10n.virtualNumbers,
+              subtitle: virtualNumbersSubtitle,
+              icon: Icons.phone_forwarded_rounded,
+              accent: const Color(0xFF10B981),
+              tint: const Color(0xFFECFDF5),
+              darkTint: const Color(0xFF122C26),
+              onTap: onVirtualNumbers,
+            ),
+          ),
+          const SizedBox(width: 8),
           Expanded(
             child: _FeatureCard(
               title: l10n.dashboardWorldwideEsims,
@@ -88,39 +107,41 @@ class _FeatureCard extends StatelessWidget {
           onTap: onTap,
           customBorder: shape,
           child: Padding(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(10),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
                     Container(
-                      width: 32,
-                      height: 32,
+                      width: 28,
+                      height: 28,
                       decoration: BoxDecoration(
-                        color: iconColor.withValues(alpha: 0.1),
+                        color: iconColor.withValues(alpha: 0.12),
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(icon, color: iconColor, size: 21),
+                      child: Icon(icon, color: iconColor, size: 17),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 6),
                     Expanded(
                       child: Align(
                         alignment: AlignmentDirectional.centerStart,
                         child: Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 3,
+                            horizontal: 5,
+                            vertical: 2,
                           ),
                           decoration: BoxDecoration(
                             color: iconColor.withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
                             AppLocalizations.of(context)!.dashboardNewFeature,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: AppTextStyles.labelSmall.copyWith(
                               color: iconColor,
-                              fontSize: 9,
+                              fontSize: 8.5,
                               fontWeight: FontWeight.w800,
                             ),
                           ),
@@ -130,29 +151,35 @@ class _FeatureCard extends StatelessWidget {
                     Icon(
                       Icons.arrow_forward_rounded,
                       color: iconColor,
-                      size: 14,
+                      size: 13,
                     ),
                   ],
                 ),
                 const SizedBox(height: 8),
                 Text(
                   title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.titleMedium.copyWith(
                     color: isDark
                         ? AppColors.textPrimaryDark
                         : AppColors.textPrimaryLight,
+                    fontSize: 13.5,
                     fontWeight: FontWeight.w700,
-                    height: 1.2,
+                    height: 1.18,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   subtitle,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.caption.copyWith(
                     color: isDark
                         ? AppColors.textSecondaryDark
                         : AppColors.textTertiaryLight,
-                    height: 1.3,
+                    fontSize: 10.5,
+                    height: 1.25,
                   ),
                 ),
               ],

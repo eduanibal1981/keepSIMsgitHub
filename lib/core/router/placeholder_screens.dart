@@ -310,6 +310,10 @@ class AppShell extends ConsumerWidget {
     if (location == AppRoutes.home || location == '${AppRoutes.home}/') {
       return 0;
     }
+    if (location == AppRoutes.myNumbers ||
+        location.startsWith('${AppRoutes.myNumbers}/')) {
+      return null;
+    }
     if (location == AppRoutes.calling ||
         location.startsWith('${AppRoutes.calling}/')) {
       return 1;

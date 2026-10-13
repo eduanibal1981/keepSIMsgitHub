@@ -241,6 +241,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   await HapticHelper.lightTick();
                   if (context.mounted) context.push(AppRoutes.calling);
                 },
+                onVirtualNumbers: () async {
+                  await HapticHelper.lightTick();
+                  if (context.mounted) context.push(AppRoutes.myNumbers);
+                },
                 onEsims: () async {
                   await HapticHelper.lightTick();
                   if (context.mounted) context.push(AppRoutes.esim);

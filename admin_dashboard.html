@@ -153,14 +153,14 @@
 
     <script>
         // Supabase configuration - Inject your values here or use environment variables in a real build
-        const SUPABASE_URL = 'YOUR_SUPABASE_URL';
-        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+        const SUPABASE_URL = 'https://zwxswagokhgbuzrrbnhr.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3eHN3YWdva2hnYnV6cnJibmhyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwMDg3MDIsImV4cCI6MjA5NDU4NDcwMn0.JzzxxqQiKEka-VLbmPH1hdBXH4aML0AMhrqXloIZXt0';
         
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let dashboardClient = null;
         let currentUserId = null;
 
         async function init() {
-            const { data: { session }, error } = await supabase.auth.getSession();
+            const { data: { session }, error } = await dashboardClient.auth.getSession();
             if (error || !session) {
                 // If not logged in, you could redirect to a login page. For now, show denied.
                 showDenied();
@@ -169,7 +169,7 @@
             currentUserId = session.user.id;
             
             // Check power user
-            const { data: profile } = await supabase.from('profiles').select('is_power_user').eq('id', currentUserId).single();
+            const { data: profile } = await dashboardClient.from('profiles').select('is_power_user').eq('id', currentUserId).single();
             
             if (profile && profile.is_power_user) {
                 document.getElementById('auth-guard').classList.add('hidden');
@@ -188,20 +188,20 @@
         }
 
         async function logout() {
-            await supabase.auth.signOut();
+            await dashboardClient.auth.signOut();
             location.reload();
         }
 
         // Configuration Logic
         async function loadConfig() {
-            const { data } = await supabase.from('system_configs').select('config_value').eq('config_key', 'ACTIVE_FULFILLMENT_METHOD').single();
+            const { data } = await dashboardClient.from('system_configs').select('config_value').eq('config_key', 'ACTIVE_FULFILLMENT_METHOD').single();
             if (data) {
                 document.getElementById(data.config_value).checked = true;
             }
         }
 
         async function updateGateway(value) {
-            await supabase.from('system_configs').update({ config_value: value, updated_at: new Date().toISOString() }).eq('config_key', 'ACTIVE_FULFILLMENT_METHOD');
+            await dashboardClient.from('system_configs').update({ config_value: value, updated_at: new Date().toISOString() }).eq('config_key', 'ACTIVE_FULFILLMENT_METHOD');
             // Show toast or UI feedback here
         }
 
@@ -209,7 +209,7 @@
         let queueData = [];
 
         async function loadQueue() {
-            const { data } = await supabase.from('refill_requests').select('*').order('created_at', { ascending: false }).limit(50);
+            const { data } = await dashboardClient.from('refill_requests').select('*').order('created_at', { ascending: false }).limit(50);
             if (data) {
                 queueData = data;
                 renderQueue();
@@ -260,7 +260,7 @@
         }
 
         async function completeManual(id) {
-            await supabase.from('refill_requests').update({ status: 'completed', updated_at: new Date().toISOString() }).eq('id', id);
+            await dashboardClient.from('refill_requests').update({ status: 'completed', updated_at: new Date().toISOString() }).eq('id', id);
         }
 
         function copyDetails(lineId, amount) {
@@ -270,7 +270,7 @@
 
         function setupRealtime() {
             // Subscribe to queue changes
-            supabase.channel('public:refill_requests')
+            dashboardClient.channel('public:refill_requests')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'refill_requests' }, payload => {
                     if (payload.eventType === 'INSERT') {
                         queueData.unshift(payload.new);
@@ -284,7 +284,7 @@
                 }).subscribe();
 
             // Subscribe to config changes
-            supabase.channel('public:system_configs')
+            dashboardClient.channel('public:system_configs')
                 .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'system_configs', filter: "config_key=eq.ACTIVE_FULFILLMENT_METHOD" }, payload => {
                     if(payload.new.config_value) {
                         document.getElementById(payload.new.config_value).checked = true;
@@ -292,8 +292,24 @@
                 }).subscribe();
         }
 
-        // Start
-        init();
+        // Initialize safely and surface startup failures.
+                async function startDashboard() {
+                    try {
+                        if (SUPABASE_URL === 'YOUR_SUPABASE_URL' || SUPABASE_ANON_KEY === 'YOUR_SUPABASE_ANON_KEY') {
+                            throw new Error('Configure the Supabase project URL and public API key before opening this dashboard.');
+                        }
+                        if (!window.supabase || !window.supabase.createClient) {
+                            throw new Error('The connection library could not load. Check your internet connection and reload.');
+                        }
+                        dashboardClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                        await init();
+                    } catch (error) {
+                        showDenied();
+                        document.querySelector('#access-denied h2').textContent = 'Dashboard unavailable';
+                        document.querySelector('#access-denied p').textContent = error.message || 'Unable to verify access. Please reload and try again.';
+                    }
+                }
+                startDashboard();
     </script>
 </body>
 </html>

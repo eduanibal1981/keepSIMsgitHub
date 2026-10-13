@@ -498,6 +498,15 @@ class _PerspectiveDrawerMenu extends ConsumerWidget {
                   ),
                   _buildMenuItem(
                     context,
+                    icon: Icons.phone_forwarded_outlined,
+                    title: AppLocalizations.of(context)!.virtualNumbers,
+                    onTap: () {
+                      onClose();
+                      context.push(AppRoutes.myNumbers);
+                    },
+                  ),
+                  _buildMenuItem(
+                    context,
                     icon: Icons.account_balance_wallet_outlined,
                     title: AppLocalizations.of(context)!.wallet,
                     onTap: () {

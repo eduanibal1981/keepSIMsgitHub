@@ -55,7 +55,7 @@ import CoreTelephony
   /// Returns `false` on older iOS versions.
   private func checkEsimSupport() -> Bool {
     if #available(iOS 12.0, *) {
-      return CTCellularPlanSupportsEsim()
+        return CTCellularPlanProvisioning().supportsCellularPlan()
     }
     return false
   }

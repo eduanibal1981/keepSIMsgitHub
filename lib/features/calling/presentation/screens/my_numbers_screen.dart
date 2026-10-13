@@ -198,7 +198,7 @@ class _MyNumbersScreenState extends ConsumerState<MyNumbersScreen> {
           children: [
             const Flexible(
               child: Text(
-                'KeepSIMs',
+                'Virtual Numbers',
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.w700,
@@ -211,16 +211,16 @@ class _MyNumbersScreenState extends ConsumerState<MyNumbersScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
-                color: const Color(0xFF6366F1).withValues(alpha: 0.25),
+                color: const Color(0xFF10B981).withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: const Color(0xFF818CF8).withValues(alpha: 0.4),
+                  color: const Color(0xFF34D399).withValues(alpha: 0.4),
                 ),
               ),
               child: const Text(
-                'Smart Calling',
+                'Zero-Roaming',
                 style: TextStyle(
-                  color: Color(0xFF818CF8),
+                  color: Color(0xFF34D399),
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
                 ),
@@ -228,6 +228,20 @@ class _MyNumbersScreenState extends ConsumerState<MyNumbersScreen> {
             ),
           ],
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(
+              Icons.voicemail_rounded,
+              color: Colors.white70,
+              size: 20,
+            ),
+            tooltip: 'Voicemail Inbox',
+            onPressed: () {
+              HapticHelper.lightTick();
+              context.push(AppRoutes.voicemail);
+            },
+          ),
+        ],
         bottom: const PreferredSize(
           preferredSize: Size.fromHeight(16),
           child: Padding(
@@ -235,7 +249,7 @@ class _MyNumbersScreenState extends ConsumerState<MyNumbersScreen> {
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                'Zero-Roaming Cloud Calling & DID Sandbox',
+                'Global Inbound Numbers & Zero-Roaming Call Divert',
                 style: TextStyle(
                   color: Colors.white54,
                   fontSize: 11,
@@ -536,7 +550,7 @@ class _MyNumbersScreenState extends ConsumerState<MyNumbersScreen> {
                                   const PopupMenuItem(
                                     value: 'select',
                                     child: Text(
-                                      'Use in Smart Setup',
+                                      'Use in Forwarding Setup',
                                       style: TextStyle(color: Colors.white, fontSize: 12),
                                     ),
                                   ),
@@ -691,7 +705,7 @@ class _MyNumbersScreenState extends ConsumerState<MyNumbersScreen> {
                           children: [
                             const Expanded(
                               child: Text(
-                                'KeepSIMs Smart Call Setup',
+                                'Zero-Roaming Call Forwarding',
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
