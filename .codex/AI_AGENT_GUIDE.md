@@ -44,7 +44,7 @@ The current code is hybrid: some features use `model/contract/repository/control
 - [ ] Does it affect RLS, grants, `SECURITY DEFINER`, JWT claims, or service-role boundaries?
 - [ ] Does it spend/credit money or buy from a provider? Verify atomicity, idempotency, retry/adoption, and refund symmetry.
 - [ ] Does it introduce or change an Edge Function? Verify local source, `supabase/config.toml`, deployed `verify_jwt`, webhook authentication, and runtime version.
-- [ ] Does it affect workers? Edit `C:\Users\abdal\Work\KeepSIMs\backend-sync-wt`, not the customer repo copy, and follow `.agents/AGENTS.md` deployment instructions.
+- [ ] Does it affect workers? Edit `../backend-sync-wt` (or `servers/` in the active workspace on Mac), not the customer repo copy, and follow `.agents/AGENTS.md` deployment instructions.
 - [ ] Are provider identifiers/currencies/minor-unit divisors validated against real provider responses?
 - [ ] Are logs/errors free of tokens, phone numbers, ICCIDs, wallet values, and provider payload secrets?
 - [ ] Are both success and failure paths tested?

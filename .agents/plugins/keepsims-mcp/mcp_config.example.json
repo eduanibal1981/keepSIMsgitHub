@@ -1,0 +1,45 @@
+{
+  "mcpServers": {
+    "supabase-project-saveSIMDB": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@supabase/mcp-server-supabase@latest",
+        "--access-token",
+        "<SUPABASE_ACCESS_TOKEN>",
+        "--project-ref",
+        "zwxswagokhgbuzrrbnhr"
+      ]
+    },
+    "paypal-mcp-server": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@paypal/mcp",
+        "--tools=all"
+      ],
+      "env": {
+        "PAYPAL_ACCESS_TOKEN": "<PAYPAL_ACCESS_TOKEN>",
+        "PAYPAL_CLIENT_ID": "<PAYPAL_CLIENT_ID>",
+        "PAYPAL_CLIENT_SECRET": "<PAYPAL_CLIENT_SECRET>",
+        "PAYPAL_ENVIRONMENT": "SANDBOX"
+      }
+    },
+    "dart-mcp-server": {
+      "command": "dart",
+      "args": [
+        "mcp-server"
+      ],
+      "disabled": true,
+      "disabledTools": [
+        "stop_app",
+        "hover",
+        "signature_help",
+        "resolve_workspace_symbol",
+        "analyze_files",
+        "pub",
+        "create_project"
+      ]
+    }
+  }
+}

@@ -114,3 +114,14 @@ testsprite_tests\tmp\config.json
 *.aab
 *.zip
 output/notification-fix-*/
+
+# Antigravity Agent Configuration & MCP Secrets
+.agents/plugins/*/mcp_config.json
+!.agents/plugins/*/mcp_config.example.json
+
+# Backend workers are isolated in backend-sync-wt, not tracked here
+servers/
+
+# macOS metadata
+.DS_Store
+
