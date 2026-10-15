@@ -4,11 +4,11 @@ Last updated: **2026-10-15 (Asia/Muscat)**. Last active machine: **macOS**.
 
 ## Current workspace and task status
 
-- Customer app: `/Users/thehonest/Work/KeepSIMs/keep_sims`, branch `main`, HEAD `12273af` (`refactor: remove legacy servers mirror and standardize cross-platform agent memory`). Changes below are uncommitted and unstaged. No PR was created and nothing was committed/pushed in this chat.
+- Customer app: `/Users/thehonest/Work/KeepSIMs/keep_sims`, branch `main`, HEAD `26a48f6` (`wip: handoff state`). **Committed and pushed to `origin/main`**. Working tree clean.
 - Admin app: `/Users/thehonest/Work/KeepSIMs/keep_sims_admin`, branch `main`, HEAD `93fc37e` (`wip: latest admin updates`). **Clean** at this handoff; no admin code was changed for these tasks.
 - Supabase: `zwxswagokhgbuzrrbnhr` (`simSaveDB`). Two calling migrations are already LIVE; see exact source/live-version mapping below.
-- Latest user request: save handoff state only. Implementation work is finished for the accepted Quick sheet designs; live device acceptance checks remain. Do not restart login debugging or reimplement either review.
-- This file replaces the older 2026-10-13 Windows pending-work inventory with the actual current Git snapshot. Password-recovery/onboarding files previously listed as untracked are now in the tracked baseline; do not assume those old pending lists still apply. Preserve the separate notification/onboarding assets and Drive-migration state now present in the working tree.
+- Task status: Implementation work is finished for the accepted Quick sheet designs (paid & free calling); live device acceptance checks remain. All code, migrations, tests, and documentation are committed and pushed.
+- Cross-machine resumption: When switching to Windows or another machine, run `git pull origin main` to sync HEAD `26a48f6`.
 
 ## User decisions and constraints
 
@@ -112,94 +112,22 @@ Build artifacts currently exist at:
 
 Flutter's iOS build temporarily regenerated project/Pods metadata and resolved Sentry Cocoa differently; unrelated project/lock edits were restored. That compile does not prove the exact restored lockfile's next clean resolution. Local Flutter/cache access and ADB may require the normal sandbox escalation. The installed app retains its existing sign-in data; do not uninstall/clear app data to retest.
 
-## Pending changes and ownership
+## Committed files (commit `26a48f6`)
 
-All feature source, tests, plans/reports and SQL above are local/uncommitted. The following extra items must be reviewed separately; do not delete/reset them or include them blindly in a calling-only commit:
+All 63 modified and new files (feature code, tests, plans, verification reports, and migrations) were committed in `26a48f6` (`wip: handoff state`) and pushed to `origin/main`. Working tree is clean.
 
-- Existing modified `test/features/sim_lines/line_activity_log_test.dart` and `test/features/voip_calling/voip_call_session_model_test.dart`: final-line EOL differences in the inspected diff.
-- `tools/google_drive_migrator/.state-{flat,staged}/` inventories and migration state: pre-existing, very large pending files. Do not dump their private contents or normalize/stage these wholesale.
-- `web/manifest.json`: pre-existing pending/EOL change.
-- `output/alert-preferences-concepts/`, `output/onboarding-consent/` and `output/onboarding-permissions/` PNGs: existing/test-regenerated previews, not newly requested design changes.
-- `lib/features/voip_calling/presentation/screens/whatsapp_call_screen.dart`: restored byte-for-byte to indexed CRLF content after incidental formatting. Current LF attributes still make Git report an EOL-only diff; **no active-call/media logic was changed**. Avoid overwriting it based on its misleading large diff.
-- `.codex/ARCHITECTURAL_DECISIONS.md` contains both paid and free calling contract additions and must be retained with the implementation.
-
-Exact Git inventory taken before writing this handoff follows. This handoff file itself becomes another modified tracked file after this save.
-
-### Modified tracked files (36 before handoff save)
-
-```text
- M .codex/ARCHITECTURAL_DECISIONS.md
- M android/app/src/main/kotlin/com/keep_sims/MainActivity.kt
- M android/build.gradle.kts
- M ios/Runner/AppDelegate.swift
- M lib/core/router/app_router.dart
- M lib/features/auth/controller/auth_controller.dart
- M lib/features/auth/repository/auth_repository.dart
- M lib/features/calling/data/repositories/calling_repository.dart
- M lib/features/calling/presentation/controllers/smart_call_dialer_controller.dart
- M lib/features/calling/presentation/screens/calling_screen.dart
- M lib/features/calling/presentation/screens/smart_call_dashboard_screen.dart
- M lib/features/voip_calling/data/repositories/voip_calling_repository.dart
- M lib/features/voip_calling/presentation/screens/internet_calling_screen.dart
- M lib/features/voip_calling/presentation/screens/whatsapp_call_screen.dart
- M output/alert-preferences-concepts/implemented-dark.png
- M output/alert-preferences-concepts/implemented-light.png
- M output/onboarding-consent/welcome-dark-accepted.png
- M output/onboarding-consent/welcome-dark.png
- M output/onboarding-consent/welcome-light-accepted.png
- M output/onboarding-consent/welcome-light.png
- M output/onboarding-permissions/first-sim-skip-dark.png
- M output/onboarding-permissions/first-sim-skip-light.png
- M output/onboarding-permissions/permissions-dark.png
- M output/onboarding-permissions/permissions-light.png
- M pubspec.lock
- M pubspec.yaml
- M supabase/tests/f0_grant_matrix_tests.sql
- M test/features/calling/smart_call_dialer_controller_test.dart
- M test/features/sim_lines/line_activity_log_test.dart
- M test/features/voip_calling/internet_calling_screen_test.dart
- M test/features/voip_calling/voip_call_session_model_test.dart
- M tools/google_drive_migrator/.state-flat/inventory.json
- M tools/google_drive_migrator/.state-flat/migration.json
- M tools/google_drive_migrator/.state-staged/inventory.json
- M tools/google_drive_migrator/.state-staged/migration.json
- M web/manifest.json
-```
-
-### Untracked files (26)
-
-```text
-?? docs/implementation-plans/free-call-contact-and-review-plan-20261015.md
-?? docs/implementation-plans/smart-call-country-and-review-plan-20261014.md
-?? docs/reviews/free-call-review-verification-20261015.md
-?? docs/reviews/smart-call-review-verification-20261014.md
-?? lib/features/auth/repository/google_sign_in_failure.dart
-?? lib/features/calling/data/services/device_contact_picker.dart
-?? lib/features/calling/domain/call_destination.dart
-?? lib/features/calling/presentation/widgets/call_review_sheet.dart
-?? lib/features/calling/presentation/widgets/destination_country_picker.dart
-?? lib/features/voip_calling/data/services/free_call_invitation_service.dart
-?? lib/features/voip_calling/domain/free_call_history_group.dart
-?? lib/features/voip_calling/domain/free_call_recipient.dart
-?? lib/features/voip_calling/presentation/controllers/free_call_review_controller.dart
-?? lib/features/voip_calling/presentation/widgets/free_call_review_sheet.dart
-?? supabase/migrations/20261014212438_resolve_free_call_recipient_exact.sql
-?? supabase/migrations/20261014214959_protect_caller_id_verification_fields.sql
-?? supabase/tests/caller_id_verification_fields_test.sql
-?? supabase/tests/free_call_recipient_exact_test.sql
-?? test/features/auth/google_sign_in_failure_test.dart
-?? test/features/calling/call_destination_test.dart
-?? test/features/calling/call_review_controller_test.dart
-?? test/features/calling/call_review_sheet_test.dart
-?? test/features/calling/calling_review_repository_test.dart
-?? test/features/calling/device_contact_picker_test.dart
-?? test/features/voip_calling/free_call_review_test.dart
-?? tools/build_free_call_sql_tests.py
-```
+### What is included in `26a48f6`:
+- **Paid calling review flow**: `CallReviewSheet`, `DestinationCountryPicker`, `CallDestination` model/tests, `SmartCallDialerController` updates.
+- **Free Call review & invite flow**: `FreeCallReviewSheet`, `FreeCallReviewController`, `FreeCallInvitationService`, `FreeCallRecipient`, `FreeCallHistoryGroup`, `InternetCallingScreen` overhaul, and 23 focused tests.
+- **Google Sign-In resilience**: `GoogleSignInFailure` typed error mapping and tests.
+- **Supabase migrations & tests**: `20261014212438_resolve_free_call_recipient_exact.sql`, `20261014214959_protect_caller_id_verification_fields.sql`, test suites and runner.
+- **Platform integrations**: Android `MainActivity.kt` / `build.gradle.kts` (SENDTO/SMS channel, path fixing), iOS `AppDelegate.swift` (MessageUI SMS compose).
+- **Documentation**: Implementation plans and verification reports in `docs/implementation-plans/` and `docs/reviews/`.
+- **Pre-existing working tree state preserved**: Drive migrator state files, preview PNGs, web manifest, EOL adjustments.
 
 ## Exact next steps on resume
 
-1. Read this handoff, `.agents/skills/keepsims-memory/SKILL.md`, `.agents/AGENTS.md`, and relevant `.codex` rules. Recheck Git status in both apps; do not reset the dirty customer checkout. Admin was clean at handoff.
+1. Read this handoff, `.agents/skills/keepsims-memory/SKILL.md`, `.agents/AGENTS.md`, and relevant `.codex` rules. Run `git status` (and `git pull origin main` if resuming on Windows or another machine). Working tree should be clean on HEAD `26a48f6`. Admin was clean at handoff.
 2. Treat login, paid review, Free Call Quick sheet and the two listed live migrations as completed. If the user reports a concrete new issue, reproduce that issue and change only the affected layer. Existing transport-repair documents are history, not authority to rewrite working media code.
 3. For runtime acceptance, use two **different** accounts on two devices. Verify selected-number handoff, national-country confirmation, self/unknown/error handling, a verified registered recipient, and a real no-match invite. Obtain a specific authorized recipient before an assistant places a real call or sends a real message; the intended UI leaves Send to the human.
 4. Call acceptance checklist: A→B and B→A; answer, decline, busy, no answer, hangup from either side, two-way speech, mic denial/settings, background/locked recipient, network changes/TURN and truthful connected duration/history. Include a physical device before claiming reliable background/cold delivery. No paid call or free-call wallet charge should occur implicitly.
