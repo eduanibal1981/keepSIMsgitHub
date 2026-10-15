@@ -18,6 +18,7 @@ import 'package:keep_sims/core/services/connectivity_service.dart';
 import 'package:keep_sims/core/services/local_cache_service.dart';
 import '../contract/auth_contract.dart';
 import '../model/auth_model.dart';
+import 'google_sign_in_failure.dart';
 
 /// Google OAuth client IDs.
 const _webClientId =
@@ -40,9 +41,8 @@ class AuthRepository implements AuthContract {
     if (_googleInitialized) return;
 
     try {
-      final clientId = Platform.isIOS ? _iosClientId : _webClientId;
       await GoogleSignIn.instance.initialize(
-        clientId: clientId,
+        clientId: Platform.isIOS ? _iosClientId : null,
         serverClientId: _webClientId,
       );
       _googleInitialized = true;
@@ -95,6 +95,8 @@ class AuthRepository implements AuthContract {
 
       // Fetch the profile created by the DB trigger
       return await getCurrentProfile();
+    } on GoogleSignInException catch (e) {
+      return Failure(googleSignInFailure(e));
     } on AuthException catch (e) {
       return Failure(AppFailure.auth(message: e.message));
     } on PostgrestException catch (e) {

@@ -311,7 +311,11 @@ DECLARE
     'admin_upsert_carrier_voucher_redemption(uuid,jsonb,text)',
     'admin_queue_ding_voucher_purchase(uuid,integer,text,numeric,text)',
     'admin_list_voucher_purchase_jobs(integer)',
-    'admin_cancel_voucher_purchase_job(uuid,text)'
+    'admin_cancel_voucher_purchase_job(uuid,text)',
+    -- Exact verified phone ownership or an existing household/history peer.
+    -- Authenticated-only, quota enforced; isolated negatives are in
+    -- free_call_recipient_exact_test.sql.
+    'resolve_free_call_recipient(text,uuid)'
   ];
   -- SECURITY DEFINER routines invoked directly by pg_cron as postgres and by
   -- no API/worker role. This is an exact allowlist: additions and removals both

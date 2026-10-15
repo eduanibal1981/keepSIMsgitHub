@@ -303,6 +303,7 @@ RouterConfig<Object> appRouter(Ref ref) {
                 name: 'callingDialer',
                 builder: (context, state) => CallingScreen(
                   initialNumber: state.uri.queryParameters['number'],
+                  showHistory: state.uri.queryParameters['tab'] == 'recent',
                 ),
               ),
             ],
@@ -315,7 +316,9 @@ RouterConfig<Object> appRouter(Ref ref) {
           GoRoute(
             path: AppRoutes.internetCalling,
             name: 'internetCalling',
-            builder: (context, state) => const InternetCallingScreen(),
+            builder: (context, state) => InternetCallingScreen(
+              initialNumber: state.uri.queryParameters['number'],
+            ),
           ),
           GoRoute(
             path: AppRoutes.myNumbers,

@@ -8,40 +8,12 @@ import 'package:keep_sims/core/services/auth_session_manager.dart';
 import 'package:keep_sims/core/supabase_client.dart';
 import 'package:keep_sims/features/voip_calling/data/models/ice_server_model.dart';
 import 'package:keep_sims/features/voip_calling/data/models/voip_call_session_model.dart';
+import 'package:keep_sims/features/voip_calling/domain/free_call_recipient.dart';
+export 'package:keep_sims/features/voip_calling/domain/free_call_recipient.dart';
 
 final voipCallingRepositoryProvider = Provider<VoipCallingRepository>((ref) {
   return VoipCallingRepository(supabase);
 });
-
-class ContactLookupResult {
-  final String userId;
-  final String fullName;
-  final String? avatarUrl;
-  final String phone;
-  final bool isOnline;
-
-  final bool isSelf;
-
-  const ContactLookupResult({
-    required this.userId,
-    required this.fullName,
-    this.avatarUrl,
-    required this.phone,
-    required this.isOnline,
-    this.isSelf = false,
-  });
-
-  factory ContactLookupResult.fromJson(Map<String, dynamic> json) {
-    return ContactLookupResult(
-      userId: json['user_id'] as String? ?? '',
-      fullName: json['full_name'] as String? ?? 'KeepSIMs User',
-      avatarUrl: json['avatar_url'] as String?,
-      phone: json['phone'] as String? ?? '',
-      isOnline: json['is_online'] as bool? ?? false,
-      isSelf: json['is_self'] as bool? ?? false,
-    );
-  }
-}
 
 class InitiateVoipCallResult {
   final bool ok;
@@ -106,17 +78,24 @@ class VoipCallingRepository {
   /// Check if a phone number belongs to a registered KeepSIMs user eligible for free VoIP calls.
   /// Returns null if not found, or throws if a network/service error occurs.
   Future<ContactLookupResult?> lookupContactByPhone(String phone) async {
-    final res = await _supabase.rpc(
-      'lookup_voip_contact_by_phone',
-      params: {'p_phone': phone},
-    );
+    return (await resolveFreeCallRecipient(phone: phone)).recipient;
+  }
 
-    if (res is List && res.isNotEmpty) {
-      return ContactLookupResult.fromJson(
-        Map<String, dynamic>.from(res.first as Map),
-      );
+  Future<FreeRecipientResolution> resolveFreeCallRecipient({
+    String? phone,
+    String? userId,
+  }) async {
+    if ((phone == null) == (userId == null) ||
+        (phone != null && !RegExp(r'^\+[1-9][0-9]{6,14}$').hasMatch(phone))) {
+      throw const FormatException('Confirm a full international number first');
     }
-    return null;
+    final res = await _supabase.rpc(
+      'resolve_free_call_recipient',
+      params: {'p_phone': ?phone, 'p_user_id': ?userId},
+    );
+    // Missing/newer backend contracts must fail safely, never use the old
+    // first/suffix-match RPC as a fallback.
+    return FreeRecipientResolution.parse(res, phone: phone, userId: userId);
   }
 
   /// Initiate a VoIP call via Supabase Edge Function
@@ -162,11 +141,14 @@ class VoipCallingRepository {
           .toList();
 
       final hasTurn = iceServers.any(
-        (s) => s.urls.any((u) => u.startsWith('turn:') || u.startsWith('turns:')),
+        (s) =>
+            s.urls.any((u) => u.startsWith('turn:') || u.startsWith('turns:')),
       );
       final finalIceServers = hasTurn
           ? iceServers
-          : (iceServers.isEmpty ? defaultIceServers : [...iceServers, defaultIceServers.last]);
+          : (iceServers.isEmpty
+                ? defaultIceServers
+                : [...iceServers, defaultIceServers.last]);
 
       final calleeData = data['callee'] as Map<String, dynamic>? ?? {};
 
@@ -194,10 +176,10 @@ class VoipCallingRepository {
     required String offerSdp,
   }) async {
     try {
-      final res = await _supabase.rpc('save_voip_offer', params: {
-        'p_call_id': callId,
-        'p_offer_sdp': offerSdp,
-      });
+      final res = await _supabase.rpc(
+        'save_voip_offer',
+        params: {'p_call_id': callId, 'p_offer_sdp': offerSdp},
+      );
       if (res is Map) {
         return Map<String, dynamic>.from(res);
       }
@@ -215,11 +197,14 @@ class VoipCallingRepository {
     String? calleeDeviceId,
   }) async {
     try {
-      final res = await _supabase.rpc('answer_voip_session', params: {
-        'p_call_id': callId,
-        'p_answer_sdp': answerSdp,
-        'p_device_id': calleeDeviceId,
-      });
+      final res = await _supabase.rpc(
+        'answer_voip_session',
+        params: {
+          'p_call_id': callId,
+          'p_answer_sdp': answerSdp,
+          'p_device_id': calleeDeviceId,
+        },
+      );
       if (res is Map) {
         return Map<String, dynamic>.from(res);
       }
@@ -233,9 +218,10 @@ class VoipCallingRepository {
   /// Atomically mark call as connected in DB once WebRTC media is established
   Future<Map<String, dynamic>> markConnected(String callId) async {
     try {
-      final res = await _supabase.rpc('mark_voip_session_connected', params: {
-        'p_call_id': callId,
-      });
+      final res = await _supabase.rpc(
+        'mark_voip_session_connected',
+        params: {'p_call_id': callId},
+      );
       if (res is Map) {
         return Map<String, dynamic>.from(res);
       }
@@ -258,15 +244,22 @@ class VoipCallingRepository {
         body: {'call_id': callId, 'status': status, 'end_reason': endReason},
       );
     } catch (e) {
-      debugPrint('[VoipCallingRepo] end-voip-call error, falling back to RPC: $e');
+      debugPrint(
+        '[VoipCallingRepo] end-voip-call error, falling back to RPC: $e',
+      );
       try {
-        await _supabase.rpc('terminate_voip_session', params: {
-          'p_call_id': callId,
-          'p_status': status,
-          'p_end_reason': endReason,
-        });
+        await _supabase.rpc(
+          'terminate_voip_session',
+          params: {
+            'p_call_id': callId,
+            'p_status': status,
+            'p_end_reason': endReason,
+          },
+        );
       } catch (rpcErr) {
-        debugPrint('[VoipCallingRepo] terminate_voip_session RPC error: $rpcErr');
+        debugPrint(
+          '[VoipCallingRepo] terminate_voip_session RPC error: $rpcErr',
+        );
       }
     }
   }
@@ -301,22 +294,31 @@ class VoipCallingRepository {
       if (rawList.isNotEmpty) {
         final parsed = rawList
             .map(
-              (e) => IceServerModel.fromJson(Map<String, dynamic>.from(e as Map)),
+              (e) =>
+                  IceServerModel.fromJson(Map<String, dynamic>.from(e as Map)),
             )
             .toList();
         final hasTurn = parsed.any(
-          (s) => s.urls.any((u) => u.startsWith('turn:') || u.startsWith('turns:')),
+          (s) => s.urls.any(
+            (u) => u.startsWith('turn:') || u.startsWith('turns:'),
+          ),
         );
         if (hasTurn) {
-          debugPrint('[VoipCallingRepo] Fetched ${parsed.length} authorized ICE servers from backend');
+          debugPrint(
+            '[VoipCallingRepo] Fetched ${parsed.length} authorized ICE servers from backend',
+          );
           return parsed;
         }
       }
     } catch (e) {
-      debugPrint('[VoipCallingRepo] get-turn-credentials invocation warning: $e');
+      debugPrint(
+        '[VoipCallingRepo] get-turn-credentials invocation warning: $e',
+      );
     }
 
-    debugPrint('[VoipCallingRepo] Using reliable default ICE servers with Open Relay TURN');
+    debugPrint(
+      '[VoipCallingRepo] Using reliable default ICE servers with Open Relay TURN',
+    );
     return defaultIceServers;
   }
 
@@ -340,7 +342,9 @@ class VoipCallingRepository {
           return VoipCallSession.fromJson(res, currentUserId: currentUserId);
         }
       } catch (e) {
-        debugPrint('[VoipCallingRepo] getCallSession error (attempt $attempt): $e');
+        debugPrint(
+          '[VoipCallingRepo] getCallSession error (attempt $attempt): $e',
+        );
       }
 
       if (attempt < maxRetries) {

@@ -123,10 +123,7 @@ class AuthController extends _$AuthController {
         if (f.message == 'Redirecting to Google...') {
           return;
         }
-        final msgLower = f.message.toLowerCase();
-        if (msgLower.contains('canceled') ||
-            msgLower.contains('sign_in_canceled') ||
-            msgLower.contains('account reauth failed')) {
+        if (f.message == 'Sign-in canceled.') {
           state = const AsyncValue.data(null);
           return;
         }

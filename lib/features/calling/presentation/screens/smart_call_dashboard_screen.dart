@@ -4,7 +4,7 @@
 /// with full adaptive support for both Light and Dark themes:
 /// - KeepSIMs header with dynamic wallet balance
 /// - Smart Call title with subtitle and Recent Calls shortcut
-/// - Number / contact input bar with Contacts picker sheet
+/// - Number / contact input bar with native phone contacts picker
 /// - "How would you like to call?" 2-column side-by-side grid (Dialer vs Free Web Call)
 /// - "Numbers & voicemail" inset grouped card (Virtual Numbers & Voicemail)
 /// - "Tools" inset grouped card (Audio & Device Inspector with [Test device] button)
@@ -19,8 +19,12 @@ import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/utils/build_context_extension.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
 import 'package:keep_sims/features/calling/presentation/controllers/smart_call_dialer_controller.dart';
-import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
+import 'package:keep_sims/features/calling/data/services/device_contact_picker.dart';
+import 'package:keep_sims/features/calling/presentation/widgets/call_review_sheet.dart';
+import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import 'package:keep_sims/features/wallet/controller/wallet_controller.dart';
+import 'package:keep_sims/features/voip_calling/domain/free_call_recipient.dart';
+import 'package:keep_sims/features/voip_calling/presentation/widgets/free_call_review_sheet.dart';
 
 class SmartCallDashboardScreen extends ConsumerStatefulWidget {
   const SmartCallDashboardScreen({super.key});
@@ -53,135 +57,100 @@ class _SmartCallDashboardScreenState
     ref.read(smartCallDialerProvider.notifier).setNumber(value);
   }
 
-  void _showContactPickerSheet(BuildContext context, bool isDark) {
+  bool _pickingContact = false;
+
+  Future<void> _showContactPickerSheet(
+    BuildContext context,
+    bool isDark,
+  ) async {
+    if (_pickingContact) return;
+    _pickingContact = true;
     HapticHelper.lightTick();
-    final simLines = ref.read(simLinesControllerProvider).value ?? [];
-
-    final sheetBg = isDark ? const Color(0xFF0F172A) : Colors.white;
-    final handleColor = isDark ? Colors.white24 : Colors.black12;
-    final titleColor = isDark ? Colors.white : AppColors.textPrimaryLight;
-    final textColor = isDark ? Colors.white : AppColors.textPrimaryLight;
-    final subtextColor = isDark ? Colors.white54 : AppColors.textSecondaryLight;
-    final dividerColor = isDark ? Colors.white12 : const Color(0xFFE2E8F0);
-    final avatarBg = isDark ? const Color(0xFF1E293B) : const Color(0xFFEEF2FF);
-
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: sheetBg,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (ctx) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 36,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: handleColor,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Select Contact or Line',
-                style: TextStyle(
-                  color: titleColor,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 12),
-              if (simLines.isEmpty)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 24),
-                  child: Center(
-                    child: Text(
-                      'No saved contacts or household lines yet.',
-                      style: TextStyle(color: subtextColor, fontSize: 13),
-                    ),
-                  ),
-                )
-              else
-                Flexible(
-                  child: ListView.separated(
-                    shrinkWrap: true,
-                    itemCount: simLines.length,
-                    separatorBuilder: (context, index) =>
-                        Divider(color: dividerColor),
-                    itemBuilder: (context, idx) {
-                      final line = simLines[idx];
-                      return ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        leading: CircleAvatar(
-                          backgroundColor: avatarBg,
-                          child: Text(
-                            (line.countryId ?? 'SIM').toUpperCase(),
-                            style: const TextStyle(
-                              color: Color(0xFF4F46E5),
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
-                        title: Text(
-                          line.nickname?.isNotEmpty == true
-                              ? line.nickname!
-                              : (line.detectedOperatorName?.isNotEmpty == true
-                                    ? line.detectedOperatorName!
-                                    : line.phoneNumber),
-                          style: TextStyle(
-                            color: textColor,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        subtitle: Text(
-                          line.phoneNumber,
-                          style: TextStyle(color: subtextColor, fontSize: 12),
-                        ),
-                        trailing: Icon(
-                          Icons.arrow_forward_ios_rounded,
-                          color: subtextColor,
-                          size: 14,
-                        ),
-                        onTap: () {
-                          Navigator.pop(ctx);
-                          _numberController.text = line.phoneNumber;
-                          _onNumberChanged(line.phoneNumber);
-                        },
-                      );
-                    },
-                  ),
-                ),
-            ],
+    try {
+      final number = await const DeviceContactPicker().pickPhoneNumber();
+      if (!mounted || number == null || number.isEmpty) return;
+      _numberController.value = TextEditingValue(
+        text: number,
+        selection: TextSelection.collapsed(offset: number.length),
+      );
+      _onNumberChanged(number);
+    } catch (_) {
+      if (!mounted || !context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Phone contacts are unavailable. Please enter a number manually.',
           ),
         ),
-      ),
-    );
-  }
-
-  void _openDialer() {
-    HapticHelper.lightTick();
-    final number = _numberController.text.trim();
-    if (number.isNotEmpty) {
-      context.push(
-        '${AppRoutes.callingDialer}?number=${Uri.encodeComponent(number)}',
       );
-    } else {
-      context.push(AppRoutes.callingDialer);
+    } finally {
+      _pickingContact = false;
     }
   }
 
-  void _openFreeWebCall() {
+  bool _reviewingCall = false;
+
+  Future<void> _openDialer() async {
+    if (_reviewingCall) return;
     HapticHelper.lightTick();
-    context.push(AppRoutes.internetCalling);
+    final number = _numberController.text.trim();
+    if (number.isEmpty) {
+      context.push(AppRoutes.callingDialer);
+      return;
+    }
+    final notifier = ref.read(smartCallDialerProvider.notifier);
+    if (ref.read(smartCallDialerProvider).rawNumber != number) {
+      notifier.setNumber(number);
+    }
+    _reviewingCall = true;
+    try {
+      await CallReviewSheet.showAndCall(
+        context,
+        ref,
+        suggestedCountryIso: ref
+            .read(authControllerProvider)
+            .asData
+            ?.value
+            ?.homeCountryCode,
+      );
+      if (mounted) {
+        _numberController.text = ref.read(smartCallDialerProvider).rawNumber;
+      }
+    } finally {
+      _reviewingCall = false;
+    }
+  }
+
+  void _openRecentCalls() =>
+      context.push('${AppRoutes.callingDialer}?tab=recent');
+
+  Future<void> _openFreeWebCall() async {
+    if (_reviewingCall) return;
+    HapticHelper.lightTick();
+    final number = _numberController.text.trim();
+    if (number.isEmpty) {
+      context.push(AppRoutes.internetCalling);
+      return;
+    }
+    _reviewingCall = true;
+    try {
+      final paid = ref.read(smartCallDialerProvider);
+      await FreeCallReviewSheet.showAndCall(
+        context,
+        ref,
+        selection: FreeCallSelection(
+          rawNumber: number,
+          countryIso: paid.rawNumber == number ? paid.selectedCountryIso : null,
+        ),
+        suggestedCountryIso: ref
+            .read(authControllerProvider)
+            .asData
+            ?.value
+            ?.homeCountryCode,
+      );
+    } finally {
+      _reviewingCall = false;
+    }
   }
 
   @override
@@ -454,28 +423,28 @@ class _SmartCallDashboardScreenState
       children: [
         Expanded(
           child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Smart Call',
-              style: TextStyle(
-                color: textPrimary,
-                fontSize: 30,
-                fontWeight: FontWeight.bold,
-                letterSpacing: -0.5,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Smart Call',
+                style: TextStyle(
+                  color: textPrimary,
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: -0.5,
+                ),
               ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Choose a number, then how to call',
-              style: TextStyle(color: textSecondary, fontSize: 14),
-            ),
-          ],
+              const SizedBox(height: 4),
+              Text(
+                'Choose a number, then how to call',
+                style: TextStyle(color: textSecondary, fontSize: 14),
+              ),
+            ],
           ),
         ),
         const SizedBox(width: 12),
         InkWell(
-          onTap: _openDialer,
+          onTap: _openRecentCalls,
           borderRadius: BorderRadius.circular(20),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
@@ -547,7 +516,7 @@ class _SmartCallDashboardScreenState
                     isDense: true,
                     filled: false,
                     prefixIcon: Icon(Icons.search, color: textMuted, size: 22),
-                    hintText: 'Enter number or name',
+                    hintText: 'Enter phone number',
                     hintStyle: TextStyle(color: textMuted, fontSize: 15),
                     border: InputBorder.none,
                     enabledBorder: InputBorder.none,
@@ -563,7 +532,8 @@ class _SmartCallDashboardScreenState
               borderRadius: BorderRadius.circular(14),
               child: Container(
                 width: 64,
-                height: 52,
+                constraints: const BoxConstraints(minHeight: 52),
+                padding: const EdgeInsets.symmetric(vertical: 6),
                 decoration: BoxDecoration(
                   color: cardBg,
                   borderRadius: BorderRadius.circular(14),
@@ -571,6 +541,7 @@ class _SmartCallDashboardScreenState
                   boxShadow: cardShadow,
                 ),
                 child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(
@@ -669,13 +640,13 @@ class _SmartCallDashboardScreenState
                   icon: Icons.language_rounded,
                   iconColor: cyanAccent,
                   iconBg: cyanIconBg,
-                  title: 'Free Web Call',
-                  subtitle: 'For supported numbers',
-                  linkText: 'Browse directory',
+                  title: 'Free Call',
+                  subtitle: 'KeepSIMs to KeepSIMs',
+                  linkText: 'Choose a KeepSIMs contact',
                   buttonText: 'Call free',
                   buttonBg: cyanButtonBg,
                   buttonBorder: cyanButtonBorder,
-                  onLinkTap: _openFreeWebCall,
+                  onLinkTap: () => context.push(AppRoutes.internetCalling),
                   onButtonTap: _openFreeWebCall,
                 ),
               ),
@@ -869,10 +840,7 @@ class _SmartCallDashboardScreenState
                       const SizedBox(height: 2),
                       Text(
                         'Get a global number or set up Zero-Roaming call divert',
-                        style: TextStyle(
-                          color: textSecondary,
-                          fontSize: 11.5,
-                        ),
+                        style: TextStyle(color: textSecondary, fontSize: 11.5),
                       ),
                     ],
                   ),
@@ -991,23 +959,26 @@ class _SmartCallDashboardScreenState
     required Color textSecondary,
     required VoidCallback onTap,
   }) {
-    return ListTile(
-      onTap: onTap,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      leading: Icon(icon, color: textSecondary, size: 24),
-      title: Text(
-        title,
-        style: TextStyle(
-          color: textPrimary,
-          fontSize: 15,
-          fontWeight: FontWeight.w600,
+    return Material(
+      color: Colors.transparent,
+      child: ListTile(
+        onTap: onTap,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        leading: Icon(icon, color: textSecondary, size: 24),
+        title: Text(
+          title,
+          style: TextStyle(
+            color: textPrimary,
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+          ),
         ),
+        subtitle: Text(
+          subtitle,
+          style: TextStyle(color: textSecondary, fontSize: 12),
+        ),
+        trailing: Icon(Icons.chevron_right, color: textSecondary, size: 18),
       ),
-      subtitle: Text(
-        subtitle,
-        style: TextStyle(color: textSecondary, fontSize: 12),
-      ),
-      trailing: Icon(Icons.chevron_right, color: textSecondary, size: 18),
     );
   }
 }

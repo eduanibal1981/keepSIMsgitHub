@@ -12,7 +12,8 @@ class FakeCallingRepository implements CallingRepository {
     String? callerIdId,
     bool explicitGateway,
     String? simLineId,
-  })? onPreviewCall;
+  })?
+  onPreviewCall;
 
   @override
   Future<CallPreviewResult> previewCall({
@@ -33,14 +34,12 @@ class FakeCallingRepository implements CallingRepository {
       eligible: true,
       policyCode: 'ALLOW',
       policyReason: 'Eligible',
-      requestedCallerId:
-          explicitGateway
-              ? '+17543180369'
-              : (callerIdId != null ? '+96893990492' : '+17543180369'),
-      effectiveCallerId:
-          explicitGateway
-              ? '+17543180369'
-              : (callerIdId != null ? '+96893990492' : '+17543180369'),
+      requestedCallerId: explicitGateway
+          ? '+17543180369'
+          : (callerIdId != null ? '+96893990492' : '+17543180369'),
+      effectiveCallerId: explicitGateway
+          ? '+17543180369'
+          : (callerIdId != null ? '+96893990492' : '+17543180369'),
       callerIdType: explicitGateway ? 'gateway' : 'verified_personal',
       walletBalance: 10.0,
       gatewayNumber: '+17543180369',
@@ -85,9 +84,7 @@ void main() {
     fakeRepository = FakeCallingRepository();
     container = ProviderContainer(
       overrides: [
-        callRatesProvider.overrideWith(
-          (ref) async => [mockRateOM, mockRateEG],
-        ),
+        callRatesProvider.overrideWith((ref) async => [mockRateOM, mockRateEG]),
         callingRepositoryProvider.overrideWithValue(fakeRepository),
       ],
     );
@@ -98,18 +95,21 @@ void main() {
   });
 
   group('SmartCallDialerNotifier Unit Tests', () {
-    test('1. Initial state has empty number, gateway selected, and no quote', () {
-      final state = container.read(smartCallDialerProvider);
+    test(
+      '1. Initial state has empty number, gateway selected, and no quote',
+      () {
+        final state = container.read(smartCallDialerProvider);
 
-      expect(state.rawNumber, isEmpty);
-      expect(state.selectedRate, isNull);
-      expect(state.previewResult, isNull);
-      expect(state.isPreviewLoading, isFalse);
-      expect(state.isGatewaySelected, isTrue);
-      expect(state.formattedDestination, isEmpty);
-      expect(state.effectiveRatePerMinute, equals(0.0));
-      expect(state.effectiveRatePerSecond, equals(0.0));
-    });
+        expect(state.rawNumber, isEmpty);
+        expect(state.selectedRate, isNull);
+        expect(state.previewResult, isNull);
+        expect(state.isPreviewLoading, isFalse);
+        expect(state.isGatewaySelected, isTrue);
+        expect(state.formattedDestination, isEmpty);
+        expect(state.effectiveRatePerMinute, equals(0.0));
+        expect(state.effectiveRatePerSecond, equals(0.0));
+      },
+    );
 
     test('2. Typing number triggers debounced server preview quote', () async {
       final notifier = container.read(smartCallDialerProvider.notifier);
@@ -140,20 +140,21 @@ void main() {
         final completerA = Completer<CallPreviewResult>();
         final completerB = Completer<CallPreviewResult>();
 
-        fakeRepository.onPreviewCall = ({
-          required String destinationNumber,
-          String? callerIdId,
-          bool explicitGateway = true,
-          String? simLineId,
-        }) {
-          if (destinationNumber.contains('968')) {
-            // First destination (Oman)
-            return completerA.future;
-          } else {
-            // Second destination (Egypt)
-            return completerB.future;
-          }
-        };
+        fakeRepository.onPreviewCall =
+            ({
+              required String destinationNumber,
+              String? callerIdId,
+              bool explicitGateway = true,
+              String? simLineId,
+            }) {
+              if (destinationNumber.contains('968')) {
+                // First destination (Oman)
+                return completerA.future;
+              } else {
+                // Second destination (Egypt)
+                return completerB.future;
+              }
+            };
 
         // 1. Enter first number (Oman)
         notifier.setNumber('+96879761061');
@@ -207,37 +208,40 @@ void main() {
       },
     );
 
-    test('4. Caller identity change immediately invalidates quote and refreshes', () async {
-      final notifier = container.read(smartCallDialerProvider.notifier);
+    test(
+      '4. Caller identity change immediately invalidates quote and refreshes',
+      () async {
+        final notifier = container.read(smartCallDialerProvider.notifier);
 
-      notifier.setNumber('+96879761061');
-      await Future.delayed(const Duration(milliseconds: 350));
+        notifier.setNumber('+96879761061');
+        await Future.delayed(const Duration(milliseconds: 350));
 
-      var state = container.read(smartCallDialerProvider);
-      expect(state.previewResult, isNotNull);
-      expect(state.isGatewaySelected, isTrue);
+        var state = container.read(smartCallDialerProvider);
+        expect(state.previewResult, isNotNull);
+        expect(state.isGatewaySelected, isTrue);
 
-      // Switch identity to personal verified line
-      notifier.selectIdentity(
-        isGateway: false,
-        callerIdId: 'cid-verified-01',
-        phoneNumber: '+96893990492',
-      );
+        // Switch identity to personal verified line
+        notifier.selectIdentity(
+          isGateway: false,
+          callerIdId: 'cid-verified-01',
+          phoneNumber: '+96893990492',
+        );
 
-      // Verify quote is cleared immediately
-      state = container.read(smartCallDialerProvider);
-      expect(state.isGatewaySelected, isFalse);
-      expect(state.selectedCallerIdId, equals('cid-verified-01'));
-      expect(state.effectiveCallerId, equals('+96893990492'));
-      expect(state.previewResult, isNull);
-      expect(state.isPreviewLoading, isTrue);
+        // Verify quote is cleared immediately
+        state = container.read(smartCallDialerProvider);
+        expect(state.isGatewaySelected, isFalse);
+        expect(state.selectedCallerIdId, equals('cid-verified-01'));
+        expect(state.effectiveCallerId, equals('+96893990492'));
+        expect(state.previewResult, isNull);
+        expect(state.isPreviewLoading, isTrue);
 
-      // Await refreshed quote
-      await Future.delayed(const Duration(milliseconds: 350));
-      state = container.read(smartCallDialerProvider);
-      expect(state.previewResult, isNotNull);
-      expect(state.previewResult?.effectiveCallerId, equals('+96893990492'));
-    });
+        // Await refreshed quote
+        await Future.delayed(const Duration(milliseconds: 350));
+        state = container.read(smartCallDialerProvider);
+        expect(state.previewResult, isNotNull);
+        expect(state.previewResult?.effectiveCallerId, equals('+96893990492'));
+      },
+    );
 
     test('5. Selecting country rate prepends prefix when number is empty', () {
       final notifier = container.read(smartCallDialerProvider.notifier);
@@ -245,13 +249,14 @@ void main() {
       notifier.selectCountryRate(mockRateOM);
       var state = container.read(smartCallDialerProvider);
       expect(state.rawNumber, equals('+968'));
-      expect(state.selectedRate?.countryCode, equals('OM'));
+      expect(state.selectedCountryIso, 'OM');
 
       notifier.appendDigit('7');
       notifier.appendDigit('9');
       state = container.read(smartCallDialerProvider);
       expect(state.rawNumber, equals('+96879'));
-      expect(state.formattedDestination, equals('+96879'));
+      expect(state.formattedDestination, isEmpty);
+      expect(state.previewResult, isNull);
     });
 
     test('6. Clear resets input and cancels pending preview', () async {
@@ -271,24 +276,25 @@ void main() {
     });
 
     test('7. Preview error surfaces in state without crashing', () async {
-      fakeRepository.onPreviewCall = ({
-        required String destinationNumber,
-        String? callerIdId,
-        bool explicitGateway = true,
-        String? simLineId,
-      }) async {
-        throw Exception('Rate lookup failed: destination unsupported');
-      };
+      fakeRepository.onPreviewCall =
+          ({
+            required String destinationNumber,
+            String? callerIdId,
+            bool explicitGateway = true,
+            String? simLineId,
+          }) async {
+            throw Exception('Rate lookup failed: destination unsupported');
+          };
 
       final notifier = container.read(smartCallDialerProvider.notifier);
-      notifier.setNumber('+99912345678');
+      notifier.setNumber('+96879761061');
 
       await Future.delayed(const Duration(milliseconds: 350));
 
       final state = container.read(smartCallDialerProvider);
       expect(state.isPreviewLoading, isFalse);
       expect(state.previewResult, isNull);
-      expect(state.previewError, contains('Rate lookup failed'));
+      expect(state.previewError, contains('Could not check'));
     });
   });
 }

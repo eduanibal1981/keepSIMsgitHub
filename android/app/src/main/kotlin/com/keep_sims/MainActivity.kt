@@ -4,8 +4,12 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Notification
 import android.app.PendingIntent
+import android.app.Activity
+import android.provider.ContactsContract
+import androidx.activity.result.contract.ActivityResultContracts
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import org.json.JSONObject
 import android.telephony.euicc.EuiccManager
@@ -19,10 +23,75 @@ class MainActivity : FlutterFragmentActivity() {
     private var pushListenerReady = false
     private val pushPayloadExtra = "keepsims_foreground_push"
 
+    private var contactPickerResult: MethodChannel.Result? = null
+    private val contactPickerLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { response ->
+        val result = contactPickerResult
+        contactPickerResult = null
+        if (response.resultCode != Activity.RESULT_OK || response.data?.data == null) {
+            result?.success(null)
+        } else {
+            try {
+                val uri = response.data!!.data!!
+                val number = contentResolver.query(
+                    uri, arrayOf(ContactsContract.CommonDataKinds.Phone.NUMBER), null, null, null
+                )?.use { cursor ->
+                    if (cursor.moveToFirst()) cursor.getString(0) else null
+                }
+                result?.success(number)
+            } catch (error: Exception) {
+                result?.error("unavailable", "Unable to read selected number", null)
+            }
+        }
+    }
+
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
 
         createNotificationChannels()
+
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.keep_sims/invitations")
+            .setMethodCallHandler { call, result ->
+                if (call.method != "composeSms") {
+                    result.notImplemented()
+                } else {
+                    val phone = call.argument<String>("phone") ?: ""
+                    val body = call.argument<String>("body") ?: ""
+                    if (!phone.matches(Regex("^\\+[1-9][0-9]{6,14}$")) || body.length > 2000) {
+                        result.success(false)
+                    } else {
+                        try {
+                            // SENDTO opens Messages; the user must press Send.
+                            startActivity(Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:$phone")).apply {
+                                putExtra("sms_body", body)
+                            })
+                            result.success(true)
+                        } catch (error: Exception) {
+                            result.success(false)
+                        }
+                    }
+                }
+            }
+
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.keep_sims/contacts")
+            .setMethodCallHandler { call, result ->
+                if (call.method != "pickPhoneNumber") {
+                    result.notImplemented()
+                } else if (contactPickerResult != null) {
+                    result.error("busy", "Contacts already open", null)
+                } else {
+                    contactPickerResult = result
+                    try {
+                        contactPickerLauncher.launch(Intent(Intent.ACTION_PICK).apply {
+                            type = ContactsContract.CommonDataKinds.Phone.CONTENT_TYPE
+                        })
+                    } catch (error: Exception) {
+                        contactPickerResult = null
+                        result.error("unavailable", "Phone contacts unavailable", null)
+                    }
+                }
+            }
 
         val alarmScheduler = AlertAlarmScheduler(this)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.keep_sims/alert_alarm")

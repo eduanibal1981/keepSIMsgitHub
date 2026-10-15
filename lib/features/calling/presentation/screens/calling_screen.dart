@@ -12,27 +12,32 @@ library;
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:keep_sims/core/fx/money.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
 import 'package:keep_sims/features/calling/data/models/call_rate_model.dart';
 import 'package:keep_sims/features/calling/presentation/controllers/calling_controller.dart';
 import 'package:keep_sims/features/calling/presentation/controllers/smart_call_dialer_controller.dart';
-import 'package:keep_sims/features/calling/presentation/widgets/destination_country_search_sheet.dart';
+import 'package:keep_sims/features/calling/presentation/widgets/destination_country_picker.dart';
+import 'package:keep_sims/features/calling/presentation/widgets/call_review_sheet.dart';
+import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import 'package:keep_sims/features/calling/presentation/widgets/dialpad_widget.dart';
 import 'package:keep_sims/features/calling/presentation/widgets/call_history_tile.dart';
 import 'package:keep_sims/features/calling/presentation/widgets/verify_caller_id_sheet.dart';
-import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
+import 'package:keep_sims/features/calling/data/services/device_contact_picker.dart';
 import 'package:keep_sims/core/router/app_router.dart';
 import 'package:keep_sims/features/wallet/controller/wallet_controller.dart';
 
 class CallingScreen extends ConsumerStatefulWidget {
   final String? initialNumber;
+  final bool showHistory;
 
-  const CallingScreen({super.key, this.initialNumber});
+  const CallingScreen({
+    super.key,
+    this.initialNumber,
+    this.showHistory = false,
+  });
 
   @override
   ConsumerState<CallingScreen> createState() => _CallingScreenState();
@@ -43,7 +48,7 @@ class _CallingScreenState extends ConsumerState<CallingScreen>
   late TabController _tabController;
   final TextEditingController _phoneController = TextEditingController();
   final FocusNode _phoneFocusNode = FocusNode();
-  bool _hasInitializedDefaultCountry = false;
+  bool _reviewingCall = false;
 
   static const List<Map<String, String>> _quickDestinations = [
     {'code': 'OM', 'prefix': '+968'},
@@ -57,7 +62,12 @@ class _CallingScreenState extends ConsumerState<CallingScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(
+      length: 2,
+      vsync: this,
+      initialIndex: widget.showHistory ? 1 : 0,
+    );
+    _phoneController.text = ref.read(smartCallDialerProvider).rawNumber;
     if (widget.initialNumber != null && widget.initialNumber!.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
@@ -122,331 +132,60 @@ class _CallingScreenState extends ConsumerState<CallingScreen>
   }
 
   Future<void> _openCountrySearch(List<CallRate> rates) async {
-    final dialerState = ref.read(smartCallDialerProvider);
-    final selected = await DestinationCountrySearchSheet.show(
+    final iso = await pickDestinationCountry(
       context,
-      rates: rates,
-      selectedRate: dialerState.selectedRate,
+      suggestedIso: ref.read(smartCallDialerProvider).suggestedCountryIso,
     );
-    if (selected != null) {
-      ref.read(smartCallDialerProvider.notifier).selectCountryRate(selected);
-      _syncController();
-    }
+    if (!mounted || iso == null) return;
+    ref.read(smartCallDialerProvider.notifier).selectCountry(iso);
+    _syncController();
   }
 
-  void _showContactPickerSheet(BuildContext context) {
-    final simLines = ref.read(simLinesControllerProvider).value ?? [];
+  bool _pickingContact = false;
 
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: const Color(0xFF0F172A),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (ctx) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 36,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.white24,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'Select Contact or Line',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 12),
-              if (simLines.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 24),
-                  child: Center(
-                    child: Text(
-                      'No saved contacts or household lines yet.',
-                      style: TextStyle(color: Colors.white54, fontSize: 13),
-                    ),
-                  ),
-                )
-              else
-                Flexible(
-                  child: ListView.separated(
-                    shrinkWrap: true,
-                    itemCount: simLines.length,
-                    separatorBuilder: (context, index) =>
-                        const Divider(color: Colors.white12),
-                    itemBuilder: (context, idx) {
-                      final line = simLines[idx];
-                      return ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        leading: CircleAvatar(
-                          backgroundColor: const Color(0xFF1E293B),
-                          child: Text(
-                            (line.countryId ?? 'SIM').toUpperCase(),
-                            style: const TextStyle(
-                              color: Color(0xFF818CF8),
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
-                        title: Text(
-                          line.nickname?.isNotEmpty == true
-                              ? line.nickname!
-                              : (line.detectedOperatorName?.isNotEmpty == true
-                                    ? line.detectedOperatorName!
-                                    : line.phoneNumber),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                          ),
-                        ),
-                        subtitle: Text(
-                          line.phoneNumber,
-                          style: const TextStyle(
-                            color: Colors.white54,
-                            fontSize: 12,
-                          ),
-                        ),
-                        trailing: const Icon(
-                          Icons.arrow_forward_ios_rounded,
-                          color: Colors.white38,
-                          size: 14,
-                        ),
-                        onTap: () {
-                          Navigator.pop(ctx);
-                          ref
-                              .read(smartCallDialerProvider.notifier)
-                              .setNumber(line.phoneNumber);
-                          _syncController();
-                        },
-                      );
-                    },
-                  ),
-                ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Future<void> _startCall({bool forceGateway = false}) async {
-    final dialerState = ref.read(smartCallDialerProvider);
-    final formattedNumber = dialerState.formattedDestination;
-
-    if (formattedNumber.isEmpty || formattedNumber.length < 5) {
+  Future<void> _showContactPickerSheet(BuildContext context) async {
+    if (_pickingContact) return;
+    _pickingContact = true;
+    HapticHelper.lightTick();
+    try {
+      final number = await const DeviceContactPicker().pickPhoneNumber();
+      if (!mounted || number == null || number.isEmpty) return;
+      _phoneController.value = TextEditingValue(
+        text: number,
+        selection: TextSelection.collapsed(offset: number.length),
+      );
+      ref.read(smartCallDialerProvider.notifier).setNumber(number);
+    } catch (_) {
+      if (!mounted || !context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Please enter a valid destination phone number'),
-          behavior: SnackBarBehavior.floating,
+          content: Text(
+            'Phone contacts are unavailable. Please enter a number manually.',
+          ),
         ),
       );
-      return;
+    } finally {
+      _pickingContact = false;
     }
-
-    final callerIdData = ref.read(callerIdListProvider).asData?.value;
-    final isGatewayActive =
-        forceGateway ||
-        dialerState.isGatewaySelected ||
-        (callerIdData?.isGatewayActive ?? true);
-    final activeCallerId = isGatewayActive
-        ? null
-        : callerIdData?.callerIds
-              .where((c) => c.isVerified && c.isDefault)
-              .firstOrNull;
-    final effectiveId = isGatewayActive
-        ? (callerIdData?.defaultGatewayNumber ?? '+17543180369')
-        : (activeCallerId?.phoneNumber ??
-              callerIdData?.defaultGatewayNumber ??
-              '+17543180369');
-
-    // Policy check: Self-dialing conflict
-    if (!isGatewayActive && effectiveId == formattedNumber) {
-      _showRouteConflictDialog(
-        title: 'Self-Dialing Not Supported',
-        message:
-            'You cannot place an outbound call to your own verified Caller ID number. Would you like to call using KeepSIMs Voice Gateway instead?',
-        formattedDestination: formattedNumber,
-      );
-      return;
-    }
-
-    // Policy check: External Oman identity calling Oman destination
-    if (!isGatewayActive &&
-        effectiveId.startsWith('+968') &&
-        formattedNumber.startsWith('+968')) {
-      _showRouteConflictDialog(
-        title: 'Unsupported Carrier Route',
-        message:
-            'External Oman numbers cannot call Oman numbers directly due to local telecom carrier restrictions. Would you like to connect this call using KeepSIMs Voice Gateway instead?',
-        formattedDestination: formattedNumber,
-      );
-      return;
-    }
-
-    // Microphone Permission Pre-flight
-    if (!kIsWeb) {
-      var micStatus = await Permission.microphone.status;
-      if (!micStatus.isGranted) {
-        micStatus = await Permission.microphone.request();
-      }
-      if (!mounted) return;
-      if (micStatus.isPermanentlyDenied) {
-        _showMicrophonePermissionDialog();
-        return;
-      }
-      if (!micStatus.isGranted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Microphone permission is required to make calls.'),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-        return;
-      }
-    }
-
-    ref
-        .read(callingControllerProvider.notifier)
-        .startCall(
-          destinationNumber: formattedNumber,
-          callerIdId: activeCallerId?.id,
-          explicitGateway: isGatewayActive,
-          userCallbackNumber: effectiveId,
-          rate: dialerState.selectedRate,
-        );
-
-    context.push(AppRoutes.callingActive);
   }
 
-  void _showMicrophonePermissionDialog() {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.darkCard,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Row(
-          children: [
-            Icon(Icons.mic_off, color: AppColors.error, size: 24),
-            SizedBox(width: 10),
-            Text(
-              'Microphone Required',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-        content: const Text(
-          'KeepSIMs needs access to your microphone so the person you call can hear you. Please enable microphone permission in your device settings.',
-          style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.4),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(color: Colors.white60),
-            ),
-          ),
-          ElevatedButton.icon(
-            onPressed: () {
-              Navigator.of(ctx).pop();
-              openAppSettings();
-            },
-            icon: const Icon(Icons.settings, size: 16),
-            label: const Text('Open Settings'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showRouteConflictDialog({
-    required String title,
-    required String message,
-    required String formattedDestination,
-  }) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.darkCard,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Row(
-          children: [
-            const Icon(Icons.info_outline, color: AppColors.primary, size: 24),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                title,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ],
-        ),
-        content: Text(
-          message,
-          style: const TextStyle(
-            color: Colors.white70,
-            fontSize: 13,
-            height: 1.4,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(color: Colors.white54),
-            ),
-          ),
-          ElevatedButton.icon(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            icon: const Icon(Icons.shield_outlined, size: 16),
-            label: const Text(
-              'Use KeepSIMs Gateway',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            onPressed: () {
-              Navigator.pop(ctx);
-              _startCall(forceGateway: true);
-            },
-          ),
-        ],
-      ),
-    );
+  Future<void> _startCall() async {
+    if (_reviewingCall) return;
+    _reviewingCall = true;
+    try {
+      await CallReviewSheet.showAndCall(
+        context,
+        ref,
+        suggestedCountryIso: ref
+            .read(authControllerProvider)
+            .asData
+            ?.value
+            ?.homeCountryCode,
+      );
+      if (mounted) _syncController();
+    } finally {
+      _reviewingCall = false;
+    }
   }
 
   @override
@@ -459,27 +198,11 @@ class _CallingScreenState extends ConsumerState<CallingScreen>
 
     final callerIdData = callerIdListAsync.asData?.value;
     final callerIds = callerIdData?.callerIds ?? [];
-    final gatewayNumber = callerIdData?.defaultGatewayNumber ?? '+17543180369';
+    final gatewayNumber = callerIdData?.defaultGatewayNumber ?? 'Loading…';
     final isGatewayActive = dialerState.isGatewaySelected;
     final verifiedLine = callerIds.firstWhereOrNull((c) => c.isVerified);
 
     final rates = ratesAsync.asData?.value ?? [];
-
-    // Initialize default country rate once
-    if (!_hasInitializedDefaultCountry && rates.isNotEmpty) {
-      _hasInitializedDefaultCountry = true;
-      final defaultRate =
-          rates.firstWhereOrNull((r) => r.countryCode == 'OM') ??
-          rates.firstWhereOrNull((r) => r.countryCode == 'EG') ??
-          rates.first;
-      if (dialerState.selectedRate == null) {
-        Future.microtask(() {
-          ref
-              .read(smartCallDialerProvider.notifier)
-              .selectCountryRate(defaultRate);
-        });
-      }
-    }
 
     return Scaffold(
       backgroundColor: const Color(0xFF070E17),
@@ -659,7 +382,10 @@ class _CallingScreenState extends ConsumerState<CallingScreen>
                                   ),
                                   Text(
                                     dialerState.selectedRate != null
-                                        ? 'International Route • ${dialerState.selectedRate!.countryName} (${dialerState.selectedRate!.phonePrefix})'
+                                        ? destinationCountryLabel(
+                                            context,
+                                            dialerState.destination.countryIso,
+                                          )
                                         : 'Select Destination Route',
                                     style: const TextStyle(
                                       color: Colors.white60,
@@ -676,14 +402,17 @@ class _CallingScreenState extends ConsumerState<CallingScreen>
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Text(
-                                  '\$${dialerState.effectiveRatePerMinute.toStringAsFixed(3)}/min',
+                                  dialerState.previewResult == null
+                                      ? '—'
+                                      : '\$${dialerState.effectiveRatePerMinute.toStringAsFixed(3)}/min',
                                   style: const TextStyle(
                                     color: Color(0xFF10B981),
                                     fontWeight: FontWeight.bold,
                                     fontSize: 15,
                                   ),
                                 ),
-                                if (!dialerState.isPreviewLoading)
+                                if (!dialerState.isPreviewLoading &&
+                                    dialerState.previewResult != null)
                                   ApproxLocalRateText(
                                     dialerState.effectiveRatePerMinute,
                                     unit: '/min',
@@ -743,7 +472,7 @@ class _CallingScreenState extends ConsumerState<CallingScreen>
                                 onChanged: (val) {
                                   ref
                                       .read(smartCallDialerProvider.notifier)
-                                      .setNumber(val);
+                                      .setNumber(val, preserveCountry: true);
                                 },
                               ),
                             ),
@@ -780,6 +509,8 @@ class _CallingScreenState extends ConsumerState<CallingScreen>
                               Text(
                                 dialerState.isPreviewLoading
                                     ? 'Calculating rate...'
+                                    : dialerState.previewResult == null
+                                    ? '—'
                                     : '\$${dialerState.effectiveRatePerSecond.toStringAsFixed(5)}/sec',
                                 style: const TextStyle(
                                   color: Colors.white70,
@@ -787,7 +518,8 @@ class _CallingScreenState extends ConsumerState<CallingScreen>
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
-                              if (!dialerState.isPreviewLoading)
+                              if (!dialerState.isPreviewLoading &&
+                                  dialerState.previewResult != null)
                                 ApproxLocalRateText(
                                   dialerState.effectiveRatePerSecond,
                                   unit: '/s',
@@ -1205,7 +937,7 @@ class _CallingScreenState extends ConsumerState<CallingScreen>
                               .read(smartCallDialerProvider.notifier)
                               .setNumber(rec.destinationNumber);
                           _syncController();
-                          _tabController.animateTo(0);
+                          _startCall();
                         },
                       );
                     },

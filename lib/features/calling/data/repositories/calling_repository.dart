@@ -139,19 +139,34 @@ class CallingRepository {
     }
 
     final destData = data['destination'] as Map<String, dynamic>?;
+    if (destData?['number'] != null &&
+        destData!['number'] != destinationNumber) {
+      throw Exception('The call quote does not match the destination.');
+    }
     CallRate? rate;
     if (destData != null && destData['ratePerMinute'] != null) {
       rate = CallRate(
         id: destData['rateId'] as String? ?? 'preview',
         countryCode: destData['countryCode'] as String? ?? 'GLOBAL',
-        countryName: destData['countryName'] as String? ?? 'International Destination',
+        countryName:
+            destData['countryName'] as String? ?? 'International Destination',
         phonePrefix: '+',
         costPerMinute: 0.0,
         ratePerMinute: (destData['ratePerMinute'] as num).toDouble(),
         connectionFee: (destData['connectionFee'] as num?)?.toDouble() ?? 0.0,
-        billingIncrementSeconds: destData['billingIncrementSeconds'] as int? ?? 1,
+        billingIncrementSeconds:
+            destData['billingIncrementSeconds'] as int? ?? 1,
         accountTier: destData['accountTier'] as String?,
       );
+    }
+
+    if (rate == null ||
+        !rate.ratePerMinute.isFinite ||
+        rate.ratePerMinute <= 0 ||
+        !rate.connectionFee.isFinite ||
+        rate.connectionFee < 0 ||
+        rate.billingIncrementSeconds < 1) {
+      throw Exception('The call rate is unavailable.');
     }
 
     final double postedBal = (data['walletBalance'] as num?)?.toDouble() ?? 0.0;
@@ -171,7 +186,8 @@ class CallingRepository {
       availableBalance: availBal,
       gatewayNumber: data['gatewayNumber'] as String? ?? '+17543180369',
       connectionFee: (destData?['connectionFee'] as num?)?.toDouble() ?? 0.0,
-      billingIncrementSeconds: destData?['billingIncrementSeconds'] as int? ?? 1,
+      billingIncrementSeconds:
+          destData?['billingIncrementSeconds'] as int? ?? 1,
     );
   }
 
@@ -279,14 +295,13 @@ class CallingRepository {
       body: {'action': 'list'},
     );
     if (res.status != 200 || res.data == null) {
-      return const CallerIdListResult(
-        callerIds: [],
-        defaultGatewayNumber: '+17543180369',
-      );
+      throw Exception('Could not load caller IDs.');
     }
     final list = res.data['callerIds'] as List? ?? [];
-    final gateway =
-        res.data['defaultGatewayNumber'] as String? ?? '+17543180369';
+    final gateway = res.data['defaultGatewayNumber'] as String?;
+    if (gateway == null || gateway.isEmpty) {
+      throw Exception('Caller ID information is unavailable.');
+    }
     final isGatewayActive = res.data['isGatewayActive'] as bool? ?? true;
     final activeCallerId = res.data['activeCallerId'] as String? ?? gateway;
 
@@ -370,7 +385,11 @@ class CallingRepository {
       final res = await _supabase.rpc('get_user_dids');
       if (res is List) {
         return res
-            .map((e) => VirtualDidNumber.fromJson(Map<String, dynamic>.from(e as Map)))
+            .map(
+              (e) => VirtualDidNumber.fromJson(
+                Map<String, dynamic>.from(e as Map),
+              ),
+            )
             .toList();
       }
     } catch (_) {}
@@ -386,7 +405,10 @@ class CallingRepository {
           .eq('status', 'active')
           .order('created_at', ascending: true);
       return (rows as List)
-          .map((e) => VirtualDidNumber.fromJson(Map<String, dynamic>.from(e as Map)))
+          .map(
+            (e) =>
+                VirtualDidNumber.fromJson(Map<String, dynamic>.from(e as Map)),
+          )
           .toList();
     } catch (_) {
       return [];
@@ -400,27 +422,33 @@ class CallingRepository {
     String? forwardDestination,
   }) async {
     try {
-      await _supabase.rpc('update_did_forwarding', params: {
-        'p_did_id': didId,
-        'p_forward_mode': forwardMode,
-        'p_forward_destination': forwardDestination,
-      });
+      await _supabase.rpc(
+        'update_did_forwarding',
+        params: {
+          'p_did_id': didId,
+          'p_forward_mode': forwardMode,
+          'p_forward_destination': forwardDestination,
+        },
+      );
     } catch (_) {
-      await _supabase.functions.invoke('manage-dids', body: {
-        'action': 'update_forwarding',
-        'did_id': didId,
-        'forward_mode': forwardMode,
-        'forward_destination': forwardDestination,
-      });
+      await _supabase.functions.invoke(
+        'manage-dids',
+        body: {
+          'action': 'update_forwarding',
+          'did_id': didId,
+          'forward_mode': forwardMode,
+          'forward_destination': forwardDestination,
+        },
+      );
     }
   }
 
   /// Retrieve GSM call forwarding MMI codes for setting up home SIM forwarding
   Future<Map<String, dynamic>> getForwardingCodes(String didId) async {
-    final res = await _supabase.functions.invoke('manage-dids', body: {
-      'action': 'get_forwarding_codes',
-      'did_id': didId,
-    });
+    final res = await _supabase.functions.invoke(
+      'manage-dids',
+      body: {'action': 'get_forwarding_codes', 'did_id': didId},
+    );
     if (res.data != null && res.data['instructions'] != null) {
       return Map<String, dynamic>.from(res.data['instructions'] as Map);
     }
@@ -430,10 +458,17 @@ class CallingRepository {
   /// Fetch user's visual voicemail messages
   Future<List<VoicemailMessage>> getVoicemails({int limit = 50}) async {
     try {
-      final res = await _supabase.rpc('get_user_voicemails', params: {'p_limit': limit});
+      final res = await _supabase.rpc(
+        'get_user_voicemails',
+        params: {'p_limit': limit},
+      );
       if (res is List) {
         return res
-            .map((e) => VoicemailMessage.fromJson(Map<String, dynamic>.from(e as Map)))
+            .map(
+              (e) => VoicemailMessage.fromJson(
+                Map<String, dynamic>.from(e as Map),
+              ),
+            )
             .toList();
       }
     } catch (_) {}
@@ -449,7 +484,10 @@ class CallingRepository {
           .order('created_at', ascending: false)
           .limit(limit);
       return (rows as List)
-          .map((e) => VoicemailMessage.fromJson(Map<String, dynamic>.from(e as Map)))
+          .map(
+            (e) =>
+                VoicemailMessage.fromJson(Map<String, dynamic>.from(e as Map)),
+          )
           .toList();
     } catch (_) {
       return [];
@@ -459,11 +497,17 @@ class CallingRepository {
   /// Mark a voicemail message as read
   Future<void> markVoicemailRead(String voicemailId) async {
     try {
-      await _supabase.rpc('mark_voicemail_read', params: {'p_voicemail_id': voicemailId});
+      await _supabase.rpc(
+        'mark_voicemail_read',
+        params: {'p_voicemail_id': voicemailId},
+      );
     } catch (_) {
       await _supabase
           .from('voicemail_messages')
-          .update({'is_read': true, 'updated_at': DateTime.now().toIso8601String()})
+          .update({
+            'is_read': true,
+            'updated_at': DateTime.now().toIso8601String(),
+          })
           .eq('id', voicemailId);
     }
   }
@@ -492,7 +536,11 @@ class CallingRepository {
 
     final list = data['numbers'] as List? ?? [];
     return list
-        .map((e) => AvailableVirtualNumber.fromJson(Map<String, dynamic>.from(e as Map)))
+        .map(
+          (e) => AvailableVirtualNumber.fromJson(
+            Map<String, dynamic>.from(e as Map),
+          ),
+        )
         .toList();
   }
 
@@ -516,7 +564,8 @@ class CallingRepository {
     if (data == null || data['success'] != true) {
       if (data?['code'] == 'insufficient_funds') {
         throw Exception(
-          data['message'] ?? 'Insufficient wallet balance to purchase this number.',
+          data['message'] ??
+              'Insufficient wallet balance to purchase this number.',
         );
       }
       final msg = data?['error'] ?? 'Failed to complete number purchase';
@@ -533,7 +582,11 @@ class CallingRepository {
       final res = await _supabase.rpc('get_supported_carriers_divert');
       if (res is List) {
         return res
-            .map((e) => CarrierDivertRule.fromJson(Map<String, dynamic>.from(e as Map)))
+            .map(
+              (e) => CarrierDivertRule.fromJson(
+                Map<String, dynamic>.from(e as Map),
+              ),
+            )
             .toList();
       }
     } catch (_) {}
@@ -542,7 +595,9 @@ class CallingRepository {
     try {
       final rows = await _supabase
           .from('carrier_call_forwarding_rules')
-          .select('*, carriers!inner(name), countries!inner(name, iso_code, flag_emoji, dialing_code)');
+          .select(
+            '*, carriers!inner(name), countries!inner(name, iso_code, flag_emoji, dialing_code)',
+          );
       return (rows as List).map((r) {
         final carrierName = r['carriers']?['name'] as String? ?? 'Carrier';
         final countryName = r['countries']?['name'] as String? ?? '';

@@ -96,3 +96,28 @@ Validation limits:
 - Secret values were not read or reproduced beyond detecting that a tracked token field is nonempty.
 
 Material changes made by this audit: `.codex` documentation only; no production code, schema, deployment, or user data changes.
+
+### 2026-10-14 — Smart Call destination and review contract
+
+**Status:** accepted; implemented locally in the customer app.
+
+A call destination is resolved from raw input plus an explicitly confirmed ISO country for national numbers. Tariff rows, their phone prefixes, caller identity, location, and server quote results must not determine or mutate that country. Existing valid `+` input keeps its international identity. A maintained numbering-plan parser preserves country-specific trunk and significant-zero rules.
+
+Selected contacts and redial pass through the shared `CallReviewSheet`. It displays the complete number, actual effective caller ID, customer rate, and relevant connection fee/billing interval. Caller-ID load failures cannot fabricate a gateway number. Local identity selection submits the exact verified ID and does not implicitly update the saved default.
+
+Draft mutations invalidate pending quotes immediately. A final read-only preview rechecks the reviewed draft; changed price/fee/increment/identity returns to review before call creation. The existing server remains authoritative for eligibility, identity ownership, pricing, available balance and provider execution. A minimum-balance client check is not a reservation or a guarantee that the entire call is collectible.
+
+Verification and rollout evidence: `docs/implementation-plans/smart-call-country-and-review-plan-20261014.md`. No database, worker or Edge Function deployment was required by this change.
+
+
+## Free Call recipient review and manual invitations (2026-10-15)
+
+Customer app Free Call now has its own account-scoped recipient draft/review, independent of paid pricing/CLID state. National numbers reuse the country-confirmed `CallDestination` resolver; known household/history recipients retain stable account IDs. Edit/account changes immediately clear eligibility; the final call tap rechecks identity after microphone permission and cannot silently choose a changed recipient.
+
+`resolve_free_call_recipient(text,uuid)` is the new authenticated, quota-limited SECURITY DEFINER API with an empty search path. Phone resolution is exact canonical ownership via verified caller IDs, active owned DIDs or confirmed Auth phone. Raw SIM/carrier setup and mutable profile phones are unverified claims, and conflicting users are ambiguous. ID lookup requires an accepted household relationship or existing caller-owned call history. Self/unknown/error/unverified states cannot become a callable arbitrary account. A push token is not live presence. The legacy suffix-match API remains solely for older clients; the new review never falls back to it.
+
+The verified caller-ID fields were client writable behind owner-only RLS. A SECURITY INVOKER trigger now denies client-manufactured verification/timestamps and clears proof on phone changes while retaining label/default edits and trusted server verification. Resolver deployment version `20261014214138`; guard version `20261014215139`. Live bodies/grants and isolated negative checks were verified after the approved Supabase update.
+
+No-match review shows the app requirement directly below the number and separate WhatsApp/SMS invitations. They open the caller’s own app/native composer; the caller must press Send. No SMS-send permission, automatic messages, contact upload, wallet charge or signed callable link is implied. The existing marketing page has placeholder store buttons, so a real optional HTTPS install link comes from `FREE_CALL_APP_DOWNLOAD_URL`; current text does not promise that placeholder is a download. Paid fallback carries the confirmed number into the existing paid review and still requires a paid Call tap.
+
+Android debug build installed; iOS simulator compilation passed; 23 focused checks pass. Two-device speech/background delivery and real physical-device invite composition/sending remain NOT RUN. See `docs/reviews/free-call-review-verification-20261015.md`.

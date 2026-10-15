@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:keep_sims/features/calling/presentation/widgets/calling_mode_switcher.dart';
+import 'package:keep_sims/features/voip_calling/presentation/controllers/free_call_review_controller.dart';
 import 'package:keep_sims/features/household/data/models/household_member_model.dart';
 import 'package:keep_sims/features/household/presentation/controllers/household_controller.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
@@ -12,73 +13,82 @@ import 'package:keep_sims/features/voip_calling/presentation/controllers/voip_ca
 import 'package:keep_sims/features/voip_calling/presentation/screens/internet_calling_screen.dart';
 
 void main() {
-  testWidgets('InternetCallingScreen renders WhatsApp-style voice calling tabs and headers', (tester) async {
-    const mockSimLine = SimLine(
-      id: 'test-sim-1',
-      userId: 'test-user',
-      phoneNumber: '+96891234567',
-      nickname: 'Personal eSIM',
-      avatarIcon: 'esim',
-      countryId: 'OM',
-      status: 'active',
-      planType: 'free',
-      protectionTier: 'standard',
-      isAutoDetected: false,
-      isHomeMode: false,
-      protectionPaused: false,
-      requiresProtectionAtHome: false,
-      isCarrierVerified: true,
-      carrierStatus: 'verified',
-      detectedOperatorName: 'Omantel',
-      healthScore: 100,
-      verificationStatus: 'verified',
-    );
+  testWidgets(
+    'InternetCallingScreen renders simple app-to-app browsing and account requirement',
+    (tester) async {
+      const mockSimLine = SimLine(
+        id: 'test-sim-1',
+        userId: 'test-user',
+        phoneNumber: '+96891234567',
+        nickname: 'Personal eSIM',
+        avatarIcon: 'esim',
+        countryId: 'OM',
+        status: 'active',
+        planType: 'free',
+        protectionTier: 'standard',
+        isAutoDetected: false,
+        isHomeMode: false,
+        protectionPaused: false,
+        requiresProtectionAtHome: false,
+        isCarrierVerified: true,
+        carrierStatus: 'verified',
+        detectedOperatorName: 'Omantel',
+        healthScore: 100,
+        verificationStatus: 'verified',
+      );
 
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          voipCallingRepositoryProvider.overrideWithValue(
-            _FakeVoipCallingRepository(),
-          ),
-          simLinesControllerProvider.overrideWith(
-            () => _FakeSimLinesController([mockSimLine]),
-          ),
-          householdControllerProvider.overrideWith(
-            () => _FakeHouseholdController(),
-          ),
-          voipCallHistoryProvider.overrideWith(
-            (ref) async => <VoipCallSession>[],
-          ),
-        ],
-        child: const MaterialApp(
-          home: InternetCallingScreen(),
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            freeCallAccountProvider.overrideWithValue('test-user'),
+            voipCallingRepositoryProvider.overrideWithValue(
+              _FakeVoipCallingRepository(),
+            ),
+            simLinesControllerProvider.overrideWith(
+              () => _FakeSimLinesController([mockSimLine]),
+            ),
+            householdControllerProvider.overrideWith(
+              () => _FakeHouseholdController(),
+            ),
+            voipCallHistoryProvider.overrideWith(
+              (ref) async => <VoipCallSession>[],
+            ),
+          ],
+          child: const MaterialApp(home: InternetCallingScreen()),
         ),
-      ),
-    );
+      );
 
-    await tester.pumpAndSettle();
+      await tester.pumpAndSettle();
 
-    // Verify Title & Badges
-    expect(find.text('KeepSIMs Free Call'), findsOneWidget);
-    expect(find.text('WhatsApp-Style Internet Audio (App-to-App)'), findsOneWidget);
-    expect(find.text('100% FREE'), findsOneWidget);
+      // Verify Title & Badges
+      expect(find.text('Free Call'), findsOneWidget);
+      expect(
+        find.text('WhatsApp-Style Internet Audio (App-to-App)'),
+        findsNothing,
+      );
+      expect(
+        find.text('Both of you need the KeepSIMs app for free calls.'),
+        findsOneWidget,
+      );
 
-    // Verify search bar
-    expect(find.text('Search name or number (+968...)'), findsOneWidget);
+      // Verify search bar
+      expect(find.text('Enter a number'), findsOneWidget);
 
-    // Verify invite link banner
-    expect(find.text('Share Free Call Link'), findsOneWidget);
+      // Verify invite link banner
+      expect(find.text('Share Free Call Link'), findsNothing);
+      expect(find.byTooltip('Invite a friend'), findsOneWidget);
 
-    // Verify WhatsApp-style tabs
-    expect(find.text('Recent Calls'), findsOneWidget);
-    expect(find.text('Family & Contacts'), findsOneWidget);
+      // Verify WhatsApp-style tabs
+      expect(find.text('Recent'), findsOneWidget);
+      expect(find.text('People'), findsOneWidget);
 
-    // Verify empty state for recent calls
-    expect(find.text('No Recent Free Calls'), findsOneWidget);
+      // Verify empty state for recent calls
+      expect(find.text('No recent free calls'), findsOneWidget);
 
-    // Verify duplicate CallingModeSwitcher is NOT present
-    expect(find.byType(CallingModeSwitcher), findsNothing);
-  });
+      // Verify duplicate CallingModeSwitcher is NOT present
+      expect(find.byType(CallingModeSwitcher), findsNothing);
+    },
+  );
 }
 
 class _FakeVoipCallingRepository extends Fake implements VoipCallingRepository {

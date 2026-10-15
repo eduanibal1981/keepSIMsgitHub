@@ -16,8 +16,8 @@ val newBuildDir: Directory =
 rootProject.layout.buildDirectory.value(newBuildDir)
 
 subprojects {
-    val rootDrive = rootProject.projectDir.path.substringBefore(":")
-    val subDrive = project.projectDir.path.substringBefore(":")
+    val rootDrive = rootProject.projectDir.toPath().root.toString()
+    val subDrive = project.projectDir.toPath().root.toString()
     if (rootDrive.equals(subDrive, ignoreCase = true)) {
         val newSubprojectBuildDir: Directory = newBuildDir.dir(project.name)
         project.layout.buildDirectory.value(newSubprojectBuildDir)
