@@ -125,3 +125,28 @@ servers/
 # macOS metadata
 .DS_Store
 
+
+# Local screenshots and generated design/verification images (keep app assets tracked).
+/*.png
+/*.jpg
+/*.jpeg
+/*.webp
+/*.gif
+/*.svg
+/*.avif
+/output/**/*.png
+/output/**/*.jpg
+/output/**/*.jpeg
+/output/**/*.webp
+/output/**/*.gif
+/output/**/*.svg
+/output/**/*.avif
+/test-results/**/*.png
+/test-results/**/*.jpg
+/test-results/**/*.jpeg
+/test-results/**/*.webp
+/test-results/**/*.gif
+/test-results/**/*.svg
+/test-results/**/*.avif
+/.gemini/stitch_welcome_screenshot.png
+/.zcode/screenshot.png

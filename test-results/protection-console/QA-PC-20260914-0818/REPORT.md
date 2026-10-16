@@ -1,4 +1,6 @@
 # Protection Console QA Execution Report
+
+Image cleanup, 16 October 2026: the screenshots named in this historical report were removed from the repository. The recorded findings are retained.
 **Run Identifier:** `QA-PC-20260914-0818`  
 **Application Under Test:** KeepSIMs Mobile (Flutter Android Client)  
 **Target Environment:** Android 12 (API 32) on MuMu Player Emulator (`SM-A156E`, `127.0.0.1:16384`, Display: 900x1600 @ 320dpi)  

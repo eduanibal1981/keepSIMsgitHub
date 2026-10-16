@@ -1,5 +1,7 @@
 # Alert Preferences redesign: verification
 
+Image cleanup, 16 October 2026: the captures below were removed from the repository because they are not app assets. Filenames are retained as historical capture identifiers; widget-test captures can be regenerated locally.
+
 Reviewed 1 October 2026 in the local KeepSIMs checkout.
 
 The compact dashboard and focused channel sheets are implemented. WhatsApp shows the saved delivery number below its title. Alarm Clock is a separate device preference under Last line of defense, and Quiet hours / Weekly summary remain readily accessible. See the [full implementation plan](../implementation-plans/alert-preferences-dashboard-plan-20261001.md) for behavior, code locations, timing examples, and release acceptance.
@@ -43,8 +45,8 @@ No production database/schema changes, backend deployment, customer notification
 
 ## Review artifacts
 
-- [Light preview](../../output/alert-preferences-concepts/implemented-light.png)
-- [Dark preview](../../output/alert-preferences-concepts/implemented-dark.png)
+- Light preview (`../../output/alert-preferences-concepts/implemented-light.png`)
+- Dark preview (`../../output/alert-preferences-concepts/implemented-dark.png`)
 - [Android review APK](../../output/alert-preferences-concepts/KeepSIMs-alert-preferences-review.apk) — debug build, approximately 237 MiB.
 
 Review APK SHA-256: `531D833221ECACE8B3EC315621AFE07019B128B4667DB79D967C6AE1D30746DD`.
