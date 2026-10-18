@@ -1,0 +1,244 @@
+{
+  "collected_at_utc": "2026-10-16T11:28:01.574541+00:00",
+  "host": "zwxswagokhgbuzrrbnhr.supabase.co",
+  "request": "GET /rest/v1/ with configured service credential; metadata only",
+  "limitations": [
+    "OpenAPI is API-cache evidence, not a fresh pg_catalog or effective-role/ACL inspection.",
+    "No RPC was invoked and no table rows were fetched."
+  ],
+  "http_status": 200,
+  "openapi_sha256": "957f2e5ed60be32bae7d0cab217867b1061040d2b4ca219b4286ff5742f97f9a",
+  "selected_rpc_metadata": {
+    "finalize_sim_setup_order": {
+      "listed": true,
+      "parameters": {
+        "post": [
+          {
+            "name": "args",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "properties": {
+                "p_order_id": {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                "p_sim_line_id": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "p_order_id"
+              ],
+              "type": "object"
+            }
+          },
+          {}
+        ]
+      }
+    },
+    "update_execution_status": {
+      "listed": true,
+      "parameters": {
+        "post": [
+          {
+            "name": "args",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "properties": {
+                "p_id": {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                "p_pin_code": {
+                  "format": "text",
+                  "type": "string"
+                },
+                "p_pin_serial": {
+                  "format": "text",
+                  "type": "string"
+                },
+                "p_redeem_instructions": {
+                  "format": "text",
+                  "type": "string"
+                },
+                "p_reloadly_transaction_id": {
+                  "format": "text",
+                  "type": "string"
+                },
+                "p_status": {
+                  "format": "text",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "p_id",
+                "p_status",
+                "p_reloadly_transaction_id"
+              ],
+              "type": "object"
+            }
+          },
+          {}
+        ]
+      }
+    },
+    "reap_stuck_executions": {
+      "listed": true,
+      "parameters": {
+        "post": [
+          {
+            "name": "args",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "properties": {
+                "p_max_retries": {
+                  "format": "integer",
+                  "type": "integer"
+                },
+                "p_stuck_after_minutes": {
+                  "format": "integer",
+                  "type": "integer"
+                }
+              },
+              "type": "object"
+            }
+          },
+          {}
+        ]
+      }
+    },
+    "check_scheduled_jobs_health": {
+      "listed": true,
+      "parameters": {
+        "post": [
+          {
+            "name": "args",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          },
+          {}
+        ]
+      }
+    },
+    "prune_database_logs": {
+      "listed": true,
+      "parameters": {
+        "post": [
+          {
+            "name": "args",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "properties": {
+                "p_alerts_retention_days": {
+                  "format": "integer",
+                  "type": "integer"
+                },
+                "p_cron_retention_days": {
+                  "format": "integer",
+                  "type": "integer"
+                }
+              },
+              "type": "object"
+            }
+          },
+          {}
+        ]
+      }
+    },
+    "confirm_line_verification": {
+      "listed": true,
+      "parameters": {
+        "post": [
+          {
+            "name": "args",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "properties": {
+                "p_carrier_name": {
+                  "format": "text",
+                  "type": "string"
+                },
+                "p_channel": {
+                  "format": "text",
+                  "type": "string"
+                },
+                "p_sim_line_id": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "p_sim_line_id"
+              ],
+              "type": "object"
+            }
+          },
+          {}
+        ]
+      }
+    },
+    "settle_line_verification_attempt": {
+      "listed": true,
+      "parameters": {
+        "post": [
+          {
+            "name": "args",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "properties": {
+                "p_attempt_id": {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                "p_carrier_name": {
+                  "format": "text",
+                  "type": "string"
+                },
+                "p_error_message": {
+                  "format": "text",
+                  "type": "string"
+                },
+                "p_outcome": {
+                  "format": "text",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "p_attempt_id",
+                "p_outcome"
+              ],
+              "type": "object"
+            }
+          },
+          {}
+        ]
+      }
+    },
+    "begin_refill_submission": {
+      "listed": false
+    },
+    "settle_instant_refill_execution": {
+      "listed": false
+    },
+    "claim_wallet_refund_item": {
+      "listed": false
+    },
+    "finish_wallet_refund_item": {
+      "listed": false
+    },
+    "recover_expired_wallet_holds": {
+      "listed": false
+    }
+  },
+  "rpc_count": 310
+}

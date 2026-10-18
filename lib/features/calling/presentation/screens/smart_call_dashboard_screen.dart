@@ -6,7 +6,7 @@
 /// - Smart Call title with subtitle and Recent Calls shortcut
 /// - Number / contact input bar with native phone contacts picker
 /// - "How would you like to call?" 2-column side-by-side grid (Dialer vs Free Web Call)
-/// - "Numbers & voicemail" inset grouped card (Virtual Numbers & Voicemail)
+/// - Voicemail inbox and Second Number shortcut
 /// - "Tools" inset grouped card (Audio & Device Inspector with [Test device] button)
 library;
 
@@ -21,6 +21,7 @@ import 'package:keep_sims/core/widgets/haptic_helper.dart';
 import 'package:keep_sims/features/calling/presentation/controllers/smart_call_dialer_controller.dart';
 import 'package:keep_sims/features/calling/data/services/device_contact_picker.dart';
 import 'package:keep_sims/features/calling/presentation/widgets/call_review_sheet.dart';
+import 'package:keep_sims/features/calling/presentation/widgets/calling_options_section.dart';
 import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import 'package:keep_sims/features/wallet/controller/wallet_controller.dart';
 import 'package:keep_sims/features/voip_calling/domain/free_call_recipient.dart';
@@ -94,10 +95,6 @@ class _SmartCallDashboardScreenState
     if (_reviewingCall) return;
     HapticHelper.lightTick();
     final number = _numberController.text.trim();
-    if (number.isEmpty) {
-      context.push(AppRoutes.callingDialer);
-      return;
-    }
     final notifier = ref.read(smartCallDialerProvider.notifier);
     if (ref.read(smartCallDialerProvider).rawNumber != number) {
       notifier.setNumber(number);
@@ -121,8 +118,7 @@ class _SmartCallDashboardScreenState
     }
   }
 
-  void _openRecentCalls() =>
-      context.push('${AppRoutes.callingDialer}?tab=recent');
+  void _openRecentCalls() => context.push(AppRoutes.callingHistory);
 
   Future<void> _openFreeWebCall() async {
     if (_reviewingCall) return;
@@ -186,35 +182,6 @@ class _SmartCallDashboardScreenState
             ),
           ];
 
-    // Calling cards styling
-    final purpleIcon = isDark
-        ? const Color(0xFF818CF8)
-        : const Color(0xFF4F46E5);
-    final purpleIconBg =
-        (isDark ? const Color(0xFF818CF8) : const Color(0xFF6366F1)).withValues(
-          alpha: isDark ? 0.15 : 0.10,
-        );
-    final purpleButtonBg = isDark
-        ? const Color(0xFF282554)
-        : const Color(0xFF4F46E5);
-    final purpleButtonBorder = isDark
-        ? const Color(0xFF4338CA)
-        : const Color(0xFF4338CA);
-
-    final cyanAccent = isDark
-        ? const Color(0xFF22D3EE)
-        : const Color(0xFF0891B2);
-    final cyanIconBg =
-        (isDark ? const Color(0xFF22D3EE) : const Color(0xFF0891B2)).withValues(
-          alpha: isDark ? 0.15 : 0.10,
-        );
-    final cyanButtonBg = isDark
-        ? const Color(0xFF0E4E63)
-        : const Color(0xFF0891B2);
-    final cyanButtonBorder = isDark
-        ? const Color(0xFF0891B2)
-        : const Color(0xFF0E7490);
-
     final walletAsync = ref.watch(walletControllerProvider);
     final walletBalance = walletAsync.asData?.value.wallet.balance ?? 1922.48;
 
@@ -266,20 +233,9 @@ class _SmartCallDashboardScreenState
                     cardShadow: cardShadow,
                   ),
                   const SizedBox(height: 24),
-                  _buildHowToCallSection(
-                    cardBg: cardBg,
-                    cardBorder: cardBorder,
-                    cardShadow: cardShadow,
-                    textPrimary: textPrimary,
-                    textSecondary: textSecondary,
-                    purpleIcon: purpleIcon,
-                    purpleIconBg: purpleIconBg,
-                    purpleButtonBg: purpleButtonBg,
-                    purpleButtonBorder: purpleButtonBorder,
-                    cyanAccent: cyanAccent,
-                    cyanIconBg: cyanIconBg,
-                    cyanButtonBg: cyanButtonBg,
-                    cyanButtonBorder: cyanButtonBorder,
+                  CallingOptionsSection(
+                    onDialerTap: _openDialer,
+                    onFreeCallTap: _openFreeWebCall,
                   ),
                   const SizedBox(height: 26),
                   _buildNumbersAndVoicemailSection(
@@ -321,53 +277,60 @@ class _SmartCallDashboardScreenState
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Row(
-          children: [
-            IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-              color: textPrimary,
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-              tooltip: 'Back to Home',
-              onPressed: () {
-                HapticHelper.lightTick();
-                if (Navigator.of(context).canPop()) {
-                  Navigator.of(context).pop();
-                } else {
-                  context.go(AppRoutes.home);
-                }
-              },
-            ),
-            const SizedBox(width: 12),
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF38BDF8), Color(0xFF818CF8)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(
-                Icons.signal_cellular_alt_rounded,
-                color: Colors.white,
-                size: 20,
-              ),
-            ),
-            const SizedBox(width: 10),
-            Text(
-              'KeepSIMs',
-              style: TextStyle(
+        Expanded(
+          child: Row(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
                 color: textPrimary,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 0.3,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+                tooltip: 'Back to Home',
+                onPressed: () {
+                  HapticHelper.lightTick();
+                  if (Navigator.of(context).canPop()) {
+                    Navigator.of(context).pop();
+                  } else {
+                    context.go(AppRoutes.home);
+                  }
+                },
               ),
-            ),
-          ],
+              const SizedBox(width: 12),
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF38BDF8), Color(0xFF818CF8)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.signal_cellular_alt_rounded,
+                  color: Colors.white,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Flexible(
+                child: Text(
+                  'Smart Call',
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                  style: TextStyle(
+                    color: textPrimary,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.3,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
+        const SizedBox(width: 12),
         InkWell(
           onTap: () {
             HapticHelper.lightTick();
@@ -425,19 +388,14 @@ class _SmartCallDashboardScreenState
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Smart Call',
-                style: TextStyle(
-                  color: textPrimary,
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: -0.5,
-                ),
-              ),
               const SizedBox(height: 4),
               Text(
-                'Choose a number, then how to call',
-                style: TextStyle(color: textSecondary, fontSize: 14),
+                'Enter a number or select a contact',
+                style: TextStyle(
+                  color: textSecondary,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ],
           ),
@@ -564,189 +522,12 @@ class _SmartCallDashboardScreenState
             ),
           ],
         ),
-        const SizedBox(height: 6),
-        Padding(
-          padding: const EdgeInsets.only(left: 4),
-          child: Text(
-            'Choose a contact or enter a number',
-            style: TextStyle(color: textMuted, fontSize: 12),
-          ),
-        ),
+
       ],
     );
   }
 
-  /// 4. "How would you like to call?" - 2-Column Side-by-Side Cards (Image B)
-  Widget _buildHowToCallSection({
-    required Color cardBg,
-    required Color cardBorder,
-    required List<BoxShadow>? cardShadow,
-    required Color textPrimary,
-    required Color textSecondary,
-    required Color purpleIcon,
-    required Color purpleIconBg,
-    required Color purpleButtonBg,
-    required Color purpleButtonBorder,
-    required Color cyanAccent,
-    required Color cyanIconBg,
-    required Color cyanButtonBg,
-    required Color cyanButtonBorder,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'How would you like to call?',
-          style: TextStyle(
-            color: textPrimary,
-            fontSize: 19,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 14),
-        IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Card 1: Dialer
-              Expanded(
-                child: _buildCallingCard(
-                  cardBg: cardBg,
-                  cardBorder: cardBorder,
-                  cardShadow: cardShadow,
-                  textPrimary: textPrimary,
-                  textSecondary: textSecondary,
-                  icon: Icons.phone_rounded,
-                  iconColor: purpleIcon,
-                  iconBg: purpleIconBg,
-                  title: 'International Calls',
-                  subtitle:
-                      'Call international mobiles/landlines number at low rates',
-                  buttonText: 'Call with Dialer',
-                  buttonBg: purpleButtonBg,
-                  buttonBorder: purpleButtonBorder,
-                  onButtonTap: _openDialer,
-                ),
-              ),
-              const SizedBox(width: 14),
-              // Card 2: Free Web Call
-              Expanded(
-                child: _buildCallingCard(
-                  cardBg: cardBg,
-                  cardBorder: cardBorder,
-                  cardShadow: cardShadow,
-                  textPrimary: textPrimary,
-                  textSecondary: textSecondary,
-                  icon: Icons.language_rounded,
-                  iconColor: cyanAccent,
-                  iconBg: cyanIconBg,
-                  title: 'Free Call',
-                  subtitle: 'KeepSIMs to KeepSIMs',
-                  linkText: 'Choose a KeepSIMs contact',
-                  buttonText: 'Call free',
-                  buttonBg: cyanButtonBg,
-                  buttonBorder: cyanButtonBorder,
-                  onLinkTap: () => context.push(AppRoutes.internetCalling),
-                  onButtonTap: _openFreeWebCall,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildCallingCard({
-    required Color cardBg,
-    required Color cardBorder,
-    required List<BoxShadow>? cardShadow,
-    required Color textPrimary,
-    required Color textSecondary,
-    required IconData icon,
-    required Color iconColor,
-    required Color iconBg,
-    required String title,
-    required String subtitle,
-    String? linkText,
-    required String buttonText,
-    required Color buttonBg,
-    required Color buttonBorder,
-    VoidCallback? onLinkTap,
-    required VoidCallback onButtonTap,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: cardBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: cardBorder, width: 1.2),
-        boxShadow: cardShadow,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(color: iconBg, shape: BoxShape.circle),
-            child: Icon(icon, color: iconColor, size: 26),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            title,
-            style: TextStyle(
-              color: textPrimary,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(subtitle, style: TextStyle(color: textSecondary, fontSize: 12)),
-          if (linkText != null) ...[
-            const SizedBox(height: 4),
-            InkWell(
-              onTap: onLinkTap,
-              child: const Text(
-                'Browse directory',
-                style: TextStyle(
-                  color: Color(0xFF0284C7),
-                  fontSize: 12,
-                  decoration: TextDecoration.underline,
-                ),
-              ),
-            ),
-          ],
-          const Spacer(),
-          const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: onButtonTap,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: buttonBg,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  side: BorderSide(color: buttonBorder),
-                ),
-                elevation: 0,
-              ),
-              child: Text(
-                buttonText,
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// 5. "Voicemail" Section + Standalone Virtual Numbers Cross-Link
+  /// 5. Voicemail section and Second Number shortcut.
   Widget _buildNumbersAndVoicemailSection({
     required bool isDark,
     required Color cardBg,
@@ -795,7 +576,7 @@ class _SmartCallDashboardScreenState
           ),
         ),
         const SizedBox(height: 14),
-        // Subtle cross-link to standalone Virtual Numbers service
+        // Shortcut to the standalone Second Number service.
         InkWell(
           onTap: () {
             HapticHelper.lightTick();
@@ -830,7 +611,7 @@ class _SmartCallDashboardScreenState
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Need a Virtual Number or Caller ID?',
+                        'Get Second Number',
                         style: TextStyle(
                           color: textPrimary,
                           fontSize: 13.5,
@@ -839,7 +620,7 @@ class _SmartCallDashboardScreenState
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        'Get a global number or set up Zero-Roaming call divert',
+                        'A separate number for incoming calls and call forwarding',
                         style: TextStyle(color: textSecondary, fontSize: 11.5),
                       ),
                     ],

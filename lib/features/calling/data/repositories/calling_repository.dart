@@ -1,7 +1,12 @@
 /// KeepSIMs — Calling Repository
+
 library;
 
+import 'package:keep_sims/core/utils/retail_poll_ticks.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../contract/second_number_contract.dart';
+import '../models/second_number_models.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:keep_sims/core/supabase_client.dart';
 import 'package:keep_sims/features/calling/data/models/call_rate_model.dart';
@@ -74,7 +79,7 @@ class CallPreviewResult {
   }) : availableBalance = availableBalance ?? walletBalance;
 }
 
-class CallingRepository {
+class CallingRepository implements SecondNumberContract {
   final SupabaseClient _supabase;
 
   CallingRepository(this._supabase);
@@ -94,7 +99,9 @@ class CallingRepository {
 
     final res = await _supabase
         .from('call_rates')
-        .select('*')
+        .select(
+          'id,country_code,country_name,phone_prefix,destination_type,rate_per_minute_usd,connection_fee_usd,billing_increment_seconds,is_active',
+        )
         .eq('is_active', true)
         .order('country_name');
 
@@ -104,7 +111,7 @@ class CallingRepository {
   /// Single-record fetch for active call status polling
   Future<CallRecord?> getCallRecord(String callId) async {
     final res = await _supabase
-        .from('call_records')
+        .from('customer_call_records')
         .select('*')
         .eq('id', callId)
         .maybeSingle();
@@ -151,7 +158,6 @@ class CallingRepository {
         countryName:
             destData['countryName'] as String? ?? 'International Destination',
         phonePrefix: '+',
-        costPerMinute: 0.0,
         ratePerMinute: (destData['ratePerMinute'] as num).toDouble(),
         connectionFee: (destData['connectionFee'] as num?)?.toDouble() ?? 0.0,
         billingIncrementSeconds:
@@ -259,10 +265,11 @@ class CallingRepository {
 
   /// Watch active call record status in real-time
   Stream<CallRecord?> watchActiveCall(String callId) {
-    return _supabase
-        .from('call_records')
-        .stream(primaryKey: ['id'])
-        .eq('id', callId)
+    return retailPollTicks(const Duration(seconds: 2))
+        .asyncMap(
+          (_) =>
+              _supabase.from('customer_call_records').select().eq('id', callId),
+        )
         .map(
           (list) => list.isNotEmpty ? CallRecord.fromJson(list.first) : null,
         );
@@ -273,12 +280,15 @@ class CallingRepository {
     final userId = _supabase.auth.currentUser?.id;
     if (userId == null) return const Stream.empty();
 
-    return _supabase
-        .from('call_records')
-        .stream(primaryKey: ['id'])
-        .eq('user_id', userId)
-        .order('started_at', ascending: false)
-        .limit(50)
+    return retailPollTicks(const Duration(seconds: 3))
+        .asyncMap(
+          (_) => _supabase
+              .from('customer_call_records')
+              .select()
+              .eq('user_id', userId)
+              .order('started_at', ascending: false)
+              .limit(50),
+        )
         .map((list) => list.map((e) => CallRecord.fromJson(e)).toList());
   }
 
@@ -379,40 +389,165 @@ class CallingRepository {
     );
   }
 
-  /// Fetch user's active virtual DID numbers
+  @override
   Future<List<VirtualDidNumber>> getVirtualDids() async {
+    dynamic rows;
     try {
-      final res = await _supabase.rpc('get_user_dids');
-      if (res is List) {
-        return res
-            .map(
-              (e) => VirtualDidNumber.fromJson(
-                Map<String, dynamic>.from(e as Map),
-              ),
-            )
-            .toList();
-      }
-    } catch (_) {}
+      rows = await _supabase.rpc('get_second_numbers');
+    } on PostgrestException catch (error) {
+      // Older deployments expose only the owner-scoped calling-number RPC.
+      // Authorization, connectivity and database errors must still surface.
+      if (error.code != 'PGRST202') rethrow;
+      rows = await _supabase.rpc('get_user_dids');
+    }
+    return (rows as List)
+        .map(
+          (e) => VirtualDidNumber.fromJson(Map<String, dynamic>.from(e as Map)),
+        )
+        .toList();
+  }
 
-    // Fallback via Edge Function or direct table
+  Future<Map<String, dynamic>> _secondNumberAction(
+    Map<String, dynamic> body,
+  ) async {
     try {
-      final uid = _supabase.auth.currentUser?.id;
-      if (uid == null) return [];
-      final rows = await _supabase
-          .from('virtual_did_numbers')
-          .select()
-          .eq('user_id', uid)
-          .eq('status', 'active')
-          .order('created_at', ascending: true);
-      return (rows as List)
-          .map(
-            (e) =>
-                VirtualDidNumber.fromJson(Map<String, dynamic>.from(e as Map)),
-          )
-          .toList();
-    } catch (_) {
+      final response = await _supabase.functions.invoke(
+        'manage-dids',
+        body: body,
+      );
+      final data = Map<String, dynamic>.from(response.data as Map);
+      if (response.status != 200 || data['success'] != true) {
+        throw SecondNumberFailure(
+          data['error'] as String? ??
+              'Second Number is temporarily unavailable.',
+        );
+      }
+      return data;
+    } on FunctionException catch (error) {
+      final details = error.details;
+      if (body['action'] == 'get_countries' &&
+          error.status == 400 &&
+          details is Map &&
+          details['error'] == "Unknown action 'get_countries'") {
+        throw const SecondNumberNotEnabled();
+      }
+      throw SecondNumberFailure(
+        details is Map
+            ? details['error']?.toString() ??
+                  'Second Number is temporarily unavailable.'
+            : 'Second Number is temporarily unavailable.',
+      );
+    }
+  }
+
+  @override
+  Future<List<SecondNumberCountry>> getSecondNumberCountries() async {
+    final Map<String, dynamic> data;
+    try {
+      data = await _secondNumberAction({'action': 'get_countries'});
+    } on SecondNumberNotEnabled {
       return [];
     }
+    final countries = <String, SecondNumberCountry>{};
+    for (final row in data['countries'] as List) {
+      countries[row['country_code'] as String] = SecondNumberCountry(
+        row['country_code'] as String,
+        row['country_name'] as String,
+      );
+    }
+    return countries.values.toList();
+  }
+
+  @override
+  Future<SecondNumberOrder> purchaseSecondNumber({
+    required String quoteId,
+    required bool autoRenew,
+  }) async {
+    if ((await getSecondNumberCountries()).isEmpty) {
+      throw const SecondNumberNotEnabled();
+    }
+    final data = await _secondNumberAction({
+      'action': 'purchase_number',
+      'quote_id': quoteId,
+      'auto_renew': autoRenew,
+    });
+    return SecondNumberOrder.fromJson(
+      Map<String, dynamic>.from(data['order'] as Map),
+    );
+  }
+
+  @override
+  Future<SecondNumberOrder> getSecondNumberOrder(String id) async {
+    final data = await _secondNumberAction({
+      'action': 'order_status',
+      'order_id': id,
+    });
+    return SecondNumberOrder.fromJson(
+      Map<String, dynamic>.from(data['order'] as Map),
+    );
+  }
+
+  @override
+  Stream<List<SecondNumberMessage>> watchDidMessages(String didId) {
+    final uid = _supabase.auth.currentUser?.id;
+    if (uid == null) {
+      return Stream.error(
+        const SecondNumberFailure('Sign in to read your messages.'),
+      );
+    }
+    return _supabase
+        .from('virtual_did_messages')
+        .stream(primaryKey: ['id'])
+        .eq('did_id', didId)
+        .order('received_at', ascending: false)
+        .limit(100)
+        .map(
+          (rows) => rows
+              .where((r) => r['user_id'] == uid)
+              .map((r) => SecondNumberMessage.fromJson(r))
+              .toList(),
+        );
+  }
+
+  @override
+  Future<void> markDidMessageRead(String messageId) async {
+    await _supabase.rpc(
+      'mark_did_message_read',
+      params: {'p_message_id': messageId},
+    );
+  }
+
+  @override
+  Future<void> setSecondNumberRenewal(String didId, bool enabled) async {
+    await _supabase.rpc(
+      'set_second_number_renewal',
+      params: {'p_did_id': didId, 'p_auto_renew': enabled},
+    );
+  }
+
+  @override
+  Future<void> releaseSecondNumber(String didId) async {
+    await _supabase.rpc(
+      'request_second_number_release',
+      params: {'p_did_id': didId},
+    );
+  }
+
+  @override
+  Future<List<SecondNumberOrder>> getPendingSecondNumberOrders() async {
+    final dynamic rows;
+    try {
+      rows = await _supabase.rpc('get_pending_second_number_orders');
+    } on PostgrestException catch (error) {
+      if (error.code != 'PGRST202') rethrow;
+      return [];
+    }
+    return (rows as List)
+        .map(
+          (r) =>
+              SecondNumberOrder.fromJson(Map<String, dynamic>.from(r as Map)),
+        )
+        .toList();
   }
 
   /// Update call forwarding mode on a virtual DID number
@@ -513,11 +648,16 @@ class CallingRepository {
   }
 
   /// Search available virtual numbers from Telnyx with intelcallfee breakdown
+  @override
   Future<List<AvailableVirtualNumber>> searchAvailableNumbers({
     required String countryCode,
     int limit = 15,
     String? areaCode,
   }) async {
+    final countries = await getSecondNumberCountries();
+    if (!countries.any((country) => country.code == countryCode)) {
+      throw const SecondNumberNotEnabled();
+    }
     final response = await _supabase.functions.invoke(
       'manage-dids',
       body: {
@@ -542,38 +682,6 @@ class CallingRepository {
           ),
         )
         .toList();
-  }
-
-  /// Purchase and instantly provision a virtual DID number
-  Future<VirtualDidNumber> purchaseVirtualNumber({
-    required String phoneNumber,
-    required String countryCode,
-    required String countryName,
-  }) async {
-    final response = await _supabase.functions.invoke(
-      'manage-dids',
-      body: {
-        'action': 'purchase_number',
-        'phone_number': phoneNumber,
-        'country_code': countryCode,
-        'country_name': countryName,
-      },
-    );
-
-    final data = response.data;
-    if (data == null || data['success'] != true) {
-      if (data?['code'] == 'insufficient_funds') {
-        throw Exception(
-          data['message'] ??
-              'Insufficient wallet balance to purchase this number.',
-        );
-      }
-      final msg = data?['error'] ?? 'Failed to complete number purchase';
-      throw Exception(msg);
-    }
-
-    final didJson = data['did'] as Map<String, dynamic>? ?? {};
-    return VirtualDidNumber.fromJson(didJson);
   }
 
   /// Fetch real carrier supplementary service MMI divert rules for supported countries

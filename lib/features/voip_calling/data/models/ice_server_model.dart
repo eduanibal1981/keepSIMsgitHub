@@ -8,6 +8,11 @@ class IceServerModel {
 
   const IceServerModel({required this.urls, this.username, this.credential});
 
+  bool get isAuthenticatedRelay =>
+      urls.any((url) => url.startsWith('turn:') || url.startsWith('turns:')) &&
+      username?.trim().isNotEmpty == true &&
+      credential?.trim().isNotEmpty == true;
+
   factory IceServerModel.fromJson(Map<String, dynamic> json) {
     final rawUrls = json['urls'];
     List<String> parsedUrls = [];

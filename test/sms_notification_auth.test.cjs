@@ -6,12 +6,14 @@ function fixture({ secret = 'twilio-secret', dbFailure = false } = {}) {
   loadEdge('supabase/functions/sms-webhook/index.ts', { serve: (fn) => { handler = fn; },
     env: { SUPABASE_URL: 'https://db.invalid', SUPABASE_SERVICE_ROLE_KEY: 'service', TWILIO_AUTH_TOKEN: secret,
       PUBLIC_FUNCTION_URL: 'https://test.invalid/sms' }, fetch: async (url) => {
+      if (url.endsWith('get_internal_secret')) return new Response('null', { status: 200 });
+      if (url.endsWith('route_second_number_sms')) return Response.json({route:'refill'});
       if (url.endsWith('consume_rate_limit')) return new Response(JSON.stringify([{ allowed: true }]), { status: 200 });
       commands++; assert.match(url, /handle_inbound_command$/);
       return new Response(JSON.stringify(dbFailure ? { error: 'temporarily unavailable' } : { reply_text: '<safe & scoped>' }), { status: dbFailure ? 500 : 200 });
     },
   });
-  const params = { From: '+20123456789', Body: 'BAL', MessageSid: 'signed-fixture' };
+  const params = { To: '+12025550123', From: '+20123456789', Body: 'BAL', MessageSid: 'signed-fixture' };
   const signature = createHmac('sha1', secret || 'missing').update('https://test.invalid/sms' + Object.keys(params).sort().map((k) => k + params[k]).join('')).digest('base64');
   const request = (valid = true) => new Request('https://test.invalid/sms', { method: 'POST',
     body: new URLSearchParams(params), headers: { 'x-twilio-signature': valid ? signature : 'invalid' } });

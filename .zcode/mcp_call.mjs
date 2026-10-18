@@ -1,6 +1,10 @@
 // Minimal MCP-over-HTTP caller for the Supabase hosted MCP server
 const TOKEN = process.env.SUPABASE_ACCESS_TOKEN;
-const URL = "https://mcp.supabase.com/mcp?project_ref=zwxswagokhgbuzrrbnhr";
+if (!TOKEN) {
+  console.error("SUPABASE_ACCESS_TOKEN is required in the local environment.");
+  process.exit(1);
+}
+const URL = "https://mcp.supabase.com/mcp?project_ref=zwxswagokhgbuzrrbnhr&read_only=true";
 const [,, method, paramsJson] = process.argv;
 
 async function rpc(id, method, params, sessionId) {

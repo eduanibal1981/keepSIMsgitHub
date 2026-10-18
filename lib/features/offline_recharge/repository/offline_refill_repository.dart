@@ -310,7 +310,7 @@ class OfflineRefillRepository implements OfflineRefillContract {
       }
       try {
         final rows = await _client
-            .from('topup_executions')
+            .from('customer_topup_executions')
             .select('id,status,created_at')
             .eq('sim_line_id', p.simLineId)
             .eq('refill_channel', p.channel)

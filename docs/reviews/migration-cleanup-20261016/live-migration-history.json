@@ -1,0 +1,1430 @@
+[
+  {
+    "version": "20260518001308",
+    "name": "001_core_tables",
+    "statement_count": 1,
+    "statements_md5": "92c7e0dde777a89e61afb46fbd11a1d4"
+  },
+  {
+    "version": "20260518001344",
+    "name": "002_transaction_and_automation_tables",
+    "statement_count": 1,
+    "statements_md5": "332eb1410b7ddbaa56801ee421291661"
+  },
+  {
+    "version": "20260518001408",
+    "name": "003_rls_policies",
+    "statement_count": 1,
+    "statements_md5": "afa7af237e6e99bc3d078451bcbfc253"
+  },
+  {
+    "version": "20260518001447",
+    "name": "004_functions_and_triggers",
+    "statement_count": 1,
+    "statements_md5": "c927f1ccd5b03636bf13ae60f1dd42cb"
+  },
+  {
+    "version": "20260518001534",
+    "name": "005_seed_carrier_data",
+    "statement_count": 1,
+    "statements_md5": "7118ab3c44c72b9909a5867b8e60a634"
+  },
+  {
+    "version": "20260518164224",
+    "name": "add_notifications_delete_policy",
+    "statement_count": 1,
+    "statements_md5": "9d9accd1b7514f9bb21eacee64945f64"
+  },
+  {
+    "version": "20260518170216",
+    "name": "006_household_sharing_and_triggers",
+    "statement_count": 1,
+    "statements_md5": "6129b08de23cbb2f8c4b6aab5ce6dd05"
+  },
+  {
+    "version": "20260518173916",
+    "name": "008_apply_referral_routine",
+    "statement_count": 1,
+    "statements_md5": "1753dfb266df0b46484d634b537bc5a7"
+  },
+  {
+    "version": "20260608202239",
+    "name": "create_support_tickets_table",
+    "statement_count": 1,
+    "statements_md5": "f87854c2659e272c75b5c860406d6661"
+  },
+  {
+    "version": "20260622042958",
+    "name": "add_premium_auto_refill_toggle",
+    "statement_count": 1,
+    "statements_md5": "cec152e610f9c9ab830068664c604914"
+  },
+  {
+    "version": "20260703041007",
+    "name": "20260703000000_payment_gateways",
+    "statement_count": 1,
+    "statements_md5": "199b056eab1ae801baba4e452a58f999"
+  },
+  {
+    "version": "20260713054709",
+    "name": "20260713000004_update_notification_body_with_amount",
+    "statement_count": 1,
+    "statements_md5": "242e53c5e782c846ccedc48dfc8f790e"
+  },
+  {
+    "version": "20260715183017",
+    "name": "revoke_public_execute_on_privileged_rpcs",
+    "statement_count": 1,
+    "statements_md5": "5a70879ab29a6b2b9b91eddf4ff1b56e"
+  },
+  {
+    "version": "20260715203113",
+    "name": "harden_search_path_and_single_health_score",
+    "statement_count": 1,
+    "statements_md5": "a46b54e61205380368acdbd6fb55050f"
+  },
+  {
+    "version": "20260715203158",
+    "name": "credit_wallet_for_refund",
+    "statement_count": 1,
+    "statements_md5": "41c1ca6dac2f1fd5ce48be0352628150"
+  },
+  {
+    "version": "20260715203338",
+    "name": "stuck_execution_reaper_and_pipeline_alerts",
+    "statement_count": 1,
+    "statements_md5": "1d7f6c76ec130576c1f17b9a170dd917"
+  },
+  {
+    "version": "20260716021834",
+    "name": "revoke_client_wallet_writes",
+    "statement_count": 1,
+    "statements_md5": "3f6a36ef2a15888863b4b425233e4c07"
+  },
+  {
+    "version": "20260716023528",
+    "name": "a4_security_sweep",
+    "statement_count": 1,
+    "statements_md5": "3a16f9c39e5a5ba2d074d7c7dcb2f47a"
+  },
+  {
+    "version": "20260716114055",
+    "name": "b1_carrier_zen_brands_and_offer_backfill",
+    "statement_count": 1,
+    "statements_md5": "595fe3d93430594dae8ef0a43b8199dc"
+  },
+  {
+    "version": "20260716114133",
+    "name": "b1_wallet_txn_idempotency",
+    "statement_count": 1,
+    "statements_md5": "83ce3e9310d64af32d8f1f612b8f9bc5"
+  },
+  {
+    "version": "20260716114204",
+    "name": "b2_debit_wallet_reference_id",
+    "statement_count": 1,
+    "statements_md5": "ee995e43c0c2ff2fb727f837953d3261"
+  },
+  {
+    "version": "20260716115807",
+    "name": "b2_drop_legacy_wallet_fns_add_reconciliation",
+    "statement_count": 1,
+    "statements_md5": "7268ddbe6f7d8c9a35c6d64ae0652b30"
+  },
+  {
+    "version": "20260716153422",
+    "name": "b3_paypal_deposit_receipts",
+    "statement_count": 1,
+    "statements_md5": "c786651f6071bb7721a0853bc69c48a6"
+  },
+  {
+    "version": "20260716162638",
+    "name": "b5_decouple_home_mode_protection",
+    "statement_count": 1,
+    "statements_md5": "8096182cb0a6f931f73ef31d36d31f13"
+  },
+  {
+    "version": "20260716212854",
+    "name": "c1_notification_dispatch",
+    "statement_count": 1,
+    "statements_md5": "b56f3c34554ca0d6188622f3d34be1b0"
+  },
+  {
+    "version": "20260716214050",
+    "name": "c1_add_wallet_credit_category",
+    "statement_count": 1,
+    "statements_md5": "c54dbe1fa9b6b59e59a03236aaed6d98"
+  },
+  {
+    "version": "20260716214423",
+    "name": "c1_revoke_trigger_fn_execute",
+    "statement_count": 1,
+    "statements_md5": "a2f4b210d13326762954dc01a98d74d3"
+  },
+  {
+    "version": "20260717014325",
+    "name": "c2_alert_preferences",
+    "statement_count": 1,
+    "statements_md5": "28c44a13e4fef86881a0b9bd65d23cfa"
+  },
+  {
+    "version": "20260717023807",
+    "name": "c3_instant_recharge",
+    "statement_count": 1,
+    "statements_md5": "d2463068f07c5c5c36b4cf24f22e2703"
+  },
+  {
+    "version": "20260717042840",
+    "name": "c3b_premium_margin_percent",
+    "statement_count": 1,
+    "statements_md5": "1dedb917107d3b19e3fd4516b54b4171"
+  },
+  {
+    "version": "20260717044538",
+    "name": "c3b_premium_margin_two_parts",
+    "statement_count": 1,
+    "statements_md5": "a0ee64f3194691da13ffa80d3031cf8d"
+  },
+  {
+    "version": "20260717124404",
+    "name": "c3c_plan_billing",
+    "statement_count": 1,
+    "statements_md5": "4edbb05eac23098bf10479df46ba1600"
+  },
+  {
+    "version": "20260717221442",
+    "name": "c3b2_cancel_and_claim_guard",
+    "statement_count": 1,
+    "statements_md5": "eb844147433714fb30360ca6115ba151"
+  },
+  {
+    "version": "20260717221528",
+    "name": "c3b2_offers_cache_and_request_instant_refill",
+    "statement_count": 1,
+    "statements_md5": "51fdd2bc319e66cc35ac268ce19a9e05"
+  },
+  {
+    "version": "20260717221653",
+    "name": "c3b2_scheduled_write_rpcs",
+    "statement_count": 1,
+    "statements_md5": "4981f90a7ab344f9e2c9b8449cabf2aa"
+  },
+  {
+    "version": "20260717221728",
+    "name": "c3b2_admin_rpcs_and_revoke",
+    "statement_count": 1,
+    "statements_md5": "732fe2397dcd7ae62fa4daa1ca6c90ca"
+  },
+  {
+    "version": "20260717222235",
+    "name": "c3b2_offers_cache_send_divisor",
+    "statement_count": 1,
+    "statements_md5": "12b0f8a433181cb13c49fc9ab8daedf6"
+  },
+  {
+    "version": "20260718015651",
+    "name": "c3b2_revoke_fee_trigger_execute",
+    "statement_count": 1,
+    "statements_md5": "6eab704bac68125df6b35d0b21dd26f1"
+  },
+  {
+    "version": "20260718041738",
+    "name": "c4_offline_recharge",
+    "statement_count": 1,
+    "statements_md5": "c4b37dd049786e1b9f163700931b3a00"
+  },
+  {
+    "version": "20260721223752",
+    "name": "20260722000000_c6_server_authored_activity_log.sql",
+    "statement_count": 1,
+    "statements_md5": "93ef9047888fdbcfc6b2327383054243"
+  },
+  {
+    "version": "20260721223854",
+    "name": "20260722000000_c6_server_authored_activity_log.sql",
+    "statement_count": 1,
+    "statements_md5": "364521110bfa7afd1a22f3335dcebeda"
+  },
+  {
+    "version": "20260721223924",
+    "name": "20260722000000_c6_server_authored_activity_log.sql",
+    "statement_count": 1,
+    "statements_md5": "6faf83da74daf4aed39c965755b369aa"
+  },
+  {
+    "version": "20260721225848",
+    "name": "20260723000000_c7_support_tickets.sql",
+    "statement_count": 1,
+    "statements_md5": "c99db4063556a287fedbd8c60fe799ff"
+  },
+  {
+    "version": "20260721225940",
+    "name": "20260723000000_c7_support_tickets.sql",
+    "statement_count": 1,
+    "statements_md5": "542f98441e990ebf0081b24ee5d34a56"
+  },
+  {
+    "version": "20260721234110",
+    "name": "20260724000000_c5_refer_and_earn.sql",
+    "statement_count": 1,
+    "statements_md5": "b0cd3b2761d019835b0c47d2a5da9d24"
+  },
+  {
+    "version": "20260722002605",
+    "name": "20260725000000_c8_travel_geo",
+    "statement_count": 1,
+    "statements_md5": "0fe0eb40e291cfe90cf38b5c27b91eb4"
+  },
+  {
+    "version": "20260722012844",
+    "name": "20260726000000_c9a_esim_catalog",
+    "statement_count": 1,
+    "statements_md5": "a4f5a13ba8cc2aa495ed165f6cb1218c"
+  },
+  {
+    "version": "20260722021643",
+    "name": "20260727000000_c9b_esim_purchase",
+    "statement_count": 1,
+    "statements_md5": "f05723aab1e0e5d3b474e5e1bef90e08"
+  },
+  {
+    "version": "20260722021712",
+    "name": "20260727000000_c9b_esim_purchase",
+    "statement_count": 1,
+    "statements_md5": "17e119a7d6200e0ff642fe447b74d021"
+  },
+  {
+    "version": "20260722021735",
+    "name": "20260727000000_c9b_esim_purchase",
+    "statement_count": 1,
+    "statements_md5": "6760c7bdaf54a27ae40b78012a1eb36a"
+  },
+  {
+    "version": "20260722021758",
+    "name": "20260727000000_c9b_esim_purchase",
+    "statement_count": 1,
+    "statements_md5": "ba688638472c91b9ab967000a4cf1ec7"
+  },
+  {
+    "version": "20260722021828",
+    "name": "20260727000000_c9b_esim_purchase",
+    "statement_count": 1,
+    "statements_md5": "669a484d2664268a43c4143909656b77"
+  },
+  {
+    "version": "20260725031910",
+    "name": "20260728000000_d2_rate_limiting",
+    "statement_count": 1,
+    "statements_md5": "c1a0e3d91a6856243eda8d3b2047e040"
+  },
+  {
+    "version": "20260725032011",
+    "name": "20260728000000_d2_rate_limiting",
+    "statement_count": 1,
+    "statements_md5": "97eb74688b487ae522865a6712a4ed28"
+  },
+  {
+    "version": "20260725032051",
+    "name": "20260728000000_d2_rate_limiting",
+    "statement_count": 1,
+    "statements_md5": "6973e195f10f6a20712bce1e9a650972"
+  },
+  {
+    "version": "20260725032143",
+    "name": "20260728000000_d2_rate_limiting",
+    "statement_count": 1,
+    "statements_md5": "bed65e3d65c60287aefd2638fa434bae"
+  },
+  {
+    "version": "20260725222816",
+    "name": "20260731000000_d4b_paypal_orders_and_quoting",
+    "statement_count": 1,
+    "statements_md5": "5bc9ed587960e5c0bb7205a52d113bf2"
+  },
+  {
+    "version": "20260726051503",
+    "name": "20260801000000_d5_server_enforced_plan_tiers.sql",
+    "statement_count": 1,
+    "statements_md5": "119e47263040c5aab2335ee73b0d571d"
+  },
+  {
+    "version": "20260726051616",
+    "name": "20260801000000_d5_server_enforced_plan_tiers.sql",
+    "statement_count": 1,
+    "statements_md5": "0311baad0e3010da687d5f487e3e0aec"
+  },
+  {
+    "version": "20260726051653",
+    "name": "20260801000000_d5_server_enforced_plan_tiers.sql",
+    "statement_count": 1,
+    "statements_md5": "019d00d9186c587d4cddef51dec3130a"
+  },
+  {
+    "version": "20260726051718",
+    "name": "20260801000000_d5_server_enforced_plan_tiers.sql",
+    "statement_count": 1,
+    "statements_md5": "26c8c5702b0047d56f99fd2dd15e4511"
+  },
+  {
+    "version": "20260726051745",
+    "name": "20260801000000_d5_server_enforced_plan_tiers.sql",
+    "statement_count": 1,
+    "statements_md5": "1c811468297d702099e7653e519f204b"
+  },
+  {
+    "version": "20260726051809",
+    "name": "20260801000000_d5_server_enforced_plan_tiers.sql",
+    "statement_count": 1,
+    "statements_md5": "20bdf42eb726bac19fba2f5a357e1f17"
+  },
+  {
+    "version": "20260729000000",
+    "name": null,
+    "statement_count": null,
+    "statements_md5": null
+  },
+  {
+    "version": "20260730000000",
+    "name": null,
+    "statement_count": null,
+    "statements_md5": null
+  },
+  {
+    "version": "20260730000001",
+    "name": "d3b_fix_wallets_fk_cascade",
+    "statement_count": 0,
+    "statements_md5": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  {
+    "version": "20260730163210",
+    "name": "g11b_fx_refresh_engine",
+    "statement_count": 1,
+    "statements_md5": "dd28c243f378927ea659a5894ecef2c9"
+  },
+  {
+    "version": "20260731000000",
+    "name": "d4b_paypal_orders_and_quoting",
+    "statement_count": null,
+    "statements_md5": null
+  },
+  {
+    "version": "20260801000000",
+    "name": "20260801000000_d5_server_enforced_plan_tiers.sql",
+    "statement_count": null,
+    "statements_md5": null
+  },
+  {
+    "version": "20260801010000",
+    "name": "20260801010000_d5b_observability_and_plan_tier_hardening.sql",
+    "statement_count": null,
+    "statements_md5": null
+  },
+  {
+    "version": "20260801020000",
+    "name": "d5c_fail_closed_guard_and_grants_fix",
+    "statement_count": null,
+    "statements_md5": null
+  },
+  {
+    "version": "20260801030000",
+    "name": "d5d_guard_grant_and_analytics_fix",
+    "statement_count": null,
+    "statements_md5": null
+  },
+  {
+    "version": "20260801040000",
+    "name": "f1_credit_wallet_refund_grant_lockdown",
+    "statement_count": 1,
+    "statements_md5": "a345667ef1dca0a4a6a50988d71163e2"
+  },
+  {
+    "version": "20260801050000",
+    "name": "f2_debit_wallet_grant_lockdown",
+    "statement_count": 1,
+    "statements_md5": "beadc9fe7bedf53d319c16f0717727c6"
+  },
+  {
+    "version": "20260801060000",
+    "name": "f2b_drop_ambiguous_debit_overload",
+    "statement_count": 1,
+    "statements_md5": "e55b7073bfb5689944a02950e5274ca9"
+  },
+  {
+    "version": "20260801070000",
+    "name": "f3_f4_rpc_grant_lockdown",
+    "statement_count": 1,
+    "statements_md5": "599d9cab0ad299e701a2d3d39ffd4029"
+  },
+  {
+    "version": "20260801080000",
+    "name": "f5_process_due_notifications_search_path",
+    "statement_count": 1,
+    "statements_md5": "59216f52ba84b8939f8f114193aaba99"
+  },
+  {
+    "version": "20260801090000",
+    "name": "f6_table_grant_lockdown",
+    "statement_count": 1,
+    "statements_md5": "3db533326d1b16c3a3e165b7d8e1a834"
+  },
+  {
+    "version": "20260801100000",
+    "name": "f4b_is_power_user_security_invoker",
+    "statement_count": 1,
+    "statements_md5": "a6d98e4e26f3fa6cf81e95f57ff82c28"
+  },
+  {
+    "version": "20260802000000",
+    "name": "g1_depletion_forecasting",
+    "statement_count": 4,
+    "statements_md5": "bd32e11b2bfc18515ae9433c323bd8ff"
+  },
+  {
+    "version": "20260803000000",
+    "name": "g2_offer_price_watch",
+    "statement_count": 1,
+    "statements_md5": "3450d0fbb06bf1fa134ddfbc4a602df2"
+  },
+  {
+    "version": "20260804000000",
+    "name": "g3_gift_wallet_credit",
+    "statement_count": 1,
+    "statements_md5": "525beb59a37a844ad353b0311e04407a"
+  },
+  {
+    "version": "20260804043643",
+    "name": "i1_multi_provider_refill_routing",
+    "statement_count": 1,
+    "statements_md5": "d4746bd1d1d136fa34f12e19de1b2c1c"
+  },
+  {
+    "version": "20260804045008",
+    "name": "i2_premium_entitlement_guard",
+    "statement_count": 1,
+    "statements_md5": "8afe462fe2a690ca7ba7862cc6d9b26a"
+  },
+  {
+    "version": "20260804045158",
+    "name": "i2b_grandfather_allowlist",
+    "statement_count": 1,
+    "statements_md5": "6565c7884d80366197433e48f4a8cecb"
+  },
+  {
+    "version": "20260804045814",
+    "name": "i3_carrier_campaigns",
+    "statement_count": 1,
+    "statements_md5": "0af9467bd307fae18f9be133be53a61f"
+  },
+  {
+    "version": "20260804050228",
+    "name": "i4_script_fulfilment_gateway",
+    "statement_count": 1,
+    "statements_md5": "9ba22927fce61b6efb5b98d9a2c47aa4"
+  },
+  {
+    "version": "20260804050403",
+    "name": "i4b_use_existing_tasker_script_gateway",
+    "statement_count": 1,
+    "statements_md5": "c660c0f06574688846d466702b3cded4"
+  },
+  {
+    "version": "20260804050438",
+    "name": "i4c_claim_cast_execution_type",
+    "statement_count": 1,
+    "statements_md5": "25dd25b91d918d1bfd55fad1ad1115d6"
+  },
+  {
+    "version": "20260804130131",
+    "name": "i5_supplier_policy_and_failover",
+    "statement_count": 1,
+    "statements_md5": "0317bfcb76490bfdf3a51b7a3b684c66"
+  },
+  {
+    "version": "20260804130232",
+    "name": "i5b_fix_carrier_default_provider_offbyone",
+    "statement_count": 1,
+    "statements_md5": "b4ff1163ee02596a85878a9a0b7830ab"
+  },
+  {
+    "version": "20260804130414",
+    "name": "i5c_cooldown_exempts_system_failover",
+    "statement_count": 1,
+    "statements_md5": "b0209e82ed3a50820dc8d5caab27a3cf"
+  },
+  {
+    "version": "20260805000000",
+    "name": "g5_roam_or_esim_calculator",
+    "statement_count": 1,
+    "statements_md5": "71d6b751094ad0c54f78a5c5bd266be5"
+  },
+  {
+    "version": "20260805010000",
+    "name": "g5b_catalog_view_write_grant_lockdown",
+    "statement_count": 1,
+    "statements_md5": "efca7ce44f5a364c3c902abf172cfad2"
+  },
+  {
+    "version": "20260805051427",
+    "name": "i8_carrier_self_service_registry",
+    "statement_count": 1,
+    "statements_md5": "d20af418f456a36981ff54e29e11619a"
+  },
+  {
+    "version": "20260805051515",
+    "name": "i8b_carrier_advice_notifications",
+    "statement_count": 1,
+    "statements_md5": "1854613700989f2b3c9a73de0f1f04f7"
+  },
+  {
+    "version": "20260805054031",
+    "name": "i8c_revoke_admin_upsert_carrier_rule_public",
+    "statement_count": 1,
+    "statements_md5": "671a0150cd50a2874b9acfb6556c0ad9"
+  },
+  {
+    "version": "20260805180435",
+    "name": "j1_esim_catalogue_enrichment",
+    "statement_count": 1,
+    "statements_md5": "04740e033650ae2ad21f48a9fadae679"
+  },
+  {
+    "version": "20260805181428",
+    "name": "j2_affiliate_rail",
+    "statement_count": 1,
+    "statements_md5": "0dffd535e80f1b8b046ed68160e4ffe0"
+  },
+  {
+    "version": "20260805181720",
+    "name": "j2b_compare_and_click_rpcs",
+    "statement_count": 1,
+    "statements_md5": "be17ea05afab171dc54a7e7052273104"
+  },
+  {
+    "version": "20260805183006",
+    "name": "j3_catalogue_sync_control",
+    "statement_count": 1,
+    "statements_md5": "e71aca3008f0bc98ee6c7453d13b3284"
+  },
+  {
+    "version": "20260805183836",
+    "name": "j4_affiliate_admin_rpcs",
+    "statement_count": 1,
+    "statements_md5": "8354eb974f1137403487bb4febb60ad8"
+  },
+  {
+    "version": "20260805184533",
+    "name": "j5_affiliate_network_sync_control",
+    "statement_count": 1,
+    "statements_md5": "4f58f6e37c9a7007f190db76c44214e1"
+  },
+  {
+    "version": "20260805190232",
+    "name": "j6_config_meta_for_orphaned_keys",
+    "statement_count": 1,
+    "statements_md5": "997ad793c5ab8f834c129ebdd5094ba4"
+  },
+  {
+    "version": "20260805191501",
+    "name": "j7_admin_outbound_email",
+    "statement_count": 1,
+    "statements_md5": "b484eccd100d665b9328207dd5b017d7"
+  },
+  {
+    "version": "20260806000000",
+    "name": "g6_household_spend_limits",
+    "statement_count": 1,
+    "statements_md5": "4ee15584c4134875e3dcfb3873054b0c"
+  },
+  {
+    "version": "20260806010000",
+    "name": "g6b_household_spend_enforcement",
+    "statement_count": 1,
+    "statements_md5": "f68a4ae3afb552e25e6d4e30c49a9587"
+  },
+  {
+    "version": "20260807000000",
+    "name": "g7_auto_rescue_topup",
+    "statement_count": 1,
+    "statements_md5": "2c6fce303fc99c97fa7e21fb440ab6bd"
+  },
+  {
+    "version": "20260807010000",
+    "name": "g7b_auto_rescue_engine",
+    "statement_count": 1,
+    "statements_md5": "421715873212d8d96d498b21344c140b"
+  },
+  {
+    "version": "20260808000000",
+    "name": "g9_offline_balance_by_sms",
+    "statement_count": 1,
+    "statements_md5": "6895dd4850f7d797bbe8dd4c53b046d7"
+  },
+  {
+    "version": "20260808010000",
+    "name": "g9b_inbound_command_router",
+    "statement_count": 1,
+    "statements_md5": "8bd5edc90fe4fc51c70abfe4e18af79c"
+  },
+  {
+    "version": "20260808020000",
+    "name": "g9c_ingest_uses_shared_resolver",
+    "statement_count": 1,
+    "statements_md5": "06481aaeb928b946f116d505c4fc0a85"
+  },
+  {
+    "version": "20260808023523",
+    "name": "j8_premium_plan_pricing_and_wallet_purchase",
+    "statement_count": 1,
+    "statements_md5": "320cd8cba019301a3474d19481bd48ad"
+  },
+  {
+    "version": "20260808125119",
+    "name": "k1_service_providers_and_carrier_split",
+    "statement_count": 1,
+    "statements_md5": "f74d725acf2c7e7fd53a877f292c6107"
+  },
+  {
+    "version": "20260808125847",
+    "name": "k2_provider_offers_catalogue",
+    "statement_count": 1,
+    "statements_md5": "198d413694113e86517d0acd47fb2cdc"
+  },
+  {
+    "version": "20260808130706",
+    "name": "k3_repoint_supplier_readers_and_pricing",
+    "statement_count": 1,
+    "statements_md5": "1a7700a05098ed81c4b241c337c84aa7"
+  },
+  {
+    "version": "20260808130846",
+    "name": "k3b_offline_refill_and_rescue_provider_agnostic",
+    "statement_count": 1,
+    "statements_md5": "acb88424b00cb6ca286c90d669f86444"
+  },
+  {
+    "version": "20260808131031",
+    "name": "k4_provider_admin_surface_and_legacy_drop",
+    "statement_count": 1,
+    "statements_md5": "03f9e9930205163b9c1353c02a8c0c66"
+  },
+  {
+    "version": "20260808131141",
+    "name": "k4b_rewrite_carrier_admin_and_drop_legacy_columns",
+    "statement_count": 1,
+    "statements_md5": "a8f00f3ebebeee47d8ad2872b2ca715b"
+  },
+  {
+    "version": "20260808131227",
+    "name": "k5_client_carrier_offers_rpc_and_grant_cleanup",
+    "statement_count": 1,
+    "statements_md5": "8f1dd461ab15d7b8a47f92c6b06bd4bf"
+  },
+  {
+    "version": "20260808132046",
+    "name": "k4c_revoke_public_execute_on_recreated_admin_list_carriers",
+    "statement_count": 1,
+    "statements_md5": "65b386d730ed3a71065cd2752be13d33"
+  },
+  {
+    "version": "20260808132605",
+    "name": "k6_drop_hardcoded_supplier_policy_provider_check",
+    "statement_count": 1,
+    "statements_md5": "2ee938ffe83071f64c38643d4928f090"
+  },
+  {
+    "version": "20260809000000",
+    "name": "g10_device_registry",
+    "statement_count": 1,
+    "statements_md5": "0b7300515fc5e0a8d1fc405963fb15ac"
+  },
+  {
+    "version": "20260809003835",
+    "name": "k7_add_omr_fx_rate",
+    "statement_count": 1,
+    "statements_md5": "aece59820d044e97422fe7d5cc8f6307"
+  },
+  {
+    "version": "20260809004538",
+    "name": "k8_enforce_provider_identifier_dialect",
+    "statement_count": 1,
+    "statements_md5": "02aad988314c77b590b3cc25150c17b1"
+  },
+  {
+    "version": "20260809010000",
+    "name": "g10b_velocity_and_risk",
+    "statement_count": 1,
+    "statements_md5": "229551921e20cf93ddfb6f4bb44d5ad8"
+  },
+  {
+    "version": "20260809020000",
+    "name": "g10c_money_path_wiring",
+    "statement_count": 1,
+    "statements_md5": "ef71a2795b9d45f24414450c93823f2a"
+  },
+  {
+    "version": "20260809024150",
+    "name": "k9_offer_cost_currency_provenance",
+    "statement_count": 1,
+    "statements_md5": "8394a6be64bedfada5f993e4d48844ea"
+  },
+  {
+    "version": "20260809024217",
+    "name": "k9b_base_currency_never_expires",
+    "statement_count": 1,
+    "statements_md5": "eefbaadaabe215c0a9c7f63d7204c49b"
+  },
+  {
+    "version": "20260809030000",
+    "name": "g10d_durable_block_audit",
+    "statement_count": 1,
+    "statements_md5": "05f268432b74c9b9d9d08916a17b3b7d"
+  },
+  {
+    "version": "20260809031240",
+    "name": "k10_qualifying_amount_floor",
+    "statement_count": 1,
+    "statements_md5": "76ba006caedab0a23cace19c4d67180a"
+  },
+  {
+    "version": "20260809040000",
+    "name": "g10e_app_check_logging",
+    "statement_count": 1,
+    "statements_md5": "4f1aba3a21a796ef3234245394ec3c8f"
+  },
+  {
+    "version": "20260810000000",
+    "name": "g11_fx_display_layer",
+    "statement_count": 1,
+    "statements_md5": "e9a300f4f37b62d32124d203d4d30100"
+  },
+  {
+    "version": "20260810223931",
+    "name": "l1_offline_voucher_rail",
+    "statement_count": 1,
+    "statements_md5": "ca69f2cd1a5df0f30d567b4e6b7b0c32"
+  },
+  {
+    "version": "20260810224411",
+    "name": "l2_offline_voucher_client_rpcs",
+    "statement_count": 1,
+    "statements_md5": "782a5a5e023696bce88c64519cd606db"
+  },
+  {
+    "version": "20260810225413",
+    "name": "l3_offline_voucher_admin_and_sweep",
+    "statement_count": 1,
+    "statements_md5": "c3387ef1ee0c5365acd299f83c4ce1c6"
+  },
+  {
+    "version": "20260811000000",
+    "name": "h1_admin_control_plane",
+    "statement_count": 1,
+    "statements_md5": "cb61abffb659760ddbd3a2f4b77441de"
+  },
+  {
+    "version": "20260811010000",
+    "name": "h2_typed_config_registry",
+    "statement_count": 1,
+    "statements_md5": "3499eebfc1b7b04631e8fa0bd822b184"
+  },
+  {
+    "version": "20260811020000",
+    "name": "h3_carrier_refill_control",
+    "statement_count": 1,
+    "statements_md5": "19a34f00f43122b04e9f81a59ddb8098"
+  },
+  {
+    "version": "20260811030000",
+    "name": "h3b_carrier_rules_one_per_carrier",
+    "statement_count": 1,
+    "statements_md5": "8520dcf1bf50659ed8ecbb34fe89852b"
+  },
+  {
+    "version": "20260811040000",
+    "name": "h3c_carrier_rule_upsert_notnull_seed",
+    "statement_count": 1,
+    "statements_md5": "1e2cb30bf9e6529457c7861d8a08307c"
+  },
+  {
+    "version": "20260811050000",
+    "name": "h4_notification_channel_catalog",
+    "statement_count": 1,
+    "statements_md5": "30b8c3a5e386f839c26c0ee7c035f4ee"
+  },
+  {
+    "version": "20260811060000",
+    "name": "h4b_channel_counts_match_provider_suffixes",
+    "statement_count": 1,
+    "statements_md5": "3a18c9cd0dc3287639d0d0a12c7c1256"
+  },
+  {
+    "version": "20260811070000",
+    "name": "h5_supply_registries",
+    "statement_count": 1,
+    "statements_md5": "401eee49efd8ce70e88d1ddbebc3df14"
+  },
+  {
+    "version": "20260811080000",
+    "name": "h5b_supply_registry_admin_rpcs",
+    "statement_count": 1,
+    "statements_md5": "c8d66e488d405eb8dd5a3dee0d6a8ef7"
+  },
+  {
+    "version": "20260811090000",
+    "name": "h7a_support_desk",
+    "statement_count": 1,
+    "statements_md5": "61ac9c43335dff6a1e9dffe45ceaba03"
+  },
+  {
+    "version": "20260811100000",
+    "name": "h7b_user_ops",
+    "statement_count": 1,
+    "statements_md5": "350aec12caed0aab3963df095868a3b1"
+  },
+  {
+    "version": "20260811110000",
+    "name": "h7c_admin_overview",
+    "statement_count": 1,
+    "statements_md5": "6c3a83b29a5865ccef6fb45d256b75b7"
+  },
+  {
+    "version": "20260811120000",
+    "name": "h7d_reply_dedupe_and_overview_fix",
+    "statement_count": 1,
+    "statements_md5": "8b3efd1269e0697fd32bbad8ea9e715b"
+  },
+  {
+    "version": "20260811130000",
+    "name": "h5c_revoke_trigger_fn_execute",
+    "statement_count": 1,
+    "statements_md5": "550c6883e7dfe6ce0b7bb5b20cafdb02"
+  },
+  {
+    "version": "20260812000000",
+    "name": "h8_household_hardening",
+    "statement_count": 1,
+    "statements_md5": "1c716c0802e266f3eb640b665ecdfbdd"
+  },
+  {
+    "version": "20260812030620",
+    "name": "b3_geo_line_mode_sync_flag",
+    "statement_count": 1,
+    "statements_md5": "695d5565bc38478649b6c8455b3661f0"
+  },
+  {
+    "version": "20260813000000",
+    "name": "i1_multi_provider_refill_routing",
+    "statement_count": null,
+    "statements_md5": null
+  },
+  {
+    "version": "20260813010000",
+    "name": "i2_premium_entitlement_guard",
+    "statement_count": null,
+    "statements_md5": null
+  },
+  {
+    "version": "20260814000000",
+    "name": "i3_carrier_campaigns",
+    "statement_count": null,
+    "statements_md5": null
+  },
+  {
+    "version": "20260814010000",
+    "name": "i4_script_fulfilment_gateway",
+    "statement_count": null,
+    "statements_md5": null
+  },
+  {
+    "version": "20260815000000",
+    "name": "i5_supplier_policy_and_failover",
+    "statement_count": null,
+    "statements_md5": null
+  },
+  {
+    "version": "20260817000000",
+    "name": "i7_carrier_activity_semantics",
+    "statement_count": 1,
+    "statements_md5": "e97d3f3e9491feffd6e6a0247716375c"
+  },
+  {
+    "version": "20260817010000",
+    "name": "i7b_real_carrier_rules",
+    "statement_count": 1,
+    "statements_md5": "af23b8b4a458d7eed02504c1fa94349f"
+  },
+  {
+    "version": "20260817020000",
+    "name": "i7c_queue_on_deactivation_window",
+    "statement_count": 1,
+    "statements_md5": "1ad495fccc2514448b15fdba923af537"
+  },
+  {
+    "version": "20260817030000",
+    "name": "i7d_forecast_uses_deactivation_cadence",
+    "statement_count": 1,
+    "statements_md5": "b083380af82af67b0f12f6dbd8e78d21"
+  },
+  {
+    "version": "20260818000000",
+    "name": "i8_carrier_self_service_registry",
+    "statement_count": null,
+    "statements_md5": null
+  },
+  {
+    "version": "20260818010000",
+    "name": "i8b_carrier_advice_notifications",
+    "statement_count": null,
+    "statements_md5": null
+  },
+  {
+    "version": "20260818020000",
+    "name": "i8c_revoke_admin_upsert_carrier_rule_public",
+    "statement_count": null,
+    "statements_md5": null
+  },
+  {
+    "version": "20260819000000",
+    "name": "j1_esim_catalogue_enrichment",
+    "statement_count": null,
+    "statements_md5": null
+  },
+  {
+    "version": "20260819010000",
+    "name": "j2_affiliate_rail",
+    "statement_count": null,
+    "statements_md5": null
+  },
+  {
+    "version": "20260819020000",
+    "name": "j2b_compare_and_click_rpcs",
+    "statement_count": null,
+    "statements_md5": null
+  },
+  {
+    "version": "20260819030000",
+    "name": "j3_catalogue_sync_control",
+    "statement_count": null,
+    "statements_md5": null
+  },
+  {
+    "version": "20260819040000",
+    "name": "j4_affiliate_admin_rpcs",
+    "statement_count": null,
+    "statements_md5": null
+  },
+  {
+    "version": "20260819050000",
+    "name": "j5_affiliate_network_sync_control",
+    "statement_count": null,
+    "statements_md5": null
+  },
+  {
+    "version": "20260819060000",
+    "name": "j6_config_meta_for_orphaned_keys",
+    "statement_count": null,
+    "statements_md5": null
+  },
+  {
+    "version": "20260819070000",
+    "name": "j7_admin_outbound_email",
+    "statement_count": null,
+    "statements_md5": null
+  },
+  {
+    "version": "20260820000000",
+    "name": "j8_premium_plan_pricing_and_wallet_purchase",
+    "statement_count": null,
+    "statements_md5": null
+  },
+  {
+    "version": "20260821000000",
+    "name": "k1_service_providers_and_carrier_split",
+    "statement_count": null,
+    "statements_md5": null
+  },
+  {
+    "version": "20260821010000",
+    "name": "k2_provider_offers_catalogue",
+    "statement_count": null,
+    "statements_md5": null
+  },
+  {
+    "version": "20260821020000",
+    "name": "k3_repoint_supplier_readers_and_pricing",
+    "statement_count": null,
+    "statements_md5": null
+  },
+  {
+    "version": "20260821030000",
+    "name": "k4_provider_admin_surface_and_legacy_drop",
+    "statement_count": null,
+    "statements_md5": null
+  },
+  {
+    "version": "20260821040000",
+    "name": "k5_client_carrier_offers_rpc_and_grant_cleanup",
+    "statement_count": null,
+    "statements_md5": null
+  },
+  {
+    "version": "20260821050000",
+    "name": "k6_drop_hardcoded_supplier_policy_provider_check",
+    "statement_count": null,
+    "statements_md5": null
+  },
+  {
+    "version": "20260821060000",
+    "name": "k7_add_omr_fx_rate",
+    "statement_count": null,
+    "statements_md5": null
+  },
+  {
+    "version": "20260821070000",
+    "name": "k8_enforce_provider_identifier_dialect",
+    "statement_count": null,
+    "statements_md5": null
+  },
+  {
+    "version": "20260821080000",
+    "name": "k9_offer_cost_currency_provenance",
+    "statement_count": null,
+    "statements_md5": null
+  },
+  {
+    "version": "20260821090000",
+    "name": "k10_qualifying_amount_floor",
+    "statement_count": null,
+    "statements_md5": null
+  },
+  {
+    "version": "20260822000000",
+    "name": "l1_offline_voucher_rail",
+    "statement_count": null,
+    "statements_md5": null
+  },
+  {
+    "version": "20260822010000",
+    "name": "l2_offline_voucher_client_rpcs",
+    "statement_count": null,
+    "statements_md5": null
+  },
+  {
+    "version": "20260822020000",
+    "name": "l3_offline_voucher_admin_and_sweep",
+    "statement_count": null,
+    "statements_md5": null
+  },
+  {
+    "version": "20260823000000",
+    "name": "n1_compare_filter_ranges",
+    "statement_count": 1,
+    "statements_md5": "daa3250fa69c8a0feec44a0a97ac8716"
+  },
+  {
+    "version": "20260903230250",
+    "name": "single_flight_catalogue_refresh",
+    "statement_count": 1,
+    "statements_md5": "9302d7f1b05a15b471054e8f233e81c5"
+  },
+  {
+    "version": "20260903231431",
+    "name": "admin_purge_user_account_rpc",
+    "statement_count": 1,
+    "statements_md5": "4df37f6a2a569342d2e4f4ff0ded95b6"
+  },
+  {
+    "version": "20260903232057",
+    "name": "selective_foreign_key_indexes",
+    "statement_count": 1,
+    "statements_md5": "1f5e872dc1836687849ba023dddc5142"
+  },
+  {
+    "version": "20260903232141",
+    "name": "operationalize_scheduled_jobs",
+    "statement_count": 1,
+    "statements_md5": "1afa8fc7dbcb0fa2b608315d7fe56074"
+  },
+  {
+    "version": "20260904002849",
+    "name": "trim_realtime_publication",
+    "statement_count": 1,
+    "statements_md5": "c280efa478a06531ceb35ce3ada99e43"
+  },
+  {
+    "version": "20260904002950",
+    "name": "automated_log_retention",
+    "statement_count": 1,
+    "statements_md5": "24cd850221b32d9ea387139e533f029f"
+  },
+  {
+    "version": "20260907202716",
+    "name": "test_verify_apply_migration",
+    "statement_count": 1,
+    "statements_md5": "67be905ea93b02ad1f9d0b3ba2ba6fb8"
+  },
+  {
+    "version": "20260907202750",
+    "name": "20260907100000_wallet_holds_lots_and_refunds",
+    "statement_count": 1,
+    "statements_md5": "af809cef2aeba7c9e1a1400ab4583382"
+  },
+  {
+    "version": "20260909214738",
+    "name": "20260910020000_p1_p2_app_fee_rules_and_canonical_entitlements",
+    "statement_count": 1,
+    "statements_md5": "47d0df9aea9e73c4747a7c8db53c0b7e"
+  },
+  {
+    "version": "20260909214845",
+    "name": "20260910020500_p6_system_config_meta_line_tiers",
+    "statement_count": 1,
+    "statements_md5": "b98cc34e212ba902e7228f505f98cdda"
+  },
+  {
+    "version": "20260909214907",
+    "name": "20260910021000_p6_admin_app_fee_rpcs",
+    "statement_count": 1,
+    "statements_md5": "b9955b55ef8165857d73825364cda419"
+  },
+  {
+    "version": "20260909215423",
+    "name": "20260910021500_p3_update_fallback_sim_setup_to_reminders",
+    "statement_count": 1,
+    "statements_md5": "ee19ac33d21c908056ed69ce1b8169e0"
+  },
+  {
+    "version": "20260909215757",
+    "name": "20260910022000_p4_halo_effect_calling_and_esim",
+    "statement_count": 1,
+    "statements_md5": "094850c8d1431d1497fb521cfde524a4"
+  },
+  {
+    "version": "20260914030448",
+    "name": "20260914030000_tier_aware_scheduled_refill_pricing",
+    "statement_count": 1,
+    "statements_md5": "dfd4a7d610d1582743c96fe8902e4e34"
+  },
+  {
+    "version": "20260914040146",
+    "name": "20260914040000_update_health_score_four_pillars",
+    "statement_count": 1,
+    "statements_md5": "acdfed293611edf9a0cc52ea921b611b"
+  },
+  {
+    "version": "20260914041958",
+    "name": "20260914050000_retire_modes_and_unpause_lines",
+    "statement_count": 1,
+    "statements_md5": "96bb597193e3ab9de068ab9e3445ad24"
+  },
+  {
+    "version": "20260915043947",
+    "name": "fresh_refill_price_approval",
+    "statement_count": 1,
+    "statements_md5": "e2ea18953b7788e6ca8ad51a5c0ffbbf"
+  },
+  {
+    "version": "20260917013745",
+    "name": "international_calling_caller_id_policy",
+    "statement_count": 1,
+    "statements_md5": "0de40e8a457f098177ebfbaa65743247"
+  },
+  {
+    "version": "20260918212437",
+    "name": "calling_media_sessions",
+    "statement_count": 1,
+    "statements_md5": "9fa7a934c32fa64a2c76fa5c303a78fb"
+  },
+  {
+    "version": "20260919193437",
+    "name": "20260920000000_voip_internet_calling",
+    "statement_count": 1,
+    "statements_md5": "7a85d4f60c7eab42a8e0a47ba554d2a8"
+  },
+  {
+    "version": "20260920175619",
+    "name": "20260921000000_calling_phase_a_baseline",
+    "statement_count": 1,
+    "statements_md5": "8672b0dd78597efa94e979a958bde3f5"
+  },
+  {
+    "version": "20260920175638",
+    "name": "20260921010000_calling_phase_b_billing",
+    "statement_count": 1,
+    "statements_md5": "e3d92e14c4aa8f2b676d6922d4818a61"
+  },
+  {
+    "version": "20260920175659",
+    "name": "20260921020000_virtual_did_numbers",
+    "statement_count": 1,
+    "statements_md5": "96139b0d0d95aa3e947fb593333207f2"
+  },
+  {
+    "version": "20260920175720",
+    "name": "20260921030000_voicemail_messages",
+    "statement_count": 1,
+    "statements_md5": "3d1f711a8fb4bc8171df3dd0ba1c7c06"
+  },
+  {
+    "version": "20260920212918",
+    "name": "20260921040000_fix_voip_contact_lookup_sim_lines",
+    "statement_count": 1,
+    "statements_md5": "d09e6b78cb17b154eb81b852281214ed"
+  },
+  {
+    "version": "20260926120000",
+    "name": "alert_clock_and_durable_channel_dispatch",
+    "statement_count": 1,
+    "statements_md5": "6f949381aec1b1f7a0f4e9fddd5b03f7"
+  },
+  {
+    "version": "20260927012620",
+    "name": "alert_channel_security_repair",
+    "statement_count": 1,
+    "statements_md5": "55b75f3382b15589566eff2b17c6c034"
+  },
+  {
+    "version": "20260927013150",
+    "name": "alert_clock_accuracy_and_scheduler",
+    "statement_count": 1,
+    "statements_md5": "a2f3e1b88e63058d49a28be62338170c"
+  },
+  {
+    "version": "20260927014455",
+    "name": "notification_dispatch_outbox",
+    "statement_count": 1,
+    "statements_md5": "ce35cdda62d7be86c84564756bc1ea7b"
+  },
+  {
+    "version": "20260927055336",
+    "name": "notification_preferences_runtime",
+    "statement_count": 1,
+    "statements_md5": "53950e92e876af34a9b16ee45d1d1790"
+  },
+  {
+    "version": "20260927062802",
+    "name": "notification_preferences_runtime",
+    "statement_count": 1,
+    "statements_md5": "6abd5508bf1b8f474f0f1727223e85e2"
+  },
+  {
+    "version": "20260927063324",
+    "name": "alert_clock_source_gate_and_controls",
+    "statement_count": 1,
+    "statements_md5": "cb0f13d6489f8fc6c6b0bc0fd9584355"
+  },
+  {
+    "version": "20260927063841",
+    "name": "weekly_digest_sunday_status",
+    "statement_count": 1,
+    "statements_md5": "bec2bb8b90c9662a2b12d15bce3eca06"
+  },
+  {
+    "version": "20260927063932",
+    "name": "weekly_digest_category_fix",
+    "statement_count": 1,
+    "statements_md5": "822804c27780b989801b6c7bff60604a"
+  },
+  {
+    "version": "20260927064706",
+    "name": "carrier_alert_rule_quality",
+    "statement_count": 1,
+    "statements_md5": "6f8965dc3692441407a334baba93e489"
+  },
+  {
+    "version": "20260927064814",
+    "name": "carrier_rule_verification_guard",
+    "statement_count": 1,
+    "statements_md5": "6e9b9f65f62a7f2842da0cc5c80a5c37"
+  },
+  {
+    "version": "20260927120345",
+    "name": "admin_notification_dispatch_incidents",
+    "statement_count": 1,
+    "statements_md5": "f8eab137e94a1cf8b0d920b68aaf1ae0"
+  },
+  {
+    "version": "20260927120843",
+    "name": "enable_alert_clock_scheduler",
+    "statement_count": 1,
+    "statements_md5": "c8cfa862dcc25ddad308487848f1d806"
+  },
+  {
+    "version": "20260927120915",
+    "name": "monitored_alert_clock_cron",
+    "statement_count": 1,
+    "statements_md5": "b716c67e11ddbc45a3b319bfd2b974bc"
+  },
+  {
+    "version": "20260927121044",
+    "name": "alert_clock_cron_health",
+    "statement_count": 1,
+    "statements_md5": "1b9d7696e51fbf6f070bb2afeeadb26b"
+  },
+  {
+    "version": "20261001030000",
+    "name": "standard_whatsapp_catalog_and_entitlement_fix",
+    "statement_count": 1,
+    "statements_md5": "8b3f14e9468994a5d4830ca74dd33f70"
+  },
+  {
+    "version": "20261001030205",
+    "name": "notification_production_delivery_contracts",
+    "statement_count": 1,
+    "statements_md5": "eb4e785d9d7d02359cae18521bdf7848"
+  },
+  {
+    "version": "20261001030700",
+    "name": "notification_scheduler_dependency_repair",
+    "statement_count": 1,
+    "statements_md5": "4029ba85dfafe43a17d3e4d989d17043"
+  },
+  {
+    "version": "20261001031000",
+    "name": "repair_notification_trigger_outbox_contract",
+    "statement_count": 1,
+    "statements_md5": "4a7978ea3ccdb8a900e8cb2d58b7a358"
+  },
+  {
+    "version": "20261001031308",
+    "name": "notification_delivery_maintenance_indexes",
+    "statement_count": 1,
+    "statements_md5": "7ec1b539211ce8ddd5983dda5742bf61"
+  },
+  {
+    "version": "20261001033220",
+    "name": "notification_paid_line_insert_guard",
+    "statement_count": 1,
+    "statements_md5": "7ae41dbc0727691362f056f6b2a0a193"
+  },
+  {
+    "version": "20261001033345",
+    "name": "notification_setup_event_idempotency",
+    "statement_count": 1,
+    "statements_md5": "94113916af003ec08c00495ca3999192"
+  },
+  {
+    "version": "20261001040000",
+    "name": "add_sent_at_to_whatsapp_message_attempts",
+    "statement_count": 1,
+    "statements_md5": "b51a0ef90b2b88bebfc285b3501b786a"
+  },
+  {
+    "version": "20261001225444",
+    "name": "fix_sim_setup_insufficient_funds_contract",
+    "statement_count": 1,
+    "statements_md5": "003a58c250a2971150fbf13ae39d750b"
+  },
+  {
+    "version": "20261014214138",
+    "name": "resolve_free_call_recipient_exact",
+    "statement_count": 1,
+    "statements_md5": "9ebc0d91c5c43cb4add02e69a864c4fe"
+  },
+  {
+    "version": "20261014215139",
+    "name": "protect_caller_id_verification_fields",
+    "statement_count": 1,
+    "statements_md5": "032f5462abebafe326ea37b3b08ae6c5"
+  }
+]

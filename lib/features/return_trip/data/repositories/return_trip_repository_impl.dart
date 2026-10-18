@@ -55,6 +55,7 @@ class ReturnTripRepositoryImpl implements ReturnTripRepository {
     required String status,
     String? chosenPackageType,
     String? chosenPackageId,
+    double? expectedPriceUsd,
     String? notes,
   }) {
     return _remoteDataSource.saveReturnTrip(
@@ -64,6 +65,7 @@ class ReturnTripRepositoryImpl implements ReturnTripRepository {
       status: status,
       chosenPackageType: chosenPackageType,
       chosenPackageId: chosenPackageId,
+      expectedPriceUsd: expectedPriceUsd,
       notes: notes,
     );
   }

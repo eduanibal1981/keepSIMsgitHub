@@ -1,0 +1,19 @@
+{
+  "functions": {
+    "carrier_qualifying_topup_amount": "055e640e53910d7b5591581e20aa4914d46d27848ffe5c9c281d13392d84ae74",
+    "carrier_refill_offer": "4a84ced3f5f126384bb40678c90c87a04a5f6b59dc9832d4cbd8df1446c758b3",
+    "refill_interval_days": "dc31070e20a8c1ef15b1bf6ef36744e8281940a677f8cf1ead9fa61da78236c8",
+    "queue_premium_refill_executions": "b23e6fe71ab64d34d26aa7d55056fa07fe9db597769d6a10436c8ce26ed4bfc0",
+    "trg_fn_sync_custom_refill_queue": "5cffae9eac7cea3109875ba59e1767446df8462514c65341c4326afe5896c6d2",
+    "update_sim_line_last_topup_at": "34021d2fc0fc3624fc6717361efb9065edd7152a5f0f238a2f369c7c3f0b70db",
+    "reschedule_mini_refill": "35f202fe85f4486a12d8bdc35fcbf6488cbe6242be62a1ec284ded0865023472",
+    "reset_mini_refill_to_default": "ddb8d5526c1b3f41145b0fca6d8307b3dded7ccf541dcd8c55cf342a50959a60",
+    "update_mini_refill_dates": "38c75a108169a18a9e38544ca7bc230f7869f72f93c1346a10df052ae86d0e04",
+    "approve_refill_execution": "fc69fb35c1f9ba87ab777903bfd8453d9c9da7708a56c8f9e45007dd6448495e"
+  },
+  "triggers": [
+    "trg_sync_custom_refill_queue",
+    "trigger_update_sim_line_last_topup"
+  ],
+  "limits": "After the financial, pricing and retail fixtures. Uses real queue and last-topup success triggers; notification/health/risk adapters and external API/provider lifecycle remain omitted."
+}

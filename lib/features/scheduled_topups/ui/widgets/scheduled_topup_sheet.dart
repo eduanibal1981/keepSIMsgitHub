@@ -2,7 +2,10 @@
 ///
 /// Gorgeous dark-mode user interface allowing users to set up, edit,
 /// and cancel auto top-up schedules for a given protected SIM line.
+
 library;
+
+import 'package:keep_sims/features/sim_lines/data/repositories/sim_lines_repository_impl.dart';
 
 import 'package:keep_sims/core/utils/build_context_extension.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +16,6 @@ import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:go_router/go_router.dart';
 import 'package:keep_sims/core/result.dart';
-import 'package:keep_sims/core/providers/app_config_provider.dart';
 import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import 'package:keep_sims/features/notifications/presentation/controllers/notification_settings_controller.dart';
 import 'package:keep_sims/features/notifications/data/models/channel_destination.dart';
@@ -73,7 +75,7 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
   bool _appliedSuggestedFrequency = false;
   bool _appliedSuggestedOffer = false;
   double _rangeFinalPriceUsd = 0.0;
-  double _rangeBaseCostUsd = 0.0;
+  double _rangeRetailPriceUsd = 0.0;
 
   final TextEditingController _amountController = TextEditingController();
 
@@ -802,11 +804,11 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                                         _selectedOffer?['offerId'] ==
                                         offer['offerId'];
 
-                                    final baseCost =
-                                        (offer['baseCostUsd'] as num)
+                                    final retailPrice =
+                                        (offer['retailPriceUsd'] as num)
                                             .toDouble();
                                     final q = _quote(
-                                      baseCost,
+                                      retailPrice,
                                       line: currentLine,
                                     );
                                     final finalPrice = q.total;
@@ -823,7 +825,7 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                                           _amountController.clear();
                                           _rangeValue = null;
                                           _rangeFinalPriceUsd = 0.0;
-                                          _rangeBaseCostUsd = 0.0;
+                                          _rangeRetailPriceUsd = 0.0;
                                         });
                                       },
                                       borderRadius: BorderRadius.circular(12),
@@ -1316,13 +1318,11 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
       }
 
       final isRange = _selectedOffer?['priceType'] == 'RANGE';
-      final double baseCost = isRange
-          ? _rangeBaseCostUsd
-          : (_selectedOffer?['baseCostUsd'] as num?)?.toDouble() ?? 0.0;
-      final q = _quote(baseCost, line: currentLine);
+      final double retailPrice = isRange
+          ? _rangeRetailPriceUsd
+          : (_selectedOffer?['retailPriceUsd'] as num?)?.toDouble() ?? 0.0;
+      final q = _quote(retailPrice, line: currentLine);
       final double totalAmount = isNotifyMode ? 0.0 : q.total;
-      final double baseCostUsd = isNotifyMode ? 0.0 : baseCost;
-      final double appFeeUsd = isNotifyMode ? 0.0 : q.appFee;
       final double? targetLocalValue = isNotifyMode
           ? null
           : (isRange
@@ -1358,8 +1358,6 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
             : widget.configMode,
         offerId: _selectedOffer?['offerId']?.toString(),
         offerValue: isRange ? _rangeValue : null,
-        baseCostUsd: baseCostUsd,
-        appFeeUsd: appFeeUsd,
         pricingTier: currentLine?.effectiveTier ?? 'free',
         feeRuleVersion: q.feeRuleVersion,
         targetLocalValue: targetLocalValue,
@@ -1509,8 +1507,8 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
     if (match == null) return;
 
     _appliedSuggestedOffer = true;
-    final double baseCost = (match['baseCostUsd'] as num).toDouble();
-    final double total = _quote(baseCost, line: line).total;
+    final double retailPrice = (match['retailPriceUsd'] as num).toDouble();
+    final double total = _quote(retailPrice, line: line).total;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         setState(() {
@@ -1522,26 +1520,52 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
   }
 
   /// Auto-refill is funded from the wallet, using the target line's tier fee rule.
-  LineRefillQuote _quote(double baseCostUsd, {SimLine? line}) {
-    final rules = ref.watch(refillFeeRulesProvider).value;
+  LineRefillQuote _quote(double retailPriceUsd, {SimLine? line}) {
     final tier = line?.effectiveTier ?? widget.simLine?.effectiveTier ?? 'free';
-    return calculateLineRefillQuote(
+    return LineRefillQuote(
       simLineId: widget.simLineId,
       offerId: _selectedOffer?['offerId']?.toString(),
       offerValue: _rangeValue,
       effectiveTier: tier,
-      baseCostUsd: baseCostUsd,
-      rules: rules,
+      totalUsd: retailPriceUsd,
     );
   }
 
-  void _calculateRangeFees({SimLine? line}) {
-    if (_rangeValue != null) {
-      final q = _quote(_rangeBaseCostUsd, line: line);
+  int _quoteRequest = 0;
+  String? _rangeQuoteError;
+  Future<void> _loadRangeQuote(Map<String, dynamic> offer, int value) async {
+    final request = ++_quoteRequest;
+    setState(() {
+      _selectedOffer = offer;
+      _rangeValue = null;
+      _rangeQuoteError = null;
+    });
+    try {
+      final q = await ref
+          .read(simLinesRepositoryProvider)
+          .fetchCustomerRefillQuote(
+            simLineId: widget.simLineId,
+            offerId: offer['offerId'] as String,
+            offerValue: value,
+          );
+      if (!mounted ||
+          request != _quoteRequest ||
+          _selectedOffer?['offerId'] != offer['offerId']) {
+        return;
+      }
       setState(() {
+        _rangeValue = value;
+        _rangeRetailPriceUsd = q.total;
         _rangeFinalPriceUsd = q.total;
-        _amount = _rangeFinalPriceUsd;
+        _amount = q.total;
       });
+    } catch (_) {
+      if (mounted && request == _quoteRequest) {
+        setState(
+          () =>
+              _rangeQuoteError = 'Pricing unavailable. Enter the amount again.',
+        );
+      }
     }
   }
 
@@ -1650,29 +1674,22 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                   doubleVal <= maxLocal) {
                 final divisor = (offer['sendCurrencyDivisor'] as num? ?? 100)
                     .toInt();
-                final fxRate = (offer['costFx'] as num? ?? 39.0).toDouble();
-
                 final intValue = (doubleVal * divisor).round();
-                final baseCostUsd = doubleVal / fxRate;
-
-                setState(() {
-                  _selectedOffer = offer;
-                  _rangeValue = intValue;
-                  _rangeBaseCostUsd = baseCostUsd;
-                });
-                _calculateRangeFees(line: currentLine);
+                _loadRangeQuote(offer, intValue);
               } else {
+                _quoteRequest++;
                 setState(() {
                   if (_selectedOffer?['offerId'] == offer['offerId']) {
                     _selectedOffer = null;
                   }
                   _rangeValue = null;
                   _rangeFinalPriceUsd = 0.0;
-                  _rangeBaseCostUsd = 0.0;
+                  _rangeRetailPriceUsd = 0.0;
                 });
               }
             },
           ),
+          if (_rangeQuoteError != null) Text(_rangeQuoteError!),
           if (_rangeValue != null)
             Padding(
               padding: const EdgeInsets.only(top: 8),
@@ -1681,7 +1698,10 @@ class _ScheduledTopupSheetState extends ConsumerState<ScheduledTopupSheet> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    _quote(_rangeBaseCostUsd, line: currentLine).breakdownText,
+                    _quote(
+                      _rangeRetailPriceUsd,
+                      line: currentLine,
+                    ).breakdownText,
                     style: AppTextStyles.labelSmall.copyWith(
                       color: AppColors.textTertiaryDark,
                     ),

@@ -14,6 +14,7 @@ import '../contract/scheduled_topup_contract.dart';
 import '../model/scheduled_topup_model.dart';
 import '../model/topup_execution_model.dart';
 import '../model/refill_approval_quote.dart';
+import '../model/schedule_mutation_request.dart';
 
 class ScheduledTopupRepository implements ScheduledTopupContract {
   final SupabaseClient _client;
@@ -28,10 +29,13 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
     this._syncQueue,
   );
 
+  String get _scheduleCacheKey =>
+      'retail_schedules_v1_${_client.auth.currentUser?.id}';
+
   @override
   Future<Result<List<ScheduledTopup>>> getSchedules() async {
     if (_connectivity.isOffline) {
-      final cached = _cache.readJson('cached_schedules');
+      final cached = _cache.readJson(_scheduleCacheKey);
       if (cached is List) {
         return Success(
           cached
@@ -55,12 +59,14 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
       final response = await AuthSessionManager.withAuthRecovery(
         _client,
         () => _client
-            .from('scheduled_topups')
-            .select()
+            .from('customer_scheduled_topups')
+            .select(
+              'id,sim_line_id,user_id,amount,currency,frequency_days,next_execution_at,last_execution_at,is_active,retry_count,max_retries,status,created_at,updated_at,whatsapp_sent_this_cycle,schedule_type,offer_id,offer_value,pricing_tier,fee_rule_version,target_local_value,target_local_currency,max_authorized_usd,preferred_provider,engine_version,intent_kind',
+            )
             .eq('user_id', userId),
       );
 
-      await _cache.writeJson('cached_schedules', response);
+      await _cache.writeJson(_scheduleCacheKey, response);
 
       final schedules = (response as List)
           .map((json) => ScheduledTopup.fromJson(json as Map<String, dynamic>))
@@ -68,7 +74,7 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
 
       return Success(schedules);
     } on PostgrestException catch (e) {
-      final cached = _cache.readJson('cached_schedules');
+      final cached = _cache.readJson(_scheduleCacheKey);
       if (cached is List) {
         return Success(
           cached
@@ -87,7 +93,7 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
   @override
   Future<Result<ScheduledTopup?>> getScheduleForLine(String simLineId) async {
     if (_connectivity.isOffline) {
-      final cached = _cache.readJson('cached_schedules') as List? ?? [];
+      final cached = _cache.readJson(_scheduleCacheKey) as List? ?? [];
       final matches = cached.where(
         (e) => e is Map && e['sim_line_id'] == simLineId,
       );
@@ -108,8 +114,10 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
       }
 
       final response = await _client
-          .from('scheduled_topups')
-          .select()
+          .from('customer_scheduled_topups')
+          .select(
+            'id,sim_line_id,user_id,amount,currency,frequency_days,next_execution_at,last_execution_at,is_active,retry_count,max_retries,status,created_at,updated_at,whatsapp_sent_this_cycle,schedule_type,offer_id,offer_value,pricing_tier,fee_rule_version,target_local_value,target_local_currency,max_authorized_usd,preferred_provider,engine_version,intent_kind',
+          )
           .eq('sim_line_id', simLineId)
           .eq('user_id', userId)
           .limit(1)
@@ -121,7 +129,7 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
 
       return Success(ScheduledTopup.fromJson(response));
     } on PostgrestException catch (e) {
-      final cached = _cache.readJson('cached_schedules') as List? ?? [];
+      final cached = _cache.readJson(_scheduleCacheKey) as List? ?? [];
       final matches = cached.where(
         (e) => e is Map && e['sim_line_id'] == simLineId,
       );
@@ -156,7 +164,7 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
       final updatedSchedule = schedule.copyWith(id: localId, userId: userId);
       final data = updatedSchedule.toJson();
 
-      final cached = _cache.readJson('cached_schedules') as List? ?? [];
+      final cached = _cache.readJson(_scheduleCacheKey) as List? ?? [];
       final updatedCache = cached
           .where(
             (item) =>
@@ -166,7 +174,7 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
           )
           .toList();
       updatedCache.add(data);
-      await _cache.writeJson('cached_schedules', updatedCache);
+      await _cache.writeJson(_scheduleCacheKey, updatedCache);
 
       await _syncQueue.addToQueue('topup_schedule_save', data);
       return Success(updatedSchedule);
@@ -178,23 +186,6 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
         return const Failure(
           AppFailure.auth(message: 'No authenticated user.'),
         );
-      }
-
-      // Check if a schedule already exists of the same type (notify/refill) for this SIM line
-      final existingRes = await _client
-          .from('scheduled_topups')
-          .select('id')
-          .eq('sim_line_id', schedule.simLineId)
-          .eq('user_id', userId)
-          .eq('schedule_type', schedule.scheduleType)
-          .maybeSingle();
-
-      if (existingRes != null) {
-        // If it exists, update it instead of creating a new one
-        final updatedSchedule = schedule.copyWith(
-          id: existingRes['id'] as String,
-        );
-        return await updateSchedule(updatedSchedule);
       }
 
       final updatedSchedule = schedule.copyWith(
@@ -210,11 +201,13 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
       }
       data['user_id'] = userId;
 
-      final response = await _client
-          .from('scheduled_topups')
-          .insert(data)
-          .select()
-          .single();
+      final response = Map<String, dynamic>.from(
+        await _client.rpc(
+              'save_customer_schedule',
+              params: ScheduleMutationRequest.fromJson(data),
+            )
+            as Map,
+      );
 
       final created = ScheduledTopup.fromJson(response);
 
@@ -222,12 +215,12 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
       // trg_sync_custom_refill_queue DB trigger; the insert here is gone.
 
       // Update local cache
-      final cached = _cache.readJson('cached_schedules') as List? ?? [];
+      final cached = _cache.readJson(_scheduleCacheKey) as List? ?? [];
       final updatedCache = cached
           .where((item) => item is Map && item['id'] != created.id)
           .toList();
       updatedCache.add(response);
-      await _cache.writeJson('cached_schedules', updatedCache);
+      await _cache.writeJson(_scheduleCacheKey, updatedCache);
 
       return Success(created);
     } on PostgrestException catch (e) {
@@ -251,12 +244,12 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
 
       // Handle Notify Schedule Offline
       final data = schedule.toJson();
-      final cached = _cache.readJson('cached_schedules') as List? ?? [];
+      final cached = _cache.readJson(_scheduleCacheKey) as List? ?? [];
       final updatedCache = cached.map((item) {
         if (item is Map && item['id'] == schedule.id) return data;
         return item;
       }).toList();
-      await _cache.writeJson('cached_schedules', updatedCache);
+      await _cache.writeJson(_scheduleCacheKey, updatedCache);
 
       await _syncQueue.addToQueue('topup_schedule_save', data);
       return Success(schedule);
@@ -286,13 +279,13 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
         data['user_id'] = userId;
       }
 
-      final response = await _client
-          .from('scheduled_topups')
-          .update(data)
-          .eq('id', schedule.id)
-          .eq('user_id', userId)
-          .select()
-          .single();
+      final response = Map<String, dynamic>.from(
+        await _client.rpc(
+              'save_customer_schedule',
+              params: ScheduleMutationRequest.fromJson(data),
+            )
+            as Map,
+      );
 
       final updated = ScheduledTopup.fromJson(response);
 
@@ -301,12 +294,12 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
       // here was a silent no-op — topup_executions never had a DELETE policy.)
 
       // Update cache
-      final cached = _cache.readJson('cached_schedules') as List? ?? [];
+      final cached = _cache.readJson(_scheduleCacheKey) as List? ?? [];
       final updatedCache = cached.map((item) {
         if (item is Map && item['id'] == updated.id) return response;
         return item;
       }).toList();
-      await _cache.writeJson('cached_schedules', updatedCache);
+      await _cache.writeJson(_scheduleCacheKey, updatedCache);
 
       return Success(updated);
     } on PostgrestException catch (e) {
@@ -329,17 +322,13 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
         );
       }
 
-      final response = await _client
-          .from('scheduled_topups')
-          .update({
-            'is_active': isActive,
-            'status': isActive ? 'active' : 'paused',
-            'updated_at': DateTime.now().toUtc().toIso8601String(),
-          })
-          .eq('id', id)
-          .eq('user_id', userId)
-          .select()
-          .single();
+      final response = Map<String, dynamic>.from(
+        await _client.rpc(
+              'set_customer_schedule_active',
+              params: {'p_schedule_id': id, 'p_is_active': isActive},
+            )
+            as Map,
+      );
 
       return Success(ScheduledTopup.fromJson(response));
     } on PostgrestException catch (e) {
@@ -362,11 +351,10 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
       // C3b-2: deleting the schedule cancels its queued executions via the
       // trg_cancel_executions_on_schedule_delete DB trigger. (The client-side
       // delete that used to run here was a silent no-op that left orphans.)
-      await _client
-          .from('scheduled_topups')
-          .delete()
-          .eq('id', id)
-          .eq('user_id', userId);
+      await _client.rpc(
+        'delete_customer_schedule',
+        params: {'p_schedule_id': id},
+      );
 
       return const Success(null);
     } on PostgrestException catch (e) {
@@ -380,7 +368,8 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
   Future<Result<List<TopupExecution>>> getExecutionsForLine(
     String simLineId,
   ) async {
-    final cacheKey = 'cached_executions_$simLineId';
+    final cacheKey =
+        'retail_executions_v1_${_client.auth.currentUser?.id}_$simLineId';
 
     if (_connectivity.isOffline) {
       final cached = _cache.readJson(cacheKey);
@@ -405,7 +394,7 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
       }
 
       final response = await _client
-          .from('topup_executions')
+          .from('customer_topup_executions')
           .select()
           .eq('sim_line_id', simLineId)
           .eq('user_id', userId)
@@ -467,13 +456,10 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
       final end = page * pageSize - 1;
 
       final response = await _client
-          .from('topup_executions')
+          .from('customer_topup_executions')
           .select()
           .eq('sim_line_id', simLineId)
           .eq('user_id', userId)
-          .or(
-            'reloadly_transaction_id.is.null,reloadly_transaction_id.not.like.MOCK_%',
-          )
           .order('executed_at', ascending: false)
           .range(start, end);
 
@@ -601,7 +587,7 @@ class ScheduledTopupRepository implements ScheduledTopupContract {
       final deadline = DateTime.now().add(const Duration(seconds: 45));
       while (DateTime.now().isBefore(deadline)) {
         final row = await _client
-            .from('refill_approval_quotes')
+            .from('customer_refill_approval_quotes')
             .select('id,status,route,error_message,expires_at')
             .eq('id', quoteId as String)
             .single();

@@ -1,3 +1,4 @@
+import { ProviderConfigurationError, providerSecretClient, requireProviderSecret } from "../_shared/provider-secrets.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
@@ -44,6 +45,9 @@ async function rpc(name: string, args: Record<string, unknown>): Promise<{ ok: b
 }
 
 async function fetchSystemConfig(key: string, defaultVal: string = ""): Promise<string> {
+  if (key === "TELNYX_API_KEY") {
+    return await requireProviderSecret(providerSecretClient(SUPABASE_URL, SERVICE_ROLE_KEY), key);
+  }
   const envVal = Deno.env.get(key);
   if (envVal) return envVal;
   const res = await fetch(
@@ -415,6 +419,7 @@ serve(async (req: Request) => {
     return jsonResponse({ success: false, errorMessage: "Invalid action" }, 400);
 
   } catch (err: any) {
+    if (err instanceof ProviderConfigurationError) return jsonResponse({ success: false, errorMessage: err.message, code: err.code }, 503);
     console.error("[manage-caller-id] error:", err);
     return jsonResponse({ success: false, errorMessage: err.message }, 500);
   }

@@ -1,3 +1,4 @@
+import { ProviderConfigurationError, requireProviderSecret } from "../_shared/provider-secrets.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -8,26 +9,12 @@ const corsHeaders = {
 };
 
 const FIRSTY_STAGING_BASE_URL = "https://connect.test.firsty.app/api/v3";
-const DEFAULT_CLIENT_ID = "900760";
-const DEFAULT_CLIENT_SECRET = "csk_ydwv1n5pax8snj2ipav5wdh1b4ji43h8";
 const DEFAULT_PLAN_REF = "CL1DBCXC5VDGLN"; // FIRSTY GLOBAL 1GB TS 30D NR
-
-interface FirstyToken {
-  accessToken: string;
-  expiresAt: number;
-}
-
-let cachedToken: FirstyToken | null = null;
 
 async function getFirstyAccessToken(
   clientId: string,
   clientSecret: string
 ): Promise<string> {
-  const now = Date.now();
-  if (cachedToken && cachedToken.expiresAt > now + 60000) {
-    return cachedToken.accessToken;
-  }
-
   const tokenUrl = `${FIRSTY_STAGING_BASE_URL}/auth/token`;
   const res = await fetch(tokenUrl, {
     method: "POST",
@@ -40,17 +27,14 @@ async function getFirstyAccessToken(
   });
 
   if (!res.ok) {
-    const errText = await res.text();
-    throw new Error(`Firsty auth failed (${res.status}): ${errText}`);
+    throw new Error("Firsty authentication failed");
   }
-
   const data = await res.json();
-  const expiresIn = data.expires_in ?? 86400;
-  cachedToken = {
-    accessToken: data.access_token,
-    expiresAt: now + expiresIn * 1000,
-  };
-  return cachedToken.accessToken;
+  if (typeof data.access_token !== "string" || !data.access_token) {
+    throw new Error("Firsty authentication failed");
+  }
+  // Do not reuse an access token from a previous credential version.
+  return data.access_token;
 }
 
 serve(async (req: Request) => {
@@ -88,6 +72,7 @@ serve(async (req: Request) => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+    if (!supabaseUrl || !supabaseServiceKey) throw new ProviderConfigurationError();
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Auth verification
@@ -120,10 +105,10 @@ serve(async (req: Request) => {
     }
 
     const action = body.action || (req.method === "GET" ? "status" : "status");
-    const providerMode = Deno.env.get("FIRSTY_PROVIDER_MODE") || "firsty_sandbox";
+    const providerMode = Deno.env.get("FIRSTY_PROVIDER_MODE") || "disabled_live";
 
     // Rejection of live operations if set to disabled_live
-    if (providerMode === "disabled_live") {
+    if (!["mock", "firsty_sandbox"].includes(providerMode)) {
       return new Response(
         JSON.stringify({
           ok: false,
@@ -191,8 +176,8 @@ serve(async (req: Request) => {
         );
       }
 
-      const clientId = Deno.env.get("FIRSTY_CLIENT_ID") || DEFAULT_CLIENT_ID;
-      const clientSecret = Deno.env.get("FIRSTY_CLIENT_SECRET") || DEFAULT_CLIENT_SECRET;
+      const clientId = providerMode === "mock" ? "" : await requireProviderSecret(supabase, "FIRSTY_CLIENT_ID");
+      const clientSecret = providerMode === "mock" ? "" : await requireProviderSecret(supabase, "FIRSTY_CLIENT_SECRET");
       const idempotencyKey = body.idempotency_key || `prep_${userId}_${Date.now()}`;
 
       let profileData: any = null;
@@ -224,8 +209,7 @@ serve(async (req: Request) => {
           });
 
           if (!orderRes.ok) {
-            const errBody = await orderRes.text();
-            throw new Error(`Firsty eSIM order returned ${orderRes.status}: ${errBody}`);
+            throw new Error("Firsty sandbox order failed");
           }
 
           const orderJson = await orderRes.json();
@@ -235,7 +219,7 @@ serve(async (req: Request) => {
           const matchId = lpa.split("$")[2] || d.esimReference;
 
           profileData = {
-            profile_reference: d.profileReference || `${clientId}00000001`,
+            profile_reference: d.profileReference,
             esim_reference: d.esimReference,
             iccid: d.iccid,
             activation_code: lpa,
@@ -243,18 +227,8 @@ serve(async (req: Request) => {
             matching_id: matchId,
             is_mock: true,
           };
-        } catch (apiErr: any) {
-          console.error("Firsty API order error, falling back to deterministic sandbox profile:", apiErr);
-          const mockSuffix = userId.replace(/-/g, "").slice(0, 12);
-          profileData = {
-            profile_reference: `${clientId}00000001`,
-            esim_reference: `${clientId}0000000001`,
-            iccid: `8999967846891707543`,
-            activation_code: `LPA:1$sandbox.firsty.app$${mockSuffix}`,
-            smdp_address: "sandbox.firsty.app",
-            matching_id: mockSuffix,
-            is_mock: true,
-          };
+        } catch (_) {
+          throw new Error("Firsty sandbox order failed");
         }
       }
 
@@ -353,8 +327,8 @@ serve(async (req: Request) => {
       }
 
       // 4. Request package from Firsty Staging
-      const clientId = Deno.env.get("FIRSTY_CLIENT_ID") || DEFAULT_CLIENT_ID;
-      const clientSecret = Deno.env.get("FIRSTY_CLIENT_SECRET") || DEFAULT_CLIENT_SECRET;
+      const clientId = providerMode === "mock" ? "" : await requireProviderSecret(supabase, "FIRSTY_CLIENT_ID");
+      const clientSecret = providerMode === "mock" ? "" : await requireProviderSecret(supabase, "FIRSTY_CLIENT_SECRET");
       const idempotencyKey = body.idempotency_key || `allowance_${userId}_${Date.now()}`;
       let packageRef = `mock_pkg_${Date.now()}`;
 
@@ -379,12 +353,13 @@ serve(async (req: Request) => {
             }
           );
 
-          if (pkgRes.ok) {
-            const pkgJson = await pkgRes.json();
-            packageRef = pkgJson.data?.packageReference || packageRef;
-          }
-        } catch (pkgErr) {
-          console.warn("Package order staging call error, proceeding with sandbox grant:", pkgErr);
+          if (!pkgRes.ok) throw new Error("Firsty sandbox package failed");
+          const pkgJson = await pkgRes.json();
+          const reference = pkgJson.data?.packageReference;
+          if (!reference) throw new Error("Firsty sandbox package failed");
+          packageRef = reference;
+        } catch (_) {
+          throw new Error("Firsty sandbox package failed");
         }
       }
 
@@ -423,14 +398,15 @@ serve(async (req: Request) => {
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
     );
   } catch (err: any) {
-    console.error("Recovery service exception:", err);
+    console.error("Recovery service request failed");
     return new Response(
       JSON.stringify({
         ok: false,
-        error: err.message || "Internal recovery service error",
+        error: err instanceof ProviderConfigurationError ? err.message : "Recovery service temporarily unavailable",
+        code: err instanceof ProviderConfigurationError ? err.code : "INTERNAL_ERROR",
         timestamp: new Date().toISOString(),
       }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
+      { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: err instanceof ProviderConfigurationError ? 503 : 500 }
     );
   }
 });

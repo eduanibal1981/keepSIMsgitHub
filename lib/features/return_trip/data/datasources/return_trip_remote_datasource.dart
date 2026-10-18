@@ -9,7 +9,8 @@ import '../../domain/entities/active_return_trip_info.dart';
 class ReturnTripRemoteDataSource {
   final SupabaseClient _client;
 
-  ReturnTripRemoteDataSource({required SupabaseClient client}) : _client = client;
+  ReturnTripRemoteDataSource({required SupabaseClient client})
+    : _client = client;
 
   Future<List<ReturnTripPackage>> getPackagesForLine(String simLineId) async {
     final response = await _client.rpc(
@@ -22,7 +23,10 @@ class ReturnTripRemoteDataSource {
     }
 
     return response
-        .map((e) => ReturnTripPackage.fromJson(Map<String, dynamic>.from(e as Map)))
+        .map(
+          (e) =>
+              ReturnTripPackage.fromJson(Map<String, dynamic>.from(e as Map)),
+        )
         .toList();
   }
 
@@ -44,7 +48,9 @@ class ReturnTripRemoteDataSource {
     return ReturnTrip.fromJson(response);
   }
 
-  Future<ActiveReturnTripInfo?> getActiveReturnTripInfo(String simLineId) async {
+  Future<ActiveReturnTripInfo?> getActiveReturnTripInfo(
+    String simLineId,
+  ) async {
     final response = await _client.rpc(
       'get_active_return_trip_for_line',
       params: {'p_sim_line_id': simLineId},
@@ -59,7 +65,9 @@ class ReturnTripRemoteDataSource {
     return ActiveReturnTripInfo.fromJson(Map<String, dynamic>.from(first));
   }
 
-  Future<List<ActiveReturnTripInfo>> getReturnTripHistory(String simLineId) async {
+  Future<List<ActiveReturnTripInfo>> getReturnTripHistory(
+    String simLineId,
+  ) async {
     final response = await _client.rpc(
       'get_return_trip_history_for_line',
       params: {'p_sim_line_id': simLineId},
@@ -71,7 +79,11 @@ class ReturnTripRemoteDataSource {
 
     return response
         .where((e) => e != null && e is Map)
-        .map((e) => ActiveReturnTripInfo.fromJson(Map<String, dynamic>.from(e as Map)))
+        .map(
+          (e) => ActiveReturnTripInfo.fromJson(
+            Map<String, dynamic>.from(e as Map),
+          ),
+        )
         .toList();
   }
 
@@ -82,11 +94,14 @@ class ReturnTripRemoteDataSource {
     required String status,
     String? chosenPackageType,
     String? chosenPackageId,
+    double? expectedPriceUsd,
     String? notes,
   }) async {
     final userId = _client.auth.currentUser?.id;
     if (userId == null) {
-      throw const AuthException('User must be authenticated to save a return trip');
+      throw const AuthException(
+        'User must be authenticated to save a return trip',
+      );
     }
 
     final payload = {
@@ -97,6 +112,7 @@ class ReturnTripRemoteDataSource {
       'status': status,
       'chosen_package_type': chosenPackageType,
       'chosen_package_id': chosenPackageId,
+      'accepted_price_usd': ?expectedPriceUsd,
       'notes': notes,
       'updated_at': DateTime.now().toIso8601String(),
     };
@@ -105,7 +121,8 @@ class ReturnTripRemoteDataSource {
     final existing = await getActiveTripForLine(simLineId);
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-    final isExistingActive = existing != null &&
+    final isExistingActive =
+        existing != null &&
         !existing.arrivalDate.isBefore(today) &&
         existing.status != 'completed' &&
         existing.status != 'cancelled';

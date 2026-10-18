@@ -3,7 +3,7 @@ import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/l10n/app_localizations.dart';
 
-/// Compact service shortcuts; the entire card is the tap target.
+/// Two calling shortcuts and a full-width travel data shortcut.
 class DashboardFeatureCards extends StatelessWidget {
   const DashboardFeatureCards({
     super.key,
@@ -11,7 +11,6 @@ class DashboardFeatureCards extends StatelessWidget {
     required this.onVirtualNumbers,
     required this.onEsims,
   });
-
   final VoidCallback onSmartCall;
   final VoidCallback onVirtualNumbers;
   final VoidCallback onEsims;
@@ -19,52 +18,54 @@ class DashboardFeatureCards extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final isAr = Localizations.localeOf(context).languageCode == 'ar';
-    final virtualNumbersSubtitle = isAr
-        ? 'أرقام دولية وتحويل مكالمات'
-        : 'Global numbers & divert';
-
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(
-            child: _FeatureCard(
-              title: l10n.smartCall,
-              subtitle: l10n.dashboardExploreSmartCall,
-              icon: Icons.call_rounded,
-              accent: const Color(0xFF008DA9),
-              tint: const Color(0xFFEFFBFF),
-              darkTint: const Color(0xFF152D38),
-              onTap: onSmartCall,
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: _FeatureCard(
-              title: l10n.virtualNumbers,
-              subtitle: virtualNumbersSubtitle,
-              icon: Icons.phone_forwarded_rounded,
-              accent: const Color(0xFF10B981),
-              tint: const Color(0xFFECFDF5),
-              darkTint: const Color(0xFF122C26),
-              onTap: onVirtualNumbers,
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: _FeatureCard(
+    final smart = _FeatureCard(
+      title: l10n.smartCall,
+      subtitle: l10n.dashboardExploreSmartCall,
+      icon: const _OutgoingCallIcon(),
+      accent: const Color(0xFF009FB5),
+      onTap: onSmartCall,
+    );
+    final number = _FeatureCard(
+      title: l10n.virtualNumbers,
+      subtitle: l10n.dashboardSecondNumberBenefit,
+      icon: const _SecondNumberIcon(),
+      accent: const Color(0xFF00BE86),
+      onTap: onVirtualNumbers,
+    );
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final stack =
+            constraints.maxWidth < 300 ||
+            MediaQuery.textScalerOf(context).scale(14) > 21;
+        return Column(
+          children: [
+            if (stack) ...[
+              smart,
+              const SizedBox(height: 8),
+              number,
+            ] else
+              IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(child: smart),
+                    const SizedBox(width: 8),
+                    Expanded(child: number),
+                  ],
+                ),
+              ),
+            const SizedBox(height: 8),
+            _FeatureCard(
               title: l10n.dashboardWorldwideEsims,
               subtitle: l10n.dashboardExploreGlobalOffers,
-              icon: Icons.language_rounded,
-              accent: const Color(0xFF7151D9),
-              tint: const Color(0xFFF5F2FF),
-              darkTint: const Color(0xFF252139),
+              icon: const Icon(Icons.language_rounded),
+              accent: const Color(0xFF8051DB),
               onTap: onEsims,
+              horizontal: true,
             ),
-          ),
-        ],
-      ),
+          ],
+        );
+      },
     );
   }
 }
@@ -75,117 +76,182 @@ class _FeatureCard extends StatelessWidget {
     required this.subtitle,
     required this.icon,
     required this.accent,
-    required this.tint,
-    required this.darkTint,
     required this.onTap,
+    this.horizontal = false,
   });
-
   final String title;
   final String subtitle;
-  final IconData icon;
+  final Widget icon;
   final Color accent;
-  final Color tint;
-  final Color darkTint;
   final VoidCallback onTap;
+  final bool horizontal;
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final iconColor = isDark ? Color.lerp(accent, Colors.white, 0.45)! : accent;
-    final shape = RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(16),
-      side: BorderSide(color: iconColor.withValues(alpha: 0.2)),
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final color = dark ? Color.lerp(accent, Colors.white, .3)! : accent;
+    final text = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: AppTextStyles.titleMedium.copyWith(
+            fontSize: 15,
+            height: 1.2,
+            fontWeight: FontWeight.w700,
+            color: dark ? Colors.white : const Color(0xFF0D1324),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          subtitle,
+          style: AppTextStyles.bodySmall.copyWith(
+            fontSize: 12,
+            letterSpacing: -.2,
+            height: 1.3,
+            color: dark ? AppColors.textSecondaryDark : const Color(0xFF748095),
+          ),
+        ),
+      ],
     );
-
+    final badge = ExcludeSemantics(
+      child: Container(
+        width: 44,
+        height: 44,
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: dark ? .16 : .09),
+          shape: BoxShape.circle,
+        ),
+        alignment: Alignment.center,
+        child: IconTheme(
+          data: IconThemeData(size: 28, color: color),
+          child: icon,
+        ),
+      ),
+    );
+    final chevron = Icon(
+      Icons.chevron_right_rounded,
+      size: 22,
+      color: dark ? AppColors.textSecondaryDark : const Color(0xFF7E889B),
+      textDirection: Directionality.of(context),
+    );
     return Semantics(
       button: true,
       child: Material(
-        color: isDark ? darkTint : tint,
-        shape: shape,
+        color: dark ? const Color(0xFF17212C) : Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(
+            color: dark ? AppColors.darkBorder : const Color(0xFFE5EAF0),
+          ),
+        ),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: onTap,
-          customBorder: shape,
           child: Padding(
-            padding: const EdgeInsets.all(10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      width: 28,
-                      height: 28,
-                      decoration: BoxDecoration(
-                        color: iconColor.withValues(alpha: 0.12),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(icon, color: iconColor, size: 17),
-                    ),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Align(
-                        alignment: AlignmentDirectional.centerStart,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 5,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: iconColor.withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(
-                            AppLocalizations.of(context)!.dashboardNewFeature,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: AppTextStyles.labelSmall.copyWith(
-                              color: iconColor,
-                              fontSize: 8.5,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Icon(
-                      Icons.arrow_forward_rounded,
-                      color: iconColor,
-                      size: 13,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  title,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.titleMedium.copyWith(
-                    color: isDark
-                        ? AppColors.textPrimaryDark
-                        : AppColors.textPrimaryLight,
-                    fontSize: 13.5,
-                    fontWeight: FontWeight.w700,
-                    height: 1.18,
+            padding: const EdgeInsets.all(12),
+            child: horizontal
+                ? Row(
+                    children: [
+                      badge,
+                      const SizedBox(width: 14),
+                      Expanded(child: text),
+                      const SizedBox(width: 8),
+                      chevron,
+                    ],
+                  )
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(children: [badge, const Spacer(), chevron]),
+                      const SizedBox(height: 8),
+                      text,
+                    ],
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.caption.copyWith(
-                    color: isDark
-                        ? AppColors.textSecondaryDark
-                        : AppColors.textTertiaryLight,
-                    fontSize: 10.5,
-                    height: 1.25,
-                  ),
-                ),
-              ],
-            ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _OutgoingCallIcon extends StatelessWidget {
+  const _OutgoingCallIcon();
+  @override
+  Widget build(BuildContext context) => const SizedBox(
+    width: 32,
+    height: 32,
+    child: Stack(
+      children: [
+        Positioned(
+          left: 0,
+          bottom: 0,
+          child: Icon(Icons.call_rounded, size: 26),
+        ),
+        Positioned(
+          right: 0,
+          top: 0,
+          child: Icon(Icons.north_east_rounded, size: 18),
+        ),
+      ],
+    ),
+  );
+}
+
+class _SecondNumberIcon extends StatelessWidget {
+  const _SecondNumberIcon();
+  @override
+  Widget build(BuildContext context) {
+    final color = IconTheme.of(context).color!;
+    return SizedBox(
+      width: 34,
+      height: 34,
+      child: Stack(
+        children: [
+          Positioned(
+            left: 0,
+            top: 0,
+            child: Container(
+              width: 22,
+              height: 28,
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: BorderRadius.circular(5),
+              ),
+              child: const Icon(
+                Icons.call_rounded,
+                color: Colors.white,
+                size: 16,
+              ),
+            ),
+          ),
+          Positioned(
+            right: 0,
+            bottom: 0,
+            child: Container(
+              width: 20,
+              height: 24,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: BorderRadius.circular(5),
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.surface,
+                  width: 2,
+                ),
+              ),
+              child: const Text(
+                '1',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  height: 1,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

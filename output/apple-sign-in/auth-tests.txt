@@ -1,0 +1,2 @@
+Final full-suite run: all 43 authentication tests passed.
+Source: full-tests.jsonl and full-test-summary.json

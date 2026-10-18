@@ -7,7 +7,6 @@ class CallRate {
   final String countryName;
   final String phonePrefix;
   final String destinationType;
-  final double costPerMinute;
   final double ratePerMinute;
   final double connectionFee;
   final int billingIncrementSeconds;
@@ -20,7 +19,8 @@ class CallRate {
     required this.countryName,
     required this.phonePrefix,
     this.destinationType = 'all',
-    required this.costPerMinute,
+    @Deprecated('Customer rates contain retail prices only')
+    double? costPerMinute,
     required this.ratePerMinute,
     this.connectionFee = 0.0,
     this.billingIncrementSeconds = 1,
@@ -29,6 +29,16 @@ class CallRate {
   });
 
   double get ratePerSecond => ratePerMinute / 60.0;
+
+  /// Advisory only: final collection comes from the server's reserved budget.
+  double estimatedCostForSeconds(int seconds) {
+    if (seconds <= 0) return 0;
+    final increment = billingIncrementSeconds > 0 ? billingIncrementSeconds : 1;
+    final billedSeconds = ((seconds + increment - 1) ~/ increment) * increment;
+    return double.parse(
+      (connectionFee + billedSeconds * ratePerMinute / 60).toStringAsFixed(2),
+    );
+  }
 
   String get flagEmoji {
     final country = countryCode.toUpperCase();
@@ -46,7 +56,6 @@ class CallRate {
           json['country_name'] as String? ?? 'International Destination',
       phonePrefix: json['phone_prefix'] as String? ?? '+',
       destinationType: json['destination_type'] as String? ?? 'all',
-      costPerMinute: (json['cost_per_minute_usd'] as num?)?.toDouble() ?? 0.0,
       ratePerMinute:
           (json['effective_rate_per_minute_usd'] as num?)?.toDouble() ??
           (json['rate_per_minute_usd'] as num?)?.toDouble() ??
@@ -64,7 +73,6 @@ class CallRate {
     'country_name': countryName,
     'phone_prefix': phonePrefix,
     'destination_type': destinationType,
-    'cost_per_minute_usd': costPerMinute,
     'rate_per_minute_usd': ratePerMinute,
     'connection_fee_usd': connectionFee,
     'billing_increment_seconds': billingIncrementSeconds,

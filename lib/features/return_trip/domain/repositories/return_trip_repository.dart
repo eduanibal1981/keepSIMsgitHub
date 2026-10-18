@@ -26,6 +26,7 @@ abstract class ReturnTripRepository {
     required String status,
     String? chosenPackageType,
     String? chosenPackageId,
+    double? expectedPriceUsd,
     String? notes,
   });
 

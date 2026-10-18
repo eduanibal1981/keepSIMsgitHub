@@ -1,0 +1,184 @@
+{
+  "environment": "isolated native PostgreSQL",
+  "results": [
+    {
+      "name": "existing yearly queues are paused without deleting history or retaining spendable future duplicates",
+      "status": "passed"
+    },
+    {
+      "name": "table and historical column grants deny arbitrary schedule mutations for both client roles",
+      "status": "passed"
+    },
+    {
+      "name": "ordinary customer may save reminders without supplying any authoritative financial fields",
+      "status": "passed"
+    },
+    {
+      "name": "fixed custom schedule derives price tier owner engine and exactly one funded-when-due occurrence",
+      "status": "passed"
+    },
+    {
+      "name": "foreign line viewer and anonymous requests cannot create paid schedules",
+      "status": "passed"
+    },
+    {
+      "name": "mini schedules derive carrier cadence and qualifying offer instead of client frequency or SKU",
+      "status": "passed"
+    },
+    {
+      "name": "range intent retains provider-native dispatch units and major-currency target values",
+      "status": "passed"
+    },
+    {
+      "name": "unpaid and expired plan labels never authorize automated schedules",
+      "status": "passed"
+    },
+    {
+      "name": "invalid authorization ceilings and timestamps cannot save an automatic schedule",
+      "status": "passed"
+    },
+    {
+      "name": "accepted managers derive the line owner's schedule and viewers cannot write",
+      "status": "passed"
+    },
+    {
+      "name": "paused and resumed schedules retain one waiting occurrence and authorized settings",
+      "status": "passed"
+    },
+    {
+      "name": "legacy migration pause cannot be bypassed with a toggle or retired yearly queue API",
+      "status": "passed"
+    },
+    {
+      "name": "claimed work remains unchanged during schedule edits and prevents replacement",
+      "status": "passed"
+    },
+    {
+      "name": "successful occurrence advances the parent and creates exactly one next occurrence once",
+      "status": "passed"
+    },
+    {
+      "name": "moving the next mini date updates one parent and one waiting occurrence without a yearly batch",
+      "status": "passed"
+    },
+    {
+      "name": "deleting an unsubmitted schedule cancels its pending occurrence and foreign deletes fail",
+      "status": "passed"
+    },
+    {
+      "name": "account suspension blocks schedule writes even with a valid prior schedule",
+      "status": "passed"
+    },
+    {
+      "name": "old notification payloads may synchronize overdue dates without creating a paid execution",
+      "status": "passed"
+    },
+    {
+      "name": "initialization after upgrade reports missing authorization truthfully and retries never create a batch",
+      "status": "passed"
+    },
+    {
+      "name": "stale reviewed prices fail atomically when the current quote exceeds the ceiling",
+      "status": "passed"
+    },
+    {
+      "name": "foreign deletion is denied and claimed deletion preserves the active parent",
+      "status": "passed"
+    },
+    {
+      "name": "legacy provider evidence survives reauthorization and is excluded from worker claims",
+      "status": "passed"
+    },
+    {
+      "name": "admin schedule inspection requires app metadata rather than user metadata",
+      "status": "passed"
+    },
+    {
+      "name": "reset date preserves cadence and batch date requests cannot change schedules",
+      "status": "passed"
+    },
+    {
+      "name": "approved initialization retries preserve one occurrence and cannot rewrite schedule identity",
+      "status": "passed"
+    },
+    {
+      "name": "paid setup settles once and revalidates an existing legacy parent with one next occurrence",
+      "status": "passed"
+    },
+    {
+      "name": "independent simultaneous schedule saves retain one parent and one next occurrence",
+      "status": "passed"
+    },
+    {
+      "name": "worker row lock rejects a concurrent settings edit without deadlock or partial update",
+      "status": "passed"
+    },
+    {
+      "name": "independent workers claim a due validated occurrence exactly once",
+      "status": "passed"
+    },
+    {
+      "name": "HTTP anonymous and foreign schedule mutations are denied",
+      "status": "passed"
+    },
+    {
+      "name": "HTTP raw insert and financial update fail closed",
+      "status": "passed"
+    },
+    {
+      "name": "HTTP extra authoritative RPC arguments cannot resolve an unsafe overload",
+      "status": "passed"
+    },
+    {
+      "name": "HTTP named and default arguments save one retail-priced next occurrence",
+      "status": "passed"
+    },
+    {
+      "name": "HTTP pause resume and next-date controls retain one occurrence",
+      "status": "passed"
+    },
+    {
+      "name": "HTTP initialized paid settings report authorization and retirement is enforced",
+      "status": "passed"
+    },
+    {
+      "name": "HTTP overdue reminder synchronization and deletion retain supported controls",
+      "status": "passed"
+    }
+  ],
+  "status": "REPAIRED LOCALLY; NOT DEPLOYED",
+  "local_date": "2026-10-18",
+  "passed": 36,
+  "failed": 0,
+  "customer_flutter": {
+    "passed": 60,
+    "command": "flutter test test/features/scheduled_topups/schedule_mutation_boundary_test.dart test/features/scheduled_topups/refill_price_approval_dialog_test.dart test/features/scheduled_topups/refill_schedule_math_test.dart test/features/scheduled_topups/scheduled_topup_sheet_tier_pricing_test.dart test/features/sim_lines/schedule_initialization_test.dart test/features/sim_lines/line_refill_quote_test.dart test/features/sim_lines/refill_pricing_test.dart"
+  },
+  "admin_flutter": {
+    "passed": 2,
+    "command": "flutter test test/features/scheduled_topups/schedule_mutation_boundary_test.dart"
+  },
+  "backend": {
+    "passed": 62,
+    "command": "node --test test/scheduled_refill_boundary_test.js test/phase1_settlement_and_holds_test.js test/phase2_canonical_offers_and_pricing_test.js test/phase3_scheduling_and_recovery_test.js"
+  },
+  "api_adapter": "Cached official PostgREST 16.4 against disposable localhost PostgreSQL",
+  "broader_test_limit": "Unchanged notification channel test expects the older global ACTIVE/email readiness display. Not included among the 60 passing focused tests. No full-repository pass claimed.",
+  "deployment": "No production writes, deploys, provider requests, balance backfills or VM actions.",
+  "migration_sha256": "0b3e95a3c586e6fdebbdf037def15bc2fc7bc658b3a90bfc17296e6f5387c283",
+  "analysis": {
+    "customer": {
+      "errors": 0,
+      "warnings": 8,
+      "info": 6,
+      "scope": "13 affected source/test files; existing warnings and lints retained"
+    },
+    "admin": {
+      "errors": 0,
+      "warnings": 0,
+      "info": 2,
+      "scope": "4 affected source/test files; existing logging lints retained"
+    },
+    "exit_note": "flutter analyze exits nonzero for the recorded warnings/lints; not a clean analysis pass."
+  }
+}

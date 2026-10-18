@@ -1,0 +1,35 @@
+{
+  "tables": [
+    "account_deletions",
+    "admin_audit_log",
+    "security_logs",
+    "wallet_funding_lots",
+    "wallet_refund_requests",
+    "wallet_transactions",
+    "user_esims",
+    "esim_orders",
+    "admin_emails",
+    "virtual_did_numbers",
+    "call_records"
+  ],
+  "functions": {
+    "admin_purge_user_account": "6b6f6157d93cba0775bd686548c4fb8b7708003c57717f2a2ccd6f983c83060e",
+    "admin_prune_database_logs": "55cc7f44a570602e7c46741777ba2436e2787f42b375e5aa948864ed7ea28b37",
+    "prune_database_logs": "bbb7884a15c7196ed94dc7585db70be6f2d060f21e6331598b5de8fde1004e89",
+    "check_rate_limit_health": "3d9f026572ef42b33ab901a04ad51d0a775bbff2c95130f98ec7571e5f51f4e8",
+    "purge_deleted_accounts": "67108b6a545ce875161403bea1f403f38d6b750edd65ca74e00cdc87a59182f0",
+    "admin_log": "0c6cf30400af2c4e9beebfc5bf738074c1f0ec1ad7539d49571768adcb5abe54",
+    "assert_admin": "93e642c3cf8b8c7ed4f01bb301d69ee83a65537f35a0e1b7f59b2567889aa6a6",
+    "is_power_user": "3b56e9cb0dd2515c5d1614d82f1c0ed4f84373ee8a8653d32fd4b7aae26cc692",
+    "is_user_suspended": "8401603e44ad270adb13796e9efc170d5c65042cb68368ca87d57fa6cd03f267",
+    "get_internal_secret": "672bef3ff29699001d00a44782cd9bd40994381fe477c668c631265081d693ba",
+    "kick_admin_email": "3bb3455412e665303c6481527ee418f666bb58c85c579abf3c4452e307e7772e",
+    "admin_send_email": "1e1352d32d1af94c21c81d0701cb6bbe77685282daaf65e14400f8e5fb3e2679",
+    "delete_auth_user_by_id": "be9a6d69c4635b2f1b11207c74e27c46baf4d643d8334c0964ba4ca2d102b9af",
+    "cancel_account_deletion": "2a64789ce322a88cceb36714c961d4b1924ce63c72ca6b4d6cff5da63d6c4dd0"
+  },
+  "omitted_foreign_keys": [],
+  "included_triggers": [],
+  "limits": "No Supabase Auth lifecycle, API table ACL/RLS parity, unrelated triggers, cron extension or external delivery. Scheduler executes the recorded postgres SQL entry point in isolated native PostgreSQL. Vault, pg_net and cron relations use isolated stand-ins. Auth Admin and Storage operations are exercised separately through synthetic adapters; no live deletion or mail occurs.",
+  "requires_fixture": "notification_scheduler_baseline.sql"
+}

@@ -1,0 +1,921 @@
+{
+  "collected_at": "2026-10-16T12:30:26.491872+00:00",
+  "project_ref": "zwxswagokhgbuzrrbnhr",
+  "comparison_scope": "SHA-256 of retrieved entrypoint source versus local entrypoint. LF comparison normalizes only CRLF. Auxiliary deployed files are hashed but not all are compared to local source. Difference is not proof of a defect.",
+  "current_source_evidence": [
+    {
+      "slug": "execute_zendit_recharge",
+      "version": 7,
+      "observation": "Serves HTTP 410; no supplier call."
+    },
+    {
+      "slug": "process-wallet-refund",
+      "version": 2,
+      "observation": "Separate lot/wallet updates, then unchecked refund_payout ledger insert at deployed index.ts:197-215; type excluded by live CHECK. Partial-completion hold unresolved. Claim/atomic replacement absent."
+    },
+    {
+      "slug": "make-call",
+      "version": 12,
+      "observation": "No reserve_wallet_funds or wallet_hold_id reference. Posted balance variable is declared; local undeclared retry-balance claim does not describe deployed v12."
+    },
+    {
+      "slug": "capture-paypal-order",
+      "version": 5,
+      "observation": "Deployed index.ts:221 uses captureObj?.id || orderId."
+    },
+    {
+      "slug": "paypal-webhook",
+      "version": 11,
+      "observation": "PAYMENT.CAPTURE.COMPLETED uses capture identity; APPROVED initiates capture."
+    },
+    {
+      "slug": "process-voicemail",
+      "version": 2,
+      "observation": "verify_jwt=false; header presence only and body-supplied user_id reach privileged writes."
+    },
+    {
+      "slug": "admin-telnyx-billing",
+      "version": 4,
+      "observation": "verify_jwt=true; handler parses unsigned JWT claims and profile fallback. Source boundary incomplete; no forged-token test performed."
+    },
+    {
+      "slug": "telnyx-cdr",
+      "version": 8,
+      "observation": "verify_jwt=false; signature branch skipped without effective public key."
+    },
+    {
+      "slug": "twilio-voice-webhook",
+      "version": 3,
+      "observation": "verify_jwt=false; signature branch skipped without token."
+    },
+    {
+      "slug": "liveness-verification",
+      "version": 8,
+      "observation": "Cancellation actions trust supplied provider call identity without stored-attempt ownership binding. Credential fallbacks present; values withheld."
+    },
+    {
+      "slug": "liveness-verification-webhook",
+      "version": 6,
+      "observation": "verify_jwt=false; no provider-signature verification found; credential fallbacks present; values withheld."
+    },
+    {
+      "slug": "sms-webhook",
+      "version": 5,
+      "observation": "Entrypoint exactly matches fail-closed local source."
+    },
+    {
+      "slug": "waba-webhook",
+      "version": 7,
+      "observation": "Entrypoint exactly matches fail-closed local source; auxiliary files retained as hashes."
+    },
+    {
+      "slug": "get-turn-credentials",
+      "version": 6,
+      "observation": "Entrypoint exactly matches local source including predictable fallback; value withheld."
+    },
+    {
+      "slug": "send-admin-email",
+      "version": 2,
+      "observation": "Exists deployed; no local source. Requires x-sync-secret using get_internal_secret. No email sent."
+    }
+  ],
+  "local_only": [
+    "recovery-service"
+  ],
+  "functions": [
+    {
+      "slug": "dispatch-alert",
+      "version": 37,
+      "verify_jwt": false,
+      "status": "ACTIVE",
+      "bundle_sha256": "77e272b81e5e660c59f3db9639221b9eb4696a2bbc7584f84b29f20e4ed01996",
+      "local_source": true,
+      "entrypoint_name": "dispatch-alert/index.ts",
+      "deployed_entrypoint_sha256": "b1fa467ff2b43e21b8c21f1a691bbdb76db29b2a256361c610f57d126d363b7d",
+      "local_entrypoint_sha256": "b1fa467ff2b43e21b8c21f1a691bbdb76db29b2a256361c610f57d126d363b7d",
+      "matches_local_entrypoint": true,
+      "matches_local_entrypoint_lf": true,
+      "files": [
+        {
+          "name": "dispatch-alert/index.ts",
+          "sha256": "b1fa467ff2b43e21b8c21f1a691bbdb76db29b2a256361c610f57d126d363b7d"
+        },
+        {
+          "name": "dispatch-alert/push_delivery.ts",
+          "sha256": "9dac58c6400c091ed09aeb77db913c5f5f72b1bcc118ef1716a15c1edbe438f9"
+        },
+        {
+          "name": "dispatch-alert/channels.ts",
+          "sha256": "b96f0865908675cfadcba52a7b79edd8aab1b03c5b6b502d3fcbce7a996f3183"
+        },
+        {
+          "name": "_shared/whatsapp_router.ts",
+          "sha256": "ae75e0f73cf4abf1be3e31faa817bafd9549ccb1ddfd6166eb1ce8918c105c09"
+        },
+        {
+          "name": "_shared/whatsapp_route.ts",
+          "sha256": "21336baf1dd9ad32833d31b948d617f2f3773ebe470c9e205911183e945514e8"
+        },
+        {
+          "name": "_shared/whatsapp_profile.ts",
+          "sha256": "e9083c31d92ddca55d21ad4b3eb8c4458d47d8d81f9f42d796c7de03f8111b3e"
+        },
+        {
+          "name": "_shared/notification_delivery.ts",
+          "sha256": "62f563a3b35c89038b46901bbc29f914d763e0bbdb51a4d79c916abd8ea9370e"
+        }
+      ]
+    },
+    {
+      "slug": "fetch_zendit_offers",
+      "version": 12,
+      "verify_jwt": true,
+      "status": "ACTIVE",
+      "bundle_sha256": "b3b97e4cf30102660c73c64d4a182089fc01b9d7ab5a44050fe7ee672c653f05",
+      "local_source": true,
+      "entrypoint_name": "index.ts",
+      "deployed_entrypoint_sha256": "d81174023ae6d0b22b7c276d6f8d7ca8714cc5d63d0e5e56a18fafd1c9c84195",
+      "local_entrypoint_sha256": "d81174023ae6d0b22b7c276d6f8d7ca8714cc5d63d0e5e56a18fafd1c9c84195",
+      "matches_local_entrypoint": true,
+      "matches_local_entrypoint_lf": true,
+      "files": [
+        {
+          "name": "index.ts",
+          "sha256": "d81174023ae6d0b22b7c276d6f8d7ca8714cc5d63d0e5e56a18fafd1c9c84195"
+        }
+      ]
+    },
+    {
+      "slug": "execute_zendit_recharge",
+      "version": 7,
+      "verify_jwt": true,
+      "status": "ACTIVE",
+      "bundle_sha256": "a3b4f1e34f9f381bb86c13651b04272623a75753383298578064d8c0be7989fd",
+      "local_source": true,
+      "entrypoint_name": "index.ts",
+      "deployed_entrypoint_sha256": "f4fd05678b0d8379eeb4cd16a20f6148201fa382ac7bae71fa734fc314c00444",
+      "local_entrypoint_sha256": "cd7f544cc556494825af0c6cba7bb5902eb68fede3d66a4822684492b2bf5f89",
+      "matches_local_entrypoint": false,
+      "matches_local_entrypoint_lf": false,
+      "files": [
+        {
+          "name": "index.ts",
+          "sha256": "f4fd05678b0d8379eeb4cd16a20f6148201fa382ac7bae71fa734fc314c00444"
+        }
+      ]
+    },
+    {
+      "slug": "wallet_transact",
+      "version": 8,
+      "verify_jwt": true,
+      "status": "ACTIVE",
+      "bundle_sha256": "f918cf5478aa00c80f14a34930138007c43143bb4293ac390ecfec3f31d1a667",
+      "local_source": true,
+      "entrypoint_name": "index.ts",
+      "deployed_entrypoint_sha256": "b393566fb892690cdd6efb37609a52df3940114a932441301ffdf77091b71e54",
+      "local_entrypoint_sha256": "b393566fb892690cdd6efb37609a52df3940114a932441301ffdf77091b71e54",
+      "matches_local_entrypoint": true,
+      "matches_local_entrypoint_lf": true,
+      "files": [
+        {
+          "name": "index.ts",
+          "sha256": "b393566fb892690cdd6efb37609a52df3940114a932441301ffdf77091b71e54"
+        }
+      ]
+    },
+    {
+      "slug": "paypal-webhook",
+      "version": 11,
+      "verify_jwt": false,
+      "status": "ACTIVE",
+      "bundle_sha256": "70836d20fe8ef9150be330d1241a667dab728f172b652f9f1595001cc436b4ae",
+      "local_source": true,
+      "entrypoint_name": "index.ts",
+      "deployed_entrypoint_sha256": "1de6fda9e3194dfec2c4f19b45eb846c394bcc2865c4dc43afcf3d84e01b2f55",
+      "local_entrypoint_sha256": "b1d3c6cb73babc8fe1041ac659f711137f05821c48f22cde4856f7fd1d33d4a6",
+      "matches_local_entrypoint": false,
+      "matches_local_entrypoint_lf": false,
+      "files": [
+        {
+          "name": "index.ts",
+          "sha256": "1de6fda9e3194dfec2c4f19b45eb846c394bcc2865c4dc43afcf3d84e01b2f55"
+        },
+        {
+          "name": "deno.json",
+          "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+        }
+      ]
+    },
+    {
+      "slug": "waba-webhook",
+      "version": 7,
+      "verify_jwt": false,
+      "status": "ACTIVE",
+      "bundle_sha256": "e7100b02b597e609392ecbe402d97a5f8d6b40f0cca2089b82964ed3d2e687c7",
+      "local_source": true,
+      "entrypoint_name": "waba-webhook/index.ts",
+      "deployed_entrypoint_sha256": "93024eedb23bf1f024eb871f9f00bdd9b2a0474ae5e3b0f2d63ae746dc9efa65",
+      "local_entrypoint_sha256": "93024eedb23bf1f024eb871f9f00bdd9b2a0474ae5e3b0f2d63ae746dc9efa65",
+      "matches_local_entrypoint": true,
+      "matches_local_entrypoint_lf": true,
+      "files": [
+        {
+          "name": "waba-webhook/index.ts",
+          "sha256": "93024eedb23bf1f024eb871f9f00bdd9b2a0474ae5e3b0f2d63ae746dc9efa65"
+        },
+        {
+          "name": "_shared/whatsapp_router.ts",
+          "sha256": "ae75e0f73cf4abf1be3e31faa817bafd9549ccb1ddfd6166eb1ce8918c105c09"
+        },
+        {
+          "name": "_shared/whatsapp_route.ts",
+          "sha256": "21336baf1dd9ad32833d31b948d617f2f3773ebe470c9e205911183e945514e8"
+        },
+        {
+          "name": "_shared/whatsapp_profile.ts",
+          "sha256": "e9083c31d92ddca55d21ad4b3eb8c4458d47d8d81f9f42d796c7de03f8111b3e"
+        },
+        {
+          "name": "waba-webhook/deno.json",
+          "sha256": "5f1c69e365acfb48147f4f9c2806b4228ba91f920fc7723b25185e275bd29537"
+        }
+      ]
+    },
+    {
+      "slug": "sms-webhook",
+      "version": 5,
+      "verify_jwt": false,
+      "status": "ACTIVE",
+      "bundle_sha256": "785bfe07cb8f754d6380f6f2a9eb9413a6e69add27eb6ff36cf3f0ccf0732692",
+      "local_source": true,
+      "entrypoint_name": "sms-webhook/index.ts",
+      "deployed_entrypoint_sha256": "5376ef39a482ab6626086180e428fff11de838618245627dc446a3cea322866a",
+      "local_entrypoint_sha256": "5376ef39a482ab6626086180e428fff11de838618245627dc446a3cea322866a",
+      "matches_local_entrypoint": true,
+      "matches_local_entrypoint_lf": true,
+      "files": [
+        {
+          "name": "sms-webhook/index.ts",
+          "sha256": "5376ef39a482ab6626086180e428fff11de838618245627dc446a3cea322866a"
+        },
+        {
+          "name": "sms-webhook/deno.json",
+          "sha256": "5f1c69e365acfb48147f4f9c2806b4228ba91f920fc7723b25185e275bd29537"
+        }
+      ]
+    },
+    {
+      "slug": "twilio-voice-webhook",
+      "version": 3,
+      "verify_jwt": false,
+      "status": "ACTIVE",
+      "bundle_sha256": "a24f5a6ec45132cfd03a7f3b77b1c9e848304e2ab3cdd403b85ec6f131b18a74",
+      "local_source": true,
+      "entrypoint_name": "index.ts",
+      "deployed_entrypoint_sha256": "799694af806878c72a2741a7141ac786ab54b0d60cee70b024c706870d318efa",
+      "local_entrypoint_sha256": "0d159b24e9db6a615fcdfef7eb3e8867a1eda44fc2430251045b752075d4a061",
+      "matches_local_entrypoint": false,
+      "matches_local_entrypoint_lf": false,
+      "files": [
+        {
+          "name": "index.ts",
+          "sha256": "799694af806878c72a2741a7141ac786ab54b0d60cee70b024c706870d318efa"
+        },
+        {
+          "name": "deno.json",
+          "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+        }
+      ]
+    },
+    {
+      "slug": "detect-country",
+      "version": 3,
+      "verify_jwt": true,
+      "status": "ACTIVE",
+      "bundle_sha256": "65a9e53440b9b85ce9544591a58ee3c038c70e4e8a3d52ba4d08276958c782cf",
+      "local_source": true,
+      "entrypoint_name": "index.ts",
+      "deployed_entrypoint_sha256": "643dcda965198e24f589f24964954db9fabd5baa50896b62880be2609cc2c1b9",
+      "local_entrypoint_sha256": "d138736a8af8078f7704cd83be30c79bd7670cd359349f5eed15b1a6415272d0",
+      "matches_local_entrypoint": false,
+      "matches_local_entrypoint_lf": false,
+      "files": [
+        {
+          "name": "index.ts",
+          "sha256": "643dcda965198e24f589f24964954db9fabd5baa50896b62880be2609cc2c1b9"
+        },
+        {
+          "name": "deno.json",
+          "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+        }
+      ]
+    },
+    {
+      "slug": "delete_account",
+      "version": 3,
+      "verify_jwt": true,
+      "status": "ACTIVE",
+      "bundle_sha256": "0ae5f9647cfac943d8b54c7b58b029cd16ae60c6ec85beb3dfbab3f3ee08e615",
+      "local_source": true,
+      "entrypoint_name": "index.ts",
+      "deployed_entrypoint_sha256": "2d204ab147e163d724093bcf20f7aefd7bd61a824c2bfc68270b8d3d1719053e",
+      "local_entrypoint_sha256": "2d204ab147e163d724093bcf20f7aefd7bd61a824c2bfc68270b8d3d1719053e",
+      "matches_local_entrypoint": true,
+      "matches_local_entrypoint_lf": true,
+      "files": [
+        {
+          "name": "index.ts",
+          "sha256": "2d204ab147e163d724093bcf20f7aefd7bd61a824c2bfc68270b8d3d1719053e"
+        },
+        {
+          "name": "deno.json",
+          "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+        }
+      ]
+    },
+    {
+      "slug": "purge-accounts",
+      "version": 10,
+      "verify_jwt": false,
+      "status": "ACTIVE",
+      "bundle_sha256": "bf8635ceb0d286493c2dfe546100f8aa687a2693e3eaf2a5fce93a3bc7c6b16f",
+      "local_source": true,
+      "entrypoint_name": "index.ts",
+      "deployed_entrypoint_sha256": "45cacd704e5b6a759325f37ebe0a414d8c329c22344c4ca996d1ad6eef09e48e",
+      "local_entrypoint_sha256": "45cacd704e5b6a759325f37ebe0a414d8c329c22344c4ca996d1ad6eef09e48e",
+      "matches_local_entrypoint": true,
+      "matches_local_entrypoint_lf": true,
+      "files": [
+        {
+          "name": "index.ts",
+          "sha256": "45cacd704e5b6a759325f37ebe0a414d8c329c22344c4ca996d1ad6eef09e48e"
+        },
+        {
+          "name": "deno.json",
+          "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+        }
+      ]
+    },
+    {
+      "slug": "create-paypal-order",
+      "version": 9,
+      "verify_jwt": true,
+      "status": "ACTIVE",
+      "bundle_sha256": "db3a856ecb9eb22e8b30bcef0b9c96fee145a5a6afdb46e22da897cf5bc57c35",
+      "local_source": true,
+      "entrypoint_name": "index.ts",
+      "deployed_entrypoint_sha256": "2824864544d0677ebebfc88844d0e21a90d882fd3f9948d024ca2b3f3589ff44",
+      "local_entrypoint_sha256": "e1efbfd1a534bc6f5314e3ffc6086031ce9e95e58cb911ca587abcaeb5aa3991",
+      "matches_local_entrypoint": false,
+      "matches_local_entrypoint_lf": false,
+      "files": [
+        {
+          "name": "index.ts",
+          "sha256": "2824864544d0677ebebfc88844d0e21a90d882fd3f9948d024ca2b3f3589ff44"
+        },
+        {
+          "name": "app_check.ts",
+          "sha256": "2b5f42d4de3cfe93f56a71bf1aaadc78027fa772a25e02c10bea803fd6cc13fa"
+        },
+        {
+          "name": "deno.json",
+          "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+        }
+      ]
+    },
+    {
+      "slug": "capture-paypal-order",
+      "version": 5,
+      "verify_jwt": true,
+      "status": "ACTIVE",
+      "bundle_sha256": "e23ce9e144b6978efdc38d17f6329fbe56c1214762f9341ee01d721aa383d8ca",
+      "local_source": true,
+      "entrypoint_name": "index.ts",
+      "deployed_entrypoint_sha256": "e491ef8fa553bda3830933f4179a3c9cd3132c66a9a75f9de3e58a25706fad65",
+      "local_entrypoint_sha256": "d63517accbbb546f54d792f0718fbf1f8017030126f0dfcabb12fb1c7e16c0af",
+      "matches_local_entrypoint": false,
+      "matches_local_entrypoint_lf": false,
+      "files": [
+        {
+          "name": "index.ts",
+          "sha256": "e491ef8fa553bda3830933f4179a3c9cd3132c66a9a75f9de3e58a25706fad65"
+        },
+        {
+          "name": "app_check.ts",
+          "sha256": "2b5f42d4de3cfe93f56a71bf1aaadc78027fa772a25e02c10bea803fd6cc13fa"
+        },
+        {
+          "name": "deno.json",
+          "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+        }
+      ]
+    },
+    {
+      "slug": "health",
+      "version": 3,
+      "verify_jwt": false,
+      "status": "ACTIVE",
+      "bundle_sha256": "72a9ebe1f467283b398fea31bde02b13e88606ce94c1dcc32478810cf41e27a7",
+      "local_source": true,
+      "entrypoint_name": "index.ts",
+      "deployed_entrypoint_sha256": "a83f30719e3a393d9727e1976d0d73fd44fb86c84a25ec92b074485233adba3e",
+      "local_entrypoint_sha256": "a83f30719e3a393d9727e1976d0d73fd44fb86c84a25ec92b074485233adba3e",
+      "matches_local_entrypoint": true,
+      "matches_local_entrypoint_lf": true,
+      "files": [
+        {
+          "name": "index.ts",
+          "sha256": "a83f30719e3a393d9727e1976d0d73fd44fb86c84a25ec92b074485233adba3e"
+        }
+      ]
+    },
+    {
+      "slug": "refresh-fx-rates",
+      "version": 2,
+      "verify_jwt": false,
+      "status": "ACTIVE",
+      "bundle_sha256": "bc89504803f15dcb4181de47f9abcb5f40493cfafad0d263566373eb27e1d4fd",
+      "local_source": true,
+      "entrypoint_name": "index.ts",
+      "deployed_entrypoint_sha256": "c289c64bebaf63a48cc5ea3560d2faf2f04156e75a12af67d11670ac3ecfe6a0",
+      "local_entrypoint_sha256": "c289c64bebaf63a48cc5ea3560d2faf2f04156e75a12af67d11670ac3ecfe6a0",
+      "matches_local_entrypoint": true,
+      "matches_local_entrypoint_lf": true,
+      "files": [
+        {
+          "name": "index.ts",
+          "sha256": "c289c64bebaf63a48cc5ea3560d2faf2f04156e75a12af67d11670ac3ecfe6a0"
+        },
+        {
+          "name": "deno.json",
+          "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+        }
+      ]
+    },
+    {
+      "slug": "sync-esim-catalogue",
+      "version": 6,
+      "verify_jwt": false,
+      "status": "ACTIVE",
+      "bundle_sha256": "700c18f6bb244e4660a0884cbca50bf0e68a3d284d05da39167d2ebc324e9fa9",
+      "local_source": true,
+      "entrypoint_name": "index.ts",
+      "deployed_entrypoint_sha256": "5988260c67ffadf48de948a21fcd83e77fcded5b184e67a7fc20b99664dd98aa",
+      "local_entrypoint_sha256": "f41a80622e8dad710c42d30ed7c1abc91f5d4bb65ae055510b8a137930b34012",
+      "matches_local_entrypoint": false,
+      "matches_local_entrypoint_lf": false,
+      "files": [
+        {
+          "name": "index.ts",
+          "sha256": "5988260c67ffadf48de948a21fcd83e77fcded5b184e67a7fc20b99664dd98aa"
+        }
+      ]
+    },
+    {
+      "slug": "sync-affiliate-network",
+      "version": 2,
+      "verify_jwt": false,
+      "status": "ACTIVE",
+      "bundle_sha256": "c170158f5b50a21a4850f439a66458ad1dbdf68e683a1e39cde49f6b2c8afdd9",
+      "local_source": true,
+      "entrypoint_name": "index.ts",
+      "deployed_entrypoint_sha256": "23b87bd6540cae101a87a0cf3393a4d0b755309d40bacc2664eadb6f2fe735bf",
+      "local_entrypoint_sha256": "5bb7339806bf41119aa228fc6f58ad89a40fe25b30dd76a18c7a831b2e139273",
+      "matches_local_entrypoint": false,
+      "matches_local_entrypoint_lf": false,
+      "files": [
+        {
+          "name": "index.ts",
+          "sha256": "23b87bd6540cae101a87a0cf3393a4d0b755309d40bacc2664eadb6f2fe735bf"
+        }
+      ]
+    },
+    {
+      "slug": "send-admin-email",
+      "version": 2,
+      "verify_jwt": false,
+      "status": "ACTIVE",
+      "bundle_sha256": "9d18ac3541ab3df67c8cdf2baeee9aa80f2558c9363bb9c397077a58a97c55d6",
+      "local_source": false,
+      "entrypoint_name": "index.ts",
+      "deployed_entrypoint_sha256": "d3a1e606df3b39280a6d2cd8b559b4dac11eaaf09da4aa00cea97d08d4552589",
+      "local_entrypoint_sha256": null,
+      "matches_local_entrypoint": null,
+      "matches_local_entrypoint_lf": null,
+      "files": [
+        {
+          "name": "index.ts",
+          "sha256": "d3a1e606df3b39280a6d2cd8b559b4dac11eaaf09da4aa00cea97d08d4552589"
+        }
+      ]
+    },
+    {
+      "slug": "make-call",
+      "version": 12,
+      "verify_jwt": true,
+      "status": "ACTIVE",
+      "bundle_sha256": "4aedef319340565775e967510d1149ebdc6105a5091a1179a81be3947eb561d9",
+      "local_source": true,
+      "entrypoint_name": "index.ts",
+      "deployed_entrypoint_sha256": "651c995bb2145c03af56d46006070463d9c8a580aca6640d0daa15cb3743e447",
+      "local_entrypoint_sha256": "bc71246f4ca3f7c4d919a5569ad01881f3b89355953d29a94f8285d821669ec5",
+      "matches_local_entrypoint": false,
+      "matches_local_entrypoint_lf": false,
+      "files": [
+        {
+          "name": "index.ts",
+          "sha256": "651c995bb2145c03af56d46006070463d9c8a580aca6640d0daa15cb3743e447"
+        },
+        {
+          "name": "call-media.ts",
+          "sha256": "135dbfe0a6b27f38298500a9583ae4da77b7f67dce02e242a635b6e9ea7e2256"
+        }
+      ]
+    },
+    {
+      "slug": "telnyx-cdr",
+      "version": 8,
+      "verify_jwt": false,
+      "status": "ACTIVE",
+      "bundle_sha256": "bbadf25ae508f340f2d80008b93f1f6d9ca8361698e1dd9b8a70a7f68b4b3a1b",
+      "local_source": true,
+      "entrypoint_name": "index.ts",
+      "deployed_entrypoint_sha256": "535c5ce138ba13259ece12f35210a6f88518b33f8a8bf073f5399139de9cac43",
+      "local_entrypoint_sha256": "535c5ce138ba13259ece12f35210a6f88518b33f8a8bf073f5399139de9cac43",
+      "matches_local_entrypoint": true,
+      "matches_local_entrypoint_lf": true,
+      "files": [
+        {
+          "name": "index.ts",
+          "sha256": "535c5ce138ba13259ece12f35210a6f88518b33f8a8bf073f5399139de9cac43"
+        },
+        {
+          "name": "call-media.ts",
+          "sha256": "135dbfe0a6b27f38298500a9583ae4da77b7f67dce02e242a635b6e9ea7e2256"
+        },
+        {
+          "name": "media-events.ts",
+          "sha256": "2688195aa2a0849dd215dcb6b4a103caefb805f200cfb859a3db7266cfe0613b"
+        }
+      ]
+    },
+    {
+      "slug": "manage-caller-id",
+      "version": 5,
+      "verify_jwt": true,
+      "status": "ACTIVE",
+      "bundle_sha256": "e987a98c23c4eba84ef56318c2d2aafa455a641470699ef84849f7f2950ab7a7",
+      "local_source": true,
+      "entrypoint_name": "index.ts",
+      "deployed_entrypoint_sha256": "9ee484bb72ff14c638801f46ec3fdfaa42f69b2663f7c266c4d9983b0b796e26",
+      "local_entrypoint_sha256": "8a454ace319009091c7ca8b4c0619e5b5dd1dd1f7b16091cbbcb79d12dccbaa8",
+      "matches_local_entrypoint": false,
+      "matches_local_entrypoint_lf": false,
+      "files": [
+        {
+          "name": "index.ts",
+          "sha256": "9ee484bb72ff14c638801f46ec3fdfaa42f69b2663f7c266c4d9983b0b796e26"
+        }
+      ]
+    },
+    {
+      "slug": "validate-sim-liveness",
+      "version": 12,
+      "verify_jwt": true,
+      "status": "ACTIVE",
+      "bundle_sha256": "c550049f7cc08874e502208e0611345dfac32b2fd3a4ca21b617ac90861e38a3",
+      "local_source": true,
+      "entrypoint_name": "index.ts",
+      "deployed_entrypoint_sha256": "c20d24f6306a7db5b438470ec4dc465e30d1a9a2cd20ba62d6854d9d7718e14e",
+      "local_entrypoint_sha256": "9acc360d02067c73720c011a15016d3e680540aa013d2ac256715c9838691fa9",
+      "matches_local_entrypoint": false,
+      "matches_local_entrypoint_lf": false,
+      "files": [
+        {
+          "name": "index.ts",
+          "sha256": "c20d24f6306a7db5b438470ec4dc465e30d1a9a2cd20ba62d6854d9d7718e14e"
+        }
+      ]
+    },
+    {
+      "slug": "send-sim-otp",
+      "version": 2,
+      "verify_jwt": true,
+      "status": "ACTIVE",
+      "bundle_sha256": "2babdc61bc3a626ed268ea127c6bf9e43a03ad971fae44b46a4a6c4ca8eb7b51",
+      "local_source": true,
+      "entrypoint_name": "index.ts",
+      "deployed_entrypoint_sha256": "6d187115008a65f26cd216acff8f3a9ef7690e1cfc7906f556bdb236421e5e3c",
+      "local_entrypoint_sha256": "6d187115008a65f26cd216acff8f3a9ef7690e1cfc7906f556bdb236421e5e3c",
+      "matches_local_entrypoint": true,
+      "matches_local_entrypoint_lf": true,
+      "files": [
+        {
+          "name": "index.ts",
+          "sha256": "6d187115008a65f26cd216acff8f3a9ef7690e1cfc7906f556bdb236421e5e3c"
+        }
+      ]
+    },
+    {
+      "slug": "verify-sim-otp",
+      "version": 2,
+      "verify_jwt": true,
+      "status": "ACTIVE",
+      "bundle_sha256": "5a1c032c7275217c76b13cfd721dca5349384ada0b25630fb6413215ab294b8a",
+      "local_source": true,
+      "entrypoint_name": "index.ts",
+      "deployed_entrypoint_sha256": "0d6fab7210521b21b56efa12e98459ae9c26e2b19797dde05aefb2903a2547ae",
+      "local_entrypoint_sha256": "0d6fab7210521b21b56efa12e98459ae9c26e2b19797dde05aefb2903a2547ae",
+      "matches_local_entrypoint": true,
+      "matches_local_entrypoint_lf": true,
+      "files": [
+        {
+          "name": "index.ts",
+          "sha256": "0d6fab7210521b21b56efa12e98459ae9c26e2b19797dde05aefb2903a2547ae"
+        }
+      ]
+    },
+    {
+      "slug": "process-wallet-refund",
+      "version": 2,
+      "verify_jwt": true,
+      "status": "ACTIVE",
+      "bundle_sha256": "699ac13f575bce53d9eb661df6d4abd91ff7954dd9ee20b5bf067994b0b80368",
+      "local_source": true,
+      "entrypoint_name": "index.ts",
+      "deployed_entrypoint_sha256": "7bc288902f7baae37e5c095203a2596dec65d15f0d4424b1d51d3fc290c9075c",
+      "local_entrypoint_sha256": "0bdc8e355ca375672f5b742b1e9241d75a35deed42e2efb4036c39eba7ffa8c5",
+      "matches_local_entrypoint": false,
+      "matches_local_entrypoint_lf": false,
+      "files": [
+        {
+          "name": "index.ts",
+          "sha256": "7bc288902f7baae37e5c095203a2596dec65d15f0d4424b1d51d3fc290c9075c"
+        }
+      ]
+    },
+    {
+      "slug": "liveness-verification",
+      "version": 8,
+      "verify_jwt": true,
+      "status": "ACTIVE",
+      "bundle_sha256": "57515941b33c6e52d54fb1be1cf55d41164b3a60ddc1d5438f5e50b92ba8ca3b",
+      "local_source": true,
+      "entrypoint_name": "index.ts",
+      "deployed_entrypoint_sha256": "9d85ed95c048929e73fddaf9b006ff19bc51dfbf2a0ff1d4de357433545ad6ea",
+      "local_entrypoint_sha256": "b18528090e29fa91043034537d0b5c6a30ebe90e5b090e99c82f7c809f2fbcd1",
+      "matches_local_entrypoint": false,
+      "matches_local_entrypoint_lf": false,
+      "files": [
+        {
+          "name": "index.ts",
+          "sha256": "9d85ed95c048929e73fddaf9b006ff19bc51dfbf2a0ff1d4de357433545ad6ea"
+        }
+      ]
+    },
+    {
+      "slug": "liveness-verification-webhook",
+      "version": 6,
+      "verify_jwt": false,
+      "status": "ACTIVE",
+      "bundle_sha256": "ada0feeace5a06ff77463de72e855a81c841268db62f37369b4e7e865b988907",
+      "local_source": true,
+      "entrypoint_name": "index.ts",
+      "deployed_entrypoint_sha256": "6f31fc15325dc5f7e0c82dec63454e43ec227e363d15cd1a7de06e00a2395a0f",
+      "local_entrypoint_sha256": "8bf9181beb195bd41b86a3ba1da4bb6a0b7bc2a9b9fc1e88b90b5365dd751df9",
+      "matches_local_entrypoint": false,
+      "matches_local_entrypoint_lf": false,
+      "files": [
+        {
+          "name": "index.ts",
+          "sha256": "6f31fc15325dc5f7e0c82dec63454e43ec227e363d15cd1a7de06e00a2395a0f"
+        }
+      ]
+    },
+    {
+      "slug": "test-func-check",
+      "version": 3,
+      "verify_jwt": false,
+      "status": "ACTIVE",
+      "bundle_sha256": "56013b72631c08320a66b76cee831debaf00d040c23bb1605d87e9d49094ac7e",
+      "local_source": false,
+      "entrypoint_name": "index.ts",
+      "deployed_entrypoint_sha256": "3e6cabb449fbc8a699af3395edca80359229996c6d5ebfc585fd13c724935495",
+      "local_entrypoint_sha256": null,
+      "matches_local_entrypoint": null,
+      "matches_local_entrypoint_lf": null,
+      "files": [
+        {
+          "name": "index.ts",
+          "sha256": "3e6cabb449fbc8a699af3395edca80359229996c6d5ebfc585fd13c724935495"
+        }
+      ]
+    },
+    {
+      "slug": "paypal-return",
+      "version": 4,
+      "verify_jwt": false,
+      "status": "ACTIVE",
+      "bundle_sha256": "0c59c7e06c3aafcc16ee883e103f7869fcb55ca86358d31d97237fb75b209f88",
+      "local_source": true,
+      "entrypoint_name": "index.ts",
+      "deployed_entrypoint_sha256": "617031275e0e43b7e115077627202f205a884b1e3222b1fb3d26e6723a77757c",
+      "local_entrypoint_sha256": "3fbc16d003a511f137a83e908dada4fa6c9aedc4b7182c737d4c29e646f686d5",
+      "matches_local_entrypoint": false,
+      "matches_local_entrypoint_lf": false,
+      "files": [
+        {
+          "name": "index.ts",
+          "sha256": "617031275e0e43b7e115077627202f205a884b1e3222b1fb3d26e6723a77757c"
+        }
+      ]
+    },
+    {
+      "slug": "initiate-voip-call",
+      "version": 7,
+      "verify_jwt": false,
+      "status": "ACTIVE",
+      "bundle_sha256": "a9cc3e3ef2d2ab3d0455f516c65009620671ec400851f9311d1ed350ec194f98",
+      "local_source": true,
+      "entrypoint_name": "index.ts",
+      "deployed_entrypoint_sha256": "928f92f371a0fd813634a397b1bcbe85a9e5c5fe80f1f7432d5e6a35f6472ec6",
+      "local_entrypoint_sha256": "dbefe1d65a7e3e174f82871fa82138fc666a5052206c5a214d3f77bab877e55c",
+      "matches_local_entrypoint": false,
+      "matches_local_entrypoint_lf": true,
+      "files": [
+        {
+          "name": "index.ts",
+          "sha256": "928f92f371a0fd813634a397b1bcbe85a9e5c5fe80f1f7432d5e6a35f6472ec6"
+        }
+      ]
+    },
+    {
+      "slug": "end-voip-call",
+      "version": 3,
+      "verify_jwt": false,
+      "status": "ACTIVE",
+      "bundle_sha256": "53f90bffc32b64a1f9a89271a3d1db825755ed7675849d2caa32b03e0ee83cc9",
+      "local_source": true,
+      "entrypoint_name": "index.ts",
+      "deployed_entrypoint_sha256": "792163de30b293b48db3a5b02249a7e7508e50c0b96082cea5b3a75d36b2ada9",
+      "local_entrypoint_sha256": "792163de30b293b48db3a5b02249a7e7508e50c0b96082cea5b3a75d36b2ada9",
+      "matches_local_entrypoint": true,
+      "matches_local_entrypoint_lf": true,
+      "files": [
+        {
+          "name": "index.ts",
+          "sha256": "792163de30b293b48db3a5b02249a7e7508e50c0b96082cea5b3a75d36b2ada9"
+        }
+      ]
+    },
+    {
+      "slug": "manage-dids",
+      "version": 3,
+      "verify_jwt": true,
+      "status": "ACTIVE",
+      "bundle_sha256": "45c8b3c5441ec2a611d08310c806b60585781e98305065a254daa52ea9ede006",
+      "local_source": true,
+      "entrypoint_name": "index.ts",
+      "deployed_entrypoint_sha256": "adda17751fe849d10b38f01804c8dac6b876b08f9d4b687600d3c65605dbf6cc",
+      "local_entrypoint_sha256": "4830d3905f88a04352a4b6521d6ce4cede299d0515af84378633e087843a5c60",
+      "matches_local_entrypoint": false,
+      "matches_local_entrypoint_lf": false,
+      "files": [
+        {
+          "name": "index.ts",
+          "sha256": "adda17751fe849d10b38f01804c8dac6b876b08f9d4b687600d3c65605dbf6cc"
+        }
+      ]
+    },
+    {
+      "slug": "process-voicemail",
+      "version": 2,
+      "verify_jwt": false,
+      "status": "ACTIVE",
+      "bundle_sha256": "a837ec6e961e1b4b742f0ee42a47d345f0261312b03d2584c31bab2abe0ec0d5",
+      "local_source": true,
+      "entrypoint_name": "index.ts",
+      "deployed_entrypoint_sha256": "5733e16049683bf0b892ea3f3bab28c69b56a5f24c7574560d7bf0a056aa822b",
+      "local_entrypoint_sha256": "5733e16049683bf0b892ea3f3bab28c69b56a5f24c7574560d7bf0a056aa822b",
+      "matches_local_entrypoint": true,
+      "matches_local_entrypoint_lf": true,
+      "files": [
+        {
+          "name": "index.ts",
+          "sha256": "5733e16049683bf0b892ea3f3bab28c69b56a5f24c7574560d7bf0a056aa822b"
+        }
+      ]
+    },
+    {
+      "slug": "admin-telnyx-billing",
+      "version": 4,
+      "verify_jwt": true,
+      "status": "ACTIVE",
+      "bundle_sha256": "4e3588d5da3f8e049bfef28a4a93c7318cb8885e45cfab58159fbcce7d4f95fa",
+      "local_source": true,
+      "entrypoint_name": "index.ts",
+      "deployed_entrypoint_sha256": "823e4b1f94d35cf0d3456a344f3814b2b4c37ab79b8fb63109296c9f87209495",
+      "local_entrypoint_sha256": "823e4b1f94d35cf0d3456a344f3814b2b4c37ab79b8fb63109296c9f87209495",
+      "matches_local_entrypoint": true,
+      "matches_local_entrypoint_lf": true,
+      "files": [
+        {
+          "name": "index.ts",
+          "sha256": "823e4b1f94d35cf0d3456a344f3814b2b4c37ab79b8fb63109296c9f87209495"
+        }
+      ]
+    },
+    {
+      "slug": "process-alert-outbox",
+      "version": 7,
+      "verify_jwt": false,
+      "status": "ACTIVE",
+      "bundle_sha256": "35630a628a754db3dd6fc1196df9dc29cb01826250814eacd84e4bbba987e67c",
+      "local_source": true,
+      "entrypoint_name": "process-alert-outbox/index.ts",
+      "deployed_entrypoint_sha256": "aa15f2bfd611ab414a39253ec589b35f9d5cc4f7095af2f554b5e239115c2d8c",
+      "local_entrypoint_sha256": "aa15f2bfd611ab414a39253ec589b35f9d5cc4f7095af2f554b5e239115c2d8c",
+      "matches_local_entrypoint": true,
+      "matches_local_entrypoint_lf": true,
+      "files": [
+        {
+          "name": "process-alert-outbox/index.ts",
+          "sha256": "aa15f2bfd611ab414a39253ec589b35f9d5cc4f7095af2f554b5e239115c2d8c"
+        },
+        {
+          "name": "process-alert-outbox/quiet_hours.ts",
+          "sha256": "801fd7f7febb0191ed7b6b64269c678d47bd34ba31d18d30ceaf5d701ef1c7c1"
+        }
+      ]
+    },
+    {
+      "slug": "get-turn-credentials",
+      "version": 6,
+      "verify_jwt": false,
+      "status": "ACTIVE",
+      "bundle_sha256": "470a0608f517f1fbba24ec38e37d02b9b4fa253fd93f76ea86e33b277ef026ef",
+      "local_source": true,
+      "entrypoint_name": "index.ts",
+      "deployed_entrypoint_sha256": "88d95b6691e22897659010141e39aba24336b42d92879ccda838d5661d4b9ee3",
+      "local_entrypoint_sha256": "88d95b6691e22897659010141e39aba24336b42d92879ccda838d5661d4b9ee3",
+      "matches_local_entrypoint": true,
+      "matches_local_entrypoint_lf": true,
+      "files": [
+        {
+          "name": "index.ts",
+          "sha256": "88d95b6691e22897659010141e39aba24336b42d92879ccda838d5661d4b9ee3"
+        }
+      ]
+    },
+    {
+      "slug": "send-whatsapp-alert",
+      "version": 4,
+      "verify_jwt": false,
+      "status": "ACTIVE",
+      "bundle_sha256": "2f2fe435bdac1a7bbca29e4ece157c5ad3c0ccb233ad4275c07d3baa2ca71e25",
+      "local_source": true,
+      "entrypoint_name": "send-whatsapp-alert/index.ts",
+      "deployed_entrypoint_sha256": "3e932a9b468f1e2ab473c701b3e51ddbdc277af96b1adf13746a60e99e02bc38",
+      "local_entrypoint_sha256": "3e932a9b468f1e2ab473c701b3e51ddbdc277af96b1adf13746a60e99e02bc38",
+      "matches_local_entrypoint": true,
+      "matches_local_entrypoint_lf": true,
+      "files": [
+        {
+          "name": "send-whatsapp-alert/index.ts",
+          "sha256": "3e932a9b468f1e2ab473c701b3e51ddbdc277af96b1adf13746a60e99e02bc38"
+        },
+        {
+          "name": "_shared/whatsapp_router.ts",
+          "sha256": "ae75e0f73cf4abf1be3e31faa817bafd9549ccb1ddfd6166eb1ce8918c105c09"
+        },
+        {
+          "name": "_shared/whatsapp_route.ts",
+          "sha256": "21336baf1dd9ad32833d31b948d617f2f3773ebe470c9e205911183e945514e8"
+        },
+        {
+          "name": "_shared/whatsapp_profile.ts",
+          "sha256": "e9083c31d92ddca55d21ad4b3eb8c4458d47d8d81f9f42d796c7de03f8111b3e"
+        }
+      ]
+    },
+    {
+      "slug": "notification-email-verification",
+      "version": 2,
+      "verify_jwt": true,
+      "status": "ACTIVE",
+      "bundle_sha256": "decb20ba205ba78204d3378f33a3985a4b30721d61a2ac7ddefaa6bdcf24c9e2",
+      "local_source": true,
+      "entrypoint_name": "notification-email-verification/index.ts",
+      "deployed_entrypoint_sha256": "e3bb7ef0a3b7e08c21f3127c5b30c41956fbde04e8d032745edcf6fa615dbf8e",
+      "local_entrypoint_sha256": "e3bb7ef0a3b7e08c21f3127c5b30c41956fbde04e8d032745edcf6fa615dbf8e",
+      "matches_local_entrypoint": true,
+      "matches_local_entrypoint_lf": true,
+      "files": [
+        {
+          "name": "notification-email-verification/index.ts",
+          "sha256": "e3bb7ef0a3b7e08c21f3127c5b30c41956fbde04e8d032745edcf6fa615dbf8e"
+        }
+      ]
+    }
+  ]
+}

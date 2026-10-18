@@ -422,8 +422,8 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      await tester.ensureVisible(find.text('Call free'));
-      await tester.tap(find.text('Call free'));
+      await tester.ensureVisible(find.byTooltip('Call free'));
+      await tester.tap(find.byTooltip('Call free'));
       await tester.pumpAndSettle();
       expect(find.byType(FreeCallReviewSheet), findsOneWidget);
       expect(find.text('01012345678'), findsWidgets);

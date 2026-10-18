@@ -1,402 +1,87 @@
+import { ProviderConfigurationError, providerSecretClient } from "../_shared/provider-secrets.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { EndpointError } from "../_shared/endpoint-auth.ts";
+import { trustedDatabase } from "../_shared/webhook-events.ts";
+import { paypalSession, paypalOrder, capturePayPalOrder, verifiedPayPalCapture, validatePayPalCaptureEvent, fulfillPayPalCapture } from "../_shared/paypal-capture.ts";
 
-// PayPal webhook receiver — the ONLY path that credits wallet deposits or records plan payments.
-// Security model: verify_jwt is disabled (PayPal cannot send a Supabase JWT);
-// instead every event is verified against PayPal's
-// /v1/notifications/verify-webhook-signature API using the transmission
-// headers, our webhook id, and the exact raw body. Anything that fails
-// verification is rejected with 400.
-// D2 IP Rate Limiter applied (60/1min per IP).
-
-const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
-const SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-const PAYPAL_CLIENT_ID = Deno.env.get('PAYPAL_CLIENT_ID') ?? '';
-const PAYPAL_CLIENT_SECRET = Deno.env.get('PAYPAL_CLIENT_SECRET') ?? '';
-const PAYPAL_WEBHOOK_ID = Deno.env.get('PAYPAL_WEBHOOK_ID') ?? '';
-const PAYPAL_API_BASE = Deno.env.get('PAYPAL_API_BASE') ?? 'https://api-m.sandbox.paypal.com';
-
-const serviceHeaders = {
-  'apikey': SERVICE_ROLE_KEY,
-  'Authorization': `Bearer ${SERVICE_ROLE_KEY}`,
-  'Content-Type': 'application/json',
-};
-
-const json = (body: Record<string, unknown>, status: number) =>
-  new Response(JSON.stringify(body), {
-    headers: { 'Content-Type': 'application/json' },
-    status,
-  });
-
-async function paypalAccessToken(): Promise<string> {
-  const res = await fetch(`${PAYPAL_API_BASE}/v1/oauth2/token`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Basic ${btoa(`${PAYPAL_CLIENT_ID}:${PAYPAL_CLIENT_SECRET}`)}`,
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: 'grant_type=client_credentials',
-  });
-  if (!res.ok) {
-    throw new Error(`PayPal OAuth failed (${res.status}): ${await res.text()}`);
-  }
-  return (await res.json()).access_token;
+const url = Deno.env.get("SUPABASE_URL")!;
+const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const webhookId = Deno.env.get("PAYPAL_WEBHOOK_ID") || "";
+const db = trustedDatabase(url, serviceKey);
+const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), {
+  status, headers: { "Content-Type": "application/json" },
+});
+const client = { async rpc(name: string, args: Record<string, unknown>) {
+  return { data: await db(`rpc/${name}`, "POST", args), error: null };
+} };
+async function storedOrder(orderId: string) {
+  if (typeof orderId !== "string" || !/^[A-Z0-9]{1,36}$/.test(orderId)) throw new EndpointError(400, "Missing payment order identity");
+  const rows = await db(`paypal_orders?order_id=eq.${encodeURIComponent(orderId)}&select=*`);
+  // The webhook can race the server's initial order INSERT. Keep it retryable.
+  if (rows.length !== 1) throw new EndpointError(503, "Stored payment order unavailable");
+  return rows[0];
 }
 
-async function verifySignature(req: Request, rawBody: string): Promise<boolean> {
-  const h = req.headers;
-  const payload = {
-    transmission_id: h.get('paypal-transmission-id'),
-    transmission_time: h.get('paypal-transmission-time'),
-    cert_url: h.get('paypal-cert-url'),
-    auth_algo: h.get('paypal-auth-algo'),
-    transmission_sig: h.get('paypal-transmission-sig'),
-    webhook_id: PAYPAL_WEBHOOK_ID,
-    webhook_event: JSON.parse(rawBody),
-  };
-  if (!payload.transmission_id || !payload.transmission_sig || !payload.cert_url) {
-    return false;
-  }
-  const token = await paypalAccessToken();
-  const res = await fetch(`${PAYPAL_API_BASE}/v1/notifications/verify-webhook-signature`, {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  });
-  if (!res.ok) {
-    console.error(`verify-webhook-signature HTTP ${res.status}: ${await res.text()}`);
-    return false;
-  }
-  const { verification_status } = await res.json();
-  return verification_status === 'SUCCESS';
-}
-
-async function systemAlert(kind: string, message: string, details: Record<string, unknown>) {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/system_alerts`, {
-    method: 'POST',
-    headers: serviceHeaders,
-    body: JSON.stringify({ kind, message, details }),
-  });
-  if (!res.ok) console.error(`system_alerts insert failed: ${await res.text()}`);
-}
-
-async function rpc(name: string, args: Record<string, unknown>): Promise<{ ok: boolean; status: number; body: any }> {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${name}`, {
-    method: 'POST',
-    headers: serviceHeaders,
-    body: JSON.stringify(args),
-  });
-  const text = await res.text();
-  let body: any = text;
-  try { body = JSON.parse(text); } catch (_) { /* raw text */ }
-  return { ok: res.ok, status: res.status, body };
-}
-
-function parseCustomId(customId: string | undefined): { userId: string | null; kind: string; simLineId: string | null } {
-  if (!customId) return { userId: null, kind: 'deposit', simLineId: null };
+serve(async (req: Request) => {
+  if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
   try {
-    const parsed = JSON.parse(customId);
-    if (parsed && typeof parsed.u === 'string') {
-      return {
-        userId: parsed.u,
-        kind: typeof parsed.k === 'string' ? parsed.k : 'deposit',
-        simLineId: typeof parsed.l === 'string' ? parsed.l : null,
-      };
-    }
-  } catch (_) { /* not JSON — treat as bare uuid */ }
-  const uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-  return uuidRe.test(customId) ? { userId: customId, kind: 'deposit', simLineId: null } : { userId: null, kind: 'deposit', simLineId: null };
-}
-
-// BLOCKER 2 Approach A: Automatic server-side capture when user approves on PayPal
-async function handleCheckoutOrderApproved(event: any): Promise<Response> {
-  const resource = event.resource ?? {};
-  const orderId: string | undefined = resource.id;
-
-  if (!orderId) {
-    console.error("CHECKOUT.ORDER.APPROVED event missing resource.id");
-    return json({ received: true, captured: false, reason: "missing_order_id" }, 200);
-  }
-
-  console.log(`CHECKOUT.ORDER.APPROVED received for order ${orderId}. Executing server-side capture...`);
-
-  // Update status in paypal_orders table
-  await fetch(`${SUPABASE_URL}/rest/v1/paypal_orders?order_id=eq.${encodeURIComponent(orderId)}`, {
-    method: 'PATCH',
-    headers: serviceHeaders,
-    body: JSON.stringify({ status: 'approved' }),
-  });
-
-  // Call PayPal REST API to capture the order
-  const accessToken = await paypalAccessToken();
-  const captureRes = await fetch(`${PAYPAL_API_BASE}/v2/checkout/orders/${orderId}/capture`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${accessToken}`,
-      'Content-Type': 'application/json',
-    },
-  });
-
-  const resText = await captureRes.text();
-  const isAlreadyCaptured =
-    resText.includes("ORDER_ALREADY_CAPTURED") ||
-    resText.includes("ORDER_ALREADY_COMPLETED");
-
-  if (!captureRes.ok && !isAlreadyCaptured) {
-    console.error(`Server-side PayPal capture failed for approved order ${orderId}:`, resText);
-    await systemAlert('paypal_server_capture_failed',
-      `Server-side capture failed for approved PayPal order ${orderId}.`,
-      { order_id: orderId, error: resText });
-
-    await fetch(`${SUPABASE_URL}/rest/v1/paypal_orders?order_id=eq.${encodeURIComponent(orderId)}`, {
-      method: 'PATCH',
-      headers: serviceHeaders,
-      body: JSON.stringify({ status: 'failed' }),
+    if (!webhookId) throw new EndpointError(503, "Webhook verification is not configured");
+    const raw = await req.text();
+    let event;
+    try { event = JSON.parse(raw); } catch (_) { throw new EndpointError(400, "Invalid JSON"); }
+    const headers = req.headers;
+    const verification = {
+      transmission_id: headers.get("paypal-transmission-id"), transmission_time: headers.get("paypal-transmission-time"),
+      cert_url: headers.get("paypal-cert-url"), auth_algo: headers.get("paypal-auth-algo"),
+      transmission_sig: headers.get("paypal-transmission-sig"), webhook_id: webhookId, webhook_event: event,
+    };
+    if (!verification.transmission_id || !verification.transmission_time || !verification.cert_url ||
+        !verification.auth_algo || !verification.transmission_sig) throw new EndpointError(400, "Missing webhook signature");
+    const session = await paypalSession(providerSecretClient(url, serviceKey));
+    const verified = await fetch(`${session.base}/v1/notifications/verify-webhook-signature`, {
+      method: "POST", headers: { Authorization: `Bearer ${session.token}`, "Content-Type": "application/json" },
+      body: JSON.stringify(verification),
     });
-
-    return json({ received: true, captured: false, error: resText }, 200);
-  }
-
-  console.log(`Server-side capture successfully initiated/completed for order ${orderId}`);
-  return json({ received: true, captured: true, order_id: orderId }, 200);
-}
-
-async function handleCaptureCompleted(event: any): Promise<Response> {
-  const capture = event.resource ?? {};
-  const captureId: string | undefined = capture.id;
-  const orderId: string | undefined = capture.supplementary_data?.related_ids?.order_id;
-  const currency: string | undefined = capture.amount?.currency_code;
-  const gross = Number(capture.amount?.value);
-  const breakdown = capture.seller_receivable_breakdown ?? {};
-  const fee = Number(breakdown.paypal_fee?.value ?? 0);
-  const net = Number(breakdown.net_amount?.value ?? gross);
-  const { userId, kind, simLineId } = parseCustomId(capture.custom_id);
-
-  if (!captureId || !Number.isFinite(gross) || gross <= 0) {
-    await systemAlert('paypal_webhook_malformed',
-      `PAYMENT.CAPTURE.COMPLETED with missing capture id or bad amount (event ${event.id}).`,
-      { event_id: event.id, capture_id: captureId ?? null, amount: capture.amount ?? null });
-    return json({ received: true, credited: false, reason: 'malformed' }, 200);
-  }
-
-  if (currency !== 'USD') {
-    await systemAlert('paypal_currency_mismatch',
-      `PayPal capture ${captureId} in ${currency}, expected USD. Not credited.`,
-      { capture_id: captureId, order_id: orderId ?? null, amount: capture.amount });
-    return json({ received: true, credited: false, reason: 'currency_mismatch' }, 200);
-  }
-
-  if (!userId) {
-    await systemAlert('paypal_unattributed_payment',
-      `PayPal capture ${captureId} ($${gross}) has no usable custom_id — cannot credit a wallet.`,
-      { capture_id: captureId, order_id: orderId ?? null, custom_id: capture.custom_id ?? null, gross });
-    return json({ received: true, credited: false, reason: 'no_custom_id' }, 200);
-  }
-
-  // BLOCKER 2 & C3b-1 doctrine: Assert captured gross equals stored order amount_usd in paypal_orders
-  if (orderId) {
-    const orderCheckRes = await fetch(`${SUPABASE_URL}/rest/v1/paypal_orders?order_id=eq.${encodeURIComponent(orderId)}`, {
-      method: 'GET',
-      headers: serviceHeaders,
+    if (!verified.ok) throw new EndpointError(503, "Webhook verification unavailable");
+    if ((await verified.json()).verification_status !== "SUCCESS") throw new EndpointError(400, "Invalid webhook signature");
+    if (!event?.id || !event?.event_type) throw new EndpointError(400, "Missing webhook identity");
+    // No privileged writes occur before provider signature verification.
+    const limit = await db("rpc/consume_rate_limit", "POST", {
+      p_bucket: "webhook_ip", p_key: headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown_ip",
+      p_capacity: 60, p_refill_per_minute: 60,
     });
-
-    if (orderCheckRes.ok) {
-      const orders = await orderCheckRes.json();
-      if (Array.isArray(orders) && orders.length > 0) {
-        const storedOrder = orders[0];
-        const storedAmount = Number(storedOrder.amount_usd);
-        if (Math.abs(gross - storedAmount) > 0.01) {
-          console.error(`Amount mismatch for order ${orderId}: captured $${gross} vs stored $${storedAmount}`);
-          await systemAlert('paypal_amount_mismatch',
-            `PayPal capture $${gross} does not match stored order amount $${storedAmount} for order ${orderId}`,
-            { order_id: orderId, capture_id: captureId, gross_captured: gross, stored_amount: storedAmount });
-          return json({ received: true, credited: false, reason: 'amount_mismatch' }, 200);
-        }
-      }
+    if (limit?.[0]?.allowed === false) throw new EndpointError(429, "Rate limited");
+    const resource = event.resource || {};
+    if (event.event_type === "CHECKOUT.ORDER.APPROVED") {
+      const stored = await storedOrder(resource.id);
+      const evidence = await capturePayPalOrder(stored, session);
+      // Approval initiates/adopts capture. Fulfillment belongs to the completed
+      // capture event or authenticated client path; never mark captured early.
+      return json({ received: true, captured: true, order_id: stored.order_id, capture_id: evidence.capture_id });
     }
-  }
-
-  let processSuccess = false;
-
-  if (kind === 'plan') {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/plan_payments`, {
-      method: 'POST',
-      headers: { ...serviceHeaders, 'Prefer': 'return=minimal' },
-      body: JSON.stringify({
-        user_id: userId,
-        sim_line_id: simLineId ?? null,
-        capture_id: captureId,
-        order_id: orderId ?? null,
-        kind,
-        gross_usd: gross,
-        paypal_fee_usd: fee,
-        net_usd: net,
-        metadata: {
-          event_id: event.id,
-          event_time: event.create_time ?? null,
-          currency,
-        },
-      }),
-    });
-
-    if (res.ok) {
-      console.log(`Recorded plan payment $${gross} from ${userId} (capture ${captureId})`);
-      processSuccess = true;
-    } else {
-      const body = await res.text();
-      if (res.status === 409 || body.includes('duplicate key')) {
-        console.log(`Plan payment ${captureId} already recorded — webhook retry, ignoring.`);
-        processSuccess = true;
-      } else {
-        console.error(`plan_payments insert failed for ${captureId}: ${body}`);
-        return json({ received: true, recorded: false, error: body }, 500);
-      }
+    if (event.event_type === "PAYMENT.CAPTURE.COMPLETED") {
+      if (resource.status !== "COMPLETED" || !resource.id) throw new EndpointError(409, "Completed capture evidence required");
+      const orderId = resource.supplementary_data?.related_ids?.order_id;
+      const stored = await storedOrder(orderId);
+      const order = await paypalOrder(session, orderId);
+      const evidence = verifiedPayPalCapture(stored, order, session.merchant, resource.id);
+      // Event amount is corroborated, never used instead of authoritative data.
+      validatePayPalCaptureEvent(evidence, resource);
+      const fulfilled = await fulfillPayPalCapture(client, evidence, "webhook", event.id);
+      return json({ received: true, success: true, duplicate: fulfilled.duplicate });
     }
-  } else if (kind === 'deposit') {
-    const result = await rpc('credit_wallet_for_deposit', {
-      p_user_id: userId,
-      p_amount: gross,
-      p_description: `PayPal deposit (order ${orderId ?? 'n/a'})`,
-      p_reference_id: `paypal_${captureId}`,
-      p_metadata: {
-        method: 'paypal',
-        paypal_capture_id: captureId,
-        paypal_order_id: orderId ?? null,
-        gross: gross,
-        paypal_fee: fee,
-        net: net,
-        currency: currency,
-        payer_email: event.resource?.payee?.email_address ?? null,
-        event_id: event.id,
-        event_time: event.create_time ?? null,
-      },
-    });
-
-    if (result.ok) {
-      console.log(`Credited $${gross} to ${userId} for capture ${captureId} (txn ${result.body})`);
-      processSuccess = true;
-    } else {
-      const message: string = result.body?.message ?? JSON.stringify(result.body);
-      if (result.body?.code === '23505' || message.includes('duplicate key')) {
-        console.log(`Capture ${captureId} already credited — webhook retry, ignoring.`);
-        processSuccess = true;
-      } else if (message.includes('Wallet not found')) {
-        await systemAlert('paypal_wallet_missing',
-          `PayPal capture ${captureId} ($${gross}) for user ${userId} but no wallet exists.`,
-          { capture_id: captureId, user_id: userId, gross });
-        return json({ received: true, credited: false, reason: 'wallet_missing' }, 200);
-      } else {
-        console.error(`credit_wallet_for_deposit failed for ${captureId}: ${message}`);
-        return json({ received: true, credited: false, error: message }, 500);
-      }
+    if (["PAYMENT.CAPTURE.REFUNDED", "PAYMENT.CAPTURE.REVERSED", "PAYMENT.CAPTURE.DENIED",
+      "PAYMENT.CAPTURE.DECLINED", "CHECKOUT.PAYMENT-APPROVAL.REVERSED"].includes(event.event_type)) {
+      const orderId = resource.supplementary_data?.related_ids?.order_id ||
+        (event.event_type.startsWith("CHECKOUT.") ? resource.id : null);
+      if (orderId) await db(`paypal_orders?order_id=eq.${encodeURIComponent(orderId)}&status=neq.captured`, "PATCH", { status: "failed" });
+      await db("system_alerts", "POST", { kind: "paypal_payment_problem", message: "PayPal payment requires reconciliation",
+        details: { event_id: event.id, event_type: event.event_type, order_id: orderId, resource_id: resource.id || null } });
+      return json({ received: true });
     }
-  } else {
-    await systemAlert('paypal_unhandled_kind',
-      `PayPal capture ${captureId} carries kind '${kind}', which has no handler yet. Not credited.`,
-      { capture_id: captureId, order_id: orderId ?? null, kind, user_id: userId, gross });
-    return json({ received: true, credited: false, reason: 'unhandled_kind' }, 200);
-  }
-
-  // Update status in paypal_orders table to captured
-  if (orderId && processSuccess) {
-    await fetch(`${SUPABASE_URL}/rest/v1/paypal_orders?order_id=eq.${encodeURIComponent(orderId)}`, {
-      method: 'PATCH',
-      headers: serviceHeaders,
-      body: JSON.stringify({ status: 'captured', captured_at: new Date().toISOString() }),
-    });
-  }
-
-  return json({ received: true, success: true }, 200);
-}
-
-async function handleFailureEvent(event: any): Promise<Response> {
-  const r = event.resource ?? {};
-  const orderId = r.id || r.supplementary_data?.related_ids?.order_id;
-  if (orderId) {
-    await fetch(`${SUPABASE_URL}/rest/v1/paypal_orders?order_id=eq.${encodeURIComponent(orderId)}`, {
-      method: 'PATCH',
-      headers: serviceHeaders,
-      body: JSON.stringify({ status: 'failed' }),
-    });
-  }
-
-  await systemAlert('paypal_payment_problem',
-    `PayPal event ${event.event_type} for ${r.id ?? 'unknown resource'} — review in the PayPal dashboard.`,
-    {
-      event_id: event.id,
-      event_type: event.event_type,
-      resource_id: r.id ?? null,
-      amount: r.amount ?? null,
-      status: r.status ?? null,
-      custom_id: r.custom_id ?? null,
-      summary: event.summary ?? null,
-    });
-  return json({ received: true }, 200);
-}
-
-serve(async (req) => {
-  if (req.method !== 'POST') {
-    return json({ error: 'method not allowed' }, 405);
-  }
-
-  try {
-    // D2 IP rate limiter (webhook_ip bucket: 60/1min per client IP)
-    const xForwardedFor = req.headers.get("x-forwarded-for");
-    const clientIp = xForwardedFor ? xForwardedFor.split(",")[0].trim() : req.headers.get("x-real-ip") || "unknown_ip";
-
-    const limitRes = await rpc('consume_rate_limit', {
-      p_bucket: 'webhook_ip',
-      p_key: clientIp,
-      p_capacity: 60,
-      p_refill_per_minute: 60.0,
-    });
-    if (limitRes.ok && Array.isArray(limitRes.body) && limitRes.body[0]?.allowed === false) {
-      const retryAfter = limitRes.body[0]?.retry_after_seconds ?? 60;
-      return new Response(
-        JSON.stringify({ code: "rate_limited", bucket: "webhook_ip", retry_after: retryAfter }),
-        {
-          status: 429,
-          headers: { "Content-Type": "application/json", "Retry-After": String(retryAfter) },
-        }
-      );
-    }
-
-    if (!PAYPAL_CLIENT_ID || !PAYPAL_CLIENT_SECRET || !PAYPAL_WEBHOOK_ID) {
-      console.error('paypal-webhook secrets not configured (PAYPAL_CLIENT_ID/SECRET/WEBHOOK_ID)');
-      return json({ error: 'webhook not configured' }, 500);
-    }
-
-    const rawBody = await req.text();
-
-    if (!(await verifySignature(req, rawBody))) {
-      console.error('Webhook signature verification FAILED');
-      return json({ error: 'signature verification failed' }, 400);
-    }
-
-    const event = JSON.parse(rawBody);
-    const type: string = event.event_type ?? '';
-    console.log(`Verified PayPal event ${event.id}: ${type}`);
-
-    if (type === 'CHECKOUT.ORDER.APPROVED') {
-      return await handleCheckoutOrderApproved(event);
-    }
-
-    if (type === 'PAYMENT.CAPTURE.COMPLETED') {
-      return await handleCaptureCompleted(event);
-    }
-
-    if ([
-      'PAYMENT.CAPTURE.REFUNDED',
-      'PAYMENT.CAPTURE.REVERSED',
-      'PAYMENT.CAPTURE.DENIED',
-      'PAYMENT.CAPTURE.DECLINED',
-      'CHECKOUT.PAYMENT-APPROVAL.REVERSED',
-    ].includes(type)) {
-      return await handleFailureEvent(event);
-    }
-
-    return json({ received: true, ignored: type }, 200);
-  } catch (error: any) {
-    console.error('paypal-webhook error:', error);
-    return json({ error: error.message }, 500);
+    return json({ received: true, ignored: event.event_type });
+  } catch (error) {
+    return json({ success: false, error: error instanceof EndpointError || error instanceof ProviderConfigurationError
+      ? error.message : "PayPal processing unavailable" }, error instanceof EndpointError ? error.status : 503);
   }
 });

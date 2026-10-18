@@ -15,7 +15,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get dashboardProtectSimLines => 'احمِ خطوط شرائحك';
 
   @override
-  String get dashboardManageReminders => 'إدارة التذكيرات وإعادة الشحن';
+  String get dashboardManageReminders => 'التنبيهات والشحن في مكان واحد';
 
   @override
   String get dashboardManageSims => 'إدارة الشرائح';
@@ -42,10 +42,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get dashboardWorldwideEsims => 'شرائح eSIM عالمية';
 
   @override
-  String get dashboardExploreSmartCall => 'اكتشف الاتصال الذكي';
+  String get dashboardExploreSmartCall => 'أجرِ مكالمات دولية';
 
   @override
-  String get dashboardExploreGlobalOffers => 'اكتشف العروض العالمية';
+  String get dashboardExploreGlobalOffers => 'بيانات الهاتف للسفر';
 
   @override
   String get dashboardAddSims => 'إضافة شرائح';
@@ -3098,7 +3098,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get smartCallSavings => 'توفير الاتصال الذكي';
 
   @override
-  String get virtualNumbers => 'الأرقام الافتراضية';
+  String get virtualNumbers => 'الرقم الثاني';
+
+  @override
+  String get secondNumberSubtitle => 'مكالمات وتحويل المكالمات';
 
   @override
   String get voicemail => 'البريد الصوتي';
@@ -3204,4 +3207,210 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get profileSaved => 'تم تحديث الملف الشخصي.';
+
+  @override
+  String get dashboardExplore => 'اكتشف KeepSIMs';
+
+  @override
+  String get dashboardYourSimLines => 'شرائحك';
+
+  @override
+  String get dashboardSecondNumberBenefit => 'استقبل المكالمات وحوّلها';
+
+  @override
+  String get dashboardSetUp => 'إعداد';
+
+  @override
+  String get dashboardRecharge => 'شحن';
+
+  @override
+  String get dashboardStandard => 'أساسي';
+
+  @override
+  String get dashboardPremium => 'مميز';
+
+  @override
+  String get dashboardAccountOptions => 'خيارات الحساب';
+
+  @override
+  String get dashboardCurrentLocation => 'الموقع الحالي';
+
+  @override
+  String get snMyNumbers => 'أرقامي الثانية';
+
+  @override
+  String get snGetNumber => 'احصل على رقم ثانٍ';
+
+  @override
+  String get snSubtitle => 'أرقامك ورسائلك في مكان واحد.';
+
+  @override
+  String get snMessages => 'الرسائل';
+
+  @override
+  String get snEmpty => 'احصل على رقم مخصص لاستقبال الرسائل في KeepSIMs.';
+
+  @override
+  String get snVerification =>
+      'تعتمد رموز التحقق على الخدمة المرسلة. بعض الخدمات لا تقبل الأرقام الافتراضية.';
+
+  @override
+  String get snPrivateNotifications => 'محتوى الرسائل مخفي في الإشعارات.';
+
+  @override
+  String get snRenewal => 'التجديد القادم';
+
+  @override
+  String get snAutoRenew => 'التجديد التلقائي من محفظتي';
+
+  @override
+  String get snRelease => 'التخلي عن هذا الرقم';
+
+  @override
+  String get snReleaseConfirm =>
+      'ستفقد المكالمات والرسائل المستقبلية. حدّث الحسابات التي تستخدم هذا الرقم لتسجيل الدخول أو الاسترداد. قد يُخصص الرقم لشخص آخر لاحقًا. يبدأ الطلب فورًا ويكتمل بعد تأكيد المشغل.';
+
+  @override
+  String get snReleasePending => 'التخلي قيد التنفيذ';
+
+  @override
+  String get snGrace => 'دفعة مستحقة — اشحن المحفظة قبل موعد التخلي';
+
+  @override
+  String get snActive => 'نشط';
+
+  @override
+  String get snReceiveOnly => 'صندوق لاستقبال الرسائل النصية فقط';
+
+  @override
+  String get snCopyCode => 'نسخ الرمز';
+
+  @override
+  String get snCopied => 'تم النسخ إلى الحافظة';
+
+  @override
+  String get snNoMessages => 'لا توجد رسائل حتى الآن';
+
+  @override
+  String get snInboxUnavailable =>
+      'تعذر تحميل الرسائل. تحقق من الاتصال وأعد المحاولة.';
+
+  @override
+  String get snRetry => 'إعادة المحاولة';
+
+  @override
+  String get snSetupPending => 'جارٍ إعداد رقمك';
+
+  @override
+  String get snRefresh => 'تحديث الحالة';
+
+  @override
+  String get snManage => 'إدارة الرقم';
+
+  @override
+  String get snChooseCountry => 'اختر الدولة';
+
+  @override
+  String get snNoCoverage =>
+      'الأرقام غير متاحة بعد. جارٍ التحقق من التغطية والأسعار في الولايات المتحدة والمملكة المتحدة.';
+
+  @override
+  String get snChooseNumber => 'اختر رقمك';
+
+  @override
+  String get snReview => 'راجع رقمك';
+
+  @override
+  String get snNumberFee => 'رسوم الرقم';
+
+  @override
+  String get snServiceFee => 'رسوم خدمة KeepSIMs';
+
+  @override
+  String get snSetupFee => 'رسوم الإعداد';
+
+  @override
+  String get snTotal => 'الإجمالي المستحق اليوم';
+
+  @override
+  String get snUsage => 'شروط الاستخدام';
+
+  @override
+  String get snActivate => 'تفعيل الرقم';
+
+  @override
+  String get snPurchasePending =>
+      'جارٍ تأكيد طلبك. تم حجز المبلغ. تحقق من حالته هنا؛ ولا تشترِ رقمًا بديلًا.';
+
+  @override
+  String get snPurchaseFailed =>
+      'تعذر على المشغل إتمام الطلب. تم تحرير المبلغ المحجوز.';
+
+  @override
+  String get snCopyNumber => 'نسخ الرقم';
+
+  @override
+  String get snOpenInbox => 'فتح صندوق الرسائل';
+
+  @override
+  String get snMarkRead => 'وضع علامة كمقروءة';
+
+  @override
+  String get snForwardSetup => 'إعداد تحويل مكالمات الشريحة';
+
+  @override
+  String get snIdentity => 'حالة التحقق من الهوية';
+
+  @override
+  String get snUnverifiedSender => 'لم يتم التحقق من هوية المرسل';
+
+  @override
+  String get snQuoteExpired => 'انتهت صلاحية عرض السعر. حدّث الأرقام المتاحة.';
+
+  @override
+  String get snCheckStatus => 'التحقق من حالة الطلب';
+
+  @override
+  String get snWalletBalance => 'رصيد المحفظة';
+
+  @override
+  String get snPaidUntil => 'مدفوع حتى';
+
+  @override
+  String get snCancel => 'إلغاء';
+
+  @override
+  String get snTopUp => 'شحن المحفظة';
+
+  @override
+  String get snNoStock =>
+      'لا توجد أرقام مؤهلة متاحة. حاول لاحقًا أو اختر دولة أخرى.';
+
+  @override
+  String get snMobile => 'جوال';
+
+  @override
+  String get snLocal => 'محلي';
+
+  @override
+  String get snCalls => 'المكالمات';
+
+  @override
+  String get snCodeCandidate => 'رمز موجود في الرسالة';
+
+  @override
+  String get snRead => 'مقروءة';
+
+  @override
+  String get snError =>
+      'خدمة الرقم الثاني غير متاحة مؤقتًا. يرجى إعادة المحاولة.';
+
+  @override
+  String snEveryDays(int days) {
+    return 'كل $days يومًا';
+  }
+
+  @override
+  String get snRenewalReview =>
+      'يجب مراجعة إعدادات التجديد قبل بدء الفوترة التلقائية.';
 }

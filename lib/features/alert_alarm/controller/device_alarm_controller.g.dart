@@ -34,7 +34,7 @@ final class DeviceAlarmControllerProvider
 }
 
 String _$deviceAlarmControllerHash() =>
-    r'9cc1b52505b0d5ed30f6b85c1fcae174f59103f0';
+    r'26c07784fb0bc7df9b1e8b62237cb4af39815d9a';
 
 abstract class _$DeviceAlarmController
     extends $AsyncNotifier<DeviceAlarmStatus> {

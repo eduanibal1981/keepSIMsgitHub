@@ -1,3 +1,5 @@
+import { paypalMerchant } from "../_shared/paypal-capture.ts";
+import { ProviderConfigurationError, requireProviderSecret } from "../_shared/provider-secrets.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { APP_CHECK_HEADER, verifyAppCheckToken } from "./app_check.ts";
@@ -23,8 +25,7 @@ async function getPayPalAccessToken(apiBase: string, clientId: string, clientSec
   });
 
   if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Failed to obtain PayPal access token (${response.status}): ${errorText}`);
+    throw new Error(`PayPal authentication failed (${response.status})`);
   }
 
   const data = await response.json();
@@ -226,9 +227,13 @@ serve(async (req) => {
       }
     }
 
+    const merchantId = paypalMerchant();
+
     // 3. Obtain PayPal Access Token
-    const paypalClientId = Deno.env.get("PAYPAL_CLIENT_ID")!;
-    const paypalClientSecret = Deno.env.get("PAYPAL_CLIENT_SECRET")!;
+    const [paypalClientId, paypalClientSecret] = await Promise.all([
+      requireProviderSecret(adminClient, "PAYPAL_CLIENT_ID"),
+      requireProviderSecret(adminClient, "PAYPAL_CLIENT_SECRET"),
+    ]);
     const paypalApiBase = Deno.env.get("PAYPAL_API_BASE") || "https://api-m.sandbox.paypal.com";
 
     const accessToken = await getPayPalAccessToken(paypalApiBase, paypalClientId, paypalClientSecret);
@@ -261,6 +266,7 @@ serve(async (req) => {
             currency_code: "USD",
             value: finalAmountUsd.toFixed(2),
           },
+          payee: { merchant_id: merchantId },
           custom_id: JSON.stringify(customIdObj),
           description: kind === "plan" ? `KeepSIMs ${plan} Plan` : "KeepSIMs Wallet Refill",
         },
@@ -311,6 +317,7 @@ serve(async (req) => {
       plan: plan || null,
       sim_line_id: simLineId || null,
       amount_usd: finalAmountUsd,
+      merchant_id: merchantId,
       status: "created",
     });
 
@@ -343,6 +350,7 @@ serve(async (req) => {
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err: any) {
+    if (err instanceof ProviderConfigurationError) return new Response(JSON.stringify({ success: false, error: err.message, code: err.code }), { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     console.error("create-paypal-order internal error:", err);
     return new Response(
       JSON.stringify({ success: false, error: err.message || "Internal server error" }),

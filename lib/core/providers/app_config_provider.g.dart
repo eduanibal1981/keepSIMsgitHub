@@ -9,13 +9,13 @@ part of 'app_config_provider.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 /// The authoritative refill fee rules from app_fee_rules, keyed by line tier.
-/// Enforces C11: Free 7% ($0.50 min), Standard 5% ($0.30 min), Premium 3% ($0.10 min).
+/// The server selects the currently effective published USD policy, including zeros.
 
 @ProviderFor(refillFeeRules)
 final refillFeeRulesProvider = RefillFeeRulesProvider._();
 
 /// The authoritative refill fee rules from app_fee_rules, keyed by line tier.
-/// Enforces C11: Free 7% ($0.50 min), Standard 5% ($0.30 min), Premium 3% ($0.10 min).
+/// The server selects the currently effective published USD policy, including zeros.
 
 final class RefillFeeRulesProvider
     extends
@@ -28,7 +28,7 @@ final class RefillFeeRulesProvider
         $FutureModifier<Map<String, RefillTierFeeRule>>,
         $FutureProvider<Map<String, RefillTierFeeRule>> {
   /// The authoritative refill fee rules from app_fee_rules, keyed by line tier.
-  /// Enforces C11: Free 7% ($0.50 min), Standard 5% ($0.30 min), Premium 3% ($0.10 min).
+  /// The server selects the currently effective published USD policy, including zeros.
   RefillFeeRulesProvider._()
     : super(
         from: null,
@@ -55,7 +55,7 @@ final class RefillFeeRulesProvider
   }
 }
 
-String _$refillFeeRulesHash() => r'ca0f95b142326f0f003f0ec4fe943222a578ceed';
+String _$refillFeeRulesHash() => r'3bb62a974ed21554245080e976051f7b734342f0';
 
 /// The KeepSIMs service fee, as a percentage of a refill's base cost.
 /// Default for Premium automation or fallback callers.
@@ -139,38 +139,20 @@ final class MinAppFeeUsdProvider
 
 String _$minAppFeeUsdHash() => r'a642eea26e409329cc925166f08e29a9418059fd';
 
-/// The yearly per-line service fee both paid tiers carry.
-///
-/// Read from `system_configs.BASE_SERVICE_FEE_USD` (C3c) instead of the
-/// hardcoded $2.50 that lived in three screens. The wallet-billed charge is
-/// priced server-side by `pay_plan_fee_from_wallet` from the same row; this
-/// value only decides what is displayed and what a PayPal fallback bills.
-/// Zero and negative are refused like the RPC refuses them, so the quote and
-/// the debit cannot disagree.
+/// Server-quoted Standard membership fee. Missing configuration stays an error;
+/// a configured zero is a valid promotion. Premium uses its own server breakdown.
 
 @ProviderFor(baseServiceFeeUsd)
 final baseServiceFeeUsdProvider = BaseServiceFeeUsdProvider._();
 
-/// The yearly per-line service fee both paid tiers carry.
-///
-/// Read from `system_configs.BASE_SERVICE_FEE_USD` (C3c) instead of the
-/// hardcoded $2.50 that lived in three screens. The wallet-billed charge is
-/// priced server-side by `pay_plan_fee_from_wallet` from the same row; this
-/// value only decides what is displayed and what a PayPal fallback bills.
-/// Zero and negative are refused like the RPC refuses them, so the quote and
-/// the debit cannot disagree.
+/// Server-quoted Standard membership fee. Missing configuration stays an error;
+/// a configured zero is a valid promotion. Premium uses its own server breakdown.
 
 final class BaseServiceFeeUsdProvider
     extends $FunctionalProvider<AsyncValue<double>, double, FutureOr<double>>
     with $FutureModifier<double>, $FutureProvider<double> {
-  /// The yearly per-line service fee both paid tiers carry.
-  ///
-  /// Read from `system_configs.BASE_SERVICE_FEE_USD` (C3c) instead of the
-  /// hardcoded $2.50 that lived in three screens. The wallet-billed charge is
-  /// priced server-side by `pay_plan_fee_from_wallet` from the same row; this
-  /// value only decides what is displayed and what a PayPal fallback bills.
-  /// Zero and negative are refused like the RPC refuses them, so the quote and
-  /// the debit cannot disagree.
+  /// Server-quoted Standard membership fee. Missing configuration stays an error;
+  /// a configured zero is a valid promotion. Premium uses its own server breakdown.
   BaseServiceFeeUsdProvider._()
     : super(
         from: null,
@@ -196,7 +178,7 @@ final class BaseServiceFeeUsdProvider
   }
 }
 
-String _$baseServiceFeeUsdHash() => r'169bbf3542dfaf4b8e1abdb44f1e6ae83fcd09bb';
+String _$baseServiceFeeUsdHash() => r'926e6677ecee43dcb9fd2004962547d8eb639e67';
 
 /// Percentage part of the premium margin, applied to the refill's cost.
 ///

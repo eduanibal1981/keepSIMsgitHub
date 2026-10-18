@@ -44,7 +44,7 @@ import 'package:keep_sims/features/esim/presentation/screens/esim_screen.dart';
 import 'package:keep_sims/features/esim/presentation/screens/esim_plans_screen.dart';
 import 'package:keep_sims/features/price_watch/presentation/screens/price_watch_screen.dart';
 import 'package:keep_sims/features/roam_calculator/presentation/screens/roam_calculator_screen.dart';
-import 'package:keep_sims/features/calling/presentation/screens/calling_screen.dart';
+import 'package:keep_sims/features/calling/presentation/screens/call_history_screen.dart';
 import 'package:keep_sims/features/calling/presentation/screens/smart_call_dashboard_screen.dart';
 import 'package:keep_sims/features/calling/presentation/screens/active_call_screen.dart';
 import 'package:keep_sims/features/calling/presentation/screens/sip_diagnostics_screen.dart';
@@ -66,7 +66,7 @@ abstract final class AppRoutes {
   static const String onboarding = '/onboarding';
   static const String home = '/home';
   static const String calling = '/calling';
-  static const String callingDialer = '/calling/dialer';
+  static const String callingHistory = '/calling/recent';
   static const String myNumbers = '/calling/my-numbers';
   static const String voicemail = '/calling/voicemail';
   static const String voicemailDetail = '/calling/voicemail/:voicemailId';
@@ -299,12 +299,14 @@ RouterConfig<Object> appRouter(Ref ref) {
             builder: (context, state) => const SmartCallDashboardScreen(),
             routes: [
               GoRoute(
+                path: 'recent',
+                name: 'callingHistory',
+                builder: (context, state) => const CallHistoryScreen(),
+              ),
+              GoRoute(
                 path: 'dialer',
                 name: 'callingDialer',
-                builder: (context, state) => CallingScreen(
-                  initialNumber: state.uri.queryParameters['number'],
-                  showHistory: state.uri.queryParameters['tab'] == 'recent',
-                ),
+                redirect: (context, state) => AppRoutes.callingHistory,
               ),
             ],
           ),
@@ -323,7 +325,11 @@ RouterConfig<Object> appRouter(Ref ref) {
           GoRoute(
             path: AppRoutes.myNumbers,
             name: 'myNumbers',
-            builder: (context, state) => const MyNumbersScreen(),
+            builder: (context, state) => MyNumbersScreen(
+              initialDidId: state.uri.queryParameters['tab'] == 'sms'
+                  ? state.uri.queryParameters['didId']
+                  : null,
+            ),
           ),
           GoRoute(
             path: AppRoutes.callingSavings,

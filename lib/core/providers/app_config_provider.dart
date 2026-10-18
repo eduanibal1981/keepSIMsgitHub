@@ -5,60 +5,35 @@ import 'package:keep_sims/features/sim_lines/data/models/payment_method_model.da
 
 part 'app_config_provider.g.dart';
 
-/// Fallback app fee, matching `calculate_topup_fees`. Both sides must agree on
-/// this number: if the config row is unreadable here it is usually unreadable
-/// (or absent) for the trigger too, and they land on the same answer.
+/// Legacy advisory display default; server checkout requires published policy.
 const double kDefaultAppFeePercent = 3.0;
 
-/// Fallback minimum app fee floor, matching `calculate_topup_fees`.
+/// Legacy advisory display minimum; not an authorization or server fallback.
 const double kDefaultMinAppFeeUsd = 0.03;
 
 class RefillTierFeeRule {
   final double percentage;
   final double minimum;
 
-  const RefillTierFeeRule({
-    required this.percentage,
-    required this.minimum,
-  });
+  const RefillTierFeeRule({required this.percentage, required this.minimum});
 }
 
 /// The authoritative refill fee rules from app_fee_rules, keyed by line tier.
-/// Enforces C11: Free 7% ($0.50 min), Standard 5% ($0.30 min), Premium 3% ($0.10 min).
+/// The server selects the currently effective published USD policy, including zeros.
 @Riverpod(keepAlive: true)
 Future<Map<String, RefillTierFeeRule>> refillFeeRules(Ref ref) async {
-  try {
-    final row = await Supabase.instance.client
-        .from('app_fee_rules')
-        .select('free_percentage, free_minimum, stand_percentage, stand_minimum, prem_percentage, prem_minimum')
-        .eq('appfees_item', 'refills')
-        .eq('status', 'published')
-        .order('version', ascending: false)
-        .limit(1)
-        .maybeSingle();
-
-    if (row != null) {
-      return {
-        'free': RefillTierFeeRule(
-          percentage: (row['free_percentage'] as num?)?.toDouble() ?? 7.0,
-          minimum: (row['free_minimum'] as num?)?.toDouble() ?? 0.50,
-        ),
-        'standard': RefillTierFeeRule(
-          percentage: (row['stand_percentage'] as num?)?.toDouble() ?? 5.0,
-          minimum: (row['stand_minimum'] as num?)?.toDouble() ?? 0.30,
-        ),
-        'premium': RefillTierFeeRule(
-          percentage: (row['prem_percentage'] as num?)?.toDouble() ?? 3.0,
-          minimum: (row['prem_minimum'] as num?)?.toDouble() ?? 0.10,
-        ),
-      };
-    }
-  } catch (_) {}
-
-  return const {
-    'free': RefillTierFeeRule(percentage: 7.0, minimum: 0.50),
-    'standard': RefillTierFeeRule(percentage: 5.0, minimum: 0.30),
-    'premium': RefillTierFeeRule(percentage: 3.0, minimum: 0.10),
+  final data = await Supabase.instance.client.rpc(
+    'get_current_refill_fee_rules',
+  );
+  if (data is! Map || data['currency'] != 'USD') {
+    throw const FormatException('Refill pricing unavailable');
+  }
+  return {
+    for (final tier in ['free', 'standard', 'premium'])
+      tier: RefillTierFeeRule(
+        percentage: (data[tier]['percentage'] as num).toDouble(),
+        minimum: (data[tier]['minimum'] as num).toDouble(),
+      ),
   };
 }
 
@@ -86,35 +61,21 @@ Future<double> minAppFeeUsd(Ref ref) async {
   }
 }
 
-/// Fallback yearly service fee, matching `pay_plan_fee_from_wallet`'s own
-/// fallback so a failed read here quotes the price the RPC would debit.
+/// Retained for legacy advisory displays; paid checkout never uses this fallback.
 const double kDefaultBaseServiceFeeUsd = 2.50;
 
-/// The yearly per-line service fee both paid tiers carry.
-///
-/// Read from `system_configs.BASE_SERVICE_FEE_USD` (C3c) instead of the
-/// hardcoded $2.50 that lived in three screens. The wallet-billed charge is
-/// priced server-side by `pay_plan_fee_from_wallet` from the same row; this
-/// value only decides what is displayed and what a PayPal fallback bills.
-/// Zero and negative are refused like the RPC refuses them, so the quote and
-/// the debit cannot disagree.
+/// Server-quoted Standard membership fee. Missing configuration stays an error;
+/// a configured zero is a valid promotion. Premium uses its own server breakdown.
 @Riverpod(keepAlive: true)
 Future<double> baseServiceFeeUsd(Ref ref) async {
-  try {
-    final row = await Supabase.instance.client
-        .from('system_configs')
-        .select('config_value')
-        .eq('config_key', 'BASE_SERVICE_FEE_USD')
-        .maybeSingle();
-
-    final parsed = double.tryParse(row?['config_value']?.toString() ?? '');
-    if (parsed == null || parsed <= 0 || parsed > 1000) {
-      return kDefaultBaseServiceFeeUsd;
-    }
-    return parsed;
-  } catch (_) {
-    return kDefaultBaseServiceFeeUsd;
+  final value = await Supabase.instance.client.rpc(
+    'quote_plan_price',
+    params: {'p_plan': 'standard', 'p_gateway': 'wallet'},
+  );
+  if (value is! num || !value.isFinite || value < 0) {
+    throw const FormatException('Membership pricing unavailable');
   }
+  return value.toDouble();
 }
 
 /// Percentage part of the premium margin, applied to the refill's cost.

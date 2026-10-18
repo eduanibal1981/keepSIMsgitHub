@@ -1,3 +1,4 @@
+import { ProviderConfigurationError, providerSecretClient, requireProviderSecret } from "../_shared/provider-secrets.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
@@ -21,10 +22,10 @@ serve(async (req) => {
       });
     }
 
-    const zenditApiSecret = Deno.env.get('ZENDIT_API_SECRET');
-    if (!zenditApiSecret) {
-      throw new Error('ZENDIT_API_SECRET is not set');
-    }
+    const zenditApiSecret = await requireProviderSecret(
+      providerSecretClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!),
+      "ZENDIT_API_SECRET", ["ZENDIT_API_KEY"],
+    );
 
     const zenditBaseUrl = 'https://api.zendit.io/v1';
     
@@ -39,8 +40,7 @@ serve(async (req) => {
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Zendit API Error: ${response.status} - ${errorText}`);
+      throw new Error(`Zendit request failed (${response.status})`);
     }
 
     const data = await response.json();
@@ -95,6 +95,7 @@ serve(async (req) => {
       status: 200,
     });
   } catch (error: any) {
+    if (error instanceof ProviderConfigurationError) return new Response(JSON.stringify({ error: error.message, code: error.code }), { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     console.error('Error fetching Zendit offers:', error);
     return new Response(JSON.stringify({ error: error.message }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

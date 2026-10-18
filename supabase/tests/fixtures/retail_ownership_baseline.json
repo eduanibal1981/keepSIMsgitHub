@@ -1,0 +1,33 @@
+{
+  "tables": [
+    "supplier_policy",
+    "refill_approval_quotes"
+  ],
+  "views": [
+    "carrier_supplier_routing",
+    "provider_offers_effective",
+    "zendit_offers_cache",
+    "esim_offers"
+  ],
+  "functions": {
+    "list_carrier_offers": "bdff428fcf8131c9a2647f1777ae2ef94cc5a3668917645320dc4ccb034e6854",
+    "list_refill_offers": "7bacc786c64a53bb74d42d91088014a1421780fa36fb0e7485db63b604325d6e",
+    "pick_best_refill_offer": "e086a2b66993ed3217eb839f3ecf7e8495a877afe1708af6594cd1c68caea235",
+    "choose_supplier_for_offer": "2037c73fdb38c7e51c6b8cd507026572014b2d298c3d1aa2706d54f42a577ee0",
+    "supplier_candidates": "440b805d37c0f31ad373776e887c4a82df8233e8d7d5b196872807fc6891ec6b",
+    "supplier_effective_cost": "1c26d3f405fd55b37829d71bb54fb6a0b07f669338d251cab80e5ae55bbb9752",
+    "resolve_household_payer": "145b1f5c4c0f21b496f0a48dff59b1b877bbcf28354181ed3cb5e932673a549c",
+    "household_spend_check": "68f8ec2572e63f097ac7fcc431a9a601c42b1e599db448dd70ab84c7311ead86",
+    "household_spend_mtd": "ebcb90d262f339bc037647e81e375ae544bfbe8768f7a14c0a671c5c85cda592",
+    "request_instant_refill": "a81b0cd7a0ba052c5482b47b7f66015e92c59a6d14f6f94e6783aecf714a8b45",
+    "config_numeric": "5a42461b12b2ea226dc8bb4137a86dd7350f68cf49653f493645f74868174bee",
+    "interpolate_offer_value": "86094dcbbb32ba113b72a2af3485501cde154fbb6dc638904563ae7441b8b64c",
+    "assert_admin": "93e642c3cf8b8c7ed4f01bb301d69ee83a65537f35a0e1b7f59b2567889aa6a6"
+  },
+  "requires": [
+    "financial_remediation_baseline.sql",
+    "financial_production_snapshot.json",
+    "pricing_contract_baseline.sql"
+  ],
+  "limits": "Bounded catalogue/ownership extension. Real public constraints, supplier/household functions and supplemental API grants/RLS. Auth, risk/rate limiting, notification/health and provider/network adapters remain those of the isolated financial harness. No complete Supabase/PostgREST/Realtime/provider or production parity claim."
+}

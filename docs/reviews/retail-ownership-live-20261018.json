@@ -1,0 +1,140 @@
+{
+  "checked_on": "2026-10-18 (Asia/Muscat)",
+  "project": "zwxswagokhgbuzrrbnhr",
+  "scope": "Read-only schema/grants; no customer rows, exploit requests or provider calls.",
+  "functions": [
+    {
+      "result": "jsonb",
+      "body_md5": "a7463307d70dadb748b93f01e67da353",
+      "signature": "get_authoritative_refill_quote(uuid,numeric,text,text,text)",
+      "anon_execute": false,
+      "customer_execute": true
+    },
+    {
+      "result": "TABLE(id uuid, country_code text, country_name text, phone_prefix text, rate_per_minute_usd numeric, cost_per_minute_usd numeric, connection_fee_usd numeric, billing_increment_seconds integer, account_tier text)",
+      "body_md5": "f14a1bea448e218a49b926a5836153f1",
+      "signature": "get_call_rate_for_number(text,uuid)",
+      "anon_execute": true,
+      "customer_execute": true
+    },
+    {
+      "result": "TABLE(id uuid, country_id uuid, carrier_id uuid, carrier_name text, package_type text, title text, description text, data_allowance_mb integer, duration_days integer, is_unlimited boolean, supplier_cost_usd numeric, retail_price_usd numeric, effective_price_usd numeric, app_fee_usd numeric, discount_usd numeric, ussd_recharge_code text, activation_instructions text, badge_label text, account_tier text)",
+      "body_md5": "1cc8a59a531204d905d34da821e92066",
+      "signature": "get_return_trip_packages_for_line(uuid,uuid)",
+      "anon_execute": true,
+      "customer_execute": true
+    },
+    {
+      "result": "TABLE(id uuid, country_code text, country_name text, phone_prefix text, destination_type text, cost_per_minute_usd numeric, base_rate_per_minute_usd numeric, effective_rate_per_minute_usd numeric, connection_fee_usd numeric, billing_increment_seconds integer, account_tier text, is_active boolean)",
+      "body_md5": "a78f65c1c7a3a10e53bacbdbf22f26d6",
+      "signature": "get_user_calling_rates(uuid)",
+      "anon_execute": true,
+      "customer_execute": true
+    },
+    {
+      "result": "text",
+      "body_md5": "787946525fd5c0f28c930ad421ca3231",
+      "signature": "resolve_account_commerce_benefit(uuid)",
+      "anon_execute": true,
+      "customer_execute": true
+    },
+    {
+      "result": "jsonb",
+      "body_md5": "5d942d47a8a0f084d38ad06004c94580",
+      "signature": "resolve_line_entitlement(uuid)",
+      "anon_execute": true,
+      "customer_execute": true
+    }
+  ],
+  "relations": [
+    {
+      "relkind": "r",
+      "relname": "call_rates",
+      "reloptions": null,
+      "anon_select": true,
+      "relrowsecurity": true,
+      "customer_select": true
+    },
+    {
+      "relkind": "v",
+      "relname": "esim_offers",
+      "reloptions": null,
+      "anon_select": true,
+      "relrowsecurity": false,
+      "customer_select": true
+    },
+    {
+      "relkind": "r",
+      "relname": "esim_offers_cache",
+      "reloptions": null,
+      "anon_select": true,
+      "relrowsecurity": true,
+      "customer_select": true
+    },
+    {
+      "relkind": "r",
+      "relname": "esim_orders",
+      "reloptions": null,
+      "anon_select": true,
+      "relrowsecurity": true,
+      "customer_select": true
+    },
+    {
+      "relkind": "r",
+      "relname": "provider_offers",
+      "reloptions": null,
+      "anon_select": true,
+      "relrowsecurity": true,
+      "customer_select": true
+    },
+    {
+      "relkind": "r",
+      "relname": "provider_offers_cache",
+      "reloptions": null,
+      "anon_select": false,
+      "relrowsecurity": true,
+      "customer_select": true
+    },
+    {
+      "relkind": "v",
+      "relname": "provider_offers_effective",
+      "reloptions": null,
+      "anon_select": true,
+      "relrowsecurity": false,
+      "customer_select": true
+    },
+    {
+      "relkind": "r",
+      "relname": "refill_approval_quotes",
+      "reloptions": null,
+      "anon_select": false,
+      "relrowsecurity": true,
+      "customer_select": true
+    },
+    {
+      "relkind": "r",
+      "relname": "return_trip_packages",
+      "reloptions": null,
+      "anon_select": true,
+      "relrowsecurity": true,
+      "customer_select": true
+    },
+    {
+      "relkind": "r",
+      "relname": "return_trips",
+      "reloptions": null,
+      "anon_select": true,
+      "relrowsecurity": true,
+      "customer_select": true
+    },
+    {
+      "relkind": "v",
+      "relname": "zendit_offers_cache",
+      "reloptions": null,
+      "anon_select": true,
+      "relrowsecurity": false,
+      "customer_select": true
+    }
+  ],
+  "task19_applied": false
+}

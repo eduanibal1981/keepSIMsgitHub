@@ -127,13 +127,13 @@ abstract class AppLocalizations {
   /// No description provided for @dashboardManageReminders.
   ///
   /// In en, this message translates to:
-  /// **'Manage reminders and top-ups'**
+  /// **'Reminders and top-ups in one place'**
   String get dashboardManageReminders;
 
   /// No description provided for @dashboardManageSims.
   ///
   /// In en, this message translates to:
-  /// **'Manage SIMS'**
+  /// **'Manage SIMs'**
   String get dashboardManageSims;
 
   /// No description provided for @dashboardSimLineCount.
@@ -157,13 +157,13 @@ abstract class AppLocalizations {
   /// No description provided for @dashboardExploreSmartCall.
   ///
   /// In en, this message translates to:
-  /// **'Explore Smart Call'**
+  /// **'Make international calls'**
   String get dashboardExploreSmartCall;
 
   /// No description provided for @dashboardExploreGlobalOffers.
   ///
   /// In en, this message translates to:
-  /// **'Explore global offers'**
+  /// **'Mobile data for travel'**
   String get dashboardExploreGlobalOffers;
 
   /// No description provided for @dashboardAddSims.
@@ -5495,8 +5495,14 @@ abstract class AppLocalizations {
   /// No description provided for @virtualNumbers.
   ///
   /// In en, this message translates to:
-  /// **'Virtual Numbers'**
+  /// **'Second Number'**
   String get virtualNumbers;
+
+  /// No description provided for @secondNumberSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Calls & call forwarding'**
+  String get secondNumberSubtitle;
 
   /// No description provided for @voicemail.
   ///
@@ -5695,6 +5701,396 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Profile updated.'**
   String get profileSaved;
+
+  /// No description provided for @dashboardExplore.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore KeepSIMs'**
+  String get dashboardExplore;
+
+  /// No description provided for @dashboardYourSimLines.
+  ///
+  /// In en, this message translates to:
+  /// **'Your SIM lines'**
+  String get dashboardYourSimLines;
+
+  /// No description provided for @dashboardSecondNumberBenefit.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive and forward calls'**
+  String get dashboardSecondNumberBenefit;
+
+  /// No description provided for @dashboardSetUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up'**
+  String get dashboardSetUp;
+
+  /// No description provided for @dashboardRecharge.
+  ///
+  /// In en, this message translates to:
+  /// **'Recharge'**
+  String get dashboardRecharge;
+
+  /// No description provided for @dashboardStandard.
+  ///
+  /// In en, this message translates to:
+  /// **'Standard'**
+  String get dashboardStandard;
+
+  /// No description provided for @dashboardPremium.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium'**
+  String get dashboardPremium;
+
+  /// No description provided for @dashboardAccountOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Account options'**
+  String get dashboardAccountOptions;
+
+  /// No description provided for @dashboardCurrentLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Current location'**
+  String get dashboardCurrentLocation;
+
+  /// No description provided for @snMyNumbers.
+  ///
+  /// In en, this message translates to:
+  /// **'My Second Numbers'**
+  String get snMyNumbers;
+
+  /// No description provided for @snGetNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Get Second Number'**
+  String get snGetNumber;
+
+  /// No description provided for @snSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your numbers and messages, together.'**
+  String get snSubtitle;
+
+  /// No description provided for @snMessages.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages'**
+  String get snMessages;
+
+  /// No description provided for @snEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Get a dedicated number to receive messages in KeepSIMs.'**
+  String get snEmpty;
+
+  /// No description provided for @snVerification.
+  ///
+  /// In en, this message translates to:
+  /// **'Verification codes depend on the sending service. Some services do not accept virtual numbers.'**
+  String get snVerification;
+
+  /// No description provided for @snPrivateNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Message content is hidden in notifications.'**
+  String get snPrivateNotifications;
+
+  /// No description provided for @snRenewal.
+  ///
+  /// In en, this message translates to:
+  /// **'Next renewal'**
+  String get snRenewal;
+
+  /// No description provided for @snAutoRenew.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-renew from my wallet'**
+  String get snAutoRenew;
+
+  /// No description provided for @snRelease.
+  ///
+  /// In en, this message translates to:
+  /// **'Release this number'**
+  String get snRelease;
+
+  /// No description provided for @snReleaseConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'You will lose future calls and messages. Update accounts that use this number for sign-in or recovery. The number may later be assigned to someone else. Release starts immediately and completes after carrier confirmation.'**
+  String get snReleaseConfirm;
+
+  /// No description provided for @snReleasePending.
+  ///
+  /// In en, this message translates to:
+  /// **'Release pending'**
+  String get snReleasePending;
+
+  /// No description provided for @snGrace.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment due — top up before the release deadline'**
+  String get snGrace;
+
+  /// No description provided for @snActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get snActive;
+
+  /// No description provided for @snReceiveOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive-only SMS inbox'**
+  String get snReceiveOnly;
+
+  /// No description provided for @snCopyCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy code'**
+  String get snCopyCode;
+
+  /// No description provided for @snCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied to clipboard'**
+  String get snCopied;
+
+  /// No description provided for @snNoMessages.
+  ///
+  /// In en, this message translates to:
+  /// **'No messages yet'**
+  String get snNoMessages;
+
+  /// No description provided for @snInboxUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load messages. Check your connection and retry.'**
+  String get snInboxUnavailable;
+
+  /// No description provided for @snRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get snRetry;
+
+  /// No description provided for @snSetupPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Setting up your number'**
+  String get snSetupPending;
+
+  /// No description provided for @snRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh status'**
+  String get snRefresh;
+
+  /// No description provided for @snManage.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage number'**
+  String get snManage;
+
+  /// No description provided for @snChooseCountry.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a country'**
+  String get snChooseCountry;
+
+  /// No description provided for @snNoCoverage.
+  ///
+  /// In en, this message translates to:
+  /// **'Numbers are not available yet. US and UK coverage and prices are being validated.'**
+  String get snNoCoverage;
+
+  /// No description provided for @snChooseNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your number'**
+  String get snChooseNumber;
+
+  /// No description provided for @snReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Review your number'**
+  String get snReview;
+
+  /// No description provided for @snNumberFee.
+  ///
+  /// In en, this message translates to:
+  /// **'Number fee'**
+  String get snNumberFee;
+
+  /// No description provided for @snServiceFee.
+  ///
+  /// In en, this message translates to:
+  /// **'KeepSIMs Service Fee'**
+  String get snServiceFee;
+
+  /// No description provided for @snSetupFee.
+  ///
+  /// In en, this message translates to:
+  /// **'Setup fee'**
+  String get snSetupFee;
+
+  /// No description provided for @snTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total due today'**
+  String get snTotal;
+
+  /// No description provided for @snUsage.
+  ///
+  /// In en, this message translates to:
+  /// **'Usage terms'**
+  String get snUsage;
+
+  /// No description provided for @snActivate.
+  ///
+  /// In en, this message translates to:
+  /// **'Activate number'**
+  String get snActivate;
+
+  /// No description provided for @snPurchasePending.
+  ///
+  /// In en, this message translates to:
+  /// **'Your order is being confirmed. Funds are reserved. Check its status here; do not buy a replacement number.'**
+  String get snPurchasePending;
+
+  /// No description provided for @snPurchaseFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The carrier could not complete this order. Your reserved funds were released.'**
+  String get snPurchaseFailed;
+
+  /// No description provided for @snCopyNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy number'**
+  String get snCopyNumber;
+
+  /// No description provided for @snOpenInbox.
+  ///
+  /// In en, this message translates to:
+  /// **'Open inbox'**
+  String get snOpenInbox;
+
+  /// No description provided for @snMarkRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as read'**
+  String get snMarkRead;
+
+  /// No description provided for @snForwardSetup.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up SIM call forwarding'**
+  String get snForwardSetup;
+
+  /// No description provided for @snIdentity.
+  ///
+  /// In en, this message translates to:
+  /// **'Identity status'**
+  String get snIdentity;
+
+  /// No description provided for @snUnverifiedSender.
+  ///
+  /// In en, this message translates to:
+  /// **'Sender identity not verified'**
+  String get snUnverifiedSender;
+
+  /// No description provided for @snQuoteExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'This quote expired. Refresh available numbers.'**
+  String get snQuoteExpired;
+
+  /// No description provided for @snCheckStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Check order status'**
+  String get snCheckStatus;
+
+  /// No description provided for @snWalletBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet balance'**
+  String get snWalletBalance;
+
+  /// No description provided for @snPaidUntil.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid until'**
+  String get snPaidUntil;
+
+  /// No description provided for @snCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get snCancel;
+
+  /// No description provided for @snTopUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Top up wallet'**
+  String get snTopUp;
+
+  /// No description provided for @snNoStock.
+  ///
+  /// In en, this message translates to:
+  /// **'No eligible numbers are available. Try again or choose another country.'**
+  String get snNoStock;
+
+  /// No description provided for @snMobile.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile'**
+  String get snMobile;
+
+  /// No description provided for @snLocal.
+  ///
+  /// In en, this message translates to:
+  /// **'Local'**
+  String get snLocal;
+
+  /// No description provided for @snCalls.
+  ///
+  /// In en, this message translates to:
+  /// **'Calls'**
+  String get snCalls;
+
+  /// No description provided for @snCodeCandidate.
+  ///
+  /// In en, this message translates to:
+  /// **'Code found in message'**
+  String get snCodeCandidate;
+
+  /// No description provided for @snRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Read'**
+  String get snRead;
+
+  /// No description provided for @snError.
+  ///
+  /// In en, this message translates to:
+  /// **'Second Number is temporarily unavailable. Please retry.'**
+  String get snError;
+
+  /// No description provided for @snEveryDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Every {days} days'**
+  String snEveryDays(int days);
+
+  /// No description provided for @snRenewalReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Renewal settings need review before automatic billing can begin.'**
+  String get snRenewalReview;
 }
 
 class _AppLocalizationsDelegate

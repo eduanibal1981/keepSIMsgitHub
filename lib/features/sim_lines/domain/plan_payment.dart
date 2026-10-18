@@ -1,14 +1,25 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:keep_sims/core/providers.dart';
-import 'package:keep_sims/core/providers/app_config_provider.dart';
 import 'package:keep_sims/core/result.dart';
 import 'package:keep_sims/core/services/local_cache_service.dart';
 import 'package:keep_sims/features/wallet/model/pending_plan_fee.dart';
-import 'package:keep_sims/features/sim_lines/data/models/carrier_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/carrier_rule_model.dart';
 import 'package:keep_sims/features/sim_lines/domain/refill_pricing.dart';
 import 'package:keep_sims/features/wallet/controller/wallet_controller.dart';
+
+/// Cached retail server quotes for display. Errors/missing contracts stay
+/// unavailable; checkout always fetches a fresh server quote.
+final premiumDisplayQuoteProvider = FutureProvider.autoDispose
+    .family<PremiumInitialBreakdown?, ({String ruleId, String? lineId})>((
+      ref,
+      key,
+    ) {
+      return PlanPayment.fetchPremiumBreakdown(
+        carrierRuleId: key.ruleId,
+        simLineId: key.lineId,
+      );
+    });
 
 /// One implementation of "charge the Standard yearly fee", shared by
 /// onboarding, the add-line form and the upgrade sheet — the three screens
@@ -38,13 +49,16 @@ class PlanPayment {
   /// What the PayPal fallback bills so exactly the service fee survives
   /// PayPal's percentage + fixed cut.
   static Future<double> standardPayPalTotal(WidgetRef ref) async {
-    final fee = await ref.read(baseServiceFeeUsdProvider.future);
-    final paypal = await ref.read(paymentGatewayProvider('paypal').future);
-    return RefillPricing.grossUpTotal(
-      net: fee,
-      gatewayFeePercentage: paypal?.feePercentage ?? 0,
-      gatewayFeeFixed: paypal?.feeFixed ?? 0,
+    final price = await fetchQuotedPlanPrice(
+      plan: 'standard',
+      gateway: 'paypal',
     );
+    if (price == null || !price.isFinite || price < 0) {
+      throw StateError(
+        'The current plan price is unavailable. Please try again.',
+      );
+    }
+    return price;
   }
 
   /// Attempts the wallet debit; true means the fee is paid in full.
@@ -67,26 +81,10 @@ class PlanPayment {
 
   /// [tryStandardFromWallet] for any plan.
   ///
-  /// Premium goes through the same rail as Standard (J8) rather than being
-  /// PayPal-only, for three reasons that are all the reported bug:
-  ///
-  ///  * the add-line form used to push PayPal with `paymentKind: 'deposit'`
-  ///    for Premium and then **skip the debit entirely** — the money landed in
-  ///    the wallet, the line was created, and
-  ///    `queue_premium_refill_executions` refused it with KS403 because
-  ///    nothing had been paid *for the plan*. No Premium line bought on that
-  ///    screen had ever been paid for;
-  ///  * a wallet debit is a single synchronous round-trip, so the entitlement
-  ///    exists before the line is inserted. A `kind: 'plan'` PayPal charge is
-  ///    recorded by a webhook that can land *after* checkout reports success —
-  ///    see [waitForPlanPayment];
-  ///  * the wallet gateway takes 0% + $0.00, so it is also the cheaper rail.
-  ///
-  /// [rule] is required for Premium: the server prices the year from that
-  /// carrier rule, which on a new line is the only handle it has (the line
-  /// does not exist yet). It is also what stops a Premium plan being sold for
-  /// a carrier the refill queue would refuse — `plan_price_net` raises KS422
-  /// for those before any money moves.
+  /// Premium and Standard use server-priced wallet payment with a durable
+  /// receipt. Premium also requires a carrier rule to check refill eligibility.
+  /// Future refills remain individually wallet-funded, within the customer's
+  /// reviewed authorization ceiling; the annual fee does not prepay a queue.
   static Future<bool> tryPlanFromWallet(
     WidgetRef ref, {
     String plan = 'standard',
@@ -95,29 +93,49 @@ class PlanPayment {
   }) async {
     final isPremium = plan == 'premium';
     if (isPremium && rule == null) {
-      throw ArgumentError('A carrier rule is required to price a premium plan.');
+      throw ArgumentError(
+        'A carrier rule is required to price a premium plan.',
+      );
     }
 
-    final fee = isPremium
-        ? await premiumWalletTotal(ref, rule!)
-        : await ref.read(baseServiceFeeUsdProvider.future);
     final cache = ref.read(localCacheServiceProvider);
+    var stored = PendingPlanFee.fromJson(cache.readJson(_pendingFeeKey));
+    if (stored != null) {
+      final receipt = await Supabase.instance.client.rpc(
+        'get_owned_plan_payment_receipt',
+        params: {'p_reference_id': stored.referenceId},
+      );
+      if (receipt is Map) {
+        if (receipt['plan'] == plan && receipt['sim_line_id'] == simLineId) {
+          return ref
+              .read(walletControllerProvider.notifier)
+              .payPlanFee(
+                simLineId: simLineId,
+                referenceId: stored.referenceId,
+                plan: plan,
+                carrierRuleId: rule?.id,
+                expectedAmount: (receipt['amount'] as num).toDouble(),
+              );
+        }
+        stored = null; // A different purchase cannot spend this receipt.
+      }
+    }
+    final fee = isPremium
+        ? await premiumWalletTotal(ref, rule!, simLineId: simLineId)
+        : await fetchQuotedPlanPrice(
+            plan: plan,
+            gateway: 'wallet',
+            simLineId: simLineId,
+          );
+    if (fee == null || !fee.isFinite || fee < 0) {
+      throw StateError(
+        'The current plan price is unavailable. Please try again.',
+      );
+    }
 
-    // A fee already paid for a line that never got created is spendable now,
-    // and replaying its reference id debits nothing. Without this every failure
-    // after the debit bills the user again on the next attempt.
-    //
-    // **Only if it covers this plan.** Since J8 the two tiers cost different
-    // amounts, and a replay answers `already_paid` with whatever the ledger
-    // holds — so a leftover $2.50 Standard fee would otherwise be adopted as
-    // payment for a $9.52 Premium year and the line created for the
-    // difference. A cheaper pending fee is left on disk for the tier it was
-    // actually charged for, and this purchase pays its own way.
-    final stored = PendingPlanFee.fromJson(cache.readJson(_pendingFeeKey));
-    final pending = (stored != null && stored.amount + 0.001 >= fee)
-        ? stored
-        : null;
-    if (pending == null) {
+    // A failed uncollected attempt keeps its reference across a price refresh.
+    final pending = stored;
+    if (pending == null && fee > 0) {
       final result = await ref
           .read(walletRepositoryProvider)
           .getWallet()
@@ -151,6 +169,7 @@ class PlanPayment {
           referenceId: reference,
           plan: plan,
           carrierRuleId: rule?.id,
+          expectedAmount: fee,
         );
 
     // Not paid means not charged, so nothing is owed and nothing is held.
@@ -199,8 +218,9 @@ class PlanPayment {
         final result = await repo.getWallet().timeout(
           const Duration(seconds: 10),
         );
-        if (result case Success(data: final wallet)
-            when wallet.balance >= atLeast) {
+        if (result case Success(
+          data: final wallet,
+        ) when wallet.balance >= atLeast) {
           // Deliberately does *not* invalidate the controller here. Invalidating
           // disposes its state, and `payPlanFee` opens with a `state.value` null
           // check that returns false — so refreshing right before the charge can
@@ -219,20 +239,9 @@ class PlanPayment {
   /// Blocks until the `plan_payments` row a `kind: 'plan'` PayPal charge
   /// produces is visible, returning false if it never arrives within [timeout].
   ///
-  /// **The entitlement is not in place when checkout says "Payment Confirmed".**
-  /// That signal is `paypal_orders.status = 'captured'`, and there are two ways
-  /// it gets written: `paypal-webhook`'s PAYMENT.CAPTURE.COMPLETED handler,
-  /// which inserts the `plan_payments` row *first*, and the client-driven
-  /// `capture-paypal-order` fallback, which marks the order captured and writes
-  /// no payment row at all — that one only appears when PayPal's webhook lands
-  /// afterwards. So on the fallback path a caller that commits immediately asks
-  /// `queue_premium_refill_executions` to queue a year of refills for a line
-  /// whose payment is not yet recorded, and gets KS403: the same "no paid,
-  /// unexpired premium plan" sentence the deposit bug produced, but
-  /// intermittent. Same shape as [waitForWalletCredit], same reason.
-  ///
-  /// Polls Supabase directly rather than a provider: there is no lifecycle to
-  /// trip over, and RLS already scopes `plan_payments` to the caller.
+  /// Capture fulfillment and webhook retries share the same payment receipt.
+  /// Wait for that receipt before activating the line or its schedule. Checkout
+  /// confirmation alone is not evidence of an unexpired paid entitlement.
   static Future<bool> waitForPlanPayment(
     WidgetRef ref, {
     required DateTime since,
@@ -263,86 +272,30 @@ class PlanPayment {
     }
   }
 
-  /// `inapp_pricing` is an override for MANUAL and TASKER_SCRIPT carriers.
-  /// For API-fulfilled carriers, pricing is calculated dynamically from live
-  /// supplier catalog offers.
-  static double? overrideFor(CarrierRule rule, {Carrier? carrier}) {
-    if (carrier != null && carrier.fulfillmentGateway == 'API') {
-      return null;
-    }
-    return rule.inappPricing > 0 ? rule.inappPricing : null;
-  }
-
-  /// What one premium refill costs, before the gateway's cut. Safe to call
-  /// during build(); prices from whatever the config providers have loaded.
-  static double premiumRefillPriceSync(WidgetRef ref, CarrierRule rule) =>
-      RefillPricing.premiumRefillPrice(
-        minimumTopupAmount: rule.minimumTopupAmount,
-        appFeePercent:
-            ref.watch(appFeePercentProvider).value ?? kDefaultAppFeePercent,
-        premiumMarginPercent:
-            ref.watch(premiumMarginPercentProvider).value ?? 0,
-        premiumMarginPerRefillUsd:
-            ref.watch(premiumMarginPerRefillUsdProvider).value ?? 0,
-        inappPricingOverride: overrideFor(rule),
-      );
-
-  /// The single up-front charge for a year of premium, for display during
-  /// build(). Until the gateway row loads it quotes without PayPal's fee
-  /// rather than guessing a rate; [premiumYearlyTotal] awaits the real row
-  /// before anything is charged.
-  /// The single up-front charge for a year of premium, for display during
-  /// build(). Until the gateway row loads it quotes without PayPal's fee
-  /// rather than guessing a rate; [premiumYearlyTotal] awaits the real row
-  /// before anything is charged.
-  static double premiumYearlyTotalSync(
+  static PremiumInitialBreakdown? premiumBreakdownSync(
     WidgetRef ref,
     CarrierRule rule, {
-    bool isUpgrade = false,
-  }) {
-    final paypal = ref.watch(paymentGatewayProvider('paypal')).value;
-    return RefillPricing.premiumYearlyTotal(
-      baseServiceFeeUsd:
-          ref.watch(baseServiceFeeUsdProvider).value ?? kDefaultBaseServiceFeeUsd,
-      minimumTopupAmount: rule.minimumTopupAmount,
-      inactivityLimitDays: rule.inactivityLimitDays,
-      refillIntervalDaysOverride: rule.refillIntervalDaysOverride,
-      appFeePercent:
-          ref.watch(appFeePercentProvider).value ?? kDefaultAppFeePercent,
-      premiumMarginPercent: ref.watch(premiumMarginPercentProvider).value ?? 0,
-      premiumMarginPerRefillUsd:
-          ref.watch(premiumMarginPerRefillUsdProvider).value ?? 0,
-      gatewayFeePercentage: paypal?.feePercentage ?? 0,
-      gatewayFeeFixed: paypal?.feeFixed ?? 0,
-      inappPricingOverride: overrideFor(rule),
-      isUpgrade: isUpgrade,
-    );
-  }
+    String? simLineId,
+  }) => ref
+      .watch(premiumDisplayQuoteProvider((ruleId: rule.id, lineId: simLineId)))
+      .value;
 
-  /// The up-front charge for a year of premium when paid via wallet, for
-  /// display during build(). Uses 0% + $0.00 gateway fees.
-  static double premiumWalletTotalSync(
+  static double? premiumRefillPriceSync(WidgetRef ref, CarrierRule rule) =>
+      premiumBreakdownSync(ref, rule)?.firstRefillUsd;
+
+  // The current checkout rail is wallet funded, so this display has no gateway
+  // surcharge. The deprecated yearly name remains for existing callers.
+  static double? premiumYearlyTotalSync(
     WidgetRef ref,
     CarrierRule rule, {
-    bool isUpgrade = false,
-  }) {
-    return RefillPricing.premiumYearlyTotal(
-      baseServiceFeeUsd:
-          ref.watch(baseServiceFeeUsdProvider).value ?? kDefaultBaseServiceFeeUsd,
-      minimumTopupAmount: rule.minimumTopupAmount,
-      inactivityLimitDays: rule.inactivityLimitDays,
-      refillIntervalDaysOverride: rule.refillIntervalDaysOverride,
-      appFeePercent:
-          ref.watch(appFeePercentProvider).value ?? kDefaultAppFeePercent,
-      premiumMarginPercent: ref.watch(premiumMarginPercentProvider).value ?? 0,
-      premiumMarginPerRefillUsd:
-          ref.watch(premiumMarginPerRefillUsdProvider).value ?? 0,
-      gatewayFeePercentage: 0,
-      gatewayFeeFixed: 0,
-      inappPricingOverride: overrideFor(rule),
-      isUpgrade: isUpgrade,
-    );
-  }
+    String? simLineId,
+  }) => premiumBreakdownSync(ref, rule, simLineId: simLineId)?.totalUsd;
+
+  static double? premiumWalletTotalSync(
+    WidgetRef ref,
+    CarrierRule rule, {
+    String? simLineId,
+  }) => premiumYearlyTotalSync(ref, rule, simLineId: simLineId);
 
   /// What a year of Premium costs when it is bought from the wallet.
   ///
@@ -355,36 +308,19 @@ class PlanPayment {
     WidgetRef ref,
     CarrierRule rule, {
     String? simLineId,
-    bool isUpgrade = false,
   }) async {
-    final baseFee = await ref.read(baseServiceFeeUsdProvider.future);
-    final appFee = await ref.read(appFeePercentProvider.future);
-    final margin = await ref.read(premiumMarginPercentProvider.future);
-    final marginFlat = await ref.read(premiumMarginPerRefillUsdProvider.future);
-
-    final serverQuote = await fetchQuotedPlanPrice(
+    final price = await fetchQuotedPlanPrice(
       simLineId: simLineId,
       plan: 'premium',
       gateway: 'wallet',
       carrierRuleId: rule.id,
     );
-    if (serverQuote != null && serverQuote > 0) {
-      return serverQuote;
+    if (price == null || !price.isFinite || price < 0) {
+      throw StateError(
+        'The current plan price is unavailable. Please try again.',
+      );
     }
-
-    return RefillPricing.premiumYearlyTotal(
-      baseServiceFeeUsd: baseFee,
-      minimumTopupAmount: rule.minimumTopupAmount,
-      inactivityLimitDays: rule.inactivityLimitDays,
-      refillIntervalDaysOverride: rule.refillIntervalDaysOverride,
-      appFeePercent: appFee,
-      premiumMarginPercent: margin,
-      premiumMarginPerRefillUsd: marginFlat,
-      gatewayFeePercentage: 0,
-      gatewayFeeFixed: 0,
-      inappPricingOverride: overrideFor(rule),
-      isUpgrade: isUpgrade,
-    );
+    return price;
   }
 
   /// Authoritative premium yearly total for the charge itself: awaits the
@@ -393,37 +329,19 @@ class PlanPayment {
     WidgetRef ref,
     CarrierRule rule, {
     String? simLineId,
-    bool isUpgrade = false,
   }) async {
-    final serverQuote = await fetchQuotedPlanPrice(
+    final price = await fetchQuotedPlanPrice(
       simLineId: simLineId,
       plan: 'premium',
       gateway: 'paypal',
       carrierRuleId: rule.id,
     );
-    if (serverQuote != null && serverQuote > 0) {
-      return serverQuote;
+    if (price == null || !price.isFinite || price < 0) {
+      throw StateError(
+        'The current plan price is unavailable. Please try again.',
+      );
     }
-
-    final baseFee = await ref.read(baseServiceFeeUsdProvider.future);
-    final appFee = await ref.read(appFeePercentProvider.future);
-    final margin = await ref.read(premiumMarginPercentProvider.future);
-    final marginFlat = await ref.read(premiumMarginPerRefillUsdProvider.future);
-    final paypal = await ref.read(paymentGatewayProvider('paypal').future);
-
-    return RefillPricing.premiumYearlyTotal(
-      baseServiceFeeUsd: baseFee,
-      minimumTopupAmount: rule.minimumTopupAmount,
-      inactivityLimitDays: rule.inactivityLimitDays,
-      refillIntervalDaysOverride: rule.refillIntervalDaysOverride,
-      appFeePercent: appFee,
-      premiumMarginPercent: margin,
-      premiumMarginPerRefillUsd: marginFlat,
-      gatewayFeePercentage: paypal?.feePercentage ?? 0,
-      gatewayFeeFixed: paypal?.feeFixed ?? 0,
-      inappPricingOverride: overrideFor(rule),
-      isUpgrade: isUpgrade,
-    );
+    return price;
   }
 
   /// Queries the database RPC `quote_plan_price` to fetch the exact, authoritative
@@ -436,21 +354,27 @@ class PlanPayment {
   }) async {
     try {
       final client = Supabase.instance.client;
-      final response = await client.rpc('quote_plan_price', params: {
-        'p_sim_line_id': simLineId,
-        'p_plan': plan,
-        'p_gateway': gateway,
-        'p_carrier_rule_id': carrierRuleId,
-      }).timeout(const Duration(seconds: 10));
+      final response = await client
+          .rpc(
+            'quote_plan_price',
+            params: {
+              'p_sim_line_id': simLineId,
+              'p_plan': plan,
+              'p_gateway': gateway,
+              'p_carrier_rule_id': carrierRuleId,
+            },
+          )
+          .timeout(const Duration(seconds: 10));
 
       if (response != null) {
         return (response as num).toDouble();
       }
     } catch (_) {
-      // Fallback to local calculation if offline or RPC fails
+      // Checkout callers stop when the authoritative price is unavailable.
     }
     return null;
   }
+
   /// Queries the database RPC `quote_premium_breakdown` to fetch the itemized quote
   /// ($2.50 annual protection fee + 1st SIM recharge cost = total today).
   static Future<PremiumInitialBreakdown?> fetchPremiumBreakdown({
@@ -459,53 +383,23 @@ class PlanPayment {
   }) async {
     try {
       final client = Supabase.instance.client;
-      final response = await client.rpc('quote_premium_breakdown', params: {
-        'p_carrier_rule_id': carrierRuleId,
-        'p_sim_line_id': simLineId,
-      }).timeout(const Duration(seconds: 10));
+      final response = await client
+          .rpc(
+            'quote_premium_breakdown',
+            params: {
+              'p_carrier_rule_id': carrierRuleId,
+              'p_sim_line_id': simLineId,
+            },
+          )
+          .timeout(const Duration(seconds: 10));
 
       if (response is Map) {
-        final annualFee = (response['annual_fee_usd'] as num?)?.toDouble() ?? 2.50;
-        final firstRefill = (response['first_refill_cost_usd'] as num?)?.toDouble() ?? 0.0;
-        final total = (response['total_charge_usd'] as num?)?.toDouble() ?? (annualFee + firstRefill);
-        final interval = (response['refill_interval_days'] as num?)?.toInt() ?? 30;
-        final isUpgrade = response['is_upgrade'] == true;
-        final upgradeCredit = (response['upgrade_credit_usd'] as num?)?.toDouble() ?? (isUpgrade ? 2.50 : 0.0);
-        final fullAnnualFee = (response['full_annual_fee_usd'] as num?)?.toDouble() ?? 5.00;
-        return PremiumInitialBreakdown(
-          annualFeeUsd: annualFee,
-          firstRefillUsd: firstRefill,
-          totalUsd: total,
-          refillIntervalDays: interval,
-          isUpgrade: isUpgrade,
-          upgradeCreditUsd: upgradeCredit,
-          fullAnnualFeeUsd: fullAnnualFee,
+        return PremiumInitialBreakdown.fromJson(
+          Map<String, dynamic>.from(response),
         );
       }
     } catch (_) {}
     return null;
-  }
-
-  /// Calculates synchronous itemized breakdown for build() rendering.
-  static PremiumInitialBreakdown premiumBreakdownSync(
-    WidgetRef ref,
-    CarrierRule rule, {
-    bool isUpgrade = false,
-  }) {
-    return RefillPricing.premiumInitialBreakdown(
-      baseServiceFeeUsd:
-          ref.watch(baseServiceFeeUsdProvider).value ?? kDefaultBaseServiceFeeUsd,
-      minimumTopupAmount: rule.minimumTopupAmount,
-      inactivityLimitDays: rule.inactivityLimitDays,
-      refillIntervalDaysOverride: rule.refillIntervalDaysOverride,
-      appFeePercent:
-          ref.watch(appFeePercentProvider).value ?? kDefaultAppFeePercent,
-      premiumMarginPercent: ref.watch(premiumMarginPercentProvider).value ?? 0,
-      premiumMarginPerRefillUsd:
-          ref.watch(premiumMarginPerRefillUsdProvider).value ?? 0,
-      inappPricingOverride: overrideFor(rule),
-      isUpgrade: isUpgrade,
-    );
   }
 
   /// Creates a SIM setup order tracking the onboarding/upgrade intent and hold requirements.
@@ -519,14 +413,19 @@ class PlanPayment {
   }) async {
     try {
       final client = Supabase.instance.client;
-      final response = await client.rpc('create_sim_setup_order', params: {
-        'p_phone_number': phoneNumber,
-        'p_plan': plan,
-        'p_carrier_rule_id': carrierRuleId,
-        'p_country_code': countryCode,
-        'p_carrier_code': carrierCode,
-        'p_sim_line_id': simLineId,
-      }).timeout(const Duration(seconds: 10));
+      final response = await client
+          .rpc(
+            'create_sim_setup_order',
+            params: {
+              'p_phone_number': phoneNumber,
+              'p_plan': plan,
+              'p_carrier_rule_id': carrierRuleId,
+              'p_country_code': countryCode,
+              'p_carrier_code': carrierCode,
+              'p_sim_line_id': simLineId,
+            },
+          )
+          .timeout(const Duration(seconds: 10));
       if (response is Map) {
         return Map<String, dynamic>.from(response);
       }
@@ -543,12 +442,17 @@ class PlanPayment {
   }) async {
     try {
       final client = Supabase.instance.client;
-      final response = await client.rpc('quote_sim_setup', params: {
-        'p_phone_number': phoneNumber,
-        'p_plan': plan,
-        'p_carrier_rule_id': carrierRuleId,
-        'p_sim_line_id': simLineId,
-      }).timeout(const Duration(seconds: 10));
+      final response = await client
+          .rpc(
+            'quote_sim_setup',
+            params: {
+              'p_phone_number': phoneNumber,
+              'p_plan': plan,
+              'p_carrier_rule_id': carrierRuleId,
+              'p_sim_line_id': simLineId,
+            },
+          )
+          .timeout(const Duration(seconds: 10));
 
       if (response is Map) {
         return SimSetupQuote.fromJson(Map<String, dynamic>.from(response));
@@ -583,10 +487,12 @@ class PlanPayment {
     required String simLineId,
   }) async {
     final client = Supabase.instance.client;
-    final response = await client.rpc('dispatch_sim_setup_verification', params: {
-      'p_order_id': orderId,
-      'p_sim_line_id': simLineId,
-    }).timeout(const Duration(seconds: 10));
+    final response = await client
+        .rpc(
+          'dispatch_sim_setup_verification',
+          params: {'p_order_id': orderId, 'p_sim_line_id': simLineId},
+        )
+        .timeout(const Duration(seconds: 10));
     return Map<String, dynamic>.from(response as Map);
   }
 
@@ -600,7 +506,9 @@ class PlanPayment {
     if (simLineId != null) {
       params['p_sim_line_id'] = simLineId;
     }
-    final response = await client.rpc('finalize_sim_setup_order', params: params).timeout(const Duration(seconds: 10));
+    final response = await client
+        .rpc('finalize_sim_setup_order', params: params)
+        .timeout(const Duration(seconds: 10));
     return Map<String, dynamic>.from(response as Map);
   }
 
@@ -610,10 +518,12 @@ class PlanPayment {
     String reason = 'Cancelled by user',
   }) async {
     final client = Supabase.instance.client;
-    final response = await client.rpc('cancel_sim_setup_order', params: {
-      'p_order_id': orderId,
-      'p_reason': reason,
-    }).timeout(const Duration(seconds: 10));
+    final response = await client
+        .rpc(
+          'cancel_sim_setup_order',
+          params: {'p_order_id': orderId, 'p_reason': reason},
+        )
+        .timeout(const Duration(seconds: 10));
     return Map<String, dynamic>.from(response as Map);
   }
 
@@ -624,11 +534,16 @@ class PlanPayment {
     required String fallbackPlan,
   }) async {
     final client = Supabase.instance.client;
-    final response = await client.rpc('fallback_sim_setup_to_reminders', params: {
-      'p_order_id': orderId,
-      'p_sim_line_id': simLineId,
-      'p_fallback_plan': fallbackPlan,
-    }).timeout(const Duration(seconds: 10));
+    final response = await client
+        .rpc(
+          'fallback_sim_setup_to_reminders',
+          params: {
+            'p_order_id': orderId,
+            'p_sim_line_id': simLineId,
+            'p_fallback_plan': fallbackPlan,
+          },
+        )
+        .timeout(const Duration(seconds: 10));
     return Map<String, dynamic>.from(response as Map);
   }
 }
@@ -658,13 +573,11 @@ class SimSetupQuote {
       plan: json['plan']?.toString() ?? 'standard',
       phoneNumber: json['phone_number']?.toString() ?? '',
       annualFeeUsd: (json['annual_fee_usd'] as num?)?.toDouble() ?? 2.50,
-      firstRefillCostUsd: (json['first_refill_cost_usd'] as num?)?.toDouble() ?? 0.0,
+      firstRefillCostUsd:
+          (json['first_refill_cost_usd'] as num?)?.toDouble() ?? 0.0,
       totalChargeUsd: (json['total_charge_usd'] as num?)?.toDouble() ?? 2.50,
       refillIntervalDays: (json['refill_interval_days'] as num?)?.toInt() ?? 30,
       freeEligible: json['free_eligible'] as bool? ?? true,
     );
   }
 }
-
-
-

@@ -33,7 +33,7 @@ abstract class LineActivityLog with _$LineActivityLog {
     final loc = AppLocalizations.of(context);
     if (loc == null) return description ?? '';
 
-    final rawAmount = metadata['amount'] ?? metadata['base_cost_usd'];
+    final rawAmount = metadata['amount'];
     final amountStr = rawAmount != null
         ? (double.tryParse(rawAmount.toString())?.toStringAsFixed(2) ?? rawAmount.toString())
         : '';

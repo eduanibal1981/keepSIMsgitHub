@@ -1,3 +1,4 @@
+import 'package:keep_sims/features/sim_lines/data/repositories/sim_lines_repository_impl.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
@@ -9,8 +10,7 @@ import 'package:go_router/go_router.dart';
 import 'package:keep_sims/core/router/app_router.dart';
 import 'package:keep_sims/features/payments/presentation/screens/paypal_checkout_screen.dart';
 import 'package:keep_sims/features/sim_lines/presentation/providers/api_offers_providers.dart';
-import 'package:keep_sims/core/providers/app_config_provider.dart';
-import 'package:keep_sims/features/sim_lines/domain/refill_pricing.dart';
+import 'package:keep_sims/features/sim_lines/domain/line_refill_quote.dart';
 import 'package:keep_sims/core/services/biometric_auth_service.dart';
 import 'package:keep_sims/features/notifications/presentation/controllers/notification_settings_controller.dart';
 import 'package:keep_sims/core/utils/error_formatter.dart';
@@ -39,8 +39,7 @@ class _ManualRefillBottomSheetState
   final _amountController = TextEditingController();
   int? _rangeValue;
   double _rangeFinalPriceUsd = 0.0;
-  double _rangeBaseCostUsd = 0.0;
-  double _rangeAppFee = 0.0;
+  double _rangeRetailPriceUsd = 0.0;
 
   @override
   void dispose() {
@@ -48,58 +47,47 @@ class _ManualRefillBottomSheetState
     super.dispose();
   }
 
-  /// The tier-aware refill fee rule for this SIM line (Free: 7% / $0.50 min,
-  /// Standard: 5% / $0.30 min, Premium: 3% / $0.10 min per C11).
-  RefillTierFeeRule get _feeRule {
-    final rules = ref.watch(refillFeeRulesProvider).value;
-    final tier = widget.simLine.effectiveTier;
-    if (rules != null && rules.containsKey(tier)) {
-      return rules[tier]!;
-    }
-    switch (tier) {
-      case 'standard':
-        return const RefillTierFeeRule(percentage: 5.0, minimum: 0.30);
-      case 'premium':
-        return const RefillTierFeeRule(percentage: 3.0, minimum: 0.10);
-      default:
-        return const RefillTierFeeRule(percentage: 7.0, minimum: 0.50);
-    }
-  }
-
-  double get _appFeePercent => _feeRule.percentage;
-
-  double get _minAppFeeUsd => _feeRule.minimum;
-
-  String get _tierLabel {
-    switch (widget.simLine.effectiveTier) {
-      case 'standard':
-        return 'Standard 5%';
-      case 'premium':
-        return 'Premium 3%';
-      default:
-        return 'Free 7%';
-    }
-  }
-
-  RefillQuote _quote(double baseCostUsd) => RefillPricing.quote(
-    baseCostUsd: baseCostUsd,
-    appFeePercent: _appFeePercent,
-    minAppFeeUsd: _minAppFeeUsd,
-    gatewayFeePercentage: 0,
-    gatewayFeeFixed: 0,
+  int _quoteRequest = 0;
+  String? _rangeQuoteError;
+  LineRefillQuote _quote(double retailPriceUsd) => LineRefillQuote(
+    effectiveTier: widget.simLine.effectiveTier,
+    totalUsd: retailPriceUsd,
   );
 
   Future<void> _handleRefill() async {
-    if (_selectedOffer == null) return;
+    if (_selectedOffer == null || _isLoading) return;
+    setState(() => _isLoading = true);
 
     try {
-      final isRange = _selectedOffer!['isRange'] == true;
-      final baseCostUsd = isRange
-          ? _rangeBaseCostUsd
-          : (_selectedOffer!['baseCostUsd'] as num).toDouble();
-      final offerId = _selectedOffer!['offerId'] as String;
+      final chosenOffer = Map<String, dynamic>.from(_selectedOffer!);
+      final chosenValue = _rangeValue;
+      final isRange = chosenOffer['isRange'] == true;
+      final retailPriceUsd = isRange
+          ? _rangeRetailPriceUsd
+          : (chosenOffer['retailPriceUsd'] as num).toDouble();
+      final offerId = chosenOffer['offerId'] as String;
 
-      final totalAmount = _quote(baseCostUsd).total;
+      final quote = await ref
+          .read(simLinesRepositoryProvider)
+          .fetchCustomerRefillQuote(
+            simLineId: widget.simLine.id,
+            offerId: offerId,
+            offerValue: isRange ? chosenValue : null,
+          );
+      final totalAmount = quote.total;
+      if ((totalAmount - retailPriceUsd).abs() > 0.001) {
+        ref.invalidate(lineRefillOffersProvider(widget.simLine.id));
+        if (mounted) {
+          setState(() {
+            _selectedOffer = null;
+            _rangeValue = null;
+          });
+        }
+        throw Exception(
+          'Price changed. Select the package again to review the current total.',
+        );
+      }
+      if (!mounted) return;
 
       // 1. Check wallet balance first before prompting authorization
       final balance =
@@ -153,8 +141,8 @@ class _ManualRefillBottomSheetState
             widget.simLine,
             'wallet',
             offerId: offerId,
-            displayBaseUsd: baseCostUsd,
-            amountUsd: isRange ? _rangeBaseCostUsd : null,
+            authorizedTotalUsd: totalAmount,
+            offerValue: isRange ? chosenValue : null,
           );
 
       if (!mounted) return;
@@ -272,13 +260,39 @@ class _ManualRefillBottomSheetState
     }
   }
 
-  void _calculateRangeFees() {
-    if (_rangeBaseCostUsd == 0) return;
-    final q = _quote(_rangeBaseCostUsd);
+  Future<void> _loadRangeQuote(Map<String, dynamic> offer, int value) async {
+    final request = ++_quoteRequest;
     setState(() {
-      _rangeAppFee = q.appFee;
-      _rangeFinalPriceUsd = q.total;
+      _selectedOffer = offer;
+      _rangeValue = null;
+      _rangeQuoteError = null;
     });
+    try {
+      final q = await ref
+          .read(simLinesRepositoryProvider)
+          .fetchCustomerRefillQuote(
+            simLineId: widget.simLine.id,
+            offerId: offer['offerId'] as String,
+            offerValue: value,
+          );
+      if (!mounted ||
+          request != _quoteRequest ||
+          _selectedOffer?['offerId'] != offer['offerId']) {
+        return;
+      }
+      setState(() {
+        _rangeValue = value;
+        _rangeRetailPriceUsd = q.total;
+        _rangeFinalPriceUsd = q.total;
+      });
+    } catch (_) {
+      if (mounted && request == _quoteRequest) {
+        setState(
+          () =>
+              _rangeQuoteError = 'Pricing unavailable. Enter the amount again.',
+        );
+      }
+    }
   }
 
   @override
@@ -519,20 +533,15 @@ class _ManualRefillBottomSheetState
                                         _selectedOffer?['offerId'] ==
                                         offer['offerId'];
 
-                                    final baseCost =
-                                        (offer['baseCostUsd'] as num)
+                                    final retailPrice =
+                                        (offer['retailPriceUsd'] as num)
                                             .toDouble();
-                                    final q = _quote(baseCost);
-                                    final gatewayFee = q.gatewayFee;
-                                    final appFee = q.appFee;
+                                    final q = _quote(retailPrice);
                                     final finalPrice = q.total;
 
                                     return _buildOfferCard(
                                       offer: offer,
                                       isSelected: isSelected,
-                                      baseCost: baseCost,
-                                      gatewayFee: gatewayFee,
-                                      appFee: appFee,
                                       finalPrice: finalPrice,
                                     );
                                   },
@@ -609,7 +618,7 @@ class _ManualRefillBottomSheetState
           ? 'Enter valid amount'
           : 'Refill \$${_rangeFinalPriceUsd.toStringAsFixed(2)} with Wallet';
     }
-    final total = _quote((offer['baseCostUsd'] as num).toDouble()).total;
+    final total = _quote((offer['retailPriceUsd'] as num).toDouble()).total;
     return 'Refill \$${total.toStringAsFixed(2)} with Wallet';
   }
 
@@ -680,6 +689,7 @@ class _ManualRefillBottomSheetState
           ),
           const SizedBox(height: 8),
           TextFormField(
+            enabled: !_isLoading,
             controller: _amountController,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             style: const TextStyle(color: Colors.white),
@@ -720,39 +730,21 @@ class _ManualRefillBottomSheetState
                     .toInt();
                 final intValue = (doubleVal * divisor).round();
 
-                // USD cost interpolated across the offer's price range — the
-                // same mapping request_instant_refill applies server-side, so
-                // the quote here matches what the RPC will charge.
-                final sendMin = (offer['min'] as num? ?? 0).toDouble();
-                final sendMax = (offer['max'] as num? ?? 0).toDouble();
-                final priceMin = (offer['priceMinUsd'] as num? ?? 0).toDouble();
-                final priceMax = (offer['priceMaxUsd'] as num? ?? 0).toDouble();
-                final frac = sendMax > sendMin
-                    ? (intValue - sendMin) / (sendMax - sendMin)
-                    : 0.0;
-                final baseCostUsd = double.parse(
-                  (priceMin + frac * (priceMax - priceMin)).toStringAsFixed(2),
-                );
-
-                setState(() {
-                  _selectedOffer = offer;
-                  _rangeValue = intValue;
-                  _rangeBaseCostUsd = baseCostUsd;
-                });
-                _calculateRangeFees();
+                _loadRangeQuote(offer, intValue);
               } else {
+                _quoteRequest++;
                 setState(() {
                   if (_selectedOffer?['offerId'] == offer['offerId']) {
                     _selectedOffer = null;
                   }
                   _rangeValue = null;
                   _rangeFinalPriceUsd = 0.0;
-                  _rangeBaseCostUsd = 0.0;
-                  _rangeAppFee = 0.0;
+                  _rangeRetailPriceUsd = 0.0;
                 });
               }
             },
           ),
+          if (_rangeQuoteError != null) Text(_rangeQuoteError!),
           if (_rangeValue != null)
             ApproxLocalText(
               _rangeFinalPriceUsd,
@@ -765,7 +757,7 @@ class _ManualRefillBottomSheetState
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: Text(
-                'Base: \$${_rangeBaseCostUsd.toStringAsFixed(2)} | App Fee ($_tierLabel): \$${_rangeAppFee.toStringAsFixed(2)}',
+                'Total: \$${_rangeFinalPriceUsd.toStringAsFixed(2)} USD',
                 style: AppTextStyles.labelSmall.copyWith(
                   color: AppColors.textTertiaryDark,
                 ),
@@ -864,7 +856,7 @@ class _ManualRefillBottomSheetState
     if (match != null) {
       return double.tryParse(match.group(1)!) ?? 0.0;
     }
-    return (offer['baseCostUsd'] as num?)?.toDouble() ?? 0.0;
+    return (offer['retailPriceUsd'] as num?)?.toDouble() ?? 0.0;
   }
 
   List<Map<String, dynamic>> _sortOffers(List<Map<String, dynamic>> list) {
@@ -872,15 +864,15 @@ class _ManualRefillBottomSheetState
     switch (_sortBy) {
       case 'price_asc':
         sorted.sort(
-          (a, b) => ((a['baseCostUsd'] as num?) ?? 0).compareTo(
-            (b['baseCostUsd'] as num?) ?? 0,
+          (a, b) => ((a['retailPriceUsd'] as num?) ?? 0).compareTo(
+            (b['retailPriceUsd'] as num?) ?? 0,
           ),
         );
         break;
       case 'price_desc':
         sorted.sort(
-          (a, b) => ((b['baseCostUsd'] as num?) ?? 0).compareTo(
-            (a['baseCostUsd'] as num?) ?? 0,
+          (a, b) => ((b['retailPriceUsd'] as num?) ?? 0).compareTo(
+            (a['retailPriceUsd'] as num?) ?? 0,
           ),
         );
         break;
@@ -998,9 +990,6 @@ class _ManualRefillBottomSheetState
   Widget _buildOfferCard({
     required Map<String, dynamic> offer,
     required bool isSelected,
-    required double baseCost,
-    required double gatewayFee,
-    required double appFee,
     required double finalPrice,
   }) {
     final isData = offer['serviceType'] == 'data';
@@ -1013,13 +1002,13 @@ class _ManualRefillBottomSheetState
 
     return InkWell(
       onTap: () {
+        if (_isLoading) return;
         setState(() {
           _selectedOffer = offer;
           _amountController.clear();
           _rangeValue = null;
           _rangeFinalPriceUsd = 0.0;
-          _rangeBaseCostUsd = 0.0;
-          _rangeAppFee = 0.0;
+          _rangeRetailPriceUsd = 0.0;
         });
       },
       borderRadius: BorderRadius.circular(14),
@@ -1177,7 +1166,7 @@ class _ManualRefillBottomSheetState
             ),
             const SizedBox(height: 2),
             Text(
-              'Base: \$${baseCost.toStringAsFixed(2)} | App Fee ($_tierLabel): \$${appFee.toStringAsFixed(2)}',
+              'Includes service charges',
               style: AppTextStyles.labelSmall.copyWith(
                 color: AppColors.textTertiaryDark,
               ),

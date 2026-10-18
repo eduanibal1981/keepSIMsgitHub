@@ -1,0 +1,71 @@
+{
+  "review_date": "2026-10-17",
+  "timezone": "Asia/Muscat",
+  "project_ref": "zwxswagokhgbuzrrbnhr",
+  "deployment_performed": false,
+  "functions": [
+    {
+      "slug": "create-paypal-order",
+      "version": 9,
+      "verify_jwt": true,
+      "deployed_bundle_sha256": "db3a856ecb9eb22e8b30bcef0b9c96fee145a5a6afdb46e22da897cf5bc57c35",
+      "local_entrypoint_sha256": "b85b15bfa8a146fae9c9e6cad327f3aca56370ec5f7f1e39b920822c64d62c60",
+      "entrypoint_matches_local": false
+    },
+    {
+      "slug": "capture-paypal-order",
+      "version": 5,
+      "verify_jwt": true,
+      "deployed_bundle_sha256": "e23ce9e144b6978efdc38d17f6329fbe56c1214762f9341ee01d721aa383d8ca",
+      "local_entrypoint_sha256": "75a2b034cacd59255e1831e479fe2d051b280ff346b5a1b910fec9c48f23902c",
+      "entrypoint_matches_local": false
+    },
+    {
+      "slug": "paypal-webhook",
+      "version": 11,
+      "verify_jwt": false,
+      "deployed_bundle_sha256": "70836d20fe8ef9150be330d1241a667dab728f172b652f9f1595001cc436b4ae",
+      "local_entrypoint_sha256": "9301b910d469d06eaa102dd521d176ece18a5d1359f5267989303a0a2ef2537e",
+      "entrypoint_matches_local": false
+    }
+  ],
+  "read_only_preflight": {
+    "receipt_table_present": false,
+    "fulfillment_rpc_present": false,
+    "merchant_column_present": false,
+    "paypal_source_identity_duplicates": 0,
+    "orders_with_order_id_deposit_reference": 0
+  },
+  "live_triggers": [
+    {
+      "table": "wallets",
+      "function": "update_updated_at",
+      "definition": "CREATE TRIGGER trg_wallets_updated_at BEFORE UPDATE ON public.wallets FOR EACH ROW EXECUTE FUNCTION update_updated_at()"
+    },
+    {
+      "table": "wallet_transactions",
+      "function": "trg_fn_award_referral_points",
+      "definition": "CREATE TRIGGER trg_award_referral_wallet AFTER INSERT ON public.wallet_transactions FOR EACH ROW WHEN (((new.type = 'plan_fee_debit'::text) AND (new.sim_line_id IS NOT NULL))) EXECUTE FUNCTION trg_fn_award_referral_points()"
+    },
+    {
+      "table": "wallet_transactions",
+      "function": "trg_fn_notify_wallet_credit",
+      "definition": "CREATE TRIGGER trg_notify_wallet_credit AFTER INSERT ON public.wallet_transactions FOR EACH ROW WHEN ((new.type = 'deposit'::text)) EXECUTE FUNCTION trg_fn_notify_wallet_credit()"
+    },
+    {
+      "table": "wallet_transactions",
+      "function": "trg_fn_resume_awaiting_funds",
+      "definition": "CREATE TRIGGER trg_resume_awaiting_funds AFTER INSERT ON public.wallet_transactions FOR EACH ROW EXECUTE FUNCTION trg_fn_resume_awaiting_funds()"
+    },
+    {
+      "table": "plan_payments",
+      "function": "trg_fn_apply_plan_tier_from_payment",
+      "definition": "CREATE TRIGGER trg_apply_plan_tier_on_payment AFTER INSERT ON public.plan_payments FOR EACH ROW EXECUTE FUNCTION trg_fn_apply_plan_tier_from_payment()"
+    },
+    {
+      "table": "plan_payments",
+      "function": "trg_fn_award_referral_points",
+      "definition": "CREATE TRIGGER trg_award_referral_paypal AFTER INSERT ON public.plan_payments FOR EACH ROW WHEN (((new.kind = 'plan'::text) AND (new.sim_line_id IS NOT NULL))) EXECUTE FUNCTION trg_fn_award_referral_points()"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node run.mjs",
+    "test:fixture": "node fixture.mjs",
+    "test:refunds": "node refunds.mjs",
+    "test:concurrency": "node concurrency.mjs",
+    "test:credentials": "node credentials.mjs",
+    "test:privileges": "node privileges.mjs",
+    "test:paypal": "node paypal.mjs",
+    "test:paypal:concurrency": "node paypal-concurrency.mjs",
+    "test:webhooks": "node webhook-auth.mjs",
+    "test:webhooks:concurrency": "node webhook-auth-concurrency.mjs",
+    "test:setup": "node setup.mjs",
+    "test:scheduled": "node scheduled.mjs",
+    "test:scheduled:http": "node scheduled-http.mjs",
+    "test:liveness": "node liveness.mjs",
+    "test:calls": "node calls.mjs",
+    "test:notifications": "node notifications.mjs",
+    "test:forecasts": "node forecasts.mjs",
+    "test:maintenance": "node maintenance.mjs",
+    "test:second-number": "node second-number.mjs",
+    "test:pricing": "node pricing.mjs",
+    "test:retail": "node retail.mjs",
+    "test:schedules": "node schedules.mjs"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.5.10",
+    "embedded-postgres": "18.4.0-beta.17"
+  }
+}

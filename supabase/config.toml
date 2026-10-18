@@ -21,6 +21,11 @@ enabled = true
 verify_jwt = true
 entrypoint = "./functions/make-call/index.ts"
 
+[functions.process-wallet-refund]
+enabled = true
+verify_jwt = true
+entrypoint = "./functions/process-wallet-refund/index.ts"
+
 [functions.notification-email-verification]
 enabled = true
 verify_jwt = true
@@ -31,3 +36,77 @@ enabled = true
 verify_jwt = false
 entrypoint = "./functions/telnyx-cdr/index.ts"
 
+
+# Task 4: external providers authenticate in the handler; users/internal services
+# additionally retain gateway JWT verification. Deploy with these exact settings.
+[functions.process-voicemail]
+enabled = true
+verify_jwt = true
+entrypoint = "./functions/process-voicemail/index.ts"
+
+[functions.admin-telnyx-billing]
+enabled = true
+verify_jwt = true
+entrypoint = "./functions/admin-telnyx-billing/index.ts"
+
+[functions.liveness-verification]
+enabled = true
+verify_jwt = true
+entrypoint = "./functions/liveness-verification/index.ts"
+
+[functions.liveness-verification-webhook]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/liveness-verification-webhook/index.ts"
+
+[functions.twilio-voice-webhook]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/twilio-voice-webhook/index.ts"
+
+[functions.sms-webhook]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/sms-webhook/index.ts"
+
+[functions.waba-webhook]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/waba-webhook/index.ts"
+
+# Task 5: client checkout tokens are verified; PayPal signs external callbacks.
+[functions.create-paypal-order]
+enabled = true
+verify_jwt = true
+entrypoint = "./functions/create-paypal-order/index.ts"
+
+[functions.capture-paypal-order]
+enabled = true
+verify_jwt = true
+entrypoint = "./functions/capture-paypal-order/index.ts"
+
+[functions.paypal-webhook]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/paypal-webhook/index.ts"
+
+[functions.manage-dids]
+enabled = true
+verify_jwt = true
+entrypoint = "./functions/manage-dids/index.ts"
+
+[functions.second-number-lifecycle]
+enabled = true
+verify_jwt = true
+entrypoint = "./functions/second-number-lifecycle/index.ts"
+
+# pg_net callers authenticate with a Vault secret inside each handler.
+[functions.purge-accounts]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/purge-accounts/index.ts"
+
+[functions.send-admin-email]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/send-admin-email/index.ts"

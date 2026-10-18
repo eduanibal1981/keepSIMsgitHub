@@ -35,7 +35,8 @@ class LineVerificationController extends _$LineVerificationController {
       final quote = await repo.quoteLineVerification(simLineId);
 
       // If there is already an in-flight check running for this line, resume monitoring it!
-      if (quote.inFlightAttemptId != null && quote.inFlightAttemptId!.isNotEmpty) {
+      if (quote.inFlightAttemptId != null &&
+          quote.inFlightAttemptId!.isNotEmpty) {
         final attemptId = quote.inFlightAttemptId!;
         state = LineVerificationState.awaitingDlr(
           attemptId,
@@ -64,14 +65,15 @@ class LineVerificationController extends _$LineVerificationController {
       return;
     }
 
-    final normalizedMethod = (method == 'voice' || method == 'missed_call') ? 'voice' : 'sms';
+    final normalizedMethod = (method == 'voice' || method == 'missed_call')
+        ? 'voice'
+        : 'sms';
     final quote = state.quote;
-    final channel = normalizedMethod == 'sms' ? 'telnyx_sms_dlr' : 'telnyx_missed_call';
+    final channel = normalizedMethod == 'sms'
+        ? 'telnyx_sms_dlr'
+        : 'telnyx_missed_call';
 
-    state = LineVerificationState.triggering(
-      channel: channel,
-      quote: quote,
-    );
+    state = LineVerificationState.triggering(channel: channel, quote: quote);
 
     try {
       final repo = ref.read(simLinesRepositoryProvider);
@@ -131,13 +133,12 @@ class LineVerificationController extends _$LineVerificationController {
         final result = await repo.getLineVerificationAttemptStatus(attemptId);
         final status = result['status'] as String?;
         final outcome = result['outcome'] as String? ?? status;
-        final carrier = result['carrierName'] as String? ??
+        final carrier =
+            result['carrierName'] as String? ??
             result['carrier_name'] as String? ??
             result['carrier'] as String?;
 
-        if (outcome == 'succeeded' ||
-            status == 'succeeded' ||
-            result['isSuccess'] == true) {
+        if (status == 'terminal' && result['isSuccess'] == true) {
           timer.cancel();
 
           state = LineVerificationState.success(
@@ -160,7 +161,8 @@ class LineVerificationController extends _$LineVerificationController {
             outcome == 'inconclusive') {
           timer.cancel();
 
-          final errorMsg = result['errorMessage'] as String? ??
+          final errorMsg =
+              result['errorMessage'] as String? ??
               result['error_message'] as String? ??
               (method == 'sms'
                   ? 'SMS delivery failed. The destination carrier indicated this SIM line is unprovisioned, off, or disconnected.'
@@ -203,7 +205,8 @@ class LineVerificationController extends _$LineVerificationController {
 
   /// Backwards compatibility methods
   Future<void> startSmsVerification([String? _]) => startVerification('sms');
-  Future<void> startMissedCallVerification([String? _]) => startVerification('voice');
+  Future<void> startMissedCallVerification([String? _]) =>
+      startVerification('voice');
 
   /// Resets the controller and reloads quote.
   void reset() {

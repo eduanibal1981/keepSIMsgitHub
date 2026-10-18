@@ -3127,7 +3127,10 @@ class AppLocalizationsNe extends AppLocalizations {
   String get smartCallSavings => 'Smart Call Savings';
 
   @override
-  String get virtualNumbers => 'Virtual Numbers';
+  String get virtualNumbers => 'Second Number';
+
+  @override
+  String get secondNumberSubtitle => 'Calls & call forwarding';
 
   @override
   String get voicemail => 'Voicemail';
@@ -3234,4 +3237,212 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String get profileSaved => 'Profile updated.';
+
+  @override
+  String get dashboardExplore => 'Explore KeepSIMs';
+
+  @override
+  String get dashboardYourSimLines => 'Your SIM lines';
+
+  @override
+  String get dashboardSecondNumberBenefit => 'Receive and forward calls';
+
+  @override
+  String get dashboardSetUp => 'Set up';
+
+  @override
+  String get dashboardRecharge => 'Recharge';
+
+  @override
+  String get dashboardStandard => 'Standard';
+
+  @override
+  String get dashboardPremium => 'Premium';
+
+  @override
+  String get dashboardAccountOptions => 'Account options';
+
+  @override
+  String get dashboardCurrentLocation => 'Current location';
+
+  @override
+  String get snMyNumbers => 'My Second Numbers';
+
+  @override
+  String get snGetNumber => 'Get Second Number';
+
+  @override
+  String get snSubtitle => 'Your numbers and messages, together.';
+
+  @override
+  String get snMessages => 'Messages';
+
+  @override
+  String get snEmpty =>
+      'Get a dedicated number to receive messages in KeepSIMs.';
+
+  @override
+  String get snVerification =>
+      'Verification codes depend on the sending service. Some services do not accept virtual numbers.';
+
+  @override
+  String get snPrivateNotifications =>
+      'Message content is hidden in notifications.';
+
+  @override
+  String get snRenewal => 'Next renewal';
+
+  @override
+  String get snAutoRenew => 'Auto-renew from my wallet';
+
+  @override
+  String get snRelease => 'Release this number';
+
+  @override
+  String get snReleaseConfirm =>
+      'You will lose future calls and messages. Update accounts that use this number for sign-in or recovery. The number may later be assigned to someone else. Release starts immediately and completes after carrier confirmation.';
+
+  @override
+  String get snReleasePending => 'Release pending';
+
+  @override
+  String get snGrace => 'Payment due — top up before the release deadline';
+
+  @override
+  String get snActive => 'Active';
+
+  @override
+  String get snReceiveOnly => 'Receive-only SMS inbox';
+
+  @override
+  String get snCopyCode => 'Copy code';
+
+  @override
+  String get snCopied => 'Copied to clipboard';
+
+  @override
+  String get snNoMessages => 'No messages yet';
+
+  @override
+  String get snInboxUnavailable =>
+      'Could not load messages. Check your connection and retry.';
+
+  @override
+  String get snRetry => 'Retry';
+
+  @override
+  String get snSetupPending => 'Setting up your number';
+
+  @override
+  String get snRefresh => 'Refresh status';
+
+  @override
+  String get snManage => 'Manage number';
+
+  @override
+  String get snChooseCountry => 'Choose a country';
+
+  @override
+  String get snNoCoverage =>
+      'Numbers are not available yet. US and UK coverage and prices are being validated.';
+
+  @override
+  String get snChooseNumber => 'Choose your number';
+
+  @override
+  String get snReview => 'Review your number';
+
+  @override
+  String get snNumberFee => 'Number fee';
+
+  @override
+  String get snServiceFee => 'KeepSIMs Service Fee';
+
+  @override
+  String get snSetupFee => 'Setup fee';
+
+  @override
+  String get snTotal => 'Total due today';
+
+  @override
+  String get snUsage => 'Usage terms';
+
+  @override
+  String get snActivate => 'Activate number';
+
+  @override
+  String get snPurchasePending =>
+      'Your order is being confirmed. Funds are reserved. Check its status here; do not buy a replacement number.';
+
+  @override
+  String get snPurchaseFailed =>
+      'The carrier could not complete this order. Your reserved funds were released.';
+
+  @override
+  String get snCopyNumber => 'Copy number';
+
+  @override
+  String get snOpenInbox => 'Open inbox';
+
+  @override
+  String get snMarkRead => 'Mark as read';
+
+  @override
+  String get snForwardSetup => 'Set up SIM call forwarding';
+
+  @override
+  String get snIdentity => 'Identity status';
+
+  @override
+  String get snUnverifiedSender => 'Sender identity not verified';
+
+  @override
+  String get snQuoteExpired => 'This quote expired. Refresh available numbers.';
+
+  @override
+  String get snCheckStatus => 'Check order status';
+
+  @override
+  String get snWalletBalance => 'Wallet balance';
+
+  @override
+  String get snPaidUntil => 'Paid until';
+
+  @override
+  String get snCancel => 'Cancel';
+
+  @override
+  String get snTopUp => 'Top up wallet';
+
+  @override
+  String get snNoStock =>
+      'No eligible numbers are available. Try again or choose another country.';
+
+  @override
+  String get snMobile => 'Mobile';
+
+  @override
+  String get snLocal => 'Local';
+
+  @override
+  String get snCalls => 'Calls';
+
+  @override
+  String get snCodeCandidate => 'Code found in message';
+
+  @override
+  String get snRead => 'Read';
+
+  @override
+  String get snError =>
+      'Second Number is temporarily unavailable. Please retry.';
+
+  @override
+  String snEveryDays(int days) {
+    return 'Every $days days';
+  }
+
+  @override
+  String get snRenewalReview =>
+      'Renewal settings need review before automatic billing can begin.';
 }

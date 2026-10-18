@@ -3,6 +3,8 @@
 /// Implements [WalletContract] using Supabase.
 library;
 
+import 'dart:math';
+
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:keep_sims/core/failure.dart';
 import 'package:keep_sims/core/result.dart';
@@ -19,6 +21,7 @@ class WalletRepository implements WalletContract {
   final SupabaseClient _client;
   final LocalCacheService _cache;
   final ConnectivityService _connectivity;
+  final Map<String, String> _refundRequestKeys = {};
 
   /// G10 device binding.
   final DeviceIdentityService _deviceIdentity;
@@ -38,10 +41,7 @@ class WalletRepository implements WalletContract {
   ) async {
     final response = await AuthSessionManager.withAuthRecovery(
       _client,
-      () => _client.functions.invoke(
-        'wallet_transact',
-        body: body,
-      ),
+      () => _client.functions.invoke('wallet_transact', body: body),
     );
     final data = response.data;
     if (data is Map<String, dynamic>) {
@@ -76,11 +76,7 @@ class WalletRepository implements WalletContract {
       try {
         final response = await AuthSessionManager.withAuthRecovery(
           _client,
-          () => _client
-              .from('wallets')
-              .select()
-              .eq('user_id', userId)
-              .single(),
+          () => _client.from('wallets').select().eq('user_id', userId).single(),
         );
 
         await _cache.writeJson('cached_wallet', response);
@@ -337,6 +333,7 @@ class WalletRepository implements WalletContract {
     String? referenceId,
     String plan = 'standard',
     String? carrierRuleId,
+    double? expectedAmount,
   }) async {
     if (_connectivity.isOffline) {
       return const Failure(
@@ -362,9 +359,10 @@ class WalletRepository implements WalletContract {
           referenceId ??
           'planfee_${userId.substring(0, 8)}_${DateTime.now().microsecondsSinceEpoch}';
       final response = await _client.rpc(
-        'pay_plan_fee_from_wallet',
+        'pay_quoted_plan_fee_from_wallet',
         params: {
           'p_reference_id': reference,
+          'p_expected_amount': expectedAmount,
           'p_sim_line_id': simLineId,
           // The device rides along for the same reason it does on a gift:
           // without it `guard_money_action` scores every plan fee
@@ -452,7 +450,9 @@ class WalletRepository implements WalletContract {
 
       if (response is! Map<String, dynamic>) {
         return const Failure(
-          AppFailure.server(message: 'Unexpected response from wallet service.'),
+          AppFailure.server(
+            message: 'Unexpected response from wallet service.',
+          ),
         );
       }
 
@@ -545,17 +545,58 @@ class WalletRepository implements WalletContract {
         ),
       );
     }
+    if (!amount.isFinite ||
+        amount <= 0 ||
+        amount > 99999999.99 ||
+        (amount * 100 - (amount * 100).round()).abs() > 0.0000001) {
+      return const Failure(
+        AppFailure.validation(message: 'Enter a valid refund amount.'),
+      );
+    }
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) return const Failure(AppFailure.auth());
+    final cacheKey = 'pending_refund_${userId}_${(amount * 100).round()}';
     try {
+      // Keep the same identity across timeout, restart and token-recovery retry.
+      // Never expire an uncertain refund intent into a second withdrawal.
+      final cached = _cache.readJson(cacheKey);
+      final cachedKey = cached is Map ? cached['request_key'] : null;
+      final requestKey = _refundRequestKeys.putIfAbsent(cacheKey, () {
+        if (cachedKey is String &&
+            RegExp(r'^refund_[a-f0-9]{32}$').hasMatch(cachedKey)) {
+          return cachedKey;
+        }
+        final random = Random.secure();
+        return 'refund_${List.generate(32, (_) => random.nextInt(16).toRadixString(16)).join()}';
+      });
+      if (!await _cache.writeJson(cacheKey, {'request_key': requestKey})) {
+        return const Failure(
+          AppFailure.server(
+            message:
+                'Refund retry information could not be saved. Please try again.',
+          ),
+        );
+      }
       final res = await _walletTransact({
         'action': 'request_refund',
+        'expected_user_id': userId,
         'amount': amount,
         'description': reason ?? 'Customer requested refund',
+        'refund_request_key': requestKey,
       });
-      if (res['success'] == true && res['result'] is Map<String, dynamic>) {
+      final result = res['result'];
+      if (res['success'] == true &&
+          result is Map<String, dynamic> &&
+          result['refund_request_id'] is String &&
+          RegExp(
+            r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$',
+          ).hasMatch(result['refund_request_id'] as String)) {
+        await _cache.remove(cacheKey);
+        _refundRequestKeys.remove(cacheKey);
         await _cache.remove('cached_wallet');
         await _cache.remove('cached_wallet_transactions');
         await _cache.remove('cached_wallet_summary');
-        return Success(res['result'] as Map<String, dynamic>);
+        return Success(result);
       }
       return Failure(
         AppFailure.server(

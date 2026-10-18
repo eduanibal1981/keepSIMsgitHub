@@ -38,8 +38,6 @@ abstract class TopupExecution with _$TopupExecution {
     double? targetLocalValue,
     String? targetLocalCurrency,
     double? maxAuthorizedUsd,
-    double? quotedCostUsd,
-    double? quotedFeeUsd,
     String? quoteId,
     String? fundingKind,
   }) = _TopupExecution;

@@ -34,7 +34,7 @@ class _CallerIdPickerSheetState extends ConsumerState<CallerIdPickerSheet> {
           const SnackBar(
             backgroundColor: AppColors.secondary,
             content: Text(
-              'KeepSIMs Voice Gateway set as active Outbound Caller ID',
+              'KeepSIMs Caller ID set as active Outbound Caller ID',
               style: TextStyle(
                 color: Colors.black,
                 fontWeight: FontWeight.bold,
@@ -199,7 +199,7 @@ class _CallerIdPickerSheetState extends ConsumerState<CallerIdPickerSheet> {
                   children: [
                     // ── 1. KeepSIMs Voice Gateway Option ──
                     _CallerIdTile(
-                      title: 'KeepSIMs Voice Gateway',
+                      title: 'KeepSIMs Caller ID',
                       phoneNumber: gatewayNumber,
                       subtitle:
                           'Shared international gateway (Bypasses local carrier blocks)',

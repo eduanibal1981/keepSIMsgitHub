@@ -2,7 +2,10 @@
 ///
 /// Manages the state of all auto top-up schedules for the active user.
 /// Extends [AsyncNotifier] and provides action handlers.
+
 library;
+
+import 'package:keep_sims/core/utils/retail_poll_ticks.dart';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -271,11 +274,14 @@ FutureOr<List<TopupExecution>> topupExecutionsForLine(
 /// the status and the wallet update exactly when the worker actually moves them.
 @riverpod
 Stream<List<TopupExecution>> topupExecutionsLive(Ref ref, String simLineId) {
-  return Supabase.instance.client
-      .from('topup_executions')
-      .stream(primaryKey: ['id'])
-      .eq('sim_line_id', simLineId)
-      .order('created_at')
+  return retailPollTicks(const Duration(seconds: 3))
+      .asyncMap(
+        (_) => Supabase.instance.client
+            .from('customer_topup_executions')
+            .select()
+            .eq('sim_line_id', simLineId)
+            .order('created_at'),
+      )
       .map((rows) => rows.map(TopupExecution.fromJson).toList());
 }
 

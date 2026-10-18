@@ -1,0 +1,342 @@
+{
+  "collected_at_utc": "2026-10-16T12:32:30.049516+00:00",
+  "scope": "read-only disk hashes, sanitized PM2 metadata and configuration names; no provider calls",
+  "remote_root": "/home/abdal/keepsims_backend/servers",
+  "pm2_exit": 0,
+  "processes": [
+    {
+      "name": "server_baileys",
+      "pid": 446884,
+      "status": "online",
+      "pm_exec_path": "/home/abdal/keepsims_backend/servers/server_baileys.js",
+      "pm_cwd": "/home/abdal",
+      "version": "1.0.0",
+      "pm_uptime": 1791486486460,
+      "restart_time": 8,
+      "exec_interpreter": "node",
+      "node_version": "22.23.1",
+      "exec_mode": "fork_mode",
+      "instances": null
+    },
+    {
+      "name": "worker_instant_refill",
+      "pid": 446918,
+      "status": "online",
+      "pm_exec_path": "/home/abdal/keepsims_backend/servers/worker_instant_refill.js",
+      "pm_cwd": "/home/abdal/keepsims_backend/servers",
+      "version": "1.0.0",
+      "pm_uptime": 1791486486973,
+      "restart_time": 1,
+      "exec_interpreter": "node",
+      "node_version": "22.23.1",
+      "exec_mode": "fork_mode",
+      "instances": null
+    },
+    {
+      "name": "worker_auto_mini_refill",
+      "pid": 446900,
+      "status": "online",
+      "pm_exec_path": "/home/abdal/keepsims_backend/servers/worker_auto_mini_refill.js",
+      "pm_cwd": "/home/abdal/keepsims_backend/servers",
+      "version": "1.0.0",
+      "pm_uptime": 1791486486756,
+      "restart_time": 1,
+      "exec_interpreter": "node",
+      "node_version": "22.23.1",
+      "exec_mode": "fork_mode",
+      "instances": null
+    },
+    {
+      "name": "worker_auto_custom_refill",
+      "pid": 446892,
+      "status": "online",
+      "pm_exec_path": "/home/abdal/keepsims_backend/servers/worker_auto_custom_refill.js",
+      "pm_cwd": "/home/abdal/keepsims_backend/servers",
+      "version": "1.0.0",
+      "pm_uptime": 1791486486617,
+      "restart_time": 1,
+      "exec_interpreter": "node",
+      "node_version": "22.23.1",
+      "exec_mode": "fork_mode",
+      "instances": null
+    },
+    {
+      "name": "worker_offers_cache",
+      "pid": 446943,
+      "status": "online",
+      "pm_exec_path": "/home/abdal/keepsims_backend/servers/worker_offers_cache.js",
+      "pm_cwd": "/home/abdal/keepsims_backend/servers",
+      "version": "1.0.0",
+      "pm_uptime": 1791486487928,
+      "restart_time": 1,
+      "exec_interpreter": "node",
+      "node_version": "22.23.1",
+      "exec_mode": "fork_mode",
+      "instances": null
+    },
+    {
+      "name": "worker-esim-catalog",
+      "pid": 805,
+      "status": "online",
+      "pm_exec_path": "/home/abdal/keepsims_backend/servers/worker_esim_catalog.js",
+      "pm_cwd": "/home/abdal/keepsims_backend",
+      "version": "1.0.0",
+      "pm_uptime": 1790277279473,
+      "restart_time": 0,
+      "exec_interpreter": "node",
+      "node_version": "22.23.1",
+      "exec_mode": "fork_mode",
+      "instances": null
+    },
+    {
+      "name": "worker-esim-fulfillment",
+      "pid": 447302,
+      "status": "online",
+      "pm_exec_path": "/home/abdal/keepsims_backend/servers/worker_esim_fulfillment.js",
+      "pm_cwd": "/home/abdal/keepsims_backend",
+      "version": "1.0.0",
+      "pm_uptime": 1791486550596,
+      "restart_time": 18,
+      "exec_interpreter": "node",
+      "node_version": "22.23.1",
+      "exec_mode": "fork_mode",
+      "instances": null
+    },
+    {
+      "name": "server_tg",
+      "pid": 65425,
+      "status": "online",
+      "pm_exec_path": "/home/abdal/keepsims_backend/servers/server_tg.js",
+      "pm_cwd": "/home/abdal/keepsims_backend/servers",
+      "version": "1.0.0",
+      "pm_uptime": 1790473393570,
+      "restart_time": 1,
+      "exec_interpreter": "node",
+      "node_version": "22.23.1",
+      "exec_mode": "fork_mode",
+      "instances": 1
+    }
+  ],
+  "files": [
+    {
+      "relative_path": "durable_whatsapp_queue.js",
+      "sha256": "e9f0cc2bc220e70133d335c4a2c2077411fd4f26d72d62b45e6967bee6f3b2e3",
+      "local_sha256": "e9f0cc2bc220e70133d335c4a2c2077411fd4f26d72d62b45e6967bee6f3b2e3",
+      "matches_local": true,
+      "local_head_sha256": "e9f0cc2bc220e70133d335c4a2c2077411fd4f26d72d62b45e6967bee6f3b2e3",
+      "matches_local_head": true
+    },
+    {
+      "relative_path": "durable_whatsapp_receipts.js",
+      "sha256": "885e4f87ce9f2f9ab08c87283c296c775510f2a6f855902eb79808f842f08e65",
+      "local_sha256": "885e4f87ce9f2f9ab08c87283c296c775510f2a6f855902eb79808f842f08e65",
+      "matches_local": true,
+      "local_head_sha256": "885e4f87ce9f2f9ab08c87283c296c775510f2a6f855902eb79808f842f08e65",
+      "matches_local_head": true
+    },
+    {
+      "relative_path": "offer_validation.js",
+      "sha256": "760f95db1dfb4812b9329920389dae6a636e56c8ec31813aa4ab4851403e521a",
+      "local_sha256": "760f95db1dfb4812b9329920389dae6a636e56c8ec31813aa4ab4851403e521a",
+      "matches_local": true,
+      "local_head_sha256": "760f95db1dfb4812b9329920389dae6a636e56c8ec31813aa4ab4851403e521a",
+      "matches_local_head": true
+    },
+    {
+      "relative_path": "providers/ding.js",
+      "sha256": "0a315485b53f1e09343cdc71d26f974241959b56583b2c667ceadfa8beedf982",
+      "local_sha256": "0a315485b53f1e09343cdc71d26f974241959b56583b2c667ceadfa8beedf982",
+      "matches_local": true,
+      "local_head_sha256": "0a315485b53f1e09343cdc71d26f974241959b56583b2c667ceadfa8beedf982",
+      "matches_local_head": true
+    },
+    {
+      "relative_path": "providers/dtone.js",
+      "sha256": "18a74c97a997e2877a1dff06b8aff35998008f789b21273003d6406a69dfd15c",
+      "local_sha256": "18a74c97a997e2877a1dff06b8aff35998008f789b21273003d6406a69dfd15c",
+      "matches_local": true,
+      "local_head_sha256": "18a74c97a997e2877a1dff06b8aff35998008f789b21273003d6406a69dfd15c",
+      "matches_local_head": true
+    },
+    {
+      "relative_path": "providers/esimaccess.js",
+      "sha256": "df1ad8336ec10ea0fd0cc968c3cc8935486de18507bd70dbe6ce75faa543d14a",
+      "local_sha256": "df1ad8336ec10ea0fd0cc968c3cc8935486de18507bd70dbe6ce75faa543d14a",
+      "matches_local": true,
+      "local_head_sha256": "df1ad8336ec10ea0fd0cc968c3cc8935486de18507bd70dbe6ce75faa543d14a",
+      "matches_local_head": true
+    },
+    {
+      "relative_path": "providers/firsty.js",
+      "sha256": "67cd285613687b66ccdae8e887ad765eaed14f25ea79437e27ffd2eb8d16e7bb",
+      "local_sha256": "67cd285613687b66ccdae8e887ad765eaed14f25ea79437e27ffd2eb8d16e7bb",
+      "matches_local": true,
+      "local_head_sha256": "67cd285613687b66ccdae8e887ad765eaed14f25ea79437e27ffd2eb8d16e7bb",
+      "matches_local_head": true
+    },
+    {
+      "relative_path": "providers/reloadly.js",
+      "sha256": "d086196674556128684967d342de44e3a105e5439ae44110b0b9f8d3a7d59134",
+      "local_sha256": "d086196674556128684967d342de44e3a105e5439ae44110b0b9f8d3a7d59134",
+      "matches_local": true,
+      "local_head_sha256": "d086196674556128684967d342de44e3a105e5439ae44110b0b9f8d3a7d59134",
+      "matches_local_head": true
+    },
+    {
+      "relative_path": "providers/zendit.js",
+      "sha256": "5f367c80b728fc41279439de94d3268ae34fbd3c982980c86fe70418c294f59a",
+      "local_sha256": "5f367c80b728fc41279439de94d3268ae34fbd3c982980c86fe70418c294f59a",
+      "matches_local": true,
+      "local_head_sha256": "5f367c80b728fc41279439de94d3268ae34fbd3c982980c86fe70418c294f59a",
+      "matches_local_head": true
+    },
+    {
+      "relative_path": "refill_approval_quotes.js",
+      "sha256": "db0621f9d86bc1fcdd864e8f5ffe6891b75adb8cc3e7061fe6a03ba5ec70b5c3",
+      "local_sha256": "db0621f9d86bc1fcdd864e8f5ffe6891b75adb8cc3e7061fe6a03ba5ec70b5c3",
+      "matches_local": true,
+      "local_head_sha256": "db0621f9d86bc1fcdd864e8f5ffe6891b75adb8cc3e7061fe6a03ba5ec70b5c3",
+      "matches_local_head": true
+    },
+    {
+      "relative_path": "server_baileys.js",
+      "sha256": "9584ac1d070e4f23f34df23968e18a69f7d92eb3db6cb4cdd820f48d35efc19b",
+      "local_sha256": "9584ac1d070e4f23f34df23968e18a69f7d92eb3db6cb4cdd820f48d35efc19b",
+      "matches_local": true,
+      "local_head_sha256": "9584ac1d070e4f23f34df23968e18a69f7d92eb3db6cb4cdd820f48d35efc19b",
+      "matches_local_head": true
+    },
+    {
+      "relative_path": "server_tg.js",
+      "sha256": "a5ffdbf490908094e1af16580afed1e524617f433703953beb05e9f1c073f406",
+      "local_sha256": "a5ffdbf490908094e1af16580afed1e524617f433703953beb05e9f1c073f406",
+      "matches_local": true,
+      "local_head_sha256": "a5ffdbf490908094e1af16580afed1e524617f433703953beb05e9f1c073f406",
+      "matches_local_head": true
+    },
+    {
+      "relative_path": "server_ww.js",
+      "sha256": "2c5333cc7212277049f59d3aeec1dda2de189077e83b497a3747bf84c1b3f916",
+      "local_sha256": "2c5333cc7212277049f59d3aeec1dda2de189077e83b497a3747bf84c1b3f916",
+      "matches_local": true,
+      "local_head_sha256": "2c5333cc7212277049f59d3aeec1dda2de189077e83b497a3747bf84c1b3f916",
+      "matches_local_head": true
+    },
+    {
+      "relative_path": "sim_liveness_service.js",
+      "sha256": "d2fd0e9527739cd2026669dd8cea1270bf2a79ed7f6621896b3415aa87500b23",
+      "local_sha256": "d2fd0e9527739cd2026669dd8cea1270bf2a79ed7f6621896b3415aa87500b23",
+      "matches_local": true,
+      "local_head_sha256": "d2fd0e9527739cd2026669dd8cea1270bf2a79ed7f6621896b3415aa87500b23",
+      "matches_local_head": true
+    },
+    {
+      "relative_path": "whatsapp_inbound_commands.js",
+      "sha256": "7160a7d8f54b6f0cf2697f5fa124e4375337a42fe6d94197e947addc8451bab4",
+      "local_sha256": "7160a7d8f54b6f0cf2697f5fa124e4375337a42fe6d94197e947addc8451bab4",
+      "matches_local": true,
+      "local_head_sha256": "7160a7d8f54b6f0cf2697f5fa124e4375337a42fe6d94197e947addc8451bab4",
+      "matches_local_head": true
+    },
+    {
+      "relative_path": "worker_auto_custom_refill.js",
+      "sha256": "66e9681fdf53ccc7f34e37edbec5e5d1b2f69a87fd2b23e5d67a847ddf7c023d",
+      "local_sha256": "66e9681fdf53ccc7f34e37edbec5e5d1b2f69a87fd2b23e5d67a847ddf7c023d",
+      "matches_local": true,
+      "local_head_sha256": "66e9681fdf53ccc7f34e37edbec5e5d1b2f69a87fd2b23e5d67a847ddf7c023d",
+      "matches_local_head": true
+    },
+    {
+      "relative_path": "worker_auto_mini_refill.js",
+      "sha256": "f6b9cc3cb64f7d759499760947bdaea8ea76305bbca1bd5d88c5be093182c5de",
+      "local_sha256": "f6b9cc3cb64f7d759499760947bdaea8ea76305bbca1bd5d88c5be093182c5de",
+      "matches_local": true,
+      "local_head_sha256": "f6b9cc3cb64f7d759499760947bdaea8ea76305bbca1bd5d88c5be093182c5de",
+      "matches_local_head": true
+    },
+    {
+      "relative_path": "worker_esim_catalog.js",
+      "sha256": "462f612e217bfcf347ecbfd89845aee12f0ac21bdfab1858c2808bea25cfc692",
+      "local_sha256": "03a0125b43cd7d98c16927827d1145f274b63bc244d98966bc660276a7d6fc22",
+      "matches_local": false,
+      "local_head_sha256": "03a0125b43cd7d98c16927827d1145f274b63bc244d98966bc660276a7d6fc22",
+      "matches_local_head": false
+    },
+    {
+      "relative_path": "worker_esim_fulfillment.js",
+      "sha256": "2d11d8e54c2a55fd3bf3cf7f2026fc36f08ac20e58f84b822c1f721a219f7a81",
+      "local_sha256": "2d11d8e54c2a55fd3bf3cf7f2026fc36f08ac20e58f84b822c1f721a219f7a81",
+      "matches_local": true,
+      "local_head_sha256": "2d11d8e54c2a55fd3bf3cf7f2026fc36f08ac20e58f84b822c1f721a219f7a81",
+      "matches_local_head": true
+    },
+    {
+      "relative_path": "worker_instant_refill.js",
+      "sha256": "05d584716727868edf71c3bb00f5619a903e56096caec879b7759c72d9f75fc2",
+      "local_sha256": "5a62a0ae00547d5fe3ae1423f1b910e7e7b5dfa63fa5bf4d0b1eed47874f3b6a",
+      "matches_local": false,
+      "local_head_sha256": "05d584716727868edf71c3bb00f5619a903e56096caec879b7759c72d9f75fc2",
+      "matches_local_head": true
+    },
+    {
+      "relative_path": "worker_offers_cache.js",
+      "sha256": "f0b54f05d2ff6045f6b75f4b8fa8654de62a8d38706cc6ca6e27f9d8b90f0e9a",
+      "local_sha256": "f0b54f05d2ff6045f6b75f4b8fa8654de62a8d38706cc6ca6e27f9d8b90f0e9a",
+      "matches_local": true,
+      "local_head_sha256": "f0b54f05d2ff6045f6b75f4b8fa8654de62a8d38706cc6ca6e27f9d8b90f0e9a",
+      "matches_local_head": true
+    },
+    {
+      "relative_path": "zendit.js",
+      "sha256": "96cdf9d1eb398a49d94f9615c7490b4f8a55731ef635b35bb42c20eb05278f1e"
+    }
+  ],
+  "instant_worker_markers": {
+    "begin_refill_submission": false,
+    "settle_instant_refill_execution": false,
+    "debit_wallet_for_topup": false,
+    "credit_wallet_for_refund": false,
+    "funding_kind": true,
+    "wallet_hold_id": true
+  },
+  "configuration": [
+    {
+      "path": "/home/abdal/keepsims_backend/servers/.env",
+      "exists": true,
+      "supabase_project_hosts": [
+        "zwxswagokhgbuzrrbnhr.supabase.co"
+      ]
+    },
+    {
+      "path": "/home/abdal/keepsims_backend/.env",
+      "exists": false,
+      "supabase_project_hosts": []
+    }
+  ],
+  "tools": {
+    "psql": null,
+    "supabase": null,
+    "node": "/usr/bin/node"
+  },
+  "environment_management_or_db_credentials_present": {
+    "SUPABASE_ACCESS_TOKEN": false,
+    "DATABASE_URL": false,
+    "PGPASSWORD": false
+  },
+  "esim_catalog_comparison": {
+    "deployed_providers": [
+      "esim_go"
+    ],
+    "local_providers": [
+      "esim_go",
+      "zendit",
+      "esimaccess"
+    ],
+    "other_differences": [
+      "local country_count metadata",
+      "local supplier countries_supported update",
+      "local shared provider adapters"
+    ],
+    "scope": "Static comparison only; no supplier sync or purchase was run."
+  }
+}

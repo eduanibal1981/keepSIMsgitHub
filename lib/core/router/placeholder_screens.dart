@@ -326,7 +326,8 @@ class AppShell extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedIdx = _currentIndex(context, ref);
     final location = GoRouterState.of(context).uri.path;
-    final isHome = location == AppRoutes.home || location == '${AppRoutes.home}/';
+    final isHome =
+        location == AppRoutes.home || location == '${AppRoutes.home}/';
 
     return PopScope(
       canPop: isHome || Navigator.of(context).canPop(),
@@ -345,7 +346,7 @@ class AppShell extends ConsumerWidget {
       child: PerspectiveDrawerScaffold(
         child: Scaffold(
           body: child,
-          bottomNavigationBar: CurvedBottomNavigationBar(
+          bottomNavigationBar: AppBottomNavigationBar(
             selectedIndex: selectedIdx,
             onTap: (index) {
               switch (index) {
@@ -366,19 +367,19 @@ class AppShell extends ConsumerWidget {
               }
             },
             items: [
-              CurvedNavigationBarItem(
-                icon: Icons.dashboard_outlined,
-                selectedIcon: Icons.dashboard_rounded,
+              AppNavigationBarItem(
+                icon: const Icon(Icons.home_outlined),
+                selectedIcon: const Icon(Icons.home_rounded),
                 label: AppLocalizations.of(context)!.navHome,
               ),
-              CurvedNavigationBarItem(
-                icon: Icons.phone_outlined,
-                selectedIcon: Icons.phone_rounded,
+              AppNavigationBarItem(
+                icon: const Icon(Icons.call_outlined),
+                selectedIcon: const Icon(Icons.call_rounded),
                 label: AppLocalizations.of(context)!.smartCall,
               ),
-              CurvedNavigationBarItem(
-                icon: Icons.menu_rounded,
-                selectedIcon: Icons.menu_rounded,
+              AppNavigationBarItem(
+                icon: const Icon(Icons.menu_rounded),
+                selectedIcon: const Icon(Icons.menu_rounded),
                 label: AppLocalizations.of(context)!.navMore,
               ),
             ],
@@ -389,160 +390,23 @@ class AppShell extends ConsumerWidget {
   }
 }
 
-// ── Curved Navigation Item Model ─────────────────────────────
-class CurvedNavigationBarItem {
-  final IconData icon;
-  final IconData selectedIcon;
+// ── Bottom Navigation ────────────────────────────────────────
+class AppNavigationBarItem {
+  final Widget icon;
+  final Widget selectedIcon;
   final String label;
-
-  const CurvedNavigationBarItem({
+  const AppNavigationBarItem({
     required this.icon,
     required this.selectedIcon,
     required this.label,
   });
 }
 
-// ── Custom Curved Navigation Bar Painter ──────────────────────
-class CurvedNavigationBarPainter extends CustomPainter {
-  final double activeIndex;
-  final double cutoutProgress;
-  final int itemCount;
-  final Color backgroundColor;
-  final Color borderColor;
-  final TextDirection textDirection;
-
-  CurvedNavigationBarPainter({
-    required this.activeIndex,
-    required this.cutoutProgress,
-    required this.itemCount,
-    required this.backgroundColor,
-    required this.borderColor,
-    required this.textDirection,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = backgroundColor
-      ..style = PaintingStyle.fill;
-
-    final borderPaint = Paint()
-      ..color = borderColor
-      ..strokeWidth = 1.5
-      ..style = PaintingStyle.stroke;
-
-    final path = Path();
-    final width = size.width;
-    final height = size.height;
-    final singleWidth = width / itemCount;
-
-    // Calculate animated center X position of active tab
-    final isRtl = textDirection == TextDirection.rtl;
-    final effectiveIndex = isRtl ? (itemCount - 1 - activeIndex) : activeIndex;
-    final x = (effectiveIndex + 0.5) * singleWidth;
-
-    const R = 38.0; // Radius of cutout
-    const D = 25.0; // Depth of cutout
-    const cornerRadius = 24.0;
-
-    final currentR = R * cutoutProgress;
-    final currentD = D * cutoutProgress;
-
-    // Background Top-left corner
-    path.moveTo(0, cornerRadius);
-    path.quadraticBezierTo(0, 0, cornerRadius, 0);
-
-    if (cutoutProgress > 0.005) {
-      // Line to start of cutout dip
-      path.lineTo(x - currentR, 0);
-
-      // Smooth Bezier Curve dip
-      path.cubicTo(
-        x - currentR + (10 * cutoutProgress),
-        0,
-        x - currentR + (6 * cutoutProgress),
-        currentD,
-        x,
-        currentD,
-      );
-      path.cubicTo(
-        x + currentR - (6 * cutoutProgress),
-        currentD,
-        x + currentR - (10 * cutoutProgress),
-        0,
-        x + currentR,
-        0,
-      );
-    }
-
-    // Line to top-right corner
-    path.lineTo(width - cornerRadius, 0);
-    path.quadraticBezierTo(width, 0, width, cornerRadius);
-
-    // Complete background perimeter (right edge, bottom edge, left edge)
-    path.lineTo(width, height);
-    path.lineTo(0, height);
-    path.close();
-
-    // Draw custom soft elevation shadow
-    canvas.drawShadow(
-      path.shift(const Offset(0, -1)),
-      Colors.black.withValues(alpha: 0.35),
-      12,
-      true,
-    );
-
-    // Paint background surface
-    canvas.drawPath(path, paint);
-
-    // Draw active top-border curve only
-    final borderPath = Path();
-    borderPath.moveTo(0, cornerRadius);
-    borderPath.quadraticBezierTo(0, 0, cornerRadius, 0);
-
-    if (cutoutProgress > 0.005) {
-      borderPath.lineTo(x - currentR, 0);
-      borderPath.cubicTo(
-        x - currentR + (10 * cutoutProgress),
-        0,
-        x - currentR + (6 * cutoutProgress),
-        currentD,
-        x,
-        currentD,
-      );
-      borderPath.cubicTo(
-        x + currentR - (6 * cutoutProgress),
-        currentD,
-        x + currentR - (10 * cutoutProgress),
-        0,
-        x + currentR,
-        0,
-      );
-    }
-
-    borderPath.lineTo(width - cornerRadius, 0);
-    borderPath.quadraticBezierTo(width, 0, width, cornerRadius);
-
-    canvas.drawPath(borderPath, borderPaint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CurvedNavigationBarPainter oldDelegate) {
-    return oldDelegate.activeIndex != activeIndex ||
-        oldDelegate.cutoutProgress != cutoutProgress ||
-        oldDelegate.backgroundColor != backgroundColor ||
-        oldDelegate.borderColor != borderColor ||
-        oldDelegate.textDirection != textDirection;
-  }
-}
-
-// ── Premium Curved Bottom Navigation Bar ──────────────────────
-class CurvedBottomNavigationBar extends StatefulWidget {
+class AppBottomNavigationBar extends StatelessWidget {
   final int? selectedIndex;
-  final Function(int) onTap;
-  final List<CurvedNavigationBarItem> items;
-
-  const CurvedBottomNavigationBar({
+  final ValueChanged<int> onTap;
+  final List<AppNavigationBarItem> items;
+  const AppBottomNavigationBar({
     super.key,
     required this.selectedIndex,
     required this.onTap,
@@ -550,249 +414,81 @@ class CurvedBottomNavigationBar extends StatefulWidget {
   });
 
   @override
-  State<CurvedBottomNavigationBar> createState() =>
-      _CurvedBottomNavigationBarState();
-}
-
-class _CurvedBottomNavigationBarState extends State<CurvedBottomNavigationBar>
-    with TickerProviderStateMixin {
-  late AnimationController _posController;
-  late Animation<double> _posAnimation;
-
-  late AnimationController _cutoutController;
-  late Animation<double> _cutoutAnimation;
-
-  late int _lastValidIndex;
-
-  @override
-  void initState() {
-    super.initState();
-    final hasSelection = widget.selectedIndex != null &&
-        widget.selectedIndex! >= 0 &&
-        widget.selectedIndex! < widget.items.length;
-    _lastValidIndex = hasSelection ? widget.selectedIndex! : 0;
-
-    _posController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 350),
-    );
-    _posAnimation = Tween<double>(
-      begin: _lastValidIndex.toDouble(),
-      end: _lastValidIndex.toDouble(),
-    ).animate(
-      CurvedAnimation(parent: _posController, curve: Curves.easeOutCubic),
-    );
-
-    _cutoutController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-      value: hasSelection ? 1.0 : 0.0,
-    );
-    _cutoutAnimation = CurvedAnimation(
-      parent: _cutoutController,
-      curve: Curves.easeInOutCubic,
-    );
-  }
-
-  @override
-  void didUpdateWidget(covariant CurvedBottomNavigationBar oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    final hasNewSelection = widget.selectedIndex != null &&
-        widget.selectedIndex! >= 0 &&
-        widget.selectedIndex! < widget.items.length;
-    final hadOldSelection = oldWidget.selectedIndex != null &&
-        oldWidget.selectedIndex! >= 0 &&
-        oldWidget.selectedIndex! < oldWidget.items.length;
-
-    if (hasNewSelection) {
-      final newIndex = widget.selectedIndex!;
-      _lastValidIndex = newIndex;
-
-      if (!hadOldSelection) {
-        // Was inactive, now active at newIndex
-        _posAnimation = Tween<double>(
-          begin: newIndex.toDouble(),
-          end: newIndex.toDouble(),
-        ).animate(
-          CurvedAnimation(parent: _posController, curve: Curves.easeOutCubic),
-        );
-        _posController.value = 1.0;
-        _cutoutController.forward();
-      } else if (oldWidget.selectedIndex != newIndex) {
-        // Animated between two active tabs
-        _posAnimation = Tween<double>(
-          begin: _posAnimation.value,
-          end: newIndex.toDouble(),
-        ).animate(
-          CurvedAnimation(parent: _posController, curve: Curves.easeOutCubic),
-        );
-        _posController.forward(from: 0.0);
-        if (_cutoutController.value < 1.0) {
-          _cutoutController.forward();
-        }
-      }
-    } else {
-      // Now inactive
-      if (hadOldSelection) {
-        _cutoutController.reverse();
-      }
-    }
-  }
-
-  @override
-  void dispose() {
-    _posController.dispose();
-    _cutoutController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final isRtl = Directionality.of(context) == TextDirection.rtl;
-    final width = MediaQuery.of(context).size.width;
-    final singleWidth = width / widget.items.length;
-    final bottomPadding = MediaQuery.paddingOf(context).bottom;
-
-    return AnimatedBuilder(
-      animation: Listenable.merge([_posAnimation, _cutoutAnimation]),
-      builder: (context, child) {
-        final effectiveIndex = isRtl
-            ? (widget.items.length - 1 - _posAnimation.value)
-            : _posAnimation.value;
-
-        final cutoutVal = _cutoutAnimation.value;
-
-        return Container(
-          height: 85.0 + bottomPadding,
-          color: Colors.transparent,
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              // Custom Bezier Paint Background Bar
-              Positioned.fill(
-                child: RepaintBoundary(
-                  child: CustomPaint(
-                    painter: CurvedNavigationBarPainter(
-                      activeIndex: _posAnimation.value,
-                      cutoutProgress: cutoutVal,
-                      itemCount: widget.items.length,
-                      backgroundColor: context.surfaceColor,
-                      borderColor: context.onSurfaceColor.withValues(
-                        alpha: 0.08,
-                      ),
-                      textDirection: Directionality.of(context),
-                    ),
-                  ),
-                ),
-              ),
-
-              // Floating Active Icon Circle with glow shadow
-              if (cutoutVal > 0.005)
-                Positioned(
-                  left:
-                      (effectiveIndex + 0.5) * singleWidth -
-                      30, // center 60px wide circle
-                  top: -15 * cutoutVal, // float elevated
-                  child: Opacity(
-                    opacity: cutoutVal.clamp(0.0, 1.0),
-                    child: Transform.scale(
-                      scale: cutoutVal.clamp(0.0, 1.0),
-                      child: Container(
-                        width: 60,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: AppColors.primaryGradient,
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.primary.withValues(
-                                alpha: 0.35 * cutoutVal.clamp(0.0, 1.0),
+    final dark = context.isDarkMode;
+    final accent = dark ? AppColors.primary : const Color(0xFF009FB5);
+    return Material(
+      color: dark ? AppColors.darkSurface : Colors.white,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          border: Border(
+            top: BorderSide(
+              color: dark ? AppColors.darkBorder : const Color(0xFFE2E8EF),
+            ),
+          ),
+        ),
+        child: SafeArea(
+          top: false,
+          child: IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: List.generate(items.length, (index) {
+                final item = items[index];
+                final selected = selectedIndex == index;
+                final color = selected
+                    ? accent
+                    : (dark
+                          ? AppColors.textSecondaryDark
+                          : const Color(0xFF7C879D));
+                return Expanded(
+                  child: Semantics(
+                    button: true,
+                    selected: selected,
+                    child: InkWell(
+                      onTap: () async {
+                        await HapticHelper.lightTick();
+                        onTap(index);
+                      },
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(minHeight: 60),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 4,
+                            vertical: 8,
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              IconTheme(
+                                data: IconThemeData(size: 24, color: color),
+                                child: selected ? item.selectedIcon : item.icon,
                               ),
-                              blurRadius: 16,
-                              offset: const Offset(0, 6),
-                            ),
-                          ],
-                        ),
-                        child: Center(
-                          child: Icon(
-                            widget.items[_lastValidIndex].selectedIcon,
-                            color: Colors.white,
-                            size: 26,
+                              const SizedBox(height: 4),
+                              Text(
+                                item.label,
+                                textAlign: TextAlign.center,
+                                style: AppTextStyles.labelSmall.copyWith(
+                                  fontSize: 11,
+                                  height: 1.25,
+                                  color: color,
+                                  fontWeight: selected
+                                      ? FontWeight.w600
+                                      : FontWeight.w400,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
                     ),
                   ),
-                ),
-
-              // Inactive Icons & Text Labels Row
-              Positioned.fill(
-                child: Row(
-                  children: List.generate(widget.items.length, (index) {
-                    final item = widget.items[index];
-                    final isSelected = widget.selectedIndex != null &&
-                        index == widget.selectedIndex;
-
-                    // Calculate distance to active index to fade out standard icon
-                    final distance = (index - _posAnimation.value).abs();
-                    final baseDistanceOpacity = (distance * 1.5).clamp(0.0, 1.0);
-                    final opacity =
-                        (1.0 - (1.0 - baseDistanceOpacity) * cutoutVal).clamp(
-                          0.0,
-                          1.0,
-                        );
-
-                    return Expanded(
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () async {
-                          await HapticHelper.lightTick();
-                          widget.onTap(index);
-                        },
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            const SizedBox(height: 20),
-                            // Inactive normal icon
-                            Opacity(
-                              opacity: opacity,
-                              child: Icon(
-                                item.icon,
-                                color: context.onSurfaceColor.withValues(
-                                  alpha: 0.6,
-                                ),
-                                size: 24,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            // Text Label
-                            Text(
-                              item.label,
-                              style: AppTextStyles.labelSmall.copyWith(
-                                color: isSelected
-                                    ? (context.isDarkMode
-                                          ? AppColors.primaryLight
-                                          : context.primaryColor)
-                                    : context.onSurfaceColor.withValues(
-                                        alpha: 0.4,
-                                      ),
-                                fontWeight: isSelected
-                                    ? FontWeight.bold
-                                    : FontWeight.normal,
-                              ),
-                            ),
-                            SizedBox(height: 12.0 + bottomPadding),
-                          ],
-                        ),
-                      ),
-                    );
-                  }),
-                ),
-              ),
-            ],
+                );
+              }),
+            ),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 }

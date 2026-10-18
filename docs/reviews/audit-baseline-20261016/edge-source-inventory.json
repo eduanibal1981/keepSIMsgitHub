@@ -1,0 +1,618 @@
+{
+  "scope": "Local source/configuration only; all deployed versions/settings unverified",
+  "configured_slug_count": 6,
+  "local_slug_count": 37,
+  "functions": [
+    {
+      "slug": "admin-telnyx-billing",
+      "local_source": true,
+      "configured_verify_jwt": null,
+      "deployed_version": null,
+      "deployed_verify_jwt": null,
+      "deployment_status": "UNVERIFIED",
+      "files": [
+        {
+          "path": "supabase/functions/admin-telnyx-billing/index.ts",
+          "sha256": "823e4b1f94d35cf0d3456a344f3814b2b4c37ab79b8fb63109296c9f87209495"
+        }
+      ]
+    },
+    {
+      "slug": "capture-paypal-order",
+      "local_source": true,
+      "configured_verify_jwt": null,
+      "deployed_version": null,
+      "deployed_verify_jwt": null,
+      "deployment_status": "UNVERIFIED",
+      "files": [
+        {
+          "path": "supabase/functions/capture-paypal-order/app_check.ts",
+          "sha256": "7f6180849dce99086a06bd87d2f6e25cb0b1e4595fed1004f8b79a02da035b8c"
+        },
+        {
+          "path": "supabase/functions/capture-paypal-order/deno.json",
+          "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+        },
+        {
+          "path": "supabase/functions/capture-paypal-order/index.ts",
+          "sha256": "d63517accbbb546f54d792f0718fbf1f8017030126f0dfcabb12fb1c7e16c0af"
+        }
+      ]
+    },
+    {
+      "slug": "create-paypal-order",
+      "local_source": true,
+      "configured_verify_jwt": null,
+      "deployed_version": null,
+      "deployed_verify_jwt": null,
+      "deployment_status": "UNVERIFIED",
+      "files": [
+        {
+          "path": "supabase/functions/create-paypal-order/app_check.ts",
+          "sha256": "7f6180849dce99086a06bd87d2f6e25cb0b1e4595fed1004f8b79a02da035b8c"
+        },
+        {
+          "path": "supabase/functions/create-paypal-order/deno.json",
+          "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+        },
+        {
+          "path": "supabase/functions/create-paypal-order/index.ts",
+          "sha256": "e1efbfd1a534bc6f5314e3ffc6086031ce9e95e58cb911ca587abcaeb5aa3991"
+        }
+      ]
+    },
+    {
+      "slug": "delete_account",
+      "local_source": true,
+      "configured_verify_jwt": null,
+      "deployed_version": null,
+      "deployed_verify_jwt": null,
+      "deployment_status": "UNVERIFIED",
+      "files": [
+        {
+          "path": "supabase/functions/delete_account/deno.json",
+          "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+        },
+        {
+          "path": "supabase/functions/delete_account/index.ts",
+          "sha256": "2d204ab147e163d724093bcf20f7aefd7bd61a824c2bfc68270b8d3d1719053e"
+        }
+      ]
+    },
+    {
+      "slug": "detect-country",
+      "local_source": true,
+      "configured_verify_jwt": null,
+      "deployed_version": null,
+      "deployed_verify_jwt": null,
+      "deployment_status": "UNVERIFIED",
+      "files": [
+        {
+          "path": "supabase/functions/detect-country/deno.json",
+          "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+        },
+        {
+          "path": "supabase/functions/detect-country/index.ts",
+          "sha256": "d138736a8af8078f7704cd83be30c79bd7670cd359349f5eed15b1a6415272d0"
+        }
+      ]
+    },
+    {
+      "slug": "dispatch-alert",
+      "local_source": true,
+      "configured_verify_jwt": null,
+      "deployed_version": null,
+      "deployed_verify_jwt": null,
+      "deployment_status": "UNVERIFIED",
+      "files": [
+        {
+          "path": "supabase/functions/dispatch-alert/channels.ts",
+          "sha256": "443be9aede7787317fc2ef3bf865b9c079ff23187fa63008c7e62b25a23b6834"
+        },
+        {
+          "path": "supabase/functions/dispatch-alert/index.ts",
+          "sha256": "b1fa467ff2b43e21b8c21f1a691bbdb76db29b2a256361c610f57d126d363b7d"
+        },
+        {
+          "path": "supabase/functions/dispatch-alert/push_delivery.ts",
+          "sha256": "9dac58c6400c091ed09aeb77db913c5f5f72b1bcc118ef1716a15c1edbe438f9"
+        }
+      ]
+    },
+    {
+      "slug": "end-voip-call",
+      "local_source": true,
+      "configured_verify_jwt": null,
+      "deployed_version": null,
+      "deployed_verify_jwt": null,
+      "deployment_status": "UNVERIFIED",
+      "files": [
+        {
+          "path": "supabase/functions/end-voip-call/index.ts",
+          "sha256": "792163de30b293b48db3a5b02249a7e7508e50c0b96082cea5b3a75d36b2ada9"
+        }
+      ]
+    },
+    {
+      "slug": "execute_zendit_recharge",
+      "local_source": true,
+      "configured_verify_jwt": null,
+      "deployed_version": null,
+      "deployed_verify_jwt": null,
+      "deployment_status": "UNVERIFIED",
+      "files": [
+        {
+          "path": "supabase/functions/execute_zendit_recharge/index.ts",
+          "sha256": "cd7f544cc556494825af0c6cba7bb5902eb68fede3d66a4822684492b2bf5f89"
+        }
+      ]
+    },
+    {
+      "slug": "fetch_zendit_offers",
+      "local_source": true,
+      "configured_verify_jwt": true,
+      "deployed_version": null,
+      "deployed_verify_jwt": null,
+      "deployment_status": "UNVERIFIED",
+      "files": [
+        {
+          "path": "supabase/functions/fetch_zendit_offers/.npmrc",
+          "sha256": "2cc495d5b8918533470e2666eccfcc0532a2a75699e8ad7c887163c83322ab55"
+        },
+        {
+          "path": "supabase/functions/fetch_zendit_offers/deno.json",
+          "sha256": "5f1c69e365acfb48147f4f9c2806b4228ba91f920fc7723b25185e275bd29537"
+        },
+        {
+          "path": "supabase/functions/fetch_zendit_offers/index.ts",
+          "sha256": "d81174023ae6d0b22b7c276d6f8d7ca8714cc5d63d0e5e56a18fafd1c9c84195"
+        }
+      ]
+    },
+    {
+      "slug": "get-turn-credentials",
+      "local_source": true,
+      "configured_verify_jwt": null,
+      "deployed_version": null,
+      "deployed_verify_jwt": null,
+      "deployment_status": "UNVERIFIED",
+      "files": [
+        {
+          "path": "supabase/functions/get-turn-credentials/index.ts",
+          "sha256": "88d95b6691e22897659010141e39aba24336b42d92879ccda838d5661d4b9ee3"
+        }
+      ]
+    },
+    {
+      "slug": "health",
+      "local_source": true,
+      "configured_verify_jwt": null,
+      "deployed_version": null,
+      "deployed_verify_jwt": null,
+      "deployment_status": "UNVERIFIED",
+      "files": [
+        {
+          "path": "supabase/functions/health/index.ts",
+          "sha256": "a83f30719e3a393d9727e1976d0d73fd44fb86c84a25ec92b074485233adba3e"
+        }
+      ]
+    },
+    {
+      "slug": "initiate-voip-call",
+      "local_source": true,
+      "configured_verify_jwt": null,
+      "deployed_version": null,
+      "deployed_verify_jwt": null,
+      "deployment_status": "UNVERIFIED",
+      "files": [
+        {
+          "path": "supabase/functions/initiate-voip-call/index.ts",
+          "sha256": "dbefe1d65a7e3e174f82871fa82138fc666a5052206c5a214d3f77bab877e55c"
+        }
+      ]
+    },
+    {
+      "slug": "liveness-verification",
+      "local_source": true,
+      "configured_verify_jwt": null,
+      "deployed_version": null,
+      "deployed_verify_jwt": null,
+      "deployment_status": "UNVERIFIED",
+      "files": [
+        {
+          "path": "supabase/functions/liveness-verification/index.ts",
+          "sha256": "b18528090e29fa91043034537d0b5c6a30ebe90e5b090e99c82f7c809f2fbcd1"
+        }
+      ]
+    },
+    {
+      "slug": "liveness-verification-webhook",
+      "local_source": true,
+      "configured_verify_jwt": null,
+      "deployed_version": null,
+      "deployed_verify_jwt": null,
+      "deployment_status": "UNVERIFIED",
+      "files": [
+        {
+          "path": "supabase/functions/liveness-verification-webhook/index.ts",
+          "sha256": "8bf9181beb195bd41b86a3ba1da4bb6a0b7bc2a9b9fc1e88b90b5365dd751df9"
+        }
+      ]
+    },
+    {
+      "slug": "make-call",
+      "local_source": true,
+      "configured_verify_jwt": true,
+      "deployed_version": null,
+      "deployed_verify_jwt": null,
+      "deployment_status": "UNVERIFIED",
+      "files": [
+        {
+          "path": "supabase/functions/make-call/call-media.ts",
+          "sha256": "60c91308c9b137e1cc0cfa3e7988893d3ec2cfc5bdeda141ffbd123cabc931f5"
+        },
+        {
+          "path": "supabase/functions/make-call/index.ts",
+          "sha256": "bc71246f4ca3f7c4d919a5569ad01881f3b89355953d29a94f8285d821669ec5"
+        }
+      ]
+    },
+    {
+      "slug": "manage-caller-id",
+      "local_source": true,
+      "configured_verify_jwt": null,
+      "deployed_version": null,
+      "deployed_verify_jwt": null,
+      "deployment_status": "UNVERIFIED",
+      "files": [
+        {
+          "path": "supabase/functions/manage-caller-id/index.ts",
+          "sha256": "8a454ace319009091c7ca8b4c0619e5b5dd1dd1f7b16091cbbcb79d12dccbaa8"
+        }
+      ]
+    },
+    {
+      "slug": "manage-dids",
+      "local_source": true,
+      "configured_verify_jwt": null,
+      "deployed_version": null,
+      "deployed_verify_jwt": null,
+      "deployment_status": "UNVERIFIED",
+      "files": [
+        {
+          "path": "supabase/functions/manage-dids/index.ts",
+          "sha256": "4830d3905f88a04352a4b6521d6ce4cede299d0515af84378633e087843a5c60"
+        }
+      ]
+    },
+    {
+      "slug": "notification-email-verification",
+      "local_source": true,
+      "configured_verify_jwt": true,
+      "deployed_version": null,
+      "deployed_verify_jwt": null,
+      "deployment_status": "UNVERIFIED",
+      "files": [
+        {
+          "path": "supabase/functions/notification-email-verification/index.ts",
+          "sha256": "e3bb7ef0a3b7e08c21f3127c5b30c41956fbde04e8d032745edcf6fa615dbf8e"
+        }
+      ]
+    },
+    {
+      "slug": "paypal-return",
+      "local_source": true,
+      "configured_verify_jwt": false,
+      "deployed_version": null,
+      "deployed_verify_jwt": null,
+      "deployment_status": "UNVERIFIED",
+      "files": [
+        {
+          "path": "supabase/functions/paypal-return/index.ts",
+          "sha256": "3fbc16d003a511f137a83e908dada4fa6c9aedc4b7182c737d4c29e646f686d5"
+        }
+      ]
+    },
+    {
+      "slug": "paypal-webhook",
+      "local_source": true,
+      "configured_verify_jwt": null,
+      "deployed_version": null,
+      "deployed_verify_jwt": null,
+      "deployment_status": "UNVERIFIED",
+      "files": [
+        {
+          "path": "supabase/functions/paypal-webhook/deno.json",
+          "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+        },
+        {
+          "path": "supabase/functions/paypal-webhook/index.ts",
+          "sha256": "b1d3c6cb73babc8fe1041ac659f711137f05821c48f22cde4856f7fd1d33d4a6"
+        }
+      ]
+    },
+    {
+      "slug": "process-alert-outbox",
+      "local_source": true,
+      "configured_verify_jwt": null,
+      "deployed_version": null,
+      "deployed_verify_jwt": null,
+      "deployment_status": "UNVERIFIED",
+      "files": [
+        {
+          "path": "supabase/functions/process-alert-outbox/index.ts",
+          "sha256": "aa15f2bfd611ab414a39253ec589b35f9d5cc4f7095af2f554b5e239115c2d8c"
+        },
+        {
+          "path": "supabase/functions/process-alert-outbox/package.json",
+          "sha256": "3ca9d4afd21425087cf31893b8f9f63c81b0b8408db5e343ca76e5f8aa26ab9a"
+        },
+        {
+          "path": "supabase/functions/process-alert-outbox/quiet_hours.ts",
+          "sha256": "801fd7f7febb0191ed7b6b64269c678d47bd34ba31d18d30ceaf5d701ef1c7c1"
+        }
+      ]
+    },
+    {
+      "slug": "process-voicemail",
+      "local_source": true,
+      "configured_verify_jwt": null,
+      "deployed_version": null,
+      "deployed_verify_jwt": null,
+      "deployment_status": "UNVERIFIED",
+      "files": [
+        {
+          "path": "supabase/functions/process-voicemail/index.ts",
+          "sha256": "5733e16049683bf0b892ea3f3bab28c69b56a5f24c7574560d7bf0a056aa822b"
+        }
+      ]
+    },
+    {
+      "slug": "process-wallet-refund",
+      "local_source": true,
+      "configured_verify_jwt": true,
+      "deployed_version": null,
+      "deployed_verify_jwt": null,
+      "deployment_status": "UNVERIFIED",
+      "files": [
+        {
+          "path": "supabase/functions/process-wallet-refund/index.ts",
+          "sha256": "0bdc8e355ca375672f5b742b1e9241d75a35deed42e2efb4036c39eba7ffa8c5"
+        }
+      ]
+    },
+    {
+      "slug": "purge-accounts",
+      "local_source": true,
+      "configured_verify_jwt": null,
+      "deployed_version": null,
+      "deployed_verify_jwt": null,
+      "deployment_status": "UNVERIFIED",
+      "files": [
+        {
+          "path": "supabase/functions/purge-accounts/deno.json",
+          "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+        },
+        {
+          "path": "supabase/functions/purge-accounts/index.ts",
+          "sha256": "45cacd704e5b6a759325f37ebe0a414d8c329c22344c4ca996d1ad6eef09e48e"
+        }
+      ]
+    },
+    {
+      "slug": "recovery-service",
+      "local_source": true,
+      "configured_verify_jwt": null,
+      "deployed_version": null,
+      "deployed_verify_jwt": null,
+      "deployment_status": "UNVERIFIED",
+      "files": [
+        {
+          "path": "supabase/functions/recovery-service/deno.json",
+          "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+        },
+        {
+          "path": "supabase/functions/recovery-service/index.ts",
+          "sha256": "44fd1218dac3ff6286139bf5f25b63e074a5a58b3d6300ce6ca4790973a1e0cf"
+        }
+      ]
+    },
+    {
+      "slug": "refresh-fx-rates",
+      "local_source": true,
+      "configured_verify_jwt": null,
+      "deployed_version": null,
+      "deployed_verify_jwt": null,
+      "deployment_status": "UNVERIFIED",
+      "files": [
+        {
+          "path": "supabase/functions/refresh-fx-rates/deno.json",
+          "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+        },
+        {
+          "path": "supabase/functions/refresh-fx-rates/index.ts",
+          "sha256": "c289c64bebaf63a48cc5ea3560d2faf2f04156e75a12af67d11670ac3ecfe6a0"
+        }
+      ]
+    },
+    {
+      "slug": "send-sim-otp",
+      "local_source": true,
+      "configured_verify_jwt": null,
+      "deployed_version": null,
+      "deployed_verify_jwt": null,
+      "deployment_status": "UNVERIFIED",
+      "files": [
+        {
+          "path": "supabase/functions/send-sim-otp/index.ts",
+          "sha256": "6d187115008a65f26cd216acff8f3a9ef7690e1cfc7906f556bdb236421e5e3c"
+        }
+      ]
+    },
+    {
+      "slug": "send-whatsapp-alert",
+      "local_source": true,
+      "configured_verify_jwt": null,
+      "deployed_version": null,
+      "deployed_verify_jwt": null,
+      "deployment_status": "UNVERIFIED",
+      "files": [
+        {
+          "path": "supabase/functions/send-whatsapp-alert/index.ts",
+          "sha256": "3e932a9b468f1e2ab473c701b3e51ddbdc277af96b1adf13746a60e99e02bc38"
+        }
+      ]
+    },
+    {
+      "slug": "sms-webhook",
+      "local_source": true,
+      "configured_verify_jwt": null,
+      "deployed_version": null,
+      "deployed_verify_jwt": null,
+      "deployment_status": "UNVERIFIED",
+      "files": [
+        {
+          "path": "supabase/functions/sms-webhook/deno.json",
+          "sha256": "5f1c69e365acfb48147f4f9c2806b4228ba91f920fc7723b25185e275bd29537"
+        },
+        {
+          "path": "supabase/functions/sms-webhook/index.ts",
+          "sha256": "5376ef39a482ab6626086180e428fff11de838618245627dc446a3cea322866a"
+        }
+      ]
+    },
+    {
+      "slug": "sync-affiliate-network",
+      "local_source": true,
+      "configured_verify_jwt": null,
+      "deployed_version": null,
+      "deployed_verify_jwt": null,
+      "deployment_status": "UNVERIFIED",
+      "files": [
+        {
+          "path": "supabase/functions/sync-affiliate-network/index.ts",
+          "sha256": "5bb7339806bf41119aa228fc6f58ad89a40fe25b30dd76a18c7a831b2e139273"
+        }
+      ]
+    },
+    {
+      "slug": "sync-esim-catalogue",
+      "local_source": true,
+      "configured_verify_jwt": null,
+      "deployed_version": null,
+      "deployed_verify_jwt": null,
+      "deployment_status": "UNVERIFIED",
+      "files": [
+        {
+          "path": "supabase/functions/sync-esim-catalogue/index.ts",
+          "sha256": "f41a80622e8dad710c42d30ed7c1abc91f5d4bb65ae055510b8a137930b34012"
+        }
+      ]
+    },
+    {
+      "slug": "telnyx-cdr",
+      "local_source": true,
+      "configured_verify_jwt": false,
+      "deployed_version": null,
+      "deployed_verify_jwt": null,
+      "deployment_status": "UNVERIFIED",
+      "files": [
+        {
+          "path": "supabase/functions/telnyx-cdr/call-media.ts",
+          "sha256": "60c91308c9b137e1cc0cfa3e7988893d3ec2cfc5bdeda141ffbd123cabc931f5"
+        },
+        {
+          "path": "supabase/functions/telnyx-cdr/index.ts",
+          "sha256": "535c5ce138ba13259ece12f35210a6f88518b33f8a8bf073f5399139de9cac43"
+        },
+        {
+          "path": "supabase/functions/telnyx-cdr/media-events.ts",
+          "sha256": "2688195aa2a0849dd215dcb6b4a103caefb805f200cfb859a3db7266cfe0613b"
+        }
+      ]
+    },
+    {
+      "slug": "twilio-voice-webhook",
+      "local_source": true,
+      "configured_verify_jwt": null,
+      "deployed_version": null,
+      "deployed_verify_jwt": null,
+      "deployment_status": "UNVERIFIED",
+      "files": [
+        {
+          "path": "supabase/functions/twilio-voice-webhook/index.ts",
+          "sha256": "0d159b24e9db6a615fcdfef7eb3e8867a1eda44fc2430251045b752075d4a061"
+        }
+      ]
+    },
+    {
+      "slug": "validate-sim-liveness",
+      "local_source": true,
+      "configured_verify_jwt": null,
+      "deployed_version": null,
+      "deployed_verify_jwt": null,
+      "deployment_status": "UNVERIFIED",
+      "files": [
+        {
+          "path": "supabase/functions/validate-sim-liveness/index.ts",
+          "sha256": "9acc360d02067c73720c011a15016d3e680540aa013d2ac256715c9838691fa9"
+        }
+      ]
+    },
+    {
+      "slug": "verify-sim-otp",
+      "local_source": true,
+      "configured_verify_jwt": null,
+      "deployed_version": null,
+      "deployed_verify_jwt": null,
+      "deployment_status": "UNVERIFIED",
+      "files": [
+        {
+          "path": "supabase/functions/verify-sim-otp/index.ts",
+          "sha256": "0d6fab7210521b21b56efa12e98459ae9c26e2b19797dde05aefb2903a2547ae"
+        }
+      ]
+    },
+    {
+      "slug": "waba-webhook",
+      "local_source": true,
+      "configured_verify_jwt": null,
+      "deployed_version": null,
+      "deployed_verify_jwt": null,
+      "deployment_status": "UNVERIFIED",
+      "files": [
+        {
+          "path": "supabase/functions/waba-webhook/deno.json",
+          "sha256": "5f1c69e365acfb48147f4f9c2806b4228ba91f920fc7723b25185e275bd29537"
+        },
+        {
+          "path": "supabase/functions/waba-webhook/index.ts",
+          "sha256": "93024eedb23bf1f024eb871f9f00bdd9b2a0474ae5e3b0f2d63ae746dc9efa65"
+        }
+      ]
+    },
+    {
+      "slug": "wallet_transact",
+      "local_source": true,
+      "configured_verify_jwt": null,
+      "deployed_version": null,
+      "deployed_verify_jwt": null,
+      "deployment_status": "UNVERIFIED",
+      "files": [
+        {
+          "path": "supabase/functions/wallet_transact/index.ts",
+          "sha256": "b393566fb892690cdd6efb37609a52df3940114a932441301ffdf77091b71e54"
+        }
+      ]
+    },
+    {
+      "slug": "send-admin-email",
+      "local_source": false,
+      "configured_verify_jwt": null,
+      "deployed_version": null,
+      "deployed_verify_jwt": null,
+      "deployment_status": "UNVERIFIED",
+      "note": "Mentioned as deployed by older project review; no fresh management inventory available."
+    }
+  ]
+}

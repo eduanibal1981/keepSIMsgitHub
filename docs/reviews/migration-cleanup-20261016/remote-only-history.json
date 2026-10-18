@@ -1,0 +1,140 @@
+[
+  {
+    "version": "20260518001308",
+    "name": "001_core_tables",
+    "statement_count": 1,
+    "statements_md5": "92c7e0dde777a89e61afb46fbd11a1d4"
+  },
+  {
+    "version": "20260518001344",
+    "name": "002_transaction_and_automation_tables",
+    "statement_count": 1,
+    "statements_md5": "332eb1410b7ddbaa56801ee421291661"
+  },
+  {
+    "version": "20260518001408",
+    "name": "003_rls_policies",
+    "statement_count": 1,
+    "statements_md5": "afa7af237e6e99bc3d078451bcbfc253"
+  },
+  {
+    "version": "20260518001447",
+    "name": "004_functions_and_triggers",
+    "statement_count": 1,
+    "statements_md5": "c927f1ccd5b03636bf13ae60f1dd42cb"
+  },
+  {
+    "version": "20260518001534",
+    "name": "005_seed_carrier_data",
+    "statement_count": 1,
+    "statements_md5": "7118ab3c44c72b9909a5867b8e60a634"
+  },
+  {
+    "version": "20260518164224",
+    "name": "add_notifications_delete_policy",
+    "statement_count": 1,
+    "statements_md5": "9d9accd1b7514f9bb21eacee64945f64"
+  },
+  {
+    "version": "20260518170216",
+    "name": "006_household_sharing_and_triggers",
+    "statement_count": 1,
+    "statements_md5": "6129b08de23cbb2f8c4b6aab5ce6dd05"
+  },
+  {
+    "version": "20260518173916",
+    "name": "008_apply_referral_routine",
+    "statement_count": 1,
+    "statements_md5": "1753dfb266df0b46484d634b537bc5a7"
+  },
+  {
+    "version": "20260608202239",
+    "name": "create_support_tickets_table",
+    "statement_count": 1,
+    "statements_md5": "f87854c2659e272c75b5c860406d6661"
+  },
+  {
+    "version": "20260715183017",
+    "name": "revoke_public_execute_on_privileged_rpcs",
+    "statement_count": 1,
+    "statements_md5": "5a70879ab29a6b2b9b91eddf4ff1b56e"
+  },
+  {
+    "version": "20260715203113",
+    "name": "harden_search_path_and_single_health_score",
+    "statement_count": 1,
+    "statements_md5": "a46b54e61205380368acdbd6fb55050f"
+  },
+  {
+    "version": "20260715203158",
+    "name": "credit_wallet_for_refund",
+    "statement_count": 1,
+    "statements_md5": "41c1ca6dac2f1fd5ce48be0352628150"
+  },
+  {
+    "version": "20260715203338",
+    "name": "stuck_execution_reaper_and_pipeline_alerts",
+    "statement_count": 1,
+    "statements_md5": "1d7f6c76ec130576c1f17b9a170dd917"
+  },
+  {
+    "version": "20260804045158",
+    "name": "i2b_grandfather_allowlist",
+    "statement_count": 1,
+    "statements_md5": "6565c7884d80366197433e48f4a8cecb"
+  },
+  {
+    "version": "20260804050403",
+    "name": "i4b_use_existing_tasker_script_gateway",
+    "statement_count": 1,
+    "statements_md5": "c660c0f06574688846d466702b3cded4"
+  },
+  {
+    "version": "20260804050438",
+    "name": "i4c_claim_cast_execution_type",
+    "statement_count": 1,
+    "statements_md5": "25dd25b91d918d1bfd55fad1ad1115d6"
+  },
+  {
+    "version": "20260804130232",
+    "name": "i5b_fix_carrier_default_provider_offbyone",
+    "statement_count": 1,
+    "statements_md5": "b4ff1163ee02596a85878a9a0b7830ab"
+  },
+  {
+    "version": "20260804130414",
+    "name": "i5c_cooldown_exempts_system_failover",
+    "statement_count": 1,
+    "statements_md5": "b0209e82ed3a50820dc8d5caab27a3cf"
+  },
+  {
+    "version": "20260808130846",
+    "name": "k3b_offline_refill_and_rescue_provider_agnostic",
+    "statement_count": 1,
+    "statements_md5": "acb88424b00cb6ca286c90d669f86444"
+  },
+  {
+    "version": "20260808131141",
+    "name": "k4b_rewrite_carrier_admin_and_drop_legacy_columns",
+    "statement_count": 1,
+    "statements_md5": "a8f00f3ebebeee47d8ad2872b2ca715b"
+  },
+  {
+    "version": "20260808132046",
+    "name": "k4c_revoke_public_execute_on_recreated_admin_list_carriers",
+    "statement_count": 1,
+    "statements_md5": "65b386d730ed3a71065cd2752be13d33"
+  },
+  {
+    "version": "20260809024217",
+    "name": "k9b_base_currency_never_expires",
+    "statement_count": 1,
+    "statements_md5": "eefbaadaabe215c0a9c7f63d7204c49b"
+  },
+  {
+    "version": "20260907202716",
+    "name": "test_verify_apply_migration",
+    "statement_count": 1,
+    "statements_md5": "67be905ea93b02ad1f9d0b3ba2ba6fb8"
+  }
+]

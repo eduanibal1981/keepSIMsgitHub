@@ -12,6 +12,15 @@ class VirtualDidNumber {
   final String? forwardDestination;
   final DateTime renewsAt;
   final DateTime createdAt;
+  final String numberType;
+  final bool supportsSms;
+  final bool supportsVoice;
+  final bool autoRenew;
+  final String kycStatus;
+  final int unreadSmsCount;
+  final int billingPeriodDays;
+  final DateTime? graceExpiresAt;
+  final bool lifecycleManaged;
 
   const VirtualDidNumber({
     required this.id,
@@ -24,6 +33,15 @@ class VirtualDidNumber {
     this.forwardDestination,
     required this.renewsAt,
     required this.createdAt,
+    this.numberType = 'unknown',
+    this.supportsSms = false,
+    this.supportsVoice = false,
+    this.autoRenew = false,
+    this.kycStatus = 'unknown',
+    this.unreadSmsCount = 0,
+    this.billingPeriodDays = 30,
+    this.graceExpiresAt,
+    this.lifecycleManaged = false,
   });
 
   factory VirtualDidNumber.fromJson(Map<String, dynamic> json) {
@@ -33,7 +51,7 @@ class VirtualDidNumber {
       countryCode: json['country_code'] as String? ?? 'US',
       countryName: json['country_name'] as String? ?? 'United States',
       status: json['status'] as String? ?? 'active',
-      monthlyFeeUsd: ((json['monthly_fee_usd'] ?? 1.50) as num).toDouble(),
+      monthlyFeeUsd: (json['monthly_fee_usd'] as num).toDouble(),
       forwardMode: json['forward_mode'] as String? ?? 'app',
       forwardDestination: json['forward_destination'] as String?,
       renewsAt: json['renews_at'] != null
@@ -42,6 +60,17 @@ class VirtualDidNumber {
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'] as String)
           : DateTime.now(),
+      numberType: json['number_type'] as String? ?? 'unknown',
+      supportsSms: json['supports_sms'] == true,
+      supportsVoice: json['supports_voice'] == true,
+      autoRenew: json['auto_renew'] == true,
+      kycStatus: json['kyc_status'] as String? ?? 'unknown',
+      unreadSmsCount: (json['unread_sms_count'] as num?)?.toInt() ?? 0,
+      billingPeriodDays: (json['billing_period_days'] as num?)?.toInt() ?? 30,
+      graceExpiresAt: DateTime.tryParse(
+        json['grace_expires_at'] as String? ?? '',
+      ),
+      lifecycleManaged: json['lifecycle_managed'] == true,
     );
   }
 

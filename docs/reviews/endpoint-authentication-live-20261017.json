@@ -1,0 +1,72 @@
+{
+  "review_date": "2026-10-17",
+  "timezone": "Asia/Muscat",
+  "project_ref": "zwxswagokhgbuzrrbnhr",
+  "deployment_performed": false,
+  "functions": [
+    {
+      "slug": "process-voicemail",
+      "version": 2,
+      "verify_jwt": false,
+      "deployed_bundle_sha256": "a837ec6e961e1b4b742f0ee42a47d345f0261312b03d2584c31bab2abe0ec0d5",
+      "entrypoint_matches_local": false,
+      "local_entrypoint_sha256": "6da5a999d0f1ba82e30152d5ac5c478c32280db63aa8cb01a6083e2920b3a272"
+    },
+    {
+      "slug": "admin-telnyx-billing",
+      "version": 4,
+      "verify_jwt": true,
+      "deployed_bundle_sha256": "4e3588d5da3f8e049bfef28a4a93c7318cb8885e45cfab58159fbcce7d4f95fa",
+      "entrypoint_matches_local": false,
+      "local_entrypoint_sha256": "7f1cbc2105e1d5aea246130edeb8be5f1389e3f358510a485f8fcd42b86cc1eb"
+    },
+    {
+      "slug": "liveness-verification",
+      "version": 8,
+      "verify_jwt": true,
+      "deployed_bundle_sha256": "57515941b33c6e52d54fb1be1cf55d41164b3a60ddc1d5438f5e50b92ba8ca3b",
+      "entrypoint_matches_local": false,
+      "local_entrypoint_sha256": "5e473850039ac68d49010ec4287810eff72b18beaf2fb191a2f022ef56e8da68"
+    },
+    {
+      "slug": "liveness-verification-webhook",
+      "version": 6,
+      "verify_jwt": false,
+      "deployed_bundle_sha256": "ada0feeace5a06ff77463de72e855a81c841268db62f37369b4e7e865b988907",
+      "entrypoint_matches_local": false,
+      "local_entrypoint_sha256": "bc67ff81f4eb0024880aa3e1002d31b19fdcce4ed5942b6fa4e0210492b76c9a"
+    },
+    {
+      "slug": "telnyx-cdr",
+      "version": 8,
+      "verify_jwt": false,
+      "deployed_bundle_sha256": "bbadf25ae508f340f2d80008b93f1f6d9ca8361698e1dd9b8a70a7f68b4b3a1b",
+      "entrypoint_matches_local": false,
+      "local_entrypoint_sha256": "86ce3475d15633f6ea6c16bfee008680290d120861b68f381329506920ed24df"
+    },
+    {
+      "slug": "twilio-voice-webhook",
+      "version": 3,
+      "verify_jwt": false,
+      "deployed_bundle_sha256": "a24f5a6ec45132cfd03a7f3b77b1c9e848304e2ab3cdd403b85ec6f131b18a74",
+      "entrypoint_matches_local": false,
+      "local_entrypoint_sha256": "466baff99b9ef21c439fd50da414640fe9fbfff4d81a5c911b613be0dfaaec53"
+    },
+    {
+      "slug": "sms-webhook",
+      "version": 5,
+      "verify_jwt": false,
+      "deployed_bundle_sha256": "785bfe07cb8f754d6380f6f2a9eb9413a6e69add27eb6ff36cf3f0ccf0732692",
+      "entrypoint_matches_local": false,
+      "local_entrypoint_sha256": "7afa7f76d1bd8a3a5eb865816ee73fadd01560503534a437aee6a5e97edd376a"
+    },
+    {
+      "slug": "waba-webhook",
+      "version": 7,
+      "verify_jwt": false,
+      "deployed_bundle_sha256": "e7100b02b597e609392ecbe402d97a5f8d6b40f0cca2089b82964ed3d2e687c7",
+      "entrypoint_matches_local": true,
+      "local_entrypoint_sha256": "93024eedb23bf1f024eb871f9f00bdd9b2a0474ae5e3b0f2d63ae746dc9efa65"
+    }
+  ]
+}

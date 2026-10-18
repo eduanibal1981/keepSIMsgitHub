@@ -82,7 +82,7 @@ final class UserPreferencesControllerProvider
 }
 
 String _$userPreferencesControllerHash() =>
-    r'97b2f649251865a49585948eb1c781de26f5f788';
+    r'8eaba320447cdd743c706ecaf5c7ceea14b8f742';
 
 abstract class _$UserPreferencesController
     extends $AsyncNotifier<UserPreferences> {
@@ -133,7 +133,7 @@ final class NotificationChannelsControllerProvider
 }
 
 String _$notificationChannelsControllerHash() =>
-    r'd3ec17b1bd996ac5919d7877064f37033e085c6d';
+    r'a0fbe75b594f6c1194455432a8402446da401cf4';
 
 abstract class _$NotificationChannelsController
     extends $AsyncNotifier<List<Map<String, dynamic>>> {

@@ -1,0 +1,431 @@
+{
+  "project": "zwxswagokhgbuzrrbnhr",
+  "scope": "Read-only metadata; no customer rows",
+  "table": [
+    {
+      "grantee": "anon",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "privilege_type": "DELETE"
+    },
+    {
+      "grantee": "service_role",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "service_role",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "service_role",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "service_role",
+      "privilege_type": "DELETE"
+    },
+    {
+      "grantee": "service_role",
+      "privilege_type": "TRUNCATE"
+    },
+    {
+      "grantee": "service_role",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "service_role",
+      "privilege_type": "TRIGGER"
+    }
+  ],
+  "columns": [
+    {
+      "grantee": "authenticated",
+      "column_name": "amount",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "amount",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "app_fee_usd",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "app_fee_usd",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "base_cost_usd",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "base_cost_usd",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "created_at",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "created_at",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "currency",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "currency",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "engine_version",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "engine_version",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "fee_rule_version",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "fee_rule_version",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "frequency_days",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "frequency_days",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "id",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "id",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "intent_kind",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "intent_kind",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "is_active",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "is_active",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "last_execution_at",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "last_execution_at",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "max_authorized_usd",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "max_authorized_usd",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "max_retries",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "max_retries",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "next_execution_at",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "next_execution_at",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "offer_id",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "offer_id",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "offer_value",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "offer_value",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "preferred_provider",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "preferred_provider",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "pricing_tier",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "pricing_tier",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "retry_count",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "retry_count",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "schedule_type",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "schedule_type",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "sim_line_id",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "sim_line_id",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "status",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "status",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "target_local_currency",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "target_local_currency",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "target_local_value",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "target_local_value",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "updated_at",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "updated_at",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "user_id",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "user_id",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "whatsapp_sent_this_cycle",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "column_name": "whatsapp_sent_this_cycle",
+      "privilege_type": "UPDATE"
+    }
+  ],
+  "policies": [
+    {
+      "cmd": "ALL",
+      "qual": "(((auth.uid() = user_id) OR (EXISTS ( SELECT 1\n   FROM household_members\n  WHERE ((household_members.owner_id = scheduled_topups.user_id) AND (household_members.member_id = auth.uid()) AND (household_members.invite_status = 'accepted'::text) AND (household_members.role = 'manager'::text))))) AND (NOT is_user_suspended()))",
+      "roles": [
+        "authenticated"
+      ],
+      "policyname": "Users can manage household shared scheduled topups as manager",
+      "with_check": "(((auth.uid() = user_id) OR (EXISTS ( SELECT 1\n   FROM household_members\n  WHERE ((household_members.owner_id = scheduled_topups.user_id) AND (household_members.member_id = auth.uid()) AND (household_members.invite_status = 'accepted'::text) AND (household_members.role = 'manager'::text))))) AND (NOT is_user_suspended()))"
+    },
+    {
+      "cmd": "ALL",
+      "qual": "((auth.uid() = user_id) AND (NOT is_user_suspended()))",
+      "roles": [
+        "public"
+      ],
+      "policyname": "Users can manage own scheduled topups",
+      "with_check": "((auth.uid() = user_id) AND (NOT is_user_suspended()))"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(((auth.uid() = user_id) OR (EXISTS ( SELECT 1\n   FROM household_members\n  WHERE ((household_members.owner_id = scheduled_topups.user_id) AND (household_members.member_id = auth.uid()) AND (household_members.invite_status = 'accepted'::text))))) AND (NOT is_user_suspended()))",
+      "roles": [
+        "authenticated"
+      ],
+      "policyname": "Users can view household shared scheduled topups",
+      "with_check": null
+    }
+  ],
+  "triggers": [
+    {
+      "tgname": "trg_cancel_executions_on_schedule_delete",
+      "definition": "CREATE TRIGGER trg_cancel_executions_on_schedule_delete BEFORE DELETE ON public.scheduled_topups FOR EACH ROW EXECUTE FUNCTION trg_fn_cancel_executions_on_schedule_delete()"
+    },
+    {
+      "tgname": "trg_emit_setup_after_schedule",
+      "definition": "CREATE TRIGGER trg_emit_setup_after_schedule AFTER INSERT OR UPDATE OF is_active, status ON public.scheduled_topups FOR EACH ROW EXECUTE FUNCTION emit_setup_after_schedule()"
+    },
+    {
+      "tgname": "trg_scheduled_topups_updated_at",
+      "definition": "CREATE TRIGGER trg_scheduled_topups_updated_at BEFORE UPDATE ON public.scheduled_topups FOR EACH ROW EXECUTE FUNCTION update_updated_at()"
+    },
+    {
+      "tgname": "trg_sync_custom_refill_queue",
+      "definition": "CREATE TRIGGER trg_sync_custom_refill_queue AFTER INSERT OR UPDATE ON public.scheduled_topups FOR EACH ROW EXECUTE FUNCTION trg_fn_sync_custom_refill_queue()"
+    },
+    {
+      "tgname": "trg_sync_health_on_topup",
+      "definition": "CREATE TRIGGER trg_sync_health_on_topup AFTER INSERT OR DELETE OR UPDATE OF status ON public.scheduled_topups FOR EACH ROW EXECUTE FUNCTION trg_scheduled_topup_health_sync()"
+    },
+    {
+      "tgname": "trg_sync_sim_line_health_and_due",
+      "definition": "CREATE TRIGGER trg_sync_sim_line_health_and_due AFTER INSERT OR DELETE OR UPDATE OF is_active, status, schedule_type, next_execution_at ON public.scheduled_topups FOR EACH ROW EXECUTE FUNCTION trg_fn_sync_sim_line_health_and_due()"
+    }
+  ],
+  "functions": [
+    {
+      "body_md5": "1719aa0fb06179748da0354973b08004",
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "signature": "claim_due_executions(character varying,integer)",
+      "anon_execute": false,
+      "customer_execute": false
+    },
+    {
+      "body_md5": "bee916237ae7942dc73d769c5436bdf4",
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "signature": "queue_premium_refill_executions(uuid,uuid,timestamp with time zone,timestamp with time zone)",
+      "anon_execute": false,
+      "customer_execute": true
+    },
+    {
+      "body_md5": "a3390596ff2eafa9e600b19aad164312",
+      "proconfig": [
+        "search_path=public"
+      ],
+      "signature": "trg_fn_sync_custom_refill_queue()",
+      "anon_execute": false,
+      "customer_execute": false
+    },
+    {
+      "body_md5": "0aab873362697ff2c0e927bd111bfea1",
+      "proconfig": [
+        "search_path=public"
+      ],
+      "signature": "update_sim_line_last_topup_at()",
+      "anon_execute": false,
+      "customer_execute": false
+    }
+  ],
+  "captured_at": "2026-10-17T23:41:23.866449+00:00",
+  "new_migration_present": false
+}

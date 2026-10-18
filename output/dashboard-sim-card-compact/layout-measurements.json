@@ -1,0 +1,1442 @@
+[
+  {
+    "width": 320.0,
+    "textScale": 1.0,
+    "arabic": false,
+    "dark": false,
+    "premium": false,
+    "active": false,
+    "cardWidth": 288.0,
+    "cardHeight": 280.0
+  },
+  {
+    "width": 320.0,
+    "textScale": 1.0,
+    "arabic": false,
+    "dark": false,
+    "premium": false,
+    "active": true,
+    "cardWidth": 288.0,
+    "cardHeight": 280.0
+  },
+  {
+    "width": 320.0,
+    "textScale": 1.0,
+    "arabic": false,
+    "dark": false,
+    "premium": true,
+    "active": false,
+    "cardWidth": 288.0,
+    "cardHeight": 280.0
+  },
+  {
+    "width": 320.0,
+    "textScale": 1.0,
+    "arabic": false,
+    "dark": false,
+    "premium": true,
+    "active": true,
+    "cardWidth": 288.0,
+    "cardHeight": 280.0
+  },
+  {
+    "width": 320.0,
+    "textScale": 1.0,
+    "arabic": false,
+    "dark": true,
+    "premium": false,
+    "active": false,
+    "cardWidth": 288.0,
+    "cardHeight": 280.0
+  },
+  {
+    "width": 320.0,
+    "textScale": 1.0,
+    "arabic": false,
+    "dark": true,
+    "premium": false,
+    "active": true,
+    "cardWidth": 288.0,
+    "cardHeight": 280.0
+  },
+  {
+    "width": 320.0,
+    "textScale": 1.0,
+    "arabic": false,
+    "dark": true,
+    "premium": true,
+    "active": false,
+    "cardWidth": 288.0,
+    "cardHeight": 280.0
+  },
+  {
+    "width": 320.0,
+    "textScale": 1.0,
+    "arabic": false,
+    "dark": true,
+    "premium": true,
+    "active": true,
+    "cardWidth": 288.0,
+    "cardHeight": 280.0
+  },
+  {
+    "width": 320.0,
+    "textScale": 1.0,
+    "arabic": true,
+    "dark": false,
+    "premium": false,
+    "active": false,
+    "cardWidth": 288.0,
+    "cardHeight": 280.0
+  },
+  {
+    "width": 320.0,
+    "textScale": 1.0,
+    "arabic": true,
+    "dark": false,
+    "premium": false,
+    "active": true,
+    "cardWidth": 288.0,
+    "cardHeight": 280.0
+  },
+  {
+    "width": 320.0,
+    "textScale": 1.0,
+    "arabic": true,
+    "dark": false,
+    "premium": true,
+    "active": false,
+    "cardWidth": 288.0,
+    "cardHeight": 229.0
+  },
+  {
+    "width": 320.0,
+    "textScale": 1.0,
+    "arabic": true,
+    "dark": false,
+    "premium": true,
+    "active": true,
+    "cardWidth": 288.0,
+    "cardHeight": 229.0
+  },
+  {
+    "width": 320.0,
+    "textScale": 1.0,
+    "arabic": true,
+    "dark": true,
+    "premium": false,
+    "active": false,
+    "cardWidth": 288.0,
+    "cardHeight": 280.0
+  },
+  {
+    "width": 320.0,
+    "textScale": 1.0,
+    "arabic": true,
+    "dark": true,
+    "premium": false,
+    "active": true,
+    "cardWidth": 288.0,
+    "cardHeight": 280.0
+  },
+  {
+    "width": 320.0,
+    "textScale": 1.0,
+    "arabic": true,
+    "dark": true,
+    "premium": true,
+    "active": false,
+    "cardWidth": 288.0,
+    "cardHeight": 229.0
+  },
+  {
+    "width": 320.0,
+    "textScale": 1.0,
+    "arabic": true,
+    "dark": true,
+    "premium": true,
+    "active": true,
+    "cardWidth": 288.0,
+    "cardHeight": 229.0
+  },
+  {
+    "width": 320.0,
+    "textScale": 1.3,
+    "arabic": false,
+    "dark": false,
+    "premium": false,
+    "active": false,
+    "cardWidth": 288.0,
+    "cardHeight": 293.0
+  },
+  {
+    "width": 320.0,
+    "textScale": 1.3,
+    "arabic": false,
+    "dark": false,
+    "premium": false,
+    "active": true,
+    "cardWidth": 288.0,
+    "cardHeight": 293.0
+  },
+  {
+    "width": 320.0,
+    "textScale": 1.3,
+    "arabic": false,
+    "dark": false,
+    "premium": true,
+    "active": false,
+    "cardWidth": 288.0,
+    "cardHeight": 293.0
+  },
+  {
+    "width": 320.0,
+    "textScale": 1.3,
+    "arabic": false,
+    "dark": false,
+    "premium": true,
+    "active": true,
+    "cardWidth": 288.0,
+    "cardHeight": 293.0
+  },
+  {
+    "width": 320.0,
+    "textScale": 1.3,
+    "arabic": false,
+    "dark": true,
+    "premium": false,
+    "active": false,
+    "cardWidth": 288.0,
+    "cardHeight": 293.0
+  },
+  {
+    "width": 320.0,
+    "textScale": 1.3,
+    "arabic": false,
+    "dark": true,
+    "premium": false,
+    "active": true,
+    "cardWidth": 288.0,
+    "cardHeight": 293.0
+  },
+  {
+    "width": 320.0,
+    "textScale": 1.3,
+    "arabic": false,
+    "dark": true,
+    "premium": true,
+    "active": false,
+    "cardWidth": 288.0,
+    "cardHeight": 293.0
+  },
+  {
+    "width": 320.0,
+    "textScale": 1.3,
+    "arabic": false,
+    "dark": true,
+    "premium": true,
+    "active": true,
+    "cardWidth": 288.0,
+    "cardHeight": 293.0
+  },
+  {
+    "width": 320.0,
+    "textScale": 1.3,
+    "arabic": true,
+    "dark": false,
+    "premium": false,
+    "active": false,
+    "cardWidth": 288.0,
+    "cardHeight": 293.0
+  },
+  {
+    "width": 320.0,
+    "textScale": 1.3,
+    "arabic": true,
+    "dark": false,
+    "premium": false,
+    "active": true,
+    "cardWidth": 288.0,
+    "cardHeight": 293.0
+  },
+  {
+    "width": 320.0,
+    "textScale": 1.3,
+    "arabic": true,
+    "dark": false,
+    "premium": true,
+    "active": false,
+    "cardWidth": 288.0,
+    "cardHeight": 293.0
+  },
+  {
+    "width": 320.0,
+    "textScale": 1.3,
+    "arabic": true,
+    "dark": false,
+    "premium": true,
+    "active": true,
+    "cardWidth": 288.0,
+    "cardHeight": 293.0
+  },
+  {
+    "width": 320.0,
+    "textScale": 1.3,
+    "arabic": true,
+    "dark": true,
+    "premium": false,
+    "active": false,
+    "cardWidth": 288.0,
+    "cardHeight": 293.0
+  },
+  {
+    "width": 320.0,
+    "textScale": 1.3,
+    "arabic": true,
+    "dark": true,
+    "premium": false,
+    "active": true,
+    "cardWidth": 288.0,
+    "cardHeight": 293.0
+  },
+  {
+    "width": 320.0,
+    "textScale": 1.3,
+    "arabic": true,
+    "dark": true,
+    "premium": true,
+    "active": false,
+    "cardWidth": 288.0,
+    "cardHeight": 293.0
+  },
+  {
+    "width": 320.0,
+    "textScale": 1.3,
+    "arabic": true,
+    "dark": true,
+    "premium": true,
+    "active": true,
+    "cardWidth": 288.0,
+    "cardHeight": 293.0
+  },
+  {
+    "width": 320.0,
+    "textScale": 2.0,
+    "arabic": false,
+    "dark": false,
+    "premium": false,
+    "active": false,
+    "cardWidth": 288.0,
+    "cardHeight": 478.0
+  },
+  {
+    "width": 320.0,
+    "textScale": 2.0,
+    "arabic": false,
+    "dark": false,
+    "premium": false,
+    "active": true,
+    "cardWidth": 288.0,
+    "cardHeight": 478.0
+  },
+  {
+    "width": 320.0,
+    "textScale": 2.0,
+    "arabic": false,
+    "dark": false,
+    "premium": true,
+    "active": false,
+    "cardWidth": 288.0,
+    "cardHeight": 478.0
+  },
+  {
+    "width": 320.0,
+    "textScale": 2.0,
+    "arabic": false,
+    "dark": false,
+    "premium": true,
+    "active": true,
+    "cardWidth": 288.0,
+    "cardHeight": 478.0
+  },
+  {
+    "width": 320.0,
+    "textScale": 2.0,
+    "arabic": false,
+    "dark": true,
+    "premium": false,
+    "active": false,
+    "cardWidth": 288.0,
+    "cardHeight": 478.0
+  },
+  {
+    "width": 320.0,
+    "textScale": 2.0,
+    "arabic": false,
+    "dark": true,
+    "premium": false,
+    "active": true,
+    "cardWidth": 288.0,
+    "cardHeight": 478.0
+  },
+  {
+    "width": 320.0,
+    "textScale": 2.0,
+    "arabic": false,
+    "dark": true,
+    "premium": true,
+    "active": false,
+    "cardWidth": 288.0,
+    "cardHeight": 478.0
+  },
+  {
+    "width": 320.0,
+    "textScale": 2.0,
+    "arabic": false,
+    "dark": true,
+    "premium": true,
+    "active": true,
+    "cardWidth": 288.0,
+    "cardHeight": 478.0
+  },
+  {
+    "width": 320.0,
+    "textScale": 2.0,
+    "arabic": true,
+    "dark": false,
+    "premium": false,
+    "active": false,
+    "cardWidth": 288.0,
+    "cardHeight": 386.0
+  },
+  {
+    "width": 320.0,
+    "textScale": 2.0,
+    "arabic": true,
+    "dark": false,
+    "premium": false,
+    "active": true,
+    "cardWidth": 288.0,
+    "cardHeight": 386.0
+  },
+  {
+    "width": 320.0,
+    "textScale": 2.0,
+    "arabic": true,
+    "dark": false,
+    "premium": true,
+    "active": false,
+    "cardWidth": 288.0,
+    "cardHeight": 386.0
+  },
+  {
+    "width": 320.0,
+    "textScale": 2.0,
+    "arabic": true,
+    "dark": false,
+    "premium": true,
+    "active": true,
+    "cardWidth": 288.0,
+    "cardHeight": 386.0
+  },
+  {
+    "width": 320.0,
+    "textScale": 2.0,
+    "arabic": true,
+    "dark": true,
+    "premium": false,
+    "active": false,
+    "cardWidth": 288.0,
+    "cardHeight": 386.0
+  },
+  {
+    "width": 320.0,
+    "textScale": 2.0,
+    "arabic": true,
+    "dark": true,
+    "premium": false,
+    "active": true,
+    "cardWidth": 288.0,
+    "cardHeight": 386.0
+  },
+  {
+    "width": 320.0,
+    "textScale": 2.0,
+    "arabic": true,
+    "dark": true,
+    "premium": true,
+    "active": false,
+    "cardWidth": 288.0,
+    "cardHeight": 386.0
+  },
+  {
+    "width": 320.0,
+    "textScale": 2.0,
+    "arabic": true,
+    "dark": true,
+    "premium": true,
+    "active": true,
+    "cardWidth": 288.0,
+    "cardHeight": 386.0
+  },
+  {
+    "width": 360.0,
+    "textScale": 1.0,
+    "arabic": false,
+    "dark": false,
+    "premium": false,
+    "active": false,
+    "cardWidth": 328.0,
+    "cardHeight": 229.0
+  },
+  {
+    "width": 360.0,
+    "textScale": 1.0,
+    "arabic": false,
+    "dark": false,
+    "premium": false,
+    "active": true,
+    "cardWidth": 328.0,
+    "cardHeight": 229.0
+  },
+  {
+    "width": 360.0,
+    "textScale": 1.0,
+    "arabic": false,
+    "dark": false,
+    "premium": true,
+    "active": false,
+    "cardWidth": 328.0,
+    "cardHeight": 229.0
+  },
+  {
+    "width": 360.0,
+    "textScale": 1.0,
+    "arabic": false,
+    "dark": false,
+    "premium": true,
+    "active": true,
+    "cardWidth": 328.0,
+    "cardHeight": 229.0
+  },
+  {
+    "width": 360.0,
+    "textScale": 1.0,
+    "arabic": false,
+    "dark": true,
+    "premium": false,
+    "active": false,
+    "cardWidth": 328.0,
+    "cardHeight": 229.0
+  },
+  {
+    "width": 360.0,
+    "textScale": 1.0,
+    "arabic": false,
+    "dark": true,
+    "premium": false,
+    "active": true,
+    "cardWidth": 328.0,
+    "cardHeight": 229.0
+  },
+  {
+    "width": 360.0,
+    "textScale": 1.0,
+    "arabic": false,
+    "dark": true,
+    "premium": true,
+    "active": false,
+    "cardWidth": 328.0,
+    "cardHeight": 229.0
+  },
+  {
+    "width": 360.0,
+    "textScale": 1.0,
+    "arabic": false,
+    "dark": true,
+    "premium": true,
+    "active": true,
+    "cardWidth": 328.0,
+    "cardHeight": 229.0
+  },
+  {
+    "width": 360.0,
+    "textScale": 1.0,
+    "arabic": true,
+    "dark": false,
+    "premium": false,
+    "active": false,
+    "cardWidth": 328.0,
+    "cardHeight": 229.0
+  },
+  {
+    "width": 360.0,
+    "textScale": 1.0,
+    "arabic": true,
+    "dark": false,
+    "premium": false,
+    "active": true,
+    "cardWidth": 328.0,
+    "cardHeight": 229.0
+  },
+  {
+    "width": 360.0,
+    "textScale": 1.0,
+    "arabic": true,
+    "dark": false,
+    "premium": true,
+    "active": false,
+    "cardWidth": 328.0,
+    "cardHeight": 229.0
+  },
+  {
+    "width": 360.0,
+    "textScale": 1.0,
+    "arabic": true,
+    "dark": false,
+    "premium": true,
+    "active": true,
+    "cardWidth": 328.0,
+    "cardHeight": 229.0
+  },
+  {
+    "width": 360.0,
+    "textScale": 1.0,
+    "arabic": true,
+    "dark": true,
+    "premium": false,
+    "active": false,
+    "cardWidth": 328.0,
+    "cardHeight": 229.0
+  },
+  {
+    "width": 360.0,
+    "textScale": 1.0,
+    "arabic": true,
+    "dark": true,
+    "premium": false,
+    "active": true,
+    "cardWidth": 328.0,
+    "cardHeight": 229.0
+  },
+  {
+    "width": 360.0,
+    "textScale": 1.0,
+    "arabic": true,
+    "dark": true,
+    "premium": true,
+    "active": false,
+    "cardWidth": 328.0,
+    "cardHeight": 229.0
+  },
+  {
+    "width": 360.0,
+    "textScale": 1.0,
+    "arabic": true,
+    "dark": true,
+    "premium": true,
+    "active": true,
+    "cardWidth": 328.0,
+    "cardHeight": 229.0
+  },
+  {
+    "width": 360.0,
+    "textScale": 1.3,
+    "arabic": false,
+    "dark": false,
+    "premium": false,
+    "active": false,
+    "cardWidth": 328.0,
+    "cardHeight": 293.0
+  },
+  {
+    "width": 360.0,
+    "textScale": 1.3,
+    "arabic": false,
+    "dark": false,
+    "premium": false,
+    "active": true,
+    "cardWidth": 328.0,
+    "cardHeight": 293.0
+  },
+  {
+    "width": 360.0,
+    "textScale": 1.3,
+    "arabic": false,
+    "dark": false,
+    "premium": true,
+    "active": false,
+    "cardWidth": 328.0,
+    "cardHeight": 293.0
+  },
+  {
+    "width": 360.0,
+    "textScale": 1.3,
+    "arabic": false,
+    "dark": false,
+    "premium": true,
+    "active": true,
+    "cardWidth": 328.0,
+    "cardHeight": 293.0
+  },
+  {
+    "width": 360.0,
+    "textScale": 1.3,
+    "arabic": false,
+    "dark": true,
+    "premium": false,
+    "active": false,
+    "cardWidth": 328.0,
+    "cardHeight": 293.0
+  },
+  {
+    "width": 360.0,
+    "textScale": 1.3,
+    "arabic": false,
+    "dark": true,
+    "premium": false,
+    "active": true,
+    "cardWidth": 328.0,
+    "cardHeight": 293.0
+  },
+  {
+    "width": 360.0,
+    "textScale": 1.3,
+    "arabic": false,
+    "dark": true,
+    "premium": true,
+    "active": false,
+    "cardWidth": 328.0,
+    "cardHeight": 293.0
+  },
+  {
+    "width": 360.0,
+    "textScale": 1.3,
+    "arabic": false,
+    "dark": true,
+    "premium": true,
+    "active": true,
+    "cardWidth": 328.0,
+    "cardHeight": 293.0
+  },
+  {
+    "width": 360.0,
+    "textScale": 1.3,
+    "arabic": true,
+    "dark": false,
+    "premium": false,
+    "active": false,
+    "cardWidth": 328.0,
+    "cardHeight": 293.0
+  },
+  {
+    "width": 360.0,
+    "textScale": 1.3,
+    "arabic": true,
+    "dark": false,
+    "premium": false,
+    "active": true,
+    "cardWidth": 328.0,
+    "cardHeight": 293.0
+  },
+  {
+    "width": 360.0,
+    "textScale": 1.3,
+    "arabic": true,
+    "dark": false,
+    "premium": true,
+    "active": false,
+    "cardWidth": 328.0,
+    "cardHeight": 293.0
+  },
+  {
+    "width": 360.0,
+    "textScale": 1.3,
+    "arabic": true,
+    "dark": false,
+    "premium": true,
+    "active": true,
+    "cardWidth": 328.0,
+    "cardHeight": 293.0
+  },
+  {
+    "width": 360.0,
+    "textScale": 1.3,
+    "arabic": true,
+    "dark": true,
+    "premium": false,
+    "active": false,
+    "cardWidth": 328.0,
+    "cardHeight": 293.0
+  },
+  {
+    "width": 360.0,
+    "textScale": 1.3,
+    "arabic": true,
+    "dark": true,
+    "premium": false,
+    "active": true,
+    "cardWidth": 328.0,
+    "cardHeight": 293.0
+  },
+  {
+    "width": 360.0,
+    "textScale": 1.3,
+    "arabic": true,
+    "dark": true,
+    "premium": true,
+    "active": false,
+    "cardWidth": 328.0,
+    "cardHeight": 293.0
+  },
+  {
+    "width": 360.0,
+    "textScale": 1.3,
+    "arabic": true,
+    "dark": true,
+    "premium": true,
+    "active": true,
+    "cardWidth": 328.0,
+    "cardHeight": 293.0
+  },
+  {
+    "width": 360.0,
+    "textScale": 2.0,
+    "arabic": false,
+    "dark": false,
+    "premium": false,
+    "active": false,
+    "cardWidth": 328.0,
+    "cardHeight": 346.0
+  },
+  {
+    "width": 360.0,
+    "textScale": 2.0,
+    "arabic": false,
+    "dark": false,
+    "premium": false,
+    "active": true,
+    "cardWidth": 328.0,
+    "cardHeight": 346.0
+  },
+  {
+    "width": 360.0,
+    "textScale": 2.0,
+    "arabic": false,
+    "dark": false,
+    "premium": true,
+    "active": false,
+    "cardWidth": 328.0,
+    "cardHeight": 346.0
+  },
+  {
+    "width": 360.0,
+    "textScale": 2.0,
+    "arabic": false,
+    "dark": false,
+    "premium": true,
+    "active": true,
+    "cardWidth": 328.0,
+    "cardHeight": 346.0
+  },
+  {
+    "width": 360.0,
+    "textScale": 2.0,
+    "arabic": false,
+    "dark": true,
+    "premium": false,
+    "active": false,
+    "cardWidth": 328.0,
+    "cardHeight": 346.0
+  },
+  {
+    "width": 360.0,
+    "textScale": 2.0,
+    "arabic": false,
+    "dark": true,
+    "premium": false,
+    "active": true,
+    "cardWidth": 328.0,
+    "cardHeight": 346.0
+  },
+  {
+    "width": 360.0,
+    "textScale": 2.0,
+    "arabic": false,
+    "dark": true,
+    "premium": true,
+    "active": false,
+    "cardWidth": 328.0,
+    "cardHeight": 346.0
+  },
+  {
+    "width": 360.0,
+    "textScale": 2.0,
+    "arabic": false,
+    "dark": true,
+    "premium": true,
+    "active": true,
+    "cardWidth": 328.0,
+    "cardHeight": 346.0
+  },
+  {
+    "width": 360.0,
+    "textScale": 2.0,
+    "arabic": true,
+    "dark": false,
+    "premium": false,
+    "active": false,
+    "cardWidth": 328.0,
+    "cardHeight": 346.0
+  },
+  {
+    "width": 360.0,
+    "textScale": 2.0,
+    "arabic": true,
+    "dark": false,
+    "premium": false,
+    "active": true,
+    "cardWidth": 328.0,
+    "cardHeight": 346.0
+  },
+  {
+    "width": 360.0,
+    "textScale": 2.0,
+    "arabic": true,
+    "dark": false,
+    "premium": true,
+    "active": false,
+    "cardWidth": 328.0,
+    "cardHeight": 346.0
+  },
+  {
+    "width": 360.0,
+    "textScale": 2.0,
+    "arabic": true,
+    "dark": false,
+    "premium": true,
+    "active": true,
+    "cardWidth": 328.0,
+    "cardHeight": 346.0
+  },
+  {
+    "width": 360.0,
+    "textScale": 2.0,
+    "arabic": true,
+    "dark": true,
+    "premium": false,
+    "active": false,
+    "cardWidth": 328.0,
+    "cardHeight": 346.0
+  },
+  {
+    "width": 360.0,
+    "textScale": 2.0,
+    "arabic": true,
+    "dark": true,
+    "premium": false,
+    "active": true,
+    "cardWidth": 328.0,
+    "cardHeight": 346.0
+  },
+  {
+    "width": 360.0,
+    "textScale": 2.0,
+    "arabic": true,
+    "dark": true,
+    "premium": true,
+    "active": false,
+    "cardWidth": 328.0,
+    "cardHeight": 346.0
+  },
+  {
+    "width": 360.0,
+    "textScale": 2.0,
+    "arabic": true,
+    "dark": true,
+    "premium": true,
+    "active": true,
+    "cardWidth": 328.0,
+    "cardHeight": 346.0
+  },
+  {
+    "width": 390.0,
+    "textScale": 1.0,
+    "arabic": false,
+    "dark": false,
+    "premium": false,
+    "active": false,
+    "cardWidth": 358.0,
+    "cardHeight": 229.0
+  },
+  {
+    "width": 390.0,
+    "textScale": 1.0,
+    "arabic": false,
+    "dark": false,
+    "premium": false,
+    "active": true,
+    "cardWidth": 358.0,
+    "cardHeight": 229.0
+  },
+  {
+    "width": 390.0,
+    "textScale": 1.0,
+    "arabic": false,
+    "dark": false,
+    "premium": true,
+    "active": false,
+    "cardWidth": 358.0,
+    "cardHeight": 229.0
+  },
+  {
+    "width": 390.0,
+    "textScale": 1.0,
+    "arabic": false,
+    "dark": false,
+    "premium": true,
+    "active": true,
+    "cardWidth": 358.0,
+    "cardHeight": 229.0
+  },
+  {
+    "width": 390.0,
+    "textScale": 1.0,
+    "arabic": false,
+    "dark": true,
+    "premium": false,
+    "active": false,
+    "cardWidth": 358.0,
+    "cardHeight": 229.0
+  },
+  {
+    "width": 390.0,
+    "textScale": 1.0,
+    "arabic": false,
+    "dark": true,
+    "premium": false,
+    "active": true,
+    "cardWidth": 358.0,
+    "cardHeight": 229.0
+  },
+  {
+    "width": 390.0,
+    "textScale": 1.0,
+    "arabic": false,
+    "dark": true,
+    "premium": true,
+    "active": false,
+    "cardWidth": 358.0,
+    "cardHeight": 229.0
+  },
+  {
+    "width": 390.0,
+    "textScale": 1.0,
+    "arabic": false,
+    "dark": true,
+    "premium": true,
+    "active": true,
+    "cardWidth": 358.0,
+    "cardHeight": 229.0
+  },
+  {
+    "width": 390.0,
+    "textScale": 1.0,
+    "arabic": true,
+    "dark": false,
+    "premium": false,
+    "active": false,
+    "cardWidth": 358.0,
+    "cardHeight": 229.0
+  },
+  {
+    "width": 390.0,
+    "textScale": 1.0,
+    "arabic": true,
+    "dark": false,
+    "premium": false,
+    "active": true,
+    "cardWidth": 358.0,
+    "cardHeight": 229.0
+  },
+  {
+    "width": 390.0,
+    "textScale": 1.0,
+    "arabic": true,
+    "dark": false,
+    "premium": true,
+    "active": false,
+    "cardWidth": 358.0,
+    "cardHeight": 229.0
+  },
+  {
+    "width": 390.0,
+    "textScale": 1.0,
+    "arabic": true,
+    "dark": false,
+    "premium": true,
+    "active": true,
+    "cardWidth": 358.0,
+    "cardHeight": 229.0
+  },
+  {
+    "width": 390.0,
+    "textScale": 1.0,
+    "arabic": true,
+    "dark": true,
+    "premium": false,
+    "active": false,
+    "cardWidth": 358.0,
+    "cardHeight": 229.0
+  },
+  {
+    "width": 390.0,
+    "textScale": 1.0,
+    "arabic": true,
+    "dark": true,
+    "premium": false,
+    "active": true,
+    "cardWidth": 358.0,
+    "cardHeight": 229.0
+  },
+  {
+    "width": 390.0,
+    "textScale": 1.0,
+    "arabic": true,
+    "dark": true,
+    "premium": true,
+    "active": false,
+    "cardWidth": 358.0,
+    "cardHeight": 229.0
+  },
+  {
+    "width": 390.0,
+    "textScale": 1.0,
+    "arabic": true,
+    "dark": true,
+    "premium": true,
+    "active": true,
+    "cardWidth": 358.0,
+    "cardHeight": 229.0
+  },
+  {
+    "width": 390.0,
+    "textScale": 1.3,
+    "arabic": false,
+    "dark": false,
+    "premium": false,
+    "active": false,
+    "cardWidth": 358.0,
+    "cardHeight": 293.0
+  },
+  {
+    "width": 390.0,
+    "textScale": 1.3,
+    "arabic": false,
+    "dark": false,
+    "premium": false,
+    "active": true,
+    "cardWidth": 358.0,
+    "cardHeight": 293.0
+  },
+  {
+    "width": 390.0,
+    "textScale": 1.3,
+    "arabic": false,
+    "dark": false,
+    "premium": true,
+    "active": false,
+    "cardWidth": 358.0,
+    "cardHeight": 293.0
+  },
+  {
+    "width": 390.0,
+    "textScale": 1.3,
+    "arabic": false,
+    "dark": false,
+    "premium": true,
+    "active": true,
+    "cardWidth": 358.0,
+    "cardHeight": 293.0
+  },
+  {
+    "width": 390.0,
+    "textScale": 1.3,
+    "arabic": false,
+    "dark": true,
+    "premium": false,
+    "active": false,
+    "cardWidth": 358.0,
+    "cardHeight": 293.0
+  },
+  {
+    "width": 390.0,
+    "textScale": 1.3,
+    "arabic": false,
+    "dark": true,
+    "premium": false,
+    "active": true,
+    "cardWidth": 358.0,
+    "cardHeight": 293.0
+  },
+  {
+    "width": 390.0,
+    "textScale": 1.3,
+    "arabic": false,
+    "dark": true,
+    "premium": true,
+    "active": false,
+    "cardWidth": 358.0,
+    "cardHeight": 293.0
+  },
+  {
+    "width": 390.0,
+    "textScale": 1.3,
+    "arabic": false,
+    "dark": true,
+    "premium": true,
+    "active": true,
+    "cardWidth": 358.0,
+    "cardHeight": 293.0
+  },
+  {
+    "width": 390.0,
+    "textScale": 1.3,
+    "arabic": true,
+    "dark": false,
+    "premium": false,
+    "active": false,
+    "cardWidth": 358.0,
+    "cardHeight": 243.0
+  },
+  {
+    "width": 390.0,
+    "textScale": 1.3,
+    "arabic": true,
+    "dark": false,
+    "premium": false,
+    "active": true,
+    "cardWidth": 358.0,
+    "cardHeight": 243.0
+  },
+  {
+    "width": 390.0,
+    "textScale": 1.3,
+    "arabic": true,
+    "dark": false,
+    "premium": true,
+    "active": false,
+    "cardWidth": 358.0,
+    "cardHeight": 243.0
+  },
+  {
+    "width": 390.0,
+    "textScale": 1.3,
+    "arabic": true,
+    "dark": false,
+    "premium": true,
+    "active": true,
+    "cardWidth": 358.0,
+    "cardHeight": 243.0
+  },
+  {
+    "width": 390.0,
+    "textScale": 1.3,
+    "arabic": true,
+    "dark": true,
+    "premium": false,
+    "active": false,
+    "cardWidth": 358.0,
+    "cardHeight": 243.0
+  },
+  {
+    "width": 390.0,
+    "textScale": 1.3,
+    "arabic": true,
+    "dark": true,
+    "premium": false,
+    "active": true,
+    "cardWidth": 358.0,
+    "cardHeight": 243.0
+  },
+  {
+    "width": 390.0,
+    "textScale": 1.3,
+    "arabic": true,
+    "dark": true,
+    "premium": true,
+    "active": false,
+    "cardWidth": 358.0,
+    "cardHeight": 243.0
+  },
+  {
+    "width": 390.0,
+    "textScale": 1.3,
+    "arabic": true,
+    "dark": true,
+    "premium": true,
+    "active": true,
+    "cardWidth": 358.0,
+    "cardHeight": 243.0
+  },
+  {
+    "width": 390.0,
+    "textScale": 2.0,
+    "arabic": false,
+    "dark": false,
+    "premium": false,
+    "active": false,
+    "cardWidth": 358.0,
+    "cardHeight": 346.0
+  },
+  {
+    "width": 390.0,
+    "textScale": 2.0,
+    "arabic": false,
+    "dark": false,
+    "premium": false,
+    "active": true,
+    "cardWidth": 358.0,
+    "cardHeight": 346.0
+  },
+  {
+    "width": 390.0,
+    "textScale": 2.0,
+    "arabic": false,
+    "dark": false,
+    "premium": true,
+    "active": false,
+    "cardWidth": 358.0,
+    "cardHeight": 346.0
+  },
+  {
+    "width": 390.0,
+    "textScale": 2.0,
+    "arabic": false,
+    "dark": false,
+    "premium": true,
+    "active": true,
+    "cardWidth": 358.0,
+    "cardHeight": 346.0
+  },
+  {
+    "width": 390.0,
+    "textScale": 2.0,
+    "arabic": false,
+    "dark": true,
+    "premium": false,
+    "active": false,
+    "cardWidth": 358.0,
+    "cardHeight": 346.0
+  },
+  {
+    "width": 390.0,
+    "textScale": 2.0,
+    "arabic": false,
+    "dark": true,
+    "premium": false,
+    "active": true,
+    "cardWidth": 358.0,
+    "cardHeight": 346.0
+  },
+  {
+    "width": 390.0,
+    "textScale": 2.0,
+    "arabic": false,
+    "dark": true,
+    "premium": true,
+    "active": false,
+    "cardWidth": 358.0,
+    "cardHeight": 346.0
+  },
+  {
+    "width": 390.0,
+    "textScale": 2.0,
+    "arabic": false,
+    "dark": true,
+    "premium": true,
+    "active": true,
+    "cardWidth": 358.0,
+    "cardHeight": 346.0
+  },
+  {
+    "width": 390.0,
+    "textScale": 2.0,
+    "arabic": true,
+    "dark": false,
+    "premium": false,
+    "active": false,
+    "cardWidth": 358.0,
+    "cardHeight": 346.0
+  },
+  {
+    "width": 390.0,
+    "textScale": 2.0,
+    "arabic": true,
+    "dark": false,
+    "premium": false,
+    "active": true,
+    "cardWidth": 358.0,
+    "cardHeight": 346.0
+  },
+  {
+    "width": 390.0,
+    "textScale": 2.0,
+    "arabic": true,
+    "dark": false,
+    "premium": true,
+    "active": false,
+    "cardWidth": 358.0,
+    "cardHeight": 346.0
+  },
+  {
+    "width": 390.0,
+    "textScale": 2.0,
+    "arabic": true,
+    "dark": false,
+    "premium": true,
+    "active": true,
+    "cardWidth": 358.0,
+    "cardHeight": 346.0
+  },
+  {
+    "width": 390.0,
+    "textScale": 2.0,
+    "arabic": true,
+    "dark": true,
+    "premium": false,
+    "active": false,
+    "cardWidth": 358.0,
+    "cardHeight": 346.0
+  },
+  {
+    "width": 390.0,
+    "textScale": 2.0,
+    "arabic": true,
+    "dark": true,
+    "premium": false,
+    "active": true,
+    "cardWidth": 358.0,
+    "cardHeight": 346.0
+  },
+  {
+    "width": 390.0,
+    "textScale": 2.0,
+    "arabic": true,
+    "dark": true,
+    "premium": true,
+    "active": false,
+    "cardWidth": 358.0,
+    "cardHeight": 346.0
+  },
+  {
+    "width": 390.0,
+    "textScale": 2.0,
+    "arabic": true,
+    "dark": true,
+    "premium": true,
+    "active": true,
+    "cardWidth": 358.0,
+    "cardHeight": 346.0
+  }
+]

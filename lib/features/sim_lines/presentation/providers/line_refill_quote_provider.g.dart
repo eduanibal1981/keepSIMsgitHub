@@ -8,12 +8,9 @@ part of 'line_refill_quote_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Provides a tier-aware quote for a specific SIM line and base cost.
 
 @ProviderFor(lineRefillQuote)
 final lineRefillQuoteProvider = LineRefillQuoteFamily._();
-
-/// Provides a tier-aware quote for a specific SIM line and base cost.
 
 final class LineRefillQuoteProvider
     extends
@@ -23,16 +20,9 @@ final class LineRefillQuoteProvider
           FutureOr<LineRefillQuote>
         >
     with $FutureModifier<LineRefillQuote>, $FutureProvider<LineRefillQuote> {
-  /// Provides a tier-aware quote for a specific SIM line and base cost.
   LineRefillQuoteProvider._({
     required LineRefillQuoteFamily super.from,
-    required ({
-      SimLine line,
-      double baseCostUsd,
-      String? offerId,
-      int? offerValue,
-    })
-    super.argument,
+    required ({SimLine line, String offerId, int? offerValue}) super.argument,
   }) : super(
          retry: null,
          name: r'lineRefillQuoteProvider',
@@ -60,17 +50,10 @@ final class LineRefillQuoteProvider
   @override
   FutureOr<LineRefillQuote> create(Ref ref) {
     final argument =
-        this.argument
-            as ({
-              SimLine line,
-              double baseCostUsd,
-              String? offerId,
-              int? offerValue,
-            });
+        this.argument as ({SimLine line, String offerId, int? offerValue});
     return lineRefillQuote(
       ref,
       line: argument.line,
-      baseCostUsd: argument.baseCostUsd,
       offerId: argument.offerId,
       offerValue: argument.offerValue,
     );
@@ -87,15 +70,13 @@ final class LineRefillQuoteProvider
   }
 }
 
-String _$lineRefillQuoteHash() => r'c658f29f33486cd91dc2c1502a3c54d5517c0a62';
-
-/// Provides a tier-aware quote for a specific SIM line and base cost.
+String _$lineRefillQuoteHash() => r'9972f6872f5af3aaa0133d6c11eea83917a2ce93';
 
 final class LineRefillQuoteFamily extends $Family
     with
         $FunctionalFamilyOverride<
           FutureOr<LineRefillQuote>,
-          ({SimLine line, double baseCostUsd, String? offerId, int? offerValue})
+          ({SimLine line, String offerId, int? offerValue})
         > {
   LineRefillQuoteFamily._()
     : super(
@@ -106,20 +87,12 @@ final class LineRefillQuoteFamily extends $Family
         isAutoDispose: true,
       );
 
-  /// Provides a tier-aware quote for a specific SIM line and base cost.
-
   LineRefillQuoteProvider call({
     required SimLine line,
-    required double baseCostUsd,
-    String? offerId,
+    required String offerId,
     int? offerValue,
   }) => LineRefillQuoteProvider._(
-    argument: (
-      line: line,
-      baseCostUsd: baseCostUsd,
-      offerId: offerId,
-      offerValue: offerValue,
-    ),
+    argument: (line: line, offerId: offerId, offerValue: offerValue),
     from: this,
   );
 
@@ -127,22 +100,8 @@ final class LineRefillQuoteFamily extends $Family
   String toString() => r'lineRefillQuoteProvider';
 }
 
-/// Provides a suggested tier-aware quote for the line's usage forecast.
-///
-/// Combines:
-/// 1. The line's usage forecast (suggestedOfferId, suggestedAmountUsd, suggestedFrequencyDays).
-/// 2. The line's offer catalog to resolve the exact supplier base price of the suggested offer.
-/// 3. The line's effective tier and published fee rules.
-
 @ProviderFor(suggestedLineRefillQuote)
 final suggestedLineRefillQuoteProvider = SuggestedLineRefillQuoteFamily._();
-
-/// Provides a suggested tier-aware quote for the line's usage forecast.
-///
-/// Combines:
-/// 1. The line's usage forecast (suggestedOfferId, suggestedAmountUsd, suggestedFrequencyDays).
-/// 2. The line's offer catalog to resolve the exact supplier base price of the suggested offer.
-/// 3. The line's effective tier and published fee rules.
 
 final class SuggestedLineRefillQuoteProvider
     extends
@@ -152,12 +111,6 @@ final class SuggestedLineRefillQuoteProvider
           FutureOr<LineRefillQuote?>
         >
     with $FutureModifier<LineRefillQuote?>, $FutureProvider<LineRefillQuote?> {
-  /// Provides a suggested tier-aware quote for the line's usage forecast.
-  ///
-  /// Combines:
-  /// 1. The line's usage forecast (suggestedOfferId, suggestedAmountUsd, suggestedFrequencyDays).
-  /// 2. The line's offer catalog to resolve the exact supplier base price of the suggested offer.
-  /// 3. The line's effective tier and published fee rules.
   SuggestedLineRefillQuoteProvider._({
     required SuggestedLineRefillQuoteFamily super.from,
     required SimLine super.argument,
@@ -204,14 +157,7 @@ final class SuggestedLineRefillQuoteProvider
 }
 
 String _$suggestedLineRefillQuoteHash() =>
-    r'57bd44508116508fba33978db3ede538b3123d71';
-
-/// Provides a suggested tier-aware quote for the line's usage forecast.
-///
-/// Combines:
-/// 1. The line's usage forecast (suggestedOfferId, suggestedAmountUsd, suggestedFrequencyDays).
-/// 2. The line's offer catalog to resolve the exact supplier base price of the suggested offer.
-/// 3. The line's effective tier and published fee rules.
+    r'f5a44a1dfe1985cb4ce0957eda75cc56876ecb2a';
 
 final class SuggestedLineRefillQuoteFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<LineRefillQuote?>, SimLine> {
@@ -223,13 +169,6 @@ final class SuggestedLineRefillQuoteFamily extends $Family
         $allTransitiveDependencies: null,
         isAutoDispose: true,
       );
-
-  /// Provides a suggested tier-aware quote for the line's usage forecast.
-  ///
-  /// Combines:
-  /// 1. The line's usage forecast (suggestedOfferId, suggestedAmountUsd, suggestedFrequencyDays).
-  /// 2. The line's offer catalog to resolve the exact supplier base price of the suggested offer.
-  /// 3. The line's effective tier and published fee rules.
 
   SuggestedLineRefillQuoteProvider call(SimLine line) =>
       SuggestedLineRefillQuoteProvider._(argument: line, from: this);

@@ -37,7 +37,7 @@ final class DashboardControllerProvider
 }
 
 String _$dashboardControllerHash() =>
-    r'0b65eaa28d419de70731aed9fd08c446cce9effe';
+    r'b6140da31d3a8ce73b1519fe5736889ed3b16d92';
 
 /// Managing aggregated dashboard state.
 

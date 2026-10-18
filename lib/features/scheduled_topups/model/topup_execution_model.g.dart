@@ -40,8 +40,6 @@ _TopupExecution _$TopupExecutionFromJson(Map<String, dynamic> json) =>
       targetLocalValue: (json['target_local_value'] as num?)?.toDouble(),
       targetLocalCurrency: json['target_local_currency'] as String?,
       maxAuthorizedUsd: (json['max_authorized_usd'] as num?)?.toDouble(),
-      quotedCostUsd: (json['quoted_cost_usd'] as num?)?.toDouble(),
-      quotedFeeUsd: (json['quoted_fee_usd'] as num?)?.toDouble(),
       quoteId: json['quote_id'] as String?,
       fundingKind: json['funding_kind'] as String?,
     );
@@ -72,8 +70,6 @@ Map<String, dynamic> _$TopupExecutionToJson(_TopupExecution instance) =>
       'target_local_value': instance.targetLocalValue,
       'target_local_currency': instance.targetLocalCurrency,
       'max_authorized_usd': instance.maxAuthorizedUsd,
-      'quoted_cost_usd': instance.quotedCostUsd,
-      'quoted_fee_usd': instance.quotedFeeUsd,
       'quote_id': instance.quoteId,
       'funding_kind': instance.fundingKind,
     };

@@ -5,13 +5,14 @@ body in pg_temp with synthetic fixtures, then rolls back every object and row.
 """
 import argparse
 from pathlib import Path
+from migration_archive import migration_path
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 def build(suite: str) -> str:
     if suite == 'recipient':
-        source = (ROOT / 'supabase/migrations/20261014212438_resolve_free_call_recipient_exact.sql').read_text()
+        source = migration_path('20261014212438_resolve_free_call_recipient_exact.sql').read_text()
         source = source[:source.index('COMMENT ON FUNCTION')]
         source = source.replace('public.resolve_free_call_recipient', 'pg_temp.resolve_free_call_recipient')
         for table in ['users', 'profiles', 'user_caller_ids', 'virtual_did_numbers', 'sim_lines', 'household_members', 'voip_call_sessions']:
@@ -30,7 +31,7 @@ LANGUAGE sql AS $quota$ SELECT current_setting('keepsims.test_quota', true) IS D
         test = 'free_call_recipient_exact_test.sql'
         grant = ''
     else:
-        source = (ROOT / 'supabase/migrations/20261014214959_protect_caller_id_verification_fields.sql').read_text()
+        source = migration_path('20261014214959_protect_caller_id_verification_fields.sql').read_text()
         source = source.replace('public.protect_caller_id_verification_fields', 'pg_temp.protect_caller_id_verification_fields').replace('public.user_caller_ids', 'pg_temp.user_caller_ids')
         setup = '''CREATE TEMP TABLE user_caller_ids(id text,user_id uuid,phone_number text,is_verified boolean DEFAULT false,verified_at timestamptz,label text,is_default boolean);
 GRANT SELECT,INSERT,UPDATE ON pg_temp.user_caller_ids TO authenticated;

@@ -38,17 +38,25 @@ class WizardStepPackageSelection extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.error_outline_rounded, color: AppColors.error, size: 36),
+              const Icon(
+                Icons.error_outline_rounded,
+                color: AppColors.error,
+                size: 36,
+              ),
               const SizedBox(height: 12),
               Text(
                 'Could not load packages for $countryName',
-                style: AppTextStyles.titleMedium.copyWith(color: context.onSurfaceColor),
+                style: AppTextStyles.titleMedium.copyWith(
+                  color: context.onSurfaceColor,
+                ),
               ),
               const SizedBox(height: 6),
               Text(
                 err.toString(),
                 style: AppTextStyles.caption.copyWith(
-                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                  color: isDark
+                      ? AppColors.textSecondaryDark
+                      : AppColors.textSecondaryLight,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -83,14 +91,17 @@ class WizardStepPackageSelection extends StatelessWidget {
               child: Text(
                 'No return data packages currently available for $countryName.',
                 style: AppTextStyles.bodyMedium.copyWith(
-                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                  color: isDark
+                      ? AppColors.textSecondaryDark
+                      : AppColors.textSecondaryLight,
                 ),
               ),
             ),
           );
         }
 
-        final selected = (state.selectedPackage != null &&
+        final selected =
+            (state.selectedPackage != null &&
                 availablePackages.any((p) => p.id == state.selectedPackage!.id))
             ? state.selectedPackage!
             : availablePackages.first;
@@ -120,7 +131,8 @@ class WizardStepPackageSelection extends StatelessWidget {
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: availablePackages.length,
-                separatorBuilder: (context, index) => const SizedBox(height: 12),
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: 12),
                 itemBuilder: (context, index) {
                   final pkg = availablePackages[index];
                   final isSelected = selected.id == pkg.id;
@@ -149,16 +161,19 @@ class WizardStepPackageSelection extends StatelessWidget {
     Color accentColor;
 
     if (isPremium) {
-      title = 'Premium Benefit: 100% App Fee Discount';
-      subtitle = 'As a Premium member, you pay \$0 app fee on all return data packs!';
+      title = 'Premium Benefit: 100% Package Discount';
+      subtitle =
+          'As a Premium member, you pay \$0 app fee on all return data packs!';
       accentColor = const Color(0xFFF59E0B); // Amber
     } else if (isStandard) {
-      title = 'Standard Benefit: 50% App Fee Discount';
-      subtitle = 'You receive a 50% discount on the app fee. Upgrade to Premium for \$0 fee.';
+      title = 'Standard Benefit: 50% Package Discount';
+      subtitle =
+          'You receive a 50% discount on the app fee. Upgrade to Premium for \$0 fee.';
       accentColor = const Color(0xFF38BDF8); // Sky blue
     } else {
       title = 'Free Plan: Standard Pricing';
-      subtitle = 'Full retail pricing applies. Upgrade to Premium anytime to enjoy \$0 app fee.';
+      subtitle =
+          'Full retail pricing applies. Upgrade to Premium anytime to enjoy \$0 app fee.';
       accentColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
     }
 
@@ -200,7 +215,9 @@ class WizardStepPackageSelection extends StatelessWidget {
                 Text(
                   subtitle,
                   style: TextStyle(
-                    color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569),
+                    color: isDark
+                        ? const Color(0xFFCBD5E1)
+                        : const Color(0xFF475569),
                     fontSize: 11.5,
                   ),
                 ),
@@ -263,8 +280,12 @@ class WizardStepPackageSelection extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
-                    pkg.isEsim ? Icons.sim_card_download_rounded : Icons.cell_tower_rounded,
-                    color: pkg.isEsim ? const Color(0xFF10B981) : const Color(0xFF0284C7),
+                    pkg.isEsim
+                        ? Icons.sim_card_download_rounded
+                        : Icons.cell_tower_rounded,
+                    color: pkg.isEsim
+                        ? const Color(0xFF10B981)
+                        : const Color(0xFF0284C7),
                     size: 22,
                   ),
                 ),
@@ -277,11 +298,18 @@ class WizardStepPackageSelection extends StatelessWidget {
                         children: [
                           if (pkg.badgeLabel != null) ...[
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
                                 color: pkg.isEsim
-                                    ? const Color(0xFF10B981).withValues(alpha: 0.15)
-                                    : const Color(0xFFF59E0B).withValues(alpha: 0.15),
+                                    ? const Color(
+                                        0xFF10B981,
+                                      ).withValues(alpha: 0.15)
+                                    : const Color(
+                                        0xFFF59E0B,
+                                      ).withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
@@ -298,7 +326,9 @@ class WizardStepPackageSelection extends StatelessWidget {
                             const SizedBox(width: 6),
                           ],
                           Text(
-                            pkg.isEsim ? 'Instant eSIM' : (pkg.carrierName ?? 'Carrier Pack'),
+                            pkg.isEsim
+                                ? 'Instant eSIM'
+                                : (pkg.carrierName ?? 'Carrier Pack'),
                             style: AppTextStyles.caption.copyWith(
                               color: isDark
                                   ? AppColors.textSecondaryDark
@@ -392,7 +422,11 @@ class WizardStepPackageSelection extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 12, color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B)),
+          Icon(
+            icon,
+            size: 12,
+            color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+          ),
           const SizedBox(width: 4),
           Text(
             label,
@@ -433,11 +467,9 @@ class WizardStepPackageSelection extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          _buildBreakdownRow('Package Base Price', '\$${pkg.supplierCostUsd.toStringAsFixed(2)}', isDark),
-          const SizedBox(height: 6),
           _buildBreakdownRow(
-            'KeepSIMs App Fee',
-            '\$${(pkg.retailPriceUsd - pkg.supplierCostUsd).toStringAsFixed(2)}',
+            'Package Price',
+            '\$${pkg.retailPriceUsd.toStringAsFixed(2)}',
             isDark,
           ),
           if (pkg.discountUsd > 0) ...[
@@ -446,7 +478,7 @@ class WizardStepPackageSelection extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '${userTier.toUpperCase()} App Fee Discount',
+                  '${userTier.toUpperCase()} Package Discount',
                   style: const TextStyle(
                     color: Color(0xFF10B981),
                     fontWeight: FontWeight.w600,
@@ -502,7 +534,9 @@ class WizardStepPackageSelection extends StatelessWidget {
         Text(
           label,
           style: AppTextStyles.caption.copyWith(
-            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+            color: isDark
+                ? AppColors.textSecondaryDark
+                : AppColors.textSecondaryLight,
             fontSize: 12.5,
           ),
         ),

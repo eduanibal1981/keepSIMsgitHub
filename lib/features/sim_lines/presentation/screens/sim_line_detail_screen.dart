@@ -195,10 +195,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
           final bool isNotifyActive = detailState.notifySchedule != null &&
               detailState.notifySchedule!.status == 'active' &&
               detailState.notifySchedule!.isActive;
-          final bool isRealLiveVerified = detailState.activityLogs.any((l) =>
-                  l.description?.toLowerCase().contains('live verified') == true ||
-                  l.description?.toLowerCase().contains('verified active via') == true) ||
-              (ref.watch(hasRealLiveVerificationProvider(line.id)).value ?? false);
+          final bool isRealLiveVerified = (ref.watch(hasRealLiveVerificationProvider(line.id)).value ?? false);
           final bool isVerified = isRealLiveVerified;
           final carrierRule = line.carrierId != null
               ? ref.watch(carrierRuleProvider(line.carrierId!)).value
@@ -669,10 +666,7 @@ class _SimLineDetailScreenState extends ConsumerState<SimLineDetailScreen> {
     final bool isNotifyActive = detail.notifySchedule != null &&
         detail.notifySchedule!.status == 'active' &&
         detail.notifySchedule!.isActive;
-    final bool isRealLiveVerified = detail.activityLogs.any((l) =>
-            l.description?.toLowerCase().contains('live verified') == true ||
-            l.description?.toLowerCase().contains('verified active via') == true) ||
-        (ref.watch(hasRealLiveVerificationProvider(line.id)).value ?? false);
+    final bool isRealLiveVerified = (ref.watch(hasRealLiveVerificationProvider(line.id)).value ?? false);
 
     final pillars = line.healthScoreBreakdown(
       isRealLiveVerified: isRealLiveVerified,

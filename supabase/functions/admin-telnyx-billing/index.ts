@@ -1,3 +1,5 @@
+import { EndpointError, requireAdmin } from "../_shared/endpoint-auth.ts";
+import { ProviderConfigurationError, providerSecretClient, requireProviderSecret } from "../_shared/provider-secrets.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
@@ -22,6 +24,9 @@ const serviceHeaders = {
 };
 
 async function fetchSystemConfig(key: string, defaultVal: string = ""): Promise<string> {
+  if (key === "TELNYX_API_KEY") {
+    return await requireProviderSecret(providerSecretClient(SUPABASE_URL, SERVICE_ROLE_KEY), key);
+  }
   const envVal = Deno.env.get(key);
   if (envVal) return envVal;
   try {
@@ -35,72 +40,6 @@ async function fetchSystemConfig(key: string, defaultVal: string = ""): Promise<
   } catch (_) {
     return defaultVal;
   }
-}
-
-function parseJwt(token: string): any {
-  try {
-    const raw = token.replace(/^Bearer\s+/i, "").trim();
-    const parts = raw.split(".");
-    if (parts.length !== 3) return null;
-    const base64Url = parts[1];
-    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-    const jsonPayload = decodeURIComponent(
-      atob(base64)
-        .split("")
-        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-        .join("")
-    );
-    return JSON.parse(jsonPayload);
-  } catch (_) {
-    return null;
-  }
-}
-
-async function verifyAdmin(authHeader: string | null): Promise<{ isAdmin: boolean; userId?: string; error?: string }> {
-  if (!authHeader) {
-    return { isAdmin: false, error: "Missing authorization header" };
-  }
-
-  const claims = parseJwt(authHeader);
-  if (!claims) {
-    return { isAdmin: false, error: "Invalid token format" };
-  }
-
-  // 1. Check if caller has service_role
-  if (claims.role === "service_role") {
-    return { isAdmin: true, userId: "service_role" };
-  }
-
-  // 2. Check authenticated user
-  const userId = claims.sub;
-  if (!userId) {
-    return { isAdmin: false, error: "User identity could not be verified" };
-  }
-
-  // If power user claim is already present in JWT
-  if (claims.app_metadata?.is_power_user === true) {
-    return { isAdmin: true, userId };
-  }
-
-  // 3. Fallback: verify power-user flag directly in profiles table
-  try {
-    const profileRes = await fetch(
-      `${SUPABASE_URL}/rest/v1/profiles?id=eq.${userId}&select=is_power_user,is_suspended`,
-      { headers: serviceHeaders },
-    );
-
-    if (profileRes.ok) {
-      const profiles = await profileRes.json();
-      const profile = profiles?.[0];
-      if (profile && profile.is_power_user && !profile.is_suspended) {
-        return { isAdmin: true, userId };
-      }
-    }
-  } catch (e) {
-    console.error("Profile check error:", e);
-  }
-
-  return { isAdmin: false, error: "Access denied. Power-user (admin) privileges required." };
 }
 
 async function telnyxGet(path: string, apiKey: string): Promise<any> {
@@ -176,11 +115,7 @@ serve(async (req: Request) => {
 
   try {
     // 1. Authorize Admin
-    const authHeader = req.headers.get("Authorization");
-    const authResult = await verifyAdmin(authHeader);
-    if (!authResult.isAdmin) {
-      return jsonResponse({ error: authResult.error || "Forbidden" }, 403);
-    }
+    await requireAdmin(req, SUPABASE_URL, SERVICE_ROLE_KEY);
 
     // 2. Fetch Telnyx API Key
     const apiKey = await fetchSystemConfig("TELNYX_API_KEY");
@@ -462,6 +397,8 @@ serve(async (req: Request) => {
     }, 200);
 
   } catch (error: any) {
+    if (error instanceof EndpointError) return jsonResponse({ error: error.message }, error.status);
+    if (error instanceof ProviderConfigurationError) return jsonResponse({ error: error.message, code: error.code }, 503);
     console.error("admin-telnyx-billing error:", error);
     return jsonResponse({ error: error.message || "Internal server error" }, 500);
   }

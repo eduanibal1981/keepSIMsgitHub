@@ -61,7 +61,7 @@ final class ReturnTripWizardControllerProvider
 }
 
 String _$returnTripWizardControllerHash() =>
-    r'14492c87e63e7684c445dc870117cd6bdd6c6bc8';
+    r'02e783b432d8211b98e3efd2ca44ebcd3ea9a01c';
 
 final class ReturnTripWizardControllerFamily extends $Family
     with

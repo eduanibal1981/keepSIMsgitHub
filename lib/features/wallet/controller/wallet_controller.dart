@@ -120,6 +120,7 @@ class WalletController extends _$WalletController {
     String? referenceId,
     String plan = 'standard',
     String? carrierRuleId,
+    double? expectedAmount,
   }) async {
     // Only used to drive the submitting spinner, so a state that has not
     // loaded yet must not decide whether the fee gets charged. This used to
@@ -147,6 +148,7 @@ class WalletController extends _$WalletController {
       referenceId: referenceId,
       plan: plan,
       carrierRuleId: carrierRuleId,
+      expectedAmount: expectedAmount,
     );
 
     switch (result) {

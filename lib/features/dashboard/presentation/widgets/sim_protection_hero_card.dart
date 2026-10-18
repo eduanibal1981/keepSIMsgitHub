@@ -18,7 +18,7 @@ class SimProtectionHeroCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final l10n = AppLocalizations.of(context)!;
-    final accent = isDark ? AppColors.primary : const Color(0xFF008D9F);
+    final accent = isDark ? AppColors.primary : const Color(0xFF009BAA);
     final textColor = isDark
         ? AppColors.textPrimaryDark
         : AppColors.textPrimaryLight;
@@ -47,14 +47,14 @@ class SimProtectionHeroCard extends StatelessWidget {
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             LayoutBuilder(
               builder: (context, constraints) {
                 final showIllustration =
-                    constraints.maxWidth >= 300 &&
+                    constraints.maxWidth >= 280 &&
                     MediaQuery.textScalerOf(context).scale(14) <= 18;
                 return Row(
                   children: [
@@ -80,7 +80,7 @@ class SimProtectionHeroCard extends StatelessWidget {
                                   : AppColors.textTertiaryLight,
                             ),
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 8),
                           Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 10,
@@ -126,8 +126,8 @@ class SimProtectionHeroCard extends StatelessWidget {
                       ExcludeSemantics(
                         child: SvgPicture.asset(
                           'assets/icons/sim_protection.svg',
-                          width: 88,
-                          height: 108,
+                          width: 60,
+                          height: 72,
                         ),
                       ),
                     ],
@@ -135,15 +135,15 @@ class SimProtectionHeroCard extends StatelessWidget {
                 );
               },
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
             SizedBox(
               width: double.infinity,
               child: FilledButton(
                 onPressed: onManageSims,
                 style: FilledButton.styleFrom(
-                  backgroundColor: const Color(0xFF008D9F),
+                  backgroundColor: const Color(0xFF009BAA),
                   foregroundColor: Colors.white,
-                  minimumSize: const Size(0, 48),
+                  minimumSize: const Size(0, 44),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,
                     vertical: 12,
@@ -176,7 +176,7 @@ class SimProtectionHeroCard extends StatelessWidget {
                         ],
                       ),
                     ),
-                    const Icon(Icons.arrow_forward_rounded, size: 18),
+                    const Icon(Icons.chevron_right_rounded, size: 18),
                   ],
                 ),
               ),

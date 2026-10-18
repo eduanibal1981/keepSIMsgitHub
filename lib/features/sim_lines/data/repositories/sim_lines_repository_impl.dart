@@ -1,5 +1,7 @@
+import 'package:keep_sims/features/sim_lines/domain/line_refill_quote.dart';
 import 'dart:async';
 import 'dart:convert';
+import 'package:uuid/uuid.dart';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -124,12 +126,16 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
     for (final countryId in countryIds) {
       try {
         await getCarriersForCountry(countryId);
-      } catch (_) {/* cache fill only */}
+      } catch (_) {
+        /* cache fill only */
+      }
     }
     for (final carrierId in carrierIds) {
       try {
         await getCarrierRule(carrierId);
-      } catch (_) {/* cache fill only */}
+      } catch (_) {
+        /* cache fill only */
+      }
     }
   }
 
@@ -139,9 +145,20 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
     if (userId == null) throw Exception('No authenticated user session found.');
 
     final localId = line.id.isEmpty
-        ? 'offline_${DateTime.now().microsecondsSinceEpoch}'
+        ? (_connectivity.isOffline && line.planType == 'free'
+              ? const Uuid().v4()
+              : 'offline_${DateTime.now().microsecondsSinceEpoch}')
         : line.id;
-    final updatedLine = line.copyWith(id: localId, userId: userId);
+    final updatedLine = line.copyWith(
+      id: localId,
+      userId: userId,
+      verificationStatus: 'unverified',
+      isCarrierVerified: false,
+      carrierStatus: 'pending',
+      carrierVerifiedAt: null,
+      detectedOperatorName: null,
+      healthScore: 0,
+    );
     final data = updatedLine.toJson();
 
     if (_connectivity.isOffline) {
@@ -154,7 +171,17 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
     }
 
     try {
-      final dataToSend = line.toJson();
+      final dataToSend = line.toJson()
+        ..removeWhere(
+          (key, _) => const {
+            'verification_status',
+            'health_score',
+            'is_carrier_verified',
+            'carrier_status',
+            'carrier_verified_at',
+            'detected_operator_name',
+          }.contains(key),
+        );
       if (line.id.isEmpty) {
         dataToSend.remove('id');
       }
@@ -186,7 +213,6 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
         'description': 'SIM Line registered successfully in SIM Shield.',
         'metadata': {'carrier_name': line.nickname ?? 'SIM'},
       });
-
 
       return createdLine;
     } on PostgrestException catch (e) {
@@ -295,7 +321,9 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
             countries.add(c);
           }
         } catch (e) {
-          print('[getSupportedCountries] Error parsing country: $e, item: $item');
+          print(
+            '[getSupportedCountries] Error parsing country: $e, item: $item',
+          );
         }
       }
 
@@ -643,7 +671,7 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
             'topup_failed',
             'topup_refunded',
             'topup_cancelled',
-            'topup_retry_queued'
+            'topup_retry_queued',
           ]);
       final cacheKey = 'cached_logs_$simLineId';
       await _cache.writeJson(cacheKey, []);
@@ -653,12 +681,32 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
   }
 
   @override
+  Future<LineRefillQuote> fetchCustomerRefillQuote({
+    required String simLineId,
+    required String offerId,
+    int? offerValue,
+  }) async {
+    final result = await _supabase.rpc(
+      'get_customer_refill_quote',
+      params: {
+        'p_sim_line_id': simLineId,
+        'p_offer_id': offerId,
+        'p_offer_value': offerValue,
+      },
+    );
+    return LineRefillQuote.fromJson(
+      Map<String, dynamic>.from(result as Map),
+      simLineId: simLineId,
+    );
+  }
+
+  @override
   Future<String> requestInstantRefill({
     required String simLineId,
     required String offerId,
     required String paymentGatewayCode,
-    required double displayBaseUsd,
-    double? amountUsd,
+    required double authorizedTotalUsd,
+    int? offerValue,
   }) async {
     try {
       final userId = _supabase.auth.currentUser?.id;
@@ -666,16 +714,14 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
         throw Exception('No authenticated user session found.');
       }
 
-      // C3b-2: the server prices the refill from its own offers cache; the
-      // client only names the offer (and, for RANGE offers, how many USD to
-      // spend). base_cost_usd is no longer client input.
+      // Only a retail authorization ceiling and dispatch value leave the app.
       final executionId = await _supabase.rpc(
-        'request_instant_refill',
+        'request_retail_instant_refill',
         params: {
           'p_sim_line_id': simLineId,
           'p_offer_id': offerId,
-          'p_payment_gateway_code': paymentGatewayCode,
-          'p_amount_usd': amountUsd,
+          'p_max_authorized_usd': authorizedTotalUsd,
+          'p_offer_value': offerValue,
           // G10: a claim, scored server-side. Null (an older build) is treated
           // as more suspicious than a known device, never as clean.
           'p_device_id': await _deviceIdentity.deviceId(),
@@ -693,7 +739,7 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
       if (e.code == 'KS451') {
         await _deviceIdentity.reportBlock(
           action: 'instant_refill',
-          amountUsd: amountUsd ?? displayBaseUsd,
+          amountUsd: authorizedTotalUsd,
         );
         throw Exception('DEVICE_BLOCKED');
       }
@@ -702,25 +748,27 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
   }
 
   @override
-  Future<int> queuePremiumRefillExecutions({
-    required String simLineId,
-    required String scheduledTopupId,
-    DateTime? planExpiresAt,
-  }) async {
-    try {
-      // Server-side: prices every queued refill from carrier_rules and is
-      // idempotent per schedule (requeue cancels the previous queue first).
-      final count = await _supabase.rpc(
-        'queue_premium_refill_executions',
-        params: {
-          'p_sim_line_id': simLineId,
-          'p_scheduled_topup_id': scheduledTopupId,
-          'p_plan_expires_at': planExpiresAt?.toUtc().toIso8601String(),
-        },
+  Future<void> initializeLineSchedules(String simLineId) async {
+    if (_connectivity.isOffline) {
+      // Free offline creation uses a durable UUID, so replay initializes the
+      // same line after its queued insert. No paid settings are cached here.
+      await _syncQueue.addToQueue('line_schedule_initialize', {
+        'sim_line_id': simLineId,
+        'user_id': _supabase.auth.currentUser?.id,
+      });
+      return;
+    }
+    final response = await _supabase.rpc(
+      'initialize_line_schedules',
+      params: {'p_sim_line_id': simLineId},
+    );
+    if (response is! Map || response['success'] != true) {
+      throw Exception('Schedule setup could not be confirmed.');
+    }
+    if (response['needs_authorization'] == true) {
+      throw Exception(
+        'Review the current refill price in Auto-Refill settings to authorize the next occurrence.',
       );
-      return (count as num).toInt();
-    } on PostgrestException catch (e) {
-      throw Exception('Failed to schedule premium refills: ${e.message}');
     }
   }
 
@@ -750,62 +798,6 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
   }
 
   @override
-  Future<void> confirmLineVerification(
-    String simLineId, {
-    String channel = 'twilio_missed_call',
-    String? carrierName,
-  }) async {
-    try {
-      final userId = _supabase.auth.currentUser?.id;
-      if (userId == null) {
-        throw Exception('No authenticated user session found.');
-      }
-
-      try {
-        await _supabase.rpc('confirm_line_verification', params: {
-          'p_sim_line_id': simLineId,
-          'p_channel': channel,
-          'p_carrier_name': carrierName,
-        });
-        return;
-      } catch (rpcErr) {
-        // Fallback to direct client table update if RPC unavailable
-      }
-
-      // Update SIM Line verification_status and health score
-      await _supabase
-          .from('sim_lines')
-          .update({
-            'verification_status': 'verified',
-            'health_score': 100,
-            'updated_at': DateTime.now().toIso8601String(),
-          })
-          .eq('id', simLineId);
-
-      final channelName =
-          channel == 'telnyx_sms_dlr' ? 'Telnyx Silent SMS (DLR)' : 'Missed Call';
-      final carrierDetail =
-          carrierName != null ? ' on $carrierName' : '';
-
-      // Insert verification log
-      await _supabase.from('line_activity_log').insert({
-        'sim_line_id': simLineId,
-        'user_id': userId,
-        'event_type': 'health_update',
-        'description':
-            'SIM line verified active via $channelName$carrierDetail. Health optimized to 100.',
-        'metadata': {
-          'verified_at': DateTime.now().toIso8601String(),
-          'channel': channel,
-          if (carrierName != null) 'carrier_name': carrierName,
-        },
-      });
-    } on PostgrestException catch (e) {
-      throw Exception('Failed to confirm line verification: ${e.message}');
-    }
-  }
-
-  @override
   Future<void> cancelCall(String callSid) async {
     await TwilioVerificationService.cancelCall(callSid);
   }
@@ -829,16 +821,21 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
         'quote_line_verification',
         params: {'p_sim_line_id': simLineId},
       );
-      return LineVerificationQuote.fromJson(Map<String, dynamic>.from(res as Map));
+      return LineVerificationQuote.fromJson(
+        Map<String, dynamic>.from(res as Map),
+      );
     } on PostgrestException catch (e) {
-      if (e.message.toLowerCase().contains('jwt') || e.message.toLowerCase().contains('token')) {
+      if (e.message.toLowerCase().contains('jwt') ||
+          e.message.toLowerCase().contains('token')) {
         try {
           await _supabase.auth.refreshSession();
           final retryRes = await _supabase.rpc(
             'quote_line_verification',
             params: {'p_sim_line_id': simLineId},
           );
-          return LineVerificationQuote.fromJson(Map<String, dynamic>.from(retryRes as Map));
+          return LineVerificationQuote.fromJson(
+            Map<String, dynamic>.from(retryRes as Map),
+          );
         } catch (_) {}
       }
       throw Exception('Failed to generate verification quote: ${e.message}');
@@ -851,6 +848,7 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
     required String method,
     String? idempotencyKey,
   }) async {
+    final requestKey = idempotencyKey ?? const Uuid().v4();
     try {
       await _ensureValidSession();
       final response = await _supabase.functions.invoke(
@@ -859,7 +857,7 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
           'action': 'start',
           'simLineId': simLineId,
           'method': method,
-          if (idempotencyKey != null) 'idempotencyKey': idempotencyKey,
+          'idempotencyKey': requestKey,
         },
       );
       final data = response.data;
@@ -871,7 +869,8 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
       }
       throw Exception('Unexpected response starting verification: $data');
     } catch (e) {
-      if (e.toString().toLowerCase().contains('jwt') || e.toString().toLowerCase().contains('unauthorized')) {
+      if (e.toString().toLowerCase().contains('jwt') ||
+          e.toString().toLowerCase().contains('unauthorized')) {
         try {
           await _supabase.auth.refreshSession();
           final retryResp = await _supabase.functions.invoke(
@@ -880,7 +879,7 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
               'action': 'start',
               'simLineId': simLineId,
               'method': method,
-              if (idempotencyKey != null) 'idempotencyKey': idempotencyKey,
+              'idempotencyKey': requestKey,
             },
           );
           final data = retryResp.data;
@@ -897,15 +896,14 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
   }
 
   @override
-  Future<Map<String, dynamic>> getLineVerificationAttemptStatus(String attemptId) async {
+  Future<Map<String, dynamic>> getLineVerificationAttemptStatus(
+    String attemptId,
+  ) async {
     try {
       await _ensureValidSession();
       final response = await _supabase.functions.invoke(
         'liveness-verification',
-        body: {
-          'action': 'status',
-          'attemptId': attemptId,
-        },
+        body: {'action': 'status', 'attemptId': attemptId},
       );
       final data = response.data;
       if (data is Map<String, dynamic>) {
@@ -913,15 +911,13 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
       }
       throw Exception('Unexpected response fetching attempt status: $data');
     } catch (e) {
-      if (e.toString().toLowerCase().contains('jwt') || e.toString().toLowerCase().contains('unauthorized')) {
+      if (e.toString().toLowerCase().contains('jwt') ||
+          e.toString().toLowerCase().contains('unauthorized')) {
         try {
           await _supabase.auth.refreshSession();
           final retryResp = await _supabase.functions.invoke(
             'liveness-verification',
-            body: {
-              'action': 'status',
-              'attemptId': attemptId,
-            },
+            body: {'action': 'status', 'attemptId': attemptId},
           );
           final data = retryResp.data;
           if (data is Map<String, dynamic>) {
@@ -948,7 +944,10 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
   /// already determines the country. It stays in the signature so the provider
   /// key and its callers are untouched.
   @override
-  Future<List<Map<String, dynamic>>> fetchZenditOffers(String countryId, String carrierId) async {
+  Future<List<Map<String, dynamic>>> fetchZenditOffers(
+    String countryId,
+    String carrierId,
+  ) async {
     try {
       final rows = await _supabase.rpc(
         'list_carrier_offers',
@@ -957,23 +956,25 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
 
       return (rows as List)
           .cast<Map<String, dynamic>>()
-          .map<Map<String, dynamic>>((r) => {
-                'offerId': r['offer_id'],
-                'description': r['offer_name'] ?? r['offer_id'],
-                'priceType': r['price_type'],
-                'isRange': r['price_type'] == 'RANGE',
-                // The server already applied any manual override, so this is
-                // what the user will actually be charged.
-                'baseCostUsd': (r['price_usd'] as num?)?.toDouble(),
-                'priceMinUsd': (r['price_min_usd'] as num?)?.toDouble(),
-                'priceMaxUsd': (r['price_max_usd'] as num?)?.toDouble(),
-                'min': r['send_min'],
-                'max': r['send_max'],
-                'sendCurrencyDivisor': r['send_currency_divisor'] ?? 100,
-                'send': {'currency': r['send_currency']},
-                'provider': r['provider'],
-                'isStale': r['is_stale'] ?? false,
-              })
+          .map<Map<String, dynamic>>(
+            (r) => {
+              'offerId': r['offer_id'],
+              'description': r['offer_name'] ?? r['offer_id'],
+              'priceType': r['price_type'],
+              'isRange': r['price_type'] == 'RANGE',
+              // The server already applied any manual override, so this is
+              // what the user will actually be charged.
+              'retailPriceUsd': (r['price_usd'] as num?)?.toDouble(),
+              'priceMinUsd': (r['price_min_usd'] as num?)?.toDouble(),
+              'priceMaxUsd': (r['price_max_usd'] as num?)?.toDouble(),
+              'min': r['send_min'],
+              'max': r['send_max'],
+              'sendCurrencyDivisor': r['send_currency_divisor'] ?? 100,
+              'send': {'currency': r['send_currency']},
+              'provider': r['provider'],
+              'isStale': r['is_stale'] ?? false,
+            },
+          )
           .toList(); // Already ranked cheapest-first server-side.
     } on PostgrestException catch (e) {
       throw Exception('Database error fetching offers: ${e.message}');
@@ -984,7 +985,8 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
 
   @override
   Future<List<Map<String, dynamic>>> fetchLineRefillOffers(
-      String simLineId) async {
+    String simLineId,
+  ) async {
     try {
       // I1: one call, every enabled supplier for this line's carrier, already
       // ranked cheapest-first server-side. This replaces the Dart-side provider
@@ -997,29 +999,32 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
 
       return (rows as List)
           .cast<Map<String, dynamic>>()
-          .map<Map<String, dynamic>>((r) => {
-                'offerId': r['offer_id'],
-                'description': r['offer_name'] ?? r['offer_id'],
-                'benefitSummary': r['benefit_summary'] ?? r['offer_name'] ?? r['offer_id'],
-                'serviceType': r['service_type'] ?? 'airtime',
-                'dataMb': (r['data_mb'] as num?)?.toInt(),
-                'durationDays': (r['duration_days'] as num?)?.toInt(),
-                'deliveryType': r['delivery_type'] ?? 'direct',
-                'priceType': r['price_type'],
-                'isRange': r['price_type'] == 'RANGE',
-                'baseCostUsd': (r['price_fixed_usd'] as num?)?.toDouble(),
-                'priceMinUsd': (r['price_min_usd'] as num?)?.toDouble(),
-                'priceMaxUsd': (r['price_max_usd'] as num?)?.toDouble(),
-                'min': r['send_min'],
-                'max': r['send_max'],
-                'sendCurrencyDivisor': r['send_currency_divisor'] ?? 100,
-                'send': {'currency': r['send_currency']},
-                // Carried for display/diagnostics only — the server picks the
-                // supplier again at purchase time from the same ranking, so a
-                // stale client cannot steer a purchase to a chosen supplier.
-                'provider': r['provider'],
-                'isStale': r['is_stale'] == true,
-              })
+          .map<Map<String, dynamic>>(
+            (r) => {
+              'offerId': r['offer_id'],
+              'description': r['offer_name'] ?? r['offer_id'],
+              'benefitSummary':
+                  r['benefit_summary'] ?? r['offer_name'] ?? r['offer_id'],
+              'serviceType': r['service_type'] ?? 'airtime',
+              'dataMb': (r['data_mb'] as num?)?.toInt(),
+              'durationDays': (r['duration_days'] as num?)?.toInt(),
+              'deliveryType': r['delivery_type'] ?? 'direct',
+              'priceType': r['price_type'],
+              'isRange': r['price_type'] == 'RANGE',
+              'retailPriceUsd': (r['price_fixed_usd'] as num?)?.toDouble(),
+              'priceMinUsd': (r['price_min_usd'] as num?)?.toDouble(),
+              'priceMaxUsd': (r['price_max_usd'] as num?)?.toDouble(),
+              'min': r['send_min'],
+              'max': r['send_max'],
+              'sendCurrencyDivisor': r['send_currency_divisor'] ?? 100,
+              'send': {'currency': r['send_currency']},
+              // Carried for display/diagnostics only — the server picks the
+              // supplier again at purchase time from the same ranking, so a
+              // stale client cannot steer a purchase to a chosen supplier.
+              'provider': r['provider'],
+              'isStale': r['is_stale'] == true,
+            },
+          )
           // Deliberately NOT re-sorted here. The RPC's ORDER BY is the ranking
           // that `request_instant_refill` re-applies when it resolves the
           // offer; a second sort in Dart is how a list and a purchase disagree.
@@ -1059,12 +1064,15 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
     String? note,
   }) async {
     try {
-      await _supabase.rpc('record_manual_external_recharge', params: {
-        'p_sim_line_id': simLineId,
-        'p_recharge_date': rechargeDate.toUtc().toIso8601String(),
-        'p_amount': amount,
-        'p_note': note,
-      });
+      await _supabase.rpc(
+        'record_manual_external_recharge',
+        params: {
+          'p_sim_line_id': simLineId,
+          'p_recharge_date': rechargeDate.toUtc().toIso8601String(),
+          'p_amount': amount,
+          'p_note': note,
+        },
+      );
     } on PostgrestException catch (e) {
       throw Exception('Failed to record manual recharge: ${e.message}');
     } catch (e) {
@@ -1078,7 +1086,7 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
     String? countryCode,
   }) async {
     final cleanPhone = phoneNumber.trim();
-    final cacheKey = 'liveness_$cleanPhone';
+    final cacheKey = 'liveness_v2_$cleanPhone';
 
     // 1. Instant National Numbering Plan & Carrier Detection
     final localLookup = PhoneNumberValidator.validateAndDetect(
@@ -1105,8 +1113,8 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
         } catch (_) {}
       }
       return SimLivenessResult(
-        isActive: true,
-        carrierStatus: 'active',
+        isActive: false,
+        carrierStatus: 'pending',
         detectedOperatorName: localLookup.detectedCarrierName,
         message: localLookup.detectedCarrierName != null
             ? '${localLookup.detectedCarrierName} validated (Valid line format)'
@@ -1140,59 +1148,12 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
         remoteResult = SimLivenessResult.fromJson(data);
       }
 
-      if (remoteResult != null) {
-        // If carrier BSS explicitly confirmed number is deactivated, honor that
-        if (remoteResult.carrierStatus == 'inactive' && !remoteResult.isActive) {
-          return remoteResult;
-        }
-
-        // If remote gateway was inconclusive / unsupported, but our national plan recognized the carrier
-        if ((remoteResult.carrierStatus == 'unsupported' || remoteResult.carrierStatus == 'unverified' || remoteResult.detectedOperatorName == null) &&
-            localLookup.isRecognized) {
-          return SimLivenessResult(
-            isActive: true,
-            carrierStatus: 'active',
-            detectedOperatorName: localLookup.detectedCarrierName,
-            message: '${localLookup.detectedCarrierName} validated (Valid line format)',
-            verifiedAt: DateTime.now(),
-          );
-        }
-
-        // If remote identified carrier or is active
-        if (remoteResult.detectedOperatorName != null || remoteResult.isActive || remoteResult.carrierStatus == 'active') {
-          return SimLivenessResult(
-            isActive: true,
-            carrierStatus: 'active',
-            detectedOperatorName: remoteResult.detectedOperatorName ?? localLookup.detectedCarrierName,
-            message: remoteResult.detectedOperatorName != null
-                ? '${remoteResult.detectedOperatorName} validated (Valid line format)'
-                : (localLookup.detectedCarrierName != null
-                    ? '${localLookup.detectedCarrierName} validated (Valid line format)'
-                    : 'Valid line format detected'),
-            verifiedAt: remoteResult.verifiedAt,
-          );
-        }
-
-        // Fallback for valid format
-        if (localLookup.isValidFormat) {
-          return SimLivenessResult(
-            isActive: true,
-            carrierStatus: 'active',
-            detectedOperatorName: localLookup.detectedCarrierName,
-            message: localLookup.detectedCarrierName != null
-                ? '${localLookup.detectedCarrierName} validated (Valid line format)'
-                : 'Valid line format detected',
-            verifiedAt: DateTime.now(),
-          );
-        }
-
-        return remoteResult;
-      }
+      if (remoteResult != null) return remoteResult;
 
       // If response body was null, but local format is valid
       return SimLivenessResult(
-        isActive: true,
-        carrierStatus: 'active',
+        isActive: false,
+        carrierStatus: 'pending',
         detectedOperatorName: localLookup.detectedCarrierName,
         message: localLookup.detectedCarrierName != null
             ? '${localLookup.detectedCarrierName} validated (Valid line format)'
@@ -1207,8 +1168,8 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
         } catch (_) {}
       }
       return SimLivenessResult(
-        isActive: true,
-        carrierStatus: 'active',
+        isActive: false,
+        carrierStatus: 'pending',
         detectedOperatorName: localLookup.detectedCarrierName,
         message: localLookup.detectedCarrierName != null
             ? '${localLookup.detectedCarrierName} validated (Valid line format)'
@@ -1302,23 +1263,14 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
   @override
   Future<bool> hasRealLiveVerification(String simLineId) async {
     try {
-      final attempt = await _supabase
-          .from('line_verification_attempts')
+      final line = await _supabase
+          .from('sim_lines')
           .select('id')
-          .eq('sim_line_id', simLineId)
-          .eq('outcome', 'succeeded')
-          .limit(1)
+          .eq('id', simLineId)
+          .eq('verification_status', 'verified')
+          .eq('is_carrier_verified', true)
           .maybeSingle();
-      if (attempt != null) return true;
-
-      final log = await _supabase
-          .from('line_activity_log')
-          .select('id')
-          .eq('sim_line_id', simLineId)
-          .ilike('description', '%live verified%')
-          .limit(1)
-          .maybeSingle();
-      return log != null;
+      return line != null;
     } catch (_) {
       return false;
     }

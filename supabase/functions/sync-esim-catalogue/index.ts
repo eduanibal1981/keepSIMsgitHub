@@ -1,3 +1,4 @@
+import { requireProviderSecret } from "../_shared/provider-secrets.ts";
 // sync-esim-catalogue — pulls eSIM Go and Zendit bundle catalogues into
 // `esim_offers_cache`.
 //
@@ -497,13 +498,12 @@ serve(async (req) => {
       }).eq("code", "esim_go");
       results.esim_go = { success: false, error: msg };
     }
+    }
 
     // ── 2. Zendit Sync ──────────────────────────────────────────────────────
     if (!targetProvider || targetProvider === "zendit") {
       try {
-        const { data: zenditApiKey } = await supabase
-          .rpc("get_internal_secret", { p_name: "zendit_api_key" });
-        const apiSecret = zenditApiKey || Deno.env.get("ZENDIT_API_SECRET");
+        const apiSecret = await requireProviderSecret(supabase, "ZENDIT_API_SECRET", ["ZENDIT_API_KEY"]);
 
         if (apiSecret) {
           // deno-lint-ignore no-explicit-any

@@ -103,9 +103,7 @@ class _RefillPriceApprovalDialogState extends State<RefillPriceApprovalDialog> {
                   'Total from wallet: \$${quote.totalUsd.toStringAsFixed(2)} USD',
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
-                Text(
-                  'Includes a \$${quote.feeUsd.toStringAsFixed(2)} service fee.',
-                ),
+                const Text('Includes service charges.'),
                 const SizedBox(height: 16),
                 const Text(
                   'Approve this refill to run now. Your limit for future automatic refills stays unchanged. If this price increases before purchase, we will ask you again.',

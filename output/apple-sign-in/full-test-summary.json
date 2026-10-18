@@ -1,0 +1,199 @@
+{
+  "test_results": {
+    "success": 796,
+    "failure": 15,
+    "error": 5
+  },
+  "authentication_results": {
+    "success": 43
+  },
+  "failures": [
+    {
+      "path": "/Users/thehonest/Work/KeepSIMs/keep_sims/test/features/sim_lines/refill_pricing_test.dart",
+      "name": "Premium yearly pricing THE POINT: the gross-up leaves the full subtotal after the gateway cut",
+      "id": 172
+    },
+    {
+      "path": "/Users/thehonest/Work/KeepSIMs/keep_sims/test/features/sim_lines/refill_pricing_test.dart",
+      "name": "Premium yearly pricing a zero margin is honoured, not treated as unset",
+      "id": 184
+    },
+    {
+      "path": "/Users/thehonest/Work/KeepSIMs/keep_sims/test/features/sim_lines/refill_pricing_test.dart",
+      "name": "Premium yearly pricing a deliberate per-carrier override replaces the computed refill price",
+      "id": 191
+    },
+    {
+      "path": "/Users/thehonest/Work/KeepSIMs/keep_sims/test/features/sim_lines/refill_pricing_test.dart",
+      "name": "Premium yearly pricing a wallet-style 0% / $0 gateway adds nothing",
+      "id": 194
+    },
+    {
+      "path": "/Users/thehonest/Work/KeepSIMs/keep_sims/test/features/sim_lines/refill_pricing_test.dart",
+      "name": "premium: the wallet rail and the PayPal rail (Zain KSA) the wallet debits the net: $3.90, matching plan_price_net",
+      "id": 200
+    },
+    {
+      "path": "/Users/thehonest/Work/KeepSIMs/keep_sims/test/features/sim_lines/refill_pricing_test.dart",
+      "name": "premium: the wallet rail and the PayPal rail (Zain KSA) PayPal is grossed up to $4.55, matching quote_plan_price",
+      "id": 201
+    },
+    {
+      "path": "/Users/thehonest/Work/KeepSIMs/keep_sims/test/features/sim_lines/refill_pricing_test.dart",
+      "name": "premium: the wallet rail and the PayPal rail (Zain KSA) the PayPal charge covers the gateway fee, it does not absorb it",
+      "id": 204
+    },
+    {
+      "path": "/Users/thehonest/Work/KeepSIMs/keep_sims/test/features/sim_lines/refill_pricing_test.dart",
+      "name": "premiumInitialBreakdown \u2014 Pay-Per-Refill onboarding model calculates 1st refill + $2.50 annual protection fee",
+      "id": 209
+    },
+    {
+      "path": "/Users/thehonest/Work/KeepSIMs/keep_sims/test/features/payments/paypal_checkout_screen_test.dart",
+      "name": "PayPalCheckoutScreen & Quote Parity Unit Tests Premium plan initial charge for Orange Egypt (override $4.30 + $2.50 fee) matches SQL ($7.55)",
+      "id": 206
+    },
+    {
+      "path": "/Users/thehonest/Work/KeepSIMs/keep_sims/test/features/sim_lines/refill_pricing_test.dart",
+      "name": "premiumInitialBreakdown \u2014 Pay-Per-Refill onboarding model premiumYearlyTotal on wallet (0% gateway) charges net initial total",
+      "id": 210
+    },
+    {
+      "path": "/Users/thehonest/Work/KeepSIMs/keep_sims/test/features/calling/my_numbers_screen_test.dart",
+      "name": "MyNumbersScreen renders header, numbers list, Add Number, and Smart Call Setup matching Image 2",
+      "id": 468
+    },
+    {
+      "path": "/Users/thehonest/Work/KeepSIMs/keep_sims/test/features/security/biometric_lock_overlay_test.dart",
+      "name": "BiometricLockOverlay Widget Tests renders child normally when lock is disabled",
+      "id": 540
+    },
+    {
+      "path": "/Users/thehonest/Work/KeepSIMs/keep_sims/test/features/security/biometric_lock_overlay_test.dart",
+      "name": "BiometricLockOverlay Widget Tests shows overlay when lock is enabled and unlocks on success",
+      "id": 566
+    },
+    {
+      "path": "/Users/thehonest/Work/KeepSIMs/keep_sims/test/features/fx/money_display_test.dart",
+      "name": "FxContext parsing reads a live conversion out of the RPC payload",
+      "id": 683
+    },
+    {
+      "path": "/Users/thehonest/Work/KeepSIMs/keep_sims/test/features/fx/money_display_test.dart",
+      "name": "Money.approxLocal converts and marks the result approximate",
+      "id": 691
+    },
+    {
+      "path": "/Users/thehonest/Work/KeepSIMs/keep_sims/test/features/fx/money_display_test.dart",
+      "name": "Money.approxLocal spaces letter-only codes and tightens real glyphs",
+      "id": 694
+    },
+    {
+      "path": "/Users/thehonest/Work/KeepSIMs/keep_sims/test/features/fx/money_display_test.dart",
+      "name": "Money.approxLocal zero converts to zero, not to nothing",
+      "id": 700
+    },
+    {
+      "path": "/Users/thehonest/Work/KeepSIMs/keep_sims/test/features/fx/money_display_test.dart",
+      "name": "Money.approxLocal the conversion is exactly one multiplication, never a round trip",
+      "id": 701
+    },
+    {
+      "path": "/Users/thehonest/Work/KeepSIMs/keep_sims/test/features/scheduled_topups/scheduled_topup_sheet_channel_status_test.dart",
+      "name": "ScheduledTopupSheet accurately displays channel readiness badges on paid line",
+      "id": 755
+    },
+    {
+      "path": "/Users/thehonest/Work/KeepSIMs/keep_sims/test/features/profile/onboarding_currency_transition_test.dart",
+      "name": "currency transition saves and previews",
+      "id": 965
+    }
+  ],
+  "errors": [
+    {
+      "testID": 172,
+      "error": "Expected: a numeric value within <0.01> of <23.6>\n  Actual: <26.1>\n   Which:  differs by <2.5>\n"
+    },
+    {
+      "testID": 184,
+      "error": "Expected: <23.61>\n  Actual: <26.2>\n"
+    },
+    {
+      "testID": 191,
+      "error": "Expected: <5.17>\n  Actual: <7.75>\n"
+    },
+    {
+      "testID": 194,
+      "error": "Expected: <22.32>\n  Actual: <24.82>\n"
+    },
+    {
+      "testID": 200,
+      "error": "Expected: <3.9>\n  Actual: <6.4>\n"
+    },
+    {
+      "testID": 201,
+      "error": "Expected: <4.55>\n  Actual: <7.14>\n"
+    },
+    {
+      "testID": 204,
+      "error": "Expected: <3.91>\n  Actual: <6.41>\n"
+    },
+    {
+      "testID": 209,
+      "error": "Expected: <2.5>\n  Actual: <5.0>\n"
+    },
+    {
+      "testID": 206,
+      "error": "Expected: <7.55>\n  Actual: <10.13>\n"
+    },
+    {
+      "testID": 210,
+      "error": "Expected: <3.9>\n  Actual: <6.4>\n"
+    },
+    {
+      "testID": 468,
+      "error": "Test failed. See exception logs above.\nThe test description was: MyNumbersScreen renders header, numbers list, Add Number, and Smart Call Setup matching Image 2"
+    },
+    {
+      "testID": 540,
+      "error": "Test failed. See exception logs above.\nThe test description was: renders child normally when lock is disabled"
+    },
+    {
+      "testID": 566,
+      "error": "Test failed. See exception logs above.\nThe test description was: shows overlay when lock is enabled and unlocks on success"
+    },
+    {
+      "testID": 683,
+      "error": "Expected: 'E\u00a3'\n  Actual: '\u00a3'\n   Which: is different.\n          Expected: E\u00a3\n            Actual: \u00a3\n                    ^\n           Differ at offset 0\n"
+    },
+    {
+      "testID": 691,
+      "error": "Expected: '\u2248 E\u00a3634'\n  Actual: '\u2248 \u00a3634'\n   Which: is different.\n          Expected: \u2248 E\u00a3634\n            Actual: \u2248 \u00a3634\n                      ^\n           Differ at offset 2\n"
+    },
+    {
+      "testID": 694,
+      "error": "Expected: a string starting with '\u2248 E\u00a3'\n  Actual: '\u2248 \u00a3634'\n"
+    },
+    {
+      "testID": 700,
+      "error": "Expected: '\u2248 E\u00a30.00'\n  Actual: '\u2248 \u00a30.00'\n   Which: is different.\n          Expected: \u2248 E\u00a30.00\n            Actual: \u2248 \u00a30.00\n                      ^\n           Differ at offset 2\n"
+    },
+    {
+      "testID": 701,
+      "error": "Expected: '\u2248 E\u00a3100'\n  Actual: '\u2248 \u00a3100'\n   Which: is different.\n          Expected: \u2248 E\u00a3100\n            Actual: \u2248 \u00a3100\n                      ^\n           Differ at offset 2\n"
+    },
+    {
+      "testID": 755,
+      "error": "Test failed. See exception logs above.\nThe test description was: ScheduledTopupSheet accurately displays channel readiness badges on paid line"
+    },
+    {
+      "testID": 965,
+      "error": "Test failed. See exception logs above.\nThe test description was: currency transition saves and previews"
+    }
+  ],
+  "complete": {
+    "success": false,
+    "type": "done",
+    "time": 37607
+  }
+}

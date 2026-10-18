@@ -1,5 +1,147 @@
 # Data, Backend, and Security
 
+## Schedule mutation boundary — Task 20 (2026-10-18, local/undeployed)
+
+Forward `20261018070000_scheduled_pricing_boundary.sql` revokes schedule table and column mutations and replaces permissive ALL policies with owner/household SELECT RLS. Customer save/control RPCs derive owner, canonical prices, fees, tier, provider, units and engine/version, validate ownership/suspension/paid automation and check the reviewed ceiling. Internal identity/sync helpers are private; the yearly queue is a non-callable tombstone. Worker claims require validated parent/child versions and matching ownership, while NOWAIT control locks avoid worker/control lock-order deadlocks. Legacy configurations pause for review; uncertain financial/provider work remains unclaimed for reconciliation. Setup capture explicitly revalidates old parents and establishes major-currency future airtime targets from the bound provider/SKU; missing target data rolls finalization back. Admin schedule inspection uses a guarded view and immediate polling. Both copied offline queues use reminder allowlists and preserve other-account operations. Fresh live metadata still exposes the old API/grants. All 36 native SQL/concurrency/real local API scenarios, 60 customer, two admin and 62 backend tests pass locally; see [Task 20 review](../docs/reviews/scheduled-pricing-boundary-20261018.md) and the read-only scheduled-pricing preflight. No production repair was applied.
+
+## Retail data and ownership — Task 19, 2026-10-18 (local, undeployed)
+
+The forward `20261018060000_retail_ownership_contract.sql` closes raw supplier/catalogue and internal quote/entitlement reads. Customer fixed/range totals use canonical server pricing; customer receipts/approval routes exclude supplier cost, margin, raw CDR and provider errors. Invoker receipt views use explicit base-column grants and owner RLS. Deliberate definer catalogue/approval views expose allowlisted retail fields with verified caller predicates; guarded admin views retain supplier inspection through `assert_admin()`. No wholesale base grants are added for view compatibility. Saved return-trip prices stay fixed; legacy unknowns stay null. Both clients require coordinated release. Task 3 containment must precede newer retail bodies. Twenty-three native SQL, 81 Flutter and 18 DID backend tests pass; live exposure remains open. Schedule financial-write enforcement remains Task 20. See `docs/reviews/retail-ownership-repair-20261018.md`.
+
+## Admin maintenance/deletion — Task 16, 2026-10-18 (local, undeployed)
+
+`20261018030000_admin_maintenance_deletion_contract.sql` replaces the missing
+prune email helper and unsupported audit/alert fields with `admin_log`'s actual
+`p_after`/`p_note` contract and `system_alerts(kind,message,details)`. Retention
+and its audit commit together. Rate-health checks preserve the 20-per-hour
+threshold and six-hour suppression, serialized across sweeps.
+
+Admin deletion now persists a private `account_purge_jobs` request, actor snapshot
+and fenced processing lease. Only successful Storage cleanup and absent Auth,
+followed by the atomic completion/audit RPC, establish completion. The Edge
+handler uses supported Auth Admin deletion; the raw SQL Auth fallback is retired.
+Job failure remains retryable/observable, including an audit outage after Auth
+has already gone. Client mutations of deletion/email state are revoked.
+Customer cancellation locks the request against the due-job producer.
+
+Deletion stops for nonzero balances, active holds, funding lots, refunds, ledger,
+top-up, eSIM, DID or call records requiring retention/provider reconciliation.
+These records must not be erased simply to pass the gate. There is no new
+balance-forfeiture, financial backfill or provider-retirement policy. Old
+`purged`/`auth_deleted` rows are not promoted to verified completed jobs.
+
+`send-admin-email` is a versioned intentional local replacement of captured
+deployed v2, retaining `x-sync-secret`/`email_id` input and reading the persisted
+envelope. SQL claim/outcome APIs fence duplicate sends. Provider acceptance uses
+legacy status `sent`; it is not mailbox-delivery proof. Ambiguous sending/failed
+outcomes require review and are never automatically resent. Both Edge handlers
+use `verify_jwt=false` with mandatory Vault-backed handler authentication.
+
+All 29 isolated native SQL/actual-Edge integration scenarios and 20 Edge tests
+pass; the admin purge repository passes Dart analysis. Release SQL, both Edge
+consumers and the admin response check together after reviewing current live
+contracts. See `docs/reviews/admin-maintenance-deletion-repair-20261018.md`.
+
+## Usage forecast repair — Task 15, 2026-10-18 (local, undeployed)
+
+`20261018020000_usage_forecast_schema_contract.sql` replaces nonexistent
+`esims`/metadata references with `user_esims`, owner/provider/bundle-matched
+completed `esim_orders`, and provider/bundle-matched `esim_offers_cache`.
+Stored expiry bounds the forecast; catalogue duration is advisory and never
+creates expiry. Suggested historical amounts use the order's retail unit price,
+never wholesale. Missing evidence stays nullable; no 30-day eSIM fallback exists.
+Usage snapshots follow actual `last_usage_check` dates, not repeated job dates.
+Fits reject invalid readings and reset at data increases/total changes.
+
+The owner-only invoker `compute_usage_forecasts_internal()` supports both the
+service/postgres bulk wrapper and existing owner/manager-checked manual recharge
+definer. Clients cannot call the core or bulk RPCs. Physical forecasts retain
+their history/cadence behavior and allowed method labels; a null recharge anchor
+has no depletion date, and grace does not extend inactivity. Unexpected eSIM
+failures invalidate eSIM predictions, preserve physical output and write
+sanitized diagnostics/warnings. Snapshot/alert failures also preserve forecast
+work. Counts in refresh output do not establish complete all-stage success.
+Forecast alerts now use durable event/outbox metadata with empty delivery lists.
+
+All 32 isolated native PostgreSQL scenarios pass. No production changes or fresh
+live verification occurred. The retained `20260916080000` null-anchor source is
+superseded; do not apply it unchanged. See
+`docs/reviews/usage-forecast-repair-20261018.md` for schema evidence, fixture
+limitations, provider/activation unknowns and release requirements.
+
+## Notification scheduler repair — Task 14, 2026-10-18 (local, undeployed)
+
+`20261018010000_notification_scheduler_contract.sql` repairs upcoming-refill
+low-balance reminders to use `wallet_low` in insertion and deduplication, with
+versioned event/template metadata and the existing notification-to-outbox
+trigger. A shared transaction advisory lock enforces the rolling one-per-line
+24-hour limit across direct and scheduler sweeps. Notification insertion never
+establishes channel delivery. System-alert notifications now follow that rule
+and supply event metadata too.
+
+`process_due_notifications()` isolates the due-schedule, upcoming-refill,
+missing-date and urgent-alert stages. A failed stage rolls back its own output,
+preserves successful stages and retries naturally on the next sweep. Failures
+write sanitized `system_alerts` and PostgreSQL warnings; if the diagnostic
+trigger/storage also fails, a second warning remains in database logs. Job
+success alone therefore does not establish that every stage succeeded.
+Postgres cron and the service role remain authorized; client roles are denied
+by grants and body checks. All 24 isolated native PostgreSQL scenarios pass.
+No fresh live inspection or deployment was performed. See
+`docs/reviews/notification-scheduler-repair-20261018.md` for release requirements
+and the bounded schema/cron/delivery evidence.
+
+## Admin credential controls (database released 2026-10-17)
+
+`20261016205533_admin_provider_credentials.sql` adds a private allowlist/metadata
+registry and admin-only replacement/completion RPCs. Values are write-only in
+the admin app and encrypted in Vault; `get_internal_secret(text)` remains
+service-only. The targeted migration was applied as remote version
+`20261016205533` and the signed-in Mac admin credential list was verified.
+No credentials were seeded or rotated. Local managed Edge consumers resolve
+Vault before environment values
+on every request/token acquisition and fail closed on Vault errors. The legacy
+Zendit Vault alias is read only when no canonical value exists. Other VM,
+Coturn and provider changes still require a scoped operational cutover.
+The matching Edge consumer releases remain pending; a Vault write must not be
+treated as synchronization with existing Edge/VM runtimes.
+`operator_confirmed` is a version-bound human attestation of synchronization,
+verification and revocation, never automatic provider verification. Each new
+replacement returns to pending. The macOS admin build and exact rollout
+dependencies are recorded in `docs/reviews/credential-rotation-implementation-20261016.md`.
+See `docs/reviews/credential-backend-release-20261017.md` for the database release.
+
+## Local financial remediation (2026-10-16; deployment unverified)
+
+The `20261016010000`–`20261016060000` forward migrations contain RPC/default-grant containment, one owner-checked SIM finalizer, transactional ledger/funding allocation, claim-based atomic refund settlement, state-aware hold recovery, receipt-backed entitlements, canonical pricing and retail-only customer contracts. The funding trigger is the single writer of lots for **new completed ledger inserts**; hold/call capture must not also consume lots. `wallet_transaction_funding` records original consumption for reversals. Unknown legacy reversals require reconciliation; no historical balances or lots are automatically adjusted.
+
+Deploy the matching `process-wallet-refund` source with the wallet migration during a controlled processing pause; the old handler writes wallet/lot rows independently and must not coexist with the new trigger. The authoritative `../backend-sync-wt/worker_instant_refill.js` now calls `begin_refill_submission` before purchase and `settle_instant_refill_execution` after confirmed delivery. Deploy it with `20261016025000` before resuming instant work or enabling recovery. Old reservations retain recovery contract version 0 and require explicit reconciliation. Do not run an unfiltered migration push across the unsafe pending October 4 pricing migration. See `docs/reviews/supabase-financial-security-remediation-20261016.md` for verification, history handling and rollout gates. Isolated SQL/concurrency results do not establish live deployment or historical reconciliation.
+
+## Financial test production contracts — 2026-10-17
+
+Task 6 is **COMPLETE LOCALLY; FINANCIAL RELEASE GATES REMAIN RED**. The main
+financial fixture now reconstructs 42 captured public tables, 651 exact columns,
+217 constraints (including the ledger type CHECK and NOT VALID positive-amount
+CHECK), 76 unique indexes, API/column/EXECUTE ACLs, 64 RLS policies, 42 real
+functions, 11 selected actual triggers and the live reconciliation view. Catalog
+comparison and three positive safeguard blocks pass; actual pending October 16
+migrations are applied unchanged. The old pre-October-4 history mode is removed.
+
+PGlite reports 11 passing / 5 failing financial blocks. Native PostgreSQL reports
+16 passing / 6 failing blocks/scenario groups, including the fixture guards.
+Both financial commands exit 1. Confirmed defects are excluded `refund_payout`
+and `verification_debit` discriminators and lost original funding provenance for
+`esim_purchase_refund` / `call_refund`. The old permissive fixture's green results
+are superseded. Tasks 7–8 must fix these contracts without weakening the fixture.
+
+The snapshot includes a read-only reproducible export query and static live
+producer/consumer fingerprints. It deliberately omits 34 trigger chains, external
+policy/supplier adapters, full Supabase Auth/owner/default-ACL parity, nonunique
+indexes, provider delivery and unrelated schemas. It is not a complete production
+baseline. No accounting migration or production/provider state changed in Task 6.
+See `docs/reviews/financial-production-contracts-20261017.md` for every allowed
+type, desired accounting semantics, exact evidence and limitations.
+
 ## Verified backend snapshot
 
 Read-only inspection of Supabase project `zwxswagokhgbuzrrbnhr` on 2026-09-06 found:
@@ -111,15 +253,55 @@ Deployment mismatches:
 
 ## Webhook verification
 
-Confirmed local behavior:
+Task 4 reviewed on 2026-10-17: **REPAIRED LOCALLY, NOT DEPLOYED**. See
+[endpoint authentication review](../docs/reviews/endpoint-authentication-20261017.md)
+and its sanitized live inventory for versions, settings, tests and release order.
 
-- `telnyx-cdr` verifies Ed25519 signatures only when `TELNYX_PUBLIC_KEY` is configured; otherwise it logs a warning and proceeds.
-- `sms-webhook` and `twilio-voice-webhook` skip Twilio signature verification when `TWILIO_AUTH_TOKEN` is absent.
-- These live functions have JWT verification disabled, as expected for provider webhooks, which makes signature verification the primary boundary.
-
-Therefore the handlers fail open under secret misconfiguration. The production review's claim that missing/invalid Telnyx signatures are always rejected is not supported by current source. Secret existence could not be inspected; fix code to fail closed rather than relying on a deployment promise.
+- Local Telnyx CDR and liveness callbacks require a valid Ed25519 signature and
+  fresh timestamp; missing/malformed verification keys fail closed.
+- Local Twilio voice, liveness and SMS require signing credentials and canonical
+  URL/form signatures. Forwarded host/proto cannot select the trusted URL.
+- New private service-only receipt APIs serialize callbacks per resource and
+  deduplicate event IDs. Abandoned processing claims require reconciliation;
+  they are never automatically stolen after expiry. Deploy the matching Task 4
+  migration before handlers. Existing Telnyx processed IDs remain completed.
+- Local voicemail is internal-service-only and derives ownership from stored
+  call/DID records, with stable recording IDs. Admin billing verifies user tokens
+  through Auth and the existing `assert_admin()` contract; exact internal service
+  credentials do not go through an end-user-only authentication flow.
+- Local cancellation resolves an owner-scoped voice attempt and uses its stored
+  provider resource. It never tries a different provider from caller input.
+- Fresh deployed source still has unsafe voicemail/admin/liveness/Telnyx/Twilio
+  boundaries. Gateway verification limits the admin exposure; no live forged-token
+  bypass was tested. SMS v5 and WhatsApp v7 already fail closed; the old blanket
+  SMS/WhatsApp fail-open claim is stale. WhatsApp entrypoint matches unchanged
+  local source exactly. Signing-secret presence/validity remains unverified.
+- Target config keeps external callbacks at `verify_jwt=false`, user endpoints at
+  true, and changes internal voicemail from deployed false to true. Handler-level
+  verification remains mandatory independently of gateway configuration.
 
 ## Wallet and ledger
+
+### PayPal capture fulfillment — 2026-10-17
+
+Task 5 is **REPAIRED LOCALLY, NOT DEPLOYED**; see the
+[review and rollout](../docs/reviews/paypal-capture-fulfillment-20261017.md).
+Client capture and the COMPLETED webhook use a single service-only
+`fulfill_paypal_capture(text,jsonb)` API. Trusted Edge code retrieves completed
+provider evidence, binds owner/purpose/merchant/exact USD cents, and never
+substitutes an order ID for a capture ID. Capture retries share a stable provider
+request ID; already-captured/timeout outcomes require authoritative retrieval.
+Receipt capture/order uniqueness and locks couple wallet credit, canonical ledger
+reference, one funding lot and visible captured status in one transaction.
+APPROVED only initiates/adopts provider capture. Missing/inconsistent historical
+funding or order-ID credits are quarantined, not backfilled or credited again.
+The independent migration works with captured-live credit and pending M2 deposit
+code. New order creation pins required PAYPAL_MERCHANT_ID; rollout requires that
+configuration and coordinated create/capture/webhook replacement. Numeric receipt
+metadata and existing legacy plan recording remain compatible. The local focused
+fixture retains actual live payment-table constraints; it does not close Task 6's
+broader financial harness/refund/reversal blockers. Live settings/source and
+bounded aggregate checks were read-only; no current historical loss is asserted.
 
 ### Intended invariant
 
@@ -203,3 +385,100 @@ Expected supplier-failover/auto-rescue flag names were not returned under the na
 - [ ] Local function source and deploy inventory agree.
 - [ ] Money/provider idempotency and ambiguous timeout behavior tested.
 - [ ] Migration history/source drift considered before deployment.
+
+## SIM setup and instant settlement — Task 9, 2026-10-17
+
+**REPAIRED LOCALLY; NOT DEPLOYED.** The CLI-generated forward migration
+`20261016235338_sim_setup_instant_settlement.sql` completes the existing October
+16 repairs. Instant submission requires a funded hold bound to the actual payer,
+wallet, USD amount, purpose, execution/setup reference, owned line and current
+funding allocations. The marker commits before purchase; delivery capture checks
+the same binding and an identical provider identity on retries. Setup fee capture,
+plan receipt and supported schedules finalize atomically; the initial refill's
+existing ledger capture is adopted, never charged again. Legacy version-0 or
+unproven delivered reservations require reconciliation.
+
+The authoritative instant worker uses `fail_instant_refill_before_submission`
+instead of releasing from a stale snapshot. Unknown submission/settlement states
+retain their reservations and cannot downgrade already delivered work. Setup
+release, cancellation and fallback serialize with submission through the setup
+order/execution/wallet locks. Standard fallback still calls the pending
+`membership_fee_usd` interface; free fallback retains a notify schedule.
+
+One `finalize_sim_setup_order(uuid,uuid DEFAULT NULL)` API remains after a
+RESTRICT drop of the obsolete text overload. Owner and matching line checks
+precede completed/failed returns. Actual PostgREST resolution awaits authorized
+rollout and schema-cache refresh. Task 18 must certify final setup/fallback
+pricing; Task 10 must extend this reservation contract to scheduled refill work.
+See `docs/reviews/sim-setup-instant-settlement-20261017.md` for evidence and gates.
+
+## Scheduled-refill reservations — Task 10, 2026-10-17
+
+**REPAIRED LOCALLY; NOT DEPLOYED.** Forward migration
+`20261017164417_scheduled_refill_worker_contracts.sql` adds service-only atomic
+prepare/begin/settle/stop contracts for mini/custom wallet-funded API executions.
+Submission requires a bound, exact-price, active/unexpired, version-1 USD hold,
+matching payer/wallet/owned line/purpose/reference and valid funding allocations.
+Preparation calls canonical fees explicitly: the production fee trigger runs on
+INSERT only. The supplier route and reservation snapshot commit before purchase.
+Settlement revalidates that snapshot and captures once with provider identity and
+PIN/serial/redemption persistence. Unsupported external/unproven prepaid funding
+does not receive hold-free success. Unknown outcomes retain money for Task 11.
+
+Both old `update_execution_status` overloads are retired with RESTRICT, but the
+VM's legacy instant worker still calls them. Pause and replace it with Task 9's
+compatible instant worker alongside both scheduled workers before retiring the
+API. Isolated SQL, independent-session races and real PostgREST 16.4 HTTP checks
+pass; production versions/cache/provider checks remain open. The existing retained
+wallet-migration manifest hash differs from its already-staged source and must be
+reviewed for release reproducibility; Task 10 did not edit that migration.
+See `docs/reviews/scheduled-refill-holds-worker-contracts-20261017.md`.
+
+## Supplier outcome recovery — Task 11, 2026-10-18
+
+**REPAIRED LOCALLY; NOT DEPLOYED.** Forward migration
+`20261017190000_supplier_outcome_recovery.sql` records stable supplier references
+and reservation/route bindings atomically with the Tasks 9/10 submission markers.
+A new authoritative background worker performs lookups only, with bounded leases,
+backoff and operator quarantine. Confirmed delivery captures once and finalizes
+setup without an app reopen; confirmed terminal failure releases once. Missing,
+conflicting, pending or unknown evidence retains money. Calls/payouts are never
+released from expiry alone. Existing executions remain recovery version 0; direct
+clients cannot manufacture the trusted version/marker. Do not bulk promote legacy
+rows. The reaper quarantines uncertainty in place and new submissions block
+unresolved sibling supplier work on the same line under the payer wallet lock.
+Reaper/expiry allow the actual postgres cron caller plus service_role; claim and
+completion APIs remain service-only. Compatible workers, provider-account proof,
+legacy review and coordinated release are required before activation. See
+`docs/reviews/supplier-outcome-recovery-20261018.md` for evidence and gates.
+
+## Liveness verification repair (local, undeployed — 2026-10-18)
+
+Task 12's `20261017201740_liveness_verification_contract.sql` closes legacy
+`confirm_line_verification` and `settle_line_verification_attempt` APIs. New
+`begin_line_verification`, `bind_line_verification_resource` and
+`settle_line_verification_event` are service-only. Attempts/allowances are
+customer-read-only under existing ownership RLS; an invoker trigger prevents
+client insert/update of provider verification fields, including power-user
+clients. Settlement binds provider event/method/resource to the current owned
+line and exact wallet hold or annual allowance; health ignores log prose.
+The matching Edge/shared callback and both clients are part of the release.
+The live check still permits self-confirmation and lacks the verification debit
+CHECK value/new APIs. This local work does not certify deployment. Read
+`docs/reviews/liveness-verification-repair-20261018.md` before activation.
+
+
+## Calling budget contract — Task 13, 2026-10-18
+
+**REPAIRED LOCALLY; NOT DEPLOYED.** Forward migration
+`20261017203115_call_budget_contract.sql` adds atomic service-only call creation,
+funded tariff/fee/increment/duration snapshots, durable per-leg submission markers,
+provider evidence and serialized capped settlement. Wallet locks prevent distinct
+calls sharing allocations; retries adopt the original call without resubmission.
+Unknown terminations retain money. Late destination bridge evidence can settle
+stored terminal evidence; the app leg alone cannot release a submitted destination.
+Legacy calls are quarantined instead of directly debiting unreserved funds.
+The live check still lacks this API/columns and required Task 4/7 migration versions.
+Release with matching make-call, both call-media bundles, telnyx-cdr/media-events
+and retail estimate changes after legacy/provider review. Read
+`docs/reviews/call-budget-billing-20261018.md` for tests and recovery/release gates.

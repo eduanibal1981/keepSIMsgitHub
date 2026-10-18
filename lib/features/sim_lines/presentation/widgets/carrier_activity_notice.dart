@@ -42,11 +42,8 @@ class CarrierActivityNotice extends StatelessWidget {
 
   /// Whether a Premium plan can be honestly sold for this carrier at all.
   ///
-  /// The server refuses to queue refills for `usage_required` carriers
-  /// (KS422 in `queue_premium_refill_executions`). Charging first and
-  /// discovering that afterwards is the charged-but-no-line failure this
-  /// codebase has already paid for once, so callers must gate the purchase on
-  /// this rather than let the RPC be the thing that says no.
+  /// Server setup quotes and validated schedule mutations reject carriers that
+  /// require human usage. Surface that limit before the customer pays.
   static bool blocksPremium(CarrierRule? rule) =>
       rule != null && rule.requiresHumanUsage;
 

@@ -14,7 +14,8 @@ part 'return_trip_wizard_controller.g.dart';
 
 class ReturnTripWizardState {
   final String simLineId;
-  final int currentStep; // 0: Date, 1: Connectivity Check, 2: Package, 3: Confirmation
+  final int
+  currentStep; // 0: Date, 1: Connectivity Check, 2: Package, 3: Confirmation
   final DateTime? arrivalDate;
   final bool isAlreadyArrived;
   final bool isCheckingEsim;
@@ -91,18 +92,23 @@ class ReturnTripWizardController extends _$ReturnTripWizardController {
       final existingTrip = await repo.getActiveTripForLine(simLineId);
 
       // Check hardware capability
-      final isSupported = await ref.read(esimCapabilityServiceProvider.future).catchError((_) => false);
+      final isSupported = await ref
+          .read(esimCapabilityServiceProvider.future)
+          .catchError((_) => false);
 
       ReturnTripPackage? preselected;
       if (existingTrip?.chosenPackageId != null) {
-        preselected = pkgs.where((p) => p.id == existingTrip!.chosenPackageId).firstOrNull;
+        preselected = pkgs
+            .where((p) => p.id == existingTrip!.chosenPackageId)
+            .firstOrNull;
       }
       if (preselected == null) {
         if (isSupported) {
           preselected = pkgs.firstOrNull;
         } else {
           // If no eSIM hardware, preselect the top physical SIM package
-          preselected = pkgs.where((p) => !p.isEsim).firstOrNull ?? pkgs.firstOrNull;
+          preselected =
+              pkgs.where((p) => !p.isEsim).firstOrNull ?? pkgs.firstOrNull;
         }
       }
 
@@ -112,12 +118,18 @@ class ReturnTripWizardController extends _$ReturnTripWizardController {
       final simLines = ref.read(simLinesControllerProvider).value ?? [];
       final currentLine = simLines.where((l) => l.id == simLineId).firstOrNull;
       final countries = ref.read(supportedCountriesProvider).value ?? [];
-      final country = countries.where((c) => c.id == currentLine?.countryId).firstOrNull;
+      final country = countries
+          .where((c) => c.id == currentLine?.countryId)
+          .firstOrNull;
       final lineIso = country?.isoCode.trim().toUpperCase();
       final isUserInCountry = lineIso != null && userIso == lineIso;
 
-      final initialArrivalDate = existingTrip?.arrivalDate ??
-          (isUserInCountry ? DateTime.now() : state.arrivalDate ?? DateTime.now().add(const Duration(days: 7)));
+      final initialArrivalDate =
+          existingTrip?.arrivalDate ??
+          (isUserInCountry
+              ? DateTime.now()
+              : state.arrivalDate ??
+                    DateTime.now().add(const Duration(days: 7)));
       final initialIsAlready = existingTrip != null ? false : isUserInCountry;
 
       state = state.copyWith(
@@ -152,7 +164,7 @@ class ReturnTripWizardController extends _$ReturnTripWizardController {
 
   Future<void> runConnectivityCheck() async {
     state = state.copyWith(isCheckingEsim: true, clearError: true);
-    
+
     // Simulate smooth scanning cadence for rich UX
     await Future.delayed(const Duration(milliseconds: 600));
 
@@ -179,10 +191,7 @@ class ReturnTripWizardController extends _$ReturnTripWizardController {
   }
 
   void selectPackage(ReturnTripPackage pkg) {
-    state = state.copyWith(
-      selectedPackage: pkg,
-      clearError: true,
-    );
+    state = state.copyWith(selectedPackage: pkg, clearError: true);
   }
 
   void nextStep() {
@@ -210,9 +219,7 @@ class ReturnTripWizardController extends _$ReturnTripWizardController {
     }
   }
 
-  Future<bool> confirmTrip({
-    required String destinationCountryId,
-  }) async {
+  Future<bool> confirmTrip({required String destinationCountryId}) async {
     if (state.arrivalDate == null) {
       state = state.copyWith(errorMessage: 'Please select an arrival date');
       return false;
@@ -228,6 +235,7 @@ class ReturnTripWizardController extends _$ReturnTripWizardController {
         status: 'data_ready',
         chosenPackageType: state.selectedPackage?.packageType,
         chosenPackageId: state.selectedPackage?.id,
+        expectedPriceUsd: state.selectedPackage?.effectivePriceUsd,
         notes: state.isAlreadyArrived ? 'Arrived prior to configuration' : null,
       );
 

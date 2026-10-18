@@ -1,0 +1,52 @@
+{
+  "tables": [
+    "alert_settings",
+    "notification_channel_catalog",
+    "notification_channels",
+    "notification_dispatch_jobs",
+    "notification_deliveries",
+    "notification_channel_targets",
+    "notifications",
+    "sim_line_alert_clock_states",
+    "system_configs",
+    "system_alerts",
+    "countries",
+    "carriers",
+    "carrier_rules",
+    "sim_lines",
+    "profiles",
+    "topup_executions",
+    "scheduled_topups",
+    "wallets",
+    "wallet_holds",
+    "line_activity_log",
+    "user_preferences"
+  ],
+  "functions": {
+    "emit_upcoming_refill_low_balance_reminders": "f090caef589f2d37e7d0de127836ad9e7c704d2bfa9e1c0c06d61bbab4946e99",
+    "process_due_notifications": "de3a42bbd90d0775966960501451c350c211416b3615093aab0a7120a0f97206",
+    "emit_missing_recharge_date_reminders": "f9c86b9df6bf723a2477995d8bc24d0676730b965c24d177e428fc5056710eb7",
+    "emit_urgent_deactivation_alerts": "e012f0cc6ee66f88a4e177df76fd8e04914a90c399f6850fa0a38edb9fdecda1",
+    "notification_channel_eligible": "3b847fa6407efd25bb75b32fa10ccf3ca019c202c9f432d9bdd7b8c16a05b6bf",
+    "trg_fn_dispatch_notification": "d49147bdbff83ed3cb24c967af78089c170cd19e1af688f8190664a791c54482",
+    "trg_fn_notify_system_alert": "46fc34abb368fd4c1226c57e641ff9731408ac3ea5ad07e3bbddb4314461351b",
+    "calculate_sim_line_alert_clock": "9708b67bbd16f355dcf6a0588bb826083b3e189160dabd41e2f2ccffbe07f885",
+    "sync_all_sim_line_alert_clocks": "19fe4cdbac05f6de321fabfc04a171fa0970118f098878137359f99e55acd6f4",
+    "claim_notification_dispatch_jobs": "bc6612d6994b3fd084f0efa975ff6053af673e3b96c21ced3d6f4645e61ab9e1",
+    "finish_notification_dispatch_job": "417558ee028dd26a6c5916409b25e65b0437addf1fa6f1e9d6007f9ade77d401",
+    "claim_notification_channel_target": "2345c48de4d4a41b0f526f024c383dadb3452b0777371e8db61aa07b05ce26e7",
+    "finish_notification_channel_target": "86c2cc4a7dc022275803a11f059b5b8c922478195668446e30bf3e991520188d"
+  },
+  "omitted_foreign_keys": [
+    {
+      "name": "topup_executions_payment_gateway_code_fkey",
+      "table": "topup_executions",
+      "definition": "FOREIGN KEY (payment_gateway_code) REFERENCES payment_gateways(code)"
+    }
+  ],
+  "included_triggers": [
+    "trg_on_notification_created",
+    "trg_notify_system_alert"
+  ],
+  "limits": "No Supabase Auth lifecycle, API table ACL/RLS parity, unrelated triggers, cron extension or external delivery. Scheduler executes the recorded postgres SQL entry point in isolated native PostgreSQL."
+}

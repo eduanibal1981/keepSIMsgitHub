@@ -36,7 +36,6 @@ import '../../../sim_lines/data/models/carrier_rule_model.dart';
 import 'package:keep_sims/core/providers.dart';
 import 'package:keep_sims/core/providers/app_config_provider.dart';
 import 'package:keep_sims/features/sim_lines/domain/plan_payment.dart';
-import 'package:keep_sims/features/sim_lines/domain/refill_pricing.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/carrier_activity_notice.dart';
 import 'package:keep_sims/features/sim_lines/presentation/widgets/carrier_rules_sheet.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_liveness_result.dart';
@@ -626,19 +625,18 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   /// `system_configs.BASE_SERVICE_FEE_USD` (C3c) — one row, no app update.
   /// Safe to call during build(); _submit() awaits the real row before
   /// charging anything.
-  double get _baseServiceFeeUsd =>
-      ref.watch(baseServiceFeeUsdProvider).value ?? kDefaultBaseServiceFeeUsd;
+  double? get _baseServiceFeeUsd => ref.watch(baseServiceFeeUsdProvider).value;
 
   /// `$2.50/yr`-style label used across the plan copy.
   String get _feePerYearLabel =>
-      '\$${_baseServiceFeeUsd.toStringAsFixed(2)}/yr';
+      '\$${_baseServiceFeeUsd?.toStringAsFixed(2) ?? '…'}/yr';
 
   /// Premium quoting/charging is shared with the add-line form and upgrade
   /// sheet via [PlanPayment] — three screens, one price.
-  double _premiumRefillPriceSync(CarrierRule rule) =>
+  double? _premiumRefillPriceSync(CarrierRule rule) =>
       PlanPayment.premiumRefillPriceSync(ref, rule);
 
-  double _premiumYearlyTotalSync(CarrierRule rule) =>
+  double? _premiumYearlyTotalSync(CarrierRule rule) =>
       PlanPayment.premiumYearlyTotalSync(ref, rule);
 
   Future<double> _premiumYearlyTotal(CarrierRule rule) =>
@@ -697,7 +695,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 .read(simLinesRepositoryProvider)
                 .getCarrierRule(_selectedSimCarrier!.id);
             if (rule != null) {
-              // i7: last gate before payment. queue_premium_refill_executions
+              // i7: last gate before payment. the server schedule mutation
               // raises KS422 for these carriers, and by the time it does, the
               // yearly charge has already been taken — the charged-but-no-line
               // shape this codebase has paid for before. Refuse here instead.
@@ -741,18 +739,15 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     ? DateTime.now()
                     : null,
               );
-        } on PremiumRefillQueueException catch (e) {
-          // The line exists and the plan is paid for — only the pre-paid
-          // refills are missing. Falling through to completeOnboarding is
-          // deliberate: returning here would leave the account stuck on the
-          // onboarding screen with a line it has already been charged for.
+        } on ScheduleInitializationException catch (e) {
+          // The saved plan must not be charged again during schedule review.
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
-                  'Your SIM is protected and your payment was recorded, but the '
-                  'automatic refills could not be scheduled: $e\n'
-                  'Please contact support — do not pay again.',
+                  'Your plan was saved, but the '
+                  'refill settings need review: $e\n'
+                  'Do not pay for the plan again.',
                 ),
                 backgroundColor: AppColors.warning,
                 duration: const Duration(seconds: 12),
@@ -1977,7 +1972,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       ? 'Free Plan (\$0)'
                       : (selectedTier == 'standard'
                             ? 'Standard Plan ($_feePerYearLabel)'
-                            : 'Premium Plan ($_feePerYearLabel + Refill)'),
+                            : 'Premium Plan (annual membership + first refill)'),
                   icon: Icons.shield_rounded,
                   valueColor: selectedTier == 'free'
                       ? Colors.blueAccent
@@ -2496,12 +2491,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       } else if (premiumRule != null) {
         // The whole year is charged once, up front — the old copy read as though
         // each refill were billed separately.
-        final cur = premiumRule.inappPricingCurrency.toUpperCase();
+        const cur = 'USD';
         billingDesc =
-            'Fully automated top-ups. ${_premiumYearlyTotalSync(premiumRule).toStringAsFixed(2)} $cur charged once for the year — '
-            '\$${_baseServiceFeeUsd.toStringAsFixed(2)} service plus '
-            '${premiumRule.refillsPerYear} refills of '
-            '${_premiumRefillPriceSync(premiumRule).toStringAsFixed(2)} $cur, one every ${premiumRule.refillIntervalDays} days.';
+            'Initial Premium charge: ${_premiumYearlyTotalSync(premiumRule)?.toStringAsFixed(2) ?? '…'} $cur, '
+            'including the annual membership and first refill. Future refills are '
+            'charged to your wallet when due, every ${premiumRule.refillIntervalDays} days.';
         billingRate = '$_feePerYearLabel + Refill';
       } else {
         billingDesc =
@@ -2579,12 +2573,15 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       ),
                     ),
                     if (isStandard)
-                      ApproxLocalText(_baseServiceFeeUsd)
-                    else if (isPremium &&
-                        premiumRule != null &&
-                        !isPremiumLoading &&
-                        !CarrierActivityNotice.blocksPremium(premiumRule))
-                      ApproxLocalText(_premiumYearlyTotalSync(premiumRule)),
+                      if (_baseServiceFeeUsd case final price?)
+                        ApproxLocalText(price)
+                      else if (isPremium &&
+                          premiumRule != null &&
+                          !isPremiumLoading &&
+                          !CarrierActivityNotice.blocksPremium(premiumRule))
+                        if (_premiumYearlyTotalSync(premiumRule)
+                            case final price?)
+                          ApproxLocalText(price),
                   ],
                 ),
               ),
@@ -2860,7 +2857,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       title = 'Premium Plan';
       icon = Icons.workspace_premium_rounded;
       accentColor = const Color(0xFF2E7D32); // Green
-      priceStr = '\$${_baseServiceFeeUsd.toStringAsFixed(2)}';
+      priceStr = '\$${_baseServiceFeeUsd?.toStringAsFixed(2) ?? '…'}';
       billingPeriod = '/yr per line';
       features = [
         'Everything in Standard',
@@ -2874,7 +2871,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       title = 'Standard Plan';
       icon = Icons.verified_user_rounded;
       accentColor = const Color(0xFF1565C0); // Blue
-      priceStr = '\$${_baseServiceFeeUsd.toStringAsFixed(2)}';
+      priceStr = '\$${_baseServiceFeeUsd?.toStringAsFixed(2) ?? '…'}';
       billingPeriod = '/yr per line';
       features = [
         'Push notification alerts',
@@ -3008,9 +3005,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                                     fontSize: 22,
                                   ),
                                 ),
-                                if (isPremium || isStandard)
+                                if (isStandard && _baseServiceFeeUsd != null)
                                   ApproxLocalText(
-                                    _baseServiceFeeUsd,
+                                    _baseServiceFeeUsd!,
                                     textAlign: TextAlign.end,
                                   ),
                               ],
@@ -3031,17 +3028,19 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Text(
-                                    '+ ${_premiumRefillPriceSync(premiumRule).toStringAsFixed(2)} ${premiumRule.inappPricingCurrency.toUpperCase()} refill',
+                                    '+ ${_premiumRefillPriceSync(premiumRule)?.toStringAsFixed(2) ?? '…'} USD refill',
                                     style: TextStyle(
                                       fontSize: 9,
                                       fontWeight: FontWeight.w600,
                                       color: accentColor.withValues(alpha: 0.7),
                                     ),
                                   ),
-                                  ApproxLocalText(
-                                    _premiumRefillPriceSync(premiumRule),
-                                    textAlign: TextAlign.end,
-                                  ),
+                                  if (_premiumRefillPriceSync(premiumRule)
+                                      case final price?)
+                                    ApproxLocalText(
+                                      price,
+                                      textAlign: TextAlign.end,
+                                    ),
                                 ],
                               ),
                           ],
@@ -3126,7 +3125,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
-                                  'Auto-refill: ${_premiumRefillPriceSync(premiumRule).toStringAsFixed(2)} ${premiumRule.inappPricingCurrency.toUpperCase()} every ${premiumRule.refillIntervalDays} days (telecom, VAT included)',
+                                  'Auto-refill: ${_premiumRefillPriceSync(premiumRule)?.toStringAsFixed(2) ?? '…'} USD every ${premiumRule.refillIntervalDays} days (telecom, VAT included)',
                                   style: AppTextStyles.caption.copyWith(
                                     color: context.onSurfaceColor.withValues(
                                       alpha: 0.7,

@@ -51,6 +51,8 @@ Feature inventory:
 
 The source contains 19 feature directories. Always inspect the router and feature folder rather than trusting this summary for individual screens.
 
+Calling navigation (2026-10-15): `SmartCallDashboardScreen` opens `CallReviewSheet` for international number entry/review. `/calling/recent` hosts `CallHistoryScreen`; redial uses the same review. `/calling/dialer` is a compatibility redirect to history. The old `calling_screen.dart` and its standalone dialpad were removed; active-call DTMF remains in `active_call_screen.dart`.
+
 ## Admin application
 
 Key entry points:

@@ -28,6 +28,8 @@ part 'auth_controller.g.dart';
 /// - `AsyncError` → something went wrong
 @riverpod
 class AuthController extends _$AuthController {
+  bool _appleSignInInProgress = false;
+
   @override
   FutureOr<UserProfile?> build() async {
     final repo = ref.read(authRepositoryProvider);
@@ -35,7 +37,8 @@ class AuthController extends _$AuthController {
     // Listen to auth state changes and invalidate self, skipping the initial
     // event emitted synchronously upon subscribing to prevent infinite loops.
     final sub = repo.authStateChanges.distinct().skip(1).listen((_) {
-      ref.invalidateSelf();
+      // Apple sends signedIn before its one-time name has been saved.
+      if (!_appleSignInInProgress) ref.invalidateSelf();
     });
 
     // Clean up the subscription when the provider is disposed
@@ -128,6 +131,29 @@ class AuthController extends _$AuthController {
           return;
         }
         state = AsyncValue.error(f.message, StackTrace.current);
+    }
+  }
+
+  /// Sign in with Apple, keeping the login screen busy until profile setup ends.
+  Future<void> signInWithApple() async {
+    if (state.isLoading) return;
+    _appleSignInInProgress = true;
+    state = const AsyncValue.loading();
+    try {
+      final result = await ref.read(authRepositoryProvider).signInWithApple();
+      if (!ref.mounted) return;
+      switch (result) {
+        case Success():
+          ref.invalidateSelf();
+        case Failure(error: final f):
+          if (f.message == 'Sign-in canceled.') {
+            state = const AsyncValue.data(null);
+          } else {
+            state = AsyncValue.error(f.message, StackTrace.current);
+          }
+      }
+    } finally {
+      _appleSignInInProgress = false;
     }
   }
 

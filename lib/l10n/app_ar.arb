@@ -1,28 +1,28 @@
 {
-    "@@locale":  "ar",
+    "@@locale": "ar",
     "dashboardKeepSimActive": "أبقِ شريحتك نشطة",
     "dashboardProtectSimLines": "احمِ خطوط شرائحك",
-    "dashboardManageReminders": "إدارة التذكيرات وإعادة الشحن",
+    "dashboardManageReminders": "التنبيهات والشحن في مكان واحد",
     "dashboardManageSims": "إدارة الشرائح",
     "dashboardSimLineCount": "{count, plural, zero{لا توجد خطوط شرائح} one{خط شريحة واحد} two{خطّا شريحتين} few{{count} خطوط شرائح} many{{count} خط شريحة} other{{count} خط شريحة}}",
     "dashboardNewFeature": "جديد",
     "dashboardWorldwideEsims": "شرائح eSIM عالمية",
-    "dashboardExploreSmartCall": "اكتشف الاتصال الذكي",
-    "dashboardExploreGlobalOffers": "اكتشف العروض العالمية",
+    "dashboardExploreSmartCall": "أجرِ مكالمات دولية",
+    "dashboardExploreGlobalOffers": "بيانات الهاتف للسفر",
     "dashboardAddSims": "إضافة شرائح",
-    "appName":  "KeepSIMs",
-    "preferencesAndSecurity":  "التفضيلات والأمان",
-    "appAppearance":  "مظهر التطبيق",
-    "systemTheme":  "النظام",
-    "darkMode":  "الوضع الداكن",
-    "lightMode":  "الوضع الفاتح",
-    "localizationAndRegional":  "اللغة والمنطقة",
-    "appLanguage":  "لغة التطبيق",
-    "currentlyUsing":  "تستخدم حالياً {langName}",
-    "selectAppLanguage":  "اختر لغة التطبيق",
-    "securityAndAccessLock":  "الأمان وقفل الوصول",
-    "biometricSecurity":  "البصمة البيومترية",
-    "biometricDesc":  "تسجيل الدخول باستخدام الوجه أو البصمة",
+    "appName": "KeepSIMs",
+    "preferencesAndSecurity": "التفضيلات والأمان",
+    "appAppearance": "مظهر التطبيق",
+    "systemTheme": "النظام",
+    "darkMode": "الوضع الداكن",
+    "lightMode": "الوضع الفاتح",
+    "localizationAndRegional": "اللغة والمنطقة",
+    "appLanguage": "لغة التطبيق",
+    "currentlyUsing": "تستخدم حالياً {langName}",
+    "selectAppLanguage": "اختر لغة التطبيق",
+    "securityAndAccessLock": "الأمان وقفل الوصول",
+    "biometricSecurity": "البصمة البيومترية",
+    "biometricDesc": "تسجيل الدخول باستخدام الوجه أو البصمة",
     "biometricReasonPayment": "المصادقة لتأكيد الدفع",
     "biometricReasonUnlock": "المصادقة لفتح KeepSIMs",
     "biometricLockout": "تم قفل المصادقة البيومترية بسبب كثرة المحاولات الخاطئة. يرجى استخدام رمز المرور للجهاز.",
@@ -30,631 +30,631 @@
     "biometricAppLockTitle": "KeepSIMs مقفل",
     "biometricUnlockButton": "فتح باستخدام البصمة",
     "biometricCancel": "إلغاء",
-    "transactionPin":  "رمز PIN للعمليات",
-    "transactionPinDesc":  "تأمين التجديدات والسحوبات",
-    "setup":  "إعداد",
-    "pinSuccess":  "تم تحديث رمز PIN بنجاح!",
-    "pinMismatch":  "رمز PIN غير متطابق. حاول مرة أخرى!",
-    "pinActiveAndSecure":  "إعداد PIN نشط وآمن",
-    "automatedSummaryAndAlerts":  "الملخص التلقائي والتنبيهات",
-    "weeklyDigest":  "الملخص الأسبوعي",
-    "welcomeBack":  "مرحباً بعودتك",
-    "nextNotify":  "التنبيه القادم",
-    "days":  "أيام",
-    "showingNearestLine":  "عرض الخط الأقرب",
-    "addSim":  "إضافة شريحة",
-    "linesToProtect":  "الخطوط المحمية",
-    "active":  "نشط",
-    "upgrade":  "ترقية",
-    "standard":  "أساسي",
-    "autoNotify":  "تنبيه تلقائي",
-    "configure":  "إعداد",
-    "autoRefill":  "شحن تلقائي",
-    "quickActions":  "إجراءات سريعة",
-    "navHome":  "الرئيسية",
-    "navSims":  "الشرائح",
-    "navMore":  "المزيد",
-    "protectedSims":  "الشرائح المحمية",
-    "mySimCards":  "شرائحي",
-    "familySharedSims":  "شرائح العائلة المشتركة",
-    "protectAnotherSimLine":  "حماية خط شريحة آخر",
-    "keepInfiniteNumbersAlive":  "حافظ على عدد غير محدود من الأرقام الدولية نشطة",
-    "bulkActionsConsole":  "وحدة التحكم في الإجراءات الجماعية",
-    "resume":  "استئناف",
-    "pause":  "إيقاف مؤقت",
-    "simulate":  "محاكاة",
-    "noProtectedLines":  "لا توجد خطوط محمية",
-    "noInternationalSimsAdded":  "ليس لديك أي شرائح دولية مضافة بعد. قم بحماية شريحتك الأولى الآن لإبقائها نشطة إلى الأبد.",
-    "protectNewLine":  "حماية خط جديد",
-    "noSharedSimsYet":  "لا توجد شرائح مشتركة بعد",
-    "inviteFamilyMembers":  "قم بدعوة أفراد العائلة للانضمام إلى أسرتك. بمجرد قبولهم، ستظهر خطوط الشرائح المحمية الخاصة بهم هنا للمراقبة التعاونية.",
-    "manageHousehold":  "إدارة الأسرة",
-    "manageProfileDesc":  "إدارة ملفك الشخصي، وخطوط الشرائح، والتنبيهات، والتفضيلات المشتركة",
-    "keepSIMsUser":  "مستخدم KeepSIMs",
-    "pro":  "محترف",
-    "homeCountry":  "البلد الأم: ",
-    "console":  "وحدة التحكم",
-    "offlineRefill":  "تعبئة الرصيد دون اتصال (SMS/WA)",
-    "refillSimOfflineDesc":  "تعبئة رصيد الشريحة دون اتصال عبر رسائل SMS أو واتساب",
-    "wallet":  "المحفظة",
-    "manageBalancesDesc":  "إدارة أرصدتك وعرض سجل المعاملات",
-    "alertPreferences":  "تفضيلات التنبيهات",
-    "togglePushEmailDesc":  "تبديل إعدادات التنبيهات الفورية والبريد الإلكتروني للتجديدات/الأرصدة",
-    "referAndEarn":  "أحِل واكسب",
-    "shareKeepSIMsDesc":  "شارك KeepSIMs وافتح مكافآت الرصيد المتغيرة",
-    "paymentMethods":  "طرق الدفع",
-    "addBankCardsDesc":  "أضف بطاقات بنكية أو اربط حسابات السحب الآلي",
-    "travelAndGeolocation":  "السفر والموقع الجغرافي",
-    "manageHomeCountryDesc":  "إدارة قواعد التجميد في البلد الأم ووضع السفر",
-    "dataAndPrivacy":  "البيانات والخصوصية",
-    "manageTrackingConsentDesc":  "إدارة موافقتك على التتبع، تصدير البيانات، أو حذف الحساب",
-    "powerUser":  "مستخدم متقدم",
-    "accessSystemSimulatorsDesc":  "الوصول إلى محاكيات النظام وأدوات التصحيح",
-    "testChecklist":  "قائمة اختبار التحقق",
-    "manualUiTestingDesc":  "قائمة التحقق اليدوية لاختبار واجهة المستخدم لضمان الجودة",
-    "soon":  "قريباً",
-    "featureComingSoon":  "ميزة {feature} قادمة قريباً!",
-    "logOut":  "تسجيل الخروج",
-    "confirmLogOut":  "هل أنت متأكد من أنك تريد تسجيل الخروج من KeepSIMs؟",
-    "walletLedger":  "سجل المحفظة",
-    "keepSIMsPrepaid":  "KeepSIMs مسبق الدفع",
-    "offlineMode":  "وضع دون اتصال",
-    "activeBalance":  "الرصيد النشط",
-    "criticalBalanceLevel":  "مستوى الرصيد حرج",
-    "balanceBelow10":  "رصيدك أقل من 10.00$. قد تفشل عمليات شحن الشرائح المجدولة قريباً.",
-    "depositFunds":  "إيداع الأموال",
-    "walletDepositsRequireInternet":  "تتطلب عمليات إيداع المحفظة اتصالاً نشطاً بالإنترنت.",
-    "exportLedger":  "تصدير السجل",
-    "ledgerHistoryExported":  "تم تصدير سجل المعاملات كملف CSV.",
-    "spendAnalysis":  "تحليل الإنفاق",
-    "transactionHistory":  "سجل المعاملات",
-    "itemsCount":  "{count} عناصر",
-    "noTransactionsRecorded":  "لم يتم تسجيل أي معاملات بعد.",
-    "prepaidMonthlyOutflow":  "الإنفاق الشهري مسبق الدفع",
-    "avgMonthlySpend":  "المتوسط: ${amount}/شهر (12 شهر)",
-    "depositViaCard":  "إيداع عبر بطاقة تنتهي بـ {last4}",
-    "lineRenewal":  "تجديد الخط",
-    "justNow":  "الآن",
-    "loadCreditFunds":  "تحميل رصيد",
-    "depositAmountUsd":  "مبلغ الإيداع (بالدولار)",
-    "pleaseEnterAmount":  "الرجاء إدخال المبلغ",
-    "enterPositiveNumber":  "أدخل رقماً موجباً",
-    "cardDetails":  "تفاصيل البطاقة",
-    "savedCards":  "البطاقات المحفوظة",
-    "visaCardNumber":  "رقم بطاقة فيزا",
-    "pleaseEnterCardNumber":  "الرجاء إدخال رقم البطاقة",
-    "mustBe16Digits":  "يجب أن يكون 16 رقماً",
-    "expiryMmYy":  "الانتهاء (شهر/سنة)",
-    "expiryRequired":  "تاريخ الانتهاء مطلوب",
-    "invalid":  "غير صالح",
-    "cvv":  "رمز التحقق (CVV)",
-    "cvvRequired":  "رمز التحقق مطلوب",
-    "verifyingCardSecurity":  "جاري التحقق من أمان البطاقة...",
-    "authorizeDepositFunds":  "تفويض إيداع الأموال",
-    "successfullyDeposited":  "تم إيداع ${amount} دولار بنجاح!",
-    "failedToDepositFunds":  "فشل إيداع الأموال. يرجى التحقق من اتصال البطاقة.",
-    "noSavedPaymentMethods":  "لم يتم العثور على طرق دفع محفوظة.",
-    "addPaymentMethod":  "إضافة طريقة دفع",
-    "savedPaymentMethods":  "طرق الدفع المحفوظة",
-    "addAnotherPaymentMethod":  "إضافة طريقة دفع أخرى",
-    "expiresMmYy":  "ينتهي في {month}/{year}",
-    "offlineRefillTitle":  "تعبئة الرصيد دون اتصال (SMS/WA)",
-    "selectTargetSimLine":  "اختر خط الشريحة المستهدف",
-    "noRegisteredSimLines":  "لم يتم العثور على أي خطوط شرائح مسجلة.",
-    "targetSimLine":  "خط الشريحة المستهدف",
-    "simLine":  "خط الشريحة",
-    "carrier":  "شركة الاتصالات",
-    "change":  "تغيير",
-    "offlineRefillProtection":  "حماية تعبئة الرصيد دون اتصال",
-    "premiumExclusive":  "حصري لـ بريميوم",
-    "neverGetStrandedDesc":  "لن تنقطع أبداً بدون بيانات الجوال مرة أخرى. يتيح لك KeepSIMs بريميوم تعبئة رصيد شريحتك دون اتصال بالإنترنت عبر رسائل SMS المحلية أو واتساب عند انقطاع الاتصال بالإنترنت تماماً.",
-    "offlineCapability100":  "إمكانية العمل بنسبة 100% دون اتصال",
-    "deductsFromKeepSIMsDesc":  "يخصم من محفظة KeepSIMs الخاصة بك لإضافة رصيد لخطك عبر بوابات رسائل SMS المحلية الاحتياطية.",
-    "dynamicUssdPlanActivation":  "تفعيل خطط USSD الديناميكي",
-    "exactCopyPasteDialCodesDesc":  "يوفر أكواد اتصال دقيقة يمكن نسخها ولصقها (مثل *900*1#) لتفعيل باقات البيانات والمكالمات دون اتصال.",
-    "dualChannelSupport":  "دعم ثنائي القنوات",
-    "textRefillDesc":  "أرسل كلمة \"REFILL\" باستخدام رسائل SMS القياسية أو واتساب بناءً على تغطية الشبكة الخلوية المتاحة.",
-    "close":  "إغلاق",
-    "howToTriggerOfflineRefill":  "كيفية تفعيل التعبئة دون اتصال",
-    "ifZeroMobileDataDesc1":  "إذا لم يكن لديك بيانات جوال، أرسل رسالة SMS قياسية أو رسالة واتساب تحتوي فقط على ",
-    "refill":  "REFILL",
-    "toOurSecureGatewayDesc2":  " إلى بوابتنا الآمنة للنظام:",
-    "targetSimLineLabel":  "خط الشريحة المستهدف",
-    "configureCashRefillAmount":  "إعداد مبلغ تعبئة الرصيد",
-    "refillAmount":  "مبلغ التعبئة",
-    "walletBalanceUsd":  "رصيد المحفظة: ${amount} دولار",
-    "lowBalanceWarning":  "⚠️ رصيد منخفض",
-    "localCarrierPlanSuggestions":  "اقتراحات باقات شركات الاتصالات المحلية",
-    "noStandardUssdDialCodes":  "لم يتم العثور على أكواد USSD قياسية لشركة الاتصالات هذه. ستظل تتلقى رصيد التعبئة بنجاح على خطك.",
-    "dynamicDialCodesPreview":  "معاينة أكواد الاتصال الديناميكية",
-    "botSuggestDialingCodes":  "بعد اكتمال التعبئة دون اتصال، سيقترح البوت الاتصال بهذه الأكواد الدقيقة على هاتفك لفتح البيانات والمكالمات فوراً دون اتصال:",
-    "costAmount":  "التكلفة: ${amount}",
-    "whatsappSmsSenderOverride":  "تجاوز رقم مرسل رسائل واتساب/SMS",
-    "verificationNumber":  "رقم التحقق",
-    "triggerRefillsDifferentNumber":  "إذا قمت بتفعيل التعبئة من رقم مختلف عن هاتف ملفك الشخصي الأساسي، أدخله أدناه مع رمز الدولة (مثل 96891234567).",
-    "enterPhoneNumberDigits":  "أدخل رقم الهاتف (أرقام فقط)",
-    "offlineRefillSettingsSaved":  "تم حفظ إعدادات تعبئة الرصيد دون اتصال بنجاح!",
-    "saveSettings":  "حفظ الإعدادات",
-    "errorLoadingSettings":  "خطأ في تحميل الإعدادات: {error}",
-    "retry":  "إعادة المحاولة",
-    "editProtectedLine":  "تعديل الخط المحمي",
-    "saveChanges":  "حفظ التغييرات",
-    "activateShieldProtection":  "تفعيل حماية الدرع",
-    "phoneNumber":  "رقم الهاتف",
-    "nicknameOptional":  "الاسم المستعار (اختياري)",
-    "whatsappAlerts":  "تنبيهات واتساب",
-    "emailAlertsDesc":  "تنبيهات إيقاف التشغيل الحرجة المرسلة عبر Resend",
-    "refillWalletLow":  "إعادة تعبئة المحفظة عندما ينخفض الرصيد",
-    "legalPoliciesDesc":  "باستخدام KeepSIMs، فإنك توافق على شروطنا. توفر KeepSIMs أدوات للمساعدة في إدارة دورة حياة شريحتك، ولكننا لسنا مسؤولين عن أي خسائر مباشرة أو غير مباشرة أو أضرار أو انقطاع في الخدمة تسببه شركات الاتصالات الخارجية.",
-    "globalTravelModeDesc":  "يسمح لقواعد الجدار الجغرافي التلقائية بتنشيط إجراءات عبور الحدود",
-    "dataPreferences":  "تفضيلات البيانات",
-    "doNotDisturb":  "الرجاء عدم الإزعاج",
-    "linkedCards":  "البطاقات المرتبطة",
-    "analyticsTracking":  "التحليلات والتتبع",
-    "dubai":  "دبي",
-    "flyHome":  "العودة للوطن",
-    "managePreferencesAndSecurityDesc":  "إدارة السمة واللغة وقفل البصمة",
-    "autoFundingRulesDesc":  "حافظ على استمرار تجديد بطاقة SIM من خلال تمكين عمليات التعبئة التلقائية من بطاقتك الائتمانية الافتراضية عندما ينخفض الرصيد بشكل كبير",
-    "pushNotifications":  "إشعارات الهاتف",
-    "quietHoursSchedule":  "ساعات الهدوء والجدولة",
-    "exportMyDataDesc":  "تنزيل نسخة JSON من ملفك الشخصي وتفضيلاتك (حق الوصول بموجب GDPR)",
-    "borderSimulatorTitle":  "محاكي عبور الحدود",
-    "yourData":  "بياناتك",
-    "mostImportant":  "الأهم",
-    "emailAlerts":  "تنبيهات البريد الإلكتروني",
-    "pushNotificationsDesc":  "إشعارات أصلية فورية على هذا الجهاز",
-    "alertSettingsTitle":  "إعدادات التنبيهات",
-    "atHome":  "في الوطن",
-    "telegramBotDesc":  "إشعارات دردشة تيليجرام التفاعلية المرتبطة",
-    "alertChannels":  "قنوات التنبيه",
-    "london":  "لندن",
-    "shieldProtection":  "حماية الدرع",
-    "legalPolicies":  "القوانين والسياسات",
-    "supportVisaMastercard":  "يدعم بطاقات الدفع أو الائتمان الآمنة من فيزا وماستركارد",
-    "exportMyData":  "تصدير بياناتي",
-    "dangerZone":  "منطقة الخطر",
-    "analyticsTrackingDesc":  "ساعدنا في تحسين التطبيق من خلال مشاركة بيانات الاستخدام المجهولة. لن تتأثر وظائف التطبيق الأساسية في حال التعطيل",
-    "autoFundingRules":  "قواعد التمويل التلقائي",
-    "singapore":  "سنغافورة",
-    "weeklySummaryDigest":  "ملخص التقرير الأسبوعي",
-    "fullyShielded":  "محمي بالكامل",
-    "dndDesc":  "تؤجل التنبيهات العادية حتى انتهاء ساعات الهدوء. قد تصل تنبيهات الخط الحرجة قبل ذلك؛ وتظل إعدادات عدم الإزعاج في هاتفك سارية.",
-    "paymentsAutoFundTitle":  "المدفوعات والتمويل التلقائي",
-    "travelGeolocationTitle":  "السفر والموقع الجغرافي",
-    "telegramBot":  "بوت تيليجرام",
-    "weeklyDigestDesc":  "ملخص أسبوعي لحالة شرائح SIM كل أحد الساعة 9:00 صباحًا بالتوقيت المحلي",
-    "borderSimulatorDesc":  "محاكاة صعود الطائرة لتفعيل قواعد التجميد الذكي أو استئناف الدولة النشطة.",
-    "linkFirstCard":  "ربط بطاقتك الدفع الأولى",
-    "globalTravelMode":  "وضع السفر العالمي",
-    "readPrivacyPolicy":  "قراءة سياسة الخصوصية والشروط الكاملة",
-    "whatsappAlertsDesc":  "تنبيهات فشل إعادة التعبئة المرسلة مباشرة إلى واتساب",
-    "abroadTraveling":  "خارج البلاد / مسافر",
-    "freezeAllLines":  "تجميد كافة الخطوط",
-    "resumeRenewals":  "استئناف التجديد",
-    "freezeRecommendationDesc":  "لقد اكتشفنا أنك حالياً في بلدك الأم. يمكنك تجميد تجديد خطوطك الدولية لتجنب استهلاك رصيد المحفظة.",
-    "travelDetected":  "تم اكتشاف السفر! ✈️",
-    "resumeRecommendationDesc":  "أنت مسافر إلى الخارج. يرجى استئناف تجديد شرائح SIM الدولية لضمان تغطية مستمرة لشبكة الهاتف.",
-    "dismiss":  "تجاهل",
-    "welcomeHome":  "مرحباً بك في وطنك! 🏡",
-    "addCard":  "إضافة بطاقة",
-    "noAlertChannelsConfigured":  "لم يتم تكوين قنوات لتسليم التنبيهات.",
-    "channelSettingsUpdated":  "تم تحديث إعدادات {channelName}.",
-    "@channelSettingsUpdated":  {
-                                    "placeholders":  {
-                                                         "channelName":  {
-                                                                             "type":  "String"
-                                                                         }
-                                                     }
-                                },
-    "channelLocked":  "{channelName} مقفلة 🔒",
-    "@channelLocked":  {
-                           "placeholders":  {
-                                                "channelName":  {
-                                                                    "type":  "String"
-                                                                }
-                                            }
-                       },
-    "lockedAlertSubtitle":  "تنبيهات {channelName} هي ميزات الباقتين القياسية والمتميزة. قم بترقية باقتك لفتح تنبيهات واتساب والبريد الإلكتروني!",
-    "@lockedAlertSubtitle":  {
-                                 "placeholders":  {
-                                                      "channelName":  {
-                                                                          "type":  "String"
-                                                                      }
-                                                  }
-                             },
-    "upsellProtect5Lines":  "حماية ما يصل إلى 5 خطوط SIM في نفس الوقت",
-    "upsellUnlockChannels":  "فتح إشعارات واتساب والبريد الإلكتروني",
-    "upsellEnableTravelModes":  "تفعيل أوضاع صلاحية السفر والمنزل التلقائية",
-    "emailAddressLabel":  "عنوان البريد الإلكتروني للإشعارات",
-    "emailAddressHint":  "مثال: user@domain.com",
-    "whatsappNumberLabel":  "رقم واتساب (صيغة دولية)",
-    "whatsappNumberHint":  "مثال: +96891234567",
-    "whatsappFormatInstruction":  "أدخل الصيغة الدولية الكاملة بدءًا بـ + (مثال: +96893990492)",
-    "telegramStatusBound":  "الحالة: مرتبط (معرف الدردشة: {chatId})",
-    "@telegramStatusBound":  {
-                                 "placeholders":  {
-                                                      "chatId":  {
-                                                                     "type":  "String"
-                                                                 }
-                                                  }
-                             },
-    "telegramStatusUnbound":  "الحالة: غير مرتبط",
-    "telegramLinkInstructions":  "لتلقي تنبيهات تليجرام مجانية وتفاعلية، قم بربط بوت تليجرام الخاص بنا بحسابك.",
-    "linkTelegramBot":  "ربط بوت تليجرام",
-    "emailFreePlanGuarded":  "حماية باقة إرسال المجانية: تقتصر على محفزات إلغاء التفعيل فقط. لا يوجد بريد ترويجي مزعج.",
-    "whatsappMetaCloudCapped":  "حدود سحابة ميتا المباشرة: رسالة واحدة كحد أقصى لكل جدول تعبئة، تُرسل فقط إذا لم تكن التعبئة التلقائية مفعلة أو فشلت.",
-    "failedToLoadPaymentInfo":  "فشل تحميل معلومات الدفع",
-    "defaultCardIndicator":  "الافتراضية",
-    "cardholder":  "صاحب البطاقة",
-    "expires":  "تنتهي",
-    "lowBalanceTrigger":  "محفز الرصيد المنخفض",
-    "triggerLowTopUp":  "تفعيل التعبئة عند الانخفاض",
-    "reloadDepositAmount":  "مبلغ إعادة الشحن",
-    "amountToLoad":  "المبلغ المراد شحنه",
-    "linkCreditDebitCard":  "ربط بطاقة ائتمان/خصم مباشر",
-    "cardNumberLabel":  "رقم البطاقة",
-    "expiryDateLabel":  "تاريخ الانتهاء",
-    "cvvCodeLabel":  "رمز CVV",
-    "securelyLinkCard":  "ربط البطاقة بأمان",
-    "pleaseEnterValidCardNumber":  "يرجى إدخال رقم بطاقة صالح مكون من 16 رقمًا.",
-    "pleaseEnterValidExpiryDate":  "يرجى إدخال تاريخ انتهاء صالح (MM/YY).",
-    "invalidExpiryMonth":  "شهر الانتهاء غير صالح.",
-    "cvvMustBe3Digits":  "يجب أن يتكون رمز CVV من 3 أرقام.",
-    "cardLinkedSuccessfully":  "تم ربط بطاقة الفواتير الآمنة بنجاح!",
-    "defaultPaymentCardUpdated":  "تم تحديث بطاقة الدفع الافتراضية!",
-    "removePaymentCard":  "إزالة بطاقة الدفع",
-    "confirmRemoveCardDesc":  "هل أنت متأكد من رغبتك في إزالة هذه البطاقة؟ قد تفشل التعبئة التلقائية المرتبطة إذا لم تتبق أي بطاقة دفع افتراضية.",
-    "cancel":  "إلغاء",
-    "remove":  "إزالة",
-    "billingCardSuccessfullyRemoved":  "تمت إزالة بطاقة الفواتير بنجاح.",
-    "pleaseAddDefaultCardFirst":  "يرجى إضافة وتحديد بطاقة دفع افتراضية أولاً لتمكين التعبئة التلقائية.",
-    "autoFundPrefsSavedSuccess":  "تم حفظ تفضيلات التعبئة التلقائية بنجاح!",
-    "preparingDataExport":  "يتم تجهيز تصدير البيانات...",
-    "exportFailed":  "فشل التصدير: {error}",
-    "@exportFailed":  {
-                          "placeholders":  {
-                                               "error":  {
-                                                             "type":  "String"
-                                                         }
-                                           }
-                      },
-    "deleteAccountWarning":  "بمجرد حذف حسابك، لن يكون هناك مجال للتراجع. يرجى التأكد التام.",
-    "deleteAccount":  "حذف الحساب",
-    "deleteAccountIrreversible":  "هذا الإجراء لا رجعة فيه. سيتم مسح جميع بياناتك بشكل دائم.",
-    "typeDeleteToConfirm":  "اكتب \"DELETE\" للتأكيد:",
-    "deleteWord":  "DELETE",
-    "systemDiagnosticsLogs":  "سجلات تشخيص النظام",
-    "online":  "متصل",
-    "errorLoadingPrefs":  "خطأ في تحميل التفضيلات: {error}",
-    "@errorLoadingPrefs":  {
-                               "placeholders":  {
-                                                    "error":  {
-                                                                  "type":  "String"
-                                                              }
-                                                }
-                           },
-    "privacyPolicyLoaded":  "تم تحميل تفاصيل سياسة الخصوصية.",
-    "protectionConsole":  "لوحة التحكم بالحماية",
-    "deleteProtectionTooltip":  "حذف الحماية",
-    "refreshTooltip":  "تحديث",
-    "failedToLoadDetails":  "فشل تحميل التفاصيل",
-    "retryConnection":  "إعادة محاولة الاتصال",
-    "healthLabel":  "الصحة",
-    "mySimCardDefault":  "بطاقة SIM الخاصة بي",
-    "upLabel":  "ترقية",
-    "sharedByFamily":  "مشاركة بواسطة: {ownerName} ({role})",
-    "@sharedByFamily":  {
-                            "placeholders":  {
-                                                 "ownerName":  {
-                                                                   "type":  "String"
-                                                               },
-                                                 "role":  {
-                                                              "type":  "String"
-                                                          }
-                                             }
-                        },
-    "criticalRisk":  "خطر حرج",
-    "simDeactivationRisk":  "قد يتم إلغاء تنشيط بطاقة SIM بدون إجراء",
-    "missingAlertsDesc":  "لم يتم تكوين إشعارات التنبيه — نقص 100 نقطة",
-    "missingAutoRefillDesc":  "لم يتم تكوين التعبئة التلقائية — نقص 50 نقطة",
-    "missingVerificationDesc":  "رقم الهاتف غير موثق — نقص 25 نقطة",
-    "missingRecentRefillDesc":  "كانت آخر تعبئة قبل أكثر من 80 يومًا — نقص 25 نقطة",
-    "quickActionsLabel":  "إجراءات سريعة",
-    "manualRefillLabel":  "تعبئة يدوية",
-    "chargeFromWalletNow":  "شحن من المحفظة الآن",
-    "rechargeFromFriend":  "إعادة الشحن من صديق",
-    "requestViaTelegram":  "طلب عبر تليجرام",
-    "shareViaWaTg":  "مشاركة عبر واتساب/تليجرام",
-    "testSimActivity":  "اختبار نشاط بطاقة SIM",
-    "verifyLineReachable":  "التحقق من إمكانية الوصول للخط",
-    "checkCompleted1x":  "تم الفحص مرة واحدة",
-    "starterPlan1xCompleted":  "اكتمل فحص الخطة الأساسية لمرة واحدة. قم بالترقية إلى بريميوم للحصول على فحوصات غير محدودة.",
-    "leaveCountry":  "غادر {countryName}",
-    "@leaveCountry":  {
-                          "placeholders":  {
-                                               "countryName":  {
-                                                                   "type":  "String"
-                                                               }
-                                           }
-                      },
-    "resumeProtectionLayers":  "استئناف طبقات الحماية",
-    "backToCountryMode":  "العودة إلى وضع {countryName}",
-    "@backToCountryMode":  {
-                               "placeholders":  {
-                                                    "countryName":  {
-                                                                        "type":  "String"
-                                                                    }
-                                                }
-                           },
-    "pauseWhileVisitingHome":  "إيقاف مؤقت أثناء زيارة الوطن",
-    "rechargeFromFriendTitle":  "إعادة الشحن من صديق",
-    "selectPlatformShare":  "اختر منصة لمشاركة رسالة طلب إعادة الشحن مع صديقك.",
-    "rechargeRequestTemplate":  "مرحباً! بطاقة KeepSIMs الخاصة بي ({phone}) ستنتهي صلاحيتها قريباً. هل يمكنك إعادة شحنها لي من فضلك؟. شكرًا لك!",
-    "@rechargeRequestTemplate":  {
-                                     "placeholders":  {
-                                                          "phone":  {
-                                                                        "type":  "String"
-                                                                    }
-                                                      }
-                                 },
-    "requestViaWhatsApp":  "طلب عبر واتساب",
-    "couldNotLaunchLink":  "تعذر فتح رابط {platformName}: {error}",
-    "@couldNotLaunchLink":  {
-                                "placeholders":  {
-                                                     "platformName":  {
-                                                                          "type":  "String"
-                                                                      },
-                                                     "error":  {
-                                                                   "type":  "String"
-                                                               }
-                                                 }
-                            },
-    "couldNotLaunchTelegram":  "تعذر فتح رابط تليجرام: {error}",
-    "@couldNotLaunchTelegram":  {
-                                    "placeholders":  {
-                                                         "error":  {
-                                                                       "type":  "String"
-                                                                   }
-                                                     }
-                                },
-    "protectionLayersLabel":  "طبقات الحماية",
-    "autoNotifyDisabled":  "التنبيه التلقائي: معطل",
-    "noActiveAlertSchedule":  "لا يوجد جدول نشط لإشعارات التنبيه لبطاقة SIM الخاصة بك. لن تتلقى تذكيرات تلقائية أو تنبيهات بإلغاء التنشيط.",
-    "askOwnerConfigureAlerts":  "يرجى الطلب من مالك الحساب الرئيسي تكوين التنبيهات.",
-    "configureAutoNotify":  "تكوين التنبيه التلقائي",
-    "activeLabel":  "نشط",
-    "pausedHomeMode":  "متوقف مؤقتاً (وضع الوطن)",
-    "pausedLabel":  "متوقف مؤقتاً",
-    "everyHour":  "كل ساعة",
-    "everyNDays":  "كل {days} يوم",
-    "@everyNDays":  {
-                        "placeholders":  {
-                                             "days":  {
-                                                          "type":  "int"
-                                                      }
-                                         }
-                    },
-    "nextAlertCheck":  "فحص التنبيه القادم",
-    "premiumKeepAliveRefill":  "شحن الحفاظ على الخط نشطاً (بريميوم)",
-    "autoRefillIncludedText":  "التعبئة التلقائية متضمنة - حوالي 3.5 دولار (الاتصالات والضريبة متضمنة) كل 85 يومًا، التعبئة التالية في {date}",
-    "@autoRefillIncludedText":  {
-                                    "placeholders":  {
-                                                         "date":  {
-                                                                      "type":  "String"
-                                                                  }
-                                                     }
-                                },
-    "premiumKeepAliveDisabled":  "شحن الحفاظ على الخط نشطاً معطل حالياً.",
-    "customAutoRefill":  "تعبئة تلقائية مخصصة",
-    "addAdditionalScheduledRecharge":  "أضف مبلغ شحن مجدول إضافي للاحتفاظ برصيد إضافي على بطاقة SIM الخاصة بك.",
-    "askOwnerConfigureRefill":  "يرجى الطلب من مالك الحساب الرئيسي تكوين التعبئة التلقائية.",
-    "configureCustomAutoRefill":  "تكوين التعبئة التلقائية المخصصة",
-    "rechargeAmount":  "مبلغ إعادة الشحن",
-    "refillInterval":  "فاصل التعبئة",
-    "nextRefillDue":  "تاريخ التعبئة القادمة",
-    "failedRefillAttempts":  "محاولات التعبئة الفاشلة",
-    "retriesCount":  "{count} / 4 محاولات",
-    "@retriesCount":  {
-                          "placeholders":  {
-                                               "count":  {
-                                                             "type":  "int"
-                                                         }
-                                           }
-                      },
-    "editRefillAmount":  "تعديل مبلغ التعبئة",
-    "refillExecutionsHistory":  "سجل عمليات التعبئة",
-    "renewalExecutionsHistory":  "سجل عمليات التجديد",
-    "noHistoricalTopup":  "لم يتم تسجيل أي عمليات شحن سابقة لهذا الخط بعد.",
-    "noHistoricalRenewal":  "لم يتم تسجيل أي عمليات تجديد سابقة لهذا الخط بعد.",
-    "viewAllHistory":  "عرض السجل بالكامل",
-    "securityActivityLogs":  "سجلات الأنشطة الأمنية",
-    "clearLogs":  "مسح السجلات",
-    "noActivityLogsRecorded":  "لم يتم تسجيل أي سجلات أنشطة لهذا الخط بعد.",
-    "activityLogDeleted":  "تم حذف إدخال سجل النشاط.",
-    "activityLogsCleared":  "تم مسح سجلات الأنشطة بنجاح.",
-    "autoRenewalStatusUpdated":  "تم تحديث التجديد التلقائي بنجاح إلى: {status}.",
-    "@autoRenewalStatusUpdated":  {
-                                      "placeholders":  {
-                                                           "status":  {
-                                                                          "type":  "String"
-                                                                      }
-                                                       }
-                                  },
-    "failedToUpdateSchedule":  "فشل تحديث الجدول: {error}",
-    "@failedToUpdateSchedule":  {
-                                    "placeholders":  {
-                                                         "error":  {
-                                                                       "type":  "String"
-                                                                   }
-                                                     }
-                                },
-    "premiumRefillEnabled":  "تم تمكين شحن الحفاظ على الخط نشطاً بنجاح.",
-    "failedToEnableAutoRefill":  "فشل تمكين التعبئة التلقائية: {error}",
-    "@failedToEnableAutoRefill":  {
-                                      "placeholders":  {
-                                                           "error":  {
-                                                                         "type":  "String"
-                                                                     }
-                                                       }
-                                  },
-    "removeScheduleTitle":  "إزالة الجدول",
-    "confirmDeleteAutoRefill":  "هل أنت متأكد من رغبتك في حذف جدول التعبئة التلقائية هذا؟ ستنخفض درجة صحة بطاقة SIM الخاصة بك بشكل كبير، مما يعرضها لخطر إلغاء التنشيط.",
-    "confirmDeleteAutoRenewal":  "هل أنت متأكد من رغبتك في حذف جدول التجديد التلقائي هذا؟ ستنخفض درجة صحة بطاقة SIM الخاصة بك بشكل كبير، مما يعرضها لخطر إلغاء التنشيط.",
-    "autoRefillRemoved":  "تمت إزالة جدول التعبئة التلقائية بنجاح.",
-    "autoRenewalRemoved":  "تمت إزالة جدول التجديد التلقائي بنجاح.",
-    "failedToDeleteSchedule":  "فشل حذف الجدول: {error}",
-    "@failedToDeleteSchedule":  {
-                                    "placeholders":  {
-                                                         "error":  {
-                                                                       "type":  "String"
-                                                                   }
-                                                     }
-                                },
-    "refillRetrySuccess":  "تمت إعادة محاولة التعبئة بنجاح!",
-    "refillRetryQueued":  "تمت إضافة إعادة المحاولة إلى قائمة الانتظار — جاري معالجة التعبئة.",
-    "renewalRetrySuccess":  "تمت إعادة محاولة التجديد بنجاح!",
-    "retryFailed":  "فشلت إعادة المحاولة: {error}",
-    "@retryFailed":  {
-                         "placeholders":  {
-                                              "error":  {
-                                                            "type":  "String"
-                                                        }
-                                          }
-                     },
-    "retryExecutionError":  "خطأ أثناء إعادة المحاولة: {error}",
-    "@retryExecutionError":  {
-                                 "placeholders":  {
-                                                      "error":  {
-                                                                    "type":  "String"
-                                                                }
-                                                  }
-                             },
-    "failedToDeleteActivityLog":  "فشل حذف سجل النشاط: {error}",
-    "@failedToDeleteActivityLog":  {
-                                       "placeholders":  {
-                                                            "error":  {
-                                                                          "type":  "String"
-                                                                      }
-                                                        }
-                                   },
-    "failedToClearActivityLogs":  "فشل مسح سجلات الأنشطة: {error}",
-    "@failedToClearActivityLogs":  {
-                                       "placeholders":  {
-                                                            "error":  {
-                                                                          "type":  "String"
-                                                                      }
-                                                        }
-                                   },
-    "removeProtectionTitle":  "إزالة الحماية",
-    "confirmRemoveProtectionDesc":  "هل أنت متأكد من رغبتك في إيقاف حماية {name}؟ سيتم إلغاء عمليات الشحن المجدولة لخط SIM هذا بشكل دائم.",
-    "@confirmRemoveProtectionDesc":  {
-                                         "placeholders":  {
-                                                              "name":  {
-                                                                           "type":  "String"
-                                                                       }
-                                                          }
-                                     },
-    "simLineProtectionRemoved":  "تمت إزالة حماية خط SIM بنجاح.",
-    "failedToDeleteSimLine":  "فشلت الإزالة: {error}",
-    "@failedToDeleteSimLine":  {
-                                   "placeholders":  {
-                                                        "error":  {
-                                                                      "type":  "String"
-                                                                  }
-                                                    }
-                               },
-    "editSimNameTitle":  "تعديل اسم الـ SIM",
-    "enterNicknameInstruction":  "أدخل اسماً مستعاراً لخط بطاقة SIM هذا:",
-    "nicknameExampleHint":  "على سبيل المثال: SIM أورانج مصر الخاصة بي",
-    "simNameUpdatedSuccess":  "تم تحديث اسم الـ SIM بنجاح.",
-    "failedToUpdateSimName":  "فشل تحديث اسم الـ SIM: {error}",
-    "@failedToUpdateSimName":  {
-                                   "placeholders":  {
-                                                        "error":  {
-                                                                      "type":  "String"
-                                                                  }
-                                                    }
-                               },
-    "saveButton":  "حفظ",
-    "deleteButton":  "حذف",
-    "autoNotifySchedule":  "جدول التنبيه التلقائي",
-    "renewalCheckInterval":  "فاصل فحص التجديد",
-    "editNotificationConfig":  "تعديل تكوين التنبيه",
-    "openTicket":  "فتح تذكرة",
-    "offlineRefillLabel":  "شحن بدون إنترنت",
-    "categoryLabel":  "الفئة",
-    "techSupportCategory":  "الدعم الفني",
-    "billingWalletCategory":  "الفواتير والمحفظة",
-    "simLinesCategory":  "إدارة خطوط الـ SIM",
-    "feedbackOtherCategory":  "الملاحظات وأخرى",
-    "subjectLabel":  "الموضوع",
-    "subjectHint":  "ملخص موجز للمشكلة",
-    "descriptionLabel":  "الوصف",
-    "descriptionHint":  "صف مشكلتك بالتفصيل...",
-    "attachmentLabel":  "المرفقات (اختياري)",
-    "uploadScreenshot":  "تحميل لقطة الشاشة",
-    "submitTicketButton":  "إرسال التذكرة",
-    "pleaseFillFields":  "يرجى ملء الموضوع والوصف معاً",
-    "ticketSubmittedSuccess":  "تم إرسال التذكرة بنجاح!",
-    "lastRefillLabel":  "آخر شحن",
-    "noRefillYet":  "لا يوجد شحن بعد",
-    "nextAlertLabel":  "التنبيه التالي",
-    "protectionLabel":  "الحماية",
-    "actionRequiredLabel":  "مطلوب إجراء",
-    "protectionOffLabel":  "الحماية متوقفة",
-    "notSet":  "غير محدد",
-    "homeMode":  "وضع الوطن",
-    "keepProtectedAtHome":  "إبقاء الحماية مفعّلة في الوطن",
-    "protectionPausesAtHome":  "تتوقف الحماية مؤقتًا في الوطن",
-    "incidentChannelsTitle":  "قنوات التنبيه",
-    "topUpSuccessTitle":  "نجاح عملية الشحن",
-    "topUpSuccessDesc":  "إشعار عند إتمام تمديد صلاحية الشريحة تلقائياً بنجاح.",
-    "topUpFailedTitle":  "فشل عملية الشحن (حرج)",
-    "topUpFailedDesc":  "تنبيهات حرجة عند فشل الشحن التلقائي بسبب مشاكل الشبكة أو المحفظة.",
-    "walletLowTitle":  "رصيد المحفظة منخفض",
-    "walletLowDesc":  "تحذير عندما ينخفض الرصيد الأساسي عن حد الأمان.",
-    "walletDepletedTitle":  "نفاد رصيد المحفظة",
-    "walletDepletedDesc":  "تنبيهات إيقاف مؤقت عند نفاد رصيد المحفظة بالكامل وتوقف التجديد.",
-    "lineCriticalTitle":  "تحذير انتهاء صلاحية الصلاحية",
-    "lineCriticalDesc":  "تحذير عند اقتراب انتهاء صلاحية الشريحة خلال 48 ساعة.",
-    "lineEnteringGraceTitle":  "دخول فترة السماح",
-    "lineEnteringGraceDesc":  "إشعار عند بدء فترة السماح قبل إلغاء تفعيل الشريحة من قبل الشبكة.",
-    "geoFenceTriggeredTitle":  "تنبيهات الموقع والتجوال",
-    "geoFenceTriggeredDesc":  "تنبيهات عندما تغير الشبكة مجموعات التجوال أو عقد الاتصال.",
-    "welcomeHomeReadyTitle":  "مزامنة العودة للوطن",
-    "welcomeHomeReadyDesc":  "تنبيهات عندما تقوم عقدة شبكة البلد الأم بتشغيل عمليات المزامنة الآلية.",
-    "referralRewardTitle":  "الإحالات والمكافآت",
-    "referralRewardDesc":  "إشعار عند قيام إحالات الأصدقاء بإيداع أرصدة ترويجية في محفظتي.",
-    "systemUpdatesTitle":  "تحديثات النظام العامة",
-    "systemUpdatesDesc":  "تحديثات المحرك الحيوية والصيانة وإعلانات المنصة.",
-    "walletCreditTitle":  "تم شحن المحفظة",
-    "walletCreditDesc":  "إشعار عند إيداع مبلغ في محفظتي.",
-    "promoTitle":  "العروض والترويج",
-    "promoDesc":  "أخبار من حين لآخر عن العروض والميزات الجديدة. يبقى معطلاً حتى تقوم بتفعيله.",
-    "deliverVia":  "الإرسال عبر",
-    "channelPushShort":  "إشعار",
-    "channelEmailShort":  "بريد",
-    "channelOffGlobally":  "معطل في قنوات التنبيه أعلاه",
-    "rechargeNow":  "اشحن الآن",
+    "transactionPin": "رمز PIN للعمليات",
+    "transactionPinDesc": "تأمين التجديدات والسحوبات",
+    "setup": "إعداد",
+    "pinSuccess": "تم تحديث رمز PIN بنجاح!",
+    "pinMismatch": "رمز PIN غير متطابق. حاول مرة أخرى!",
+    "pinActiveAndSecure": "إعداد PIN نشط وآمن",
+    "automatedSummaryAndAlerts": "الملخص التلقائي والتنبيهات",
+    "weeklyDigest": "الملخص الأسبوعي",
+    "welcomeBack": "مرحباً بعودتك",
+    "nextNotify": "التنبيه القادم",
+    "days": "أيام",
+    "showingNearestLine": "عرض الخط الأقرب",
+    "addSim": "إضافة شريحة",
+    "linesToProtect": "الخطوط المحمية",
+    "active": "نشط",
+    "upgrade": "ترقية",
+    "standard": "أساسي",
+    "autoNotify": "تنبيه تلقائي",
+    "configure": "إعداد",
+    "autoRefill": "شحن تلقائي",
+    "quickActions": "إجراءات سريعة",
+    "navHome": "الرئيسية",
+    "navSims": "الشرائح",
+    "navMore": "المزيد",
+    "protectedSims": "الشرائح المحمية",
+    "mySimCards": "شرائحي",
+    "familySharedSims": "شرائح العائلة المشتركة",
+    "protectAnotherSimLine": "حماية خط شريحة آخر",
+    "keepInfiniteNumbersAlive": "حافظ على عدد غير محدود من الأرقام الدولية نشطة",
+    "bulkActionsConsole": "وحدة التحكم في الإجراءات الجماعية",
+    "resume": "استئناف",
+    "pause": "إيقاف مؤقت",
+    "simulate": "محاكاة",
+    "noProtectedLines": "لا توجد خطوط محمية",
+    "noInternationalSimsAdded": "ليس لديك أي شرائح دولية مضافة بعد. قم بحماية شريحتك الأولى الآن لإبقائها نشطة إلى الأبد.",
+    "protectNewLine": "حماية خط جديد",
+    "noSharedSimsYet": "لا توجد شرائح مشتركة بعد",
+    "inviteFamilyMembers": "قم بدعوة أفراد العائلة للانضمام إلى أسرتك. بمجرد قبولهم، ستظهر خطوط الشرائح المحمية الخاصة بهم هنا للمراقبة التعاونية.",
+    "manageHousehold": "إدارة الأسرة",
+    "manageProfileDesc": "إدارة ملفك الشخصي، وخطوط الشرائح، والتنبيهات، والتفضيلات المشتركة",
+    "keepSIMsUser": "مستخدم KeepSIMs",
+    "pro": "محترف",
+    "homeCountry": "البلد الأم: ",
+    "console": "وحدة التحكم",
+    "offlineRefill": "تعبئة الرصيد دون اتصال (SMS/WA)",
+    "refillSimOfflineDesc": "تعبئة رصيد الشريحة دون اتصال عبر رسائل SMS أو واتساب",
+    "wallet": "المحفظة",
+    "manageBalancesDesc": "إدارة أرصدتك وعرض سجل المعاملات",
+    "alertPreferences": "تفضيلات التنبيهات",
+    "togglePushEmailDesc": "تبديل إعدادات التنبيهات الفورية والبريد الإلكتروني للتجديدات/الأرصدة",
+    "referAndEarn": "أحِل واكسب",
+    "shareKeepSIMsDesc": "شارك KeepSIMs وافتح مكافآت الرصيد المتغيرة",
+    "paymentMethods": "طرق الدفع",
+    "addBankCardsDesc": "أضف بطاقات بنكية أو اربط حسابات السحب الآلي",
+    "travelAndGeolocation": "السفر والموقع الجغرافي",
+    "manageHomeCountryDesc": "إدارة قواعد التجميد في البلد الأم ووضع السفر",
+    "dataAndPrivacy": "البيانات والخصوصية",
+    "manageTrackingConsentDesc": "إدارة موافقتك على التتبع، تصدير البيانات، أو حذف الحساب",
+    "powerUser": "مستخدم متقدم",
+    "accessSystemSimulatorsDesc": "الوصول إلى محاكيات النظام وأدوات التصحيح",
+    "testChecklist": "قائمة اختبار التحقق",
+    "manualUiTestingDesc": "قائمة التحقق اليدوية لاختبار واجهة المستخدم لضمان الجودة",
+    "soon": "قريباً",
+    "featureComingSoon": "ميزة {feature} قادمة قريباً!",
+    "logOut": "تسجيل الخروج",
+    "confirmLogOut": "هل أنت متأكد من أنك تريد تسجيل الخروج من KeepSIMs؟",
+    "walletLedger": "سجل المحفظة",
+    "keepSIMsPrepaid": "KeepSIMs مسبق الدفع",
+    "offlineMode": "وضع دون اتصال",
+    "activeBalance": "الرصيد النشط",
+    "criticalBalanceLevel": "مستوى الرصيد حرج",
+    "balanceBelow10": "رصيدك أقل من 10.00$. قد تفشل عمليات شحن الشرائح المجدولة قريباً.",
+    "depositFunds": "إيداع الأموال",
+    "walletDepositsRequireInternet": "تتطلب عمليات إيداع المحفظة اتصالاً نشطاً بالإنترنت.",
+    "exportLedger": "تصدير السجل",
+    "ledgerHistoryExported": "تم تصدير سجل المعاملات كملف CSV.",
+    "spendAnalysis": "تحليل الإنفاق",
+    "transactionHistory": "سجل المعاملات",
+    "itemsCount": "{count} عناصر",
+    "noTransactionsRecorded": "لم يتم تسجيل أي معاملات بعد.",
+    "prepaidMonthlyOutflow": "الإنفاق الشهري مسبق الدفع",
+    "avgMonthlySpend": "المتوسط: ${amount}/شهر (12 شهر)",
+    "depositViaCard": "إيداع عبر بطاقة تنتهي بـ {last4}",
+    "lineRenewal": "تجديد الخط",
+    "justNow": "الآن",
+    "loadCreditFunds": "تحميل رصيد",
+    "depositAmountUsd": "مبلغ الإيداع (بالدولار)",
+    "pleaseEnterAmount": "الرجاء إدخال المبلغ",
+    "enterPositiveNumber": "أدخل رقماً موجباً",
+    "cardDetails": "تفاصيل البطاقة",
+    "savedCards": "البطاقات المحفوظة",
+    "visaCardNumber": "رقم بطاقة فيزا",
+    "pleaseEnterCardNumber": "الرجاء إدخال رقم البطاقة",
+    "mustBe16Digits": "يجب أن يكون 16 رقماً",
+    "expiryMmYy": "الانتهاء (شهر/سنة)",
+    "expiryRequired": "تاريخ الانتهاء مطلوب",
+    "invalid": "غير صالح",
+    "cvv": "رمز التحقق (CVV)",
+    "cvvRequired": "رمز التحقق مطلوب",
+    "verifyingCardSecurity": "جاري التحقق من أمان البطاقة...",
+    "authorizeDepositFunds": "تفويض إيداع الأموال",
+    "successfullyDeposited": "تم إيداع ${amount} دولار بنجاح!",
+    "failedToDepositFunds": "فشل إيداع الأموال. يرجى التحقق من اتصال البطاقة.",
+    "noSavedPaymentMethods": "لم يتم العثور على طرق دفع محفوظة.",
+    "addPaymentMethod": "إضافة طريقة دفع",
+    "savedPaymentMethods": "طرق الدفع المحفوظة",
+    "addAnotherPaymentMethod": "إضافة طريقة دفع أخرى",
+    "expiresMmYy": "ينتهي في {month}/{year}",
+    "offlineRefillTitle": "تعبئة الرصيد دون اتصال (SMS/WA)",
+    "selectTargetSimLine": "اختر خط الشريحة المستهدف",
+    "noRegisteredSimLines": "لم يتم العثور على أي خطوط شرائح مسجلة.",
+    "targetSimLine": "خط الشريحة المستهدف",
+    "simLine": "خط الشريحة",
+    "carrier": "شركة الاتصالات",
+    "change": "تغيير",
+    "offlineRefillProtection": "حماية تعبئة الرصيد دون اتصال",
+    "premiumExclusive": "حصري لـ بريميوم",
+    "neverGetStrandedDesc": "لن تنقطع أبداً بدون بيانات الجوال مرة أخرى. يتيح لك KeepSIMs بريميوم تعبئة رصيد شريحتك دون اتصال بالإنترنت عبر رسائل SMS المحلية أو واتساب عند انقطاع الاتصال بالإنترنت تماماً.",
+    "offlineCapability100": "إمكانية العمل بنسبة 100% دون اتصال",
+    "deductsFromKeepSIMsDesc": "يخصم من محفظة KeepSIMs الخاصة بك لإضافة رصيد لخطك عبر بوابات رسائل SMS المحلية الاحتياطية.",
+    "dynamicUssdPlanActivation": "تفعيل خطط USSD الديناميكي",
+    "exactCopyPasteDialCodesDesc": "يوفر أكواد اتصال دقيقة يمكن نسخها ولصقها (مثل *900*1#) لتفعيل باقات البيانات والمكالمات دون اتصال.",
+    "dualChannelSupport": "دعم ثنائي القنوات",
+    "textRefillDesc": "أرسل كلمة \"REFILL\" باستخدام رسائل SMS القياسية أو واتساب بناءً على تغطية الشبكة الخلوية المتاحة.",
+    "close": "إغلاق",
+    "howToTriggerOfflineRefill": "كيفية تفعيل التعبئة دون اتصال",
+    "ifZeroMobileDataDesc1": "إذا لم يكن لديك بيانات جوال، أرسل رسالة SMS قياسية أو رسالة واتساب تحتوي فقط على ",
+    "refill": "REFILL",
+    "toOurSecureGatewayDesc2": " إلى بوابتنا الآمنة للنظام:",
+    "targetSimLineLabel": "خط الشريحة المستهدف",
+    "configureCashRefillAmount": "إعداد مبلغ تعبئة الرصيد",
+    "refillAmount": "مبلغ التعبئة",
+    "walletBalanceUsd": "رصيد المحفظة: ${amount} دولار",
+    "lowBalanceWarning": "⚠️ رصيد منخفض",
+    "localCarrierPlanSuggestions": "اقتراحات باقات شركات الاتصالات المحلية",
+    "noStandardUssdDialCodes": "لم يتم العثور على أكواد USSD قياسية لشركة الاتصالات هذه. ستظل تتلقى رصيد التعبئة بنجاح على خطك.",
+    "dynamicDialCodesPreview": "معاينة أكواد الاتصال الديناميكية",
+    "botSuggestDialingCodes": "بعد اكتمال التعبئة دون اتصال، سيقترح البوت الاتصال بهذه الأكواد الدقيقة على هاتفك لفتح البيانات والمكالمات فوراً دون اتصال:",
+    "costAmount": "التكلفة: ${amount}",
+    "whatsappSmsSenderOverride": "تجاوز رقم مرسل رسائل واتساب/SMS",
+    "verificationNumber": "رقم التحقق",
+    "triggerRefillsDifferentNumber": "إذا قمت بتفعيل التعبئة من رقم مختلف عن هاتف ملفك الشخصي الأساسي، أدخله أدناه مع رمز الدولة (مثل 96891234567).",
+    "enterPhoneNumberDigits": "أدخل رقم الهاتف (أرقام فقط)",
+    "offlineRefillSettingsSaved": "تم حفظ إعدادات تعبئة الرصيد دون اتصال بنجاح!",
+    "saveSettings": "حفظ الإعدادات",
+    "errorLoadingSettings": "خطأ في تحميل الإعدادات: {error}",
+    "retry": "إعادة المحاولة",
+    "editProtectedLine": "تعديل الخط المحمي",
+    "saveChanges": "حفظ التغييرات",
+    "activateShieldProtection": "تفعيل حماية الدرع",
+    "phoneNumber": "رقم الهاتف",
+    "nicknameOptional": "الاسم المستعار (اختياري)",
+    "whatsappAlerts": "تنبيهات واتساب",
+    "emailAlertsDesc": "تنبيهات إيقاف التشغيل الحرجة المرسلة عبر Resend",
+    "refillWalletLow": "إعادة تعبئة المحفظة عندما ينخفض الرصيد",
+    "legalPoliciesDesc": "باستخدام KeepSIMs، فإنك توافق على شروطنا. توفر KeepSIMs أدوات للمساعدة في إدارة دورة حياة شريحتك، ولكننا لسنا مسؤولين عن أي خسائر مباشرة أو غير مباشرة أو أضرار أو انقطاع في الخدمة تسببه شركات الاتصالات الخارجية.",
+    "globalTravelModeDesc": "يسمح لقواعد الجدار الجغرافي التلقائية بتنشيط إجراءات عبور الحدود",
+    "dataPreferences": "تفضيلات البيانات",
+    "doNotDisturb": "الرجاء عدم الإزعاج",
+    "linkedCards": "البطاقات المرتبطة",
+    "analyticsTracking": "التحليلات والتتبع",
+    "dubai": "دبي",
+    "flyHome": "العودة للوطن",
+    "managePreferencesAndSecurityDesc": "إدارة السمة واللغة وقفل البصمة",
+    "autoFundingRulesDesc": "حافظ على استمرار تجديد بطاقة SIM من خلال تمكين عمليات التعبئة التلقائية من بطاقتك الائتمانية الافتراضية عندما ينخفض الرصيد بشكل كبير",
+    "pushNotifications": "إشعارات الهاتف",
+    "quietHoursSchedule": "ساعات الهدوء والجدولة",
+    "exportMyDataDesc": "تنزيل نسخة JSON من ملفك الشخصي وتفضيلاتك (حق الوصول بموجب GDPR)",
+    "borderSimulatorTitle": "محاكي عبور الحدود",
+    "yourData": "بياناتك",
+    "mostImportant": "الأهم",
+    "emailAlerts": "تنبيهات البريد الإلكتروني",
+    "pushNotificationsDesc": "إشعارات أصلية فورية على هذا الجهاز",
+    "alertSettingsTitle": "إعدادات التنبيهات",
+    "atHome": "في الوطن",
+    "telegramBotDesc": "إشعارات دردشة تيليجرام التفاعلية المرتبطة",
+    "alertChannels": "قنوات التنبيه",
+    "london": "لندن",
+    "shieldProtection": "حماية الدرع",
+    "legalPolicies": "القوانين والسياسات",
+    "supportVisaMastercard": "يدعم بطاقات الدفع أو الائتمان الآمنة من فيزا وماستركارد",
+    "exportMyData": "تصدير بياناتي",
+    "dangerZone": "منطقة الخطر",
+    "analyticsTrackingDesc": "ساعدنا في تحسين التطبيق من خلال مشاركة بيانات الاستخدام المجهولة. لن تتأثر وظائف التطبيق الأساسية في حال التعطيل",
+    "autoFundingRules": "قواعد التمويل التلقائي",
+    "singapore": "سنغافورة",
+    "weeklySummaryDigest": "ملخص التقرير الأسبوعي",
+    "fullyShielded": "محمي بالكامل",
+    "dndDesc": "تؤجل التنبيهات العادية حتى انتهاء ساعات الهدوء. قد تصل تنبيهات الخط الحرجة قبل ذلك؛ وتظل إعدادات عدم الإزعاج في هاتفك سارية.",
+    "paymentsAutoFundTitle": "المدفوعات والتمويل التلقائي",
+    "travelGeolocationTitle": "السفر والموقع الجغرافي",
+    "telegramBot": "بوت تيليجرام",
+    "weeklyDigestDesc": "ملخص أسبوعي لحالة شرائح SIM كل أحد الساعة 9:00 صباحًا بالتوقيت المحلي",
+    "borderSimulatorDesc": "محاكاة صعود الطائرة لتفعيل قواعد التجميد الذكي أو استئناف الدولة النشطة.",
+    "linkFirstCard": "ربط بطاقتك الدفع الأولى",
+    "globalTravelMode": "وضع السفر العالمي",
+    "readPrivacyPolicy": "قراءة سياسة الخصوصية والشروط الكاملة",
+    "whatsappAlertsDesc": "تنبيهات فشل إعادة التعبئة المرسلة مباشرة إلى واتساب",
+    "abroadTraveling": "خارج البلاد / مسافر",
+    "freezeAllLines": "تجميد كافة الخطوط",
+    "resumeRenewals": "استئناف التجديد",
+    "freezeRecommendationDesc": "لقد اكتشفنا أنك حالياً في بلدك الأم. يمكنك تجميد تجديد خطوطك الدولية لتجنب استهلاك رصيد المحفظة.",
+    "travelDetected": "تم اكتشاف السفر! ✈️",
+    "resumeRecommendationDesc": "أنت مسافر إلى الخارج. يرجى استئناف تجديد شرائح SIM الدولية لضمان تغطية مستمرة لشبكة الهاتف.",
+    "dismiss": "تجاهل",
+    "welcomeHome": "مرحباً بك في وطنك! 🏡",
+    "addCard": "إضافة بطاقة",
+    "noAlertChannelsConfigured": "لم يتم تكوين قنوات لتسليم التنبيهات.",
+    "channelSettingsUpdated": "تم تحديث إعدادات {channelName}.",
+    "@channelSettingsUpdated": {
+        "placeholders": {
+            "channelName": {
+                "type": "String"
+            }
+        }
+    },
+    "channelLocked": "{channelName} مقفلة 🔒",
+    "@channelLocked": {
+        "placeholders": {
+            "channelName": {
+                "type": "String"
+            }
+        }
+    },
+    "lockedAlertSubtitle": "تنبيهات {channelName} هي ميزات الباقتين القياسية والمتميزة. قم بترقية باقتك لفتح تنبيهات واتساب والبريد الإلكتروني!",
+    "@lockedAlertSubtitle": {
+        "placeholders": {
+            "channelName": {
+                "type": "String"
+            }
+        }
+    },
+    "upsellProtect5Lines": "حماية ما يصل إلى 5 خطوط SIM في نفس الوقت",
+    "upsellUnlockChannels": "فتح إشعارات واتساب والبريد الإلكتروني",
+    "upsellEnableTravelModes": "تفعيل أوضاع صلاحية السفر والمنزل التلقائية",
+    "emailAddressLabel": "عنوان البريد الإلكتروني للإشعارات",
+    "emailAddressHint": "مثال: user@domain.com",
+    "whatsappNumberLabel": "رقم واتساب (صيغة دولية)",
+    "whatsappNumberHint": "مثال: +96891234567",
+    "whatsappFormatInstruction": "أدخل الصيغة الدولية الكاملة بدءًا بـ + (مثال: +96893990492)",
+    "telegramStatusBound": "الحالة: مرتبط (معرف الدردشة: {chatId})",
+    "@telegramStatusBound": {
+        "placeholders": {
+            "chatId": {
+                "type": "String"
+            }
+        }
+    },
+    "telegramStatusUnbound": "الحالة: غير مرتبط",
+    "telegramLinkInstructions": "لتلقي تنبيهات تليجرام مجانية وتفاعلية، قم بربط بوت تليجرام الخاص بنا بحسابك.",
+    "linkTelegramBot": "ربط بوت تليجرام",
+    "emailFreePlanGuarded": "حماية باقة إرسال المجانية: تقتصر على محفزات إلغاء التفعيل فقط. لا يوجد بريد ترويجي مزعج.",
+    "whatsappMetaCloudCapped": "حدود سحابة ميتا المباشرة: رسالة واحدة كحد أقصى لكل جدول تعبئة، تُرسل فقط إذا لم تكن التعبئة التلقائية مفعلة أو فشلت.",
+    "failedToLoadPaymentInfo": "فشل تحميل معلومات الدفع",
+    "defaultCardIndicator": "الافتراضية",
+    "cardholder": "صاحب البطاقة",
+    "expires": "تنتهي",
+    "lowBalanceTrigger": "محفز الرصيد المنخفض",
+    "triggerLowTopUp": "تفعيل التعبئة عند الانخفاض",
+    "reloadDepositAmount": "مبلغ إعادة الشحن",
+    "amountToLoad": "المبلغ المراد شحنه",
+    "linkCreditDebitCard": "ربط بطاقة ائتمان/خصم مباشر",
+    "cardNumberLabel": "رقم البطاقة",
+    "expiryDateLabel": "تاريخ الانتهاء",
+    "cvvCodeLabel": "رمز CVV",
+    "securelyLinkCard": "ربط البطاقة بأمان",
+    "pleaseEnterValidCardNumber": "يرجى إدخال رقم بطاقة صالح مكون من 16 رقمًا.",
+    "pleaseEnterValidExpiryDate": "يرجى إدخال تاريخ انتهاء صالح (MM/YY).",
+    "invalidExpiryMonth": "شهر الانتهاء غير صالح.",
+    "cvvMustBe3Digits": "يجب أن يتكون رمز CVV من 3 أرقام.",
+    "cardLinkedSuccessfully": "تم ربط بطاقة الفواتير الآمنة بنجاح!",
+    "defaultPaymentCardUpdated": "تم تحديث بطاقة الدفع الافتراضية!",
+    "removePaymentCard": "إزالة بطاقة الدفع",
+    "confirmRemoveCardDesc": "هل أنت متأكد من رغبتك في إزالة هذه البطاقة؟ قد تفشل التعبئة التلقائية المرتبطة إذا لم تتبق أي بطاقة دفع افتراضية.",
+    "cancel": "إلغاء",
+    "remove": "إزالة",
+    "billingCardSuccessfullyRemoved": "تمت إزالة بطاقة الفواتير بنجاح.",
+    "pleaseAddDefaultCardFirst": "يرجى إضافة وتحديد بطاقة دفع افتراضية أولاً لتمكين التعبئة التلقائية.",
+    "autoFundPrefsSavedSuccess": "تم حفظ تفضيلات التعبئة التلقائية بنجاح!",
+    "preparingDataExport": "يتم تجهيز تصدير البيانات...",
+    "exportFailed": "فشل التصدير: {error}",
+    "@exportFailed": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "deleteAccountWarning": "بمجرد حذف حسابك، لن يكون هناك مجال للتراجع. يرجى التأكد التام.",
+    "deleteAccount": "حذف الحساب",
+    "deleteAccountIrreversible": "هذا الإجراء لا رجعة فيه. سيتم مسح جميع بياناتك بشكل دائم.",
+    "typeDeleteToConfirm": "اكتب \"DELETE\" للتأكيد:",
+    "deleteWord": "DELETE",
+    "systemDiagnosticsLogs": "سجلات تشخيص النظام",
+    "online": "متصل",
+    "errorLoadingPrefs": "خطأ في تحميل التفضيلات: {error}",
+    "@errorLoadingPrefs": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "privacyPolicyLoaded": "تم تحميل تفاصيل سياسة الخصوصية.",
+    "protectionConsole": "لوحة التحكم بالحماية",
+    "deleteProtectionTooltip": "حذف الحماية",
+    "refreshTooltip": "تحديث",
+    "failedToLoadDetails": "فشل تحميل التفاصيل",
+    "retryConnection": "إعادة محاولة الاتصال",
+    "healthLabel": "الصحة",
+    "mySimCardDefault": "بطاقة SIM الخاصة بي",
+    "upLabel": "ترقية",
+    "sharedByFamily": "مشاركة بواسطة: {ownerName} ({role})",
+    "@sharedByFamily": {
+        "placeholders": {
+            "ownerName": {
+                "type": "String"
+            },
+            "role": {
+                "type": "String"
+            }
+        }
+    },
+    "criticalRisk": "خطر حرج",
+    "simDeactivationRisk": "قد يتم إلغاء تنشيط بطاقة SIM بدون إجراء",
+    "missingAlertsDesc": "لم يتم تكوين إشعارات التنبيه — نقص 100 نقطة",
+    "missingAutoRefillDesc": "لم يتم تكوين التعبئة التلقائية — نقص 50 نقطة",
+    "missingVerificationDesc": "رقم الهاتف غير موثق — نقص 25 نقطة",
+    "missingRecentRefillDesc": "كانت آخر تعبئة قبل أكثر من 80 يومًا — نقص 25 نقطة",
+    "quickActionsLabel": "إجراءات سريعة",
+    "manualRefillLabel": "تعبئة يدوية",
+    "chargeFromWalletNow": "شحن من المحفظة الآن",
+    "rechargeFromFriend": "إعادة الشحن من صديق",
+    "requestViaTelegram": "طلب عبر تليجرام",
+    "shareViaWaTg": "مشاركة عبر واتساب/تليجرام",
+    "testSimActivity": "اختبار نشاط بطاقة SIM",
+    "verifyLineReachable": "التحقق من إمكانية الوصول للخط",
+    "checkCompleted1x": "تم الفحص مرة واحدة",
+    "starterPlan1xCompleted": "اكتمل فحص الخطة الأساسية لمرة واحدة. قم بالترقية إلى بريميوم للحصول على فحوصات غير محدودة.",
+    "leaveCountry": "غادر {countryName}",
+    "@leaveCountry": {
+        "placeholders": {
+            "countryName": {
+                "type": "String"
+            }
+        }
+    },
+    "resumeProtectionLayers": "استئناف طبقات الحماية",
+    "backToCountryMode": "العودة إلى وضع {countryName}",
+    "@backToCountryMode": {
+        "placeholders": {
+            "countryName": {
+                "type": "String"
+            }
+        }
+    },
+    "pauseWhileVisitingHome": "إيقاف مؤقت أثناء زيارة الوطن",
+    "rechargeFromFriendTitle": "إعادة الشحن من صديق",
+    "selectPlatformShare": "اختر منصة لمشاركة رسالة طلب إعادة الشحن مع صديقك.",
+    "rechargeRequestTemplate": "مرحباً! بطاقة KeepSIMs الخاصة بي ({phone}) ستنتهي صلاحيتها قريباً. هل يمكنك إعادة شحنها لي من فضلك؟. شكرًا لك!",
+    "@rechargeRequestTemplate": {
+        "placeholders": {
+            "phone": {
+                "type": "String"
+            }
+        }
+    },
+    "requestViaWhatsApp": "طلب عبر واتساب",
+    "couldNotLaunchLink": "تعذر فتح رابط {platformName}: {error}",
+    "@couldNotLaunchLink": {
+        "placeholders": {
+            "platformName": {
+                "type": "String"
+            },
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "couldNotLaunchTelegram": "تعذر فتح رابط تليجرام: {error}",
+    "@couldNotLaunchTelegram": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "protectionLayersLabel": "طبقات الحماية",
+    "autoNotifyDisabled": "التنبيه التلقائي: معطل",
+    "noActiveAlertSchedule": "لا يوجد جدول نشط لإشعارات التنبيه لبطاقة SIM الخاصة بك. لن تتلقى تذكيرات تلقائية أو تنبيهات بإلغاء التنشيط.",
+    "askOwnerConfigureAlerts": "يرجى الطلب من مالك الحساب الرئيسي تكوين التنبيهات.",
+    "configureAutoNotify": "تكوين التنبيه التلقائي",
+    "activeLabel": "نشط",
+    "pausedHomeMode": "متوقف مؤقتاً (وضع الوطن)",
+    "pausedLabel": "متوقف مؤقتاً",
+    "everyHour": "كل ساعة",
+    "everyNDays": "كل {days} يوم",
+    "@everyNDays": {
+        "placeholders": {
+            "days": {
+                "type": "int"
+            }
+        }
+    },
+    "nextAlertCheck": "فحص التنبيه القادم",
+    "premiumKeepAliveRefill": "شحن الحفاظ على الخط نشطاً (بريميوم)",
+    "autoRefillIncludedText": "التعبئة التلقائية متضمنة - حوالي 3.5 دولار (الاتصالات والضريبة متضمنة) كل 85 يومًا، التعبئة التالية في {date}",
+    "@autoRefillIncludedText": {
+        "placeholders": {
+            "date": {
+                "type": "String"
+            }
+        }
+    },
+    "premiumKeepAliveDisabled": "شحن الحفاظ على الخط نشطاً معطل حالياً.",
+    "customAutoRefill": "تعبئة تلقائية مخصصة",
+    "addAdditionalScheduledRecharge": "أضف مبلغ شحن مجدول إضافي للاحتفاظ برصيد إضافي على بطاقة SIM الخاصة بك.",
+    "askOwnerConfigureRefill": "يرجى الطلب من مالك الحساب الرئيسي تكوين التعبئة التلقائية.",
+    "configureCustomAutoRefill": "تكوين التعبئة التلقائية المخصصة",
+    "rechargeAmount": "مبلغ إعادة الشحن",
+    "refillInterval": "فاصل التعبئة",
+    "nextRefillDue": "تاريخ التعبئة القادمة",
+    "failedRefillAttempts": "محاولات التعبئة الفاشلة",
+    "retriesCount": "{count} / 4 محاولات",
+    "@retriesCount": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "editRefillAmount": "تعديل مبلغ التعبئة",
+    "refillExecutionsHistory": "سجل عمليات التعبئة",
+    "renewalExecutionsHistory": "سجل عمليات التجديد",
+    "noHistoricalTopup": "لم يتم تسجيل أي عمليات شحن سابقة لهذا الخط بعد.",
+    "noHistoricalRenewal": "لم يتم تسجيل أي عمليات تجديد سابقة لهذا الخط بعد.",
+    "viewAllHistory": "عرض السجل بالكامل",
+    "securityActivityLogs": "سجلات الأنشطة الأمنية",
+    "clearLogs": "مسح السجلات",
+    "noActivityLogsRecorded": "لم يتم تسجيل أي سجلات أنشطة لهذا الخط بعد.",
+    "activityLogDeleted": "تم حذف إدخال سجل النشاط.",
+    "activityLogsCleared": "تم مسح سجلات الأنشطة بنجاح.",
+    "autoRenewalStatusUpdated": "تم تحديث التجديد التلقائي بنجاح إلى: {status}.",
+    "@autoRenewalStatusUpdated": {
+        "placeholders": {
+            "status": {
+                "type": "String"
+            }
+        }
+    },
+    "failedToUpdateSchedule": "فشل تحديث الجدول: {error}",
+    "@failedToUpdateSchedule": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "premiumRefillEnabled": "تم تمكين شحن الحفاظ على الخط نشطاً بنجاح.",
+    "failedToEnableAutoRefill": "فشل تمكين التعبئة التلقائية: {error}",
+    "@failedToEnableAutoRefill": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "removeScheduleTitle": "إزالة الجدول",
+    "confirmDeleteAutoRefill": "هل أنت متأكد من رغبتك في حذف جدول التعبئة التلقائية هذا؟ ستنخفض درجة صحة بطاقة SIM الخاصة بك بشكل كبير، مما يعرضها لخطر إلغاء التنشيط.",
+    "confirmDeleteAutoRenewal": "هل أنت متأكد من رغبتك في حذف جدول التجديد التلقائي هذا؟ ستنخفض درجة صحة بطاقة SIM الخاصة بك بشكل كبير، مما يعرضها لخطر إلغاء التنشيط.",
+    "autoRefillRemoved": "تمت إزالة جدول التعبئة التلقائية بنجاح.",
+    "autoRenewalRemoved": "تمت إزالة جدول التجديد التلقائي بنجاح.",
+    "failedToDeleteSchedule": "فشل حذف الجدول: {error}",
+    "@failedToDeleteSchedule": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "refillRetrySuccess": "تمت إعادة محاولة التعبئة بنجاح!",
+    "refillRetryQueued": "تمت إضافة إعادة المحاولة إلى قائمة الانتظار — جاري معالجة التعبئة.",
+    "renewalRetrySuccess": "تمت إعادة محاولة التجديد بنجاح!",
+    "retryFailed": "فشلت إعادة المحاولة: {error}",
+    "@retryFailed": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "retryExecutionError": "خطأ أثناء إعادة المحاولة: {error}",
+    "@retryExecutionError": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "failedToDeleteActivityLog": "فشل حذف سجل النشاط: {error}",
+    "@failedToDeleteActivityLog": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "failedToClearActivityLogs": "فشل مسح سجلات الأنشطة: {error}",
+    "@failedToClearActivityLogs": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "removeProtectionTitle": "إزالة الحماية",
+    "confirmRemoveProtectionDesc": "هل أنت متأكد من رغبتك في إيقاف حماية {name}؟ سيتم إلغاء عمليات الشحن المجدولة لخط SIM هذا بشكل دائم.",
+    "@confirmRemoveProtectionDesc": {
+        "placeholders": {
+            "name": {
+                "type": "String"
+            }
+        }
+    },
+    "simLineProtectionRemoved": "تمت إزالة حماية خط SIM بنجاح.",
+    "failedToDeleteSimLine": "فشلت الإزالة: {error}",
+    "@failedToDeleteSimLine": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "editSimNameTitle": "تعديل اسم الـ SIM",
+    "enterNicknameInstruction": "أدخل اسماً مستعاراً لخط بطاقة SIM هذا:",
+    "nicknameExampleHint": "على سبيل المثال: SIM أورانج مصر الخاصة بي",
+    "simNameUpdatedSuccess": "تم تحديث اسم الـ SIM بنجاح.",
+    "failedToUpdateSimName": "فشل تحديث اسم الـ SIM: {error}",
+    "@failedToUpdateSimName": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "saveButton": "حفظ",
+    "deleteButton": "حذف",
+    "autoNotifySchedule": "جدول التنبيه التلقائي",
+    "renewalCheckInterval": "فاصل فحص التجديد",
+    "editNotificationConfig": "تعديل تكوين التنبيه",
+    "openTicket": "فتح تذكرة",
+    "offlineRefillLabel": "شحن بدون إنترنت",
+    "categoryLabel": "الفئة",
+    "techSupportCategory": "الدعم الفني",
+    "billingWalletCategory": "الفواتير والمحفظة",
+    "simLinesCategory": "إدارة خطوط الـ SIM",
+    "feedbackOtherCategory": "الملاحظات وأخرى",
+    "subjectLabel": "الموضوع",
+    "subjectHint": "ملخص موجز للمشكلة",
+    "descriptionLabel": "الوصف",
+    "descriptionHint": "صف مشكلتك بالتفصيل...",
+    "attachmentLabel": "المرفقات (اختياري)",
+    "uploadScreenshot": "تحميل لقطة الشاشة",
+    "submitTicketButton": "إرسال التذكرة",
+    "pleaseFillFields": "يرجى ملء الموضوع والوصف معاً",
+    "ticketSubmittedSuccess": "تم إرسال التذكرة بنجاح!",
+    "lastRefillLabel": "آخر شحن",
+    "noRefillYet": "لا يوجد شحن بعد",
+    "nextAlertLabel": "التنبيه التالي",
+    "protectionLabel": "الحماية",
+    "actionRequiredLabel": "مطلوب إجراء",
+    "protectionOffLabel": "الحماية متوقفة",
+    "notSet": "غير محدد",
+    "homeMode": "وضع الوطن",
+    "keepProtectedAtHome": "إبقاء الحماية مفعّلة في الوطن",
+    "protectionPausesAtHome": "تتوقف الحماية مؤقتًا في الوطن",
+    "incidentChannelsTitle": "قنوات التنبيه",
+    "topUpSuccessTitle": "نجاح عملية الشحن",
+    "topUpSuccessDesc": "إشعار عند إتمام تمديد صلاحية الشريحة تلقائياً بنجاح.",
+    "topUpFailedTitle": "فشل عملية الشحن (حرج)",
+    "topUpFailedDesc": "تنبيهات حرجة عند فشل الشحن التلقائي بسبب مشاكل الشبكة أو المحفظة.",
+    "walletLowTitle": "رصيد المحفظة منخفض",
+    "walletLowDesc": "تحذير عندما ينخفض الرصيد الأساسي عن حد الأمان.",
+    "walletDepletedTitle": "نفاد رصيد المحفظة",
+    "walletDepletedDesc": "تنبيهات إيقاف مؤقت عند نفاد رصيد المحفظة بالكامل وتوقف التجديد.",
+    "lineCriticalTitle": "تحذير انتهاء صلاحية الصلاحية",
+    "lineCriticalDesc": "تحذير عند اقتراب انتهاء صلاحية الشريحة خلال 48 ساعة.",
+    "lineEnteringGraceTitle": "دخول فترة السماح",
+    "lineEnteringGraceDesc": "إشعار عند بدء فترة السماح قبل إلغاء تفعيل الشريحة من قبل الشبكة.",
+    "geoFenceTriggeredTitle": "تنبيهات الموقع والتجوال",
+    "geoFenceTriggeredDesc": "تنبيهات عندما تغير الشبكة مجموعات التجوال أو عقد الاتصال.",
+    "welcomeHomeReadyTitle": "مزامنة العودة للوطن",
+    "welcomeHomeReadyDesc": "تنبيهات عندما تقوم عقدة شبكة البلد الأم بتشغيل عمليات المزامنة الآلية.",
+    "referralRewardTitle": "الإحالات والمكافآت",
+    "referralRewardDesc": "إشعار عند قيام إحالات الأصدقاء بإيداع أرصدة ترويجية في محفظتي.",
+    "systemUpdatesTitle": "تحديثات النظام العامة",
+    "systemUpdatesDesc": "تحديثات المحرك الحيوية والصيانة وإعلانات المنصة.",
+    "walletCreditTitle": "تم شحن المحفظة",
+    "walletCreditDesc": "إشعار عند إيداع مبلغ في محفظتي.",
+    "promoTitle": "العروض والترويج",
+    "promoDesc": "أخبار من حين لآخر عن العروض والميزات الجديدة. يبقى معطلاً حتى تقوم بتفعيله.",
+    "deliverVia": "الإرسال عبر",
+    "channelPushShort": "إشعار",
+    "channelEmailShort": "بريد",
+    "channelOffGlobally": "معطل في قنوات التنبيه أعلاه",
+    "rechargeNow": "اشحن الآن",
     "planFeePaidFromWallet": "تم دفع رسوم الخطة من رصيد محفظتك.",
     "planFeeNotChargedRetry": "وصل رصيدك لكن تعذّر خصم رسوم الخطة، لذلك لم يتم إنشاء الخط. رصيدك في أمان — يرجى المحاولة مرة أخرى.",
-    "offlineRefillChannelsHeader":  "طرق إعادة الشحن دون اتصال",
-    "offlineRefillTopUpFromWallet":  "اشحن {amount} من رصيد محفظتك",
-    "offlineRefillWalletFunded":  "من محفظتك",
-    "offlineRefillServiceFee":  "رسوم +{fee}",
-    "offlineRefillMissedCallTitle":  "اتصال غير مُجاب",
-    "offlineRefillMissedCallSubtitle":  "لا حاجة لرصيد أو بيانات",
-    "offlineRefillCallAction":  "اتصل لإعادة الشحن",
-    "offlineRefillRetry":  "حاول مرة أخرى",
-    "offlineRefillWaitSeconds":  "انتظر {seconds}ث",
-    "offlineRefillStatusSent":  "تم الإرسال — بانتظار التأكيد",
-    "offlineRefillStatusProcessing":  "جارٍ شحن خطك…",
-    "offlineRefillStatusConfirmed":  "تم تأكيد الشحن",
-    "offlineRefillStatusFailed":  "لم تنجح — جرّب طريقة أخرى",
-    "offlineRefillStatusTimedOut":  "لا يوجد رد بعد — جرّب طريقة أخرى",
-    "offlineRefillUssdTitle":  "استفد أكثر من شحنتك",
-    "offlineRefillUssdSubtitle":  "بعد وصول الرصيد، اطلب رمز مشغّلك للحصول على أفضل قيمة",
-    "offlineRefillUssdDial":  "اطلب",
+    "offlineRefillChannelsHeader": "طرق إعادة الشحن دون اتصال",
+    "offlineRefillTopUpFromWallet": "اشحن {amount} من رصيد محفظتك",
+    "offlineRefillWalletFunded": "من محفظتك",
+    "offlineRefillServiceFee": "رسوم +{fee}",
+    "offlineRefillMissedCallTitle": "اتصال غير مُجاب",
+    "offlineRefillMissedCallSubtitle": "لا حاجة لرصيد أو بيانات",
+    "offlineRefillCallAction": "اتصل لإعادة الشحن",
+    "offlineRefillRetry": "حاول مرة أخرى",
+    "offlineRefillWaitSeconds": "انتظر {seconds}ث",
+    "offlineRefillStatusSent": "تم الإرسال — بانتظار التأكيد",
+    "offlineRefillStatusProcessing": "جارٍ شحن خطك…",
+    "offlineRefillStatusConfirmed": "تم تأكيد الشحن",
+    "offlineRefillStatusFailed": "لم تنجح — جرّب طريقة أخرى",
+    "offlineRefillStatusTimedOut": "لا يوجد رد بعد — جرّب طريقة أخرى",
+    "offlineRefillUssdTitle": "استفد أكثر من شحنتك",
+    "offlineRefillUssdSubtitle": "بعد وصول الرصيد، اطلب رمز مشغّلك للحصول على أفضل قيمة",
+    "offlineRefillUssdDial": "اطلب",
     "activityTopupRequested": "تم تقديم طلب إعادة الشحن بمبلغ ${amount}",
     "activityTopupSuccess": "اكتملت إعادة الشحن بمبلغ ${amount} عبر {provider}",
     "activityTopupFailed": "فشلت إعادة الشحن بمبلغ ${amount}: {reason}",
@@ -829,33 +829,33 @@
     "deviceBlockedMessage": "أوقف فحص أمني على هذا الجهاز هذه الدفعة. إذا كان ذلك خطأ، تواصل مع الدعم وسنعالج الأمر.",
     "devicesHoursAgo": "منذ {hours} ساعة",
     "@devicesHoursAgo": {
-            "placeholders": {
-                    "hours": {
-                            "type": "int"
-                    }
+        "placeholders": {
+            "hours": {
+                "type": "int"
             }
+        }
     },
     "devicesDaysAgo": "منذ {days} يوم",
     "@devicesDaysAgo": {
-            "placeholders": {
-                    "days": {
-                            "type": "int"
-                    }
+        "placeholders": {
+            "days": {
+                "type": "int"
             }
+        }
     },
     "devicesMetaLine": "…{shortId} · v{version} · {lastSeen}",
     "@devicesMetaLine": {
-            "placeholders": {
-                    "shortId": {
-                            "type": "String"
-                    },
-                    "version": {
-                            "type": "String"
-                    },
-                    "lastSeen": {
-                            "type": "String"
-                    }
+        "placeholders": {
+            "shortId": {
+                "type": "String"
+            },
+            "version": {
+                "type": "String"
+            },
+            "lastSeen": {
+                "type": "String"
             }
+        }
     },
     "householdTitle": "الأسرة والعائلة",
     "householdTabMyFamily": "عائلتي",
@@ -925,14 +925,12 @@
     "householdSettingsSubtitle": "شارك خطوطك مع العائلة وحدّد حدود الإنفاق",
     "householdStatusDeclined": "مرفوضة",
     "householdDeclinedHint": "لقد رفضوا الدعوة. أزلهم لإرسال دعوة جديدة.",
-
     "carrierActivityFallbackOperator": "هذا المشغّل",
     "carrierUsageRequiredTitle": "الشحن التلقائي لا يمكنه حماية هذا الخط",
     "carrierUsageRequiredBody": "لا تعيد {operator} ضبط عداد عدم النشاط إلا عند إجراء مكالمة أو إرسال رسالة أو استخدام البيانات على الخط. إضافة الرصيد لا تُحتسب، لذا لا يمكن لأي شحن تلقائي إيقاف إلغاء تفعيل هذا الرقم. اختر الخطة القياسية وسننبهك في الوقت المناسب لاستخدام الخط بنفسك.",
     "carrierMinDenominationTitle": "هذا المشغّل يتطلب شحنًا أكبر",
     "carrierMinDenominationBody": "لا تضيف {operator} صلاحية للخط إلا عند شحن {amount} {currency} أو أكثر. أي مبلغ أقل يصل كرصيد قابل للاستخدام فقط، وقد يظل الرقم عرضة للإلغاء، لذا تعيد الخطة المميزة شحن هذا الخط بمبلغ {amount} {currency}.",
     "premiumUnavailableForCarrier": "الخطة المميزة غير متاحة لهذا المشغّل",
-
     "carrierRulesLinkLabel": "المزيد عن قواعد هذا المشغّل",
     "carrierRulesSheetTitle": "قواعد إلغاء التنشيط",
     "carrierRulesHowTitle": "كيف يقرّر {operator}",
@@ -1004,38 +1002,111 @@
     "smartCall": "اتصال ذكي",
     "freeCall": "مكالمة مجانية",
     "smartCallSavings": "توفير الاتصال الذكي",
-    "virtualNumbers": "الأرقام الافتراضية",
+    "virtualNumbers": "الرقم الثاني",
+    "secondNumberSubtitle": "مكالمات وتحويل المكالمات",
     "voicemail": "البريد الصوتي",
     "inspector": "الفاحص",
-  "fxChargesInUsd": "مبالغ {currency} تقريبية. تُحتسب الرسوم بالدولار الأمريكي.",
-  "fxCurrencySaveFailed": "تعذّر حفظ عملة العرض. يرجى المحاولة مرة أخرى.",
-  "fxAnnualProtectionFee": "رسوم الحماية السنوية",
-  "profileNotifications": "الإشعارات",
-  "profileWhatsAppNumber": "رقم واتساب",
-  "profileTitle": "ملفي الشخصي",
-  "profilePersonalAccount": "حساب شخصي",
-  "profileContactDetails": "بيانات التواصل",
-  "profileNotificationEmail": "بريد الإشعارات",
-  "profileCheckStatus": "تحقق من الحالة",
-  "profileVerified": "تم التحقق",
-  "profileVerify": "تحقق",
-  "profileSavedStatus": "محفوظ",
-  "profileAddNumber": "أضف رقمًا",
-  "profileLoadFailed": "تعذر تحميل هذه البيانات.",
-  "profilePreferences": "التفضيلات",
-  "profilePreferredLanguage": "اللغة المفضلة",
-  "profileTimeZone": "المنطقة الزمنية",
-  "profileDeviceTimeZoneHint": "تتبع الأوقات المنطقة الزمنية لهذا الجهاز. غيّر إعدادات جهازك لتحديثها.",
-  "profileCurrency": "العملة",
-  "profileCurrencyHint": "اختر العملة لعرض الأسعار التقديرية. تُحصّل المدفوعات بالدولار الأمريكي.",
-  "profileCurrencyUnavailable": "تُعرض الأسعار بالدولار حتى تتوفر العملة المختارة.",
-  "profileAccount": "الحساب",
-  "profileSavedSims": "الشرائح المحفوظة",
-  "profileEdit": "تعديل الملف الشخصي",
-  "profileFullName": "الاسم الكامل",
-  "profileHomeCountry": "البلد الأم",
-  "profileNameRequired": "أدخل اسمك.",
-  "profileCountryRequired": "اختر بلدك.",
-  "profileSaveFailed": "تعذر حفظ التغييرات. حاول مجددًا.",
-  "profileSaved": "تم تحديث الملف الشخصي."
+    "fxChargesInUsd": "مبالغ {currency} تقريبية. تُحتسب الرسوم بالدولار الأمريكي.",
+    "fxCurrencySaveFailed": "تعذّر حفظ عملة العرض. يرجى المحاولة مرة أخرى.",
+    "fxAnnualProtectionFee": "رسوم الحماية السنوية",
+    "profileNotifications": "الإشعارات",
+    "profileWhatsAppNumber": "رقم واتساب",
+    "profileTitle": "ملفي الشخصي",
+    "profilePersonalAccount": "حساب شخصي",
+    "profileContactDetails": "بيانات التواصل",
+    "profileNotificationEmail": "بريد الإشعارات",
+    "profileCheckStatus": "تحقق من الحالة",
+    "profileVerified": "تم التحقق",
+    "profileVerify": "تحقق",
+    "profileSavedStatus": "محفوظ",
+    "profileAddNumber": "أضف رقمًا",
+    "profileLoadFailed": "تعذر تحميل هذه البيانات.",
+    "profilePreferences": "التفضيلات",
+    "profilePreferredLanguage": "اللغة المفضلة",
+    "profileTimeZone": "المنطقة الزمنية",
+    "profileDeviceTimeZoneHint": "تتبع الأوقات المنطقة الزمنية لهذا الجهاز. غيّر إعدادات جهازك لتحديثها.",
+    "profileCurrency": "العملة",
+    "profileCurrencyHint": "اختر العملة لعرض الأسعار التقديرية. تُحصّل المدفوعات بالدولار الأمريكي.",
+    "profileCurrencyUnavailable": "تُعرض الأسعار بالدولار حتى تتوفر العملة المختارة.",
+    "profileAccount": "الحساب",
+    "profileSavedSims": "الشرائح المحفوظة",
+    "profileEdit": "تعديل الملف الشخصي",
+    "profileFullName": "الاسم الكامل",
+    "profileHomeCountry": "البلد الأم",
+    "profileNameRequired": "أدخل اسمك.",
+    "profileCountryRequired": "اختر بلدك.",
+    "profileSaveFailed": "تعذر حفظ التغييرات. حاول مجددًا.",
+    "profileSaved": "تم تحديث الملف الشخصي.",
+    "dashboardExplore": "اكتشف KeepSIMs",
+    "dashboardYourSimLines": "شرائحك",
+    "dashboardSecondNumberBenefit": "استقبل المكالمات وحوّلها",
+    "dashboardSetUp": "إعداد",
+    "dashboardRecharge": "شحن",
+    "dashboardStandard": "أساسي",
+    "dashboardPremium": "مميز",
+    "dashboardAccountOptions": "خيارات الحساب",
+    "dashboardCurrentLocation": "الموقع الحالي",
+    "snMyNumbers": "أرقامي الثانية",
+    "snGetNumber": "احصل على رقم ثانٍ",
+    "snSubtitle": "أرقامك ورسائلك في مكان واحد.",
+    "snMessages": "الرسائل",
+    "snEmpty": "احصل على رقم مخصص لاستقبال الرسائل في KeepSIMs.",
+    "snVerification": "تعتمد رموز التحقق على الخدمة المرسلة. بعض الخدمات لا تقبل الأرقام الافتراضية.",
+    "snPrivateNotifications": "محتوى الرسائل مخفي في الإشعارات.",
+    "snRenewal": "التجديد القادم",
+    "snAutoRenew": "التجديد التلقائي من محفظتي",
+    "snRelease": "التخلي عن هذا الرقم",
+    "snReleaseConfirm": "ستفقد المكالمات والرسائل المستقبلية. حدّث الحسابات التي تستخدم هذا الرقم لتسجيل الدخول أو الاسترداد. قد يُخصص الرقم لشخص آخر لاحقًا. يبدأ الطلب فورًا ويكتمل بعد تأكيد المشغل.",
+    "snReleasePending": "التخلي قيد التنفيذ",
+    "snGrace": "دفعة مستحقة — اشحن المحفظة قبل موعد التخلي",
+    "snActive": "نشط",
+    "snReceiveOnly": "صندوق لاستقبال الرسائل النصية فقط",
+    "snCopyCode": "نسخ الرمز",
+    "snCopied": "تم النسخ إلى الحافظة",
+    "snNoMessages": "لا توجد رسائل حتى الآن",
+    "snInboxUnavailable": "تعذر تحميل الرسائل. تحقق من الاتصال وأعد المحاولة.",
+    "snRetry": "إعادة المحاولة",
+    "snSetupPending": "جارٍ إعداد رقمك",
+    "snRefresh": "تحديث الحالة",
+    "snManage": "إدارة الرقم",
+    "snChooseCountry": "اختر الدولة",
+    "snNoCoverage": "الأرقام غير متاحة بعد. جارٍ التحقق من التغطية والأسعار في الولايات المتحدة والمملكة المتحدة.",
+    "snChooseNumber": "اختر رقمك",
+    "snReview": "راجع رقمك",
+    "snNumberFee": "رسوم الرقم",
+    "snServiceFee": "رسوم خدمة KeepSIMs",
+    "snSetupFee": "رسوم الإعداد",
+    "snTotal": "الإجمالي المستحق اليوم",
+    "snUsage": "شروط الاستخدام",
+    "snActivate": "تفعيل الرقم",
+    "snPurchasePending": "جارٍ تأكيد طلبك. تم حجز المبلغ. تحقق من حالته هنا؛ ولا تشترِ رقمًا بديلًا.",
+    "snPurchaseFailed": "تعذر على المشغل إتمام الطلب. تم تحرير المبلغ المحجوز.",
+    "snCopyNumber": "نسخ الرقم",
+    "snOpenInbox": "فتح صندوق الرسائل",
+    "snMarkRead": "وضع علامة كمقروءة",
+    "snForwardSetup": "إعداد تحويل مكالمات الشريحة",
+    "snIdentity": "حالة التحقق من الهوية",
+    "snUnverifiedSender": "لم يتم التحقق من هوية المرسل",
+    "snQuoteExpired": "انتهت صلاحية عرض السعر. حدّث الأرقام المتاحة.",
+    "snCheckStatus": "التحقق من حالة الطلب",
+    "snWalletBalance": "رصيد المحفظة",
+    "snPaidUntil": "مدفوع حتى",
+    "snCancel": "إلغاء",
+    "snTopUp": "شحن المحفظة",
+    "snNoStock": "لا توجد أرقام مؤهلة متاحة. حاول لاحقًا أو اختر دولة أخرى.",
+    "snMobile": "جوال",
+    "snLocal": "محلي",
+    "snCalls": "المكالمات",
+    "snCodeCandidate": "رمز موجود في الرسالة",
+    "snRead": "مقروءة",
+    "snError": "خدمة الرقم الثاني غير متاحة مؤقتًا. يرجى إعادة المحاولة.",
+    "snEveryDays": "كل {days} يومًا",
+    "@snEveryDays": {
+        "placeholders": {
+            "days": {
+                "type": "int"
+            }
+        }
+    },
+    "snRenewalReview": "يجب مراجعة إعدادات التجديد قبل بدء الفوترة التلقائية."
 }

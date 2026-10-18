@@ -1,4 +1,4 @@
-/// KeepSIMs — Available Virtual Number Model (Live Telnyx Inventory + App Fee)
+/// A server-priced retail quote for a second number.
 library;
 
 class AvailableVirtualNumber {
@@ -9,13 +9,13 @@ class AvailableVirtualNumber {
   final String? city;
   final String phoneNumberType;
   final List<String> features;
-  final double wholesaleMonthlyUsd;
-  final double wholesaleUpfrontUsd;
-  final double appFeePercent;
-  final double appFeeUsd;
+  final double setupFeeUsd;
   final double totalMonthlyUsd;
-  final String userTier;
   final String currency;
+  final String? quoteId;
+  final DateTime? quoteExpiresAt;
+  final String usageTerms;
+  final int billingPeriodDays;
 
   const AvailableVirtualNumber({
     required this.phoneNumber,
@@ -25,17 +25,20 @@ class AvailableVirtualNumber {
     this.city,
     required this.phoneNumberType,
     required this.features,
-    required this.wholesaleMonthlyUsd,
-    required this.wholesaleUpfrontUsd,
-    required this.appFeePercent,
-    required this.appFeeUsd,
+    required this.setupFeeUsd,
     required this.totalMonthlyUsd,
-    required this.userTier,
     required this.currency,
+    this.quoteId,
+    this.quoteExpiresAt,
+    this.usageTerms = '',
+    this.billingPeriodDays = 30,
   });
 
   String get locationDisplay {
-    final parts = [city, state].where((p) => p != null && p.isNotEmpty).toList();
+    final parts = [
+      city,
+      state,
+    ].where((p) => p != null && p.isNotEmpty).toList();
     if (parts.isNotEmpty) return parts.join(', ');
     return countryCode;
   }
@@ -51,19 +54,23 @@ class AvailableVirtualNumber {
   factory AvailableVirtualNumber.fromJson(Map<String, dynamic> json) {
     return AvailableVirtualNumber(
       phoneNumber: json['phone_number'] as String,
-      formattedNumber: json['formatted_number'] as String? ?? json['phone_number'] as String,
+      formattedNumber:
+          json['formatted_number'] as String? ?? json['phone_number'] as String,
       countryCode: json['country_code'] as String? ?? 'US',
       state: json['state'] as String?,
       city: json['city'] as String?,
       phoneNumberType: json['phone_number_type'] as String? ?? 'local',
-      features: (json['features'] as List?)?.map((e) => e.toString()).toList() ?? [],
-      wholesaleMonthlyUsd: ((json['wholesale_monthly_usd'] ?? 1.0) as num).toDouble(),
-      wholesaleUpfrontUsd: ((json['wholesale_upfront_usd'] ?? 0.0) as num).toDouble(),
-      appFeePercent: ((json['app_fee_percent'] ?? 15.0) as num).toDouble(),
-      appFeeUsd: ((json['app_fee_usd'] ?? 0.15) as num).toDouble(),
-      totalMonthlyUsd: ((json['total_monthly_usd'] ?? 1.15) as num).toDouble(),
-      userTier: json['user_tier'] as String? ?? 'free',
+      features:
+          (json['features'] as List?)?.map((e) => e.toString()).toList() ?? [],
+      setupFeeUsd: (json['setup_fee_usd'] as num).toDouble(),
+      totalMonthlyUsd: (json['total_monthly_usd'] as num).toDouble(),
       currency: json['currency'] as String? ?? 'USD',
+      quoteId: json['quote_id'] as String?,
+      quoteExpiresAt: DateTime.tryParse(
+        json['quote_expires_at'] as String? ?? '',
+      ),
+      usageTerms: json['usage_terms'] as String? ?? '',
+      billingPeriodDays: (json['billing_period_days'] as num?)?.toInt() ?? 30,
     );
   }
 }

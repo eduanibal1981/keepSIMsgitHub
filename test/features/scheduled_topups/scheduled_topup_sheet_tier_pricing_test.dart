@@ -41,14 +41,14 @@ void main() {
     {
       'offerId': 'vodafone_8_egp',
       'description': 'Vodafone Egypt 8 EGP',
-      'baseCostUsd': 0.20,
+      'retailPriceUsd': 0.70,
       'priceType': 'FIXED',
       'provider': 'DTOne',
     },
     {
       'offerId': 'vodafone_9_egp',
       'description': 'Vodafone Egypt 9 EGP',
-      'baseCostUsd': 0.22,
+      'retailPriceUsd': 0.72,
       'priceType': 'FIXED',
       'provider': 'DTOne',
     },
@@ -60,54 +60,64 @@ void main() {
     'premium': const RefillTierFeeRule(percentage: 3.0, minimum: 0.10),
   };
 
-  testWidgets('ScheduledTopupSheet quotes Free tier correctly (\$0.70 total for \$0.20 base) and shows Carrier rule · 76 days',
-      (tester) async {
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          refillFeeRulesProvider.overrideWith((ref) => Future.value(tierFeeRules)),
-          lineRefillOffersProvider('line-egypt-1')
-              .overrideWith((ref) => Future.value(fixedOffers)),
-          usageForecastForLineProvider('line-egypt-1')
-              .overrideWith((ref) => Future.value(testForecast)),
-          simLinesControllerProvider.overrideWith(() => _MockSimLinesController([testLine])),
-          walletControllerProvider.overrideWith(() => _MockWalletController()),
-        ],
-        child: const MaterialApp(
-          home: Scaffold(
-            body: ScheduledTopupSheet(
-              simLineId: 'line-egypt-1',
-              simNickname: 'My SIM Card',
-              simLine: testLine,
-              configMode: 'refill',
+  testWidgets(
+    'ScheduledTopupSheet preserves server retail totals and the carrier interval',
+    (tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            refillFeeRulesProvider.overrideWith(
+              (ref) => Future.value(tierFeeRules),
+            ),
+            lineRefillOffersProvider(
+              'line-egypt-1',
+            ).overrideWith((ref) => Future.value(fixedOffers)),
+            usageForecastForLineProvider(
+              'line-egypt-1',
+            ).overrideWith((ref) => Future.value(testForecast)),
+            simLinesControllerProvider.overrideWith(
+              () => _MockSimLinesController([testLine]),
+            ),
+            walletControllerProvider.overrideWith(
+              () => _MockWalletController(),
+            ),
+          ],
+          child: const MaterialApp(
+            home: Scaffold(
+              body: ScheduledTopupSheet(
+                simLineId: 'line-egypt-1',
+                simNickname: 'My SIM Card',
+                simLine: testLine,
+                configMode: 'refill',
+              ),
             ),
           ),
         ),
-      ),
-    );
+      );
 
-    await tester.pumpAndSettle();
+      await tester.pumpAndSettle();
 
-    // 1. Verify that 8 EGP is quoted at $0.70 (0.20 base + 0.50 free fee), NOT $0.30 (premium fee)
-    expect(find.text('\$0.70'), findsWidgets);
-    expect(find.text('Base: \$0.20 | Free fee: \$0.50'), findsOneWidget);
+      // 1. Verify that 8 EGP is quoted at $0.70 (0.20 base + 0.50 free fee), NOT $0.30 (premium fee)
+      expect(find.text('\$0.70'), findsWidgets);
+      expect(find.text('Total: \$0.70 USD'), findsOneWidget);
 
-    // 2. Verify that 9 EGP is quoted at $0.72 (0.22 base + 0.50 free fee), NOT $0.32
-    expect(find.text('\$0.72'), findsOneWidget);
-    expect(find.text('Base: \$0.22 | Free fee: \$0.50'), findsOneWidget);
+      // 2. Verify that 9 EGP is quoted at $0.72 (0.22 base + 0.50 free fee), NOT $0.32
+      expect(find.text('\$0.72'), findsOneWidget);
+      expect(find.text('Total: \$0.72 USD'), findsOneWidget);
 
-    // 3. Verify interval options:
-    // "Carrier rule · 76 days" must be present
-    expect(find.text('Carrier rule · 76 days'), findsOneWidget);
+      // 3. Verify interval options:
+      // "Carrier rule · 76 days" must be present
+      expect(find.text('Carrier rule · 76 days'), findsOneWidget);
 
-    // "1 Hour" must NOT be present
-    expect(find.text('1 Hour'), findsNothing);
+      // "1 Hour" must NOT be present
+      expect(find.text('1 Hour'), findsNothing);
 
-    // Standard presets are present
-    expect(find.text('7 Days'), findsOneWidget);
-    expect(find.text('14 Days'), findsOneWidget);
-    expect(find.text('Monthly'), findsOneWidget);
-  });
+      // Standard presets are present
+      expect(find.text('7 Days'), findsOneWidget);
+      expect(find.text('14 Days'), findsOneWidget);
+      expect(find.text('Monthly'), findsOneWidget);
+    },
+  );
 }
 
 class _MockSimLinesController extends SimLinesController {

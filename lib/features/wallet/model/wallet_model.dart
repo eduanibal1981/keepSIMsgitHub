@@ -50,3 +50,13 @@ abstract class WalletTransaction with _$WalletTransaction {
   factory WalletTransaction.fromJson(Map<String, dynamic> json) =>
       _$WalletTransactionFromJson(json);
 }
+
+extension WalletTransactionAccounting on WalletTransaction {
+  /// Direction comes from the posted snapshots, including signed corrections.
+  double get signedAmount => balanceAfter - balanceBefore;
+  bool get isCredit => signedAmount > 0;
+  String get amountSign =>
+      signedAmount > 0 ? '+' : (signedAmount < 0 ? '-' : '');
+  bool get isPurchaseRefund =>
+      const {'refund', 'esim_purchase_refund', 'call_refund'}.contains(type);
+}

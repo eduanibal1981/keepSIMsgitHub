@@ -32,8 +32,6 @@ abstract class ScheduledTopup with _$ScheduledTopup {
     DateTime? updatedAt,
     String? offerId,
     int? offerValue,
-    double? baseCostUsd,
-    double? appFeeUsd,
     String? pricingTier,
     int? feeRuleVersion,
     double? targetLocalValue,

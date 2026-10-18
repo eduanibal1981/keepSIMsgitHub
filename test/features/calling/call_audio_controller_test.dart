@@ -108,6 +108,35 @@ void main() {
       expect(container.read(callingControllerProvider).status, 'initiating');
     },
   );
+  test(
+    'active estimate adopts the accepted tariff and billing increment',
+    () async {
+      when(
+        () => repository.initiateCall(
+          destinationNumber: any(named: 'destinationNumber'),
+          mediaSessionId: any(named: 'mediaSessionId'),
+          idempotencyKey: any(named: 'idempotencyKey'),
+        ),
+      ).thenAnswer(
+        (_) async => {
+          'callId': 'call',
+          'destination': {
+            'ratePerMinute': 0.1,
+            'connectionFee': 0.25,
+            'billingIncrementSeconds': 60,
+          },
+        },
+      );
+      await container
+          .read(callingControllerProvider.notifier)
+          .startCall(destinationNumber: '+12025550123');
+      final accepted = container.read(callingControllerProvider).rate!;
+      expect(accepted.estimatedCostForSeconds(0), 0);
+      expect(accepted.estimatedCostForSeconds(1), 0.35);
+      expect(accepted.estimatedCostForSeconds(60), 0.35);
+      expect(accepted.estimatedCostForSeconds(61), 0.45);
+    },
+  );
   test('microphone denial never creates or dials a call', () async {
     when(
       () => audio.requestMicrophone(),

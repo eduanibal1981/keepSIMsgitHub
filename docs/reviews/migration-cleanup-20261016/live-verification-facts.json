@@ -1,0 +1,96 @@
+{
+  "defaults": [
+    {
+      "table": "sim_lines",
+      "column": "status",
+      "default": "'active'::text",
+      "replica_identity": "d"
+    },
+    {
+      "table": "sim_lines",
+      "column": "health_score",
+      "default": "0",
+      "replica_identity": "d"
+    },
+    {
+      "table": "topup_executions",
+      "column": "executed_at",
+      "default": null,
+      "replica_identity": "d"
+    }
+  ],
+  "column_grants": [
+    {
+      "column": "is_carrier_verified",
+      "authenticated_update": true
+    },
+    {
+      "column": "carrier_status",
+      "authenticated_update": true
+    },
+    {
+      "column": "detected_operator_name",
+      "authenticated_update": true
+    },
+    {
+      "column": "carrier_verified_at",
+      "authenticated_update": true
+    },
+    {
+      "column": "verification_status",
+      "authenticated_update": false
+    },
+    {
+      "column": "health_score",
+      "authenticated_update": false
+    }
+  ],
+  "health_rpc_grants": {
+    "anon": true,
+    "service_role": true,
+    "authenticated": true
+  },
+  "esim_supplier_codes": [
+    "zendit",
+    "esimaccess"
+  ],
+  "diversion_rule_count": 97,
+  "integration_presence": [
+    {
+      "code": "zendit",
+      "active": true,
+      "supports_esim": true
+    },
+    {
+      "code": "esimaccess",
+      "active": true,
+      "supports_esim": true
+    }
+  ],
+  "non_sensitive_config": [
+    {
+      "key": "ACTIVE_FULFILLMENT_METHOD",
+      "value": "API"
+    },
+    {
+      "key": "MIN_APP_FEE_USD",
+      "value": "0.03"
+    },
+    {
+      "key": "OFFLINE_VOUCHER_ENABLED",
+      "value": "true"
+    }
+  ],
+  "return_package_counts": [
+    {
+      "count": 4,
+      "country": "EG"
+    },
+    {
+      "count": 4,
+      "country": "OM"
+    }
+  ],
+  "legacy_refill_type_count": 0,
+  "email_config_missing_count": 0
+}

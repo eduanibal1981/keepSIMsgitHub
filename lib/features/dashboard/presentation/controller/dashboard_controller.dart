@@ -10,6 +10,7 @@ import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import 'package:keep_sims/features/auth/model/auth_model.dart';
 
 import 'package:keep_sims/features/wallet/controller/wallet_controller.dart';
+import 'package:keep_sims/features/wallet/model/wallet_model.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
 import 'package:keep_sims/features/scheduled_topups/controller/scheduled_topup_controller.dart';
@@ -87,7 +88,9 @@ class DashboardController extends _$DashboardController {
       // Await sub-providers to resolve, ensuring we remain in a true AsyncLoading state in the UI
       final walletState = await ref.watch(walletControllerProvider.future);
       final simLines = await ref.watch(simLinesControllerProvider.future);
-      final schedules = await ref.watch(scheduledTopupControllerProvider.future);
+      final schedules = await ref.watch(
+        scheduledTopupControllerProvider.future,
+      );
 
       return _fetchDashboardData(walletState, simLines, schedules, profile);
     } catch (e) {
@@ -100,7 +103,9 @@ class DashboardController extends _$DashboardController {
 
           final walletState = await ref.watch(walletControllerProvider.future);
           final simLines = await ref.watch(simLinesControllerProvider.future);
-          final schedules = await ref.watch(scheduledTopupControllerProvider.future);
+          final schedules = await ref.watch(
+            scheduledTopupControllerProvider.future,
+          );
 
           return _fetchDashboardData(walletState, simLines, schedules, profile);
         }
@@ -139,13 +144,7 @@ class DashboardController extends _$DashboardController {
     final recentActivities = <DashboardActivity>[];
     for (final tx in transactions.take(4)) {
       final isDeposit = tx.type == 'deposit' || tx.type == 'auto_fund';
-      final isReferral = tx.type == 'referral' || tx.type == 'referral_credit';
-      final isRefund = tx.type == 'refund';
-
-      String typeStr = 'topup';
-      if (isDeposit || isReferral || isRefund) {
-        typeStr = 'deposit';
-      }
+      final typeStr = tx.isCredit ? 'deposit' : 'topup';
 
       // Calculate timeAgo
       String timeAgoStr = 'Just now';
@@ -165,9 +164,9 @@ class DashboardController extends _$DashboardController {
           id: tx.id,
           title:
               tx.description ?? (isDeposit ? 'Deposit Funds' : 'Line Renewal'),
-          subtitle: isDeposit
+          subtitle: tx.isCredit
               ? '+\$${tx.amount.toStringAsFixed(2)} USD added'
-              : '-\$${tx.amount.toStringAsFixed(2)} USD',
+              : '${tx.amountSign}\$${tx.amount.toStringAsFixed(2)} USD',
           type: typeStr,
           timeAgo: timeAgoStr,
           isSuccess: true,

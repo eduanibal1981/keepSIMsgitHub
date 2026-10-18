@@ -12,10 +12,8 @@ class ReturnTripPackage {
   final int dataAllowanceMb;
   final int durationDays;
   final bool isUnlimited;
-  final double supplierCostUsd;
   final double retailPriceUsd;
   final double effectivePriceUsd;
-  final double appFeeUsd;
   final double discountUsd;
   final String? ussdRechargeCode;
   final String? activationInstructions;
@@ -33,10 +31,8 @@ class ReturnTripPackage {
     required this.dataAllowanceMb,
     required this.durationDays,
     required this.isUnlimited,
-    required this.supplierCostUsd,
     required this.retailPriceUsd,
     required this.effectivePriceUsd,
-    required this.appFeeUsd,
     required this.discountUsd,
     this.ussdRechargeCode,
     this.activationInstructions,
@@ -50,7 +46,9 @@ class ReturnTripPackage {
   String get formattedAllowance {
     if (isUnlimited) return 'Unlimited';
     if (dataAllowanceMb >= 1024) {
-      final gb = (dataAllowanceMb / 1024).toStringAsFixed(dataAllowanceMb % 1024 == 0 ? 0 : 1);
+      final gb = (dataAllowanceMb / 1024).toStringAsFixed(
+        dataAllowanceMb % 1024 == 0 ? 0 : 1,
+      );
       return '$gb GB';
     }
     return '$dataAllowanceMb MB';
@@ -90,10 +88,10 @@ class ReturnTripPackage {
       dataAllowanceMb: parseInt(json['data_allowance_mb']),
       durationDays: parseInt(json['duration_days']),
       isUnlimited: json['is_unlimited'] as bool? ?? false,
-      supplierCostUsd: parseDouble(json['supplier_cost_usd']),
       retailPriceUsd: parseDouble(json['retail_price_usd']),
-      effectivePriceUsd: parseDouble(json['effective_price_usd'] ?? json['retail_price_usd']),
-      appFeeUsd: parseDouble(json['app_fee_usd']),
+      effectivePriceUsd: parseDouble(
+        json['effective_price_usd'] ?? json['retail_price_usd'],
+      ),
       discountUsd: parseDouble(json['discount_usd']),
       ussdRechargeCode: json['ussd_recharge_code'] as String?,
       activationInstructions: json['activation_instructions'] as String?,
@@ -113,10 +111,8 @@ class ReturnTripPackage {
     'data_allowance_mb': dataAllowanceMb,
     'duration_days': durationDays,
     'is_unlimited': isUnlimited,
-    'supplier_cost_usd': supplierCostUsd,
     'retail_price_usd': retailPriceUsd,
     'effective_price_usd': effectivePriceUsd,
-    'app_fee_usd': appFeeUsd,
     'discount_usd': discountUsd,
     'ussd_recharge_code': ussdRechargeCode,
     'activation_instructions': activationInstructions,

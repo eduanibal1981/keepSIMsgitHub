@@ -898,7 +898,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
   Widget _buildTransactionItem(WalletTransaction tx) {
     final isDeposit = tx.type == 'deposit' || tx.type == 'auto_fund';
     final isReferral = tx.type == 'referral' || tx.type == 'referral_credit';
-    final isRefund = tx.type == 'refund';
+    final isRefund = tx.isPurchaseRefund;
     final isSetupRefill =
         tx.metadata?['order_type'] == 'setup_refill' ||
         (tx.description != null &&
@@ -907,34 +907,31 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
     final isDark = context.isDarkMode;
     Color typeColor = isDark ? AppColors.warning : AppColors.lightWarning;
     IconData typeIcon = Icons.phonelink_ring_rounded;
-    String sign = '-';
+    final sign = tx.amountSign;
 
     if (isDeposit) {
       typeColor = isDark ? AppColors.success : AppColors.lightSuccess;
       typeIcon = Icons.add_circle_outline_rounded;
-      sign = '+';
     } else if (isReferral) {
       typeColor = isDark ? AppColors.primaryLight : AppColors.lightPrimary;
       typeIcon = Icons.stars_rounded;
-      sign = '+';
     } else if (isRefund) {
       typeColor = isDark ? AppColors.success : AppColors.lightSuccess;
       typeIcon = Icons.stars_rounded;
-      sign = '+';
     } else if (tx.isGiftReceived) {
       typeColor = isDark ? AppColors.success : AppColors.lightSuccess;
       typeIcon = Icons.card_giftcard_rounded;
-      sign = '+';
     } else if (tx.isGiftSent) {
       // Money out, like any debit — but its own icon, because "Gift to Sara"
       // sitting under a top-up icon reads as a charge the user did not make.
       typeColor = isDark ? AppColors.primaryLight : AppColors.lightPrimary;
       typeIcon = Icons.card_giftcard_rounded;
-      sign = '-';
     } else if (isSetupRefill) {
       typeColor = isDark ? AppColors.primaryLight : AppColors.lightPrimary;
       typeIcon = Icons.settings_phone_rounded;
-      sign = '-';
+    } else if (tx.isCredit) {
+      typeColor = isDark ? AppColors.success : AppColors.lightSuccess;
+      typeIcon = Icons.add_circle_outline_rounded;
     }
 
     // A gift's metadata is the counterparty block, not a PayPal receipt.

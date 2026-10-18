@@ -44,6 +44,7 @@ abstract interface class WalletContract {
     String? referenceId,
     String plan = 'standard',
     String? carrierRuleId,
+    double? expectedAmount,
   });
 
   /// Sends wallet credit to the KeepSIMs account owning [recipientEmail].
@@ -80,4 +81,3 @@ abstract interface class WalletContract {
     String? reason,
   });
 }
-

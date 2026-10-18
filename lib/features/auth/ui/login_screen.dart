@@ -6,6 +6,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -29,6 +30,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   late final AnimationController _slideController;
   late final Animation<Offset> _slideAnimation;
   late final AnimationController _pulseController;
+  bool _signingInWithApple = false;
+
+  Future<void> _signInWithApple() async {
+    setState(() => _signingInWithApple = true);
+    try {
+      await ref.read(authControllerProvider.notifier).signInWithApple();
+    } finally {
+      if (mounted) setState(() => _signingInWithApple = false);
+    }
+  }
 
   @override
   void initState() {
@@ -267,30 +278,26 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
           icon: const _GoogleLogo(),
           label: 'Continue with Google',
           isDark: isDark,
-          isLoading: authState.isLoading,
+          isLoading: authState.isLoading && !_signingInWithApple,
         ),
         const SizedBox(height: 12),
 
         // ── Apple Sign-In ──────────────────────────────────────
-        _SocialButton(
-          onPressed: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Apple Sign-In will be available soon!'),
-                duration: Duration(seconds: 2),
-              ),
-            );
-          },
-          icon: Icon(
-            Icons.apple,
-            size: 22,
-            color: isDark
-                ? AppColors.textPrimaryDark
-                : AppColors.textPrimaryLight,
+        if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS) ...[
+          _SocialButton(
+            onPressed: authState.isLoading ? null : _signInWithApple,
+            icon: Icon(
+              Icons.apple,
+              size: 22,
+              color: isDark
+                  ? AppColors.textPrimaryDark
+                  : AppColors.textPrimaryLight,
+            ),
+            label: 'Continue with Apple',
+            isDark: isDark,
+            isLoading: authState.isLoading && _signingInWithApple,
           ),
-          label: 'Continue with Apple',
-          isDark: isDark,
-        ),
+        ],
         const SizedBox(height: 16),
 
         // ── OR Divider ─────────────────────────────────────────

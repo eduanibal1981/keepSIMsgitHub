@@ -1,5 +1,13 @@
 # Current Status and Roadmap
 
+## Task 20 update — 2026-10-18 (local, undeployed)
+
+Legacy yearly queue calls are replaced in creation and upgrade; schedule writes now use owner-checked canonical pricing/entitlement RPCs, single-next-occurrence synchronization and version-gated claims. Existing paid schedules pause for reauthorization, with held/provider evidence retained. Both apps' offline reminder paths and the guarded admin monitor are aligned. Funded setup explicitly revalidates legacy parents and rejects missing future airtime-unit data. Verification: 36 native SQL/concurrency/real PostgREST scenarios, 60 customer Flutter, two admin and 62 authoritative backend tests pass. Both apps regenerated; focused analysis has no errors, with existing warnings/lints. One unrelated notification-channel UI test still expects old email readiness behavior; no broad test/build pass is claimed. Fresh live metadata shows the old writable schedule fields and callable legacy queue; coordinated release, reconciliation and controlled provider/API acceptance remain pending. See [Task 20 review](../docs/reviews/scheduled-pricing-boundary-20261018.md). Task 21 was not started.
+
+## Retail data and ownership — Task 19, 2026-10-18
+
+**REPAIRED LOCALLY; NOT DEPLOYED.** Explicit retail catalogue/receipt/approval APIs and server ownership checks replace supplier reads, cost-bearing client models and raw subscriptions. Native range quotes preserve exact dispatch values and reviewed retail ceilings. Accepted trip history and authorized admin/backend supplier access remain functional. All 23 native SQL, 81 focused Flutter and 18 DID backend scenarios pass. Fresh read-only production metadata still shows exposed older contracts. Release the SQL and compatible customer/admin clients after the Task 3/18 dependency checks and real API/cache verification. Task 20 schedule-write/queue enforcement remains open. See `docs/reviews/retail-ownership-repair-20261018.md`.
+
 ## Executive assessment
 
 KeepSIMs has substantial product and backend implementation: both clients are broad, the database has mature domain coverage, financial actions are mostly server-side, and provider/queue/idempotency work is more advanced than a prototype. It is **not ready for an unrestricted production money launch**. Security grant regression, a live alternate supplier-spend path, ledger/reconciliation ambiguity, deployment/source drift, fail-open webhooks, missing admin authorization UX, a failing provider safety test, and absent current release gates are blocking evidence.
@@ -160,3 +168,49 @@ Implementation does not imply production verification. Provider credentials, web
 7. Restore clean Flutter analysis/tests/builds; replace admin template test; add CI for both apps, SQL, Node, secret scanning, and generated-code drift.
 8. Verify Android release and complete iOS only if iOS is an intended launch target.
 9. Enable enforcement flags and external providers incrementally, with rollback, alerting, reconciliation, and kill switches validated first.
+
+## Virtual-number financial safety — Task 17, 2026-10-18
+
+**REPAIRED LOCALLY; NOT DEPLOYED.** Forward migration
+`20261018040000_second_number_financial_safety.sql` extends the pending Second
+Number pilot. Purchase rechecks exact supplier inventory/costs and reserves once;
+capture binds owner/amount/purpose/reference/funding version and rolls back with
+activation on failure. Customer search/model/checkout contain retail charges only.
+A database gate defaults off and requires explicit pilot users even if country
+policies were enabled. Old unsubmitted quotes require refresh; existing uncertain
+purchases continue reconciliation without resubmission or expiry-based release.
+
+Renewal checks exact active provider ownership/profile before one atomic receipt,
+reservation, debit and paid-interval update per DID/period. Due service pauses;
+insufficient funds have a three-day recovery window, then provider release is
+queued. Cancellation/release is claim-fenced and completes only after confirmed
+provider absence. Local suspension does not stop supplier recurring costs. The
+customer 30-day term differs from Telnyx calendar-month billing; validate invoice,
+usage and cancellation exposure under an approved pilot budget before enabling.
+See `docs/reviews/virtual-number-financial-safety-20261018.md` for verification,
+dependencies and the required coordinated release; broad paid activation remains
+blocked.
+
+## Unified pricing and paid evidence — Task 18, 2026-10-18
+
+**REPAIRED LOCALLY; NOT DEPLOYED.** Forward migration
+`20261018050000_unified_pricing_entitlement.sql` unifies wallet/external/grandfather
+proof, term/reversal checks and bounded upgrade credit. Membership prices require
+configuration; effective published USD fee policies preserve explicit zeros.
+Promotion grants cover zero-price membership/setup/fallback without zero ledger
+rows. Quote-bound wallet payment and owner-scoped receipt adoption replace the
+unbound client debit. Setup snapshots fence changed prices before reservation and
+preserve the first Premium refill fee while the line is unpaid. Internal range
+quotes price the actual dispatch value; eSIM catalogue/bounds/purchase share the
+same account evidence and retail resolver. DID pricing now uses that resolver too.
+
+Premium client display uses validated server quotes, with unavailable pricing
+instead of guessed amounts. Old Premium margin/prepaid-year calculators and
+wallet-refill gateway arguments are retired. Forty native SQL scenarios passed,
+including Task 9 setup/fallback acceptance and concurrency; 147 Flutter and 18
+Edge tests passed. Core analysis is clean; broader onboarding retains existing
+warnings. The standalone pricing harness must run alongside earlier suites.
+Actual production prices, deployed grants/source/cache and controlled runtime/
+provider acceptance remain release gates. Read
+`docs/reviews/pricing-entitlement-unification-20261018.md` before rollout; old
+clients calling the unbound debit require the compatible release or maintenance.

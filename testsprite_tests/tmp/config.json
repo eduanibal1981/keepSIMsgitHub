@@ -4,7 +4,7 @@
   "scope": "codebase",
   "localEndpoint": "http://localhost:3000",
   "loginUser": "test@testsprite.com",
-  "loginPassword": "password123",
+  "loginPassword": "<LOGINPASSWORD>",
   "executionArgs": {
     "projectName": "keep_sims",
     "projectPath": "g:\\KeepSIMs\\keep_sims",
@@ -12,7 +12,7 @@
     "additionalInstruction": "Please login using Email/Password with email: test@testsprite.com and password: password123. Ensure you completely avoid testing any PayPal payment flows.",
     "serverMode": "production",
     "envs": {
-      "API_KEY": "sk-user-DQ8s1cD0TojTJqi-ZKX5YaAz_jwuIhywP0QnO6FzcvvRH7-dGulcAOpk4HPIL8HAEsj8fa_PFUyIfaI5JPSWMZUXGikswpIqAUdkXWb9uM3XA_8JmGwyCpoVw3mrr64G8as"
+      "API_KEY": "<API_KEY>"
     }
   },
   "serverPort": 55183

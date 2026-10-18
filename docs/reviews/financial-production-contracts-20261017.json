@@ -1,0 +1,245 @@
+{
+  "review_date": "2026-10-17",
+  "timezone": "Asia/Muscat",
+  "production_writes": false,
+  "provider_calls": false,
+  "snapshot_database_utc_date": "2026-10-16",
+  "fixture_guards": {
+    "catalog_comparison": "passed",
+    "positive_sql_blocks": 3,
+    "exit_code": 0
+  },
+  "pglite": {
+    "results": [
+      {
+        "name": "refund payout settles once under the real ledger discriminator CHECK",
+        "status": "failed",
+        "code": "23514",
+        "constraint": "wallet_transactions_type_check",
+        "message": "new row for relation \"wallet_transactions\" violates check constraint \"wallet_transactions_type_check\""
+      },
+      {
+        "name": "valid eSIM purchase reversal restores the original refundable funding source",
+        "status": "failed",
+        "code": "P0001",
+        "constraint": null,
+        "message": "eSIM reversal minted a replacement lot instead of restoring original refundable provenance"
+      },
+      {
+        "name": "supported call reversal discriminator preserves original funding and retry identity",
+        "status": "failed",
+        "code": "P0001",
+        "constraint": null,
+        "message": "Call reversal minted a replacement lot instead of restoring original provenance"
+      },
+      {
+        "name": "verified paid liveness settlement uses a production-supported ledger discriminator",
+        "status": "failed",
+        "code": "23514",
+        "constraint": "wallet_transactions_type_check",
+        "message": "new row for relation \"wallet_transactions\" violates check constraint \"wallet_transactions_type_check\""
+      },
+      {
+        "name": "wallet accounting block 1",
+        "status": "passed"
+      },
+      {
+        "name": "wallet accounting block 2",
+        "status": "passed"
+      },
+      {
+        "name": "wallet accounting block 3",
+        "status": "failed",
+        "code": "23514",
+        "constraint": "wallet_transactions_type_check",
+        "message": "new row for relation \"wallet_transactions\" violates check constraint \"wallet_transactions_type_check\""
+      },
+      {
+        "name": "wallet accounting block 4",
+        "status": "passed"
+      },
+      {
+        "name": "wallet accounting block 5",
+        "status": "passed"
+      },
+      {
+        "name": "financial remediation block 1",
+        "status": "passed"
+      },
+      {
+        "name": "financial remediation block 2",
+        "status": "passed"
+      },
+      {
+        "name": "financial remediation block 3",
+        "status": "passed"
+      },
+      {
+        "name": "financial remediation block 4",
+        "status": "passed"
+      },
+      {
+        "name": "financial remediation block 5",
+        "status": "passed"
+      },
+      {
+        "name": "financial remediation block 6",
+        "status": "passed"
+      },
+      {
+        "name": "financial remediation block 7",
+        "status": "passed"
+      }
+    ],
+    "passed": 11,
+    "failed": 5,
+    "exit_code": 1
+  },
+  "native_postgresql": {
+    "results": [
+      {
+        "name": "real ledger CHECK, NOT NULL and foreign-key constraints reject invalid writes",
+        "status": "passed"
+      },
+      {
+        "name": "authenticated reads obey the captured wallet ownership policies",
+        "status": "passed"
+      },
+      {
+        "name": "actual generated supplier columns cannot be replaced by permissive defaults",
+        "status": "passed"
+      },
+      {
+        "name": "refund payout settles once under the real ledger discriminator CHECK",
+        "status": "failed",
+        "code": "23514",
+        "constraint": "wallet_transactions_type_check",
+        "message": "new row for relation \"wallet_transactions\" violates check constraint \"wallet_transactions_type_check\""
+      },
+      {
+        "name": "valid eSIM purchase reversal restores the original refundable funding source",
+        "status": "failed",
+        "code": "P0001",
+        "constraint": null,
+        "message": "eSIM reversal minted a replacement lot instead of restoring original refundable provenance"
+      },
+      {
+        "name": "supported call reversal discriminator preserves original funding and retry identity",
+        "status": "failed",
+        "code": "P0001",
+        "constraint": null,
+        "message": "Call reversal minted a replacement lot instead of restoring original provenance"
+      },
+      {
+        "name": "verified paid liveness settlement uses a production-supported ledger discriminator",
+        "status": "failed",
+        "code": "23514",
+        "constraint": "wallet_transactions_type_check",
+        "message": "new row for relation \"wallet_transactions\" violates check constraint \"wallet_transactions_type_check\""
+      },
+      {
+        "name": "wallet_accounting_invariants_tests.sql block 1",
+        "status": "passed"
+      },
+      {
+        "name": "wallet_accounting_invariants_tests.sql block 2",
+        "status": "passed"
+      },
+      {
+        "name": "wallet_accounting_invariants_tests.sql block 3",
+        "status": "failed",
+        "code": "23514",
+        "constraint": "wallet_transactions_type_check",
+        "message": "new row for relation \"wallet_transactions\" violates check constraint \"wallet_transactions_type_check\""
+      },
+      {
+        "name": "wallet_accounting_invariants_tests.sql block 4",
+        "status": "passed"
+      },
+      {
+        "name": "wallet_accounting_invariants_tests.sql block 5",
+        "status": "passed"
+      },
+      {
+        "name": "financial_remediation_tests.sql block 1",
+        "status": "passed"
+      },
+      {
+        "name": "financial_remediation_tests.sql block 2",
+        "status": "passed"
+      },
+      {
+        "name": "financial_remediation_tests.sql block 3",
+        "status": "passed"
+      },
+      {
+        "name": "financial_remediation_tests.sql block 4",
+        "status": "passed"
+      },
+      {
+        "name": "financial_remediation_tests.sql block 5",
+        "status": "passed"
+      },
+      {
+        "name": "financial_remediation_tests.sql block 6",
+        "status": "passed"
+      },
+      {
+        "name": "financial_remediation_tests.sql block 7",
+        "status": "passed"
+      },
+      {
+        "name": "concurrent reservations and immediate debits respect funding allocations",
+        "status": "passed"
+      },
+      {
+        "name": "concurrent refund request, claim and payout settle once",
+        "status": "failed",
+        "code": "23514",
+        "constraint": "wallet_transactions_type_check",
+        "message": "new row for relation \"wallet_transactions\" violates check constraint \"wallet_transactions_type_check\""
+      },
+      {
+        "name": "concurrent finalizers activate and charge once",
+        "status": "passed"
+      }
+    ],
+    "passed": 16,
+    "failed": 6,
+    "exit_code": 1,
+    "effective_concurrency_roles": [
+      "service_role",
+      "authenticated"
+    ]
+  },
+  "inputs_sha256": {
+    "supabase/tests/fixtures/financial_production_snapshot.json": "6a5b0bbd0e6e3ad819e2713dbe706eab1d18838218d9e8d3f51afb9c89fbdd2e",
+    "supabase/tests/fixtures/financial_remediation_baseline.sql": "94b6145baf09ae9ff4c2f99f5898487c21b1e64f9c2e709971de29fe9073d5d9",
+    "supabase/tests/fixtures/capture_financial_production_snapshot.sql": "f741daac25991bb02b2ecd946fc4fa51878cd1ef76c802f7c0fc62039e660368",
+    "supabase/tests/financial_transaction_contract_tests.sql": "a903cbe1e1c881fc43dfa91e6fd64a4fb0f3d999847aab9ec7ab653ac926e9c6",
+    "supabase/tests/financial_fixture_tests.sql": "be92339b9945f600960a4984f488b67cf17c17e4a1ea8a6b12a087891b97316c",
+    "supabase/tests/financial_remediation_tests.sql": "e41b89ed4d76b9cae27a7d4b0bc18395958392ea36cb4069c8b06cafb0b76ee4",
+    "supabase/tests/wallet_accounting_invariants_tests.sql": "69bab88df541666bd7614b5d93ae7eb33f256dad97d0042c6f96b5bb75453d45",
+    "tools/financial-tests/bootstrap.mjs": "4d325b9af370c9e9bf7349d8f018c2fd3c9789f0850041b1cc63fda78ca74237",
+    "tools/financial-tests/concurrency.mjs": "ccf5be053870d9102fc8e65555a11bf5d53f3f612c670aa6e97c20a00e3f6a12",
+    "tools/financial-tests/fixture-verification.mjs": "dbd9b31ac5f710e1fcd4ded95f02a724f3e0b2e258e227f96eab799c9b70f63a",
+    "tools/financial-tests/fixture.mjs": "2b55cc6adedfe1f47ec9c7b177353125007e19b4a222217d839714df8859adb8",
+    "tools/financial-tests/production-fixture.mjs": "66c379a5014a1aa19462d9112d0ec1003bd8a8fd6dfefb76bc32b7442f4bbc8e",
+    "tools/financial-tests/run.mjs": "e4414fe144c2cdeb995d65418c34513ba5684f55d19924db0feba75f5baf9908",
+    "tools/financial-tests/sql-cases.mjs": "899eb5d8ae108654700e7ed096a29374652d4b4954d9cc70fad61e2144e4871e",
+    "supabase/migrations/20261016010000_financial_rpc_containment.sql": "9edd31f637c353cf6d42eb2c454bf93047ee3cacdc0497323a31c09cb4fb806e",
+    "supabase/migrations/20261016020000_wallet_funding_integrity.sql": "9653e73aff389427f58a974a309e84460fcd0eb8ae1b6b210a9b004e442cdf57",
+    "supabase/migrations/20261016025000_instant_refill_submission_boundary.sql": "72ba34ef442325c51f0302125ef8a9bbbfc7cd74de06242b91ae08ff4f46db81",
+    "supabase/migrations/20261016030000_compatible_sim_finalization.sql": "d8056202d65e71e937464a77b36823485ed6109163f6e4403c78b4279a3f3be0",
+    "supabase/migrations/20261016040000_canonical_paid_pricing.sql": "553a13594315f17d400c5c93b807e3b786b91586aa7866b3a27e61bf042f1d1d",
+    "supabase/migrations/20261016045000_canonical_esim_catalogue_prices.sql": "6cc81ae890490e56eee686b84021ea4d0462526394864caa14d811e82461bc2e",
+    "supabase/migrations/20261016050000_retail_customer_contracts.sql": "9e44d2c2305a6e58b51fe71124c7418dfee7b39855553341bc222a723508d3f3",
+    "supabase/migrations/20261016060000_schedule_wallet_recovery.sql": "00208f5513ec04d7bd2fbe1c97e399494f02c41128037bb1d8e884f92b8ea7e0"
+  },
+  "limits": [
+    "Bounded 42-table fixture, not full production baseline",
+    "34 documented trigger chains omitted",
+    "Synthetic Auth/policy/supplier adapters",
+    "No provider, JWT signature, PostgREST or deployment certification"
+  ]
+}

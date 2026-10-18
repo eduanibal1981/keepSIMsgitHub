@@ -41,7 +41,7 @@ void main() {
       expect(result.message, contains('Number is inactive'));
     });
 
-    test('SimLine model round-trips carrier verification fields', () {
+    test('Client payload excludes provider verification fields', () {
       final now = DateTime.parse('2026-08-31T07:00:00Z');
       final line = SimLine(
         id: 'test-sim-id-999',
@@ -56,10 +56,16 @@ void main() {
 
       final payload = line.toClientWritableJson();
 
-      expect(payload['is_carrier_verified'], isTrue);
-      expect(payload['carrier_status'], equals('active'));
-      expect(payload['detected_operator_name'], equals('Omantel'));
-      expect(payload['carrier_verified_at'], equals(now.toIso8601String()));
+      for (final field in [
+        'is_carrier_verified',
+        'carrier_status',
+        'detected_operator_name',
+        'carrier_verified_at',
+        'verification_status',
+        'health_score',
+      ]) {
+        expect(payload.containsKey(field), isFalse, reason: field);
+      }
     });
   });
 }

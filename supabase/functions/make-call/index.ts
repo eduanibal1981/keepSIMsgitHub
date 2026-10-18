@@ -1,3 +1,4 @@
+import { ProviderConfigurationError, providerSecretClient, requireProviderSecret } from "../_shared/provider-secrets.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { CallMedia } from "./call-media.ts";
 
@@ -45,6 +46,9 @@ async function rpc(name: string, args: Record<string, unknown>): Promise<{ ok: b
 }
 
 async function fetchSystemConfig(key: string, defaultVal: string = ""): Promise<string> {
+  if (key === "TELNYX_API_KEY") {
+    return await requireProviderSecret(providerSecretClient(SUPABASE_URL, SERVICE_ROLE_KEY), key);
+  }
   const envVal = Deno.env.get(key);
   if (envVal) return envVal;
   const res = await fetch(
@@ -54,16 +58,6 @@ async function fetchSystemConfig(key: string, defaultVal: string = ""): Promise<
   if (!res.ok) return defaultVal;
   const rows = await res.json();
   return rows[0]?.config_value ?? defaultVal;
-}
-
-async function fetchUserWallet(userId: string): Promise<any | null> {
-  const res = await fetch(
-    `${SUPABASE_URL}/rest/v1/wallets?user_id=eq.${userId}&select=*`,
-    { headers: serviceHeaders },
-  );
-  if (!res.ok) return null;
-  const rows = await res.json();
-  return rows[0] ?? null;
 }
 
 function normalizeE164(phone: string): string | null {
@@ -169,6 +163,7 @@ serve(async (req: Request) => {
       if (!record || record.user_id !== userId || record.call_type !== "app_to_phone_webrtc") {
         return jsonResponse({ success: false, errorMessage: "Call not found" }, 404);
       }
+      if (record.budget_contract_version !== 1) return jsonResponse({ success: false, errorMessage: "This call requires reconciliation." }, 409);
       await audio.ready(callId, "media_ready");
       return jsonResponse({ success: true }, 200);
     }
@@ -191,11 +186,10 @@ serve(async (req: Request) => {
       const record = records[0];
       if (record.call_type === "app_to_phone_webrtc") {
         // Keep finalization with the provider webhook, including the talk duration.
-        await audio.patch(record.id, { cancellation_requested_at: new Date().toISOString() });
-        await audio.close(record);
-        if (!record.telnyx_call_control_id_leg_a) {
-          await audio.patch(record.id, { status: "cancelled", ended_at: new Date().toISOString() });
-        }
+        await audio.rpc("request_media_call_termination", { p_call_id: record.id });
+        // Re-read after the serialized cancellation marker. A lost dial response
+        // never proves that no provider leg exists.
+        await audio.close(await audio.record(record.id));
         return jsonResponse({ success: true }, 200);
       }
       const terminalStatuses = ["completed", "declined", "busy", "no_answer", "cancelled", "failed"];
@@ -354,6 +348,29 @@ serve(async (req: Request) => {
       suggestedAction = "use_gateway";
     }
 
+    if (action === "dial" && typeof idempotencyKey === "string" && idempotencyKey.trim()) {
+      const existing = await audio.db(`call_records?user_id=eq.${userId}&idempotency_key=eq.${encodeURIComponent(idempotencyKey)}&select=*`);
+      if (existing.length) {
+        const saved = existing[0];
+        if (saved.destination_number !== cleanDest || saved.effective_caller_id !== effectiveCallerId ||
+            (saved.sim_line_id ?? null) !== (simLineId || null)) {
+          return jsonResponse({ success: false, errorMessage: "Call idempotency terms mismatch" }, 409);
+        }
+        const summary = await rpc("get_wallet_summary", { p_user_id: userId });
+        if (!summary.ok) return jsonResponse({ success: false, errorMessage: "Wallet availability is temporarily unavailable." }, 503);
+        return jsonResponse({ success: true, callId: saved.id, status: saved.status,
+          billingState: saved.billing_state, maxDurationSeconds: saved.max_duration_seconds,
+          reservedBudget: saved.reserved_budget_usd,
+          destination: { number: saved.destination_number, countryName: saved.destination_country_name,
+            countryCode: saved.destination_country_code, ratePerMinute: saved.rate_per_minute_usd,
+            ratePerSecond: (Number(saved.rate_per_minute_usd) / 60).toFixed(5),
+            connectionFee: saved.connection_fee_usd, billingIncrementSeconds: saved.billing_increment_seconds },
+          callerId: saved.effective_caller_id || saved.caller_number, callerIdType: saved.caller_id_type,
+          walletBalance: Number(summary.body.posted_balance), availableBalance: Number(summary.body.available_balance),
+        }, 200);
+      }
+    }
+
     // 3. Lookup call rate for destination (Fail-Closed: no unquoted fallback)
     const rateRes = await rpc("get_call_rate_for_number", { p_phone_number: cleanDest, p_user_id: userId });
     if (!rateRes.ok || !Array.isArray(rateRes.body) || rateRes.body.length === 0) {
@@ -380,9 +397,7 @@ serve(async (req: Request) => {
       availableBalance = Number(summaryRes.body.available_balance ?? 0);
       postedBalance = Number(summaryRes.body.posted_balance ?? 0);
     } else {
-      const wallet = await fetchUserWallet(userId);
-      postedBalance = Number(wallet?.balance ?? 0);
-      availableBalance = postedBalance;
+      return jsonResponse({ success: false, errorMessage: "Wallet availability is temporarily unavailable." }, 503);
     }
 
     // ── PREVIEW RESPONSE ──
@@ -426,144 +441,48 @@ serve(async (req: Request) => {
       }, 422);
     }
 
-    const minRequired = Number(rateData.rate_per_minute_usd);
-    if (availableBalance < minRequired) {
-      return jsonResponse({
-        success: false,
-        code: "insufficient_funds",
-        errorMessage: `Insufficient available balance ($${availableBalance.toFixed(2)}). At least $${minRequired.toFixed(2)} is required to call this destination.`,
-        availableBalance,
-        requiredAmount: minRequired,
-      }, 402);
+    if (typeof idempotencyKey !== "string" || !idempotencyKey.trim() || idempotencyKey.length > 200) {
+      return jsonResponse({ success: false, errorMessage: "A call idempotency key is required." }, 400);
     }
-
-    // 5. Check Idempotency Key (prevent double creation from repeated taps)
-    if (idempotencyKey) {
-      const existingCallRes = await fetch(
-        `${SUPABASE_URL}/rest/v1/call_records?user_id=eq.${userId}&idempotency_key=eq.${encodeURIComponent(idempotencyKey)}&select=*`,
-        { headers: serviceHeaders },
-      );
-      if (existingCallRes.ok) {
-        const existingRows = await existingCallRes.json();
-        if (existingRows.length > 0) {
-          const callRecord = existingRows[0];
-          return jsonResponse({
-            success: true,
-            callId: callRecord.id,
-            status: callRecord.status,
-            destination: {
-              number: cleanDest,
-              countryName: rateData.country_name,
-              countryCode: rateData.country_code,
-              ratePerMinute: rateData.rate_per_minute_usd,
-              ratePerSecond: (rateData.rate_per_minute_usd / 60).toFixed(5),
-            },
-            callerId: callRecord.effective_caller_id || callRecord.caller_number,
-            callerIdType: callRecord.caller_id_type || callerIdType,
-            walletBalance: balance,
-          }, 200);
-        }
-      }
-    }
-
-    // 6. Fetch Telnyx Configuration
     if (!await fetchSystemConfig("TELNYX_CALL_CONTROL_APP_ID")) {
       return jsonResponse({ success: false, errorMessage: "In-app calling audio is not configured yet." }, 503);
     }
-
-    // 7. Insert Initial Pending Call Record
-    const insertCallRes = await fetch(`${SUPABASE_URL}/rest/v1/call_records`, {
-      method: "POST",
-      headers: { ...serviceHeaders, "Prefer": "return=representation" },
-      body: JSON.stringify({
-        user_id: userId,
-        sim_line_id: simLineId || null,
-        call_type: "app_to_phone_webrtc",
-        caller_number: effectiveCallerId,
-        requested_caller_id: requestedCallerId,
-        effective_caller_id: effectiveCallerId,
-        caller_id_type: callerIdType,
-        policy_reason: policyReason,
-        policy_version: "2026-09-17",
-        destination_number: cleanDest,
-        destination_country_code: rateData.country_code,
-        destination_country_name: rateData.country_name,
-        rate_per_minute_usd: rateData.rate_per_minute_usd,
-        billing_increment_seconds: rateData.billing_increment_seconds || 60,
-        status: "initiated",
-        idempotency_key: idempotencyKey || null,
-      }),
+    // Tariff, owned media session, available funds, call record, and hold commit
+    // together. Retrying adopts the original terms and cannot dial again.
+    const prepared = await rpc("prepare_budgeted_media_call", {
+      p_user_id: userId, p_media_session_id: mediaSessionId,
+      p_request: { sim_line_id: simLineId || null, destination_number: cleanDest,
+        requested_caller_id: requestedCallerId, effective_caller_id: effectiveCallerId,
+        caller_id_type: callerIdType, policy_reason: policyReason, idempotency_key: idempotencyKey },
     });
-
-    if (!insertCallRes.ok) {
-      const errText = await insertCallRes.text();
-      return jsonResponse({ success: false, errorMessage: `Failed to create call record: ${errText}` }, 500);
+    if (!prepared.ok) {
+      return jsonResponse({ success: false, errorMessage: "Could not reserve this call. Check your available funds and call audio session." }, 409);
     }
-
-    const callRecord = (await insertCallRes.json())[0];
-
-    // 8. Atomically Reserve Call Budget Hold
-    const holdAmount = Math.min(
-      availableBalance,
-      Math.max(minRequired, Number((rateData.rate_per_minute_usd * 5).toFixed(4)))
-    );
-
-    const holdRes = await rpc("reserve_wallet_funds", {
-      p_user_id: userId,
-      p_amount: holdAmount,
-      p_order_type: "call_budget",
-      p_order_reference_id: callRecord.id,
-      p_reason: `Call budget reservation to ${cleanDest}`,
-      p_ttl_minutes: 60,
-    });
-
-    if (!holdRes.ok) {
-      await audio.patch(callRecord.id, {
-        status: "failed",
-        error_message: "Failed to reserve call funds: " + JSON.stringify(holdRes.body),
-        ended_at: new Date().toISOString(),
-      });
-      return jsonResponse({
-        success: false,
-        code: "insufficient_funds",
-        errorMessage: "Could not reserve funds for this call.",
-      }, 402);
-    }
-
-    const holdId = typeof holdRes.body === "string" ? holdRes.body : holdRes.body?.id;
-
-    try {
-      const session = await audio.claim(mediaSessionId, userId, callRecord.id);
-      await audio.dialApp(callRecord, session, normalizedGateway);
-    } catch (error: any) {
-      if (holdId) {
-        await rpc("release_wallet_hold", {
-          p_hold_id: holdId,
-          p_reason: "Dial setup failed: " + error.message,
-        });
+    const { call: callRecord, created, posted_balance: walletBalance, available_balance: remaining } = prepared.body;
+    if (created) {
+      try {
+        await audio.dialApp(callRecord, await audio.session(callRecord.id), normalizedGateway);
+      } catch (_) {
+        // Submission may already have reached the provider. Keep the hold and
+        // expose a recoverable state; never release/re-dial on an HTTP timeout.
+        await audio.patch(callRecord.id, { billing_state: "reconciliation_required", reconciliation_reason: "app_submission_unknown" });
+        return jsonResponse({ success: false, callId: callRecord.id, code: "call_reconciliation_required",
+          errorMessage: "Call setup could not be confirmed. Its reserved funds are awaiting reconciliation." }, 503);
       }
-      await audio.patch(callRecord.id, { status: "failed", error_message: error.message, ended_at: new Date().toISOString() });
-      return jsonResponse({ success: false, errorMessage: error.message }, 502);
     }
-
-    return jsonResponse({
-      success: true,
-      callId: callRecord.id,
-      status: "initiated",
-      destination: {
-        number: cleanDest,
-        countryName: rateData.country_name,
-        countryCode: rateData.country_code,
-        ratePerMinute: rateData.rate_per_minute_usd,
-        ratePerSecond: (rateData.rate_per_minute_usd / 60).toFixed(5),
-      },
-      callerId: effectiveCallerId,
-      callerIdType: callerIdType,
-      walletBalance: postedBalance,
-      availableBalance: Number((availableBalance - holdAmount).toFixed(4)),
+    return jsonResponse({ success: true, callId: callRecord.id, status: callRecord.status,
+      billingState: callRecord.billing_state, maxDurationSeconds: callRecord.max_duration_seconds,
+      reservedBudget: callRecord.reserved_budget_usd,
+      destination: { number: callRecord.destination_number, countryName: callRecord.destination_country_name,
+        countryCode: callRecord.destination_country_code, ratePerMinute: callRecord.rate_per_minute_usd,
+        ratePerSecond: (Number(callRecord.rate_per_minute_usd) / 60).toFixed(5),
+        connectionFee: callRecord.connection_fee_usd, billingIncrementSeconds: callRecord.billing_increment_seconds },
+      callerId: callRecord.effective_caller_id, callerIdType: callRecord.caller_id_type,
+      walletBalance, availableBalance: remaining,
     }, 200);
 
   } catch (err: any) {
+    if (err instanceof ProviderConfigurationError) return jsonResponse({ success: false, errorMessage: err.message, code: err.code }, 503);
     console.error("[make-call] error:", err);
     return jsonResponse({ success: false, errorMessage: err.message }, 500);
   }

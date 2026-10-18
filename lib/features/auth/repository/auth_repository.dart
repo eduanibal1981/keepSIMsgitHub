@@ -1,14 +1,18 @@
 /// SIM Shield — Auth Repository
 ///
-/// Implements [AuthContract] using Supabase Auth + Google Sign-In.
+/// Implements [AuthContract] using Supabase Auth and native social sign-in.
 /// Handles native mobile flow (ID token) and web OAuth flow.
 library;
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:crypto/crypto.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:keep_sims/core/failure.dart';
@@ -30,9 +34,159 @@ class AuthRepository implements AuthContract {
   final SupabaseClient _client;
   final LocalCacheService _cache;
   final ConnectivityService _connectivity;
+  final Future<AuthorizationCredentialAppleID> Function(String)
+  _appleCredential;
+  final FlutterSecureStorage _appleNameStorage;
   bool _googleInitialized = false;
 
-  AuthRepository(this._client, this._cache, this._connectivity);
+  AuthRepository(
+    this._client,
+    this._cache,
+    this._connectivity, {
+    Future<AuthorizationCredentialAppleID> Function(String)? appleCredential,
+    FlutterSecureStorage appleNameStorage = const FlutterSecureStorage(),
+  }) : _appleCredential = appleCredential ?? _requestAppleCredential,
+       _appleNameStorage = appleNameStorage;
+
+  static Future<AuthorizationCredentialAppleID> _requestAppleCredential(
+    String hashedNonce,
+  ) => SignInWithApple.getAppleIDCredential(
+    scopes: [
+      AppleIDAuthorizationScopes.email,
+      AppleIDAuthorizationScopes.fullName,
+    ],
+    nonce: hashedNonce,
+  );
+
+  @override
+  Future<Result<UserProfile>> signInWithApple() async {
+    // Other platforms require a separately configured Services ID/OAuth flow.
+    if (kIsWeb || defaultTargetPlatform != TargetPlatform.iOS) {
+      return const Failure(
+        AppFailure.auth(
+          message: 'Apple sign-in is available in the iPhone app.',
+        ),
+      );
+    }
+
+    try {
+      final rawNonce = _client.auth.generateRawNonce();
+      final credential = await _appleCredential(
+        sha256.convert(utf8.encode(rawNonce)).toString(),
+      );
+      final idToken = credential.identityToken;
+      if (idToken == null || idToken.isEmpty) {
+        return const Failure(
+          AppFailure.auth(
+            message: 'Apple did not return a sign-in token. Please try again.',
+          ),
+        );
+      }
+
+      // Apple sends the name only once. Retain it securely if the token
+      // exchange or subsequent profile save fails, and retry on the next login
+      // by this same Apple account. Never store the identity token or nonce.
+      final nameKey = credential.userIdentifier == null
+          ? null
+          : 'apple_sign_in_name_${credential.userIdentifier}';
+      final givenName = credential.givenName?.trim() ?? '';
+      final familyName = credential.familyName?.trim() ?? '';
+      Map<String, dynamic>? name;
+      if (givenName.isNotEmpty || familyName.isNotEmpty) {
+        name = {
+          'full_name': [
+            givenName,
+            familyName,
+          ].where((part) => part.isNotEmpty).join(' '),
+          if (givenName.isNotEmpty) 'given_name': givenName,
+          if (familyName.isNotEmpty) 'family_name': familyName,
+        };
+        if (nameKey != null) {
+          try {
+            await _appleNameStorage.write(
+              key: nameKey,
+              value: jsonEncode(name),
+            );
+          } catch (_) {
+            // A keychain failure must not prevent the normal server save.
+          }
+        }
+      } else if (nameKey != null) {
+        try {
+          final pending = await _appleNameStorage.read(key: nameKey);
+          if (pending != null) {
+            name = jsonDecode(pending) as Map<String, dynamic>;
+          }
+        } catch (_) {
+          // Continue signing in if local storage is unavailable.
+        }
+      }
+
+      final response = await _client.auth.signInWithIdToken(
+        provider: OAuthProvider.apple,
+        idToken: idToken,
+        nonce: rawNonce,
+      );
+      final user = response.user;
+      if (user == null || response.session == null) {
+        return const Failure(
+          AppFailure.auth(message: 'Apple sign-in failed. Please try again.'),
+        );
+      }
+
+      // A failed profile fetch must never restore another account's cache.
+      await _cache.remove('cached_user_profile');
+
+      if (name != null) {
+        try {
+          await _client.auth.updateUser(UserAttributes(data: name));
+          // The insert trigger has already created the profile. Metadata
+          // updates do not sync it; fill only an empty name, preserving edits.
+          await _client
+              .from('profiles')
+              .update({'full_name': name['full_name']})
+              .eq('id', user.id)
+              .or('full_name.is.null,full_name.eq.');
+          if (nameKey != null) await _appleNameStorage.delete(key: nameKey);
+        } catch (_) {
+          // Authentication succeeded. Keep the pending name for a later login;
+          // profile/onboarding remains usable during a temporary save failure.
+        }
+      }
+      return await getCurrentProfile();
+    } on SignInWithAppleAuthorizationException catch (e) {
+      if (e.code == AuthorizationErrorCode.canceled) {
+        return const Failure(AppFailure.auth(message: 'Sign-in canceled.'));
+      }
+      return const Failure(
+        AppFailure.auth(
+          message:
+              'Apple sign-in could not be completed. Please try again or sign in with email.',
+        ),
+      );
+    } on SignInWithAppleException {
+      return const Failure(
+        AppFailure.auth(
+          message:
+              'Apple sign-in is unavailable on this device. Please sign in with email.',
+        ),
+      );
+    } on AuthException {
+      return const Failure(
+        AppFailure.auth(
+          message:
+              'Apple sign-in could not be verified. Please try again or sign in with email.',
+        ),
+      );
+    } catch (_) {
+      return const Failure(
+        AppFailure.auth(
+          message:
+              'Unable to sign in with Apple. Check your connection and try again.',
+        ),
+      );
+    }
+  }
 
   // ── Google Sign-In ──────────────────────────────────────────
 

@@ -2,6 +2,7 @@
 
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.8";
+import { ProviderConfigurationError, requireProviderSecret } from "../_shared/provider-secrets.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -56,8 +57,12 @@ serve(async (req: Request) => {
     }
 
     const formattedPhone = formatMsisdn(phoneNumber);
-    const apiKey = Deno.env.get("TELNYX_API_KEY") || "KEY01A049E00656B79B4314CFFBC7969C10_k9JM7HV9u4sB2MadneUT1M";
-    const profileId = Deno.env.get("TELNYX_VERIFY_PROFILE_ID") || "490001a0-5878-8d2d-2d6e-5a06fcffd1cf";
+    if (!supabaseUrl || !supabaseServiceKey) throw new ProviderConfigurationError();
+    const apiKey = await requireProviderSecret(
+      createClient(supabaseUrl, supabaseServiceKey), "TELNYX_API_KEY",
+    );
+    const profileId = Deno.env.get("TELNYX_VERIFY_PROFILE_ID")?.trim();
+    if (!profileId) throw new ProviderConfigurationError();
 
     const payload = {
       code: String(code).trim(),
@@ -75,7 +80,7 @@ serve(async (req: Request) => {
     });
 
     const resData = await res.json();
-    console.log(`[verify-sim-otp] to=${formattedPhone} status=${res.status}`, resData);
+    console.log("[verify-sim-otp] Provider response status", res.status);
 
     if (res.ok && resData.data?.response_code === "accepted") {
       return new Response(
@@ -109,12 +114,18 @@ serve(async (req: Request) => {
       );
     }
   } catch (error: any) {
-    console.error("[verify-sim-otp] error:", error);
+    if (error instanceof ProviderConfigurationError) {
+      return new Response(
+        JSON.stringify({ success: false, code: error.code, message: error.message }),
+        { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+    console.error("[verify-sim-otp] Request failed");
     return new Response(
       JSON.stringify({
         success: false,
         is_valid: false,
-        message: error.message || "Internal error verifying OTP.",
+        message: "Unable to verify OTP.",
       }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );

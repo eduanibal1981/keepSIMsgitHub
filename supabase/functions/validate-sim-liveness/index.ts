@@ -1,3 +1,4 @@
+import { ProviderConfigurationError, readProviderSecret, requireProviderSecret } from "../_shared/provider-secrets.ts";
 // validate-sim-liveness — KeepSIMs Carrier BSS Liveness & Activity Verification Edge Function
 // Zero-cost live Carrier BSS validation via wholesale gateways (DTOne & Zendit BSS).
 
@@ -17,7 +18,7 @@ interface LivenessValidationResponse {
   country_code: string | null;
   reason: string | null;
   message: string;
-  provider: "zendit" | "dtone" | "telnyx" | "none";
+  provider: "zendit" | "dtone" | "telnyx" | "numbering_plan" | "none";
   verified_at: string;
 }
 
@@ -72,9 +73,10 @@ function isExplicitlyDeactivated(errStr: string): boolean {
 async function queryDTOne(
   formattedPhone: string,
   countryCode?: string,
+  credentials?: { key?: string | null; secret?: string | null },
 ): Promise<{ success: boolean; active?: boolean; operatorName?: string; country?: string; reason?: string; raw?: any }> {
-  const apiKey = Deno.env.get("DTONE_API_KEY");
-  const apiSecret = Deno.env.get("DTONE_API_SECRET");
+  const apiKey = credentials?.key;
+  const apiSecret = credentials?.secret;
   const baseUrl = Deno.env.get("DTONE_BASE_URL") || "https://preprod-dvs-api.dtone.com/v1";
 
   if (!apiKey || !apiSecret) {
@@ -133,7 +135,7 @@ async function queryDTOne(
         return { success: true, active: false, reason: "SUBSCRIBER_NOT_FOUND_OR_DEACTIVATED", raw: text };
       }
     } catch (e) {
-      console.error(`[DTOne GET] error:`, e);
+      console.error("Provider lookup failed");
     }
   }
 
@@ -144,8 +146,10 @@ async function queryDTOne(
 async function queryZendit(
   formattedPhone: string,
   countryCode?: string,
+  credentials?: { key?: string | null; secret?: string | null },
 ): Promise<{ success: boolean; active?: boolean; operatorName?: string; country?: string; reason?: string; raw?: any }> {
-  const apiSecret = Deno.env.get("ZENDIT_API_SECRET") || Deno.env.get("ZENDIT_API_KEY") || "sand_0296bcc7-526e-4efb-b4f9-8b11108e7c396a29abd0a371a4c9f33194dd";
+  const apiSecret = credentials?.secret;
+  if (!apiSecret) return { success: false, reason: "ZENDIT_NOT_CONFIGURED" };
   const baseUrl = Deno.env.get("ZENDIT_BASE_URL") || "https://api.zendit.io/v1";
   const headers = {
     Authorization: `Bearer ${apiSecret}`,
@@ -181,7 +185,7 @@ async function queryZendit(
         return { success: true, active: false, reason: "DEACTIVATED_OR_UNALLOCATED", raw: text };
       }
     } catch (e) {
-      console.error(`[Zendit GET] error:`, e);
+      console.error("Provider lookup failed");
     }
   }
 
@@ -192,8 +196,10 @@ async function queryZendit(
 async function queryTelnyxMetadata(
   formattedPhone: string,
   countryCode?: string,
+  credentials?: { key?: string | null; secret?: string | null },
 ): Promise<{ success: boolean; valid?: boolean; operatorName?: string; country?: string; raw?: any }> {
-  const apiKey = Deno.env.get("TELNYX_API_KEY") || "KEY01A049E00656B79B4314CFFBC7969C10_k9JM7HV9u4sB2MadneUT1M";
+  const apiKey = credentials?.key;
+  if (!apiKey) return { success: false };
 
   try {
     const res = await fetch(`https://api.telnyx.com/v2/number_lookup/${encodeURIComponent(formattedPhone)}?type=carrier`, {
@@ -216,7 +222,7 @@ async function queryTelnyxMetadata(
       }
     }
   } catch (e) {
-    console.error("[Telnyx Metadata] error:", e);
+    console.error("Provider lookup failed");
   }
   return { success: false };
 }
@@ -319,9 +325,10 @@ serve(async (req: Request) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 
-    if (supabaseUrl && supabaseServiceKey && authHeader) {
+    if (!supabaseUrl || !supabaseServiceKey) throw new ProviderConfigurationError();
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    if (authHeader) {
       const token = authHeader.replace("Bearer ", "").trim();
-      const supabase = createClient(supabaseUrl, supabaseServiceKey);
       const { data: { user } } = await supabase.auth.getUser(token);
 
       if (user) {
@@ -351,11 +358,20 @@ serve(async (req: Request) => {
       }, 400);
     }
 
+    const [dtoneKey, dtoneSecret, zenditSecret, telnyxKey] = await Promise.all([
+      readProviderSecret(supabase, "DTONE_API_KEY"),
+      readProviderSecret(supabase, "DTONE_API_SECRET"),
+      readProviderSecret(supabase, "ZENDIT_API_SECRET", ["ZENDIT_API_KEY"]),
+      readProviderSecret(supabase, "TELNYX_API_KEY"),
+    ]);
+    if (!!dtoneKey !== !!dtoneSecret || (!dtoneKey && !zenditSecret && !telnyxKey)) {
+      throw new ProviderConfigurationError();
+    }
     const formattedPhone = formatMsisdn(phoneNumber);
     const nationalPlan = detectNationalCarrier(formattedPhone, countryCode);
 
     // 1. Primary: DTOne BSS Lookup (Direct Live Subscriber Verification)
-    const dtoneResult = await queryDTOne(formattedPhone, countryCode);
+    const dtoneResult = await queryDTOne(formattedPhone, countryCode, { key: dtoneKey, secret: dtoneSecret });
     if (dtoneResult.success) {
       if (dtoneResult.active) {
         const opName = dtoneResult.operatorName ?? nationalPlan?.carrierName ?? null;
@@ -384,7 +400,7 @@ serve(async (req: Request) => {
     }
 
     // 2. Secondary: Zendit BSS Lookup (Carrier Range & Operator Identification)
-    const zenditResult = await queryZendit(formattedPhone, countryCode);
+    const zenditResult = await queryZendit(formattedPhone, countryCode, { secret: zenditSecret });
     if (zenditResult.success) {
       if (zenditResult.active || zenditResult.operatorName) {
         const opName = zenditResult.operatorName ?? nationalPlan?.carrierName ?? null;
@@ -413,7 +429,7 @@ serve(async (req: Request) => {
     }
 
     // 3. Telnyx Metadata (Carrier range and brand detection)
-    const telnyxMeta = await queryTelnyxMetadata(formattedPhone, countryCode);
+    const telnyxMeta = await queryTelnyxMetadata(formattedPhone, countryCode, { key: telnyxKey });
     if (telnyxMeta.success && telnyxMeta.valid === false) {
       return jsonResponse({
         is_active: false,
@@ -430,11 +446,11 @@ serve(async (req: Request) => {
     // 4. National Telecommunications Numbering Plan Match (e.g. FRiENDi Mobile Oman 79/98, Omantel 90)
     if (nationalPlan && nationalPlan.isValid) {
       return jsonResponse({
-        is_active: true,
-        carrier_status: "active",
+        is_active: false,
+        carrier_status: "pending",
         detected_operator_name: nationalPlan.carrierName,
         country_code: nationalPlan.countryCode,
-        reason: null,
+        reason: "FORMAT_ONLY",
         message: `${nationalPlan.carrierName} validated (Valid line format)`,
         provider: "numbering_plan",
         verified_at: nowIso,
@@ -444,11 +460,11 @@ serve(async (req: Request) => {
     const detectedOp = telnyxMeta.operatorName ?? null;
     if (detectedOp) {
       return jsonResponse({
-        is_active: true,
-        carrier_status: "active",
+        is_active: false,
+        carrier_status: "pending",
         detected_operator_name: detectedOp,
         country_code: countryCode ?? null,
-        reason: null,
+        reason: "FORMAT_ONLY",
         message: `${detectedOp} validated (Valid line format)`,
         provider: "telnyx",
         verified_at: nowIso,
@@ -459,11 +475,11 @@ serve(async (req: Request) => {
     const digitsOnly = formattedPhone.replace(/[^\d]/g, "");
     if (digitsOnly.length >= 8 && digitsOnly.length <= 15) {
       return jsonResponse({
-        is_active: true,
-        carrier_status: "active",
+        is_active: false,
+        carrier_status: "pending",
         detected_operator_name: null,
         country_code: countryCode ?? null,
-        reason: null,
+        reason: "FORMAT_ONLY",
         message: "Valid line format detected",
         provider: "none",
         verified_at: nowIso,
@@ -482,16 +498,16 @@ serve(async (req: Request) => {
       verified_at: nowIso,
     });
   } catch (error: any) {
-    console.error("[validate-sim-liveness] Unhandled error:", error);
+    console.error("Provider lookup failed");
     return jsonResponse({
       is_active: false,
       carrier_status: "unsupported",
       detected_operator_name: null,
       country_code: null,
-      reason: error.message || "INTERNAL_ERROR",
+      reason: error instanceof ProviderConfigurationError ? error.code : "INTERNAL_ERROR",
       message: "Validation service temporarily unavailable.",
       provider: "none",
       verified_at: nowIso,
-    }, 500);
+    }, error instanceof ProviderConfigurationError ? 503 : 500);
   }
 });

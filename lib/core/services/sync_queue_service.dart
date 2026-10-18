@@ -1,3 +1,4 @@
+import 'package:keep_sims/features/scheduled_topups/model/schedule_mutation_request.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:keep_sims/core/services/connectivity_service.dart';
@@ -94,7 +95,8 @@ class SyncQueue extends _$SyncQueue {
     for (final op in ops) {
       try {
         if (op.type == 'sim_line_add') {
-          final addPayload = Map<String, dynamic>.from(op.payload);
+          final addPayload = Map<String, dynamic>.from(op.payload)
+            ..removeWhere((key, _) => _verificationFields.contains(key));
           if (addPayload['id'] != null &&
               (addPayload['id'].toString().startsWith('offline_') ||
                   !_isValidUuid(addPayload['id'].toString()))) {
@@ -103,13 +105,36 @@ class SyncQueue extends _$SyncQueue {
           await client.from('sim_lines').upsert(addPayload);
         } else if (op.type == 'sim_line_update') {
           final lineId = op.payload['id'] as String;
-          final updatePayload = Map<String, dynamic>.from(op.payload)..remove('id');
+          final updatePayload = Map<String, dynamic>.from(op.payload)
+            ..remove('id')
+            ..removeWhere((key, _) => _verificationFields.contains(key));
           await client.from('sim_lines').update(updatePayload).eq('id', lineId);
         } else if (op.type == 'sim_line_delete') {
           final lineId = op.payload['id'] as String;
           await client.from('sim_lines').delete().eq('id', lineId);
+        } else if (op.type == 'line_schedule_initialize') {
+          if (op.payload['user_id'] != client.auth.currentUser?.id) {
+            continue;
+          }
+          await client.rpc(
+            'initialize_line_schedules',
+            params: {'p_sim_line_id': op.payload['sim_line_id']},
+          );
         } else if (op.type == 'topup_schedule_save') {
-          await client.from('scheduled_topups').upsert(op.payload);
+          // A queue saved under another account must wait for that account.
+          if (op.payload['user_id'] != null &&
+              op.payload['user_id'] != client.auth.currentUser?.id) {
+            continue;
+          }
+          if ((op.payload['schedule_type'] ?? 'notify') != 'notify') {
+            // Paid schedules require a fresh online price review, never replay.
+            await removeFromQueue(op.id);
+            continue;
+          }
+          await client.rpc(
+            'save_customer_schedule',
+            params: ScheduleMutationRequest.fromJson(op.payload),
+          );
         }
 
         // Successfully executed, remove from the queue
@@ -127,6 +152,17 @@ class SyncQueue extends _$SyncQueue {
       }
     }
   }
+
+  // Also sanitize operations saved by older clients before the server boundary
+  // was repaired; stale queued verification fields must not be replayed.
+  static const _verificationFields = {
+    'verification_status',
+    'health_score',
+    'is_carrier_verified',
+    'carrier_status',
+    'carrier_verified_at',
+    'detected_operator_name',
+  };
 
   static final RegExp _uuidRegex = RegExp(
     r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$',

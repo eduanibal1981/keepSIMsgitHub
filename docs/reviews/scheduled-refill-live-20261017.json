@@ -1,0 +1,57 @@
+{
+  "captured_date": "2026-10-17",
+  "project_id": "zwxswagokhgbuzrrbnhr",
+  "contracts": [
+    {
+      "signature": "settle_successful_execution(uuid,text,uuid,text,text,text,jsonb)",
+      "definition": "CREATE OR REPLACE FUNCTION public.settle_successful_execution(p_execution_id uuid, p_provider_tx_id text, p_hold_id uuid DEFAULT NULL::uuid, p_pin_code text DEFAULT NULL::text, p_pin_serial text DEFAULT NULL::text, p_redeem_instructions text DEFAULT NULL::text, p_metadata jsonb DEFAULT '{}'::jsonb)\n RETURNS jsonb\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO ''\nAS $function$\nDECLARE\n  v_exec RECORD;\n  v_hold_id UUID := p_hold_id;\n  v_txn_id UUID := NULL;\n  v_hold RECORD;\nBEGIN\n  -- 1. Lock execution row\n  SELECT * INTO v_exec\n  FROM public.topup_executions\n  WHERE id = p_execution_id\n  FOR UPDATE;\n\n  IF v_exec.id IS NULL THEN\n    RAISE EXCEPTION 'Execution not found: %', p_execution_id;\n  END IF;\n\n  -- If execution is already success, return idempotently\n  IF v_exec.status = 'success' THEN\n    SELECT id INTO v_txn_id\n    FROM public.wallet_transactions\n    WHERE reference_id = 'hold_' || COALESCE(v_exec.wallet_hold_id, p_hold_id)::text;\n\n    RETURN jsonb_build_object(\n      'success', true,\n      'idempotent', true,\n      'execution_id', v_exec.id,\n      'status', 'success',\n      'txn_id', v_txn_id\n    );\n  END IF;\n\n  -- Determine hold_id\n  IF v_hold_id IS NULL THEN\n    v_hold_id := v_exec.wallet_hold_id;\n  END IF;\n\n  -- 2. If hold_id is present, capture the hold\n  IF v_hold_id IS NOT NULL THEN\n    SELECT * INTO v_hold\n    FROM public.wallet_holds\n    WHERE id = v_hold_id;\n\n    IF v_hold.id IS NOT NULL THEN\n      IF v_hold.status = 'active' THEN\n        v_txn_id := public.capture_wallet_hold(\n          p_hold_id => v_hold_id,\n          p_txn_type => 'topup_debit',\n          p_description => 'Auto-Refill: ' || COALESCE(v_exec.execution_type, 'refill'),\n          p_metadata => jsonb_build_object(\n            'execution_id', v_exec.id,\n            'sim_line_id', v_exec.sim_line_id,\n            'provider_tx_id', p_provider_tx_id\n          ) || COALESCE(p_metadata, '{}'::jsonb)\n        );\n      ELSIF v_hold.status = 'captured' THEN\n        SELECT id INTO v_txn_id\n        FROM public.wallet_transactions\n        WHERE reference_id = 'hold_' || v_hold_id::text;\n      ELSE\n        RAISE EXCEPTION 'Hold % is in invalid status for capture: %', v_hold_id, v_hold.status;\n      END IF;\n    END IF;\n  END IF;\n\n  -- 3. Update execution status atomically\n  UPDATE public.topup_executions\n  SET status = 'success',\n      reloadly_transaction_id = p_provider_tx_id,\n      wallet_hold_id = COALESCE(v_hold_id, wallet_hold_id),\n      pin_code = COALESCE(p_pin_code, pin_code),\n      pin_serial = COALESCE(p_pin_serial, pin_serial),\n      redeem_instructions = COALESCE(p_redeem_instructions, redeem_instructions),\n      executed_at = COALESCE(executed_at, now()),\n      completed_at = now(),\n      failure_reason = NULL,\n      updated_at = now()\n  WHERE id = p_execution_id;\n\n  RETURN jsonb_build_object(\n    'success', true,\n    'execution_id', p_execution_id,\n    'provider_tx_id', p_provider_tx_id,\n    'hold_id', v_hold_id,\n    'wallet_txn_id', v_txn_id\n  );\nEND;\n$function$\n",
+      "acl": "{postgres=X/postgres,service_role=X/postgres}"
+    },
+    {
+      "signature": "update_execution_status(uuid,text,text,text,text,text)",
+      "definition": "CREATE OR REPLACE FUNCTION public.update_execution_status(p_id uuid, p_status text, p_reloadly_transaction_id text, p_pin_code text DEFAULT NULL::text, p_pin_serial text DEFAULT NULL::text, p_redeem_instructions text DEFAULT NULL::text)\n RETURNS void\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO ''\nAS $function$\nBEGIN\n  UPDATE public.topup_executions\n  SET status = p_status,\n      reloadly_transaction_id = p_reloadly_transaction_id,\n      pin_code = COALESCE(p_pin_code, pin_code),\n      pin_serial = COALESCE(p_pin_serial, pin_serial),\n      redeem_instructions = COALESCE(p_redeem_instructions, redeem_instructions),\n      executed_at = NOW(),\n      completed_at = NOW()\n  WHERE id = p_id;\nEND;\n$function$\n",
+      "acl": "{postgres=X/postgres,service_role=X/postgres}"
+    },
+    {
+      "signature": "update_execution_status(uuid,text,text)",
+      "definition": "CREATE OR REPLACE FUNCTION public.update_execution_status(p_id uuid, p_status text, p_reloadly_transaction_id text)\n RETURNS void\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO ''\nAS $function$\nBEGIN\n  UPDATE public.topup_executions\n  SET status = p_status,\n      reloadly_transaction_id = p_reloadly_transaction_id,\n      executed_at = NOW(),\n      completed_at = NOW()\n  WHERE id = p_id;\nEND;\n$function$\n",
+      "acl": "{postgres=X/postgres,service_role=X/postgres}"
+    }
+  ],
+  "extra": [
+    {
+      "contracts": {
+        "functions": [
+          {
+            "signature": "claim_due_executions(character varying,integer)",
+            "definition": "CREATE OR REPLACE FUNCTION public.claim_due_executions(p_execution_type character varying, p_limit integer)\n RETURNS SETOF topup_executions\n LANGUAGE plpgsql\n SET search_path TO ''\nAS $function$\nBEGIN\n  RETURN QUERY\n  WITH candidates AS (\n    SELECT DISTINCT ON (t.sim_line_id) t.id\n    FROM public.topup_executions t\n    WHERE t.status = 'pending'\n      AND t.execution_type = p_execution_type\n      AND t.execution_time <= NOW()\n      AND (t.scheduled_topup_id IS NULL OR EXISTS (\n        SELECT 1 FROM public.scheduled_topups st\n        WHERE st.id = t.scheduled_topup_id\n          AND st.is_active))\n      AND NOT EXISTS (\n        SELECT 1 FROM public.topup_executions p\n        WHERE p.sim_line_id = t.sim_line_id\n          AND p.status = 'processing'\n      )\n      AND pg_try_advisory_xact_lock(hashtext('sim_line_' || t.sim_line_id::text))\n    ORDER BY t.sim_line_id, t.execution_time ASC\n    LIMIT p_limit\n  )\n  UPDATE public.topup_executions te\n  SET status = 'processing',\n      processing_since = NOW(),\n      pre_processing_status = 'pending'\n  FROM candidates c\n  WHERE te.id = c.id\n  RETURNING te.*;\nEND;\n$function$\n"
+          },
+          {
+            "signature": "update_execution_failed(uuid,text)",
+            "definition": "CREATE OR REPLACE FUNCTION public.update_execution_failed(p_id uuid, p_reason text)\n RETURNS void\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO ''\nAS $function$\nBEGIN\n  UPDATE public.topup_executions\n  SET status = 'failed',\n      failure_reason = p_reason,\n      completed_at = NOW()\n  WHERE id = p_id;\nEND;\n$function$\n"
+          }
+        ],
+        "update_dependencies": null
+      }
+    }
+  ],
+  "vm_hashes_before": {
+    "worker_auto_mini_refill": "f6b9cc3cb64f7d759499760947bdaea8ea76305bbca1bd5d88c5be093182c5de",
+    "worker_auto_custom_refill": "66e9681fdf53ccc7f34e37edbec5e5d1b2f69a87fd2b23e5d67a847ddf7c023d"
+  },
+  "live_migrations_at_or_after_20261016010000": [
+    "20261016205533"
+  ],
+  "deployed_scheduled_worker_rpc": "settle_successful_execution",
+  "deployed_legacy_status_caller": {
+    "file": "worker_instant_refill.js",
+    "line": 463,
+    "rpc": "update_execution_status"
+  },
+  "tested_local_hashes": {
+    "worker_auto_mini_refill.js": "896c8cb4416d7974201a82da03e432a6bb093be01304fffbab89a533470c794b",
+    "worker_auto_custom_refill.js": "d0eaa3b582f16d773717dbd92bd815a39795c5d22a3ce9c920a382f613ff7804",
+    "worker_instant_refill.js": "288334ad73c841dda5040efbd10e247eb4d3603d36a47784759778d4877100b1",
+    "20261017164417_scheduled_refill_worker_contracts.sql": "be9e5223d86b7d17803b8466b175f7797469f67552e9171722dd3f102ea76bee"
+  }
+}

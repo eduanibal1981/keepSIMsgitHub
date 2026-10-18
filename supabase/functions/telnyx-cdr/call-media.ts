@@ -3,12 +3,17 @@
 export const terminalCallStatuses = ['completed', 'declined', 'busy', 'no_answer', 'cancelled', 'failed'];
 
 export class CallMedia {
-  constructor(
-    private url: string,
-    private headers: Record<string, string>,
-    private apiKey: string,
-    private appId: string,
-  ) {}
+  private url: string;
+  private headers: Record<string, string>;
+  private apiKey: string;
+  private appId: string;
+
+  constructor(url: string, headers: Record<string, string>, apiKey: string, appId: string) {
+    this.url = url;
+    this.headers = headers;
+    this.apiKey = apiKey;
+    this.appId = appId;
+  }
 
   async db(path: string, method = 'GET', body?: unknown): Promise<any[]> {
     const response = await fetch(`${this.url}/rest/v1/${path}`, {
@@ -31,6 +36,15 @@ export class CallMedia {
       return text.replace(/^"|"$/g, '').trim();
     }
     return response.status === 204 ? {} : await response.json();
+  }
+
+  async rpc(name: string, args: Record<string, unknown>): Promise<any> {
+    const response = await fetch(`${this.url}/rest/v1/rpc/${name}`, {
+      method: 'POST', headers: this.headers, body: JSON.stringify(args),
+    });
+    if (!response.ok) throw new Error('Call budget state is temporarily unavailable');
+    const text = await response.text();
+    return text ? JSON.parse(text) : null;
   }
 
   async deleteCredential(credentialId?: string | null) {
@@ -122,19 +136,23 @@ export class CallMedia {
   }
 
   async dialApp(record: any, session: any, gateway: string) {
+    const begin = await this.rpc('begin_media_call_leg', { p_call_id: record.id, p_leg: 'app' });
+    if (!begin.dispatch) return;
+    record = begin.call;
     const result = await this.provider('calls', {
       connection_id: this.appId,
       to: `sip:${session.sip_username}@sip.telnyx.com;secure=srtp`, from: gateway,
-      timeout_secs: 20, time_limit_secs: 3600,
+      timeout_secs: 20, time_limit_secs: record.max_duration_seconds + 60,
       command_id: record.id,
       client_state: btoa(JSON.stringify({ callRecordId: record.id, mediaLeg: 'app' })),
     });
     if (!result.data?.call_control_id) throw new Error('Unable to connect app audio');
-    const changes = await this.patch(record.id, {
-      telnyx_call_control_id_leg_a: result.data.call_control_id,
-      telnyx_call_session_id: result.data.call_session_id,
+    await this.rpc('record_media_call_evidence', { p_call_id: record.id, p_leg: 'app',
+      p_event_type: 'command.accepted', p_occurred_at: new Date().toISOString(),
+      p_payload: { call_control_id: result.data.call_control_id },
     });
-    if (!changes.length) await this.hangup(result.data.call_control_id);
+    const latest = await this.record(record.id);
+    if (terminalCallStatuses.includes(latest.status) || latest.cancellation_requested_at) await this.hangup(result.data.call_control_id);
   }
 
   async ready(callId: string, field: 'media_ready' | 'app_answered') {
@@ -144,36 +162,32 @@ export class CallMedia {
     const record = await this.record(callId);
     if (!session || !record || terminalCallStatuses.includes(record.status) || record.cancellation_requested_at) return;
     if (!session.media_ready || !session.app_answered || !record.telnyx_call_control_id_leg_a || record.telnyx_call_control_id_leg_b) return;
-    // Atomically claim dialing to prevent race condition between concurrent readiness events
-    const [claimed] = await this.db(`call_media_sessions?call_record_id=eq.${encodeURIComponent(callId)}&dial_started=eq.false`, 'PATCH', { dial_started: true });
-    if (!claimed) return;
-    const [wallet] = await this.db(`wallets?user_id=eq.${record.user_id}&select=balance`);
-    const rate = Number(record.rate_per_minute_usd);
-    const limit = Math.min(3600, Math.floor(Number(wallet?.balance) * 60 / rate));
-    if (!Number.isFinite(limit) || rate <= 0 || limit < 1) {
-      await this.db(`call_media_sessions?call_record_id=eq.${encodeURIComponent(callId)}`, 'PATCH', { dial_started: false }).catch(() => {});
-      throw new Error('Insufficient wallet balance for this call.');
+    const begin = await this.rpc('begin_media_call_leg', { p_call_id: callId, p_leg: 'destination' });
+    if (!begin.dispatch) return;
+    const accepted = begin.call;
+    const limit = Number(accepted.max_duration_seconds);
+    if (accepted.budget_contract_version !== 1 || !Number.isInteger(limit) || limit < 30 || limit > 300) {
+      throw new Error('A funded call budget is required.');
     }
     // Both racing readiness events use the same provider command ID and payload.
     try {
       const result = await this.provider('calls', {
-        connection_id: this.appId, to: record.destination_number,
-        from: record.effective_caller_id || record.caller_number,
+        connection_id: this.appId, to: accepted.destination_number,
+        from: accepted.effective_caller_id || accepted.caller_number,
         timeout_secs: 30, time_limit_secs: limit,
         command_id: session.id,
         link_to: record.telnyx_call_control_id_leg_a, bridge_on_answer: true,
         client_state: btoa(JSON.stringify({ callRecordId: callId, mediaLeg: 'destination' })),
       });
-      if (result.data?.call_control_id) {
-        const changes = await this.patch(callId, {
-          telnyx_call_control_id_leg_b: result.data.call_control_id,
-          status: 'ringing',
-        });
-        const latest = await this.record(callId);
-        if (!changes.length || latest?.cancellation_requested_at) await this.hangup(result.data.call_control_id);
-      }
+      if (!result.data?.call_control_id) throw new Error('Destination submission could not be confirmed');
+      await this.rpc('record_media_call_evidence', { p_call_id: callId, p_leg: 'destination',
+        p_event_type: 'command.accepted', p_occurred_at: new Date().toISOString(),
+        p_payload: { call_control_id: result.data.call_control_id },
+      });
+      const latest = await this.record(callId);
+      if (terminalCallStatuses.includes(latest.status) || latest.cancellation_requested_at) await this.hangup(result.data.call_control_id);
     } catch (err) {
-      await this.db(`call_media_sessions?call_record_id=eq.${encodeURIComponent(callId)}`, 'PATCH', { dial_started: false }).catch(() => {});
+      await this.patch(callId, { billing_state: 'reconciliation_required', reconciliation_reason: 'destination_submission_unknown' }).catch(() => {});
       throw err;
     }
   }

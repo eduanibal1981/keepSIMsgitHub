@@ -196,11 +196,26 @@ class CallingController extends Notifier<ActiveCallState> {
       if (callId == null) throw Exception('Unable to create call.');
       final effectiveCallerId = res['callerId'] as String?;
       final callerIdType = res['callerIdType'] as String?;
+      final accepted = res['destination'];
+      final acceptedRate = accepted is Map
+          ? CallRate(
+              id: rate?.id ?? '',
+              countryCode: accepted['countryCode'] as String? ?? '',
+              countryName: accepted['countryName'] as String? ?? '',
+              phonePrefix: destinationNumber,
+              ratePerMinute: (accepted['ratePerMinute'] as num).toDouble(),
+              connectionFee:
+                  (accepted['connectionFee'] as num?)?.toDouble() ?? 0,
+              billingIncrementSeconds:
+                  (accepted['billingIncrementSeconds'] as num?)?.toInt() ?? 1,
+            )
+          : rate;
 
       state = state.copyWith(
         callId: callId,
         effectiveCallerId: effectiveCallerId,
         callerIdType: callerIdType,
+        rate: acceptedRate,
         status: 'initiating', // Setup started; do NOT display premature ringing
       );
 
@@ -357,8 +372,7 @@ class CallingController extends Notifier<ActiveCallState> {
     _durationTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (state.status == 'in_progress') {
         final newSecs = state.durationSeconds + 1;
-        final ratePerSec = (state.rate?.ratePerMinute ?? 0.08) / 60.0;
-        final cost = newSecs * ratePerSec;
+        final cost = state.rate?.estimatedCostForSeconds(newSecs) ?? 0;
         state = state.copyWith(durationSeconds: newSecs, estimatedCost: cost);
       }
     });

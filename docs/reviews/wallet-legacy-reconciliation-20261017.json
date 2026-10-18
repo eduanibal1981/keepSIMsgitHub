@@ -1,0 +1,22 @@
+{
+  "limits": "No provider evidence, opening-balance inference, timestamp tie ordering or customer loss certification; no records changed",
+  "metrics": {
+    "wallets_checked": 7,
+    "unknown_completed_type": 0,
+    "foreign_hold_allocation": 0,
+    "active_lot_overallocated": 0,
+    "active_legacy_refund_items": 0,
+    "incorrect_completed_direction": 0,
+    "lot_owner_or_currency_mismatch": 0,
+    "hold_owner_or_currency_mismatch": 0,
+    "reserved_exceeds_posted_balance": 0,
+    "wallet_vs_funding_lot_difference": 0,
+    "invalid_completed_amount_or_delta": 0,
+    "wallet_vs_signed_ledger_difference": 1,
+    "chain_breaks_without_timestamp_ties": 0,
+    "duplicate_completed_reference_groups": 0,
+    "active_hold_allocation_total_mismatch": 0,
+    "wallets_with_ambiguous_timestamp_order": 0
+  },
+  "captured_at_utc": "2026-10-16T22:46:44.533269+00:00"
+}

@@ -36,7 +36,8 @@ void main() {
       expect(pkg.isCarrierUssd, true);
       expect(pkg.formattedAllowance, '5 GB');
       expect(pkg.formattedDuration, '7 days');
-      expect(pkg.supplierCostUsd, 3.00);
+      expect(pkg.toJson().containsKey('supplier_cost_usd'), isFalse);
+      expect(pkg.toJson().containsKey('app_fee_usd'), isFalse);
       expect(pkg.retailPriceUsd, 4.50);
       expect(pkg.effectivePriceUsd, 3.75);
       expect(pkg.discountUsd, 0.75);
@@ -100,6 +101,11 @@ void main() {
   });
 
   group('ActiveReturnTripInfo Entity', () {
+    test('legacy history does not invent a zero price', () {
+      final info = ActiveReturnTripInfo.fromJson({'trip_id': 'legacy'});
+      expect(info.effectivePriceUsd, isNull);
+    });
+
     test('parses active return trip json with carrier USSD package', () {
       final json = {
         'trip_id': 'trip-active-1',
@@ -134,7 +140,10 @@ void main() {
       expect(info.formattedAllowance, '5 GB');
       expect(info.formattedDuration, '28 days');
       expect(info.ussdRechargeCode, '*858*PIN#');
-      expect(info.activationInstructions, 'Dial *858*PIN# upon arrival in Egypt');
+      expect(
+        info.activationInstructions,
+        'Dial *858*PIN# upon arrival in Egypt',
+      );
       expect(info.formattedArrivalDate, 'Oct 14, 2026');
     });
 
@@ -154,7 +163,8 @@ void main() {
         'is_unlimited': true,
         'effective_price_usd': 9.99,
         'ussd_recharge_code': null,
-        'activation_instructions': 'Scan the QR code or install the eSIM profile',
+        'activation_instructions':
+            'Scan the QR code or install the eSIM profile',
         'created_at': '2026-09-14T00:00:00Z',
       };
 
@@ -176,21 +186,40 @@ void main() {
   });
 
   group('Next Prepared Travel Data & History Logic', () {
-    test('correctly evaluates future and same day as next prepared travel data', () {
-      final now = DateTime.now();
-      final today = DateTime(now.year, now.month, now.day);
-      final tomorrow = today.add(const Duration(days: 1));
-      final yesterday = today.subtract(const Duration(days: 1));
+    test(
+      'correctly evaluates future and same day as next prepared travel data',
+      () {
+        final now = DateTime.now();
+        final today = DateTime(now.year, now.month, now.day);
+        final tomorrow = today.add(const Duration(days: 1));
+        final yesterday = today.subtract(const Duration(days: 1));
 
-      bool isFutureOrToday(DateTime arrivalDate) {
-        final arrivalDay = DateTime(arrivalDate.year, arrivalDate.month, arrivalDate.day);
-        return !arrivalDay.isBefore(today);
-      }
+        bool isFutureOrToday(DateTime arrivalDate) {
+          final arrivalDay = DateTime(
+            arrivalDate.year,
+            arrivalDate.month,
+            arrivalDate.day,
+          );
+          return !arrivalDay.isBefore(today);
+        }
 
-      expect(isFutureOrToday(today), isTrue, reason: 'Same day travel must show as next prepared');
-      expect(isFutureOrToday(tomorrow), isTrue, reason: 'Future travel must show as next prepared');
-      expect(isFutureOrToday(yesterday), isFalse, reason: 'Past travel must not show as next prepared');
-    });
+        expect(
+          isFutureOrToday(today),
+          isTrue,
+          reason: 'Same day travel must show as next prepared',
+        );
+        expect(
+          isFutureOrToday(tomorrow),
+          isTrue,
+          reason: 'Future travel must show as next prepared',
+        );
+        expect(
+          isFutureOrToday(yesterday),
+          isFalse,
+          reason: 'Past travel must not show as next prepared',
+        );
+      },
+    );
 
     test('correctly filters old preparations for History tab', () {
       final now = DateTime.now();
@@ -244,7 +273,11 @@ void main() {
       final allTrips = [activeTrip, pastTrip, cancelledTrip];
 
       final oldPreparations = allTrips.where((t) {
-        final tripDay = DateTime(t.arrivalDate.year, t.arrivalDate.month, t.arrivalDate.day);
+        final tripDay = DateTime(
+          t.arrivalDate.year,
+          t.arrivalDate.month,
+          t.arrivalDate.day,
+        );
         final isPast = tripDay.isBefore(today);
         final isEnded = t.status == 'completed' || t.status == 'cancelled';
         final isNotActive = t.tripId != activeTrip.tripId;
@@ -259,51 +292,60 @@ void main() {
   });
 
   group('In-Country Dynamic Wizard & Card Copy Logic', () {
-    test('renders "You are at Oman!" and "Do you need a data package?" when user is in Oman', () {
-      const userIso = 'OM';
-      const lineIso = 'OM';
-      const countryName = 'Oman';
+    test(
+      'renders "You are at Oman!" and "Do you need a data package?" when user is in Oman',
+      () {
+        const userIso = 'OM';
+        const lineIso = 'OM';
+        const countryName = 'Oman';
 
-      final isUserInCountry = userIso == lineIso;
-      expect(isUserInCountry, isTrue);
+        final isUserInCountry = userIso == lineIso;
+        expect(isUserInCountry, isTrue);
 
-      final title = isUserInCountry ? 'You are at $countryName!' : 'Back to $countryName Wizard';
-      const isFutureOrToday = false;
-      const hasHistory = false;
-      final subtitle = isFutureOrToday
-          ? 'Trip prepared · Tap to update arrival date or package'
-          : (isUserInCountry
-              ? 'Do you need a data package?'
-              : (hasHistory
-                  ? 'Tap to prepare data or view past trips'
-                  : 'Set your arrival date & prepare your data'));
+        final title = isUserInCountry
+            ? 'You are at $countryName!'
+            : 'Back to $countryName Wizard';
+        const isFutureOrToday = false;
+        const hasHistory = false;
+        final subtitle = isFutureOrToday
+            ? 'Trip prepared · Tap to update arrival date or package'
+            : (isUserInCountry
+                  ? 'Do you need a data package?'
+                  : (hasHistory
+                        ? 'Tap to prepare data or view past trips'
+                        : 'Set your arrival date & prepare your data'));
 
-      expect(title, 'You are at Oman!');
-      expect(subtitle, 'Do you need a data package?');
-    });
+        expect(title, 'You are at Oman!');
+        expect(subtitle, 'Do you need a data package?');
+      },
+    );
 
-    test('renders "Back to Egypt Wizard" and "Set your arrival date" when user is in Oman with Egypt SIM', () {
-      const userIso = 'OM';
-      const lineIso = 'EG';
-      const countryName = 'Egypt';
+    test(
+      'renders "Back to Egypt Wizard" and "Set your arrival date" when user is in Oman with Egypt SIM',
+      () {
+        const userIso = 'OM';
+        const lineIso = 'EG';
+        const countryName = 'Egypt';
 
-      final isUserInCountry = userIso == lineIso;
-      expect(isUserInCountry, isFalse);
+        final isUserInCountry = userIso == lineIso;
+        expect(isUserInCountry, isFalse);
 
-      final title = isUserInCountry ? 'You are at $countryName!' : 'Back to $countryName Wizard';
-      const isFutureOrToday = false;
-      const hasHistory = false;
-      final subtitle = isFutureOrToday
-          ? 'Trip prepared · Tap to update arrival date or package'
-          : (isUserInCountry
-              ? 'Do you need a data package?'
-              : (hasHistory
-                  ? 'Tap to prepare data or view past trips'
-                  : 'Set your arrival date & prepare your data'));
+        final title = isUserInCountry
+            ? 'You are at $countryName!'
+            : 'Back to $countryName Wizard';
+        const isFutureOrToday = false;
+        const hasHistory = false;
+        final subtitle = isFutureOrToday
+            ? 'Trip prepared · Tap to update arrival date or package'
+            : (isUserInCountry
+                  ? 'Do you need a data package?'
+                  : (hasHistory
+                        ? 'Tap to prepare data or view past trips'
+                        : 'Set your arrival date & prepare your data'));
 
-      expect(title, 'Back to Egypt Wizard');
-      expect(subtitle, 'Set your arrival date & prepare your data');
-    });
+        expect(title, 'Back to Egypt Wizard');
+        expect(subtitle, 'Set your arrival date & prepare your data');
+      },
+    );
   });
 }
-

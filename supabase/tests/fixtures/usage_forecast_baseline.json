@@ -1,0 +1,23 @@
+{
+  "tables": [
+    "user_esims",
+    "esim_orders",
+    "esim_offers_cache",
+    "esim_usage_samples",
+    "sim_line_usage_forecast",
+    "household_members",
+    "sim_line_rescue_policy"
+  ],
+  "functions": {
+    "compute_usage_forecasts": "0b4523722c566cee9be46bbfcf6f389880685ec3be650c58e0ead731da0e75e2",
+    "refresh_usage_forecasts": "e4c522ecd19269ee99f5450425eac1c9a9878aa70dd72c37f459c684781a080a",
+    "snapshot_esim_usage": "fc4f4b1554b34f50d2ab95ed88931e521f15b08f2a7c5c9d22abb11718e9e210",
+    "emit_forecast_depletion_alerts": "c2cacf3a0dd0743951ac90b8a6bf112c8ae9c629752936ee17b2252dbb7c7516",
+    "refill_interval_days": "dc31070e20a8c1ef15b1bf6ef36744e8281940a677f8cf1ead9fa61da78236c8",
+    "record_manual_external_recharge": "d959b97a452f1d445af343a3e32733c144fa9feafc10469d40019b445e36ea95"
+  },
+  "omitted_foreign_keys": [],
+  "included_triggers": [],
+  "limits": "No Supabase Auth lifecycle, API table ACL/RLS parity, unrelated triggers, cron extension or external delivery. Scheduler executes the recorded postgres SQL entry point in isolated native PostgreSQL. Manual recharge checks run with captured ownership/household SQL; health and rescue trigger chains remain omitted.",
+  "requires_fixture": "notification_scheduler_baseline.sql"
+}

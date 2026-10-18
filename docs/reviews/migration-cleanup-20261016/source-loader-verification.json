@@ -1,0 +1,18 @@
+[
+  {
+    "history_mode": "0",
+    "source_loading_only": true,
+    "db_execution": false,
+    "statements": 27,
+    "sql_unchanged": true,
+    "sha256": "0604841218e315ab1ba9fc40755c5d973b3f4d43a8b3cd004ae5ede54f9267b2"
+  },
+  {
+    "history_mode": "1",
+    "source_loading_only": true,
+    "db_execution": false,
+    "statements": 28,
+    "sql_unchanged": true,
+    "sha256": "3c3e69eadb8c7fea7a39bb6be6ad45bbd4884c0b6eeec28caa15fcc3d0219f9f"
+  }
+]

@@ -315,7 +315,28 @@ DECLARE
     -- Exact verified phone ownership or an existing household/history peer.
     -- Authenticated-only, quota enforced; isolated negatives are in
     -- free_call_recipient_exact_test.sql.
-    'resolve_free_call_recipient(text,uuid)'
+    'resolve_free_call_recipient(text,uuid)',
+    -- October 16 owner-checked retail/setup/wallet APIs. Behavior and effective
+    -- role tests: financial_remediation_tests.sql. Internal helpers stay private.
+    'finalize_sim_setup_order(uuid,uuid)',
+    'create_sim_setup_order(text,text,uuid,text,text,uuid)',
+    'reserve_sim_setup_holds(uuid)',
+    'cancel_sim_setup_order(uuid,text)',
+    'fallback_sim_setup_to_reminders(uuid,uuid,text)',
+    'quote_sim_setup(text,text,uuid,uuid)',
+    'quote_premium_breakdown(uuid,uuid)',
+    'get_wallet_summary(uuid)',
+    'quote_wallet_refund(uuid)',
+    'request_wallet_refund(uuid,numeric,text)',
+    -- Stable operation identities; ownership/admin checks and retry regressions
+    -- are exercised by wallet_funding_refund_integrity_tests.sql.
+    'request_wallet_refund_once(uuid,numeric,text,text)',
+    'admin_adjust_wallet_once(uuid,numeric,text,text)',
+    'get_return_trip_packages_for_line(uuid,uuid)',
+    'get_active_return_trip_for_line(uuid,uuid)',
+    'get_return_trip_history_for_line(uuid,uuid)',
+    'get_user_calling_rates(uuid)',
+    'get_call_rate_for_number(text,uuid)'
   ];
   -- SECURITY DEFINER routines invoked directly by pg_cron as postgres and by
   -- no API/worker role. This is an exact allowlist: additions and removals both
@@ -326,7 +347,7 @@ DECLARE
   v_bad text;
   v_n int;
   v_passed int := 0;
-  v_expected int := 8;
+  v_expected int := 9;
 BEGIN
   -- T1: nothing SECURITY DEFINER may be callable by anon. This is F-3/F-4.
   SELECT string_agg(p.oid::regprocedure::text, ', ' ORDER BY p.oid::regprocedure::text), count(*)
@@ -452,6 +473,25 @@ BEGIN
   END IF;
   INSERT INTO f0_results VALUES ('T8 postgres-only allowlist is present with exact role boundary', 'PASS');
   v_passed := v_passed + 1;
+
+  -- T9: explicit API grants must accompany newly created functions. Check both
+  -- global and public-schema defaults for the actual application function owners.
+  SELECT string_agg(DISTINCT r.rolname, ', ') INTO v_bad
+  FROM pg_roles r WHERE r.oid IN (
+    SELECT p.proowner FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace
+    WHERE n.nspname='public' AND p.prosecdef
+  ) AND EXISTS (
+    SELECT 1 FROM aclexplode(coalesce((SELECT d.defaclacl FROM pg_default_acl d
+      WHERE d.defaclrole=r.oid AND d.defaclobjtype='f' AND d.defaclnamespace=0),acldefault('f',r.oid))) a
+    WHERE a.privilege_type='EXECUTE' AND a.grantee IN (0,'anon'::regrole,'authenticated'::regrole)
+    UNION ALL
+    SELECT 1 FROM pg_default_acl d CROSS JOIN LATERAL aclexplode(d.defaclacl) a
+    WHERE d.defaclrole=r.oid AND d.defaclobjtype='f' AND d.defaclnamespace='public'::regnamespace
+      AND a.privilege_type='EXECUTE' AND a.grantee IN (0,'anon'::regrole,'authenticated'::regrole)
+  );
+  IF v_bad IS NOT NULL THEN RAISE EXCEPTION 'T9 FAIL: unsafe function defaults for owners: %',v_bad; END IF;
+  INSERT INTO f0_results VALUES ('T9 actual migration owners default to private functions', 'PASS');
+  v_passed:=v_passed+1;
 
   IF v_passed <> v_expected THEN
     RAISE EXCEPTION 'F0 FAIL: only % of % assertions passed', v_passed, v_expected;

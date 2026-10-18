@@ -1,0 +1,97 @@
+{
+  "environment": "isolated native PostgreSQL",
+  "results": [
+    {
+      "name": "anonymous and customer wholesale paths are denied, including column grants",
+      "status": "passed"
+    },
+    {
+      "name": "customer catalogue view works without supplier base privileges and uses canonical retail",
+      "status": "passed"
+    },
+    {
+      "name": "owned eSIM receipt is retail-only and foreign receipts are invisible",
+      "status": "passed"
+    },
+    {
+      "name": "arbitrary user entitlement and supplier quote helpers are not customer APIs",
+      "status": "passed"
+    },
+    {
+      "name": "anonymous personalized RPCs and retail views are denied",
+      "status": "passed"
+    },
+    {
+      "name": "foreign line quote, refill catalogue and all trip APIs reject forged ownership",
+      "status": "passed"
+    },
+    {
+      "name": "line and add-line catalogues expose retail totals including range endpoints",
+      "status": "passed"
+    },
+    {
+      "name": "selected fixed and range quotes allowlist retail output and compute the exact value",
+      "status": "passed"
+    },
+    {
+      "name": "bad, missing and stale selected offer values fail without a quote or execution",
+      "status": "passed"
+    },
+    {
+      "name": "calling RPCs and fallback contain only retail pricing and reject foreign accounts",
+      "status": "passed"
+    },
+    {
+      "name": "accepted active and historical trip prices survive catalogue changes",
+      "status": "passed"
+    },
+    {
+      "name": "legacy unknown trip prices remain unknown and cross-line direct writes fail",
+      "status": "passed"
+    },
+    {
+      "name": "adjacent receipt projections deny supplier cost, raw CDR and fee decomposition",
+      "status": "passed"
+    },
+    {
+      "name": "admin supplier views require server app-metadata authorization even when user metadata is forged",
+      "status": "passed"
+    },
+    {
+      "name": "retail refill authorization rejects changed totals without creating an execution",
+      "status": "passed"
+    },
+    {
+      "name": "internal suppliers and paid entitlements still work for the backend",
+      "status": "passed"
+    },
+    {
+      "name": "fixed and exact range submissions authorize retail totals and retain internal supplier costs",
+      "status": "passed"
+    },
+    {
+      "name": "published zero refill fees and repeated quote reads preserve retail prices without writes",
+      "status": "passed"
+    },
+    {
+      "name": "only an accepted household manager may read a shared line retail quote",
+      "status": "passed"
+    },
+    {
+      "name": "public RPC return signatures contain no supplier cost or margin fields after containment",
+      "status": "passed"
+    },
+    {
+      "name": "approval quote route and setup snapshots cannot disclose supplier information",
+      "status": "passed"
+    },
+    {
+      "name": "insertion price drift rolls back the execution and never exposes supplier error details",
+      "status": "passed"
+    },
+    {
+      "name": "fractional fixed supplier costs keep catalogue, retail quote and actual execution totals equal",
+      "status": "passed"
+    }
+  ]
+}

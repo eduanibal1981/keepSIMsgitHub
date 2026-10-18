@@ -54,11 +54,7 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
   String? _selectedPlan;
   PremiumInitialBreakdown? _serverBreakdown;
 
-  bool get _isStandardUpgrade {
-    final currentTier = widget.simLine.protectionTier.trim().toLowerCase();
-    final currentPlan = widget.simLine.planType.trim().toLowerCase();
-    return currentTier == 'standard' || currentPlan == 'standard';
-  }
+  bool get _isStandardUpgrade => _serverBreakdown?.isUpgrade ?? false;
 
   @override
   void initState() {
@@ -88,7 +84,7 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
   // third rival price list (Standard $1.99/mo, Premium $3.99/mo, charged as a
   // one-off) — the canonical model is the per-line yearly fee from
   // `system_configs.BASE_SERVICE_FEE_USD` plus, for premium, the computed
-  // pre-paid year of refills (C3c).
+  // first refill; later occurrences are wallet-funded when due.
   static const _plans = {
     'standard': _PlanInfo(
       name: 'Standard',
@@ -119,8 +115,7 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
   };
 
   /// The yearly base service fee, from `system_configs` (display fallback).
-  double get _baseServiceFeeUsd =>
-      ref.watch(baseServiceFeeUsdProvider).value ?? kDefaultBaseServiceFeeUsd;
+  double? get _baseServiceFeeUsd => ref.watch(baseServiceFeeUsdProvider).value;
 
   @override
   Widget build(BuildContext context) {
@@ -171,11 +166,11 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
               !isRuleLoading &&
               !CarrierActivityNotice.blocksPremium(carrierRule)
         ? (_serverBreakdown?.totalDueNowUsd ??
-            PlanPayment.premiumWalletTotalSync(
-              ref,
-              carrierRule,
-              isUpgrade: _isStandardUpgrade,
-            ))
+              PlanPayment.premiumWalletTotalSync(
+                ref,
+                carrierRule,
+                simLineId: widget.simLine.id,
+              ))
         : null;
 
     return Container(
@@ -362,7 +357,9 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
                 child: SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: _selectedPlan != null
+                    onPressed:
+                        _selectedPlan != null &&
+                            displayedWalletChargeUsd != null
                         ? () async {
                             await HapticHelper.mediumImpact();
                             if (!context.mounted) return;
@@ -458,14 +455,8 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
                                     widget.simLine.id,
                                   ),
                                 );
-                              } on PremiumRefillQueueException catch (e) {
-                                // The tier is upgraded and the year is paid
-                                // for; only the pre-paid queue is missing.
-                                // "Failed to save upgrade" would invite a
-                                // second PayPal charge for a plan already
-                                // bought — a plan charge carries no
-                                // idempotency reference, so that money would
-                                // be gone.
+                              } on ScheduleInitializationException catch (e) {
+                                // The saved plan must not be charged again during schedule review.
                                 container.invalidate(
                                   simLineDetailControllerProvider(
                                     widget.simLine.id,
@@ -475,10 +466,8 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
                                   SnackBar(
                                     content: Text(
                                       'Your payment went through and the plan '
-                                      'is active, but the automatic refills '
-                                      'could not be scheduled: $e\n'
-                                      'Please contact support — do not pay '
-                                      'again.',
+                                      'was saved, but the refill settings need review: $e\n'
+                                      'Do not pay for the plan again.',
                                     ),
                                     backgroundColor: AppColors.warning,
                                     duration: const Duration(seconds: 12),
@@ -496,23 +485,23 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
 
                             // The canonical price (C3c): Standard is the yearly
                             // service fee, billed wallet-first; premium is the
-                            // fee plus a pre-paid year of refills in ONE PayPal
+                            // fee plus the first refill in one reviewed
                             // charge, same math as onboarding.
-                            final double planFee = double.parse(
-                              (tier == 'standard'
-                                      ? await ref.read(
-                                          baseServiceFeeUsdProvider.future,
-                                        )
-                                      : await PlanPayment.premiumWalletTotal(
-                                          ref,
-                                          carrierRule!,
-                                          simLineId: widget.simLine.id,
-                                          isUpgrade: _isStandardUpgrade,
-                                        ))
-                                  .toStringAsFixed(2),
-                            );
-
+                            late final double planFee;
                             try {
+                              planFee = double.parse(
+                                (tier == 'standard'
+                                        ? await ref.read(
+                                            baseServiceFeeUsdProvider.future,
+                                          )
+                                        : await PlanPayment.premiumWalletTotal(
+                                            ref,
+                                            carrierRule!,
+                                            simLineId: widget.simLine.id,
+                                          ))
+                                    .toStringAsFixed(2),
+                              );
+
                               if (await PlanPayment.tryPlanFromWallet(
                                 ref,
                                 plan: tier,
@@ -725,7 +714,7 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
               : PlanPayment.premiumYearlyTotalSync(
                   ref,
                   rule,
-                  isUpgrade: _isStandardUpgrade,
+                  simLineId: widget.simLine.id,
                 ),
         ),
         icon: const Icon(Icons.menu_book_rounded, size: 16),
@@ -845,24 +834,18 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
                       children: [
                         Text(
                           planKey == 'premium' && carrierRule != null
-                              ? '\$${(_serverBreakdown?.totalDueNowUsd ?? PlanPayment.premiumYearlyTotalSync(ref, carrierRule, isUpgrade: _isStandardUpgrade)).toStringAsFixed(2)}'
-                              : '\$${_baseServiceFeeUsd.toStringAsFixed(2)}',
+                              ? '\$${(_serverBreakdown?.totalDueNowUsd ?? PlanPayment.premiumYearlyTotalSync(ref, carrierRule, simLineId: widget.simLine.id))?.toStringAsFixed(2) ?? '…'}'
+                              : '\$${_baseServiceFeeUsd?.toStringAsFixed(2) ?? '…'}',
                           style: AppTextStyles.titleLarge.copyWith(
                             color: accentColor,
                             fontWeight: FontWeight.w900,
                           ),
                         ),
-                        ApproxLocalText(
-                          planKey == 'premium' && carrierRule != null
-                              ? (_serverBreakdown?.totalDueNowUsd ??
-                                  PlanPayment.premiumYearlyTotalSync(
-                                    ref,
-                                    carrierRule,
-                                    isUpgrade: _isStandardUpgrade,
-                                  ))
-                              : _baseServiceFeeUsd,
-                          textAlign: TextAlign.end,
-                        ),
+                        if ((planKey == 'premium'
+                                ? _serverBreakdown?.totalDueNowUsd
+                                : _baseServiceFeeUsd)
+                            case final price?)
+                          ApproxLocalText(price, textAlign: TextAlign.end),
                       ],
                     ),
                     Text(
@@ -877,9 +860,7 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
                     // Show "+ Refill" for premium if carrier rule exists
                     if (planKey == 'premium' && carrierRule != null)
                       Text(
-                        _isStandardUpgrade
-                            ? 'incl. 1st refill + \$2.50 fee'
-                            : 'incl. 1st refill + \$5.00 fee',
+                        'incl. first refill + USD ${_serverBreakdown?.annualFeeUsd.toStringAsFixed(2) ?? '…'} membership',
                         style: TextStyle(
                           fontSize: 9,
                           fontWeight: FontWeight.w600,
@@ -1072,12 +1053,17 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
     required Color accentColor,
     required bool isDark,
   }) {
-    final breakdown = _serverBreakdown ??
+    final breakdown =
+        _serverBreakdown ??
         PlanPayment.premiumBreakdownSync(
           ref,
           carrierRule,
-          isUpgrade: _isStandardUpgrade,
+          simLineId: widget.simLine.id,
         );
+
+    if (breakdown == null) {
+      return const Text('Current pricing is unavailable. Please try again.');
+    }
 
     final refillIntervalDays = breakdown.recurringRefillDays > 0
         ? breakdown.recurringRefillDays
@@ -1192,15 +1178,17 @@ class _LineUpgradeSheetState extends ConsumerState<LineUpgradeSheet> {
           Text(
             label,
             style: AppTextStyles.caption.copyWith(
-              color:
-                  context.onSurfaceColor.withValues(alpha: isBold ? 0.9 : 0.7),
+              color: context.onSurfaceColor.withValues(
+                alpha: isBold ? 0.9 : 0.7,
+              ),
               fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
             ),
           ),
           Text(
             amount,
             style: AppTextStyles.caption.copyWith(
-              color: color ??
+              color:
+                  color ??
                   context.onSurfaceColor.withValues(alpha: isBold ? 1.0 : 0.8),
               fontWeight: isBold ? FontWeight.bold : FontWeight.w600,
             ),

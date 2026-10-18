@@ -21,12 +21,11 @@ import 'package:keep_sims/core/widgets/shimmer_loading.dart';
 import 'package:keep_sims/core/widgets/error_state.dart';
 import 'package:keep_sims/core/widgets/haptic_helper.dart';
 import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_controller.dart';
-import 'package:keep_sims/features/dashboard/presentation/widgets/dashboard_sim_line_card.dart';
+import 'package:keep_sims/features/dashboard/presentation/widgets/dashboard_sim_line_carousel.dart';
 import 'package:keep_sims/features/notifications/presentation/controllers/notifications_controller.dart';
 import 'package:keep_sims/l10n/app_localizations.dart';
 import 'package:keep_sims/core/providers/locale_provider.dart';
 import 'package:keep_sims/features/notifications/presentation/controllers/notification_settings_controller.dart';
-import 'package:keep_sims/core/services/esim_capability_service.dart';
 import 'package:keep_sims/features/dashboard/presentation/widgets/promo_banner.dart';
 import 'package:keep_sims/features/geo/controller/geo_controller.dart';
 
@@ -38,21 +37,12 @@ class DashboardScreen extends ConsumerStatefulWidget {
 }
 
 class _DashboardScreenState extends ConsumerState<DashboardScreen> {
-  final PageController _pageController = PageController(viewportFraction: 0.9);
-  int _currentLineIndex = 0;
-
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(geoControllerProvider.notifier).checkCurrentLocationOnAppOpen();
     });
-  }
-
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
   }
 
   @override
@@ -138,7 +128,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     DashboardState data,
   ) {
     final String welcomeName = profile.fullName ?? 'User';
-    final bool isPowerUser = profile.isPowerUser;
     final networkStatus = ref.watch(connectivityServiceProvider);
     final isOffline = networkStatus == NetworkStatus.offline;
     final isLight = Theme.of(context).brightness == Brightness.light;
@@ -215,8 +204,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               ],
 
               // ── Header Row ──────────────────────────────────────────
-              _buildHeader(context, ref, welcomeName, isPowerUser),
-              const SizedBox(height: 14),
+              _buildHeader(context, ref, welcomeName),
+              const SizedBox(height: 12),
 
               // ── SIM Protection Hero Card ─────────────────────────────
               SimProtectionHeroCard(
@@ -236,6 +225,15 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 },
               ),
               const SizedBox(height: 12),
+              Text(
+                AppLocalizations.of(context)!.dashboardExplore,
+                style: AppTextStyles.headlineSmall.copyWith(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  color: context.onSurfaceColor,
+                ),
+              ),
+              const SizedBox(height: 12),
               DashboardFeatureCards(
                 onSmartCall: () async {
                   await HapticHelper.lightTick();
@@ -250,7 +248,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   if (context.mounted) context.push(AppRoutes.esim);
                 },
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
 
               // ── Protected SIM Line Health Cards ─────────────────────
               _buildHealthSection(context, ref, profile.id),
@@ -258,10 +256,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
               // Keep campaign offers below the SIM lines.
               const PromoBanner(),
-
-              // ── Quick Actions ───────────────────────────────────────
-              _buildQuickActionsSection(context, profile),
-              const SizedBox(height: 28),
 
               // ── Recent Activity timeline ────────────────────────────
               _buildActivityTimeline(context, data.recentActivities),
@@ -416,191 +410,108 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     }
   }
 
-  // ── Header Widget (Compact Layout) ──────────────────────────────
-  Widget _buildHeader(
-    BuildContext context,
-    WidgetRef ref,
-    String name,
-    bool isPowerUser,
-  ) {
-    final notificationsState = ref.watch(notificationsControllerProvider);
-    final unreadCount = notificationsState.maybeWhen(
-      data: (list) => list.where((n) => !n.isRead).length,
-      orElse: () => 0,
-    );
-
-    final geoState = ref.watch(geoControllerProvider);
-    final currentIso = geoState.currentIsoCode;
-    final countryName = geoState.currentCountry;
-    final flagEmoji = _isoToFlagEmoji(currentIso);
-    final isLight = Theme.of(context).brightness == Brightness.light;
-
+  // Header actions retain language/location access through the avatar menu.
+  Widget _buildHeader(BuildContext context, WidgetRef ref, String name) {
+    final l10n = AppLocalizations.of(context)!;
+    final unreadCount = ref
+        .watch(notificationsControllerProvider)
+        .maybeWhen(
+          data: (list) => list.where((n) => !n.isRead).length,
+          orElse: () => 0,
+        );
+    final geo = ref.watch(geoControllerProvider);
     final displayName = name.trim().split(' ').first;
-
+    final accent = context.isDarkMode
+        ? AppColors.primary
+        : const Color(0xFF009BAA);
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        // ── Brand Logo / Avatar (Transparent background, no red) ─
-        GestureDetector(
-          onTap: () async {
-            await HapticHelper.lightTick();
-            if (context.mounted) {
-              _showLocationInfoDialog(context, ref, countryName, flagEmoji);
+        PopupMenuButton<String>(
+          tooltip: l10n.dashboardAccountOptions,
+          onSelected: (value) {
+            if (value == 'language') _showLanguageSelector(context);
+            if (value == 'location') {
+              _showLocationInfoDialog(
+                context,
+                ref,
+                geo.currentCountry,
+                _isoToFlagEmoji(geo.currentIsoCode),
+              );
             }
           },
-          child: Tooltip(
-            message: countryName.isNotEmpty ? countryName : 'KeepSIMs',
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                SizedBox(
-                  width: 40,
-                  height: 40,
-                  child: Image.asset(
-                    'assets/images/Logo.png',
-                    fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) => Icon(
-                      Icons.shield_rounded,
-                      color: isLight
-                          ? AppColors.lightPrimary
-                          : AppColors.primary,
-                      size: 28,
-                    ),
-                  ),
-                ),
-                if (flagEmoji.isNotEmpty && flagEmoji != '🌐')
-                  Positioned(
-                    bottom: -2,
-                    right: -2,
-                    child: Container(
-                      padding: const EdgeInsets.all(1.5),
-                      decoration: BoxDecoration(
-                        color: isLight ? Colors.white : AppColors.darkSurface,
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: isLight
-                              ? AppColors.lightBorder
-                              : AppColors.darkBorder,
-                          width: 1,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.08),
-                            blurRadius: 3,
-                            offset: const Offset(0, 1),
-                          ),
-                        ],
-                      ),
-                      child: Text(
-                        flagEmoji,
-                        style: const TextStyle(fontSize: 10),
-                      ),
-                    ),
-                  ),
-              ],
+          itemBuilder: (_) => [
+            PopupMenuItem(
+              value: 'language',
+              child: Text(l10n.selectAppLanguage),
+            ),
+            PopupMenuItem(
+              value: 'location',
+              child: Text(l10n.dashboardCurrentLocation),
+            ),
+          ],
+          child: CircleAvatar(
+            radius: 21,
+            backgroundColor: accent,
+            child: Text(
+              displayName.isEmpty
+                  ? 'K'
+                  : displayName.characters.first.toUpperCase(),
+              style: AppTextStyles.titleLarge.copyWith(
+                color: Colors.white,
+                fontSize: 19,
+              ),
             ),
           ),
         ),
-        const SizedBox(width: 10),
-
-        // ── Greeting & Name Stack ───────────────────────────────
+        const SizedBox(width: 12),
         Expanded(
           child: Column(
-            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
               Text(
                 _getGreeting(context),
-                style: AppTextStyles.caption.copyWith(
-                  fontSize: 12,
-                  color: isLight
-                      ? AppColors.textSecondaryLight
-                      : AppColors.textSecondaryDark,
-                  fontWeight: FontWeight.w500,
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: context.isDarkMode
+                      ? AppColors.textSecondaryDark
+                      : const Color(0xFF69758A),
+                  fontSize: 12.5,
                   height: 1.2,
                 ),
               ),
-              const SizedBox(height: 1),
+              const SizedBox(height: 2),
               Text(
-                displayName.isNotEmpty ? displayName : name,
+                displayName.isEmpty ? name : displayName,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: AppTextStyles.titleMedium.copyWith(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w800,
-                  color: context.onSurfaceColor,
-                  letterSpacing: -0.2,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
                   height: 1.2,
+                  color: context.onSurfaceColor,
                 ),
               ),
             ],
           ),
         ),
-
-        // ── Right Action Cluster (Globe/Lang, Wallet, Bell) ───────
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-
-            // 2. Earth Globe Language Button (Multilingual selector)
-            IconButton(
-              icon: const Icon(Icons.language_rounded, size: 23),
-              color: context.onSurfaceColor.withValues(alpha: 0.85),
-              padding: const EdgeInsets.all(4),
-              constraints: const BoxConstraints(),
-              tooltip: AppLocalizations.of(context)!.selectAppLanguage,
-              onPressed: () async {
-                await HapticHelper.lightTick();
-                if (context.mounted) {
-                  _showLanguageSelector(context);
-                }
-              },
-            ),
-            const SizedBox(width: 6),
-
-            // 3. Wallet Button (Direct wallet navigation)
-            IconButton(
-              icon: const Icon(Icons.account_balance_wallet_outlined, size: 23),
-              color: context.onSurfaceColor.withValues(alpha: 0.85),
-              padding: const EdgeInsets.all(4),
-              constraints: const BoxConstraints(),
-              tooltip: 'Wallet',
-              onPressed: () async {
-                await HapticHelper.lightTick();
-                if (context.mounted) {
-                  context.push(AppRoutes.wallet);
-                }
-              },
-            ),
-            const SizedBox(width: 4),
-
-            // 4. Notifications Bell with Badge
-            IconButton(
-              icon: Badge(
-                isLabelVisible: unreadCount > 0,
-                label: Text(
-                  unreadCount > 9 ? '9+' : unreadCount.toString(),
-                  style: const TextStyle(
-                    fontSize: 9,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                backgroundColor: AppColors.healthRed,
-                child: const Icon(Icons.notifications_none_rounded, size: 23),
-              ),
-              color: context.onSurfaceColor.withValues(alpha: 0.85),
-              padding: const EdgeInsets.all(4),
-              constraints: const BoxConstraints(),
-              tooltip: 'Alerts',
-              onPressed: () async {
-                await HapticHelper.lightTick();
-                if (context.mounted) {
-                  context.push(AppRoutes.notifications);
-                }
-              },
-            ),
-          ],
+        IconButton(
+          icon: const Icon(Icons.account_balance_wallet_outlined, size: 25),
+          tooltip: l10n.wallet,
+          color: context.onSurfaceColor,
+          onPressed: () async {
+            await HapticHelper.lightTick();
+            if (context.mounted) context.push(AppRoutes.wallet);
+          },
+        ),
+        IconButton(
+          icon: const Icon(Icons.notifications_none_rounded, size: 26),
+          tooltip:
+              '${l10n.profileNotifications}${unreadCount > 0 ? ' ($unreadCount)' : ''}',
+          color: context.onSurfaceColor,
+          onPressed: () async {
+            await HapticHelper.lightTick();
+            if (context.mounted) context.push(AppRoutes.notifications);
+          },
         ),
       ],
     );
@@ -773,29 +684,35 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              AppLocalizations.of(context)!.linesToProtect,
-              style: AppTextStyles.titleMedium.copyWith(
-                fontSize: 15,
-                fontWeight: FontWeight.w700,
-                color: context.onSurfaceColor,
+            Expanded(
+              child: Text(
+                AppLocalizations.of(context)!.dashboardYourSimLines,
+                style: AppTextStyles.titleMedium.copyWith(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  color: context.onSurfaceColor,
+                ),
               ),
             ),
             TextButton.icon(
-              icon: const Icon(
+              icon: Icon(
                 Icons.add_circle_outline_rounded,
-                color: AppColors.primary,
+                color: context.isDarkMode
+                    ? AppColors.primary
+                    : const Color(0xFF009BAA),
               ),
               label: Text(
                 AppLocalizations.of(context)!.addSim,
                 style: AppTextStyles.labelLarge.copyWith(
-                  color: AppColors.primary,
+                  color: context.isDarkMode
+                      ? AppColors.primary
+                      : const Color(0xFF009BAA),
                   fontWeight: FontWeight.bold,
                 ),
               ),
               style: TextButton.styleFrom(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                minimumSize: Size.zero,
+                minimumSize: const Size(44, 44),
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
               onPressed: () async {
@@ -807,60 +724,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             ),
           ],
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 8),
         simLinesState.when(
           data: (lines) {
             if (lines.isEmpty) {
               return _buildEmptyCTA(context);
             }
 
-            return Column(
-              children: [
-                SizedBox(
-                  height: 275,
-                  child: PageView.builder(
-                    controller: _pageController,
-                    onPageChanged: (index) {
-                      setState(() {
-                        _currentLineIndex = index;
-                      });
-                    },
-                    itemCount: lines.length,
-                    itemBuilder: (context, index) {
-                      final line = lines[index];
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 6.0),
-                        child: DashboardSimLineCard(line: line),
-                      );
-                    },
-                  ),
-                ),
-                if (lines.length > 1) ...[
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(
-                      lines.length,
-                      (index) => AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
-                        margin: const EdgeInsets.symmetric(horizontal: 4),
-                        width: _currentLineIndex == index ? 12 : 6,
-                        height: 6,
-                        decoration: BoxDecoration(
-                          color: _currentLineIndex == index
-                              ? context.primaryColor
-                              : (context.isDarkMode
-                                        ? AppColors.textSecondaryDark
-                                        : AppColors.textSecondaryLight)
-                                    .withValues(alpha: 0.3),
-                          borderRadius: BorderRadius.circular(3),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ],
-            );
+            return DashboardSimLineCarousel(lines: lines);
           },
           loading: () => const Center(
             child: Padding(
@@ -960,237 +831,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     );
   }
 
-  // ── Quick Actions Section ───────────────────────────────────────
-  Widget _buildQuickActionsSection(BuildContext context, dynamic profile) {
-    final esimCapability = ref.watch(esimCapabilityServiceProvider);
-    final bool isEsimSupported = esimCapability.maybeWhen(
-      data: (supported) => supported,
-      orElse: () => false,
-    );
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          AppLocalizations.of(context)!.quickActions,
-          style: AppTextStyles.headlineSmall.copyWith(
-            color: context.onSurfaceColor,
-          ),
-        ),
-        const SizedBox(height: 16),
-        // ── Test Temporary Button for Emulator eSIM Management ─────────────
-        Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          width: double.infinity,
-          child: Material(
-            color: const Color(0xFF6366F1).withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(14),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(14),
-              onTap: () async {
-                await HapticHelper.lightTick();
-                if (context.mounted) {
-                  context.push('${AppRoutes.esim}?test_mode=true');
-                }
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 10,
-                ),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(
-                    color: const Color(0xFF6366F1).withValues(alpha: 0.4),
-                    width: 1.5,
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF6366F1).withValues(alpha: 0.2),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.bug_report_rounded,
-                        color: Color(0xFF6366F1),
-                        size: 18,
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '🧪 [TEST] Open eSIM Page Manager',
-                            style: AppTextStyles.bodySmall.copyWith(
-                              color: context.onSurfaceColor,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            'Preview eSIM management structure on emulator',
-                            style: AppTextStyles.caption.copyWith(
-                              color: context.onSurfaceColor.withValues(
-                                alpha: 0.6,
-                              ),
-                              fontSize: 11,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const Icon(
-                      Icons.arrow_forward_ios_rounded,
-                      color: Color(0xFF6366F1),
-                      size: 14,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-        Row(
-          children: [
-            _buildQuickActionCard(
-              context,
-              icon: Icons.phone_in_talk_rounded,
-              label: 'Smart Call',
-              color: const Color(0xFF4CD7F6),
-              subtitle: 'Pay/sec',
-              onTap: () async {
-                await HapticHelper.lightTick();
-                if (context.mounted) {
-                  context.push(AppRoutes.calling);
-                }
-              },
-            ),
-            const SizedBox(width: 10),
-            _buildQuickActionCard(
-              context,
-              assetIcon: 'assets/images/esim.png',
-              label: 'eSIM',
-              color: const Color(0xFF6366F1),
-              enabled: true,
-              subtitle: isEsimSupported ? null : 'Test mode',
-              onTap: () async {
-                await HapticHelper.lightTick();
-                if (context.mounted) {
-                  context.push(
-                    isEsimSupported
-                        ? AppRoutes.esim
-                        : '\${AppRoutes.esim}?test_mode=true',
-                  );
-                }
-              },
-            ),
-            const SizedBox(width: 10),
-            _buildQuickActionCard(
-              context,
-              icon: Icons.account_balance_wallet_rounded,
-              label: AppLocalizations.of(context)!.wallet,
-              color: const Color(0xFF14B8A6),
-              onTap: () async {
-                await HapticHelper.lightTick();
-                if (context.mounted) {
-                  context.go('/wallet');
-                }
-              },
-            ),
-            const SizedBox(width: 12),
-            _buildQuickActionCard(
-              context,
-              icon: Icons.support_agent_rounded,
-              label: AppLocalizations.of(context)!.openTicket,
-              color: Colors.blueAccent,
-              onTap: () async {
-                await HapticHelper.lightTick();
-                if (context.mounted) {
-                  context.push('/support/create');
-                }
-              },
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildQuickActionCard(
-    BuildContext context, {
-    IconData? icon,
-    String? assetIcon,
-    required String label,
-    required Color color,
-    VoidCallback? onTap,
-    bool enabled = true,
-    String? subtitle,
-  }) {
-    final double opacity = enabled ? 1.0 : 0.45;
-
-    return Expanded(
-      child: GestureDetector(
-        onTap: enabled ? onTap : null,
-        child: Opacity(
-          opacity: opacity,
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 14),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: color.withValues(alpha: 0.3)),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (assetIcon != null)
-                  Image.asset(
-                    assetIcon,
-                    width: 28,
-                    height: 28,
-                    fit: BoxFit.contain,
-                  )
-                else
-                  Icon(icon, color: color, size: 28),
-                const SizedBox(height: 6),
-                Text(
-                  label,
-                  textAlign: TextAlign.center,
-                  style: AppTextStyles.labelSmall.copyWith(
-                    color: context.onSurfaceColor.withValues(alpha: 0.9),
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                if (subtitle != null) ...[
-                  const SizedBox(height: 3),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: Text(
-                      subtitle,
-                      textAlign: TextAlign.center,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: AppTextStyles.caption.copyWith(
-                        color: AppColors.error,
-                        fontSize: 8,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  // ── Recent Activity timeline Widget ─────────────────────────────
   Widget _buildActivityTimeline(
     BuildContext context,
     List<DashboardActivity> activities,

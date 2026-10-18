@@ -1,7 +1,6 @@
 class RefillApprovalQuote {
   final String id;
   final double totalUsd;
-  final double feeUsd;
   final double? targetValue;
   final String? targetCurrency;
   final DateTime expiresAt;
@@ -9,7 +8,6 @@ class RefillApprovalQuote {
   const RefillApprovalQuote({
     required this.id,
     required this.totalUsd,
-    required this.feeUsd,
     this.targetValue,
     this.targetCurrency,
     required this.expiresAt,
@@ -21,7 +19,6 @@ class RefillApprovalQuote {
     return RefillApprovalQuote(
       id: json['id'] as String,
       totalUsd: number(route['totalChargeUsd']),
-      feeUsd: number(route['feeUsd']),
       targetValue: route['targetLocalValue'] == null
           ? null
           : number(route['targetLocalValue']),

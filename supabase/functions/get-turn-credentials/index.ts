@@ -1,4 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.8";
+import { ProviderConfigurationError } from "../_shared/provider-secrets.ts";
+import { generateIceServers } from "../_shared/turn-credentials.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -29,79 +32,6 @@ async function resolveUserId(req: Request): Promise<string | null> {
   if (!res.ok) return null;
   const user = await res.json();
   return user?.id ?? null;
-}
-
-async function generateIceServers(userId: string): Promise<{ iceServers: any[]; hasTurn: boolean }> {
-  const servers: any[] = [
-    { urls: ["stun:34.40.33.208:3478", "stun:stun.l.google.com:19302", "stun:stun1.l.google.com:19302"] },
-  ];
-
-  const turnHost = Deno.env.get("TURN_HOST") || Deno.env.get("COTURN_HOST") || "34.40.33.208";
-  const turnSecret = Deno.env.get("TURN_SHARED_SECRET") || Deno.env.get("COTURN_SHARED_SECRET") || "keepsims_turn_secret_2026_prod";
-
-  // 1. Dynamic RFC 5766 HMAC-SHA1 Ephemeral Credentials (Coturn / RFC 5766)
-  if (turnHost && turnSecret) {
-    const ttlSeconds = 14400; // 4 hours standard ephemeral token lifetime
-    const expiry = Math.floor(Date.now() / 1000) + ttlSeconds;
-    const username = `${expiry}:${userId}`;
-
-    const encoder = new TextEncoder();
-    const key = await crypto.subtle.importKey(
-      "raw",
-      encoder.encode(turnSecret),
-      { name: "HMAC", hash: "SHA-1" },
-      false,
-      ["sign"],
-    );
-    const signature = await crypto.subtle.sign("HMAC", key, encoder.encode(username));
-    const credential = btoa(String.fromCharCode(...new Uint8Array(signature)));
-
-    const udpPort = Deno.env.get("TURN_PORT") || "3478";
-    const tlsPort = Deno.env.get("TURN_TLS_PORT") || "443";
-
-    servers.push({
-      urls: [
-        `turn:${turnHost}:${udpPort}?transport=udp`,
-        `turn:${turnHost}:${udpPort}?transport=tcp`,
-        `turns:${turnHost}:${tlsPort}?transport=tcp`,
-      ],
-      username,
-      credential,
-    });
-    return { iceServers: servers, hasTurn: true };
-  }
-
-  // 2. Static TURN configuration fallback
-  const turnUrls = Deno.env.get("TURN_URLS");
-  const turnUsername = Deno.env.get("TURN_USERNAME");
-  const turnCredential = Deno.env.get("TURN_CREDENTIAL");
-
-  if (turnUrls && turnUsername && turnCredential) {
-    servers.push({
-      urls: turnUrls.split(",").map((u) => u.trim()),
-      username: turnUsername,
-      credential: turnCredential,
-    });
-    return { iceServers: servers, hasTurn: true };
-  }
-
-  // 3. Open Relay fallback for testing and development
-  const disableOpenRelay = Deno.env.get("DISABLE_OPENRELAY") === "true";
-  if (!disableOpenRelay) {
-    servers.push({
-      urls: [
-        "turn:global.relay.metered.ca:80",
-        "turn:global.relay.metered.ca:443",
-        "turn:global.relay.metered.ca:443?transport=tcp",
-        "turns:global.relay.metered.ca:443?transport=tcp",
-      ],
-      username: "openrelayproject",
-      credential: "openrelayproject",
-    });
-    return { iceServers: servers, hasTurn: true };
-  }
-
-  return { iceServers: servers, hasTurn: false };
 }
 
 serve(async (req: Request) => {
@@ -135,7 +65,11 @@ serve(async (req: Request) => {
       return jsonResponse({ error: "Forbidden: Not an active participant in this call" }, 403);
     }
 
-    const { iceServers, hasTurn } = await generateIceServers(userId);
+
+
+    const { iceServers, hasTurn } = await generateIceServers(
+      createClient(SUPABASE_URL, SERVICE_ROLE_KEY), userId,
+    );
 
     return jsonResponse({
       ok: true,
@@ -144,6 +78,9 @@ serve(async (req: Request) => {
       ice_servers: iceServers,
     }, 200);
   } catch (err: any) {
-    return jsonResponse({ error: err?.message || String(err) }, 500);
+    if (err instanceof ProviderConfigurationError) {
+      return jsonResponse({ error: err.message, code: err.code }, 503);
+    }
+    return jsonResponse({ error: "Unable to prepare call connectivity." }, 500);
   }
 });

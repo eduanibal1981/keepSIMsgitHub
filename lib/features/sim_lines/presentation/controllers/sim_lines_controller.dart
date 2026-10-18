@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
@@ -11,36 +10,19 @@ import 'package:keep_sims/features/sim_lines/data/models/line_activity_log_model
 import 'package:keep_sims/features/sim_lines/data/models/payment_method_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_liveness_result.dart';
 import 'package:keep_sims/features/sim_lines/data/repositories/sim_lines_repository_impl.dart';
-import 'package:keep_sims/features/sim_lines/domain/repositories/sim_lines_repository.dart';
 import 'package:keep_sims/features/scheduled_topups/controller/scheduled_topup_controller.dart';
 import 'package:keep_sims/core/providers.dart';
-import 'package:keep_sims/features/scheduled_topups/model/scheduled_topup_model.dart';
-import 'package:keep_sims/core/result.dart';
-import 'package:keep_sims/features/notifications/data/repositories/notifications_repository_impl.dart';
-import 'package:keep_sims/features/notifications/domain/notification_event_catalog.dart';
 import 'package:keep_sims/features/sim_lines/presentation/providers/sim_line_alert_clock_provider.dart';
 import 'package:keep_sims/features/sim_lines/presentation/providers/usage_forecast_provider.dart';
 
 part 'sim_lines_controller.g.dart';
 
-/// The line was created and paid for, but its pre-paid year of refills could
-/// not be queued.
-///
-/// This is a *different* outcome from "the save failed", and conflating the two
-/// is what put an unpaid premium line into production on 2026-08-08: the insert
-/// had already succeeded when `queue_premium_refill_executions` raised KS403,
-/// so the screen reported "Failed to save SIM line" over a row that exists.
-/// The user then cannot retry — the phone number is taken — and the line sits
-/// there labelled Premium with nothing scheduled behind it.
-///
-/// Callers must treat this as: the line is real, the money is spent, say so,
-/// and do not offer a retry that would only collide with the row.
-class PremiumRefillQueueException implements Exception {
-  const PremiumRefillQueueException(this.simLineId, this.cause);
-
+/// The line/plan was saved, but its schedule still needs review. Subsequent
+/// wallet-funded refills are authorized individually; no prepaid year is queued.
+class ScheduleInitializationException implements Exception {
+  const ScheduleInitializationException(this.simLineId, this.cause);
   final String simLineId;
   final Object cause;
-
   @override
   String toString() => cause.toString();
 }
@@ -74,7 +56,9 @@ class SimLinesController extends _$SimLinesController {
 
     // If any line is in pending verification state, schedule a short periodic poll
     // to ensure the dashboard reflects the active state immediately upon backend completion.
-    final hasPending = lines.any((l) => l.carrierStatus == 'pending' || l.status == 'pending');
+    final hasPending = lines.any(
+      (l) => l.carrierStatus == 'pending' || l.status == 'pending',
+    );
     if (hasPending) {
       _schedulePendingCheck();
     }
@@ -91,7 +75,9 @@ class SimLinesController extends _$SimLinesController {
       try {
         final repo = ref.read(simLinesRepositoryProvider);
         final freshLines = await repo.getSimLines();
-        final hasPending = freshLines.any((l) => l.carrierStatus == 'pending' || l.status == 'pending');
+        final hasPending = freshLines.any(
+          (l) => l.carrierStatus == 'pending' || l.status == 'pending',
+        );
 
         freshLines.sort((a, b) {
           final aName = (a.nickname ?? a.phoneNumber).toLowerCase();
@@ -134,6 +120,7 @@ class SimLinesController extends _$SimLinesController {
 
     final previousList = state.value ?? [];
     SimLine? addedLine;
+    ScheduleInitializationException? scheduleFailure;
     state = const AsyncLoading<List<SimLine>>().copyWithPrevious(state);
     final nextState = await AsyncValue.guard(() async {
       final repo = ref.read(simLinesRepositoryProvider);
@@ -183,139 +170,12 @@ class SimLinesController extends _$SimLinesController {
         return [added, ...previousList];
       }
 
-      // Auto-configure Scheduled Topups for non-draft lines
-      int frequencyDays = 30;
-      double topupAmount = 0.0;
-      String? offerId;
-      int? offerValue;
-      if (carrierRuleId != null) {
-        final rule = await repo.getCarrierRuleById(carrierRuleId);
-        if (rule != null) {
-          frequencyDays = rule.refillIntervalDays;
-          topupAmount = rule.minimumTopupAmount;
-          offerId = rule.offerId;
-          offerValue = rule.offerValue;
-        }
-      } else if (added.carrierId != null) {
-        final rule = await repo.getCarrierRule(added.carrierId!);
-        if (rule != null) {
-          frequencyDays = rule.refillIntervalDays;
-          topupAmount = rule.minimumTopupAmount;
-          offerId = rule.offerId;
-          offerValue = rule.offerValue;
-        }
-      }
-
-      final topupNotifier = ref.read(scheduledTopupControllerProvider.notifier);
-
-      final notifyDelay = frequencyDays;
-      final nextExecTime = DateTime.now().toUtc().add(
-        Duration(days: notifyDelay),
-      );
-
-      final notifySchedule = ScheduledTopup(
-        id: '',
-        simLineId: added.id,
-        userId: userId,
-        amount: topupAmount,
-        currency: 'USD',
-        frequencyDays: frequencyDays,
-        nextExecutionAt: nextExecTime,
-        isActive: true,
-        status: 'active',
-        scheduleType: 'notify',
-      );
-      final notifyResult = await topupNotifier.saveSchedule(notifySchedule);
-
-      Result<ScheduledTopup>? refillResult;
-      // Premium gets Auto-Refill scheduled directly in topup_executions
-      if (planType == 'premium') {
-        final refillSchedule = ScheduledTopup(
-          id: '',
-          simLineId: added.id,
-          userId: userId,
-          amount: topupAmount,
-          currency: 'USD',
-          frequencyDays: frequencyDays,
-          nextExecutionAt: DateTime.now().toUtc().add(
-            Duration(days: notifyDelay),
-          ),
-          isActive: true,
-          status: 'active',
-          scheduleType: 'refill_mini',
-          offerId: offerId,
-          offerValue: offerValue,
-          maxAuthorizedUsd: topupAmount,
-          engineVersion: 2,
-          intentKind: 'exact_airtime',
-        );
-        refillResult = await topupNotifier.saveSchedule(refillSchedule);
-
-        if (refillResult is Success<ScheduledTopup> && planExpiresAt != null) {
-          await _queuePremiumRefills(
-            repo,
-            simLineId: added.id,
-            scheduledTopupId: refillResult.data.id,
-            planExpiresAt: planExpiresAt,
-          );
-        }
-      }
-
-      // Send truthful setup confirmation based on actual persisted outcomes (N1)
       try {
-        final notificationsRepo = ref.read(notificationsRepositoryProvider);
-        if (planType == 'premium') {
-          if (refillResult is Success<ScheduledTopup>) {
-            await notificationsRepo.emitEvent(
-              eventType: NotificationEventType.autoRechargeScheduled,
-              templateData: {
-                'nickname': added.nickname,
-                'phone_number': added.phoneNumber,
-                'date': refillResult.data.nextExecutionAt,
-              },
-              simLineId: added.id,
-              sourceEventKey: 'setup_${added.id}',
-              scheduledAt: refillResult.data.nextExecutionAt,
-            );
-          } else {
-            await notificationsRepo.emitEvent(
-              eventType: NotificationEventType.lineSetupIncomplete,
-              templateData: {
-                'nickname': added.nickname,
-                'phone_number': added.phoneNumber,
-              },
-              simLineId: added.id,
-              sourceEventKey: 'setup_incomplete_${added.id}',
-            );
-          }
-        } else {
-          if (notifyResult is Success<ScheduledTopup>) {
-            await notificationsRepo.emitEvent(
-              eventType: NotificationEventType.lineAdded,
-              templateData: {
-                'nickname': added.nickname,
-                'phone_number': added.phoneNumber,
-                'date': notifyResult.data.nextExecutionAt,
-              },
-              simLineId: added.id,
-              sourceEventKey: 'setup_${added.id}',
-              scheduledAt: notifyResult.data.nextExecutionAt,
-            );
-          } else {
-            await notificationsRepo.emitEvent(
-              eventType: NotificationEventType.lineSetupIncomplete,
-              templateData: {
-                'nickname': added.nickname,
-                'phone_number': added.phoneNumber,
-              },
-              simLineId: added.id,
-              sourceEventKey: 'setup_incomplete_${added.id}',
-            );
-          }
-        }
+        await repo.initializeLineSchedules(added.id);
       } catch (e) {
-        debugPrint('[addSimLine] Failed to emit setup notification: $e');
+        scheduleFailure = ScheduleInitializationException(added.id, e);
       }
+      ref.invalidate(scheduledTopupControllerProvider);
 
       return [added, ...previousList];
     });
@@ -331,167 +191,26 @@ class SimLinesController extends _$SimLinesController {
       schedulePostRefillCheck(addedLine!.id);
     }
 
+    if (scheduleFailure != null) throw scheduleFailure!;
     return addedLine!;
-  }
-
-  /// Queues the pre-paid year, returning the failure instead of throwing.
-  ///
-  /// Retried once, because the call is idempotent by construction — it cancels
-  /// this schedule's pending executions before re-inserting them — so a dropped
-  /// socket costs a round-trip rather than a line that is Premium in name only.
-  /// A second failure is reported, never swallowed: a premium line with an
-  /// empty queue looks identical to a working one from the app, and would only
-  /// be discovered when the number was already gone.
-  Future<PremiumRefillQueueException?> _queuePremiumRefills(
-    SimLinesRepository repo, {
-    required String simLineId,
-    required String scheduledTopupId,
-    required DateTime planExpiresAt,
-  }) async {
-    for (var attempt = 0; attempt < 2; attempt++) {
-      try {
-        await repo.queuePremiumRefillExecutions(
-          simLineId: simLineId,
-          scheduledTopupId: scheduledTopupId,
-          planExpiresAt: planExpiresAt,
-        );
-        return null;
-      } catch (e) {
-        if (attempt == 1) {
-          return PremiumRefillQueueException(simLineId, e);
-        }
-        await Future<void>.delayed(const Duration(seconds: 2));
-      }
-    }
-    return null;
   }
 
   Future<void> updateSimLine(SimLine line) async {
     final previousList = state.value ?? [];
-    PremiumRefillQueueException? queueFailure;
+    ScheduleInitializationException? scheduleFailure;
     state = const AsyncLoading<List<SimLine>>().copyWithPrevious(state);
     final nextState = await AsyncValue.guard(() async {
       final repo = ref.read(simLinesRepositoryProvider);
       final updated = await repo.updateSimLine(line);
 
       final oldLine = previousList.where((l) => l.id == line.id).firstOrNull;
-      if (oldLine != null) {
-        final wasFree = oldLine.planType == 'free';
-        final wasStandard = oldLine.planType == 'standard';
-        final isStandard = line.planType == 'standard';
-        final isPremium = line.planType == 'premium';
-
-        if ((wasFree && (isStandard || isPremium)) ||
-            (wasStandard && isPremium)) {
-          int frequencyDays = 90;
-          double topupAmount = 0.0;
-          String? offerId;
-          int? offerValue;
-
-          final ruleIdToUse = line.carrierRuleId ?? oldLine.carrierRuleId;
-          if (ruleIdToUse != null) {
-            final rule = await repo.getCarrierRuleById(ruleIdToUse);
-            if (rule != null) {
-              frequencyDays = rule.refillIntervalDays;
-              topupAmount = rule.minimumTopupAmount;
-              offerId = rule.offerId;
-              offerValue = rule.offerValue;
-              print(
-                '[updateSimLine] Found rule by ID: $ruleIdToUse. offerId: $offerId, offerValue: $offerValue, validity: $frequencyDays, amount: $topupAmount',
-              );
-            } else {
-              print('[updateSimLine] Rule NOT found by ID: $ruleIdToUse');
-            }
-          } else {
-            final carrierIdToUse = line.carrierId ?? oldLine.carrierId;
-            if (carrierIdToUse != null) {
-              final rule = await repo.getCarrierRule(carrierIdToUse);
-              if (rule != null) {
-                frequencyDays = rule.refillIntervalDays;
-                topupAmount = rule.minimumTopupAmount;
-                offerId = rule.offerId;
-                offerValue = rule.offerValue;
-                print(
-                  '[updateSimLine] Found rule by Carrier ID: $carrierIdToUse. offerId: $offerId, offerValue: $offerValue, validity: $frequencyDays, amount: $topupAmount',
-                );
-              } else {
-                print(
-                  '[updateSimLine] Rule NOT found by Carrier ID: $carrierIdToUse',
-                );
-              }
-            }
-          }
-
-          final topupNotifier = ref.read(
-            scheduledTopupControllerProvider.notifier,
-          );
-
-          // Standard and Premium get Auto-Notify. See addSimLine: no safety
-          // re-adjustment, because refillIntervalDays already carries it.
-          final notifyDelay = frequencyDays;
-
-          final nextExecTime = DateTime.now().toUtc().add(
-            Duration(days: notifyDelay),
-          );
-
-          // 1. Create Notify Schedule if it doesn't exist yet
-          final schedules =
-              ref.read(scheduledTopupControllerProvider).value ?? [];
-          final hasNotifySchedule = schedules.any(
-            (s) => s.simLineId == line.id && s.scheduleType == 'notify',
-          );
-          if (!hasNotifySchedule) {
-            final notifySchedule = ScheduledTopup(
-              id: '',
-              simLineId: line.id,
-              userId: line.userId,
-              amount: topupAmount,
-              currency: 'USD',
-              frequencyDays: frequencyDays,
-              nextExecutionAt: nextExecTime,
-              isActive: true,
-              status: 'active',
-              scheduleType: 'notify',
-            );
-            await topupNotifier.saveSchedule(notifySchedule);
-          }
-
-          // 2. Create Refill Mini Schedule directly in topup_executions if moving to premium
-          if (isPremium && oldLine.planType != 'premium') {
-            final refillSchedule = ScheduledTopup(
-              id: '',
-              simLineId: line.id,
-              userId: line.userId,
-              amount: topupAmount,
-              currency: 'USD',
-              frequencyDays: frequencyDays,
-              nextExecutionAt: DateTime.now().toUtc().add(
-                Duration(days: notifyDelay),
-              ),
-              isActive: true,
-              status: 'active',
-              scheduleType: 'refill_mini',
-              offerId: offerId,
-              offerValue: offerValue,
-              maxAuthorizedUsd: topupAmount,
-              engineVersion: 2,
-              intentKind: 'exact_airtime',
-            );
-            final result = await topupNotifier.saveSchedule(refillSchedule);
-
-            // C3b-2: queued and priced server-side from carrier_rules.
-            if (result is Success<ScheduledTopup>) {
-              queueFailure = await _queuePremiumRefills(
-                repo,
-                simLineId: line.id,
-                scheduledTopupId: result.data.id,
-                planExpiresAt:
-                    line.planExpiresAt ??
-                    DateTime.now().toUtc().add(const Duration(days: 365)),
-              );
-            }
-          }
+      if (oldLine != null && oldLine.planType != updated.planType) {
+        try {
+          await repo.initializeLineSchedules(updated.id);
+        } catch (e) {
+          scheduleFailure = ScheduleInitializationException(updated.id, e);
         }
+        ref.invalidate(scheduledTopupControllerProvider);
       }
 
       return previousList
@@ -508,7 +227,7 @@ class SimLinesController extends _$SimLinesController {
       schedulePostRefillCheck(line.id);
     }
 
-    if (queueFailure != null) throw queueFailure!;
+    if (scheduleFailure != null) throw scheduleFailure!;
   }
 
   Future<void> deleteSimLine(String id) async {
@@ -527,7 +246,6 @@ class SimLinesController extends _$SimLinesController {
       rethrow;
     }
   }
-
 
   /// Freezes or unfreezes a SIM line, updating sim_lines.status, protection_paused,
   /// AND toggling scheduled_topups.is_active to ensure refill workers do not debit
@@ -644,8 +362,8 @@ class SimLinesController extends _$SimLinesController {
     SimLine line,
     String paymentGatewayCode, {
     required String offerId,
-    required double displayBaseUsd,
-    double? amountUsd,
+    required double authorizedTotalUsd,
+    int? offerValue,
   }) async {
     // NOTE: Wallet deduction is now handled securely by the backend worker daemon.
 
@@ -658,8 +376,8 @@ class SimLinesController extends _$SimLinesController {
       simLineId: line.id,
       offerId: offerId,
       paymentGatewayCode: paymentGatewayCode,
-      displayBaseUsd: displayBaseUsd,
-      amountUsd: amountUsd,
+      authorizedTotalUsd: authorizedTotalUsd,
+      offerValue: offerValue,
     );
 
     // Invalidate states. The wallet is deliberately not refreshed on a timer
@@ -798,5 +516,7 @@ Future<SimLivenessResult> simLivenessValidation(
 
 @riverpod
 Future<bool> hasRealLiveVerification(Ref ref, String simLineId) {
-  return ref.watch(simLinesRepositoryProvider).hasRealLiveVerification(simLineId);
+  return ref
+      .watch(simLinesRepositoryProvider)
+      .hasRealLiveVerification(simLineId);
 }

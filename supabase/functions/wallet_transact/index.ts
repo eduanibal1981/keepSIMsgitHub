@@ -93,7 +93,8 @@ serve(async (req) => {
       return jsonResponse({ success: false, errorMessage: 'Not authenticated' }, 401);
     }
 
-    const { action, amount, description, simLineId } = await req.json();
+    const body = await req.json();
+    const { action, amount, description, simLineId } = body;
 
     if (action === 'ensure') {
       const wallet = await ensureWallet(userId);
@@ -114,10 +115,18 @@ serve(async (req) => {
     }
 
     if (action === 'request_refund') {
-      const reqRes = await rpc('request_wallet_refund', {
+      if (body.expected_user_id !== undefined && body.expected_user_id !== userId) {
+        return jsonResponse({ success: false, errorMessage: 'Account changed. Please retry from your current account.' }, 409);
+      }
+      const requestKey = body.refund_request_key;
+      if (requestKey !== undefined && (typeof requestKey !== 'string' || !/^[A-Za-z0-9:_-]{8,96}$/.test(requestKey))) {
+        return jsonResponse({ success: false, errorMessage: 'Invalid refund request identity' }, 400);
+      }
+      const reqRes = await rpc(requestKey === undefined ? 'request_wallet_refund' : 'request_wallet_refund_once', {
         p_user_id: userId,
         p_amount: Number(amount),
         p_reason: typeof description === 'string' ? description : 'Customer requested refund',
+        ...(requestKey === undefined ? {} : { p_request_key: requestKey }),
       });
       return jsonResponse({ success: reqRes.ok, result: reqRes.body }, reqRes.ok ? 200 : 400);
     }

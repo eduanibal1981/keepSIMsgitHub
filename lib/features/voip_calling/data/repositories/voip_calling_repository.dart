@@ -140,15 +140,11 @@ class VoipCallingRepository {
           )
           .toList();
 
-      final hasTurn = iceServers.any(
-        (s) =>
-            s.urls.any((u) => u.startsWith('turn:') || u.startsWith('turns:')),
-      );
-      final finalIceServers = hasTurn
-          ? iceServers
-          : (iceServers.isEmpty
-                ? defaultIceServers
-                : [...iceServers, defaultIceServers.last]);
+      if (!iceServers.any((server) => server.isAuthenticatedRelay)) {
+        throw StateError(
+          'Call relay credentials are unavailable. Try again later.',
+        );
+      }
 
       final calleeData = data['callee'] as Map<String, dynamic>? ?? {};
 
@@ -156,7 +152,7 @@ class VoipCallingRepository {
         ok: true,
         callId: data['call_id'] as String,
         status: data['status'] as String? ?? 'initiating',
-        iceServers: finalIceServers,
+        iceServers: iceServers,
         callee: ContactLookupResult(
           userId: calleeData['id'] as String? ?? calleeId,
           fullName: calleeData['name'] as String? ?? 'KeepSIMs User',
@@ -264,62 +260,27 @@ class VoipCallingRepository {
     }
   }
 
-  static const List<IceServerModel> defaultIceServers = [
-    IceServerModel(
-      urls: [
-        'stun:34.40.33.208:3478',
-        'stun:stun.l.google.com:19302',
-        'stun:stun1.l.google.com:19302',
-      ],
-    ),
-    IceServerModel(
-      urls: [
-        'turn:34.40.33.208:3478?transport=udp',
-        'turn:34.40.33.208:3478?transport=tcp',
-      ],
-      username: 'keepsims',
-      credential: 'keepsims_turn_secret_2026_prod',
-    ),
-  ];
-
-  /// Fetch authorized ICE servers (STUN + TURN) for an active call session
+  /// Fetch authorized ICE servers for an active call; failures must be retried
+  /// through the backend rather than replaced with bundled relay credentials.
   Future<List<IceServerModel>> getCallIceServers(String callId) async {
-    try {
-      final response = await _supabase.functions.invoke(
-        'get-turn-credentials',
-        body: {'call_id': callId},
-      );
-      final data = response.data as Map<String, dynamic>?;
-      final rawList = data?['ice_servers'] as List? ?? [];
-      if (rawList.isNotEmpty) {
-        final parsed = rawList
-            .map(
-              (e) =>
-                  IceServerModel.fromJson(Map<String, dynamic>.from(e as Map)),
-            )
-            .toList();
-        final hasTurn = parsed.any(
-          (s) => s.urls.any(
-            (u) => u.startsWith('turn:') || u.startsWith('turns:'),
-          ),
-        );
-        if (hasTurn) {
-          debugPrint(
-            '[VoipCallingRepo] Fetched ${parsed.length} authorized ICE servers from backend',
-          );
-          return parsed;
-        }
-      }
-    } catch (e) {
-      debugPrint(
-        '[VoipCallingRepo] get-turn-credentials invocation warning: $e',
+    final response = await _supabase.functions.invoke(
+      'get-turn-credentials',
+      body: {'call_id': callId},
+    );
+    final data = response.data as Map<String, dynamic>?;
+    final rawList = data?['ice_servers'] as List? ?? [];
+    final parsed = rawList
+        .map(
+          (entry) =>
+              IceServerModel.fromJson(Map<String, dynamic>.from(entry as Map)),
+        )
+        .toList();
+    if (!parsed.any((server) => server.isAuthenticatedRelay)) {
+      throw StateError(
+        'Call relay credentials are unavailable. Try again later.',
       );
     }
-
-    debugPrint(
-      '[VoipCallingRepo] Using reliable default ICE servers with Open Relay TURN',
-    );
-    return defaultIceServers;
+    return parsed;
   }
 
   /// Single record fetch with automatic auth recovery and exponential retries

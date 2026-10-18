@@ -191,7 +191,7 @@ class _RateSavingsCalculatorWidgetState
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          'KeepSIMs Voice',
+                          'KeepSIMs Calls',
                           style: TextStyle(
                             color: AppColors.secondary,
                             fontSize: 11,

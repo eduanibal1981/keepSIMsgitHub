@@ -164,30 +164,12 @@ class SmartCallDialerNotifier extends Notifier<SmartCallDialerState> {
     _schedulePreview();
   }
 
-  void appendDigit(String digit) =>
-      setNumber(state.rawNumber + digit, preserveCountry: true);
-  void deleteDigit() {
-    if (state.rawNumber.isNotEmpty) {
-      setNumber(
-        state.rawNumber.substring(0, state.rawNumber.length - 1),
-        preserveCountry: true,
-      );
-    }
-  }
-
   void clear() => setNumber('');
 
   void selectCountry(String iso) {
     _invalidate();
     state = state.copyWith(selectedCountryIso: iso, suggestedCountryIso: iso);
     _schedulePreview();
-  }
-
-  /// Compatibility for country shortcuts in the manual dialer. Prices never
-  /// determine number normalization; only the explicitly chosen ISO does.
-  void selectCountryRate(CallRate rate) {
-    if (state.rawNumber.isEmpty) setNumber(rate.phonePrefix);
-    selectCountry(rate.countryCode);
   }
 
   void selectIdentity({

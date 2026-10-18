@@ -49,25 +49,10 @@ class WebRTCAudioService {
       }
     }
 
-    final hasTurn = expanded.any(
-      (e) =>
-          (e['url'] as String? ?? '').startsWith('turn:') ||
-          (e['url'] as String? ?? '').startsWith('turns:'),
-    );
-
-    if (!hasTurn) {
-      debugPrint('[WebRTC] No TURN server found in list. Injecting default Coturn fallback.');
-      for (final url in [
-        'turn:34.40.33.208:3478?transport=udp',
-        'turn:34.40.33.208:3478?transport=tcp',
-      ]) {
-        expanded.add({
-          'url': url,
-          'urls': [url],
-          'username': 'keepsims',
-          'credential': 'keepsims_turn_secret_2026_prod',
-        });
-      }
+    if (!iceServers.any((server) => server.isAuthenticatedRelay)) {
+      throw StateError(
+        'Call relay credentials are unavailable. Try again later.',
+      );
     }
 
     return expanded;
@@ -75,6 +60,7 @@ class WebRTCAudioService {
 
   /// Initialize WebRTC PeerConnection with ICE servers (STUN + TURN)
   Future<void> initialize({required List<IceServerModel> iceServers}) async {
+    final expandedServers = _buildExpandedIceServers(iceServers);
     _lastIceServers = iceServers;
     if (_peerConnection != null) {
       try {
@@ -89,11 +75,9 @@ class WebRTCAudioService {
     _hasRemoteDescription = false;
     _lastLocalDescription = null;
 
-    final expandedServers = _buildExpandedIceServers(iceServers);
-    debugPrint('[WebRTC] Initializing with ${expandedServers.length} ICE server endpoints:');
-    for (final s in expandedServers) {
-      debugPrint('[WebRTC]   endpoint: ${s['url']} (user: ${s['username'] ?? 'none'})');
-    }
+    debugPrint(
+      '[WebRTC] Initializing with ${expandedServers.length} ICE endpoints',
+    );
 
     final configuration = <String, dynamic>{
       'iceServers': expandedServers,
@@ -118,9 +102,9 @@ class WebRTCAudioService {
       if (candidate.candidate != null && candidate.candidate!.isNotEmpty) {
         final cand = candidate.candidate!;
         if (cand.contains('typ relay')) {
-          debugPrint('[WebRTC] *** RELAY candidate gathered: $cand');
+          debugPrint('[WebRTC] Relay candidate gathered');
         } else if (cand.contains('typ srflx')) {
-          debugPrint('[WebRTC] SRFLX candidate gathered: $cand');
+          debugPrint('[WebRTC] Server-reflexive candidate gathered');
         }
         onLocalIceCandidate?.call(candidate);
       }
@@ -153,13 +137,13 @@ class WebRTCAudioService {
     if (_peerConnection == null) return;
     try {
       final expandedServers = _buildExpandedIceServers(iceServers);
-      final config = <String, dynamic>{
-        'iceServers': expandedServers,
-      };
+      final config = <String, dynamic>{'iceServers': expandedServers};
       await _peerConnection!.setConfiguration(config);
-      debugPrint('[WebRTC] Successfully updated ICE servers (${expandedServers.length} endpoints)');
+      debugPrint(
+        '[WebRTC] Successfully updated ICE servers (${expandedServers.length} endpoints)',
+      );
     } catch (e) {
-      debugPrint('[WebRTC] Error setting ICE servers: $e');
+      debugPrint('[WebRTC] Unable to update ICE servers');
     }
   }
 
@@ -206,7 +190,9 @@ class WebRTCAudioService {
     };
 
     final rawOffer = await _peerConnection!.createOffer(offerConstraints);
-    final optimizedSdp = OpusSdpTransformer.optimizeOpusVoiceProfile(rawOffer.sdp!);
+    final optimizedSdp = OpusSdpTransformer.optimizeOpusVoiceProfile(
+      rawOffer.sdp!,
+    );
     final description = RTCSessionDescription(optimizedSdp, rawOffer.type);
 
     await _peerConnection!.setLocalDescription(description);
@@ -237,7 +223,9 @@ class WebRTCAudioService {
     String offerSdp,
   ) async {
     if (_peerConnection == null) {
-      debugPrint('[WebRTC] PeerConnection was null in handleOfferAndCreateAnswer. Attempting auto-initialization...');
+      debugPrint(
+        '[WebRTC] PeerConnection was null in handleOfferAndCreateAnswer. Attempting auto-initialization...',
+      );
       await initialize(iceServers: _lastIceServers);
       if (_localStream == null) {
         try {
@@ -253,7 +241,9 @@ class WebRTCAudioService {
     }
 
     if (_peerConnection == null) {
-      throw StateError('Cannot handle offer: PeerConnection is not initialized');
+      throw StateError(
+        'Cannot handle offer: PeerConnection is not initialized',
+      );
     }
 
     final remoteDescription = RTCSessionDescription(offerSdp, 'offer');
@@ -267,7 +257,9 @@ class WebRTCAudioService {
     };
 
     final rawAnswer = await _peerConnection!.createAnswer(answerConstraints);
-    final optimizedSdp = OpusSdpTransformer.optimizeOpusVoiceProfile(rawAnswer.sdp!);
+    final optimizedSdp = OpusSdpTransformer.optimizeOpusVoiceProfile(
+      rawAnswer.sdp!,
+    );
     final answer = RTCSessionDescription(optimizedSdp, rawAnswer.type);
 
     await _peerConnection!.setLocalDescription(answer);
@@ -359,7 +351,9 @@ class WebRTCAudioService {
 
     timer = Timer(timeout, () {
       if (!completer.isCompleted) {
-        debugPrint('[WebRTC] Ice gathering window reached (${timeout.inMilliseconds}ms)');
+        debugPrint(
+          '[WebRTC] Ice gathering window reached (${timeout.inMilliseconds}ms)',
+        );
         completer.complete();
       }
     });
@@ -377,17 +371,19 @@ class WebRTCAudioService {
     }
 
     if (!_hasRemoteDescription) {
-      debugPrint('[WebRTC] Buffering candidate until remote description is set');
+      debugPrint(
+        '[WebRTC] Buffering candidate until remote description is set',
+      );
       _pendingIceCandidates.add(candidate);
       return;
     }
 
     _appliedCandidates.add(cand);
     try {
-      debugPrint('[WebRTC] Applying remote ICE candidate: $cand');
+      debugPrint('[WebRTC] Applying remote ICE candidate');
       await _peerConnection?.addCandidate(candidate);
     } catch (e) {
-      debugPrint('[WebRTC] Error adding candidate ($cand): $e');
+      debugPrint('[WebRTC] Unable to apply remote ICE candidate');
     }
   }
 

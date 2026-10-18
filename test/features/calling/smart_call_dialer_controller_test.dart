@@ -243,18 +243,17 @@ void main() {
       },
     );
 
-    test('5. Selecting country rate prepends prefix when number is empty', () {
+    test('5. Selecting country does not fabricate a destination', () {
       final notifier = container.read(smartCallDialerProvider.notifier);
 
-      notifier.selectCountryRate(mockRateOM);
+      notifier.selectCountry('OM');
       var state = container.read(smartCallDialerProvider);
-      expect(state.rawNumber, equals('+968'));
+      expect(state.rawNumber, isEmpty);
       expect(state.selectedCountryIso, 'OM');
 
-      notifier.appendDigit('7');
-      notifier.appendDigit('9');
+      notifier.setNumber('79', preserveCountry: true);
       state = container.read(smartCallDialerProvider);
-      expect(state.rawNumber, equals('+96879'));
+      expect(state.rawNumber, equals('79'));
       expect(state.formattedDestination, isEmpty);
       expect(state.previewResult, isNull);
     });

@@ -16,7 +16,7 @@ class ActiveReturnTripInfo {
   final int dataAllowanceMb;
   final int durationDays;
   final bool isUnlimited;
-  final double effectivePriceUsd;
+  final double? effectivePriceUsd;
   final String? ussdRechargeCode;
   final String? activationInstructions;
   final String? badgeLabel;
@@ -50,7 +50,9 @@ class ActiveReturnTripInfo {
   String get formattedAllowance {
     if (isUnlimited) return 'Unlimited';
     if (dataAllowanceMb >= 1024) {
-      final gb = (dataAllowanceMb / 1024).toStringAsFixed(dataAllowanceMb % 1024 == 0 ? 0 : 1);
+      final gb = (dataAllowanceMb / 1024).toStringAsFixed(
+        dataAllowanceMb % 1024 == 0 ? 0 : 1,
+      );
       return '$gb GB';
     }
     return '$dataAllowanceMb MB';
@@ -107,7 +109,9 @@ class ActiveReturnTripInfo {
       dataAllowanceMb: parseInt(json['data_allowance_mb']),
       durationDays: parseInt(json['duration_days']),
       isUnlimited: json['is_unlimited'] as bool? ?? false,
-      effectivePriceUsd: parseDouble(json['effective_price_usd']),
+      effectivePriceUsd: json['effective_price_usd'] == null
+          ? null
+          : parseDouble(json['effective_price_usd']),
       ussdRechargeCode: json['ussd_recharge_code'] as String?,
       activationInstructions: json['activation_instructions'] as String?,
       badgeLabel: json['badge_label'] as String?,

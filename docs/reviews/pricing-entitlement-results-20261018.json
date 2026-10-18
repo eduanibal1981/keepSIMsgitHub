@@ -1,0 +1,164 @@
+{
+  "results": [
+    {
+      "name": "draft labels and legacy protection tier cannot create paid entitlement or upgrade credit",
+      "status": "passed"
+    },
+    {
+      "name": "wallet receipt alone supplies identical entitlement and bounded Standard upgrade credit",
+      "status": "passed"
+    },
+    {
+      "name": "external plan receipt qualifies without a wallet debit",
+      "status": "passed"
+    },
+    {
+      "name": "latest discounted receipt wins over a larger older receipt",
+      "status": "passed"
+    },
+    {
+      "name": "expired or future paid evidence and extended client expiry do not create entitlement",
+      "status": "passed"
+    },
+    {
+      "name": "refunded wallet receipt and duplicate setup receipt cannot restore credit",
+      "status": "passed"
+    },
+    {
+      "name": "approved grandfather proof is owner/term bounded; existing Premium grandfathering remains valid",
+      "status": "passed"
+    },
+    {
+      "name": "missing, future and invalid pricing fails closed; published zero remains zero",
+      "status": "passed"
+    },
+    {
+      "name": "configured zero membership creates an explicit grant without a zero-value ledger row",
+      "status": "passed"
+    },
+    {
+      "name": "published zero refill/eSIM fees apply consistently to catalogue arithmetic",
+      "status": "passed"
+    },
+    {
+      "name": "wallet rail excludes gateway fees; external rail grosses the same net once",
+      "status": "passed"
+    },
+    {
+      "name": "setup accepted price changes require review before any reservation",
+      "status": "passed"
+    },
+    {
+      "name": "foreign owner and anon cannot obtain personalized pricing or manufacture evidence",
+      "status": "passed"
+    },
+    {
+      "name": "nonzero Premium first-refill price survives dispatch while the line is still unpaid",
+      "status": "passed"
+    },
+    {
+      "name": "quoted wallet confirmation refuses a changed amount before collection",
+      "status": "passed"
+    },
+    {
+      "name": "quoted wallet payment and config-change replay collect the same one-time amount",
+      "status": "passed"
+    },
+    {
+      "name": "eSIM catalogue, bounds, purchase order and wallet debit use one retail price",
+      "status": "passed"
+    },
+    {
+      "name": "range quote prices the exact provider-native dispatch value and preserves published zero",
+      "status": "passed"
+    },
+    {
+      "name": "unconfigured or future fee policies cannot turn into guessed charges",
+      "status": "passed"
+    },
+    {
+      "name": "a zero-fee Standard setup finalizes with explicit entitlement and no wallet debit",
+      "status": "passed"
+    },
+    {
+      "name": "expired setup quote requires refresh rather than reserving money",
+      "status": "passed"
+    },
+    {
+      "name": "receipt recovery is owner scoped and financial RPC/table grants are exact",
+      "status": "passed"
+    },
+    {
+      "name": "zero-fee Standard fallback records approved entitlement without a debit",
+      "status": "passed"
+    },
+    {
+      "name": "concurrent quoted upgrades cannot reuse the Standard credit for two charges",
+      "status": "passed"
+    },
+    {
+      "name": "a foreign carrier rule cannot price the owned line",
+      "status": "passed"
+    },
+    {
+      "name": "a non-USD manual override cannot be mixed into a USD quote",
+      "status": "passed"
+    },
+    {
+      "name": "a published zero membership adds no external gateway charge",
+      "status": "passed"
+    },
+    {
+      "name": "authenticated users cannot invoke the old unbound debit or write entitlement grants",
+      "status": "passed"
+    },
+    {
+      "name": "setup API catalog has one compatible overload and restrictive internal grants",
+      "status": "passed"
+    },
+    {
+      "name": "Premium setup with balance 6 charges one fee/refill and supports both finalizer call shapes",
+      "status": "passed"
+    },
+    {
+      "name": "Premium setup with balance 20 charges one fee/refill and supports both finalizer call shapes",
+      "status": "passed"
+    },
+    {
+      "name": "completed/failed orders reject foreign owner and foreign or differently bound line before returns",
+      "status": "passed"
+    },
+    {
+      "name": "before-submit failure releases safely; Standard/free fallback uses current canonical interface",
+      "status": "passed"
+    },
+    {
+      "name": "ambiguous submission rejects stale failure, cancellation, finalizer release and fallback",
+      "status": "passed"
+    },
+    {
+      "name": "fallback insufficient funds remains retryable without retaining old reservations",
+      "status": "passed"
+    },
+    {
+      "name": "reservation rejects wrong owner/wallet/currency/amount/purpose/reference/released/expired/legacy before submission",
+      "status": "passed"
+    },
+    {
+      "name": "settlement requires committed submission and revalidates the hold on delivery",
+      "status": "passed"
+    },
+    {
+      "name": "fee/receipt/schedules rollback together when schedule write fails, then retry once",
+      "status": "passed"
+    },
+    {
+      "name": "concurrent Premium finalizers and duplicate settlement charge one fee and one refill",
+      "status": "passed"
+    },
+    {
+      "name": "concurrent submission vs fallback cannot release a supplier reservation",
+      "status": "passed"
+    }
+  ]
+}

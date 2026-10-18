@@ -1,18 +1,5 @@
-/// Refill price quoting, mirroring the `calculate_topup_fees` trigger.
-///
-/// The price shown before a user confirms and the amount actually debited come
-/// from two different machines: this quote runs on the device, while the DB
-/// trigger computes the real `topup_executions.amount`. They previously drifted
-/// — the client used a hardcoded 3% app fee while the trigger used 5%, so a
-/// $5.00 refill displayed "Confirm $5.15" and debited $5.25.
-///
-/// Keeping them equal needs three things to match, not just the rate:
-///   * the rate itself (both now read `system_configs.APP_FEE_PERCENT`),
-///   * the order of operations (gateway fee, then app fee, then sum),
-///   * the rounding (each component rounded to cents *before* summing).
-///
-/// The trigger is always the authority on what is charged; this decides only
-/// what the user is shown. If the two ever disagree, this class is wrong.
+/// Advisory USD arithmetic and validation for server-priced purchases.
+/// Published server quotes authorize checkout; device estimates do not.
 library;
 
 class RefillQuote {
@@ -43,8 +30,48 @@ class PremiumInitialBreakdown {
     required this.refillIntervalDays,
     this.isUpgrade = false,
     this.upgradeCreditUsd = 0.0,
-    this.fullAnnualFeeUsd = 5.0,
+    required this.fullAnnualFeeUsd,
   });
+
+  factory PremiumInitialBreakdown.fromJson(Map<String, dynamic> json) {
+    double amount(String key) {
+      final value = json[key];
+      if (value is! num ||
+          !value.isFinite ||
+          value < 0 ||
+          RefillPricing.round2(value.toDouble()) != value) {
+        throw FormatException('Invalid server price: $key');
+      }
+      return value.toDouble();
+    }
+
+    if (json['currency'] != 'USD') {
+      throw const FormatException('Unsupported quote currency');
+    }
+    final fee = amount('annual_fee_usd');
+    final refill = amount('first_refill_cost_usd');
+    final total = amount('total_charge_usd');
+    final credit = amount('upgrade_credit_usd');
+    final full = amount('full_annual_fee_usd');
+    final interval = json['refill_interval_days'];
+    if (interval is! int ||
+        interval < 1 ||
+        interval > 365 ||
+        RefillPricing.round2(fee + refill) != total ||
+        RefillPricing.round2(fee + credit) != full ||
+        (json['is_upgrade'] == true) != (credit > 0)) {
+      throw const FormatException('Inconsistent server price');
+    }
+    return PremiumInitialBreakdown(
+      annualFeeUsd: fee,
+      firstRefillUsd: refill,
+      totalUsd: total,
+      refillIntervalDays: interval,
+      isUpgrade: credit > 0,
+      upgradeCreditUsd: credit,
+      fullAnnualFeeUsd: full,
+    );
+  }
 
   double get totalDueNowUsd => totalUsd;
   double get serviceFeeUsd => annualFeeUsd;
@@ -60,28 +87,36 @@ class RefillPricing {
   /// floating point can land a true .005 a hair below the midpoint, so the
   /// scaled value is nudged onto the nearest representable cent first.
   static double round2(double v) {
+    if (!v.isFinite) throw ArgumentError('Invalid monetary amount');
     final scaled = v * 100;
-    final nearest = scaled.roundToDouble();
-    if ((scaled - nearest).abs() < 1e-9) return nearest / 100;
+    final absolute = scaled.abs();
+    final whole = absolute.floorToDouble();
+    if ((absolute - whole - .5).abs() < 1e-9) {
+      return (scaled < 0 ? -1 : 1) * (whole + 1) / 100;
+    }
     return scaled.roundToDouble() / 100;
   }
 
-  /// [appFeePercent] and [gatewayFeePercentage] are percentages (3 means 3%).
+  /// Advisory wallet-refill arithmetic; percentages use 3 to mean 3%.
   /// [minAppFeeUsd] establishes a minimum floor for the app fee (default $0.03).
   static RefillQuote quote({
     required double baseCostUsd,
     required double appFeePercent,
     double minAppFeeUsd = 0.03,
-    double gatewayFeePercentage = 0,
-    double gatewayFeeFixed = 0,
   }) {
-    final gatewayFee = round2(
-      baseCostUsd * (gatewayFeePercentage / 100) + gatewayFeeFixed,
+    if (![
+      baseCostUsd,
+      appFeePercent,
+      minAppFeeUsd,
+    ].every((v) => v.isFinite && v >= 0)) {
+      throw ArgumentError('Invalid USD price inputs');
+    }
+    // A wallet-funded refill has no second deposit-gateway charge.
+    const gatewayFee = 0.0;
+    final percentageFee = baseCostUsd * appFeePercent / 100;
+    final appFee = round2(
+      percentageFee < minAppFeeUsd ? minAppFeeUsd : percentageFee,
     );
-    final calcAppFee = round2(baseCostUsd * (appFeePercent / 100));
-    final appFee = (appFeePercent > 0 && calcAppFee < minAppFeeUsd)
-        ? minAppFeeUsd
-        : calcAppFee;
     return RefillQuote(
       gatewayFee: gatewayFee,
       appFee: appFee,
@@ -120,49 +155,11 @@ class RefillPricing {
 
   /// Refills a premium subscription pre-pays for in a year.
   static int refillsPerYear(int inactivityLimitDays, {int? override}) {
-    final interval = refillIntervalDays(inactivityLimitDays, override: override);
+    final interval = refillIntervalDays(
+      inactivityLimitDays,
+      override: override,
+    );
     return interval <= 0 ? 0 : (365 / interval).ceil();
-  }
-
-  /// What one premium refill costs the subscriber, before the gateway's cut.
-  ///
-  ///     cost * (1 + appFee% + margin%) + marginPerRefill
-  ///
-  /// **No gateway fee here on purpose.** Premium is billed as a *single* yearly
-  /// charge, so the gateway is applied once to the whole total in
-  /// [premiumYearlyTotal]. The stored `carrier_rules.inapp_pricing` this
-  /// replaces did charge it per refill — collecting 13 x $0.324 "for PayPal"
-  /// against a bill PayPal only issues once. That surplus was never a fee; it
-  /// was margin, which is why it is now named rather than disguised.
-  ///
-  /// The margin has two parts because one number cannot describe it: it is
-  /// worth ~2.6% of a $277 plan but ~41% of a $13 one, since the flat component
-  /// does not scale. Hence both [premiumMarginPercent]
-  /// (`system_configs.PREMIUM_MARGIN_PERCENT`) and [premiumMarginPerRefillUsd]
-  /// (`PREMIUM_MARGIN_PER_REFILL_USD`) — set to 5 and 0.324 they reproduce the
-  /// old per-refill price exactly, and either moves in one row with no app
-  /// update.
-  ///
-  /// Returned unrounded: rounding each of ~13 refills before summing would
-  /// drift from the yearly total the subscriber is actually charged. Round at
-  /// the point of display or payment.
-  ///
-  /// [inappPricingOverride] keeps deliberate per-carrier prices working: a
-  /// positive value wins, anything else (including the 0 a null column parses
-  /// to) means "compute it".
-  static double premiumRefillPrice({
-    required double minimumTopupAmount,
-    required double appFeePercent,
-    required double premiumMarginPercent,
-    required double premiumMarginPerRefillUsd,
-    double? inappPricingOverride,
-  }) {
-    if (inappPricingOverride != null && inappPricingOverride > 0) {
-      return inappPricingOverride;
-    }
-    return minimumTopupAmount *
-            (1 + (appFeePercent + premiumMarginPercent) / 100) +
-        premiumMarginPerRefillUsd;
   }
 
   /// What to bill through a gateway so that exactly [net] survives its cut.
@@ -178,90 +175,16 @@ class RefillPricing {
     required double gatewayFeePercentage,
     required double gatewayFeeFixed,
   }) {
+    if (![
+          net,
+          gatewayFeePercentage,
+          gatewayFeeFixed,
+        ].every((v) => v.isFinite && v >= 0) ||
+        gatewayFeePercentage >= 100) {
+      throw ArgumentError('Invalid gateway price policy');
+    }
+    if (net == 0) return 0;
     final pct = gatewayFeePercentage / 100;
-    // A gateway taking 100% or more can never be covered; charging the raw net
-    // is wrong but at least finite, and such a row is a data error, not a price.
-    if (pct >= 1) return round2(net);
     return round2((net + gatewayFeeFixed) / (1 - pct));
-  }
-
-
-  /// Breakdown of the initial Premium checkout: Annual fee + 1st SIM recharge.
-  /// Subsequent refills are billed from the wallet only when due.
-  static PremiumInitialBreakdown premiumInitialBreakdown({
-    double baseServiceFeeUsd = 2.50,
-    double premiumFeeUsd = 5.00,
-    required double minimumTopupAmount,
-    required int inactivityLimitDays,
-    int? refillIntervalDaysOverride,
-    required double appFeePercent,
-    required double premiumMarginPercent,
-    required double premiumMarginPerRefillUsd,
-    double? inappPricingOverride,
-    bool isUpgrade = false,
-    double upgradeCreditUsd = 2.50,
-  }) {
-    final perRefill = round2(
-      premiumRefillPrice(
-        minimumTopupAmount: minimumTopupAmount,
-        appFeePercent: appFeePercent,
-        premiumMarginPercent: premiumMarginPercent,
-        premiumMarginPerRefillUsd: premiumMarginPerRefillUsd,
-        inappPricingOverride: inappPricingOverride,
-      ),
-    );
-    final interval = refillIntervalDays(
-      inactivityLimitDays,
-      override: refillIntervalDaysOverride,
-    );
-    final effectiveFee = isUpgrade
-        ? round2((premiumFeeUsd - upgradeCreditUsd).clamp(0.0, double.infinity))
-        : round2(premiumFeeUsd);
-    return PremiumInitialBreakdown(
-      annualFeeUsd: effectiveFee,
-      firstRefillUsd: perRefill,
-      totalUsd: round2(effectiveFee + perRefill),
-      refillIntervalDays: interval,
-      isUpgrade: isUpgrade,
-      upgradeCreditUsd: isUpgrade ? upgradeCreditUsd : 0.0,
-      fullAnnualFeeUsd: round2(premiumFeeUsd),
-    );
-  }
-
-  /// The initial up-front charge for Premium onboarding (Annual fee + 1st SIM recharge).
-  /// Future scheduled refills are billed individually from the wallet as they fall due.
-  static double premiumYearlyTotal({
-    double baseServiceFeeUsd = 2.50,
-    double premiumFeeUsd = 5.00,
-    required double minimumTopupAmount,
-    required int inactivityLimitDays,
-    int? refillIntervalDaysOverride,
-    required double appFeePercent,
-    required double premiumMarginPercent,
-    required double premiumMarginPerRefillUsd,
-    required double gatewayFeePercentage,
-    required double gatewayFeeFixed,
-    double? inappPricingOverride,
-    bool isUpgrade = false,
-    double upgradeCreditUsd = 2.50,
-  }) {
-    final perRefill = premiumRefillPrice(
-      minimumTopupAmount: minimumTopupAmount,
-      appFeePercent: appFeePercent,
-      premiumMarginPercent: premiumMarginPercent,
-      premiumMarginPerRefillUsd: premiumMarginPerRefillUsd,
-      inappPricingOverride: inappPricingOverride,
-    );
-    final effectiveFee = isUpgrade
-        ? (premiumFeeUsd - upgradeCreditUsd).clamp(0.0, double.infinity)
-        : premiumFeeUsd;
-    // PAY-PER-REFILL: 1st refill + annual service fee
-    final net = effectiveFee + perRefill;
-
-    return grossUpTotal(
-      net: net,
-      gatewayFeePercentage: gatewayFeePercentage,
-      gatewayFeeFixed: gatewayFeeFixed,
-    );
   }
 }

@@ -1,0 +1,799 @@
+# Working-tree snapshot for Second Number handoff — 17 October 2026
+
+Captured at 07:29 Asia/Muscat before the documentation-only handoff save. Status columns preserve index/worktree state. This snapshot includes unrelated pending work; it is not a staging or deployment manifest. The handoff save additionally creates this report and updates `.agents/memory/ACTIVE_HANDOFF.md`. Re-check current status before resuming.
+
+## keep_sims
+
+Branch: `main`. HEAD: `1231e56 chore: remove unused images and ignore generated captures`. Entries: 748.
+
+```text
+M  .agents/memory/ACTIVE_HANDOFF.md
+ M .codex/BUSINESS_RULES.md
+ M .codex/DATA_BACKEND_SECURITY.md
+M  .codex/PROJECT_MAP.md
+ M .codex/config.toml
+ M .zcode/mcp_call.mjs
+A  assets/icons/call_dialer.png
+A  assets/icons/free_app_call.png
+A  docs/apple_sign_in.md
+A  docs/implementation-plans/dashboard-sim-card-compact-plan-20261016.md
+A  docs/implementation-plans/second-number-call-plans-design-20261016.md
+M  docs/implementation-plans/smart-call-country-and-review-plan-20261014.md
+A  docs/reviews/dashboard-reference-redesign-20261016.md
+A  docs/reviews/dashboard-sim-card-compact-verification-20261016.md
+M  docs/reviews/smart-call-review-verification-20261014.md
+M  ios/Runner.xcodeproj/project.pbxproj
+A  ios/Runner/AppleSignIn.entitlements
+ M lib/core/providers/app_config_provider.dart
+ M lib/core/providers/app_config_provider.g.dart
+MM lib/core/router/app_router.dart
+ M lib/core/router/app_router.g.dart
+M  lib/core/router/placeholder_screens.dart
+ M lib/features/alert_alarm/controller/device_alarm_controller.g.dart
+M  lib/features/auth/contract/auth_contract.dart
+M  lib/features/auth/controller/auth_controller.dart
+ M lib/features/auth/controller/auth_controller.g.dart
+M  lib/features/auth/repository/auth_repository.dart
+M  lib/features/auth/ui/login_screen.dart
+ M lib/features/calling/data/models/available_virtual_number_model.dart
+ M lib/features/calling/data/models/call_rate_model.dart
+ M lib/features/calling/data/models/virtual_did_model.dart
+ M lib/features/calling/data/repositories/calling_repository.dart
+M  lib/features/calling/presentation/controllers/smart_call_dialer_controller.dart
+A  lib/features/calling/presentation/screens/call_history_screen.dart
+D  lib/features/calling/presentation/screens/calling_screen.dart
+MM lib/features/calling/presentation/screens/my_numbers_screen.dart
+M  lib/features/calling/presentation/screens/smart_call_dashboard_screen.dart
+MM lib/features/calling/presentation/widgets/buy_virtual_number_sheet.dart
+M  lib/features/calling/presentation/widgets/call_history_tile.dart
+M  lib/features/calling/presentation/widgets/call_review_sheet.dart
+M  lib/features/calling/presentation/widgets/caller_id_picker_sheet.dart
+A  lib/features/calling/presentation/widgets/calling_options_section.dart
+D  lib/features/calling/presentation/widgets/dialpad_widget.dart
+M  lib/features/calling/presentation/widgets/rate_savings_calculator_widget.dart
+ M lib/features/dashboard/presentation/controller/dashboard_controller.dart
+ M lib/features/dashboard/presentation/controller/dashboard_controller.g.dart
+M  lib/features/dashboard/presentation/ui/dashboard_screen.dart
+M  lib/features/dashboard/presentation/widgets/dashboard_feature_cards.dart
+M  lib/features/dashboard/presentation/widgets/dashboard_sim_line_card.dart
+A  lib/features/dashboard/presentation/widgets/dashboard_sim_line_carousel.dart
+M  lib/features/dashboard/presentation/widgets/sim_protection_hero_card.dart
+ M lib/features/geo/controller/geo_controller.g.dart
+ M lib/features/notifications/presentation/controllers/notification_settings_controller.g.dart
+ M lib/features/return_trip/data/datasources/return_trip_remote_datasource.dart
+ M lib/features/return_trip/data/repositories/return_trip_repository_impl.dart
+ M lib/features/return_trip/domain/entities/active_return_trip_info.dart
+ M lib/features/return_trip/domain/entities/return_trip_package.dart
+ M lib/features/return_trip/domain/repositories/return_trip_repository.dart
+ M lib/features/return_trip/presentation/controllers/return_trip_wizard_controller.dart
+ M lib/features/return_trip/presentation/controllers/return_trip_wizard_controller.g.dart
+ M lib/features/return_trip/presentation/widgets/wizard_step_package_selection.dart
+ M lib/features/sim_lines/domain/plan_payment.dart
+ M lib/features/sim_lines/presentation/controllers/sim_line_detail_controller.g.dart
+ M lib/features/sim_lines/presentation/controllers/sim_lines_controller.g.dart
+ M lib/features/sim_lines/presentation/widgets/line_upgrade_sheet.dart
+ M lib/features/voip_calling/data/models/ice_server_model.dart
+ M lib/features/voip_calling/data/repositories/voip_calling_repository.dart
+ M lib/features/voip_calling/data/services/webrtc_audio_service.dart
+ M lib/features/wallet/model/wallet_model.dart
+ M lib/features/wallet/repository/wallet_repository.dart
+ M lib/features/wallet/ui/wallet_screen.dart
+MM lib/l10n/app_ar.arb
+MM lib/l10n/app_en.arb
+MM lib/l10n/app_localizations.dart
+MM lib/l10n/app_localizations_ar.dart
+MM lib/l10n/app_localizations_bn.dart
+MM lib/l10n/app_localizations_en.dart
+MM lib/l10n/app_localizations_es.dart
+MM lib/l10n/app_localizations_hi.dart
+MM lib/l10n/app_localizations_ne.dart
+MM lib/l10n/app_localizations_si.dart
+MM lib/l10n/app_localizations_tr.dart
+MM lib/l10n/app_localizations_ur.dart
+M  macos/Flutter/GeneratedPluginRegistrant.swift
+ M mcp_supabase_setup.md
+A  output/apple-sign-in/auth-analysis.txt
+A  output/apple-sign-in/auth-tests.txt
+A  output/apple-sign-in/full-test-summary.json
+A  output/apple-sign-in/full-tests.jsonl
+A  output/apple-sign-in/ios-build.txt
+A  output/dashboard-design-options-20261016/design-notes-and-prompts.md
+A  output/dashboard-sim-card-compact/generation-prompt.txt
+A  output/dashboard-sim-card-compact/layout-measurements.json
+M  pubspec.lock
+M  pubspec.yaml
+ M supabase/.temp/cli-latest
+ M supabase/config.toml
+ M supabase/functions/admin-telnyx-billing/index.ts
+ M supabase/functions/capture-paypal-order/index.ts
+ M supabase/functions/create-paypal-order/index.ts
+ M supabase/functions/fetch_zendit_offers/index.ts
+ M supabase/functions/get-turn-credentials/index.ts
+ M supabase/functions/initiate-voip-call/index.ts
+ M supabase/functions/liveness-verification-webhook/index.ts
+ M supabase/functions/liveness-verification/index.ts
+ M supabase/functions/make-call/index.ts
+ M supabase/functions/manage-caller-id/index.ts
+ M supabase/functions/manage-dids/index.ts
+ M supabase/functions/paypal-webhook/index.ts
+ M supabase/functions/process-voicemail/index.ts
+ M supabase/functions/process-wallet-refund/index.ts
+ M supabase/functions/recovery-service/index.ts
+ M supabase/functions/send-sim-otp/index.ts
+ M supabase/functions/sms-webhook/index.ts
+ M supabase/functions/sync-esim-catalogue/index.ts
+ M supabase/functions/telnyx-cdr/call-media.ts
+ M supabase/functions/telnyx-cdr/index.ts
+ M supabase/functions/twilio-voice-webhook/index.ts
+ M supabase/functions/validate-sim-liveness/index.ts
+ M supabase/functions/verify-sim-otp/index.ts
+ M supabase/functions/wallet_transact/index.ts
+ D supabase/migrations/20260622042833_add_premium_auto_refill_toggle.sql
+ D supabase/migrations/20260622050720_separate_schedule_types.sql
+ D supabase/migrations/20260622051515_update_execute_due_topups_for_custom.sql
+ D supabase/migrations/20260622053000_enforce_whatsapp_plan_limits.sql
+ D supabase/migrations/20260622053100_enforce_whatsapp_line_tier_limits.sql
+ D supabase/migrations/20260625163457_create_test_cases_table.sql
+ D supabase/migrations/20260630000000_unified_refill_queue.sql
+ D supabase/migrations/20260701000000_telecom_routing_and_unified_queue.sql
+ D supabase/migrations/20260701100000_split_daemon_queue.sql
+ D supabase/migrations/20260703000000_payment_gateways.sql
+ D supabase/migrations/20260709234500_remove_execute_due_topups.sql
+ D supabase/migrations/20260709235000_reschedule_mini_refill_rpcs.sql
+ D supabase/migrations/20260710001000_fix_reschedule_mini_refill_target.sql
+ D supabase/migrations/20260712000000_add_offer_to_schedules_and_rules.sql
+ D supabase/migrations/20260712080000_update_last_topup_trigger.sql
+ D supabase/migrations/20260712080001_update_custom_refill_trigger.sql
+ D supabase/migrations/20260713000000_merge_telecom_routes_into_carriers.sql
+ D supabase/migrations/20260713000001_update_route_topup_trigger.sql
+ D supabase/migrations/20260713000002_fix_custom_refill_offer_id.sql
+ D supabase/migrations/20260713000004_update_notification_body_with_amount.sql
+ D supabase/migrations/20260716000000_revoke_client_wallet_writes.sql
+ D supabase/migrations/20260716010000_a4_security_sweep.sql
+ D supabase/migrations/20260716020000_b1_carrier_zen_brands_and_offer_backfill.sql
+ D supabase/migrations/20260716021000_b1_wallet_txn_idempotency.sql
+ D supabase/migrations/20260716022000_b2_debit_wallet_reference_id.sql
+ D supabase/migrations/20260716023000_b2_drop_legacy_wallet_fns_add_reconciliation.sql
+ D supabase/migrations/20260716030000_b3_paypal_deposit_receipts.sql
+ D supabase/migrations/20260716040000_b5_decouple_home_mode_protection.sql
+ D supabase/migrations/20260717000000_c1_notification_dispatch.sql
+ D supabase/migrations/20260717000100_c1_add_wallet_credit_category.sql
+ D supabase/migrations/20260717000200_c1_revoke_trigger_fn_execute.sql
+ D supabase/migrations/20260717010000_c2_alert_preferences.sql
+ D supabase/migrations/20260717020000_c3_instant_recharge.sql
+ D supabase/migrations/20260717030000_c3b_premium_margin_percent.sql
+ D supabase/migrations/20260717040000_c3b_premium_margin_two_parts.sql
+ D supabase/migrations/20260717050000_c3c_plan_billing.sql
+ D supabase/migrations/20260717060000_c3b2_cancel_and_claim_guard.sql
+ D supabase/migrations/20260717070000_c3b2_offers_cache_and_request_instant_refill.sql
+ D supabase/migrations/20260717080000_c3b2_scheduled_write_rpcs.sql
+ D supabase/migrations/20260717090000_c3b2_admin_rpcs_and_revoke.sql
+ D supabase/migrations/20260717100000_c3b2_offers_cache_send_divisor.sql
+ D supabase/migrations/20260717110000_c3b2_revoke_fee_trigger_execute.sql
+ D supabase/migrations/20260718020000_c4_offline_recharge.sql
+ D supabase/migrations/20260721000000_provider_offers_cache_and_dtone.sql
+ D supabase/migrations/20260721010000_dtone_carrier_mappings.sql
+ D supabase/migrations/20260722000000_c6_server_authored_activity_log.sql
+ D supabase/migrations/20260723000000_c7_support_tickets.sql
+ D supabase/migrations/20260724000000_c5_refer_and_earn.sql
+ D supabase/migrations/20260725000000_c8_travel_geo.sql
+ D supabase/migrations/20260726000000_c9a_esim_catalog.sql
+ D supabase/migrations/20260727000000_c9b_esim_purchase.sql
+ D supabase/migrations/20260728000000_d2_rate_limiting.sql
+ D supabase/migrations/20260729000000_d3_account_deletion.sql
+ D supabase/migrations/20260730000000_d3b_purge_pipeline_and_drift.sql
+ D supabase/migrations/20260730000001_d3b_fix_wallets_fk_cascade.sql
+ D supabase/migrations/20260731000000_d4b_paypal_orders_and_quoting.sql
+ D supabase/migrations/20260801000000_d5_server_enforced_plan_tiers.sql
+ D supabase/migrations/20260801010000_d5b_observability_and_plan_tier_hardening.sql
+ D supabase/migrations/20260801020000_d5c_fail_closed_guard_and_grants_fix.sql
+ D supabase/migrations/20260801030000_d5d_guard_grant_and_analytics_fix.sql
+ D supabase/migrations/20260801040000_f1_credit_wallet_refund_grant_lockdown.sql
+ D supabase/migrations/20260801050000_f2_debit_wallet_grant_lockdown.sql
+ D supabase/migrations/20260801060000_f2b_drop_ambiguous_debit_overload.sql
+ D supabase/migrations/20260801070000_f3_f4_rpc_grant_lockdown.sql
+ D supabase/migrations/20260801080000_f5_process_due_notifications_search_path.sql
+ D supabase/migrations/20260801090000_f6_table_grant_lockdown.sql
+ D supabase/migrations/20260801100000_f4b_is_power_user_security_invoker.sql
+ D supabase/migrations/20260802000000_g1_depletion_forecasting.sql
+ D supabase/migrations/20260803000000_g2_offer_price_watch.sql
+ D supabase/migrations/20260804000000_g3_gift_wallet_credit.sql
+ D supabase/migrations/20260805000000_g5_roam_or_esim_calculator.sql
+ D supabase/migrations/20260805010000_g5b_catalog_view_write_grant_lockdown.sql
+ D supabase/migrations/20260806000000_g6_household_spend_limits.sql
+ D supabase/migrations/20260806010000_g6b_household_spend_enforcement.sql
+ D supabase/migrations/20260807000000_g7_auto_rescue_topup.sql
+ D supabase/migrations/20260807010000_g7b_auto_rescue_engine.sql
+ D supabase/migrations/20260808000000_g9_offline_balance_by_sms.sql
+ D supabase/migrations/20260808010000_g9b_inbound_command_router.sql
+ D supabase/migrations/20260808020000_g9c_ingest_uses_shared_resolver.sql
+ D supabase/migrations/20260809000000_g10_device_registry.sql
+ D supabase/migrations/20260809010000_g10b_velocity_and_risk.sql
+ D supabase/migrations/20260809020000_g10c_money_path_wiring.sql
+ D supabase/migrations/20260809030000_g10d_durable_block_audit.sql
+ D supabase/migrations/20260809040000_g10e_app_check_logging.sql
+ D supabase/migrations/20260810000000_g11_fx_display_layer.sql
+ D supabase/migrations/20260810010000_g11b_fx_refresh_engine.sql
+ D supabase/migrations/20260811000000_h1_admin_control_plane.sql
+ D supabase/migrations/20260811010000_h2_typed_config_registry.sql
+ D supabase/migrations/20260811020000_h3_carrier_refill_control.sql
+ D supabase/migrations/20260811030000_h3b_carrier_rules_one_per_carrier.sql
+ D supabase/migrations/20260811040000_h3c_carrier_rule_upsert_notnull_seed.sql
+ D supabase/migrations/20260811050000_h4_notification_channel_catalog.sql
+ D supabase/migrations/20260811060000_h4b_channel_counts_match_provider_suffixes.sql
+ D supabase/migrations/20260811070000_h5_supply_registries.sql
+ D supabase/migrations/20260811080000_h5b_supply_registry_admin_rpcs.sql
+ D supabase/migrations/20260811090000_h7a_support_desk.sql
+ D supabase/migrations/20260811100000_h7b_user_ops.sql
+ D supabase/migrations/20260811110000_h7c_admin_overview.sql
+ D supabase/migrations/20260811120000_h7d_reply_dedupe_and_overview_fix.sql
+ D supabase/migrations/20260811130000_h5c_revoke_trigger_fn_execute.sql
+ D supabase/migrations/20260812000000_h8_household_hardening.sql
+ D supabase/migrations/20260812030620_b3_geo_line_mode_sync_flag.sql
+ D supabase/migrations/20260813000000_i1_multi_provider_refill_routing.sql
+ D supabase/migrations/20260813010000_i2_premium_entitlement_guard.sql
+ D supabase/migrations/20260814000000_i3_carrier_campaigns.sql
+ D supabase/migrations/20260814010000_i4_script_fulfilment_gateway.sql
+ D supabase/migrations/20260815000000_i5_supplier_policy_and_failover.sql
+ D supabase/migrations/20260816000000_i6_fix_sim_line_delete_triggers.sql
+ D supabase/migrations/20260817000000_i7_carrier_activity_semantics.sql
+ D supabase/migrations/20260817010000_i7b_real_carrier_rules.sql
+ D supabase/migrations/20260817020000_i7c_queue_on_deactivation_window.sql
+ D supabase/migrations/20260817030000_i7d_forecast_uses_deactivation_cadence.sql
+ D supabase/migrations/20260818000000_i8_carrier_self_service_registry.sql
+ D supabase/migrations/20260818010000_i8b_carrier_advice_notifications.sql
+ D supabase/migrations/20260818020000_i8c_revoke_admin_upsert_carrier_rule_public.sql
+ D supabase/migrations/20260819000000_j1_esim_catalogue_enrichment.sql
+ D supabase/migrations/20260819010000_j2_affiliate_rail.sql
+ D supabase/migrations/20260819020000_j2b_compare_and_click_rpcs.sql
+ D supabase/migrations/20260819030000_j3_catalogue_sync_control.sql
+ D supabase/migrations/20260819040000_j4_affiliate_admin_rpcs.sql
+ D supabase/migrations/20260819050000_j5_affiliate_network_sync_control.sql
+ D supabase/migrations/20260819060000_j6_config_meta_for_orphaned_keys.sql
+ D supabase/migrations/20260819070000_j7_admin_outbound_email.sql
+ D supabase/migrations/20260820000000_j8_premium_plan_pricing_and_wallet_purchase.sql
+ D supabase/migrations/20260821000000_k1_service_providers_and_carrier_split.sql
+ D supabase/migrations/20260821010000_k2_provider_offers_catalogue.sql
+ D supabase/migrations/20260821020000_k3_repoint_supplier_readers_and_pricing.sql
+ D supabase/migrations/20260821030000_k4_provider_admin_surface_and_legacy_drop.sql
+ D supabase/migrations/20260821040000_k5_client_carrier_offers_rpc_and_grant_cleanup.sql
+ D supabase/migrations/20260821050000_k6_drop_hardcoded_supplier_policy_provider_check.sql
+ D supabase/migrations/20260821060000_k7_add_omr_fx_rate.sql
+ D supabase/migrations/20260821070000_k8_enforce_provider_identifier_dialect.sql
+ D supabase/migrations/20260821080000_k9_offer_cost_currency_provenance.sql
+ D supabase/migrations/20260821090000_k10_qualifying_amount_floor.sql
+ D supabase/migrations/20260821110000_k12_ignore_inapp_pricing_for_api_carriers.sql
+ D supabase/migrations/20260822000000_l1_offline_voucher_rail.sql
+ D supabase/migrations/20260822010000_l2_offline_voucher_client_rpcs.sql
+ D supabase/migrations/20260822020000_l3_offline_voucher_admin_and_sweep.sql
+ D supabase/migrations/20260823000000_n1_compare_filter_ranges.sql
+ D supabase/migrations/20260825020000_enrich_provider_offers_metadata.sql
+ D supabase/migrations/20260825020000_m2_offline_voucher_tier_expansion.sql
+ D supabase/migrations/20260825030000_minimum_app_fee.sql
+ D supabase/migrations/20260826000000_sms_patterns_and_manual_recharge.sql
+ D supabase/migrations/20260829000000_zendit_esim_integration.sql
+ D supabase/migrations/20260830000000_esimaccess_integration.sql
+ D supabase/migrations/20260831000000_international_calling_and_cdr.sql
+ D supabase/migrations/20260831100000_confirm_line_verification_rpc.sql
+ D supabase/migrations/20260831110000_sim_lines_carrier_bss_liveness_verification.sql
+ D supabase/migrations/20260904000000_carrier_refill_offer_prefer_primary.sql
+ D supabase/migrations/20260904010000_single_flight_catalogue_refresh.sql
+ D supabase/migrations/20260904020000_admin_purge_user_account_rpc.sql
+ D supabase/migrations/20260904030000_selective_foreign_key_indexes.sql
+ D supabase/migrations/20260904040000_operationalize_scheduled_jobs.sql
+ D supabase/migrations/20260904050000_trim_realtime_publication.sql
+ D supabase/migrations/20260904060000_automated_log_retention.sql
+ D supabase/migrations/20260907100000_wallet_holds_lots_and_refunds.sql
+ D supabase/migrations/20260908120000_sim_setup_orders_and_pay_per_refill.sql
+ D supabase/migrations/20260908180000_v2_canonical_sim_setup_and_free_grants.sql
+ D supabase/migrations/20260908200000_fix_dispatch_sim_setup_verification_provider_and_base_cost.sql
+ D supabase/migrations/20260908210000_refill_mini_queue_and_wallet_reminders.sql
+ D supabase/migrations/20260908220000_auto_notify_schedule_and_instant_activation.sql
+ D supabase/migrations/20260908230000_real_live_verification_system.sql
+ D supabase/migrations/20260909010000_fix_standard_line_setup_and_sim_line_binding.sql
+ D supabase/migrations/20260910020000_p1_p2_app_fee_rules_and_canonical_entitlements.sql
+ D supabase/migrations/20260910020500_p6_system_config_meta_line_tiers.sql
+ D supabase/migrations/20260910021000_p6_admin_app_fee_rpcs.sql
+ D supabase/migrations/20260910021500_p3_update_fallback_sim_setup_to_reminders.sql
+ D supabase/migrations/20260910022000_p4_halo_effect_calling_and_esim.sql
+ D supabase/migrations/20260910022500_p4_update_request_esim_purchase_tier_pricing.sql
+ D supabase/migrations/20260910023500_p4_tier_aware_compare_esim_offers.sql
+ D supabase/migrations/20260910031500_p4_calling_rate_precision_and_draft_fallback.sql
+ D supabase/migrations/20260914000000_return_trips_and_packages.sql
+ D supabase/migrations/20260914010000_fix_record_manual_external_recharge.sql
+ D supabase/migrations/20260914020000_return_trip_history.sql
+ D supabase/migrations/20260914030000_tier_aware_scheduled_refill_pricing.sql
+ D supabase/migrations/20260914040000_update_health_score_four_pillars.sql
+ D supabase/migrations/20260914050000_retire_modes_and_unpause_lines.sql
+ D supabase/migrations/20260914060000_grant_carrier_verification_columns_update.sql
+ D supabase/migrations/20260915030000_phase1_atomic_settlement_and_recovery.sql
+ D supabase/migrations/20260915040000_phase2_intent_pricing_and_authorization.sql
+ D supabase/migrations/20260915050000_approve_refill_execution_rpc.sql
+ D supabase/migrations/20260915060000_phase3_scheduling_and_cross_flow_coordination.sql
+ D supabase/migrations/20260915070000_phase4_safe_product_replacement_and_supplier_failover.sql
+ D supabase/migrations/20260915080000_add_setup_refill_order_type.sql
+ D supabase/migrations/20260915080000_remediation_security_and_concurrency.sql
+ D supabase/migrations/20260915090000_remediation_carrier_flight_and_trigger_scope.sql
+ D supabase/migrations/20260915100000_align_max_authorized_usd_in_calculate_topup_fees.sql
+ D supabase/migrations/20260915110000_preserve_approved_executions_in_queue_sync.sql
+ D supabase/migrations/20260915110001_fresh_refill_price_approval.sql
+ D supabase/migrations/20260915120000_fix_sim_status_default_and_health_sync.sql
+ D supabase/migrations/20260915130000_fix_setup_schedule_pricing_and_queue_sync.sql
+ D supabase/migrations/20260915140000_fix_draft_health_and_universal_sync.sql
+ D supabase/migrations/20260915150000_enrich_setup_refill_metadata_and_activity.sql
+ D supabase/migrations/20260916000000_notification_experience_v2.sql
+ D supabase/migrations/20260916060000_update_health_score_three_pillars.sql
+ D supabase/migrations/20260916070000_allow_telegram_for_free_tier.sql
+ D supabase/migrations/20260916073000_seed_oman_return_trip_packages.sql
+ D supabase/migrations/20260917013745_international_calling_caller_id_policy.sql
+ D supabase/migrations/20260917021500_missing_recharge_date_reminders.sql
+ D supabase/migrations/20260917182910_calling_media_sessions.sql
+ D supabase/migrations/20260920000000_voip_internet_calling.sql
+ D supabase/migrations/20260921000000_calling_phase_a_baseline.sql
+ D supabase/migrations/20260921010000_calling_phase_b_billing.sql
+ D supabase/migrations/20260921020000_virtual_did_numbers.sql
+ D supabase/migrations/20260921030000_voicemail_messages.sql
+ D supabase/migrations/20260921040000_fix_voip_contact_lookup_sim_lines.sql
+ D supabase/migrations/20260924040000_carrier_call_forwarding_rules.sql
+ D supabase/migrations/20260926000000_admin_list_users_with_push_tokens.sql
+ D supabase/migrations/20260926010000_default_email_notification_channel.sql
+ D supabase/migrations/20260926093500_fix_sim_line_delete_activity_log_cascade.sql
+ D supabase/migrations/20260926100000_whatsapp_country_routing.sql
+ D supabase/migrations/20260926120000_alert_clock_and_durable_channel_dispatch.sql
+ D supabase/migrations/20260927012620_alert_channel_security_repair.sql
+ D supabase/migrations/20260927013150_alert_clock_accuracy_and_scheduler.sql
+ D supabase/migrations/20260927014455_notification_dispatch_outbox.sql
+ D supabase/migrations/20260927055336_notification_preferences_runtime.sql
+ D supabase/migrations/20260927062802_notification_preferences_runtime.sql
+ D supabase/migrations/20260927063324_alert_clock_source_gate_and_controls.sql
+ D supabase/migrations/20260927063841_weekly_digest_sunday_status.sql
+ D supabase/migrations/20260927063932_weekly_digest_category_fix.sql
+ D supabase/migrations/20260927064706_carrier_alert_rule_quality.sql
+ D supabase/migrations/20260927064814_carrier_rule_verification_guard.sql
+ D supabase/migrations/20260927120345_admin_notification_dispatch_incidents.sql
+ D supabase/migrations/20260927120843_enable_alert_clock_scheduler.sql
+ D supabase/migrations/20260927120915_monitored_alert_clock_cron.sql
+ D supabase/migrations/20260927121044_alert_clock_cron_health.sql
+ D supabase/migrations/20260927220000_voip_free_call_connection_repair.sql
+ D supabase/migrations/20261001030000_standard_whatsapp_catalog_and_entitlement_fix.sql
+ D supabase/migrations/20261001030205_notification_production_delivery_contracts.sql
+ D supabase/migrations/20261001030700_notification_scheduler_dependency_repair.sql
+ D supabase/migrations/20261001031000_repair_notification_trigger_outbox_contract.sql
+ D supabase/migrations/20261001031308_notification_delivery_maintenance_indexes.sql
+ D supabase/migrations/20261001033220_notification_paid_line_insert_guard.sql
+ D supabase/migrations/20261001033345_notification_setup_event_idempotency.sql
+ D supabase/migrations/20261001040000_add_sent_at_to_whatsapp_message_attempts.sql
+ D supabase/migrations/20261001225234_fix_sim_setup_insufficient_funds_contract.sql
+ D supabase/migrations/20261003041111_add_verified_notification_email.sql
+ D supabase/migrations/20261004120000_upgrade_standard_to_premium_pricing.sql
+ D supabase/migrations/20261014212438_resolve_free_call_recipient_exact.sql
+ D supabase/migrations/20261014214959_protect_caller_id_verification_fields.sql
+ M supabase/tests/f0_grant_matrix_tests.sql
+ M supabase/tests/wallet_accounting_invariants_tests.sql
+A  test/features/auth/apple_sign_in_controller_test.dart
+A  test/features/auth/apple_sign_in_repository_test.dart
+A  test/features/auth/apple_sign_in_screen_test.dart
+A  test/features/calling/call_history_screen_test.dart
+A  test/features/calling/calling_options_section_test.dart
+ M test/features/calling/my_numbers_screen_test.dart
+A  test/features/calling/smart_call_dashboard_review_test.dart
+M  test/features/calling/smart_call_dialer_controller_test.dart
+A  test/features/dashboard/dashboard_reference_design_test.dart
+A  test/features/dashboard/dashboard_sim_card_actions_test.dart
+A  test/features/dashboard/dashboard_sim_card_compact_test.dart
+ M test/features/return_trip/return_trip_test.dart
+M  test/features/voip_calling/free_call_review_test.dart
+ M test/sms_notification_auth.test.cjs
+ M testsprite_tests/tmp/config.json
+ M tools/build_free_call_sql_tests.py
+?? .github/workflows/secret-scan.yml
+?? docs/implementation-plans/supabase-financial-security-remediation-20261016.md
+?? docs/reviews/audit-baseline-20261016.md
+?? docs/reviews/audit-baseline-20261016/edge-source-inventory.json
+?? docs/reviews/audit-baseline-20261016/live-edge-source-comparison.json
+?? docs/reviews/audit-baseline-20261016/live-supabase-verification.json
+?? docs/reviews/audit-baseline-20261016/live-worker-vm-inventory.json
+?? docs/reviews/audit-baseline-20261016/postgrest-metadata.json
+?? docs/reviews/audit-baseline-20261016/source-baseline.json
+?? docs/reviews/audit-baseline-20261016/worker-vm-inventory.json
+?? docs/reviews/audit-executor-plan-20261016.md
+?? docs/reviews/audit-live-verification-20261016.md
+?? docs/reviews/credential-backend-release-20261017.md
+?? docs/reviews/credential-rotation-20261016.md
+?? docs/reviews/credential-rotation-implementation-20261016.md
+?? docs/reviews/endpoint-authentication-20261017.md
+?? docs/reviews/endpoint-authentication-live-20261017.json
+?? docs/reviews/financial-production-contracts-20261017.json
+?? docs/reviews/financial-production-contracts-20261017.md
+?? docs/reviews/macos-admin-google-sign-in-20261017.md
+?? docs/reviews/migration-cleanup-20261016/README.md
+?? docs/reviews/migration-cleanup-20261016/live-catalog.json
+?? docs/reviews/migration-cleanup-20261016/live-migration-history.json
+?? docs/reviews/migration-cleanup-20261016/live-verification-facts.json
+?? docs/reviews/migration-cleanup-20261016/manifest.json
+?? docs/reviews/migration-cleanup-20261016/remote-only-history.json
+?? docs/reviews/migration-cleanup-20261016/source-loader-verification.json
+?? docs/reviews/paypal-capture-fulfillment-20261017.md
+?? docs/reviews/paypal-capture-live-20261017.json
+?? docs/reviews/privileged-database-access-20261017.md
+?? docs/reviews/privileged-database-access-20261017/allowlist.json
+?? docs/reviews/privileged-database-access-20261017/live-catalog-summary.json
+?? docs/reviews/second-number-feasibility-and-ui-20261017.md
+?? docs/reviews/second-number-first-release-20261017.md
+?? docs/reviews/sim-setup-instant-live-20261017.json
+?? docs/reviews/sim-setup-instant-settlement-20261017.md
+?? docs/reviews/supabase-financial-security-remediation-20261016.md
+?? docs/reviews/wallet-legacy-reconciliation-20261017.json
+?? docs/reviews/wallet-legacy-reconciliation-20261017.sql
+?? lib/features/calling/contract/second_number_contract.dart
+?? lib/features/calling/data/models/second_number_models.dart
+?? lib/features/calling/data/models/second_number_models.freezed.dart
+?? lib/features/calling/data/models/second_number_models.g.dart
+?? lib/features/calling/presentation/controllers/second_number_controller.dart
+?? lib/features/calling/presentation/screens/second_number_overview.dart
+?? lib/features/calling/presentation/screens/second_number_sms_screen.dart
+?? supabase/functions/_shared/endpoint-auth.ts
+?? supabase/functions/_shared/liveness-callback.ts
+?? supabase/functions/_shared/paypal-capture.ts
+?? supabase/functions/_shared/provider-secrets.ts
+?? supabase/functions/_shared/second-number.ts
+?? supabase/functions/_shared/turn-credentials.ts
+?? supabase/functions/_shared/wallet-refunds.ts
+?? supabase/functions/_shared/webhook-auth.ts
+?? supabase/functions/_shared/webhook-events.ts
+?? supabase/functions/second-number-lifecycle/index.ts
+?? supabase/migration_archive/20261016/README.md
+?? supabase/migration_archive/20261016/applied_history/20260622042833_add_premium_auto_refill_toggle.sql
+?? supabase/migration_archive/20261016/applied_history/20260703000000_payment_gateways.sql
+?? supabase/migration_archive/20261016/applied_history/20260713000004_update_notification_body_with_amount.sql
+?? supabase/migration_archive/20261016/applied_history/20260716000000_revoke_client_wallet_writes.sql
+?? supabase/migration_archive/20261016/applied_history/20260716010000_a4_security_sweep.sql
+?? supabase/migration_archive/20261016/applied_history/20260716020000_b1_carrier_zen_brands_and_offer_backfill.sql
+?? supabase/migration_archive/20261016/applied_history/20260716021000_b1_wallet_txn_idempotency.sql
+?? supabase/migration_archive/20261016/applied_history/20260716022000_b2_debit_wallet_reference_id.sql
+?? supabase/migration_archive/20261016/applied_history/20260716023000_b2_drop_legacy_wallet_fns_add_reconciliation.sql
+?? supabase/migration_archive/20261016/applied_history/20260716030000_b3_paypal_deposit_receipts.sql
+?? supabase/migration_archive/20261016/applied_history/20260716040000_b5_decouple_home_mode_protection.sql
+?? supabase/migration_archive/20261016/applied_history/20260717000000_c1_notification_dispatch.sql
+?? supabase/migration_archive/20261016/applied_history/20260717000100_c1_add_wallet_credit_category.sql
+?? supabase/migration_archive/20261016/applied_history/20260717000200_c1_revoke_trigger_fn_execute.sql
+?? supabase/migration_archive/20261016/applied_history/20260717010000_c2_alert_preferences.sql
+?? supabase/migration_archive/20261016/applied_history/20260717020000_c3_instant_recharge.sql
+?? supabase/migration_archive/20261016/applied_history/20260717030000_c3b_premium_margin_percent.sql
+?? supabase/migration_archive/20261016/applied_history/20260717040000_c3b_premium_margin_two_parts.sql
+?? supabase/migration_archive/20261016/applied_history/20260717050000_c3c_plan_billing.sql
+?? supabase/migration_archive/20261016/applied_history/20260717060000_c3b2_cancel_and_claim_guard.sql
+?? supabase/migration_archive/20261016/applied_history/20260717070000_c3b2_offers_cache_and_request_instant_refill.sql
+?? supabase/migration_archive/20261016/applied_history/20260717080000_c3b2_scheduled_write_rpcs.sql
+?? supabase/migration_archive/20261016/applied_history/20260717090000_c3b2_admin_rpcs_and_revoke.sql
+?? supabase/migration_archive/20261016/applied_history/20260717100000_c3b2_offers_cache_send_divisor.sql
+?? supabase/migration_archive/20261016/applied_history/20260717110000_c3b2_revoke_fee_trigger_execute.sql
+?? supabase/migration_archive/20261016/applied_history/20260718020000_c4_offline_recharge.sql
+?? supabase/migration_archive/20261016/applied_history/20260722000000_c6_server_authored_activity_log.sql
+?? supabase/migration_archive/20261016/applied_history/20260723000000_c7_support_tickets.sql
+?? supabase/migration_archive/20261016/applied_history/20260724000000_c5_refer_and_earn.sql
+?? supabase/migration_archive/20261016/applied_history/20260725000000_c8_travel_geo.sql
+?? supabase/migration_archive/20261016/applied_history/20260726000000_c9a_esim_catalog.sql
+?? supabase/migration_archive/20261016/applied_history/20260727000000_c9b_esim_purchase.sql
+?? supabase/migration_archive/20261016/applied_history/20260728000000_d2_rate_limiting.sql
+?? supabase/migration_archive/20261016/applied_history/20260729000000_d3_account_deletion.sql
+?? supabase/migration_archive/20261016/applied_history/20260730000000_d3b_purge_pipeline_and_drift.sql
+?? supabase/migration_archive/20261016/applied_history/20260730000001_d3b_fix_wallets_fk_cascade.sql
+?? supabase/migration_archive/20261016/applied_history/20260731000000_d4b_paypal_orders_and_quoting.sql
+?? supabase/migration_archive/20261016/applied_history/20260801000000_d5_server_enforced_plan_tiers.sql
+?? supabase/migration_archive/20261016/applied_history/20260801010000_d5b_observability_and_plan_tier_hardening.sql
+?? supabase/migration_archive/20261016/applied_history/20260801020000_d5c_fail_closed_guard_and_grants_fix.sql
+?? supabase/migration_archive/20261016/applied_history/20260801030000_d5d_guard_grant_and_analytics_fix.sql
+?? supabase/migration_archive/20261016/applied_history/20260801040000_f1_credit_wallet_refund_grant_lockdown.sql
+?? supabase/migration_archive/20261016/applied_history/20260801050000_f2_debit_wallet_grant_lockdown.sql
+?? supabase/migration_archive/20261016/applied_history/20260801060000_f2b_drop_ambiguous_debit_overload.sql
+?? supabase/migration_archive/20261016/applied_history/20260801070000_f3_f4_rpc_grant_lockdown.sql
+?? supabase/migration_archive/20261016/applied_history/20260801080000_f5_process_due_notifications_search_path.sql
+?? supabase/migration_archive/20261016/applied_history/20260801090000_f6_table_grant_lockdown.sql
+?? supabase/migration_archive/20261016/applied_history/20260801100000_f4b_is_power_user_security_invoker.sql
+?? supabase/migration_archive/20261016/applied_history/20260802000000_g1_depletion_forecasting.sql
+?? supabase/migration_archive/20261016/applied_history/20260803000000_g2_offer_price_watch.sql
+?? supabase/migration_archive/20261016/applied_history/20260804000000_g3_gift_wallet_credit.sql
+?? supabase/migration_archive/20261016/applied_history/20260805000000_g5_roam_or_esim_calculator.sql
+?? supabase/migration_archive/20261016/applied_history/20260805010000_g5b_catalog_view_write_grant_lockdown.sql
+?? supabase/migration_archive/20261016/applied_history/20260806000000_g6_household_spend_limits.sql
+?? supabase/migration_archive/20261016/applied_history/20260806010000_g6b_household_spend_enforcement.sql
+?? supabase/migration_archive/20261016/applied_history/20260807000000_g7_auto_rescue_topup.sql
+?? supabase/migration_archive/20261016/applied_history/20260807010000_g7b_auto_rescue_engine.sql
+?? supabase/migration_archive/20261016/applied_history/20260808000000_g9_offline_balance_by_sms.sql
+?? supabase/migration_archive/20261016/applied_history/20260808010000_g9b_inbound_command_router.sql
+?? supabase/migration_archive/20261016/applied_history/20260808020000_g9c_ingest_uses_shared_resolver.sql
+?? supabase/migration_archive/20261016/applied_history/20260809000000_g10_device_registry.sql
+?? supabase/migration_archive/20261016/applied_history/20260809010000_g10b_velocity_and_risk.sql
+?? supabase/migration_archive/20261016/applied_history/20260809020000_g10c_money_path_wiring.sql
+?? supabase/migration_archive/20261016/applied_history/20260809030000_g10d_durable_block_audit.sql
+?? supabase/migration_archive/20261016/applied_history/20260809040000_g10e_app_check_logging.sql
+?? supabase/migration_archive/20261016/applied_history/20260810000000_g11_fx_display_layer.sql
+?? supabase/migration_archive/20261016/applied_history/20260810010000_g11b_fx_refresh_engine.sql
+?? supabase/migration_archive/20261016/applied_history/20260811000000_h1_admin_control_plane.sql
+?? supabase/migration_archive/20261016/applied_history/20260811010000_h2_typed_config_registry.sql
+?? supabase/migration_archive/20261016/applied_history/20260811020000_h3_carrier_refill_control.sql
+?? supabase/migration_archive/20261016/applied_history/20260811030000_h3b_carrier_rules_one_per_carrier.sql
+?? supabase/migration_archive/20261016/applied_history/20260811040000_h3c_carrier_rule_upsert_notnull_seed.sql
+?? supabase/migration_archive/20261016/applied_history/20260811050000_h4_notification_channel_catalog.sql
+?? supabase/migration_archive/20261016/applied_history/20260811060000_h4b_channel_counts_match_provider_suffixes.sql
+?? supabase/migration_archive/20261016/applied_history/20260811070000_h5_supply_registries.sql
+?? supabase/migration_archive/20261016/applied_history/20260811080000_h5b_supply_registry_admin_rpcs.sql
+?? supabase/migration_archive/20261016/applied_history/20260811090000_h7a_support_desk.sql
+?? supabase/migration_archive/20261016/applied_history/20260811100000_h7b_user_ops.sql
+?? supabase/migration_archive/20261016/applied_history/20260811110000_h7c_admin_overview.sql
+?? supabase/migration_archive/20261016/applied_history/20260811120000_h7d_reply_dedupe_and_overview_fix.sql
+?? supabase/migration_archive/20261016/applied_history/20260811130000_h5c_revoke_trigger_fn_execute.sql
+?? supabase/migration_archive/20261016/applied_history/20260812000000_h8_household_hardening.sql
+?? supabase/migration_archive/20261016/applied_history/20260812030620_b3_geo_line_mode_sync_flag.sql
+?? supabase/migration_archive/20261016/applied_history/20260813000000_i1_multi_provider_refill_routing.sql
+?? supabase/migration_archive/20261016/applied_history/20260813010000_i2_premium_entitlement_guard.sql
+?? supabase/migration_archive/20261016/applied_history/20260814000000_i3_carrier_campaigns.sql
+?? supabase/migration_archive/20261016/applied_history/20260814010000_i4_script_fulfilment_gateway.sql
+?? supabase/migration_archive/20261016/applied_history/20260815000000_i5_supplier_policy_and_failover.sql
+?? supabase/migration_archive/20261016/applied_history/20260817000000_i7_carrier_activity_semantics.sql
+?? supabase/migration_archive/20261016/applied_history/20260817010000_i7b_real_carrier_rules.sql
+?? supabase/migration_archive/20261016/applied_history/20260817020000_i7c_queue_on_deactivation_window.sql
+?? supabase/migration_archive/20261016/applied_history/20260817030000_i7d_forecast_uses_deactivation_cadence.sql
+?? supabase/migration_archive/20261016/applied_history/20260818000000_i8_carrier_self_service_registry.sql
+?? supabase/migration_archive/20261016/applied_history/20260818010000_i8b_carrier_advice_notifications.sql
+?? supabase/migration_archive/20261016/applied_history/20260818020000_i8c_revoke_admin_upsert_carrier_rule_public.sql
+?? supabase/migration_archive/20261016/applied_history/20260819000000_j1_esim_catalogue_enrichment.sql
+?? supabase/migration_archive/20261016/applied_history/20260819010000_j2_affiliate_rail.sql
+?? supabase/migration_archive/20261016/applied_history/20260819020000_j2b_compare_and_click_rpcs.sql
+?? supabase/migration_archive/20261016/applied_history/20260819030000_j3_catalogue_sync_control.sql
+?? supabase/migration_archive/20261016/applied_history/20260819040000_j4_affiliate_admin_rpcs.sql
+?? supabase/migration_archive/20261016/applied_history/20260819050000_j5_affiliate_network_sync_control.sql
+?? supabase/migration_archive/20261016/applied_history/20260819060000_j6_config_meta_for_orphaned_keys.sql
+?? supabase/migration_archive/20261016/applied_history/20260819070000_j7_admin_outbound_email.sql
+?? supabase/migration_archive/20261016/applied_history/20260820000000_j8_premium_plan_pricing_and_wallet_purchase.sql
+?? supabase/migration_archive/20261016/applied_history/20260821000000_k1_service_providers_and_carrier_split.sql
+?? supabase/migration_archive/20261016/applied_history/20260821010000_k2_provider_offers_catalogue.sql
+?? supabase/migration_archive/20261016/applied_history/20260821020000_k3_repoint_supplier_readers_and_pricing.sql
+?? supabase/migration_archive/20261016/applied_history/20260821030000_k4_provider_admin_surface_and_legacy_drop.sql
+?? supabase/migration_archive/20261016/applied_history/20260821040000_k5_client_carrier_offers_rpc_and_grant_cleanup.sql
+?? supabase/migration_archive/20261016/applied_history/20260821050000_k6_drop_hardcoded_supplier_policy_provider_check.sql
+?? supabase/migration_archive/20261016/applied_history/20260821060000_k7_add_omr_fx_rate.sql
+?? supabase/migration_archive/20261016/applied_history/20260821070000_k8_enforce_provider_identifier_dialect.sql
+?? supabase/migration_archive/20261016/applied_history/20260821080000_k9_offer_cost_currency_provenance.sql
+?? supabase/migration_archive/20261016/applied_history/20260821090000_k10_qualifying_amount_floor.sql
+?? supabase/migration_archive/20261016/applied_history/20260822000000_l1_offline_voucher_rail.sql
+?? supabase/migration_archive/20261016/applied_history/20260822010000_l2_offline_voucher_client_rpcs.sql
+?? supabase/migration_archive/20261016/applied_history/20260822020000_l3_offline_voucher_admin_and_sweep.sql
+?? supabase/migration_archive/20261016/applied_history/20260823000000_n1_compare_filter_ranges.sql
+?? supabase/migration_archive/20261016/applied_history/20260904010000_single_flight_catalogue_refresh.sql
+?? supabase/migration_archive/20261016/applied_history/20260904020000_admin_purge_user_account_rpc.sql
+?? supabase/migration_archive/20261016/applied_history/20260904030000_selective_foreign_key_indexes.sql
+?? supabase/migration_archive/20261016/applied_history/20260904040000_operationalize_scheduled_jobs.sql
+?? supabase/migration_archive/20261016/applied_history/20260904050000_trim_realtime_publication.sql
+?? supabase/migration_archive/20261016/applied_history/20260904060000_automated_log_retention.sql
+?? supabase/migration_archive/20261016/applied_history/20260907100000_wallet_holds_lots_and_refunds.sql
+?? supabase/migration_archive/20261016/applied_history/20260910020000_p1_p2_app_fee_rules_and_canonical_entitlements.sql
+?? supabase/migration_archive/20261016/applied_history/20260910020500_p6_system_config_meta_line_tiers.sql
+?? supabase/migration_archive/20261016/applied_history/20260910021000_p6_admin_app_fee_rpcs.sql
+?? supabase/migration_archive/20261016/applied_history/20260910021500_p3_update_fallback_sim_setup_to_reminders.sql
+?? supabase/migration_archive/20261016/applied_history/20260910022000_p4_halo_effect_calling_and_esim.sql
+?? supabase/migration_archive/20261016/applied_history/20260914030000_tier_aware_scheduled_refill_pricing.sql
+?? supabase/migration_archive/20261016/applied_history/20260914040000_update_health_score_four_pillars.sql
+?? supabase/migration_archive/20261016/applied_history/20260914050000_retire_modes_and_unpause_lines.sql
+?? supabase/migration_archive/20261016/applied_history/20260915110001_fresh_refill_price_approval.sql
+?? supabase/migration_archive/20261016/applied_history/20260917013745_international_calling_caller_id_policy.sql
+?? supabase/migration_archive/20261016/applied_history/20260917182910_calling_media_sessions.sql
+?? supabase/migration_archive/20261016/applied_history/20260920000000_voip_internet_calling.sql
+?? supabase/migration_archive/20261016/applied_history/20260921000000_calling_phase_a_baseline.sql
+?? supabase/migration_archive/20261016/applied_history/20260921010000_calling_phase_b_billing.sql
+?? supabase/migration_archive/20261016/applied_history/20260921020000_virtual_did_numbers.sql
+?? supabase/migration_archive/20261016/applied_history/20260921030000_voicemail_messages.sql
+?? supabase/migration_archive/20261016/applied_history/20260921040000_fix_voip_contact_lookup_sim_lines.sql
+?? supabase/migration_archive/20261016/applied_history/20260926120000_alert_clock_and_durable_channel_dispatch.sql
+?? supabase/migration_archive/20261016/applied_history/20260927012620_alert_channel_security_repair.sql
+?? supabase/migration_archive/20261016/applied_history/20260927013150_alert_clock_accuracy_and_scheduler.sql
+?? supabase/migration_archive/20261016/applied_history/20260927014455_notification_dispatch_outbox.sql
+?? supabase/migration_archive/20261016/applied_history/20260927055336_notification_preferences_runtime.sql
+?? supabase/migration_archive/20261016/applied_history/20260927062802_notification_preferences_runtime.sql
+?? supabase/migration_archive/20261016/applied_history/20260927063324_alert_clock_source_gate_and_controls.sql
+?? supabase/migration_archive/20261016/applied_history/20260927063841_weekly_digest_sunday_status.sql
+?? supabase/migration_archive/20261016/applied_history/20260927063932_weekly_digest_category_fix.sql
+?? supabase/migration_archive/20261016/applied_history/20260927064706_carrier_alert_rule_quality.sql
+?? supabase/migration_archive/20261016/applied_history/20260927064814_carrier_rule_verification_guard.sql
+?? supabase/migration_archive/20261016/applied_history/20260927120345_admin_notification_dispatch_incidents.sql
+?? supabase/migration_archive/20261016/applied_history/20260927120843_enable_alert_clock_scheduler.sql
+?? supabase/migration_archive/20261016/applied_history/20260927120915_monitored_alert_clock_cron.sql
+?? supabase/migration_archive/20261016/applied_history/20260927121044_alert_clock_cron_health.sql
+?? supabase/migration_archive/20261016/applied_history/20261001030000_standard_whatsapp_catalog_and_entitlement_fix.sql
+?? supabase/migration_archive/20261016/applied_history/20261001030205_notification_production_delivery_contracts.sql
+?? supabase/migration_archive/20261016/applied_history/20261001030700_notification_scheduler_dependency_repair.sql
+?? supabase/migration_archive/20261016/applied_history/20261001031000_repair_notification_trigger_outbox_contract.sql
+?? supabase/migration_archive/20261016/applied_history/20261001031308_notification_delivery_maintenance_indexes.sql
+?? supabase/migration_archive/20261016/applied_history/20261001033220_notification_paid_line_insert_guard.sql
+?? supabase/migration_archive/20261016/applied_history/20261001033345_notification_setup_event_idempotency.sql
+?? supabase/migration_archive/20261016/applied_history/20261001040000_add_sent_at_to_whatsapp_message_attempts.sql
+?? supabase/migration_archive/20261016/applied_history/20261001225234_fix_sim_setup_insufficient_funds_contract.sql
+?? supabase/migration_archive/20261016/applied_history/20261014212438_resolve_free_call_recipient_exact.sql
+?? supabase/migration_archive/20261016/applied_history/20261014214959_protect_caller_id_verification_fields.sql
+?? supabase/migration_archive/20261016/live_represented/20260625163457_create_test_cases_table.sql
+?? supabase/migration_archive/20261016/live_represented/20260630000000_unified_refill_queue.sql
+?? supabase/migration_archive/20261016/live_represented/20260701100000_split_daemon_queue.sql
+?? supabase/migration_archive/20261016/live_represented/20260709234500_remove_execute_due_topups.sql
+?? supabase/migration_archive/20261016/live_represented/20260712000000_add_offer_to_schedules_and_rules.sql
+?? supabase/migration_archive/20261016/live_represented/20260713000000_merge_telecom_routes_into_carriers.sql
+?? supabase/migration_archive/20261016/live_represented/20260721000000_provider_offers_cache_and_dtone.sql
+?? supabase/migration_archive/20261016/live_represented/20260816000000_i6_fix_sim_line_delete_triggers.sql
+?? supabase/migration_archive/20261016/live_represented/20260825020000_enrich_provider_offers_metadata.sql
+?? supabase/migration_archive/20261016/live_represented/20260825020000_m2_offline_voucher_tier_expansion.sql
+?? supabase/migration_archive/20261016/live_represented/20260826000000_sms_patterns_and_manual_recharge.sql
+?? supabase/migration_archive/20261016/live_represented/20260829000000_zendit_esim_integration.sql
+?? supabase/migration_archive/20261016/live_represented/20260830000000_esimaccess_integration.sql
+?? supabase/migration_archive/20261016/live_represented/20260831000000_international_calling_and_cdr.sql
+?? supabase/migration_archive/20261016/live_represented/20260831100000_confirm_line_verification_rpc.sql
+?? supabase/migration_archive/20261016/live_represented/20260831110000_sim_lines_carrier_bss_liveness_verification.sql
+?? supabase/migration_archive/20261016/live_represented/20260904000000_carrier_refill_offer_prefer_primary.sql
+?? supabase/migration_archive/20261016/live_represented/20260908120000_sim_setup_orders_and_pay_per_refill.sql
+?? supabase/migration_archive/20261016/live_represented/20260908180000_v2_canonical_sim_setup_and_free_grants.sql
+?? supabase/migration_archive/20261016/live_represented/20260908210000_refill_mini_queue_and_wallet_reminders.sql
+?? supabase/migration_archive/20261016/live_represented/20260908230000_real_live_verification_system.sql
+?? supabase/migration_archive/20261016/live_represented/20260909010000_fix_standard_line_setup_and_sim_line_binding.sql
+?? supabase/migration_archive/20261016/live_represented/20260910022500_p4_update_request_esim_purchase_tier_pricing.sql
+?? supabase/migration_archive/20261016/live_represented/20260910023500_p4_tier_aware_compare_esim_offers.sql
+?? supabase/migration_archive/20261016/live_represented/20260910031500_p4_calling_rate_precision_and_draft_fallback.sql
+?? supabase/migration_archive/20261016/live_represented/20260914000000_return_trips_and_packages.sql
+?? supabase/migration_archive/20261016/live_represented/20260914010000_fix_record_manual_external_recharge.sql
+?? supabase/migration_archive/20261016/live_represented/20260914020000_return_trip_history.sql
+?? supabase/migration_archive/20261016/live_represented/20260914060000_grant_carrier_verification_columns_update.sql
+?? supabase/migration_archive/20261016/live_represented/20260915030000_phase1_atomic_settlement_and_recovery.sql
+?? supabase/migration_archive/20261016/live_represented/20260915040000_phase2_intent_pricing_and_authorization.sql
+?? supabase/migration_archive/20261016/live_represented/20260915060000_phase3_scheduling_and_cross_flow_coordination.sql
+?? supabase/migration_archive/20261016/live_represented/20260915070000_phase4_safe_product_replacement_and_supplier_failover.sql
+?? supabase/migration_archive/20261016/live_represented/20260915080000_add_setup_refill_order_type.sql
+?? supabase/migration_archive/20261016/live_represented/20260915080000_remediation_security_and_concurrency.sql
+?? supabase/migration_archive/20261016/live_represented/20260915090000_remediation_carrier_flight_and_trigger_scope.sql
+?? supabase/migration_archive/20261016/live_represented/20260915120000_fix_sim_status_default_and_health_sync.sql
+?? supabase/migration_archive/20261016/live_represented/20260915130000_fix_setup_schedule_pricing_and_queue_sync.sql
+?? supabase/migration_archive/20261016/live_represented/20260915140000_fix_draft_health_and_universal_sync.sql
+?? supabase/migration_archive/20261016/live_represented/20260915150000_enrich_setup_refill_metadata_and_activity.sql
+?? supabase/migration_archive/20261016/live_represented/20260916000000_notification_experience_v2.sql
+?? supabase/migration_archive/20261016/live_represented/20260916060000_update_health_score_three_pillars.sql
+?? supabase/migration_archive/20261016/live_represented/20260916073000_seed_oman_return_trip_packages.sql
+?? supabase/migration_archive/20261016/live_represented/20260924040000_carrier_call_forwarding_rules.sql
+?? supabase/migration_archive/20261016/live_represented/20260926000000_admin_list_users_with_push_tokens.sql
+?? supabase/migration_archive/20261016/live_represented/20260926010000_default_email_notification_channel.sql
+?? supabase/migration_archive/20261016/live_represented/20260926093500_fix_sim_line_delete_activity_log_cascade.sql
+?? supabase/migration_archive/20261016/live_represented/20260926100000_whatsapp_country_routing.sql
+?? supabase/migration_archive/20261016/live_represented/20260927220000_voip_free_call_connection_repair.sql
+?? supabase/migration_archive/20261016/live_represented/20261003041111_add_verified_notification_email.sql
+?? supabase/migration_archive/20261016/superseded/20260622050720_separate_schedule_types.sql
+?? supabase/migration_archive/20261016/superseded/20260622051515_update_execute_due_topups_for_custom.sql
+?? supabase/migration_archive/20261016/superseded/20260622053000_enforce_whatsapp_plan_limits.sql
+?? supabase/migration_archive/20261016/superseded/20260622053100_enforce_whatsapp_line_tier_limits.sql
+?? supabase/migration_archive/20261016/superseded/20260701000000_telecom_routing_and_unified_queue.sql
+?? supabase/migration_archive/20261016/superseded/20260709235000_reschedule_mini_refill_rpcs.sql
+?? supabase/migration_archive/20261016/superseded/20260710001000_fix_reschedule_mini_refill_target.sql
+?? supabase/migration_archive/20261016/superseded/20260712080000_update_last_topup_trigger.sql
+?? supabase/migration_archive/20261016/superseded/20260712080001_update_custom_refill_trigger.sql
+?? supabase/migration_archive/20261016/superseded/20260713000001_update_route_topup_trigger.sql
+?? supabase/migration_archive/20261016/superseded/20260713000002_fix_custom_refill_offer_id.sql
+?? supabase/migration_archive/20261016/superseded/20260721010000_dtone_carrier_mappings.sql
+?? supabase/migration_archive/20261016/superseded/20260821110000_k12_ignore_inapp_pricing_for_api_carriers.sql
+?? supabase/migration_archive/20261016/superseded/20260825030000_minimum_app_fee.sql
+?? supabase/migration_archive/20261016/superseded/20260908200000_fix_dispatch_sim_setup_verification_provider_and_base_cost.sql
+?? supabase/migration_archive/20261016/superseded/20260908220000_auto_notify_schedule_and_instant_activation.sql
+?? supabase/migration_archive/20261016/superseded/20260915050000_approve_refill_execution_rpc.sql
+?? supabase/migration_archive/20261016/superseded/20260915100000_align_max_authorized_usd_in_calculate_topup_fees.sql
+?? supabase/migration_archive/20261016/superseded/20260915110000_preserve_approved_executions_in_queue_sync.sql
+?? supabase/migration_archive/20261016/superseded/20260916070000_allow_telegram_for_free_tier.sql
+?? supabase/migration_archive/20261016/superseded/20260917021500_missing_recharge_date_reminders.sql
+?? supabase/migration_archive/20261016/superseded/20261004120000_upgrade_standard_to_premium_pricing.sql
+?? supabase/migrations/20261016010000_financial_rpc_containment.sql
+?? supabase/migrations/20261016020000_wallet_funding_integrity.sql
+?? supabase/migrations/20261016025000_instant_refill_submission_boundary.sql
+?? supabase/migrations/20261016030000_compatible_sim_finalization.sql
+?? supabase/migrations/20261016040000_canonical_paid_pricing.sql
+?? supabase/migrations/20261016045000_canonical_esim_catalogue_prices.sql
+?? supabase/migrations/20261016050000_retail_customer_contracts.sql
+?? supabase/migrations/20261016060000_schedule_wallet_recovery.sql
+?? supabase/migrations/20261016205533_admin_provider_credentials.sql
+?? supabase/migrations/20261016210736_privileged_database_access.sql
+?? supabase/migrations/20261016235338_sim_setup_instant_settlement.sql
+?? supabase/migrations/20261017024520_second_number_inbox_and_lifecycle.sql
+?? supabase/migrations/20261017100000_endpoint_webhook_authentication.sql
+?? supabase/migrations/20261017110000_paypal_capture_fulfillment.sql
+?? supabase/migrations/README.md
+?? supabase/tests/endpoint_webhook_authentication_tests.sql
+?? supabase/tests/financial_fixture_tests.sql
+?? supabase/tests/financial_remediation_tests.sql
+?? supabase/tests/financial_transaction_contract_tests.sql
+?? supabase/tests/fixtures/capture_financial_production_snapshot.sql
+?? supabase/tests/fixtures/endpoint_webhook_authentication.sql
+?? supabase/tests/fixtures/financial_production_snapshot.json
+?? supabase/tests/fixtures/financial_remediation_baseline.sql
+?? supabase/tests/fixtures/paypal_capture_baseline.sql
+?? supabase/tests/fixtures/paypal_live_credit.sql
+?? supabase/tests/fixtures/privileged_database_access_functions.sql
+?? supabase/tests/fixtures/privileged_database_access_tables.sql
+?? supabase/tests/paypal_capture_fulfillment_catalog.sql
+?? supabase/tests/privileged_database_access_tests.sql
+?? supabase/tests/second_number_contract_tests.sql
+?? supabase/tests/wallet_funding_refund_integrity_tests.sql
+?? supabase/verification/financial_remediation_preflight.sql
+?? supabase/verification/install_second_number_scheduler.sql
+?? test/credential_rotation_consumers.test.cjs
+?? test/endpoint_webhook_auth.test.cjs
+?? test/features/calling/call_rate_customer_contract_test.dart
+?? test/features/calling/second_number_rollout_test.dart
+?? test/features/voip_calling/turn_credentials_test.dart
+?? test/features/wallet/refund_request_retry_test.dart
+?? test/features/wallet/transaction_direction_test.dart
+?? test/paypal_capture_fulfillment.test.cjs
+?? test/provider_secrets.test.cjs
+?? test/second_number_backend.test.cjs
+?? test/turn_credentials_security.test.cjs
+?? test/wallet_refund_backend.test.cjs
+?? test/wallet_refund_endpoint.test.cjs
+?? tools/financial-tests/README.md
+?? tools/financial-tests/bootstrap.mjs
+?? tools/financial-tests/concurrency.mjs
+?? tools/financial-tests/credentials.mjs
+?? tools/financial-tests/fixture-verification.mjs
+?? tools/financial-tests/fixture.mjs
+?? tools/financial-tests/funding-concurrency.mjs
+?? tools/financial-tests/package-lock.json
+?? tools/financial-tests/package.json
+?? tools/financial-tests/paypal-bootstrap.mjs
+?? tools/financial-tests/paypal-concurrency.mjs
+?? tools/financial-tests/paypal.mjs
+?? tools/financial-tests/privileges.mjs
+?? tools/financial-tests/production-fixture.mjs
+?? tools/financial-tests/refund-integration.mjs
+?? tools/financial-tests/refunds.mjs
+?? tools/financial-tests/run.mjs
+?? tools/financial-tests/second-number.mjs
+?? tools/financial-tests/setup-settlement.mjs
+?? tools/financial-tests/setup.mjs
+?? tools/financial-tests/sql-cases.mjs
+?? tools/financial-tests/webhook-auth-concurrency.mjs
+?? tools/financial-tests/webhook-auth.mjs
+?? tools/migration_archive.py
+?? tools/scan_embedded_secrets.py
+?? tools/test_scan_embedded_secrets.py
+```
+
+## keep_sims_admin
+
+Branch: `main`. HEAD: `93fc37e wip: latest admin updates`. Entries: 34.
+
+```text
+ M .flutter-plugins-dependencies
+ M lib/core/layout/admin_shell_screen.dart
+ M lib/core/providers.dart
+ M lib/core/providers.g.dart
+ M lib/core/router/app_router.dart
+ M lib/core/router/app_router.g.dart
+ M lib/core/supabase_client.dart
+ M lib/features/auth/repository/auth_repository.dart
+ M lib/features/sim_lines/data/datasources/twilio_verification_service.dart
+ M lib/features/sim_lines/presentation/controllers/line_verification_controller.dart
+ M lib/features/sim_lines/presentation/controllers/line_verification_controller.g.dart
+ M lib/features/whatsapp_management/controller/whatsapp_management_controller.g.dart
+ M macos/Runner.xcodeproj/project.pbxproj
+ M macos/Runner/Configs/Release.xcconfig
+ M macos/Runner/DebugProfile.entitlements
+ M macos/Runner/MainFlutterWindow.swift
+ M macos/Runner/Release.entitlements
+ M test/widget_test.dart
+?? lib/features/auth/repository/macos_google_sign_in.dart
+?? lib/features/credentials/contract/credentials_contract.dart
+?? lib/features/credentials/controller/credentials_controller.dart
+?? lib/features/credentials/controller/credentials_controller.g.dart
+?? lib/features/credentials/model/credential_status.dart
+?? lib/features/credentials/model/credential_status.freezed.dart
+?? lib/features/credentials/model/credential_status.g.dart
+?? lib/features/credentials/repository/credentials_repository.dart
+?? lib/features/credentials/ui/credentials_screen.dart
+?? macos/Runner.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
+?? macos/Runner.xcworkspace/xcshareddata/swiftpm/Package.resolved
+?? test/features/auth/macos_google_sign_in_test.dart
+?? test/features/credentials/credentials_repository_test.dart
+?? test/features/credentials/credentials_screen_test.dart
+?? test/features/sim_lines/legacy_verification_configuration_test.dart
+?? tools/build_macos_local.sh
+```

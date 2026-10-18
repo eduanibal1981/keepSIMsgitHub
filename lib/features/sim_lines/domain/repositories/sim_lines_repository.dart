@@ -1,3 +1,4 @@
+import 'package:keep_sims/features/sim_lines/domain/line_refill_quote.dart';
 import 'package:keep_sims/features/sim_lines/data/models/country_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/carrier_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/carrier_rule_model.dart';
@@ -11,7 +12,10 @@ import 'package:keep_sims/features/sim_lines/data/models/line_verification_quote
 
 abstract class SimLinesRepository {
   Future<List<SimLine>> getSimLines();
-  Future<SimLivenessResult> validateSimLiveness(String phoneNumber, {String? countryCode});
+  Future<SimLivenessResult> validateSimLiveness(
+    String phoneNumber, {
+    String? countryCode,
+  });
   Future<Map<String, dynamic>> sendSimOtp({
     required String phoneNumber,
     required String channel,
@@ -35,23 +39,24 @@ abstract class SimLinesRepository {
   Future<void> deleteLineActivityLog(String id);
   Future<void> cleanMockLogs(String simLineId);
   Future<void> clearAllActivityLogs(String simLineId);
+  Future<LineRefillQuote> fetchCustomerRefillQuote({
+    required String simLineId,
+    required String offerId,
+    int? offerValue,
+  });
+
   Future<String> requestInstantRefill({
     required String simLineId,
     required String offerId,
     required String paymentGatewayCode,
-    required double displayBaseUsd,
-    double? amountUsd,
+    required double authorizedTotalUsd,
+    int? offerValue,
   });
-  Future<int> queuePremiumRefillExecutions({
-    required String simLineId,
-    required String scheduledTopupId,
-    DateTime? planExpiresAt,
-  });
+  Future<void> initializeLineSchedules(String simLineId);
   Future<String?> triggerMissedCall(String phoneNumber);
   Future<bool> checkCallStatus(String callSid);
   Future<String?> triggerSmsVerification(String phoneNumber);
   Future<TelnyxSmsResult> checkSmsDeliveryStatus(String messageId);
-  Future<void> confirmLineVerification(String simLineId, {String channel = 'twilio_missed_call', String? carrierName});
   Future<void> cancelCall(String callSid);
   Future<LineVerificationQuote> quoteLineVerification(String simLineId);
   Future<Map<String, dynamic>> startLineVerification({
@@ -59,8 +64,13 @@ abstract class SimLinesRepository {
     required String method,
     String? idempotencyKey,
   });
-  Future<Map<String, dynamic>> getLineVerificationAttemptStatus(String attemptId);
-  Future<List<Map<String, dynamic>>> fetchZenditOffers(String countryId, String carrierId);
+  Future<Map<String, dynamic>> getLineVerificationAttemptStatus(
+    String attemptId,
+  );
+  Future<List<Map<String, dynamic>>> fetchZenditOffers(
+    String countryId,
+    String carrierId,
+  );
 
   /// I1: every offer this line can actually buy, across every enabled supplier,
   /// ranked cheapest-first by the same rule `request_instant_refill` uses to

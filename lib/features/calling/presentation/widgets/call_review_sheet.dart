@@ -15,7 +15,7 @@ import 'package:keep_sims/features/calling/presentation/controllers/smart_call_d
 import 'package:keep_sims/features/calling/presentation/widgets/destination_country_picker.dart';
 import 'package:keep_sims/features/calling/presentation/widgets/verify_caller_id_sheet.dart';
 
-/// Shared pre-call review for selected contacts, the manual dialer and redial.
+/// Shared pre-call review for selected contacts, number entry and redial.
 class CallReviewSheet extends ConsumerStatefulWidget {
   final String? suggestedCountryIso;
   const CallReviewSheet({super.key, this.suggestedCountryIso});
@@ -82,6 +82,7 @@ class _CallReviewSheetState extends ConsumerState<CallReviewSheet> {
     super.initState();
     final draft = ref.read(smartCallDialerProvider);
     _number.text = draft.rawNumber;
+    _editing = draft.rawNumber.trim().isEmpty;
     _pendingCountry = draft.suggestedCountryIso ?? widget.suggestedCountryIso;
     unawaited(_initializeIdentity());
   }
@@ -578,6 +579,16 @@ class _CallReviewSheetState extends ConsumerState<CallReviewSheet> {
                                 ),
                               if (_initializingIdentity)
                                 Text(_text('Loading…', 'جارٍ التحميل…')),
+                              const SizedBox(height: 4),
+                              Text(
+                                _text(
+                                  'Shown to the person you call',
+                                  'يظهر هذا الرقم لمن تتصل به',
+                                ),
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: color.onSurfaceVariant,
+                                ),
+                              ),
                             ],
                           ),
                         ),

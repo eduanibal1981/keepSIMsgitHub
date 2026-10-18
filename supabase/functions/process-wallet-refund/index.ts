@@ -1,291 +1,88 @@
+import { ProviderConfigurationError, requireProviderSecret } from "../_shared/provider-secrets.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { processRefundItem, reconcileRefundIdentity } from "../_shared/wallet-refunds.ts";
+import { bearer, safeEqual, EndpointError, requireAdmin } from "../_shared/endpoint-auth.ts";
 
-const corsHeaders = {
+const headers = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Content-Type": "application/json",
 };
+const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers });
 
-async function getPayPalAccessToken(apiBase: string, clientId: string, clientSecret: string): Promise<string> {
-  const auth = btoa(`${clientId}:${clientSecret}`);
-  const response = await fetch(`${apiBase}/v1/oauth2/token`, {
-    method: "POST",
-    headers: {
-      "Authorization": `Basic ${auth}`,
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: "grant_type=client_credentials",
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Failed to obtain PayPal access token (${response.status}): ${errorText}`);
-  }
-
-  const data = await response.json();
-  return data.access_token;
-}
-
-serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
-  }
-
+export async function handleRefundRequest(req: Request): Promise<Response> {
+  if (req.method === "OPTIONS") return new Response("ok", { headers });
+  if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
   try {
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const adminClient = createClient(supabaseUrl, supabaseServiceKey, {
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+    const url = Deno.env.get("SUPABASE_URL") || "";
+    if (!serviceKey || !url) throw new EndpointError(503, "Authentication is not configured");
+    const token = bearer(req);
+    const service = safeEqual(token, serviceKey);
+    const client = createClient(url, serviceKey, {
       auth: { persistSession: false, autoRefreshToken: false },
     });
-
-    // 1. Verify caller (Admin or Service Role or owner)
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      return new Response(
-        JSON.stringify({ success: false, error: "UNAUTHORIZED: Missing Authorization header" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    const { data: { user }, error } = service
+      ? { data: { user: null }, error: null }
+      : await client.auth.getUser(token);
+    if (!service && (error || !user)) return json({ error: "Authentication required" }, 401);
+    let body: any;
+    try { body = await req.json(); } catch (_) { return json({ error: "Invalid refund request" }, 400); }
+    const requestId = body?.refund_request_id;
+    const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (typeof requestId !== "string" || !uuid.test(requestId)) return json({ error: "Invalid refund request" }, 400);
+    const requestResult = await client.from("wallet_refund_requests").select("id,user_id,status").eq("id", requestId).maybeSingle();
+    if (requestResult.error) throw new Error("Refund lookup failed");
+    const request = requestResult.data;
+    if (!request || (!service && request.user_id !== user!.id && user!.app_metadata?.is_power_user !== true)) {
+      return json({ error: "Refund unavailable" }, 403);
     }
-
-    const token = authHeader.replace("Bearer ", "");
-    const { data: { user }, error: authError } = await adminClient.auth.getUser(token);
-
-    if (authError || !user) {
-      return new Response(
-        JSON.stringify({ success: false, error: "UNAUTHORIZED: Invalid JWT token" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    if (!service && request.user_id !== user!.id) await requireAdmin(req, url, serviceKey);
+    let reconciliationItem: any = null;
+    if (body.reconciliation !== undefined) {
+      if (!service) await requireAdmin(req, url, serviceKey);
+      const { item_id: itemId, provider_refund_id: providerId } = body.reconciliation || {};
+      if (typeof itemId !== "string" || !uuid.test(itemId) || typeof providerId !== "string") return json({ error: "Invalid reconciliation identity" }, 400);
+      const found = await client.from("wallet_refund_items").select("id,provider,capture_id,amount,currency")
+        .eq("id", itemId).eq("refund_request_id", requestId).maybeSingle();
+      if (found.error || !found.data) return json({ error: "Refund item unavailable" }, 403);
+      reconciliationItem = found.data;
     }
-
-    const body = await req.json();
-    const refundRequestId = body.refund_request_id;
-
-    if (!refundRequestId) {
-      return new Response(
-        JSON.stringify({ success: false, error: "BAD_REQUEST: Missing refund_request_id" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    const itemsResult = await client.rpc("list_wallet_refund_work", { p_request_id: requestId, p_limit: 5 });
+    if (itemsResult.error) throw new Error("Refund item lookup failed");
+    if (!itemsResult.data?.length && !reconciliationItem) return json({ success: true, status: request.status });
+    const apiBase = Deno.env.get("PAYPAL_API_BASE") || "https://api-m.sandbox.paypal.com";
+    if (!["https://api-m.sandbox.paypal.com", "https://api-m.paypal.com", "https://api.sandbox.paypal.com", "https://api.paypal.com"].includes(apiBase)) {
+      throw new ProviderConfigurationError();
     }
-
-    // 2. Fetch refund request and its items
-    const { data: request, error: reqErr } = await adminClient
-      .from("wallet_refund_requests")
-      .select("*")
-      .eq("id", refundRequestId)
-      .single();
-
-    if (reqErr || !request) {
-      return new Response(
-        JSON.stringify({ success: false, error: "NOT_FOUND: Refund request not found" }),
-        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    const [clientId, secret] = await Promise.all([
+      requireProviderSecret(client, "PAYPAL_CLIENT_ID"),
+      requireProviderSecret(client, "PAYPAL_CLIENT_SECRET"),
+    ]);
+    const auth = await fetch(`${apiBase}/v1/oauth2/token`, {
+      method: "POST", headers: { Authorization: `Basic ${btoa(`${clientId}:${secret}`)}`, "Content-Type": "application/x-www-form-urlencoded" },
+      body: "grant_type=client_credentials", signal: AbortSignal.timeout(20000),
+    });
+    if (!auth.ok) throw new Error("Refund provider unavailable");
+    const { access_token: accessToken } = await auth.json();
+    if (typeof accessToken !== "string" || !accessToken) throw new Error("Refund provider unavailable");
+    if (reconciliationItem) await reconcileRefundIdentity(client, reconciliationItem,
+      body.reconciliation.provider_refund_id, apiBase, accessToken, user?.id || null);
+    const outcomes = [];
+    let failed = false;
+    const items = [...new Set([...(reconciliationItem ? [reconciliationItem.id] : []), ...itemsResult.data.map((item: any) => item.id)])].slice(0, 5);
+    for (const itemId of items) {
+      try { outcomes.push(await processRefundItem(client, itemId, apiBase, accessToken)); }
+      catch (_) { failed = true; outcomes.push("reconciliation_required"); }
     }
-
-    // Check ownership or admin role
-    const isOwner = request.user_id === user.id;
-    const isPowerUser = user.app_metadata?.is_power_user === true;
-
-    if (!isOwner && !isPowerUser) {
-      return new Response(
-        JSON.stringify({ success: false, error: "FORBIDDEN: Not authorized to process this refund" }),
-        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    const { data: items, error: itemsErr } = await adminClient
-      .from("wallet_refund_items")
-      .select("*")
-      .eq("refund_request_id", refundRequestId)
-      .eq("status", "pending");
-
-    if (itemsErr || !items || items.length === 0) {
-      return new Response(
-        JSON.stringify({ success: true, message: "No pending refund items to process", request_status: request.status }),
-        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    // 3. Obtain PayPal access token
-    const paypalClientId = Deno.env.get("PAYPAL_CLIENT_ID")!;
-    const paypalClientSecret = Deno.env.get("PAYPAL_CLIENT_SECRET")!;
-    const paypalApiBase = Deno.env.get("PAYPAL_API_BASE") || "https://api-m.sandbox.paypal.com";
-
-    const accessToken = await getPayPalAccessToken(paypalApiBase, paypalClientId, paypalClientSecret);
-
-    let processedCount = 0;
-    let failedCount = 0;
-
-    for (const item of items) {
-      // Mark processing
-      await adminClient
-        .from("wallet_refund_items")
-        .update({ status: "processing", updated_at: new Date().toISOString() })
-        .eq("id", item.id);
-
-      try {
-        const refundRes = await fetch(`${paypalApiBase}/v2/payments/captures/${item.capture_id}/refund`, {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
-            "PayPal-Request-Id": item.idempotency_key,
-          },
-          body: JSON.stringify({
-            amount: {
-              value: Number(item.amount).toFixed(2),
-              currency_code: item.currency || "USD",
-            },
-            note_to_payer: "KeepSIMs unused wallet funds refund",
-          }),
-        });
-
-        const resText = await refundRes.text();
-        let resData: any = {};
-        try {
-          resData = JSON.parse(resText);
-        } catch (_) {}
-
-        if (refundRes.ok && (resData.status === "COMPLETED" || resData.status === "PENDING")) {
-          // Success: Update item to completed
-          await adminClient
-            .from("wallet_refund_items")
-            .update({
-              status: "completed",
-              provider_refund_id: resData.id,
-              completed_at: new Date().toISOString(),
-              updated_at: new Date().toISOString(),
-            })
-            .eq("id", item.id);
-
-          // Update lot remaining_amount
-          const { data: lot } = await adminClient
-            .from("wallet_funding_lots")
-            .select("remaining_amount")
-            .eq("id", item.lot_id)
-            .single();
-
-          if (lot) {
-            const newRemaining = Math.max(0, Number(lot.remaining_amount) - Number(item.amount));
-            await adminClient
-              .from("wallet_funding_lots")
-              .update({
-                remaining_amount: newRemaining,
-                status: newRemaining === 0 ? "fully_refunded" : "partially_refunded",
-                updated_at: new Date().toISOString(),
-              })
-              .eq("id", item.lot_id);
-          }
-
-          // Debit the wallet balance for the refund payout
-          const { data: wallet } = await adminClient
-            .from("wallets")
-            .select("balance")
-            .eq("id", request.wallet_id)
-            .single();
-
-          if (wallet) {
-            const newBal = Math.max(0, Number(wallet.balance) - Number(item.amount));
-            await adminClient
-              .from("wallets")
-              .update({
-                balance: newBal,
-                updated_at: new Date().toISOString(),
-              })
-              .eq("id", request.wallet_id);
-
-            // Insert completed ledger transaction
-            await adminClient
-              .from("wallet_transactions")
-              .insert({
-                wallet_id: request.wallet_id,
-                user_id: request.user_id,
-                type: "refund_payout",
-                amount: Number(item.amount),
-                balance_before: Number(wallet.balance),
-                balance_after: newBal,
-                description: `Refund payout to PayPal capture ${item.capture_id}`,
-                reference_id: `refund_${item.id}`,
-                status: "completed",
-                metadata: {
-                  refund_request_id: request.id,
-                  refund_item_id: item.id,
-                  paypal_refund_id: resData.id,
-                  capture_id: item.capture_id,
-                },
-              });
-          }
-
-          processedCount++;
-        } else {
-          console.error(`PayPal refund error for capture ${item.capture_id}:`, resText);
-          const failureMsg = resData.details?.[0]?.description || resData.message || `HTTP ${refundRes.status}`;
-          
-          await adminClient
-            .from("wallet_refund_items")
-            .update({
-              status: "failed",
-              failure_reason: failureMsg,
-              updated_at: new Date().toISOString(),
-            })
-            .eq("id", item.id);
-
-          failedCount++;
-        }
-      } catch (err: any) {
-        console.error(`Exception refunding item ${item.id}:`, err);
-        await adminClient
-          .from("wallet_refund_items")
-          .update({
-            status: "failed",
-            failure_reason: err.message,
-            updated_at: new Date().toISOString(),
-          })
-          .eq("id", item.id);
-
-        failedCount++;
-      }
-    }
-
-    // 4. Update overall request status and release/capture hold
-    const overallStatus = failedCount === 0 ? "completed" : (processedCount > 0 ? "partially_completed" : "failed");
-    await adminClient
-      .from("wallet_refund_requests")
-      .update({
-        status: overallStatus,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", refundRequestId);
-
-    // If hold exists, mark hold captured or released
-    if (request.hold_id) {
-      if (overallStatus === "completed") {
-        await adminClient
-          .from("wallet_holds")
-          .update({ status: "captured", captured_at: new Date().toISOString() })
-          .eq("id", request.hold_id);
-      } else if (overallStatus === "failed") {
-        await adminClient
-          .from("wallet_holds")
-          .update({ status: "released", released_at: new Date().toISOString(), reason: "Refund failed by provider" })
-          .eq("id", request.hold_id);
-      }
-    }
-
-    return new Response(
-      JSON.stringify({
-        success: true,
-        refund_request_id: refundRequestId,
-        status: overallStatus,
-        processed_count: processedCount,
-        failed_count: failedCount,
-      }),
-      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
-  } catch (err: any) {
-    console.error("process-wallet-refund internal error:", err);
-    return new Response(
-      JSON.stringify({ success: false, error: err.message || "Internal server error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    const latest = await client.from("wallet_refund_requests").select("status").eq("id", requestId).single();
+    if (latest.error) throw new Error("Refund status unavailable");
+    return json({ success: !failed, status: latest.data.status, outcomes }, failed ? 500 : 200);
+  } catch (error) {
+    if (error instanceof ProviderConfigurationError) return json({ success: false, error: error.message, code: error.code }, 503);
+    if (error instanceof EndpointError) return json({ success: false, error: error.message }, error.status);
+    return json({ success: false, error: "Refund processing requires retry or reconciliation" }, 500);
   }
-});
+}
+serve(handleRefundRequest);

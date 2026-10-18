@@ -1,3 +1,6 @@
+import { EndpointError } from "../_shared/endpoint-auth.ts";
+import { paypalSession, capturePayPalOrder, fulfillPayPalCapture } from "../_shared/paypal-capture.ts";
+import { ProviderConfigurationError } from "../_shared/provider-secrets.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { APP_CHECK_HEADER, verifyAppCheckToken } from "./app_check.ts";
@@ -8,30 +11,12 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-firebase-appcheck, x-keepsims-device",
 };
 
-async function getPayPalAccessToken(apiBase: string, clientId: string, clientSecret: string): Promise<string> {
-  const auth = btoa(`${clientId}:${clientSecret}`);
-  const response = await fetch(`${apiBase}/v1/oauth2/token`, {
-    method: "POST",
-    headers: {
-      "Authorization": `Basic ${auth}`,
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: "grant_type=client_credentials",
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Failed to obtain PayPal access token (${response.status}): ${errorText}`);
-  }
-
-  const data = await response.json();
-  return data.access_token;
-}
-
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
+
+  if (req.method !== "POST") return new Response("Method not allowed", { status: 405 });
 
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -139,12 +124,13 @@ serve(async (req) => {
     }
 
     // 3. Ownership & Existence Check via paypal_orders (BLOCKER 2: Hard 404 on missing, 403 on foreign)
-    const { data: existingOrder } = await adminClient
+    const { data: existingOrder, error: orderError } = await adminClient
       .from("paypal_orders")
       .select("*")
       .eq("order_id", orderId)
       .maybeSingle();
 
+    if (orderError) throw new EndpointError(503, "Order lookup unavailable");
     if (!existingOrder) {
       return new Response(
         JSON.stringify({ success: false, error: "NOT_FOUND: Order not found in local records" }),
@@ -159,99 +145,15 @@ serve(async (req) => {
       );
     }
 
-    // If order is already captured in paypal_orders, return idempotent success
-    if (existingOrder.status === "captured") {
-      return new Response(
-        JSON.stringify({ success: true, order_id: orderId, status: "captured", message: "ORDER_ALREADY_CAPTURED" }),
-        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    // 4. Call PayPal REST API to Capture Order
-    const paypalClientId = Deno.env.get("PAYPAL_CLIENT_ID")!;
-    const paypalClientSecret = Deno.env.get("PAYPAL_CLIENT_SECRET")!;
-    const paypalApiBase = Deno.env.get("PAYPAL_API_BASE") || "https://api-m.sandbox.paypal.com";
-
-    const accessToken = await getPayPalAccessToken(paypalApiBase, paypalClientId, paypalClientSecret);
-
-    const captureRes = await fetch(`${paypalApiBase}/v2/checkout/orders/${orderId}/capture`, {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-      },
-    });
-
-    const resText = await captureRes.text();
-    let resData: any = {};
-    try {
-      resData = JSON.parse(resText);
-    } catch (_) {}
-
-    // Check for exact ORDER_ALREADY_CAPTURED issue
-    const issueCode = resData.details?.[0]?.issue || resData.name || "";
-    const isAlreadyCapturedIssue = issueCode === "ORDER_ALREADY_CAPTURED";
-    const isCompleted = captureRes.ok && resData.status === "COMPLETED";
-
-    // BLOCKER 1 Fix: Success requires captureRes.ok && COMPLETED, or explicit ORDER_ALREADY_CAPTURED
-    if (!isCompleted && !isAlreadyCapturedIssue) {
-      console.error(`PayPal capture failed for order ${orderId}:`, resText);
-
-      // Update status to failed (NEVER mark captured from an error branch)
-      await adminClient
-        .from("paypal_orders")
-        .update({ status: "failed" })
-        .eq("order_id", orderId);
-
-      const errDescription = resData.details?.[0]?.description || issueCode || `HTTP ${captureRes.status}`;
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: `PAYPAL_CAPTURE_FAILED:${issueCode}`,
-          description: errDescription,
-          raw: resData,
-        }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    // Success path: Update paypal_orders status to captured
-    await adminClient
-      .from("paypal_orders")
-      .update({
-        status: "captured",
-        captured_at: new Date().toISOString(),
-      })
-      .eq("order_id", orderId);
-
-    // Credit wallet immediately and idempotently upon confirmed capture
-    if (existingOrder.kind === "deposit") {
-      const captureObj = resData.purchase_units?.[0]?.payments?.captures?.[0];
-      const captureId = captureObj?.id || orderId;
-      const grossAmount = Number(captureObj?.amount?.value || existingOrder.amount_usd);
-
-      try {
-        await adminClient.rpc("credit_wallet_for_deposit", {
-          p_user_id: user.id,
-          p_amount: grossAmount,
-          p_description: `PayPal deposit (order ${orderId})`,
-          p_reference_id: `paypal_${captureId}`,
-          p_metadata: {
-            order_id: orderId,
-            paypal_capture_id: captureId,
-            source: "capture_endpoint",
-          },
-        });
-      } catch (creditErr) {
-        console.warn("Direct credit during capture error (will be picked up by webhook/reconciler):", creditErr);
-      }
-    }
-
-    return new Response(
-      JSON.stringify({ success: true, order_id: orderId, status: "captured" }),
-      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    const session = await paypalSession(adminClient);
+    const evidence = await capturePayPalOrder(existingOrder, session);
+    const fulfilled = await fulfillPayPalCapture(adminClient, evidence, "capture_endpoint");
+    return new Response(JSON.stringify({ success: true, order_id: orderId,
+      capture_id: evidence.capture_id, status: "captured", duplicate: fulfilled.duplicate }),
+      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   } catch (err: any) {
+    if (err instanceof EndpointError) return new Response(JSON.stringify({ success: false, error: err.message }), { status: err.status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    if (err instanceof ProviderConfigurationError) return new Response(JSON.stringify({ success: false, error: err.message, code: err.code }), { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     console.error("capture-paypal-order internal error:", err);
     return new Response(
       JSON.stringify({ success: false, error: err.message || "Internal server error" }),

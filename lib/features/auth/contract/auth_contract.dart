@@ -12,6 +12,9 @@ abstract interface class AuthContract {
   /// Sign in with Google (native on mobile, OAuth on web).
   Future<Result<UserProfile>> signInWithGoogle();
 
+  /// Sign in using Apple's native iOS authorization sheet.
+  Future<Result<UserProfile>> signInWithApple();
+
   /// Sign in with Email and Password.
   Future<Result<UserProfile>> signInWithEmailAndPassword(
     String email,

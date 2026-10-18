@@ -6,12 +6,14 @@ const { stripTypeScriptTypes } = require('node:module');
 
 // Execute the production handlers with a fake provider/database; never dial phones.
 function source(file) {
-  return stripTypeScriptTypes(fs.readFileSync(file, 'utf8').replace(/^import .*;\r?\n/gm, '').replace(/export /g, ''), { mode: 'transform' });
+  return stripTypeScriptTypes(fs.readFileSync(file, 'utf8').replace(/^import .*;\r?\n/gm, '').replace(/export /g, ''));
 }
 function fixture(overrides = {}) {
   const record = { id: 'call-1', user_id: 'owner', call_type: 'app_to_phone_webrtc', status: 'initiated',
     destination_number: '+12025550123', effective_caller_id: '+12025550124', rate_per_minute_usd: .1,
-    telnyx_call_control_id_leg_a: 'app-leg', ...overrides };
+    telnyx_call_control_id_leg_a: 'app-leg', budget_contract_version: 1, max_duration_seconds: 300,
+    app_submission_at: '2026-09-17T18:16:00Z',
+    ...(overrides.telnyx_call_control_id_leg_b ? {destination_submission_at:'2026-09-17T18:16:00Z'} : {}), ...overrides };
   const session = { id: 'session-1', user_id: 'owner', call_record_id: record.id, app_answered: false, media_ready: false, dial_started: false };
   const provider = [], rpcCalls = [];
   const tables = { call_records: [record], call_media_sessions: [session], wallets: [{ user_id: 'owner', balance: 5 }], processed_webhook_events: [] };
@@ -26,6 +28,24 @@ function fixture(overrides = {}) {
       provider.push({ path: uri.pathname, body, method });
       if (method === 'DELETE') return new Response(null, { status: 204 });
       return Response.json({ data: { call_control_id: 'phone-leg', call_session_id: 'provider-session' } });
+    }
+    if (uri.pathname.endsWith('/rpc/begin_media_call_leg')) {
+      const field = body.p_leg === 'app' ? 'app_submission_at' : 'destination_submission_at';
+      if (record[field] || record.cancellation_requested_at) return Response.json({dispatch:false});
+      if (!record.max_duration_seconds) return Response.json({}, {status:409});
+      record[field] = '2026-09-17T18:16:00Z';
+      return Response.json({dispatch:true, call:record});
+    }
+    if (uri.pathname.endsWith('/rpc/record_media_call_evidence')) {
+      const field = body.p_leg === 'app' ? 'telnyx_call_control_id_leg_a' : 'telnyx_call_control_id_leg_b';
+      record[field] = body.p_payload.call_control_id;
+      if (body.p_event_type === 'call.bridged') { record.status='in_progress';record.answered_at=body.p_occurred_at; }
+      if (body.p_event_type === 'call.hangup' && body.p_leg === 'destination') {
+        record.destination_ended_at=body.p_occurred_at;record.destination_terminal_payload=body.p_payload;
+        record.destination_terminal_status=body.p_payload.sip_hangup_cause==='603'?'declined':'failed';
+      }
+      if (body.p_event_type === 'call.hangup' && body.p_leg === 'app') record.cancellation_requested_at=body.p_occurred_at;
+      return Response.json(null);
     }
     const table = uri.pathname.split('/').pop();
     if (method === 'POST') {
@@ -71,7 +91,7 @@ test('media and app answer in either order dial one destination with automatic b
     const body = f.provider[0].body;
     assert.equal(body.to, f.record.destination_number); assert.equal(body.from, f.record.effective_caller_id);
     assert.equal(body.link_to, 'app-leg'); assert.equal(body.bridge_on_answer, true);
-    assert.equal(body.time_limit_secs, 3000); assert.equal(body.command_id, 'session-1');
+    assert.equal(body.time_limit_secs, 300); assert.equal(body.command_id, 'session-1');
     await f.audio.ready('call-1', 'app_answered'); assert.equal(f.provider.length, 1);
   }
 });
@@ -92,14 +112,13 @@ test('leg identity mismatch does not mutate or bridge another call', async () =>
   await assert.rejects(f.event('call.answered', 'app', { call_control_id: 'other-leg' }), /mismatch/);
   assert.equal(f.provider.length, 0); assert.equal(f.session.app_answered, false);
 });
-test('hanging up either participant closes the other leg and invokes atomic settlement', async () => {
-  for (const leg of ['app', 'destination']) {
-    const f = fixture({ telnyx_call_control_id_leg_b: 'phone-leg', answered_at: '2026-09-17T18:17:00Z' });
-    await f.event('call.hangup', leg);
-    assert.equal(f.provider[0].path, `/v2/calls/${leg === 'app' ? 'phone-leg' : 'app-leg'}/actions/hangup`);
-    assert.equal(f.rpcCalls[0].name, 'finish_media_call');
-    assert.equal(f.rpcCalls[0].args.p_status, 'completed');
-  }
+test('app hangup closes the destination and waits for destination termination before settlement', async () => {
+  const f = fixture({ telnyx_call_control_id_leg_b: 'phone-leg', answered_at: '2026-09-17T18:17:00Z' });
+  await f.event('call.hangup', 'app');
+  assert.equal(f.provider[0].path, '/v2/calls/phone-leg/actions/hangup');
+  assert.equal(f.rpcCalls.length, 0);
+  await f.event('call.hangup', 'destination');
+  assert.equal(f.rpcCalls[0].name, 'finish_media_call');
 });
 test('603 takes precedence over user_busy for unbridged destinations', async () => {
   const f = fixture();
@@ -117,23 +136,23 @@ test('missing media configuration fails before issuing credentials or dialing', 
   const f = fixture(); await assert.rejects(f.audio.prepare('owner', ''), /not configured/);
   assert.equal(f.provider.length, 0);
 });
-test('provider failure is propagated instead of claiming audio is ready', async () => {
+test('provider failure retains a durable marker and retry cannot redial', async () => {
   const f = fixture(); f.session.media_ready = true;
-  f.sandbox.fetch = async url => {
-    if (url.includes('api.telnyx.com')) return new Response('{}', { status: 503 });
-    if (url.includes('call_media_sessions')) return Response.json([{ ...f.session, app_answered: true }]);
-    if (url.includes('wallets')) return Response.json([{ balance: 5 }]);
-    return Response.json([f.record]);
+  const original = f.sandbox.fetch;
+  let attempts=0;
+  f.sandbox.fetch = async (url, options) => {
+    if (url.includes('api.telnyx.com')) { attempts++; return new Response('{}', { status: 503 }); }
+    return original(url, options);
   };
   await assert.rejects(f.audio.ready('call-1', 'app_answered'), /provider request failed/);
-  assert.equal(f.record.status, 'initiated');
+  assert.equal(f.record.billing_state, 'reconciliation_required');
+  await f.audio.ready('call-1', 'app_answered');
+  assert.equal(attempts, 1);
 });
 
-test('insufficient balance for 1 second of talk time aborts destination dial', async () => {
-  const f = fixture();
-  f.tables.wallets[0].balance = 0.0001;
-  f.session.media_ready = true;
-  await assert.rejects(f.audio.ready('call-1', 'app_answered'), /Insufficient wallet balance/);
+test('missing accepted budget aborts dialing regardless of posted balance', async () => {
+  const f = fixture({max_duration_seconds:null});f.session.media_ready=true;
+  await assert.rejects(f.audio.ready('call-1', 'app_answered'), /budget state/);
   assert.equal(f.provider.length, 0);
 });
 
@@ -181,3 +200,18 @@ test('processed webhook events deduplication correctly tracks and rejects duplic
   assert.equal(rows[0].event_id, eventId);
 });
 
+
+test('deployed function bundles use the same call budget implementation', () => {
+  const shared=fs.readFileSync('supabase/functions/_shared/call-media.ts','utf8');
+  for(const name of ['make-call','telnyx-cdr'])assert.equal(fs.readFileSync(`supabase/functions/${name}/call-media.ts`,'utf8'),shared);
+});
+test('a missing provider timestamp cannot invent billable time', async () => {
+  const f=fixture();
+  await assert.rejects(f.sandbox.handle(f.audio,f.record,{event_type:'call.hangup',payload:{call_control_id:'app-leg',client_state:btoa(JSON.stringify({callRecordId:'call-1',mediaLeg:'app'}))}},async()=>({ok:true})),/timestamp/);
+  assert.equal(f.rpcCalls.length,0);
+});
+test('a failed settlement remains retryable with provider evidence intact', async () => {
+  const f=fixture({telnyx_call_control_id_leg_b:'phone-leg'});
+  await assert.rejects(f.sandbox.handle(f.audio,f.record,{event_type:'call.hangup',occurred_at:'2026-09-17T18:18:00Z',payload:{call_control_id:'phone-leg',client_state:btoa(JSON.stringify({callRecordId:'call-1',mediaLeg:'destination'}))}},async()=>({ok:false})),/finalize/);
+  assert.equal(f.record.billing_state,'reconciliation_required');assert.ok(f.record.destination_ended_at);
+});

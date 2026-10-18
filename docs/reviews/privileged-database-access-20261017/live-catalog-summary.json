@@ -1,0 +1,24 @@
+{
+  "captured_at": "2026-10-17 Asia/Muscat",
+  "project_id": "zwxswagokhgbuzrrbnhr",
+  "catalog_violation_rows": 2103,
+  "note": "Overlapping catalog assertions, not independent vulnerabilities. No production mutations were performed.",
+  "counts_by_problem": {
+    "PUBLIC function execution": 46,
+    "anonymous function outside allowlist": 46,
+    "authenticated function outside allowlist": 21,
+    "dangerous column REFERENCES: anon": 652,
+    "dangerous column REFERENCES: authenticated": 665,
+    "dangerous table privilege: anon MAINTAIN": 65,
+    "dangerous table privilege: anon REFERENCES": 55,
+    "dangerous table privilege: anon TRIGGER": 55,
+    "dangerous table privilege: anon TRUNCATE": 55,
+    "dangerous table privilege: authenticated MAINTAIN": 67,
+    "dangerous table privilege: authenticated REFERENCES": 56,
+    "dangerous table privilege: authenticated TRIGGER": 56,
+    "dangerous table privilege: authenticated TRUNCATE": 56,
+    "owner-only function exposed to service": 4,
+    "unsafe owner default: public": 48,
+    "unsafe privileged search path": 156
+  }
+}

@@ -2,7 +2,7 @@
 
 Date: 2026-10-14 (Asia/Muscat)
 Status: Implemented locally after user approval. Android debug build and emulator launch verified; no paid call placed.
-Recommended design: **Quick sheet** — a compact call review over the Smart Call dashboard when a number is already present. Keep a manual dialer for entry from an empty field. The alternative **Simple page** presents the same information on a dedicated screen.
+Recommended design: **Quick sheet** — a compact call review over the Smart Call dashboard. Per the 2026-10-15 screenshot clarification, the International Calls action always opens this sheet, including when the number field is empty; empty input starts in the sheet's number editor. The alternative **Simple page** presents the same information on a dedicated screen.
 
 ## Product outcome
 
@@ -10,9 +10,11 @@ After picking or entering a number, the user sees the destination in full intern
 
 Flow: select contact or type → tap Call a phone number → review → resolve country if needed → choose caller ID if desired → Call → existing active call screen.
 
-No second keypad, Recent Calls tab, savings calculator, route jargon, or wallet summary appears in this review. Retain access to history on the dashboard. Edit opens the existing number editor/keypad with the current number. During an active call, retain the existing DTMF keypad and call controls.
+No second keypad, Recent Calls tab, savings calculator, route jargon, or wallet summary appears in this review. Retain access to history on the dashboard. Edit opens the inline number editor and phone keyboard with the current number. During an active call, retain the existing DTMF keypad and call controls.
 
-## Evidence from current source
+## Findings before implementation (2026-10-14)
+
+These findings describe the original source before the implemented changes below, not the current behavior.
 
 CONFIRMED:
 
@@ -71,7 +73,7 @@ Keep resolved destination, selected identity, and price preview independent. Inc
 
 ### 2. Add the shared call review
 
-Add a reusable `call_review_sheet.dart` and a destination-country picker using the existing project UI patterns. All contact, paste, manual-entry, and redial entry points use the same draft/resolver. `SmartCallDashboardScreen` opens the review when a number exists. Empty input opens the manual dialer. Existing `CallingScreen` can use the same review after number entry; retain its keypad for entry/editing.
+Add a reusable `call_review_sheet.dart` and a destination-country picker using the existing project UI patterns. All contact, paste, manual-entry, and redial entry points use the same draft/resolver. `SmartCallDashboardScreen` always opens the review from International Calls. With empty input, focus the sheet's phone input and disable Call until the destination and quote are ready. A dedicated `CallHistoryScreen` at `/calling/recent` opens the same review for redial. The legacy `/calling/dialer` route redirects to history; its old keypad screen is retired.
 
 Country selection must list countries independently of active tariff rows. A country may have no callable route; that is shown by preview eligibility rather than hidden or guessed.
 
@@ -96,14 +98,14 @@ Extend meaningful tests in the existing calling suites and add focused resolver/
 - Gateway and every selectable verified caller ID are displayed and submitted consistently; unverified IDs cannot be used; switching back to gateway clears the prior personal ID.
 - Loading, failed quote, no route, insufficient funds, and policy restriction disable Call with the appropriate recovery.
 - Connection fee and billing increment appear accurately; any price/identity change requires the updated review to be visible.
-- Selecting/canceling the native picker preserves existing Android and iOS behavior, including contacts with multiple phone numbers. Edit/back returns without losing the draft. Empty manual dialer and in-call DTMF continue working.
+- Selecting/canceling the native picker preserves existing Android and iOS behavior, including contacts with multiple phone numbers. Edit/back returns without losing the draft. Empty dashboard input opens inline review entry; explicit history/legacy routes and in-call DTMF continue working.
 - Android emulator and iOS simulator checks at small screen sizes, large text, Arabic/RTL, light and dark themes.
 
 Run focused Flutter tests and analysis first; run broader calling suites and required checks after the implementation stabilizes. Do not place a real paid/provider call as part of automated preview validation. If backend source changes, verify live/source agreement and deploy only within explicit authorization.
 
 ## Working-file and scope constraints
 
-Customer application is the affected UI. Backend is shared with admin, so any API contract change must be checked in both clients. Preserve current unrelated and in-progress edits in `calling_screen.dart`, `smart_call_dashboard_screen.dart`, Android `MainActivity.kt`, iOS `AppDelegate.swift`, and the new system contact picker service. Do not replace these files wholesale. The implementation preserves the existing native contact picker and adds country-aware destination state, a shared call review sheet, a country picker independent of tariffs, and quote/identity checks. Caller-ID loading failures now fail closed instead of fabricating a gateway number.
+Customer application is the affected UI. Backend is shared with admin, so any API contract change must be checked in both clients. Preserve unrelated dashboard, Android `MainActivity.kt`, iOS `AppDelegate.swift`, and system contact picker work. The initial implementation preserved pending edits in `calling_screen.dart`; the subsequent 2026-10-15 cleanup explicitly retires that screen after moving history/redial into a dedicated page. The implementation preserves the existing native contact picker and adds country-aware destination state, a shared call review sheet, a country picker independent of tariffs, and quote/identity checks. Caller-ID loading failures now fail closed instead of fabricating a gateway number.
 
 Acceptance: a selected number reaches one compact review, missing country never produces a guessed destination/price, caller ID and rate agree with the server and submitted call, and the user can edit the destination without repeating contact selection.
 
@@ -117,3 +119,19 @@ Acceptance: a selected number reaches one compact review, missing country never 
 - Broader calling suite initially reported 77 pass / one failure: unchanged `my_numbers_screen_test.dart` expects the retired `KeepSIMs` header, while the unchanged screen displays `Virtual Numbers`. This assertion is outside this change. Focused checks and final counts are recorded in the task response.
 
 Final verification: 43 focused checks pass; calling analysis is clean; Android final debug build/install/launch passed. The complete calling directory has 83 passing tests and the same unchanged My Numbers header failure. App-wide verification is recorded in `docs/reviews/smart-call-review-verification-20261014.md` (697 pass / 20 failures outside this flow; 89 analysis findings elsewhere).
+
+## Screenshot follow-up (2026-10-15)
+
+The parser, review, identity and quote checks from commit `26a48f6` remain present. The pictured old keypad came from the dashboard's empty-number shortcut, which the original plan explicitly retained. The user's latest screenshot clarification supersedes that exception: International Calls now always opens Review call, and an empty draft starts in the inline number editor. A selected number still opens directly in review. Country confirmation, effective caller ID and authoritative pricing remain unchanged.
+
+The newer illustrated call cards are preserved. The dashboard header now fits within the available phone width, and the Free Call dashboard test uses the icon button's accessible tooltip. Four dashboard regression cases cover empty entry through country confirmation, a selected national number, an international number with caller ID/rate, and clearing/closing/reopening the draft.
+
+Reverification: 26 focused dashboard/free-review tests pass; the complete calling and VoIP suites have 146 passing tests and one existing My Numbers header assertion failure. Analysis across both calling features and their tests is clean. Android debug build passed; see the verification report for installation/runtime evidence and limits.
+
+## Approved legacy dialer cleanup (2026-10-15)
+
+Recent Calls now has its own adaptive screen at `/calling/recent`, using the existing history stream. Call again opens the shared Review call sheet, resolving the destination and obtaining a current quote/caller ID; a historical price or caller number never authorizes a new call. Loading, empty and retryable error states are retained. History records and server contracts are unchanged.
+
+Removed `calling_screen.dart`, its exclusive `dialpad_widget.dart`, and controller helpers used only by the retired keypad/country shortcuts. Old `/calling/dialer` links redirect to Recent Calls. The in-call DTMF sheet in `active_call_screen.dart` is separate and remains intact. New history checks cover redial, national-country confirmation, live updates, retry, and small Arabic light/dark layouts with enlarged text. Production-router integration checks cover the dashboard shortcut, Back and both old dialer URL forms.
+
+Cleanup verification: 19 focused checks pass; both calling suites have 153 passing checks and the same existing My Numbers header failure. Feature/router/test analysis is clean. Android debug build/install/launch passed with existing emulator app data retained. No real calls or messages were sent.

@@ -2,8 +2,7 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:keep_sims/core/theme/app_colors.dart';
+import 'package:intl/intl.dart' show DateFormat;
 import 'package:keep_sims/features/calling/data/models/call_record_model.dart';
 
 class CallHistoryTile extends StatelessWidget {
@@ -18,16 +17,36 @@ class CallHistoryTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final timeStr = DateFormat('MMM dd, hh:mm a').format(record.startedAt);
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final ar = Localizations.localeOf(context).languageCode == 'ar';
+    final timeStr = DateFormat(
+      'MMM dd, hh:mm a',
+      Localizations.localeOf(context).toLanguageTag(),
+    ).format(record.startedAt.toLocal());
     final isCompleted = record.status == 'completed';
+    final status = isCompleted
+        ? record.formattedDuration
+        : switch (record.status) {
+            'declined' => ar ? 'مرفوضة' : 'Declined',
+            'busy' => ar ? 'مشغول' : 'Busy',
+            'no_answer' => ar ? 'لم يتم الرد' : 'No answer',
+            'cancelled' => ar ? 'ملغاة' : 'Cancelled',
+            'failed' => ar ? 'فشلت' : 'Failed',
+            'initiated' => ar ? 'جارٍ الاتصال' : 'Calling',
+            'ringing' => ar ? 'جارٍ الرنين' : 'Ringing',
+            'in_progress' => ar ? 'جارية' : 'In progress',
+            _ => ar ? 'انتهت' : 'Ended',
+          };
+    final statusColor = isCompleted ? colors.primary : colors.error;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.darkCard,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.darkBorder),
+        border: Border.all(color: colors.outlineVariant),
       ),
       child: Row(
         children: [
@@ -36,8 +55,7 @@ class CallHistoryTile extends StatelessWidget {
             height: 44,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: (isCompleted ? AppColors.secondary : AppColors.error)
-                  .withValues(alpha: 0.15),
+              color: statusColor.withValues(alpha: 0.12),
             ),
             alignment: Alignment.center,
             child: Text(record.flagEmoji, style: const TextStyle(fontSize: 20)),
@@ -49,72 +67,51 @@ class CallHistoryTile extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Text(
-                      record.destinationCountryName ?? record.destinationNumber,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
+                    Expanded(
+                      child: Text(
+                        record.destinationCountryName ??
+                            record.destinationNumber,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.titleSmall,
                       ),
                     ),
-                    const Spacer(),
-                    if (isCompleted && record.totalCost > 0)
+                    if (isCompleted && record.totalCost > 0) ...[
+                      const SizedBox(width: 8),
                       Text(
                         '-\$${record.totalCost.toStringAsFixed(2)}',
-                        style: const TextStyle(
-                          color: AppColors.primary,
+                        textDirection: TextDirection.ltr,
+                        style: theme.textTheme.labelMedium?.copyWith(
+                          color: colors.primary,
                           fontWeight: FontWeight.w700,
-                          fontSize: 14,
                         ),
                       ),
+                    ],
                   ],
                 ),
                 const SizedBox(height: 4),
-                Row(
+                Text(
+                  record.destinationNumber,
+                  textDirection: TextDirection.ltr,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: colors.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 4,
                   children: [
                     Text(
-                      record.destinationNumber,
-                      style: const TextStyle(
-                        color: Colors.white70,
-                        fontSize: 12,
+                      status,
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: statusColor,
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    Text(
-                      '•',
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.3),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      isCompleted
-                          ? record.formattedDuration
-                          : record.status == 'declined'
-                          ? 'Declined'
-                          : record.status == 'busy'
-                          ? 'Busy'
-                          : record.status == 'no_answer'
-                          ? 'No Answer'
-                          : record.status == 'cancelled'
-                          ? 'Cancelled'
-                          : record.status == 'failed'
-                          ? 'Failed'
-                          : record.status,
-                      style: TextStyle(
-                        color: isCompleted
-                            ? AppColors.secondary
-                            : AppColors.error,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const Spacer(),
                     Text(
                       timeStr,
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.4),
-                        fontSize: 11,
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: colors.onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -124,11 +121,8 @@ class CallHistoryTile extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           IconButton(
-            icon: const Icon(
-              Icons.phone_forwarded,
-              color: AppColors.primary,
-              size: 20,
-            ),
+            tooltip: ar ? 'اتصل مرة أخرى' : 'Call again',
+            icon: Icon(Icons.phone_forwarded, color: colors.primary, size: 20),
             onPressed: onRedial,
           ),
         ],
